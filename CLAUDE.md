@@ -23,6 +23,7 @@ Update `docs/PLANO.md`: §1 (status, next steps, blockers), §2 (new decisions w
   ```
   cmake --preset linux-system && cmake --build --preset linux-system
   ```
+- Tests: `tests/smoke.sh <exe>` (headless decode/colour checks) and `tests/screen_test.py <exe> [vulkan|opengl]` (Xvfb, on-screen pixel exactness at 100 %).
 - CI: `.github/workflows/build.yml` (Windows x64, macOS arm64, Linux x64).
 
 ## Git

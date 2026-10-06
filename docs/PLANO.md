@@ -28,8 +28,8 @@
 | Data | 2026-10-06 |
 | Fase | **0: Fundação** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
-| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Pipeline de cor validado por testes de fumo: P3→scRGB sem limites, EXR > 1.0, orientação EXIF. CI para os 3 sistemas criado. |
-| Próximos passos | **1.** Confirmar o CI verde nos 3 sistemas (o 1.º build do vcpkg é longo) e corrigir o que falhar. **2.** Validar a janela QRhi em execução: Xvfb em Linux e, manualmente, em Windows/macOS com HDR. **3.** Fase 1 (§9). |
+| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. |
+| Próximos passos | **1.** Confirmar o CI verde nos 3 sistemas (o 1.º build do vcpkg é longo) e corrigir o que falhar. **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (artefactos do CI). **3.** Fase 1 (§9). |
 | Bloqueios | Nenhum. A decisão D-P01 (licença MIT do repositório) continua com o Nuno. |
 
 **O que existe no código** (`src/`, cerca de 1 500 linhas):
@@ -408,7 +408,7 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 
 ### Fase 0 — Fundação (M)
 - [x] `CMakeLists.txt`, `CMakePresets.json`, `vcpkg.json`, `CLAUDE.md`, `scripts/build-qt-linux.sh`
-- [x] Janela QRhi: escolhe a swapchain (SDR, scRGB ou HDR10) por sistema e regista `hdrInfo` em log *(compila; falta validar em execução)*
+- [x] Janela QRhi: escolhe a swapchain (SDR, scRGB ou HDR10) por sistema e regista `hdrInfo` em log *(validada em Linux/Xvfb; falta Windows, macOS e HDR real)*
 - [x] Descodificação mínima (OIIO + recurso Qt) → scRGB linear → textura → shader com modos de saída
 - [x] Ajustar, 100 %, zoom no cursor, pan, anterior/seguinte, arrastar e largar, `QFileOpenEvent` *(falta validar em execução)*
 - [~] CI GitHub Actions: Windows x64, macOS arm64, Linux x64 → build, testes de fumo e artefacto de instalação (zip). *DMG e AppImage ficam para a Fase 4.*
@@ -594,6 +594,8 @@ Origem das listas:
 - Widgets sem HDR; Qt Quick com HDR só via `QSG_RHI_HDR`.
 
 **Pipeline C++ (build local, Qt 6.11.2 compilado + OIIO 2.4 do apt)** `[teste]`:
+- `tests/screen_test.py` em Xvfb: rampa sRGB de 8 bits mostrada a 100 % sem nenhuma diferença face ao ficheiro (0 níveis, 0 % de píxeis), com Vulkan/lavapipe e OpenGL/llvmpipe.
+- Descodificação fundida (nativo → half): JPEG 2,5 MP em 54 ms; JPEG 24 MP em 0,9 s e PNG 16 bits 24 MP em 1,4 s, dominados pela leitura do OIIO 2.4. Pico de memória ≈ 270 MB para 24 MP.
 - Display P3 vermelho (ICC) → scRGB (1,2246; −0,0421; −0,0196). O valor analítico é (1,2249; −0,0421; −0,0196), igual dentro da precisão FP16: a transformação LittleCMS em float com `NOOPTIMIZE` não corta a gama.
 - EXR com valor 4,0 é preservado.
 - A orientação EXIF 6 é aplicada uma única vez.

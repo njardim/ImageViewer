@@ -7,6 +7,7 @@
 #include <QTextStream>
 
 #ifdef IMAGEVIEWER_VULKAN
+#include <QVersionNumber>
 #include <QVulkanInstance>
 #include <rhi/qrhi.h>
 #endif
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
 #ifdef IMAGEVIEWER_VULKAN
     QVulkanInstance instance;
     instance.setExtensions(QRhiVulkanInitParams::preferredInstanceExtensions());
+    instance.setApiVersion(QVersionNumber(1, 1));
     if (qEnvironmentVariable("IMAGEVIEWER_RHI") != QLatin1String("opengl") && instance.create())
         vulkan = &instance;
 #endif

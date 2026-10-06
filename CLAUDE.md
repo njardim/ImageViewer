@@ -7,10 +7,12 @@ Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.11**, mini
 
 ## Rules
 - **Language:** talk to the user and write docs in European Portuguese (pt-PT); code, identifiers, comments and commit messages in English.
-- **Keep the structure minimal** (decision D-08): one executable target, flat `src/`, one `CMakeLists.txt`. Split a file only when it exceeds ~800 lines. No new directories or abstraction layers without a recorded decision.
+- **Keep the structure minimal** (decision D-08): one executable target, flat `src/`, one `CMakeLists.txt`. Split a file only when it exceeds ~800 lines. No new directories or abstraction layers without a recorded decision. `packaging/` (D-20) holds vcpkg overlays, third-party licence texts and the CI licence gate — never application code.
 - **Never copy code from qView or ImageGlass** (GPL-3). They are behavioural references only (D-11).
 - **Licences:** only LGPL (dynamically linked) or permissive dependencies (GPL is incompatible with shipping under Apache-2.0). Excluded: exiv2, FFmpeg `gpl`/`nonfree`, x265, LibRaw GPL packs, Ghostscript, PyQt.
-- **Colour pipeline invariant:** decoders output native depth + colour descriptor; conversion to **linear scRGB (RGBA16F, premultiplied)** happens once on the CPU; the shader only does exposure, tone mapping and output encoding (ScRGB / PQ / SdrIcc). Never quantize below FP16 before output.
+- **Colour pipeline invariant:** decoders output native depth + colour descriptor + **straight alpha** (D-21); conversion to **linear scRGB (RGBA16F, premultiplied)** happens once on the CPU; the shader only does exposure, tone mapping, compositing over the background in linear light and output encoding (ScRGB / PQ / SdrIcc). Never quantize below FP16 before output. Descriptor priority: CICP > ICC > format attributes > assumed (D-22).
+- **Releases** (D-19, D-26): versions are X.Y[-suffix], never X.Y.Z; the version comes from the tag. Publishing a GitHub release `vX.Y[-suffix]` (or pushing the tag) builds, verifies and attaches the packages; nobody builds release binaries by hand.
+- **Licences in practice:** a dependency that pulls default features can silently override `"default-features": false` in our manifest (that is how x265 got in, D-25); the CI licence gate must stay green.
 - **Viewer is a `QWindow` with its own QRhi swapchain** (D-09) — Widgets cannot do HDR. Dialogs/menus may use Widgets.
 - **Evidence:** when adding claims to the plan, tag them `[código]`, `[doc]`, `[teste]`, `[conhecimento]` or `[inferência]`.
 

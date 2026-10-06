@@ -6,12 +6,13 @@
   "builtin-baseline": "434307da09bc05b2c86996dccc8b2351fc0d5d37",
   "dependencies": [
     {
+      "$comment": "No 'jpegxl': the baseline openimageio port deletes FindJXL.cmake and libjxl installs only pkg-config files, so OIIO is built without JPEG XL anyway.",
       "name": "openimageio",
       "default-features": false,
-      "features": ["gif", "jpegxl", "libheif", "libraw", "openjpeg", "webp"]
+      "features": ["gif", "libheif", "libraw", "openjpeg", "webp"]
     },
     {
-      "$comment": "No default features: 'hevc' pulls the x265 encoder (GPL-2.0). HEIC decoding uses libde265 (LGPL) regardless.",
+      "$comment": "AVIF only. The overlay port (packaging/vcpkg/ports/libheif) drops the default 'hevc' feature (x265 encoder, GPL-2.0) and libde265 (HEVC decoding, D-P03).",
       "name": "libheif",
       "default-features": false,
       "features": ["aom"]
@@ -21,5 +22,9 @@
       "name": "lcms",
       "default-features": false
     }
-  ]
+  ],
+  "vcpkg-configuration": {
+    "overlay-ports": ["packaging/vcpkg/ports"],
+    "overlay-triplets": ["packaging/vcpkg/triplets"]
+  }
 }

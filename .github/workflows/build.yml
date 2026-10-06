@@ -3,6 +3,7 @@ name: build
 on:
   push:
     branches: [main, "claude/**"]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -28,16 +29,19 @@ jobs:
             preset: windows
             triplet: x64-windows
             exe: build/windows/imageViewer.exe
+            package: windows-x64.zip
           - name: macOS arm64
             os: macos-15
             preset: macos
             triplet: arm64-osx-dynamic
             exe: build/macos/imageViewer.app/Contents/MacOS/imageViewer
+            package: macos-arm64.dmg
           - name: Linux x64
             os: ubuntu-24.04
             preset: linux
             triplet: x64-linux-dynamic
             exe: build/linux/imageViewer
+            package: linux-x64.tar.gz
 
     steps:
       - uses: actions/checkout@v4
@@ -78,9 +82,9 @@ jobs:
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
           aqtsource: git+https://github.com/miurahr/aqtinstall.git
-          # py7zr rejects a path in the 6.11 qtsvg archive (run 2: "Bad7zFile:
-          # Specified path is bad: include/QtSvg"); extract with the runner's 7-Zip.
-          extra: --external 7z
+          # Only what we use. Run 2: py7zr rejected a path in the qtsvg archive;
+          # run 3: parallel external 7-Zip extractions raced on the same folder.
+          archives: qtbase d3dcompiler_47 opengl32sw
           cache: true
 
       - name: vcpkg
@@ -137,9 +141,44 @@ jobs:
         shell: bash
         run: cmake --install build/${{ matrix.preset }} --prefix "$RUNNER_TEMP/dist"
 
+      - name: Package
+        id: package
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          [[ "$GITHUB_REF" == refs/tags/v* ]] || version="dev-${GITHUB_SHA::7}"
+          file="imageViewer-${version}-${{ matrix.package }}"
+          case "$RUNNER_OS" in
+            Windows) (cd "$RUNNER_TEMP/dist" && 7z a -tzip "$GITHUB_WORKSPACE/$file" . > /dev/null) ;;
+            macOS)   hdiutil create -volname imageViewer -srcfolder "$RUNNER_TEMP/dist/imageViewer.app" \
+                       -ov -format UDZO "$file" ;;
+            Linux)   tar -C "$RUNNER_TEMP/dist" -czf "$file" . ;;
+          esac
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: imageViewer-${{ matrix.preset }}-${{ github.sha }}
-          path: ${{ runner.temp }}/dist
+          name: imageViewer-${{ matrix.preset }}
+          path: ${{ steps.package.outputs.file }}
           if-no-files-found: error
+
+  # Tags v* publish the three packages as a draft GitHub Release (unsigned for now;
+  # signing and notarisation arrive with the Phase 4 secrets, docs/PLANO.md §11).
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: packages/*
+          generate_release_notes: true

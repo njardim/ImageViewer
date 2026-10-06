@@ -29,8 +29,9 @@
 | Fase | **0: Fundação** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
 | Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. |
-| Próximos passos | **1.** Confirmar o CI verde nos 3 sistemas (o 1.º build do vcpkg é longo) e corrigir o que falhar. **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (artefactos do CI). **3.** Fase 1 (§9). |
-| Bloqueios | Nenhum. A decisão D-P01 (licença MIT do repositório) continua com o Nuno. |
+| CI | Run 3: **macOS arm64 e Linux x64 verdes** (build, testes de fumo, teste de ecrã, pacote). **Windows:** só falta instalar o Qt 6.11.2 (o aqtinstall falha a extrair); a correção está no run 4. |
+| Próximos passos | **1.** Windows verde no CI. **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (pacotes do CI). **3.** Fase 1 (§9). **4.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
+| Bloqueios | Nenhum. A licença (D-P01) aguarda decisão do Nuno; a recomendação está em §13. |
 
 **O que existe no código** (`src/`, cerca de 1 500 linhas):
 - descodificação OIIO com recurso ao `QImageReader`;
@@ -76,6 +77,8 @@
 | D-09 | 2026-10-06 | O visualizador é uma `QWindow` com swapchain QRhi própria. Os diálogos secundários usam Widgets. | O backing store dos Widgets não suporta HDR `[código: qtbase 6.11, src/widgets, src/gui/painting]`. O HDR do Qt Quick só é ativável por variável de ambiente (`QSG_RHI_HDR`) `[código: qtdeclarative 6.11, qsgrhisupport.cpp:1542]`. |
 | D-10 | 2026-10-06 | O espaço de trabalho interno é **scRGB linear** (primárias BT.709, valores estendidos, 1.0 = branco SDR) em texturas RGBA16F pré-multiplicadas. | Coincide com a saída nativa do Windows (scRGB) e do macOS (EDR), e representa qualquer gama de cor. |
 | D-11 | 2026-10-06 | Não se copia código do qView nem do ImageGlass (ambos GPL-3). Servem apenas de referência de comportamento. | Compatibilidade com D-01. |
+| D-13 | 2026-10-06 | Os binários de distribuição são gerados **só pelo CI**. Uma tag `vX.Y.Z` cria uma *Release* em rascunho com os 3 pacotes; a compilação local serve apenas para desenvolvimento. | É reprodutível, centralizado e não depende da máquina de ninguém. O macOS só pode ser compilado num Mac e o CI tem runners dos 3 sistemas. |
+| D-14 | 2026-10-06 | Requisito E14 (overlay de informação configurável no ecrã inteiro) a partir do pedido do Nuno ao ImageGlass (#2475). | Pedido explícito; encaixa no overlay SDR do renderizador sem alterar o viewport. |
 | D-12 | 2026-10-06 | Transferências CICP 1/6/14/15 (BT.709/601/2020) são descodificadas com a EOTF BT.1886 (γ2.4, preto 0), não com a inversa da OETF. | O conteúdo destes códigos é *display-referred* (vídeo); é a convenção dos leitores de referência. A alternativa fica registada para os testes da Fase 1. |
 
 ---
@@ -103,6 +106,28 @@ O ImageGlass 10 já é multiplataforma e lê mais de 90 formatos `[doc]`. A dife
 - **E11. Ecrã inteiro e apresentação.**
 - **E12. Integração:** associações e instância única nos 3 sistemas; definições mínimas; tema automático; pt-PT e en-US.
 - **E13. Distribuição:** pacotes para os 3 sistemas gerados em CI, com assinatura opcional e recomendada.
+- **E14. Overlay de informação configurável** (D-14, origem: [ImageGlass #2475](https://github.com/d2phap/ImageGlass/issues/2475), aberto pelo Nuno a 2026-10-03; no ImageGlass está etiquetado *feature*/*ready* e previsto para a v10.1 `[doc: página do issue, lida a 2026-10-06 através de uma ferramenta que resume o conteúdo]`).
+  - **Comportamento:**
+    - informação compacta no topo da imagem em ecrã inteiro, desenhada por cima;
+    - não reserva espaço, e o viewport não muda quando o overlay aparece ou desaparece;
+    - mantém zoom, pan e modo de escala;
+    - atualiza quando a imagem ou algum valor muda.
+  - **Visibilidade:** sempre visível · oculto · mostrar ao passar o rato e esconder automaticamente (área de ativação no topo do ecrã).
+  - **Aparência:**
+    - opacidade do fundo ajustável, incluindo totalmente transparente;
+    - opacidade do texto independente da do fundo;
+    - sombra ou contorno opcional no texto.
+  - **Campos configuráveis:**
+    - nome do ficheiro com extensão;
+    - dimensões nativas (largura × altura);
+    - tamanho do ficheiro (KB/MB);
+    - zoom em %;
+    - perfil ou espaço de cor;
+    - data de modificação.
+  - **Extensões nossas:**
+    - mesmo mecanismo também em modo janela (opcional);
+    - campos adicionais: modo de saída SDR/HDR e pico, e posição na pasta;
+    - o texto é composto ao nível do branco SDR, pelo que nunca encandeia em HDR.
 
 **Opcional depois da v1, por ordem de valor:**
 - **O1.** Gain maps (ISO 21496-1 / UltraHDR / Apple), se não entrarem na Fase 5.
@@ -288,6 +313,16 @@ Os ficheiros só se dividem quando ultrapassarem cerca de 800 linhas.
 | Mostrar na pasta | `explorer /select,` | `NSWorkspace activateFileViewerSelecting` | D-Bus FileManager1 `ShowItems` |
 | Instância única | `QLocalServer` | Sistema (Apple Events) | `QLocalServer` |
 
+### 6.4 Política de integração de formatos
+
+1. **Uma via por formato, escolhida por prioridade:** OIIO → FFmpeg → lunasvg → Qt (→ GraphicsMagick, se D-P05 o aprovar). Não se acrescenta um segundo descodificador para um formato já coberto sem um defeito demonstrado no primeiro.
+2. **Dependências só pelo `vcpkg.json`,** com a baseline fixa. A versão sobe deliberadamente e a mudança passa pelo CI.
+3. **Licença:** só LGPL (ligação dinâmica) ou permissivas. Antes de ativar qualquer feature do vcpkg verifica-se a licença dela: a feature por omissão `hevc` do libheif traz o x265, que é GPL.
+4. **Nenhum formato sem teste.** Cada formato entra com um ficheiro de teste pequeno em `tests/data/` e uma verificação em `tests/smoke.sh`: descodifica, dimensões certas, descritor de cor e orientação corretos.
+5. **Fidelidade:** o descodificador tem de entregar a profundidade nativa e os metadados de cor (ICC, CICP, atributos). É proibido converter para 8 bits ou para sRGB dentro do backend.
+6. **Segurança:** os descodificadores correm no processo da aplicação; o fuzzing chega na Fase 5. Um formato raro com parser de risco pode ser isolado num processo à parte.
+7. **O Anexo A é o contrato.** Cada formato tem estado (v1, a verificar, fora) e o estado só muda com um teste.
+
 ---
 
 ## 7. Critérios de fidelidade
@@ -349,6 +384,8 @@ A aplicação garante fidelidade **até ao buffer entregue ao sistema**. O que a
 - rotação da vista;
 - informação;
 - ecrã inteiro.
+
+**Overlay de informação (E14):** em ecrã inteiro, por omissão no modo "mostrar ao passar o rato e esconder automaticamente", com os campos configuráveis do E14. O overlay de diagnóstico atual da Fase 0 é o ponto de partida técnico: textura SDR composta por cima, sem afetar o layout.
 
 **Painel de informação (tecla I):**
 - ficheiro, dimensões, codec;
@@ -441,6 +478,13 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 
 ### Fase 3 — Visualizador e UX (L)
 - [ ] Cache e pré-carregamento, *file watcher*, overlays, painel de informação, menu de contexto, barra de menus macOS, definições, temas, i18n, acessibilidade, ações de ficheiro
+- [ ] **E14 / ImageGlass #2475 — overlay de informação configurável:**
+  - [ ] Overlay no topo em ecrã inteiro, sem reservar espaço; zoom, pan e escala inalterados ao mostrar ou esconder.
+  - [ ] Modos de visibilidade: sempre visível · oculto · mostrar ao passar o rato e esconder automaticamente (zona de ativação no topo; atraso configurável).
+  - [ ] Aparência: opacidade do fundo (0–100 %, incluindo transparente), opacidade do texto independente, sombra ou contorno do texto.
+  - [ ] Campos configuráveis e ordenáveis: nome+extensão, dimensões nativas, tamanho do ficheiro, zoom %, perfil ou espaço de cor, data de modificação (+ modo de saída SDR/HDR, posição na pasta).
+  - [ ] Atualização ao mudar de imagem, de zoom ou de modo de saída; definições persistentes (`QSettings`).
+  - [ ] Teste automático: o viewport e a transformação da imagem são idênticos com o overlay visível e oculto (captura no Xvfb); o texto no overlay está ao nível do branco SDR.
 
 **Aceitação:**
 - F8.
@@ -515,6 +559,29 @@ O deploy do Qt faz-se com `qt_generate_deploy_app_script`. As DLL e dylibs do vc
 
 O primeiro build de dependências demora 30 a 90 minutos por sistema `[estimativa]`; depois fica em cache binária do vcpkg (provider `files` + `actions/cache`).
 
+**Publicar uma versão (D-13):**
+1. `git tag v0.1.0 && git push origin v0.1.0`.
+2. O CI compila nos 3 sistemas, testa, empacota (`.zip`, `.dmg`, `.tar.gz`) e cria uma *Release* em **rascunho** no GitHub com os 3 ficheiros. Tags com hífen (por exemplo `v0.1.0-alpha`) ficam marcadas como pré-release.
+3. Revê-se e publica-se o rascunho.
+
+Instalador Inno Setup, AppImage e assinatura chegam na Fase 4.
+
+**Para assinar** (Fase 4), os segredos no GitHub são:
+- **macOS:** `APPLE_CERTIFICATE_P12`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_ID`, `APPLE_TEAM_ID`, `APPLE_APP_PASSWORD`;
+- **Windows:** credenciais do Azure Trusted Signing ou de um certificado OV.
+
+**Desenvolvimento local no Windows** (opcional; não é preciso para publicar):
+- Visual Studio 2022 ou 2026 (ou as Build Tools) com o workload "Desktop development with C++" (MSVC, Windows SDK, CMake e Ninja incluídos).
+- Git.
+- vcpkg: `git clone https://github.com/microsoft/vcpkg C:\dev\vcpkg`, depois `bootstrap-vcpkg.bat`, depois `setx VCPKG_ROOT C:\dev\vcpkg`.
+- Qt 6.11.2 através do **Qt Online Installer** (o instalador do Qt Creator traz só o IDE). Componentes: *MSVC 2022 64-bit*, *Qt Shader Tools* e *Qt Image Formats*; Qt Creator é opcional como IDE.
+- Comandos, num "x64 Native Tools Command Prompt":
+  - `cmake --preset windows -DCMAKE_PREFIX_PATH=C:\Qt\6.11.2\msvc2022_64`
+  - `cmake --build --preset windows`
+
+  O 1.º build das dependências demora cerca de 1 h.
+- Cada máquina só compila para o seu sistema: Mac para macOS, Linux (ou WSL2) para Linux.
+
 ---
 
 ## 12. Riscos
@@ -538,7 +605,7 @@ Nenhuma bloqueia a Fase 0. A proposta indicada é a adotada por omissão.
 
 | ID | Questão | Proposta |
 |---|---|---|
-| D-P01 | **O repositório tem licença MIT, mas o produto é proprietário (D-01).** | Substituir por licença proprietária e manter o repositório privado. **Decisão do Nuno.** |
+| D-P01 | **Licença** (põe em causa a D-01). O Nuno inclina-se para open source. | **Recomendação (2026-10-06): open source com Apache-2.0** (licença das ferramentas ASWF como OIIO, OCIO e OpenRV, e com concessão de patentes), mais: marca registada "Cristallumnis" fora da licença, CLA ou DCO para contribuições, e os módulos de IA da Cristallumnis como plugins proprietários separados (*open core*). As regras de dependências (§5) mantêm-se. **Decisão do Nuno.** |
 | D-P02 | Plataformas e arquiteturas | Windows x64 · macOS arm64 (Intel só se houver procura) · Linux x64. Windows arm64 depois. |
 | D-P03 | HEIC (patentes HEVC) | Incluir libde265 só com parecer jurídico; caso contrário, descodificadores do sistema. |
 | D-P04 | Tone mapping por omissão quando o conteúdo excede o ecrã | EETF BT.2390, com modo "sinal" (sem TM, com aviso de clipping). |

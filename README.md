@@ -15,11 +15,13 @@ cmake --build --preset <windows|macos|linux>
 tests/smoke.sh build/<preset>/imageViewer  # teste sem interface do pipeline de cor
 ```
 
+Em Linux, com Xvfb: `tests/screen_test.py <exe> [vulkan|opengl]` (píxeis no ecrã a 100 %) e `tests/render_test.py <exe> [vulkan|opengl]` (estágio de saída SDR/EDR/scRGB/PQ e tone mapping, lidos da GPU).
+
 Para desenvolver em Linux sem vcpkg, use `scripts/build-qt-linux.sh` (compila o Qt a partir do código-fonte) e depois o preset `linux-system`.
 
 ## Utilização
 
-`imageViewer [ficheiro|pasta]`. Use `imageViewer --info <ficheiro>` para ver o que o pipeline de cor deteta.
+`imageViewer [ficheiro|pasta]`. Use `imageViewer --info <ficheiro>` para ver o que o pipeline de cor deteta, e `imageViewer --render <ficheiro> --output sdr|edr|scrgb|pq` para desenhar a imagem fora do ecrã e comparar a GPU com a referência em CPU (`--help` lista as opções).
 
 | Tecla | Ação |
 |---|---|
@@ -32,7 +34,8 @@ Para desenvolver em Linux sem vcpkg, use `scripts/build-qt-linux.sh` (compila o 
 | H | Espelhar |
 | I | Informação |
 | E / Shift+E | Exposição ±½ EV |
-| C | Aviso de clipping |
+| T | Tone mapping BT.2390 ligado / desligado (desligado: corte no pico) |
+| C | Aviso de píxeis alterados (cortados ou com tone mapping) |
 | Ctrl/⌘+O | Abrir |
 | Botão direito | Menu |
 

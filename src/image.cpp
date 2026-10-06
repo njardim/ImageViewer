@@ -105,7 +105,7 @@ bool parseOiioColorSpace(const QString &name, Descriptor *d)
 }
 
 // Fills `d` from the metadata OpenImageIO attached to the image.
-void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, Descriptor *d)
+void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format, Descriptor *d)
 {
     if (const OIIO::ParamValue *p = spec.find_attribute("ICCProfile");
         p && p->type().basetype == OIIO::TypeDesc::UINT8 && p->type().size() > 0) {
@@ -138,7 +138,11 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, Descriptor *d)
         d->description = QStringLiteral("linear, cromaticidades do ficheiro");
         return;
     }
-    const QString cs = QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
+    // PFM carries no colour metadata and is linear by convention (HDR radiance maps), but
+    // OIIO 2.4 labels every PNM variant "Rec709"; decoding that as BT.1886 turned 36.0
+    // into 5434 (found by tests/render_test.py).
+    const bool floatPnm = isFloat && std::strcmp(format, "pnm") == 0;
+    const QString cs = floatPnm ? QString() : QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
     if (parseOiioColorSpace(cs, d)) {
         // OIIO also fills this in when the file carries no colour tag at all, so it
         // is reported as the decoder's interpretation, not as file metadata (F12).
@@ -188,7 +192,7 @@ bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
     out->bits = spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8));
     out->orientation = spec.get_int_attribute("Orientation", 1);
     out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
-    describeOiio(spec, out->sample == Sample::F32, &out->colour);
+    describeOiio(spec, out->sample == Sample::F32, in->format_name(), &out->colour);
     return true;
 }
 
@@ -233,6 +237,7 @@ struct Range {
     std::size_t begin;
     std::size_t end;
     float max;
+    float maxLuminance;
 };
 
 template <typename Fn>
@@ -240,7 +245,7 @@ void forEachRange(std::size_t count, std::size_t chunk, Fn fn, std::vector<Range
 {
     std::vector<Range> ranges;
     for (std::size_t b = 0; b < count; b += chunk)
-        ranges.push_back({b, std::min(count, b + chunk), 0.0f});
+        ranges.push_back({b, std::min(count, b + chunk), 0.0f, 0.0f});
     QtConcurrent::blockingMap(ranges, fn);
     if (rangesOut)
         rangesOut->swap(ranges);
@@ -372,23 +377,29 @@ Image decodeImage(const QString &path, int maxTextureSize)
         expand(dec, range.begin, range.end, rgba.data());
         converter->apply(rgba.data(), n);
         constexpr float kHalfMax = 65504.0f;
-        float maxComponent = 0.0f;
+        float maxComponent = 0.0f, maxLuminance = 0.0f;
         for (std::size_t i = 0; i < n * 4; i += 4) {
             float *p = rgba.data() + i;
             const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
             p[3] = a;
-            for (int c = 0; c < 3; ++c) {
-                const float v = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
-                maxComponent = std::max(maxComponent, v);
-                p[c] = v * a;
+            for (int c = 0; c < 3; ++c)
+                p[c] = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
+            if (a > 0.0f) { // invisible pixels do not drive tone mapping
+                maxComponent = std::max({maxComponent, p[0], p[1], p[2]});
+                maxLuminance = std::max(maxLuminance, color::luminance(p[0], p[1], p[2]));
             }
+            for (int c = 0; c < 3; ++c)
+                p[c] *= a;
         }
         qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
         range.max = maxComponent;
+        range.maxLuminance = maxLuminance;
     }, &ranges);
-    float maxComponent = 0.0f;
-    for (const Range &r : ranges)
+    float maxComponent = 0.0f, maxLuminance = 0.0f;
+    for (const Range &r : ranges) {
         maxComponent = std::max(maxComponent, r.max);
+        maxLuminance = std::max(maxLuminance, r.maxLuminance);
+    }
     dec.data = {}; // release native samples early
     const qint64 convertNs = timer.nsecsElapsed();
 
@@ -411,6 +422,7 @@ Image decodeImage(const QString &path, int maxTextureSize)
     result.orientation = dec.orientation;
     result.colour = dec.colour;
     result.maxComponent = maxComponent;
+    result.maxLuminance = maxLuminance;
     result.pixels = std::move(pixels);
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
     qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": read " << readNs / 1000000 << " ms, convert "

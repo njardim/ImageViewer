@@ -295,19 +295,29 @@ void ViewerWindow::clampPan()
                     clampAxis(m_pan.y(), image.height(), view.height()));
 }
 
+Renderer::Frame ViewerWindow::imageFrame() const
+{
+    Renderer::Frame frame;
+    frame.exposure = std::exp2(m_exposureEv);
+    frame.toneMap = m_toneMap;
+    frame.clipWarning = m_clipWarning;
+    frame.contentPeak = m_image.maxComponent;
+    frame.contentLuminancePeak = m_image.maxLuminance;
+    frame.absoluteLuminance = m_image.colour.isAbsolute();
+    return frame;
+}
+
 void ViewerWindow::render()
 {
     if (!m_rendererReady)
         return;
-    Renderer::Frame frame;
+    Renderer::Frame frame = imageFrame();
     if (m_image.width > 0) {
         frame.imageRect = imageRect();
         frame.quarterTurns = m_quarterTurns;
         frame.mirrored = m_mirrored;
         const double zoom = currentZoom();
         frame.nearest = zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6; // decision D-P09
-        frame.exposure = std::exp2(m_exposureEv);
-        frame.clipWarning = m_clipWarning;
     }
     if (!m_overlaySize.isEmpty()) {
         const double margin = 12.0 * devicePixelRatio();
@@ -315,12 +325,16 @@ void ViewerWindow::render()
                                    QSizeF(m_overlaySize));
     }
     m_renderer.render(frame);
+    // The output is only known once the swapchain exists, and changes with the screen.
+    if (m_renderer.output().description != m_overlayOutput)
+        updateOverlay();
 }
 
 void ViewerWindow::updateOverlay()
 {
     if (!m_rendererReady)
         return;
+    m_overlayOutput = m_renderer.output().description;
     QStringList lines;
     if (!m_message.isEmpty())
         lines << m_message;
@@ -351,8 +365,25 @@ void ViewerWindow::updateOverlay()
         if (m_exposureEv != 0.0f)
             output += tr("  ·  exposição %1%2 EV").arg(m_exposureEv > 0 ? "+" : "").arg(double(m_exposureEv), 0, 'f', 1);
         if (m_clipWarning)
-            output += tr("  ·  aviso de clipping");
+            output += tr("  ·  aviso de píxeis alterados");
         lines << output;
+        if (m_image.width > 0) {
+            // Whether the image is shown as is, tone mapped or clipped (criteria H4, H6).
+            const Renderer::Output &out = m_renderer.output();
+            const color::OutputStage stage = Renderer::stageFor(out, imageFrame());
+            const double toNits = out.nitsPerUnit;
+            const double peakNits = stage.peak * toNits;
+            if (stage.sourcePeak > stage.peak) {
+                lines << tr("Tone mapping BT.2390: %1 → %2 nits, idêntico até %3 nits")
+                             .arg(stage.sourcePeak * toNits, 0, 'f', 0)
+                             .arg(peakNits, 0, 'f', 0)
+                             .arg(color::eetfKneeNits(float(stage.sourcePeak * toNits), float(peakNits)), 0, 'f', 0);
+            } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
+                lines << (m_toneMap ? tr("Componentes acima de %1 nits cortados (cor fora da gama da saída)")
+                                    : tr("Tone mapping desligado: valores acima de %1 nits cortados"))
+                             .arg(peakNits, 0, 'f', 0);
+            }
+        }
     }
 
     if (lines.isEmpty()) {
@@ -442,6 +473,10 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_C:
         m_clipWarning = !m_clipWarning;
+        updateOverlay();
+        break;
+    case Qt::Key_T:
+        m_toneMap = !m_toneMap;
         updateOverlay();
         break;
     default:
@@ -569,7 +604,11 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
         m_exposureEv = 0.0f;
         updateOverlay();
     });
-    add(tr("Aviso de clipping"), QKeySequence(Qt::Key_C), [this] {
+    add(tr("Tone mapping (BT.2390)"), QKeySequence(Qt::Key_T), [this] {
+        m_toneMap = !m_toneMap;
+        updateOverlay();
+    }, m_toneMap, true);
+    add(tr("Aviso de píxeis alterados (clip ou tone mapping)"), QKeySequence(Qt::Key_C), [this] {
         m_clipWarning = !m_clipWarning;
         updateOverlay();
     }, m_clipWarning, true);

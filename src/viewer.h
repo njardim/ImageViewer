@@ -52,6 +52,7 @@ private:
     void setFit();
     void clampPan();
     void updateOverlay();
+    Renderer::Frame imageFrame() const; // colour-related fields of the current frame
 
     Renderer m_renderer;
     bool m_rendererReady = false;
@@ -71,8 +72,10 @@ private:
     bool m_mirrored = false;
     float m_exposureEv = 0.0f;
     bool m_clipWarning = false;
+    bool m_toneMap = true;
     bool m_showInfo = true;
     QSize m_overlaySize; // device pixels; empty when no overlay is shown
+    QString m_overlayOutput; // output description the overlay was built with
 
     bool m_dragging = false;
     QPointF m_dragOrigin;

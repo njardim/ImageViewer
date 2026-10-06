@@ -52,6 +52,8 @@ struct Descriptor {
     QString description;                // human readable, for the info panel
 
     bool isHdr() const { return source != Source::Icc && (transfer == Transfer::Pq || transfer == Transfer::Hlg); }
+    // PQ encodes absolute luminance; everything else is relative to the display's white.
+    bool isAbsolute() const { return source != Source::Icc && transfer == Transfer::Pq; }
 };
 
 // ITU-T H.273 code points -> descriptor fields. Return false for codes we do not handle.
@@ -75,6 +77,33 @@ using Matrix3 = std::array<double, 9>; // row-major
 Matrix3 rgbToXyz(const Chromaticities &c);
 // Linear RGB in `from` -> linear RGB in `to`, with Bradford adaptation if the white points differ.
 Matrix3 rgbToRgb(const Chromaticities &from, const Chromaticities &to);
+
+// Luminance of linear scRGB (BT.709 primaries).
+inline float luminance(float r, float g, float b) { return 0.2126f * r + 0.7152f * g + 0.0722f * b; }
+
+// ITU-R BT.2390 EETF (§5.4.1) with zero black levels, evaluated in the PQ domain.
+// Maps luminance in [0, sourcePeak] to [0, targetPeak]; identity up to the knee.
+float eetfBt2390(float nits, float sourcePeakNits, float targetPeakNits);
+float eetfKneeNits(float sourcePeakNits, float targetPeakNits);
+
+// Output stage of the pipeline (docs/PLANO.md §6.2): exposure, scale to output
+// units, tone mapping or clip, encoding. src/shaders/image.frag implements the
+// same arithmetic on the GPU; applyOutputStage() is the reference used by the
+// fidelity harness (`--render`).
+enum class OutputEncoding { Sdr = 0, ScRgb = 1, Pq = 2 };
+
+struct OutputStage {
+    OutputEncoding encoding = OutputEncoding::Sdr;
+    float exposure = 1.0f;       // linear multiplier
+    float scale = 1.0f;          // output units per working unit
+    float peak = 1.0f;           // brightest output value, in output units
+    float nitsPerUnit = kSdrReferenceWhiteNits; // luminance of one output unit, for the EETF
+    float sourcePeak = 0.0f;     // > peak: BT.2390 EETF from this content peak (output units); otherwise clip
+    bool clipWarning = false;    // paint values that are not reproduced exactly
+};
+
+// Premultiplied linear scRGB in, premultiplied encoded output values out.
+void applyOutputStage(const OutputStage &stage, float *rgba);
 
 // Prepared conversion from the colour encoding described by a Descriptor into
 // linear scRGB. Build once per image; apply() is thread-safe and may be called

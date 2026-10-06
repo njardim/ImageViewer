@@ -211,6 +211,85 @@ float nitsToPq(float nits)
     return float(std::pow((kPqC1 + kPqC2 * y) / (1.0 + kPqC3 * y), kPqM2));
 }
 
+float eetfBt2390(float nits, float sourcePeakNits, float targetPeakNits)
+{
+    if (!(sourcePeakNits > targetPeakNits) || nits <= 0.0f)
+        return nits;
+    const double source = nitsToPq(sourcePeakNits);
+    const double maxLum = nitsToPq(targetPeakNits) / source;
+    const double knee = std::max(1.5 * maxLum - 0.5, 0.0);
+    const double e1 = nitsToPq(nits) / source;
+    if (e1 <= knee)
+        return nits;
+    const double t = std::min((e1 - knee) / (1.0 - knee), 1.0);
+    const double t2 = t * t, t3 = t2 * t;
+    const double e2 = (2 * t3 - 3 * t2 + 1) * knee + (t3 - 2 * t2 + t) * (1 - knee) + (-2 * t3 + 3 * t2) * maxLum;
+    return pqToNits(float(e2 * source));
+}
+
+float eetfKneeNits(float sourcePeakNits, float targetPeakNits)
+{
+    if (!(sourcePeakNits > targetPeakNits))
+        return sourcePeakNits;
+    const double source = nitsToPq(sourcePeakNits);
+    const double maxLum = nitsToPq(targetPeakNits) / source;
+    return pqToNits(float(std::max(1.5 * maxLum - 0.5, 0.0) * source));
+}
+
+namespace {
+constexpr double kBt709ToBt2020[9] = {0.6274039, 0.3292830, 0.0433131, // row-major (ITU-R BT.2087)
+                                      0.0690973, 0.9195404, 0.0113623,
+                                      0.0163914, 0.0880133, 0.8955953};
+} // namespace
+
+void applyOutputStage(const OutputStage &s, float *rgba)
+{
+    const float alpha = rgba[3];
+    float rgb[3];
+    for (int c = 0; c < 3; ++c)
+        rgb[c] = (alpha > 0.0f ? rgba[c] / alpha : 0.0f) * s.exposure * s.scale;
+
+    bool altered;
+    if (s.sourcePeak > s.peak) {
+        // Hue-preserving: the curve acts on max(R,G,B) and all components follow its ratio.
+        const float m = std::max({rgb[0], rgb[1], rgb[2]});
+        const float sourceNits = s.sourcePeak * s.nitsPerUnit, targetNits = s.peak * s.nitsPerUnit;
+        altered = m * s.nitsPerUnit > eetfKneeNits(sourceNits, targetNits);
+        if (altered) {
+            const float ratio = eetfBt2390(m * s.nitsPerUnit, sourceNits, targetNits) / (m * s.nitsPerUnit);
+            for (float &v : rgb)
+                v *= ratio;
+        }
+    } else {
+        altered = std::max({rgb[0], rgb[1], rgb[2]}) > s.peak;
+    }
+    for (float &v : rgb)
+        v = std::min(v, s.peak);
+    if (s.clipWarning && altered) {
+        rgb[0] = rgb[2] = s.peak;
+        rgb[1] = 0.0f;
+    }
+
+    switch (s.encoding) {
+    case OutputEncoding::ScRgb:
+        break; // negative components keep colours outside BT.709
+    case OutputEncoding::Pq: {
+        const float r = rgb[0], g = rgb[1], b = rgb[2];
+        for (int c = 0; c < 3; ++c) {
+            const double *m = kBt709ToBt2020 + 3 * c;
+            rgb[c] = nitsToPq(float(std::max(m[0] * r + m[1] * g + m[2] * b, 0.0)));
+        }
+        break;
+    }
+    case OutputEncoding::Sdr:
+        for (float &v : rgb)
+            v = linearToSrgb(std::clamp(v, 0.0f, 1.0f));
+        break;
+    }
+    for (int c = 0; c < 3; ++c)
+        rgba[c] = rgb[c] * alpha;
+}
+
 Matrix3 rgbToXyz(const Chromaticities &c)
 {
     const auto r = xyToXyz(c.r), g = xyToXyz(c.g), b = xyToXyz(c.b), w = xyToXyz(c.w);

@@ -23,7 +23,7 @@ Update `docs/PLANO.md`: §1 (status, next steps, blockers), §2 (new decisions w
   ```
   cmake --preset linux-system && cmake --build --preset linux-system
   ```
-- Tests: `tests/smoke.sh <exe>` (headless decode/colour checks) and `tests/screen_test.py <exe> [vulkan|opengl]` (Xvfb, on-screen pixel exactness at 100 %).
+- Tests: `tests/smoke.sh <exe>` (headless decode/colour checks), `tests/screen_test.py <exe> [vulkan|opengl]` (Xvfb, on-screen pixel exactness at 100 %) and `tests/render_test.py <exe> [vulkan|opengl]` (Xvfb, offscreen render of every output mode vs. the CPU reference `color::applyOutputStage` and the BT.2390 spec). Shader and `applyOutputStage` must stay in lockstep.
 - CI: `.github/workflows/build.yml` (Windows x64, macOS arm64, Linux x64).
 
 ## Git

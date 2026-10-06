@@ -26,6 +26,7 @@ struct Image {
     int orientation = 1; // EXIF orientation that was applied (1 = none)
     color::Descriptor colour;
     float maxComponent = 0.0f; // brightest RGB component in working units (1.0 = SDR white)
+    float maxLuminance = 0.0f; // brightest luminance (BT.709 Y) in working units
     double decodeMs = 0.0;
     std::vector<qfloat16> pixels; // width * height * 4, linear scRGB, premultiplied alpha
 

@@ -26,23 +26,24 @@
 | Campo | Valor |
 |---|---|
 | Data | 2026-10-06 |
-| Fase | **0: Fundação** (em curso) |
+| Fase | **0: Fundação** (falta o CI Windows verde) e **1: Núcleo de cor e HDR** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
-| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. |
+| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. **Fase 1: estágio de saída com EETF BT.2390 e PQ absoluto (D-15), verificado por harness offscreen em todas as saídas (D-16): 7/7 casos em Vulkan e OpenGL.** |
 | CI | Run 4 (328d6cc): **macOS arm64 verde, incluindo o pacote `.dmg`**. **Windows:** o Qt 6.11.2 já instala; o 1.º build das dependências vcpkg está em curso. **Linux:** o teste de ecrã falhou por esperar 6 s fixos; passa a fazer *polling* até 60 s (próximo commit). |
-| Próximos passos | **1.** Windows verde no CI. **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (pacotes do CI). **3.** Fase 1 (§9). **4.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
+| Próximos passos | **1.** Windows verde no CI; tag `v0.1.0-alpha` (rascunho). **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (pacotes do CI). **3.** Fase 1: corpus PQ/HLG no harness, leitura do valor do píxel, modo SdrIcc (perfil do ecrã), deteção de ACM no Windows; decidir D-P10. **4.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
 | Bloqueios | Nenhum. A licença (D-P01) aguarda decisão do Nuno; a recomendação está em §13. |
 
-**O que existe no código** (`src/`, cerca de 1 500 linhas):
+**O que existe no código** (`src/`, cerca de 2 800 linhas):
 - descodificação OIIO com recurso ao `QImageReader`;
 - conversão única para scRGB linear em RGBA16F: LittleCMS sem limites, CICP analítico (PQ, HLG, sRGB, BT.1886, γ), espaços de cor do OIIO (incluindo ACES AP0/AP1) e cromaticidades EXR;
 - orientação EXIF;
 - janela `QWindow` + QRhi: D3D11 no Windows, Metal no macOS, Vulkan ou OpenGL no Linux;
 - escolha automática da swapchain: scRGB/EDR quando o ecrã suporta HDR, HDR10, senão SDR;
 - `hdrInfo` → escala do branco SDR e pico do ecrã;
-- shader com saídas SDR, scRGB e PQ;
+- shader com saídas SDR, scRGB e PQ; tone mapping EETF BT.2390 ou corte (tecla T); PQ em nits absolutos onde a saída o permite (D-15); referência em CPU do mesmo estágio (`color::applyOutputStage`);
+- harness `--render`: render offscreen 1:1, leitura da GPU e comparação com a referência (D-16);
 - overlay de diagnóstico ao nível do branco SDR;
-- zoom no cursor, 100 % exatos, pan, rotação e espelho da vista, exposição, aviso de clipping;
+- zoom no cursor, 100 % exatos, pan, rotação e espelho da vista, exposição, aviso de píxeis alterados;
 - navegação na pasta com ordenação natural; arrastar e largar; menu de contexto; `--info`.
 
 **Notas para sessões na cloud** (contentor Linux):
@@ -85,9 +86,12 @@
 | D-09 | 2026-10-06 | O visualizador é uma `QWindow` com swapchain QRhi própria. Os diálogos secundários usam Widgets. | O backing store dos Widgets não suporta HDR `[código: qtbase 6.11, src/widgets, src/gui/painting]`. O HDR do Qt Quick só é ativável por variável de ambiente (`QSG_RHI_HDR`) `[código: qtdeclarative 6.11, qsgrhisupport.cpp:1542]`. |
 | D-10 | 2026-10-06 | O espaço de trabalho interno é **scRGB linear** (primárias BT.709, valores estendidos, 1.0 = branco SDR) em texturas RGBA16F pré-multiplicadas. | Coincide com a saída nativa do Windows (scRGB) e do macOS (EDR), e representa qualquer gama de cor. |
 | D-11 | 2026-10-06 | Não se copia código do qView nem do ImageGlass (ambos GPL-3). Servem apenas de referência de comportamento. | Compatibilidade com D-01. |
+| D-12 | 2026-10-06 | Transferências CICP 1/6/14/15 (BT.709/601/2020) são descodificadas com a EOTF BT.1886 (γ2.4, preto 0), não com a inversa da OETF. | O conteúdo destes códigos é *display-referred* (vídeo); é a convenção dos leitores de referência. A alternativa fica registada para os testes da Fase 1. |
 | D-13 | 2026-10-06 | Os binários de distribuição são gerados **só pelo CI**. Uma tag `vX.Y.Z` cria uma *Release* em rascunho com os 3 pacotes; a compilação local serve apenas para desenvolvimento. | É reprodutível, centralizado e não depende da máquina de ninguém. O macOS só pode ser compilado num Mac e o CI tem runners dos 3 sistemas. |
 | D-14 | 2026-10-06 | Requisito E14 (overlay de informação configurável no ecrã inteiro) a partir do pedido do Nuno ao ImageGlass (#2475). | Pedido explícito; encaixa no overlay SDR do renderizador sem alterar o viewport. |
-| D-12 | 2026-10-06 | Transferências CICP 1/6/14/15 (BT.709/601/2020) são descodificadas com a EOTF BT.1886 (γ2.4, preto 0), não com a inversa da OETF. | O conteúdo destes códigos é *display-referred* (vídeo); é a convenção dos leitores de referência. A alternativa fica registada para os testes da Fase 1. |
+| D-15 | 2026-10-06 | **Estágio de saída** (resolve a D-P04). Tone mapping por omissão: **EETF BT.2390** (pretos a zero), no domínio PQ, aplicada a max(R,G,B), com todas as componentes escaladas pela mesma razão. Liga-se só quando a **luminância** máxima do conteúdo (após exposição) excede o pico da saída. O pico de origem é o máximo real da imagem. Tecla T: modo "sinal" (corte por componente). Conteúdo **PQ** mantém nits absolutos (203 nits por unidade) nas saídas PQ e scRGB do Windows; SDR e HLG ficam relativos ao branco SDR. Em SDR e EDR, 1 unidade = 203 nits para efeitos da EETF. | Identidade abaixo do joelho (H4) e conteúdo dentro do ecrã intacto (H2). Escalar por max(R,G,B) preserva a tonalidade e nunca excede o pico. A luminância como critério evita que fotos SDR de gama larga (P3 vermelho = 1,22 em BT.709) sejam escurecidas: isso é um problema de gama, não de luminância. A estatística do pico de origem fica em aberto (D-P10). |
+| D-16 | 2026-10-06 | A verificação do estágio de saída faz-se com um **harness offscreen** (`--render`): desenha a imagem 1:1 pelo shader real, lê o alvo float da GPU e compara cada píxel com `color::applyOutputStage` (referência em CPU). `tests/render_test.py` verifica ainda, de forma independente do C++, as propriedades da especificação (joelho BT.2390 calculado pela fórmula da ITU, identidade, pico, monotonia, corte). | Torna H2/H4/H6 verificáveis em CI sem ecrã HDR. Comparar só GPU com CPU não apanharia um erro de especificação partilhado; as propriedades independentes apanham. |
+| D-17 | 2026-10-06 | Ficheiros **PFM** (PNM float) são tratados como **linear BT.709**, ignorando o `oiio:ColorSpace = "Rec709"` que o OIIO 2.4 atribui a todos os PNM. | O PFM não tem metadados de cor e é linear por convenção (mapas de radiância HDR) `[conhecimento]`. Descodificado como BT.1886, 36,0 passava a 5434 `[teste: tests/render_test.py]`. |
 
 ---
 
@@ -289,7 +293,7 @@ Os ficheiros só se dividem quando ultrapassarem cerca de 800 linhas.
 
    Seguem-se a pré-multiplicação e o empacotamento em RGBA16F.
 5. **Upload** para textura RGBA16F com mipmaps. Imagens maiores que o limite da GPU (normalmente 16384) são divididas em blocos.
-6. **Shader único:** amostragem → exposição (só conteúdo linear) → tone mapping (EETF BT.2390, apenas se o pico do conteúdo exceder o do ecrã) → modo de saída:
+6. **Shader único** (`src/shaders/image.frag`; referência em CPU: `color::applyOutputStage`, que tem de se manter igual): amostragem → exposição → escala para unidades de saída (relativa ao branco SDR, ou absoluta para PQ: D-15) → tone mapping (EETF BT.2390 sobre max(R,G,B), só se a luminância do conteúdo exceder o pico da saída) ou corte → modo de saída:
 
    | Modo | Quando | Codificação |
    |---|---|---|
@@ -472,8 +476,8 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 ### Fase 1 — Núcleo de cor e HDR (L)
 - [ ] lcms2: ICC → scRGB; CICP analítico (sRGB, BT.709/1886, gama 2.2/2.6, PQ, HLG, linear); EXR `chromaticities`
 - [ ] Modo SdrIcc com LUT 3D do perfil do ecrã; deteção de Advanced Color/ACM no Windows; branco SDR
-- [ ] EETF BT.2390; mapeamento HDR→SDR; exposição; aviso de clipping; leitura do valor do píxel (código e nits)
-- [ ] Harness de fidelidade: render offscreen e leitura (lavapipe em CI Linux); corpus sintético
+- [~] EETF BT.2390 (D-15) ✔; mapeamento HDR→SDR ✔; exposição ✔; aviso de píxeis alterados (cortados ou com tone mapping) ✔; PQ em nits absolutos ✔; indicação na interface (H6) ✔. *Falta:* leitura do valor do píxel (código e nits); teste com ficheiros PQ/HLG reais (o corpus atual é linear).
+- [~] Harness de fidelidade (D-16): render offscreen e leitura ✔ (Vulkan e OpenGL em Linux); corpus sintético linear ✔. *Falta:* corpus PQ/HLG e correr o harness em Windows (D3D11/WARP) e macOS (Metal).
 
 **Aceitação:** F1–F7, F10, F12 e H1–H6 em CI.
 
@@ -549,7 +553,12 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 
 Nunca se usa o mesmo motor do produto como referência.
 
-**HDR em CI:** render offscreen em RGBA16F/32F e leitura dos valores.
+**HDR em CI:** `tests/render_test.py` (D-16). Gera um corpus linear sintético (PFM, 512 níveis de 0,2 a 6090 nits em 4 tonalidades, uma fora de BT.709). Desenha-o com `imageViewer --render` nas saídas SDR, EDR, scRGB e PQ, com e sem tone mapping e com exposição. Lê o alvo RGBA32F da GPU e verifica:
+- GPU = referência em CPU (erro relativo ≤ 1e-3; medido: ≤ 8e-5) `[teste]`;
+- identidade até ao joelho BT.2390 calculado em Python pela fórmula da ITU, contra a entrada arredondada a FP16 como o descodificador a guarda (erro ≤ 2e-4; medido ≤ 7,3e-5, na saída PQ) `[teste]`;
+- nunca acima do pico; monotonia; o pico do conteúdo cai no pico da saída; corte simples sem tone mapping `[teste]`.
+
+Passa em Vulkan (lavapipe) e OpenGL (llvmpipe) `[teste]`. Corre no CI Linux.
 
 **HDR manual:** MacBook Pro XDR, ecrã HDR10 em Windows 11, KDE Plasma 6 HDR (melhor esforço). Colorímetro com ArgyllCMS `spotread`.
 
@@ -616,12 +625,13 @@ Nenhuma bloqueia a Fase 0. A proposta indicada é a adotada por omissão.
 | D-P01 | **Licença** (põe em causa a D-01). O Nuno inclina-se para open source. | **Recomendação (2026-10-06): open source com Apache-2.0** (licença das ferramentas ASWF como OIIO, OCIO e OpenRV, e com concessão de patentes), mais: marca registada "Cristallumnis" fora da licença, CLA ou DCO para contribuições, e os módulos de IA da Cristallumnis como plugins proprietários separados (*open core*). As regras de dependências (§5) mantêm-se. **Decisão do Nuno.** |
 | D-P02 | Plataformas e arquiteturas | Windows x64 · macOS arm64 (Intel só se houver procura) · Linux x64. Windows arm64 depois. |
 | D-P03 | HEIC (patentes HEVC) | Incluir libde265 só com parecer jurídico; caso contrário, descodificadores do sistema. |
-| D-P04 | Tone mapping por omissão quando o conteúdo excede o ecrã | EETF BT.2390, com modo "sinal" (sem TM, com aviso de clipping). |
+| D-P04 | ~~Tone mapping por omissão~~ | **Resolvida pela D-15.** |
 | D-P05 | GraphicsMagick como último recurso para formatos legados | Decidir no fim da Fase 2, com a matriz em mãos. |
 | D-P06 | Vídeo | Fora; só animações curtas via FFmpeg (gifv, mjpeg). Frames de MOV/MXF ficam em O5. |
 | D-P07 | Versões mínimas | Windows 10 22H2 (melhor esforço) e 11; macOS: o mínimo do Qt 6.11 (a confirmar); glibc da base de build Linux. |
 | D-P08 | Contas de assinatura | Apple Developer ID e Azure Trusted Signing (ou certificado OV). |
 | D-P09 | Instância única por omissão; vizinho mais próximo a partir de 200 %; intenção relativa com BPC; sem atualizações automáticas; sem telemetria | Adotado. |
+| D-P10 | Pico de origem da EETF: máximo absoluto da imagem (atual) ou um percentil alto (99,9 %) / MaxCLL. | Com o máximo absoluto, um único píxel especular a 10 000 nits baixa o joelho da imagem inteira (ex.: HDR 7300 nits → SDR: joelho a 28 nits). Um percentil preserva os meios-tons e corta os extremos. Decidir com imagens HDR reais na Fase 1. |
 
 ---
 
@@ -633,6 +643,9 @@ Nenhuma bloqueia a Fase 0. A proposta indicada é a adotada por omissão.
 - Versão mínima de macOS do Qt 6.11; disponibilidade de runners macOS x64 no GitHub.
 - Metadados MDCV/CLLI expostos pelo OIIO 3.1 para HEIF/AVIF. O OIIO expõe `CICP` em PNG, HEIF, JXL e FFmpeg `[código: OIIO v3.1.14.0]`; MDCV/CLLI não foram encontrados.
 - Suporte JPEG XS e JPEG-LS no FFmpeg 9 do vcpkg com configuração LGPL.
+- Se o OIIO 3 (vcpkg) continua a marcar PFM como `Rec709` (D-17 trata o caso de qualquer forma).
+- Se os runners Windows (sem GPU) criam um dispositivo D3D11 (WARP / Basic Render Driver) para correr o harness `--render`, e se os runners macOS têm Metal.
+- Aspeto da EETF BT.2390 em fotografias HDR reais em ecrã SDR: com o pico absoluto como origem, o joelho pode ficar muito baixo (D-P10).
 
 ---
 

@@ -158,7 +158,12 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
 
 bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
 {
-    auto in = OIIO::ImageInput::open(path.toUtf8().toStdString());
+    // PFM stores rows bottom to top. OIIO 3.1 only flips them when the open call
+    // carries a config with pnm:pfmflip (pnminput.cpp); without one the image is
+    // upside down. OIIO 2.4 flips by default and ignores the hint.
+    OIIO::ImageSpec config;
+    config.attribute("pnm:pfmflip", 1);
+    auto in = OIIO::ImageInput::open(path.toUtf8().toStdString(), &config);
     if (!in) {
         *error = QString::fromStdString(OIIO::geterror());
         return false;

@@ -29,6 +29,9 @@ check hdr4.exr 'pixel\[0,0\]: +4 4 4 a=0\.5' "premultiplied alpha round-trips"
 # EXIF orientation 6 rotates 300x200 into 200x300 exactly once.
 check orient6.jpg 'size: +200x300' "EXIF orientation 6 applied once"
 
+check rows2.pfm 'colour: +linear' "PFM read as linear (OIIO labels it Rec709)"
+check rows2.pfm 'pixel\[0,0\]: +0\.25 0\.5 1 a=1' "PFM rows stored bottom to top are flipped"
+
 if [ "$failures" -ne 0 ]; then
     echo "$failures check(s) failed"
     exit 1

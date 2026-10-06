@@ -1,0 +1,57 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 24, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "inherits": "base",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": { "X_VCPKG_APPLOCAL_DEPS_INSTALL": "ON" }
+    },
+    {
+      "name": "windows",
+      "displayName": "Windows x64 (MSVC, vcpkg)",
+      "inherits": "vcpkg",
+      "cacheVariables": { "VCPKG_TARGET_TRIPLET": "x64-windows" },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+    },
+    {
+      "name": "macos",
+      "displayName": "macOS arm64 (vcpkg, dynamic)",
+      "inherits": "vcpkg",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "arm64-osx-dynamic",
+        "CMAKE_OSX_ARCHITECTURES": "arm64",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "13.0"
+      },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+    },
+    {
+      "name": "linux",
+      "displayName": "Linux x64 (vcpkg, dynamic)",
+      "inherits": "vcpkg",
+      "cacheVariables": { "VCPKG_TARGET_TRIPLET": "x64-linux-dynamic" },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+    },
+    {
+      "name": "linux-system",
+      "displayName": "Linux x64 (system packages, Qt in /opt/qt6) — local and cloud sessions",
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_PREFIX_PATH": "/opt/qt6" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "windows", "configurePreset": "windows" },
+    { "name": "macos", "configurePreset": "macos" },
+    { "name": "linux", "configurePreset": "linux" },
+    { "name": "linux-system", "configurePreset": "linux-system" }
+  ]
+}

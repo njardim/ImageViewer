@@ -1,0 +1,32 @@
+# CLAUDE.md — imageViewer
+
+**Read `docs/PLANO.md` first.** It is the single source of truth: current status (§1), decision log (§2), architecture (§6), fidelity criteria (§7), phases with checkboxes (§9), and pending decisions (§13). Do not re-derive decisions recorded there; do not re-open them without new evidence.
+
+## What this is
+Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.11**, minimalist UI, **verifiable colour fidelity in SDR and HDR**, format coverage ≥ qView ∪ ImageGlass ∪ FFmpeg image2. Owner: Nuno Jardim (Cristallumnis). **Open source under Apache-2.0** (decision D-18): `LICENSE` + `NOTICE` ship in every package; the Cristallumnis trademark is not licensed; future Cristallumnis AI modules are separate proprietary plugins (open core); contributions need a DCO sign-off.
+
+## Rules
+- **Language:** talk to the user and write docs in European Portuguese (pt-PT); code, identifiers, comments and commit messages in English.
+- **Keep the structure minimal** (decision D-08): one executable target, flat `src/`, one `CMakeLists.txt`. Split a file only when it exceeds ~800 lines. No new directories or abstraction layers without a recorded decision. `packaging/` (D-20) holds vcpkg overlays, third-party licence texts and the CI licence gate — never application code.
+- **Never copy code from qView or ImageGlass** (GPL-3). They are behavioural references only (D-11).
+- **Licences:** only LGPL (dynamically linked) or permissive dependencies (GPL is incompatible with shipping under Apache-2.0). Excluded: exiv2, FFmpeg `gpl`/`nonfree`, x265, LibRaw GPL packs, Ghostscript, PyQt.
+- **Colour pipeline invariant:** decoders output native depth + colour descriptor + **straight alpha** (D-21); conversion to **linear scRGB (RGBA16F, premultiplied)** happens once on the CPU; the shader only does exposure, tone mapping, compositing over the background in linear light and output encoding (ScRGB / PQ / SdrIcc). Never quantize below FP16 before output. Descriptor priority: CICP > ICC > format attributes > assumed (D-22).
+- **Releases** (D-19, D-26): versions are X.Y[-suffix], never X.Y.Z; the version comes from the tag. Publishing a GitHub release `vX.Y[-suffix]` (or pushing the tag) builds, verifies and attaches the packages; nobody builds release binaries by hand.
+- **Licences in practice:** a dependency that pulls default features can silently override `"default-features": false` in our manifest (that is how x265 got in, D-25); the CI licence gate must stay green.
+- **Viewer is a `QWindow` with its own QRhi swapchain** (D-09) — Widgets cannot do HDR. Dialogs/menus may use Widgets.
+- **Evidence:** when adding claims to the plan, tag them `[código]`, `[doc]`, `[teste]`, `[conhecimento]` or `[inferência]`.
+
+## End-of-session duty
+Update `docs/PLANO.md`: §1 (status, next steps, blockers), §2 (new decisions with date and reason), §9 checkboxes, §13/§14 as needed. Commit it with the code.
+
+## Build
+- Production deps via vcpkg manifest (`vcpkg.json`), dynamic triplets; Qt from official binaries (aqtinstall) in CI.
+- Local Linux/cloud sessions: `download.qt.io` and GitHub release assets are blocked by the proxy. Build Qt from source with `scripts/build-qt-linux.sh` (installs to `/opt/qt6`), and use Ubuntu apt packages for OIIO/FFmpeg/lcms2 when compiling locally:
+  ```
+  cmake --preset linux-system && cmake --build --preset linux-system
+  ```
+- Tests: `tests/smoke.sh <exe>` (headless decode/colour checks), `tests/screen_test.py <exe> [vulkan|opengl]` (Xvfb, on-screen pixel exactness at 100 %) and `tests/render_test.py <exe> [vulkan|opengl]` (Xvfb, offscreen render of every output mode vs. the CPU reference `color::applyOutputStage` and the BT.2390 spec). Shader and `applyOutputStage` must stay in lockstep.
+- CI: `.github/workflows/build.yml` (Windows x64, macOS arm64, Linux x64).
+
+## Git
+Work on the branch named in the session instructions; commit with clear messages; push with `git push -u origin <branch>`.

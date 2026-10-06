@@ -1,0 +1,12 @@
+imageViewer
+Copyright 2026 Cristallumnis, Lda.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The name "Cristallumnis" and its logos are trademarks of Cristallumnis. As
+stated in section 6 of the License, the License does not grant permission to
+use them, except as required for reasonable and customary use in describing
+the origin of the Work and reproducing the content of this NOTICE file.
+
+Binary distributions also contain third-party libraries (Qt, OpenImageIO,
+Little CMS and their dependencies), each under its own licence.

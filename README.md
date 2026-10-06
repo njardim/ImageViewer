@@ -47,7 +47,7 @@ Para forçar o modo de saída, use `IMAGEVIEWER_OUTPUT=sdr|hdr10`.
 
 O CI gera três pacotes: `.zip` para Windows x64, `.dmg` para macOS arm64 (macOS 13 ou posterior) e `.tar.gz` para Linux x64. Cada pacote é testado numa máquina limpa, sem o Qt nem as bibliotecas do vcpkg. Os pacotes ainda não estão assinados.
 
-O pacote Linux é compilado em Ubuntu 24.04. Por isso, precisa da glibc e da libstdc++ de uma distribuição de 2024 ou mais recente, e de X11 ou XWayland. Precisa também das bibliotecas xcb do sistema, como a `libxcb-cursor0`. O executável é `bin/imageViewer`.
+O pacote Linux é compilado em Ubuntu 24.04. Por isso, precisa da glibc e da libstdc++ de uma distribuição de 2024 ou mais recente, e de X11 ou XWayland. Precisa também das bibliotecas de sistema que o Qt usa e que não vêm no pacote: OpenGL/EGL do libglvnd (`libopengl0`, `libegl1`, presentes em qualquer desktop) e as bibliotecas xcb, como a `libxcb-cursor0`. O executável é `bin/imageViewer`.
 
 Para publicar uma versão, crie no GitHub uma *release* chamada `vX.Y` ou `vX.Y-sufixo` (por exemplo `v0.2` ou `v0.3-beta`), com uma tag nova com o mesmo nome. Em alternativa, envie só a tag (`git push origin vX.Y`). O CI compila e testa os três pacotes e anexa-os à *release*, juntamente com o `SHA256SUMS`. Se a *release* ainda não existir, o CI cria-a; uma tag com sufixo fica marcada como pré-release.
 

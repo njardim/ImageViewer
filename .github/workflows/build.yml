@@ -334,6 +334,11 @@ jobs:
                      exe="$app/imageViewer.app/Contents/MacOS/imageViewer" ;;
             Linux)   tar -C "$app" -xzf "$pkg"
                      exe="$app/bin/imageViewer"
+                     # System GL dispatch (libglvnd) that Qt links: present on every desktop,
+                     # driver-specific, so never bundled. Documented in the README; anything
+                     # else ldd cannot find is a library the deploy step missed.
+                     sudo apt-get update -qq
+                     sudo apt-get install -y -qq --no-install-recommends libopengl0 libegl1 > /dev/null
                      if ldd "$exe" | grep 'not found'; then
                        echo "::error::libraries missing from the package (above)"; exit 1
                      fi ;;

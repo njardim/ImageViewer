@@ -168,6 +168,10 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           [[ "$GITHUB_REF" == refs/tags/v* ]] || version="dev-${GITHUB_SHA::7}"
           file="imageViewer-${version}-${{ matrix.package }}"
+          # Apache-2.0 section 4: the licence and NOTICE must travel with the binaries.
+          docs="$RUNNER_TEMP/dist"
+          [ "$RUNNER_OS" = macOS ] && docs="$docs/imageViewer.app/Contents/Resources"
+          test -f "$docs/LICENSE" && test -f "$docs/NOTICE"
           case "$RUNNER_OS" in
             Windows) (cd "$RUNNER_TEMP/dist" && 7z a -tzip "$GITHUB_WORKSPACE/$file" . > /dev/null) ;;
             macOS)   hdiutil create -volname imageViewer -srcfolder "$RUNNER_TEMP/dist/imageViewer.app" \

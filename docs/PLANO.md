@@ -29,9 +29,9 @@
 | Fase | **0: Fundação** (falta o CI Windows verde) e **1: Núcleo de cor e HDR** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
 | Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. **Fase 1: estágio de saída com EETF BT.2390 e PQ absoluto (D-15), verificado por harness offscreen em todas as saídas (D-16): 7/7 casos em Vulkan e OpenGL.** |
-| CI | Runs 4 e 5: **Windows x64 e macOS arm64 verdes** (build, testes de fumo, pacote `.zip`/`.dmg`). **Linux:** o teste de ecrã passou no run 5. O harness novo falhou porque o OIIO 3.1 do vcpkg lê os PFM de pernas para o ar (ver notas de CI); a correção segue no run 6. |
+| CI | **Run 6 (c43be25): verde nos 3 sistemas** — Windows x64, macOS arm64 e Linux x64: build, testes de fumo (incl. orientação PFM), teste de ecrã com *polling*, harness `--render` (7 casos × Vulkan/OpenGL) e pacotes `.zip`/`.dmg`/`.tar.gz` `[teste]`. |
 | Próximos passos | **1.** Windows verde no CI; tag `v0.1.0-alpha` (rascunho). **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (pacotes do CI). **3.** Fase 1: corpus PQ/HLG no harness, leitura do valor do píxel, modo SdrIcc (perfil do ecrã), deteção de ACM no Windows; decidir D-P10. **4.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
-| Bloqueios | Nenhum. A licença (D-P01) aguarda decisão do Nuno; a recomendação está em §13. |
+| Bloqueios | Nenhum. Antes de uma release **pública**: licenças de terceiros nos pacotes (§9, Fase 4) e README de apresentação (D-P11). Tornar o repositório público é uma ação do Nuno. |
 
 **O que existe no código** (`src/`, cerca de 2 800 linhas):
 - descodificação OIIO com recurso ao `QImageReader`;
@@ -79,7 +79,7 @@
 
 | ID | Data | Decisão | Razão |
 |---|---|---|---|
-| D-01 | 2026-10-06 | Produto proprietário, distribuição direta (sem lojas). | Decisão do Nuno. |
+| D-01 | 2026-10-06 | ~~Produto proprietário~~ → **substituída pela D-18**. Mantém-se a distribuição direta (sem lojas). | Decisão do Nuno. |
 | D-02 | 2026-10-06 | ~~Python + PySide6~~ → **substituída pela D-05** | — |
 | D-03 | 2026-10-06 | ~~Apenas SDR na v1~~ → **substituída pela D-06** | — |
 | D-04 | 2026-10-06 | Rejeitar o Magick.NET. | Em Python era viável mas dominado; em C++ o equivalente direto seria o ImageMagick, e não o .NET (§4.3). |
@@ -89,13 +89,14 @@
 | D-08 | 2026-10-06 | **Estrutura de código mínima:** um executável e cerca de 10 ficheiros-fonte, num único `CMakeLists.txt`. | Gestão do código simples. |
 | D-09 | 2026-10-06 | O visualizador é uma `QWindow` com swapchain QRhi própria. Os diálogos secundários usam Widgets. | O backing store dos Widgets não suporta HDR `[código: qtbase 6.11, src/widgets, src/gui/painting]`. O HDR do Qt Quick só é ativável por variável de ambiente (`QSG_RHI_HDR`) `[código: qtdeclarative 6.11, qsgrhisupport.cpp:1542]`. |
 | D-10 | 2026-10-06 | O espaço de trabalho interno é **scRGB linear** (primárias BT.709, valores estendidos, 1.0 = branco SDR) em texturas RGBA16F pré-multiplicadas. | Coincide com a saída nativa do Windows (scRGB) e do macOS (EDR), e representa qualquer gama de cor. |
-| D-11 | 2026-10-06 | Não se copia código do qView nem do ImageGlass (ambos GPL-3). Servem apenas de referência de comportamento. | Compatibilidade com D-01. |
+| D-11 | 2026-10-06 | Não se copia código do qView nem do ImageGlass (ambos GPL-3). Servem apenas de referência de comportamento. | Compatibilidade com a licença do produto (D-18): código GPL-3 obrigaria o conjunto a GPL-3. |
 | D-12 | 2026-10-06 | Transferências CICP 1/6/14/15 (BT.709/601/2020) são descodificadas com a EOTF BT.1886 (γ2.4, preto 0), não com a inversa da OETF. | O conteúdo destes códigos é *display-referred* (vídeo); é a convenção dos leitores de referência. A alternativa fica registada para os testes da Fase 1. |
 | D-13 | 2026-10-06 | Os binários de distribuição são gerados **só pelo CI**. Uma tag `vX.Y.Z` cria uma *Release* em rascunho com os 3 pacotes; a compilação local serve apenas para desenvolvimento. | É reprodutível, centralizado e não depende da máquina de ninguém. O macOS só pode ser compilado num Mac e o CI tem runners dos 3 sistemas. |
 | D-14 | 2026-10-06 | Requisito E14 (overlay de informação configurável no ecrã inteiro) a partir do pedido do Nuno ao ImageGlass (#2475). | Pedido explícito; encaixa no overlay SDR do renderizador sem alterar o viewport. |
 | D-15 | 2026-10-06 | **Estágio de saída** (resolve a D-P04). Tone mapping por omissão: **EETF BT.2390** (pretos a zero), no domínio PQ, aplicada a max(R,G,B), com todas as componentes escaladas pela mesma razão. Liga-se só quando a **luminância** máxima do conteúdo (após exposição) excede o pico da saída. O pico de origem é o máximo real da imagem. Tecla T: modo "sinal" (corte por componente). Conteúdo **PQ** mantém nits absolutos (203 nits por unidade) nas saídas PQ e scRGB do Windows; SDR e HLG ficam relativos ao branco SDR. Em SDR e EDR, 1 unidade = 203 nits para efeitos da EETF. | Identidade abaixo do joelho (H4) e conteúdo dentro do ecrã intacto (H2). Escalar por max(R,G,B) preserva a tonalidade e nunca excede o pico. A luminância como critério evita que fotos SDR de gama larga (P3 vermelho = 1,22 em BT.709) sejam escurecidas: isso é um problema de gama, não de luminância. A estatística do pico de origem fica em aberto (D-P10). |
 | D-16 | 2026-10-06 | A verificação do estágio de saída faz-se com um **harness offscreen** (`--render`): desenha a imagem 1:1 pelo shader real, lê o alvo float da GPU e compara cada píxel com `color::applyOutputStage` (referência em CPU). `tests/render_test.py` verifica ainda, de forma independente do C++, as propriedades da especificação (joelho BT.2390 calculado pela fórmula da ITU, identidade, pico, monotonia, corte). | Torna H2/H4/H6 verificáveis em CI sem ecrã HDR. Comparar só GPU com CPU não apanharia um erro de especificação partilhado; as propriedades independentes apanham. |
 | D-17 | 2026-10-06 | Ficheiros **PFM** (PNM float) são tratados como **linear BT.709**, ignorando o `oiio:ColorSpace = "Rec709"` que o OIIO (2.4 e 3.1) atribui a todos os PNM. As linhas são sempre lidas de baixo para cima (`pnm:pfmflip`), como manda o formato. | O PFM não tem metadados de cor e é linear por convenção (mapas de radiância HDR) `[conhecimento]`. Descodificado como BT.1886, 36,0 passava a 5434 `[teste: tests/render_test.py]`. |
+| D-18 | 2026-10-06 | **Licença Apache-2.0** (open source). `LICENSE` com o texto canónico de apache.org (sha256 `cfc7749b…3d30`, igual ao de `/usr/share/common-licenses`) `[teste]`. `NOTICE` com o copyright da Cristallumnis e a reserva da marca (Apache §6). Os pacotes do CI incluem `LICENSE` e `NOTICE` (Apache §4; no macOS em `Contents/Resources`). Contribuições com *sign-off* DCO, sem CLA. Os módulos de IA da Cristallumnis serão plugins proprietários separados (*open core*). As regras de dependências (§5) mantêm-se. | Decisão do Nuno, sobre a recomendação da D-P01: visibilidade da marca junto dos profissionais, concessão explícita de patentes, e é a licença das ferramentas ASWF (OIIO, OCIO, OpenRV). Não é preciso CLA: a Apache-2.0 já permite à Cristallumnis usar contribuições em produtos proprietários; o DCO garante a proveniência `[conhecimento]`. |
 
 ---
 
@@ -517,6 +518,9 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 - [ ] Instância única; eventos de mudança de ecrã, perfil e HDR (F5)
 - [ ] Instaladores: Inno Setup; DMG com codesign e notarização; AppImage e Flatpak. Assinatura condicional a segredos de CI.
 - [ ] Testes de ponta a ponta das associações nos 3 sistemas
+- [x] `LICENSE` (Apache-2.0) e `NOTICE` dentro dos pacotes (D-18)
+- [ ] Licenças de terceiros nos pacotes: ficheiros `copyright` do vcpkg e textos LGPL do Qt. **Obrigatório antes de qualquer release pública** (R6).
+- [ ] README público de apresentação do produto, para a 1.ª versão (pedido do Nuno, 2026-10-06; língua: D-P11), com capturas, formatos suportados, critérios de fidelidade e downloads. `CONTRIBUTING.md` com DCO.
 
 **Aceitação:**
 - Duplo clique, `open`, `start` e `xdg-open` abrem o ficheiro certo.
@@ -626,7 +630,7 @@ Nenhuma bloqueia a Fase 0. A proposta indicada é a adotada por omissão.
 
 | ID | Questão | Proposta |
 |---|---|---|
-| D-P01 | **Licença** (põe em causa a D-01). O Nuno inclina-se para open source. | **Recomendação (2026-10-06): open source com Apache-2.0** (licença das ferramentas ASWF como OIIO, OCIO e OpenRV, e com concessão de patentes), mais: marca registada "Cristallumnis" fora da licença, CLA ou DCO para contribuições, e os módulos de IA da Cristallumnis como plugins proprietários separados (*open core*). As regras de dependências (§5) mantêm-se. **Decisão do Nuno.** |
+| D-P01 | ~~**Licença**~~ **Resolvida pela D-18.** (põe em causa a D-01). O Nuno inclina-se para open source. | **Recomendação (2026-10-06): open source com Apache-2.0** (licença das ferramentas ASWF como OIIO, OCIO e OpenRV, e com concessão de patentes), mais: marca registada "Cristallumnis" fora da licença, CLA ou DCO para contribuições, e os módulos de IA da Cristallumnis como plugins proprietários separados (*open core*). As regras de dependências (§5) mantêm-se. **Decisão do Nuno.** |
 | D-P02 | Plataformas e arquiteturas | Windows x64 · macOS arm64 (Intel só se houver procura) · Linux x64. Windows arm64 depois. |
 | D-P03 | HEIC (patentes HEVC) | Incluir libde265 só com parecer jurídico; caso contrário, descodificadores do sistema. |
 | D-P04 | ~~Tone mapping por omissão~~ | **Resolvida pela D-15.** |
@@ -636,6 +640,7 @@ Nenhuma bloqueia a Fase 0. A proposta indicada é a adotada por omissão.
 | D-P08 | Contas de assinatura | Apple Developer ID e Azure Trusted Signing (ou certificado OV). |
 | D-P09 | Instância única por omissão; vizinho mais próximo a partir de 200 %; intenção relativa com BPC; sem atualizações automáticas; sem telemetria | Adotado. |
 | D-P10 | Pico de origem da EETF: máximo absoluto da imagem (atual) ou um percentil alto (99,9 %) / MaxCLL. | Com o máximo absoluto, um único píxel especular a 10 000 nits baixa o joelho da imagem inteira (ex.: HDR 7300 nits → SDR: joelho a 28 nits). Um percentil preserva os meios-tons e corta os extremos. Decidir com imagens HDR reais na Fase 1. |
+| D-P11 | Língua do README público de apresentação (pedido do Nuno para a 1.ª versão) e do `CONTRIBUTING`. | **Inglês**, com versão pt-PT opcional: o público (estúdios, plataformas, profissionais de cor) é internacional. Os documentos internos (este plano) continuam em pt-PT. |
 
 ---
 

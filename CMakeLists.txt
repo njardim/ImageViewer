@@ -79,3 +79,10 @@ qt_generate_deploy_app_script(TARGET imageviewer
     NO_TRANSLATIONS
 )
 install(SCRIPT ${deploy_script})
+
+# Apache-2.0 section 4: every redistribution carries the licence and the NOTICE file.
+if(APPLE)
+    install(FILES LICENSE NOTICE DESTINATION imageViewer.app/Contents/Resources)
+else()
+    install(FILES LICENSE NOTICE DESTINATION .)
+endif()

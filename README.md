@@ -40,3 +40,7 @@ Para desenvolver em Linux sem vcpkg, use `scripts/build-qt-linux.sh` (compila o 
 | Botão direito | Menu |
 
 Para forçar o modo de saída, use `IMAGEVIEWER_OUTPUT=sdr|hdr10`.
+
+## Licença
+
+[Apache License 2.0](LICENSE). Ver também [`NOTICE`](NOTICE): a marca "Cristallumnis" não está incluída na licença. As contribuições são aceites com *sign-off* DCO (`git commit -s`).

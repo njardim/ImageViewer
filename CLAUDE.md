@@ -3,13 +3,13 @@
 **Read `docs/PLANO.md` first.** It is the single source of truth: current status (§1), decision log (§2), architecture (§6), fidelity criteria (§7), phases with checkboxes (§9), and pending decisions (§13). Do not re-derive decisions recorded there; do not re-open them without new evidence.
 
 ## What this is
-Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.11**, minimalist UI, **verifiable colour fidelity in SDR and HDR**, format coverage ≥ qView ∪ ImageGlass ∪ FFmpeg image2. Owner: Nuno Jardim (Cristallumnis). Product is proprietary (see pending decision D-P01 about the repo's MIT LICENSE).
+Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.11**, minimalist UI, **verifiable colour fidelity in SDR and HDR**, format coverage ≥ qView ∪ ImageGlass ∪ FFmpeg image2. Owner: Nuno Jardim (Cristallumnis). **Open source under Apache-2.0** (decision D-18): `LICENSE` + `NOTICE` ship in every package; the Cristallumnis trademark is not licensed; future Cristallumnis AI modules are separate proprietary plugins (open core); contributions need a DCO sign-off.
 
 ## Rules
 - **Language:** talk to the user and write docs in European Portuguese (pt-PT); code, identifiers, comments and commit messages in English.
 - **Keep the structure minimal** (decision D-08): one executable target, flat `src/`, one `CMakeLists.txt`. Split a file only when it exceeds ~800 lines. No new directories or abstraction layers without a recorded decision.
 - **Never copy code from qView or ImageGlass** (GPL-3). They are behavioural references only (D-11).
-- **Licences:** only LGPL (dynamically linked) or permissive dependencies. Excluded: exiv2, FFmpeg `gpl`/`nonfree`, x265, LibRaw GPL packs, Ghostscript, PyQt.
+- **Licences:** only LGPL (dynamically linked) or permissive dependencies (GPL is incompatible with shipping under Apache-2.0). Excluded: exiv2, FFmpeg `gpl`/`nonfree`, x265, LibRaw GPL packs, Ghostscript, PyQt.
 - **Colour pipeline invariant:** decoders output native depth + colour descriptor; conversion to **linear scRGB (RGBA16F, premultiplied)** happens once on the CPU; the shader only does exposure, tone mapping and output encoding (ScRGB / PQ / SdrIcc). Never quantize below FP16 before output.
 - **Viewer is a `QWindow` with its own QRhi swapchain** (D-09) — Widgets cannot do HDR. Dialogs/menus may use Widgets.
 - **Evidence:** when adding claims to the plan, tag them `[código]`, `[doc]`, `[teste]`, `[conhecimento]` or `[inferência]`.

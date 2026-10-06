@@ -1,0 +1,114 @@
+name: build
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  QT_VERSION: "6.11.2"
+  VCPKG_COMMIT: "434307da09bc05b2c86996dccc8b2351fc0d5d37" # keep equal to vcpkg.json builtin-baseline
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-2025
+            preset: windows
+            triplet: x64-windows
+            exe: build/windows/imageViewer.exe
+          - name: macOS arm64
+            os: macos-15
+            preset: macos
+            triplet: arm64-osx-dynamic
+            exe: build/macos/imageViewer.app/Contents/MacOS/imageViewer
+          - name: Linux x64
+            os: ubuntu-24.04
+            preset: linux
+            triplet: x64-linux-dynamic
+            exe: build/linux/imageViewer
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: System packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libegl1-mesa-dev libvulkan-dev libxkbcommon-dev \
+            libxkbcommon-x11-dev libfontconfig1-dev libfreetype-dev pkg-config nasm autoconf \
+            autoconf-archive automake libtool bison flex python3-venv
+
+      - name: System packages (macOS)
+        if: runner.os == 'macOS'
+        run: brew install nasm pkg-config autoconf autoconf-archive automake libtool
+
+      - uses: lukka/get-cmake@latest # CMake + Ninja
+
+      - name: MSVC environment (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Qt ${{ env.QT_VERSION }}
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: qtshadertools qtimageformats
+          cache: true
+
+      - name: vcpkg
+        shell: bash
+        run: |
+          git clone --filter=tree:0 https://github.com/microsoft/vcpkg "$RUNNER_TEMP/vcpkg"
+          git -C "$RUNNER_TEMP/vcpkg" checkout "$VCPKG_COMMIT"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            "$RUNNER_TEMP/vcpkg/bootstrap-vcpkg.bat" -disableMetrics
+          else
+            "$RUNNER_TEMP/vcpkg/bootstrap-vcpkg.sh" -disableMetrics
+          fi
+          echo "VCPKG_ROOT=$RUNNER_TEMP/vcpkg" >> "$GITHUB_ENV"
+          echo "VCPKG_BINARY_SOURCES=clear;files,$RUNNER_TEMP/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/vcpkg-cache"
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-cache
+          key: vcpkg-${{ matrix.triplet }}-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.triplet }}-
+
+      - name: Configure
+        shell: bash
+        run: cmake --preset ${{ matrix.preset }} -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+
+      - name: Save vcpkg binary cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-cache
+          key: vcpkg-${{ matrix.triplet }}-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json') }}-${{ github.run_id }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Smoke test (decode + colour pipeline)
+        shell: bash
+        run: tests/smoke.sh "${{ matrix.exe }}"
+
+      - name: Deploy
+        shell: bash
+        run: cmake --install build/${{ matrix.preset }} --prefix "$RUNNER_TEMP/dist"
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: imageViewer-${{ matrix.preset }}-${{ github.sha }}
+          path: ${{ runner.temp }}/dist
+          if-no-files-found: error

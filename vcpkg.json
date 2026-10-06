@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "imageviewer",
+  "version": "0.1.0",
+  "description": "Image viewer with verifiable SDR/HDR colour fidelity. Licence rules: docs/PLANO.md §5.",
+  "builtin-baseline": "434307da09bc05b2c86996dccc8b2351fc0d5d37",
+  "dependencies": [
+    {
+      "name": "openimageio",
+      "default-features": false,
+      "features": ["gif", "jpegxl", "libheif", "libraw", "openjpeg", "webp"]
+    },
+    {
+      "$comment": "No default features: 'hevc' pulls the x265 encoder (GPL-2.0). HEIC decoding uses libde265 (LGPL) regardless.",
+      "name": "libheif",
+      "default-features": false,
+      "features": ["aom"]
+    },
+    {
+      "$comment": "Never enable 'fastfloat' or 'threaded': both plugins are GPL-3.0.",
+      "name": "lcms",
+      "default-features": false
+    }
+  ]
+}

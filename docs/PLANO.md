@@ -28,16 +28,27 @@
 | Data | 2026-10-06 |
 | Fase | **0: Fundação** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
-| Último marco | Plano redefinido para C++/Qt 6 com HDR de raiz (decisões D-05 a D-08). |
-| Próximos passos | Ver §9, Fase 0: esqueleto CMake/vcpkg, janela QRhi com saída SDR/HDR, CI nas 3 plataformas. |
-| Bloqueios | Nenhum. As decisões pendentes (§13) não bloqueiam a Fase 0. |
+| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Pipeline de cor validado por testes de fumo: P3→scRGB sem limites, EXR > 1.0, orientação EXIF. CI para os 3 sistemas criado. |
+| Próximos passos | **1.** Confirmar o CI verde nos 3 sistemas (o 1.º build do vcpkg é longo) e corrigir o que falhar. **2.** Validar a janela QRhi em execução: Xvfb em Linux e, manualmente, em Windows/macOS com HDR. **3.** Fase 1 (§9). |
+| Bloqueios | Nenhum. A decisão D-P01 (licença MIT do repositório) continua com o Nuno. |
+
+**O que existe no código** (`src/`, cerca de 1 500 linhas):
+- descodificação OIIO com recurso ao `QImageReader`;
+- conversão única para scRGB linear em RGBA16F: LittleCMS sem limites, CICP analítico (PQ, HLG, sRGB, BT.1886, γ), espaços de cor do OIIO (incluindo ACES AP0/AP1) e cromaticidades EXR;
+- orientação EXIF;
+- janela `QWindow` + QRhi: D3D11 no Windows, Metal no macOS, Vulkan ou OpenGL no Linux;
+- escolha automática da swapchain: scRGB/EDR quando o ecrã suporta HDR, HDR10, senão SDR;
+- `hdrInfo` → escala do branco SDR e pico do ecrã;
+- shader com saídas SDR, scRGB e PQ;
+- overlay de diagnóstico ao nível do branco SDR;
+- zoom no cursor, 100 % exatos, pan, rotação e espelho da vista, exposição, aviso de clipping;
+- navegação na pasta com ordenação natural; arrastar e largar; menu de contexto; `--info`.
 
 **Notas para sessões na cloud** (contentor Linux):
-- `download.qt.io` e os *releases* do GitHub estão bloqueados pelo proxy `[teste]`. O Qt 6.11 tem de ser compilado a partir do código-fonte no GitHub (`scripts/build-qt-linux.sh`).
-- As dependências de imagem para testes locais vêm do apt do Ubuntu 24.04 (OIIO 2.4, FFmpeg 6.1, lcms 2.14).
-- As versões de produção (OIIO 3.1, FFmpeg 9) vêm do vcpkg, em CI.
-
----
+- `download.qt.io` e os *releases* do GitHub estão bloqueados pelo proxy `[teste]`. O Qt 6.11 compila-se a partir do GitHub com `scripts/build-qt-linux.sh` (≈15 min com 4 vCPU).
+- As dependências de imagem vêm do apt do Ubuntu 24.04 (OIIO 2.4, lcms 2.14).
+- Fluxo: `cmake --preset linux-system && cmake --build --preset linux-system && tests/smoke.sh build/linux-system/imageViewer`.
+- A plataforma Qt `offscreen` não expõe a janela, por isso não exercita o renderizador. Para isso é preciso Xvfb com o plugin xcb (o script já o compila).
 
 ## 2. Registo de decisões
 
@@ -176,7 +187,8 @@ Versões verificadas nos *ports* do vcpkg a 2026-10-06 `[teste: microsoft/vcpkg 
 **Licenças excluídas:**
 - exiv2 (GPL-2): os metadados vêm do OIIO.
 - Funcionalidades `gpl` e `nonfree` do FFmpeg.
-- x265.
+- x265, incluindo a feature **por omissão** `hevc` do libheif no vcpkg `[teste: vcpkg ports/libheif]`. A descodificação HEIC usa o libde265 sem essa feature.
+- Plugins `fastfloat` e `threaded` do lcms (GPL-3.0) `[teste: vcpkg ports/lcms]`.
 - Packs GPL do LibRaw.
 - Ghostscript (AGPL).
 
@@ -387,11 +399,11 @@ A aplicação garante fidelidade **até ao buffer entregue ao sistema**. O que a
 Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semanas para um engenheiro sénior com assistência de IA `[estimativa; confiança baixa]`.
 
 ### Fase 0 — Fundação (M)
-- [ ] `CMakeLists.txt`, `CMakePresets.json`, `vcpkg.json`, `CLAUDE.md`, `scripts/build-qt-linux.sh`
-- [ ] Janela QRhi: escolhe a swapchain (SDR, scRGB ou HDR10) por sistema e regista `hdrInfo` em log
-- [ ] Descodificação mínima (OIIO + recurso Qt) → scRGB linear → textura → shader com modos de saída
-- [ ] Ajustar, 100 %, zoom no cursor, pan, anterior/seguinte, arrastar e largar, `QFileOpenEvent`
-- [ ] CI GitHub Actions: Windows x64, macOS arm64, Linux x64 → artefactos (zip, `.app`/DMG, AppImage), sem assinatura
+- [x] `CMakeLists.txt`, `CMakePresets.json`, `vcpkg.json`, `CLAUDE.md`, `scripts/build-qt-linux.sh`
+- [x] Janela QRhi: escolhe a swapchain (SDR, scRGB ou HDR10) por sistema e regista `hdrInfo` em log *(compila; falta validar em execução)*
+- [x] Descodificação mínima (OIIO + recurso Qt) → scRGB linear → textura → shader com modos de saída
+- [x] Ajustar, 100 %, zoom no cursor, pan, anterior/seguinte, arrastar e largar, `QFileOpenEvent` *(falta validar em execução)*
+- [~] CI GitHub Actions: Windows x64, macOS arm64, Linux x64 → build, testes de fumo e artefacto de instalação (zip). *DMG e AppImage ficam para a Fase 4.*
 - [ ] Medição do arranque até à 1.ª frame e do tamanho dos pacotes
 
 **Aceitação:**
@@ -572,5 +584,10 @@ Origem das listas:
 - `QRhiSwapChainHdrInfo { LuminanceInNits | ColorComponentValue, sdrWhiteLevel }`.
 - Backends HDR em D3D11, D3D12, Vulkan e Metal.
 - Widgets sem HDR; Qt Quick com HDR só via `QSG_RHI_HDR`.
+
+**Pipeline C++ (build local, Qt 6.11.2 compilado + OIIO 2.4 do apt)** `[teste]`:
+- Display P3 vermelho (ICC) → scRGB (1,2246; −0,0421; −0,0196). O valor analítico é (1,2249; −0,0421; −0,0196), igual dentro da precisão FP16: a transformação LittleCMS em float com `NOOPTIMIZE` não corta a gama.
+- EXR com valor 4,0 é preservado.
+- A orientação EXIF 6 é aplicada uma única vez.
 
 **vcpkg:** versões e licenças na §5. Não existem *ports* de ImageMagick, kimageformats, libultrahdr nem resvg. O exiv2 é GPL-2.

@@ -29,7 +29,7 @@
 | Fase | **0: Fundação** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
 | Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. |
-| CI | Run 3: **macOS arm64 e Linux x64 verdes** (build, testes de fumo, teste de ecrã, pacote). **Windows:** só falta instalar o Qt 6.11.2 (o aqtinstall falha a extrair); a correção está no run 4. |
+| CI | Run 4 (328d6cc): **macOS arm64 verde, incluindo o pacote `.dmg`**. **Windows:** o Qt 6.11.2 já instala; o 1.º build das dependências vcpkg está em curso. **Linux:** o teste de ecrã falhou por esperar 6 s fixos; passa a fazer *polling* até 60 s (próximo commit). |
 | Próximos passos | **1.** Windows verde no CI. **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (pacotes do CI). **3.** Fase 1 (§9). **4.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
 | Bloqueios | Nenhum. A licença (D-P01) aguarda decisão do Nuno; a recomendação está em §13. |
 
@@ -59,7 +59,15 @@
 - **Run 2:**
   - **macOS arm64 verde:** build, testes de fumo, deploy e artefacto.
   - **Linux:** build e testes de fumo verdes. O teste de ecrã falhou só porque faltava o numpy no Python do `setup-python` (corrigido com `pip`).
+- **Run 3:** macOS e Linux verdes. No Windows, as extrações paralelas do 7-Zip externo colidiram na mesma pasta. Correção: instalar só os arquivos usados (`qtbase d3dcompiler_47 opengl32sw`) com o extrator por omissão.
+- **Run 4:**
+  - **Windows:** a instalação do Qt passou.
+  - **macOS:** verde, incluindo `Package` (`.dmg`) e `Upload`.
+  - **Linux:** o teste de ecrã não encontrou a imagem. O log do visualizador tinha só a linha de descodificação, sem a linha `backend`: aos 6 s o renderizador ainda não tinha arrancado `[teste]`.
+  - **Causa:** o teste esperava um tempo fixo. Localmente, a janela Vulkan (lavapipe) fica exata em 0,9–1,3 s; numa execução a frio demorou 11 s `[teste]`. Num runner acabado de instalar, o arranque do Mesa/LLVM pode passar dos 6 s `[inferência]`.
+  - **Correção:** `tests/screen_test.py` faz *polling* do ecrã até a imagem aparecer exata, com prazo de 60 s, e falha logo se o visualizador terminar. O log passa a ter tempos por linha. Em caso de falha, o CI guarda a captura e o log como artefacto.
 - O 1.º build das dependências do vcpkg é longo. A cache binária guarda-se mesmo se o job falhar (`if: always()`).
+- Um push novo para o ramo cancela o run em curso (grupo de concorrência). Durante o 1.º build vcpkg do Windows, convém reter o push até o job terminar.
 - O workflow cancela execuções antigas do mesmo ramo. Isto é relevante porque os minutos macOS custam 10× num repositório privado `[conhecimento]`.
 
 ## 2. Registo de decisões

@@ -128,6 +128,8 @@ jobs:
 
       - name: On-screen fidelity test (Linux, Xvfb + lavapipe/llvmpipe)
         if: runner.os == 'Linux'
+        env:
+          SCREEN_TEST_DIR: ${{ runner.temp }}/screen-test
         run: |
           sudo apt-get install -y xvfb x11-apps imagemagick mesa-vulkan-drivers \
             libgl1-mesa-dri libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 \
@@ -136,6 +138,14 @@ jobs:
           python3 -m pip install --quiet numpy pillow
           python3 tests/screen_test.py "${{ matrix.exe }}" vulkan
           python3 tests/screen_test.py "${{ matrix.exe }}" opengl
+
+      - name: Upload screen test evidence (on failure)
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-test-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/screen-test
+          if-no-files-found: ignore
 
       - name: Deploy
         shell: bash

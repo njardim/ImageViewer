@@ -13,6 +13,7 @@ layout(std140, binding = 0) uniform Params {
     vec4 adjust; // x: exposure multiplier, y: output units per working unit, z: output peak, w: unused
     vec4 tone;   // x: nits per output unit, y: content peak (output units; <= peak: clip, no tone mapping),
                  // z: PQ(content peak in nits), w: PQ(output peak) / PQ(content peak)
+    vec4 background; // rgb: what translucent image pixels composite over (linear, output units)
     ivec4 modes; // x: 0 SDR sRGB, 1 linear scRGB/EDR, 2 PQ BT.2020; y: 0 image, 1 overlay; z: clip warning
 };
 
@@ -91,6 +92,12 @@ void main()
     rgb = min(rgb, vec3(peak));
     if (modes.z != 0 && modes.y == 0 && altered)
         rgb = vec3(peak, 0.0, peak);
+
+    if (modes.y == 0) {
+        // Composite in linear light, so alpha means the same in every output encoding (F6).
+        rgb = rgb * alpha + background.rgb * (1.0 - alpha);
+        alpha = 1.0;
+    }
 
     vec3 encoded;
     if (modes.x == MODE_SCRGB)

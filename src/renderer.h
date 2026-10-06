@@ -72,6 +72,8 @@ public:
     // The output-stage parameters the shader receives for the image layer.
     static color::OutputStage stageFor(const Output &output, const Frame &frame);
 
+    enum class RenderResult { Done, NotReady, DeviceLost };
+
     // `window` may be null for offscreen use (renderToBuffer).
     explicit Renderer(QWindow *window);
     ~Renderer();
@@ -80,6 +82,9 @@ public:
     void setVulkanInstance(QVulkanInstance *instance) { m_vulkanInstance = instance; }
     bool initialize(QString *error);
     bool isInitialized() const { return m_rhi != nullptr; }
+    // Drops every GPU object and the QRhi itself; initialize() may be called again
+    // (recovery after RenderResult::DeviceLost). Pending pixels are discarded too.
+    void releaseResources();
     void releaseSwapChain();
     // Re-evaluates the swapchain format (e.g. after moving to another screen).
     void refreshOutput();
@@ -89,7 +94,10 @@ public:
     void clearImage();
     void setOverlay(const QImage &overlay); // RGBA8888_Premultiplied, device pixels
 
-    void render(const Frame &frame);
+    RenderResult render(const Frame &frame);
+    // True once after an image could not be put on the GPU (e.g. larger than the
+    // device allows); the image is then not shown.
+    bool takeImageUploadFailure();
 
     // Fidelity harness: draws `frame` with `output` into a float target of `size`
     // cleared to transparent black and reads it back (RGBA, rows top to bottom).
@@ -108,8 +116,10 @@ private:
     void destroySwapChainResources();
     bool ensureSwapChain();
     void updateOutput();
+    bool outputIsMeasured() const; // hdrInfo comes from the OS, not Qt's built-in defaults
     QRhiGraphicsPipeline *createPipeline(QRhiRenderPassDescriptor *renderPass, bool blend = true);
     QRhiResourceUpdateBatch *takeUpdates(); // pending uploads for this frame
+    void bindImageTexture(QRhiTexture *texture);
     void recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhiGraphicsPipeline *pipeline,
                      QRhiResourceUpdateBatch *updates, const Frame &frame, const Output &output,
                      const float clearColour[4], QRhiResourceUpdateBatch *afterPass);
@@ -127,19 +137,23 @@ private:
     QRhiSampler *m_linearSampler = nullptr;
     QRhiSampler *m_nearestSampler = nullptr;
     QRhiSampler *m_overlaySampler = nullptr;
-    QRhiTexture *m_imageTexture = nullptr;
+    QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
+    QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
     QRhiTexture *m_overlayTexture = nullptr;
     QRhiShaderResourceBindings *m_imageBindingsLinear = nullptr;
     QRhiShaderResourceBindings *m_imageBindingsNearest = nullptr;
     QRhiShaderResourceBindings *m_overlayBindings = nullptr;
     QRhiResourceUpdateBatch *m_initialUpdates = nullptr;
     bool m_swapChainReady = false;
+    bool m_outputDirty = true; // hdrInfo must be read again
     Output m_output;
 
     std::vector<qfloat16> m_pendingPixels;
     QSize m_pendingSize;
     bool m_imagePending = false;
+    bool m_uploadInFlight = false; // m_pendingPixels back an upload until the frame ends
     bool m_hasImage = false;
+    bool m_imageUploadFailed = false;
     QImage m_pendingOverlay;
     bool m_overlayPending = false;
     bool m_hasOverlay = false;

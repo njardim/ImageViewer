@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <utility>
 
 Q_LOGGING_CATEGORY(lcRender, "imageviewer.render")
 
@@ -20,9 +21,10 @@ struct Uniforms {
     float clipCorrection[16];
     float adjust[4];
     float tone[4];
+    float background[4];
     qint32 modes[4];
 };
-static_assert(sizeof(Uniforms) == 112, "uniform block must match the shaders");
+static_assert(sizeof(Uniforms) == 128, "uniform block must match the shaders");
 
 constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
 constexpr int kQuadBytes = 4 * kVertexStride;
@@ -66,6 +68,7 @@ void setStage(Uniforms *u, const color::OutputStage &s)
         u->tone[2] = 1.0f;
         u->tone[3] = 1.0f;
     }
+    std::copy(s.background, s.background + 3, u->background);
     u->modes[0] = int(s.encoding);
     u->modes[2] = s.clipWarning ? 1 : 0;
 }
@@ -84,7 +87,8 @@ Renderer::Output Renderer::edrOutput(float headroom)
     Output out;
     out.mode = OutputMode::ScRgb;
     out.peak = std::max(1.0f, headroom);
-    out.description = QStringLiteral("EDR · headroom %1×").arg(double(out.peak), 0, 'f', 2);
+    out.description = out.peak > 1.0f ? QStringLiteral("EDR · headroom %1×").arg(double(out.peak), 0, 'f', 2)
+                                      : QStringLiteral("sRGB linear gerido pelo ColorSync · sem headroom HDR");
     return out;
 }
 
@@ -124,8 +128,10 @@ color::OutputStage Renderer::stageFor(const Output &output, const Frame &frame)
     // Tone mapping only when the content's luminance exceeds the output: SDR content with
     // wide-gamut components above 1.0 is a gamut matter, not a luminance one, and stays untouched.
     const float k = s.exposure * s.scale;
-    if (frame.toneMap && frame.contentLuminancePeak * k > s.peak)
-        s.sourcePeak = frame.contentPeak * k;
+    if (frame.toneMap && frame.contentLuminancePeak * k > s.peak) // PQ, hence the EETF, ends at 10 000 nits
+        s.sourcePeak = std::min(frame.contentPeak * k, color::kPqPeakNits / s.nitsPerUnit);
+    for (int c = 0; c < 3; ++c) // the UI grey sits relative to SDR white, like the overlay
+        s.background[c] = color::srgbToLinear(frame.background[c]) * output.scale;
     return s;
 }
 
@@ -133,15 +139,38 @@ Renderer::Renderer(QWindow *window) : m_window(window) {}
 
 Renderer::~Renderer()
 {
+    releaseResources();
+}
+
+void Renderer::releaseResources()
+{
     destroySwapChainResources();
     if (m_initialUpdates)
         m_initialUpdates->release();
-    for (QRhiResource *r : std::initializer_list<QRhiResource *>{
-             m_imageBindingsLinear, m_imageBindingsNearest, m_overlayBindings, m_imageTexture, m_overlayTexture,
-             m_linearSampler, m_nearestSampler, m_overlaySampler, m_vertices, m_imageUniforms, m_overlayUniforms})
-        delete r;
-    delete m_swapChain;
-    delete m_rhi;
+    m_initialUpdates = nullptr;
+    const auto drop = [](auto *&resource) {
+        delete resource;
+        resource = nullptr;
+    };
+    drop(m_imageBindingsLinear);
+    drop(m_imageBindingsNearest);
+    drop(m_overlayBindings);
+    drop(m_imageTexture);
+    drop(m_placeholderTexture);
+    drop(m_overlayTexture);
+    drop(m_linearSampler);
+    drop(m_nearestSampler);
+    drop(m_overlaySampler);
+    drop(m_vertices);
+    drop(m_imageUniforms);
+    drop(m_overlayUniforms);
+    drop(m_rhi);
+    m_fallbackSurface.reset();
+    m_pendingPixels = {};
+    m_pendingOverlay = QImage();
+    m_imagePending = m_uploadInFlight = m_hasImage = false;
+    m_overlayPending = m_hasOverlay = false;
+    m_outputDirty = true;
 }
 
 bool Renderer::createRhi()
@@ -229,7 +258,7 @@ bool Renderer::initialize(QString *error)
     }
 
     QRhiResourceUpdateBatch *updates = m_rhi->nextResourceUpdateBatch();
-    m_imageTexture = createPlaceholder(m_rhi, QRhiTexture::RGBA16F, updates);
+    m_placeholderTexture = createPlaceholder(m_rhi, QRhiTexture::RGBA16F, updates);
     m_overlayTexture = createPlaceholder(m_rhi, QRhiTexture::RGBA8, updates);
     const auto stages = QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage;
     auto makeBindings = [&](QRhiBuffer *ubuf, QRhiTexture *texture, QRhiSampler *sampler) {
@@ -240,8 +269,8 @@ bool Renderer::initialize(QString *error)
         srb->create();
         return srb;
     };
-    m_imageBindingsLinear = makeBindings(m_imageUniforms, m_imageTexture, m_linearSampler);
-    m_imageBindingsNearest = makeBindings(m_imageUniforms, m_imageTexture, m_nearestSampler);
+    m_imageBindingsLinear = makeBindings(m_imageUniforms, m_placeholderTexture, m_linearSampler);
+    m_imageBindingsNearest = makeBindings(m_imageUniforms, m_placeholderTexture, m_nearestSampler);
     m_overlayBindings = makeBindings(m_overlayUniforms, m_overlayTexture, m_overlaySampler);
     m_initialUpdates = updates; // placeholder uploads ride along with the first frame
 
@@ -277,7 +306,10 @@ int Renderer::chooseFormat() const
         return QRhiSwapChain::SDR;
     if (forced == "hdr10" && supported(QRhiSwapChain::HDR10))
         return QRhiSwapChain::HDR10;
-    if (supported(QRhiSwapChain::HDRExtendedSrgbLinear))
+    // macOS: an SDR layer carries the display's colour space, so sRGB values would reach
+    // wide-gamut screens unconverted. The extended linear sRGB tag works on every screen
+    // (qrhimetal.mm sets it regardless of isFormatSupported) and ColorSync matches it.
+    if (m_rhi->backend() == QRhi::Metal || supported(QRhiSwapChain::HDRExtendedSrgbLinear))
         return QRhiSwapChain::HDRExtendedSrgbLinear;
     if (supported(QRhiSwapChain::HDR10))
         return QRhiSwapChain::HDR10;
@@ -344,10 +376,11 @@ QRhiGraphicsPipeline *Renderer::createPipeline(QRhiRenderPassDescriptor *renderP
 
 void Renderer::releaseSwapChain()
 {
-    if (m_swapChainReady) {
+    // Unconditional: after an out-of-date frame the native swapchain still exists
+    // even though it is not "ready", and it must not outlive its surface.
+    if (m_swapChain)
         m_swapChain->destroy();
-        m_swapChainReady = false;
-    }
+    m_swapChainReady = false;
 }
 
 void Renderer::refreshOutput()
@@ -357,22 +390,42 @@ void Renderer::refreshOutput()
     if (chooseFormat() != int(m_swapChain->format())) {
         destroySwapChainResources();
         createSwapChainResources();
-    } else if (m_swapChainReady) {
-        updateOutput(); // same format, but SDR white or peak may have changed
+    } else if (m_rhi->backend() == QRhi::Metal) {
+        // AppKit re-assigns the layer's colour space on screen and profile changes;
+        // createOrResize() puts the extended linear sRGB tag back.
+        m_swapChainReady = false;
     }
+    m_outputDirty = true; // same format, but SDR white or peak may have changed
     m_window->requestUpdate();
 }
 
 bool Renderer::ensureSwapChain()
 {
-    if (m_swapChainReady && m_swapChain->currentPixelSize() == m_swapChain->surfacePixelSize())
-        return true;
-    if (m_swapChain->surfacePixelSize().isEmpty())
-        return false;
-    m_swapChainReady = m_swapChain->createOrResize();
-    if (m_swapChainReady)
+    if (!m_swapChainReady || m_swapChain->currentPixelSize() != m_swapChain->surfacePixelSize()) {
+        if (m_swapChain->surfacePixelSize().isEmpty())
+            return false;
+        m_swapChainReady = m_swapChain->createOrResize();
+        if (!m_swapChainReady)
+            return false;
+    }
+    // hdrInfo() can be expensive (DXGI output enumeration): read it when the format or
+    // screen changes, not on every resize. The EDR headroom on macOS is the exception:
+    // it is cheap, is often wrong on the first frame and follows the brightness slider.
+    if (m_outputDirty || m_rhi->backend() == QRhi::Metal) {
         updateOutput();
-    return m_swapChainReady;
+        m_outputDirty = false;
+    }
+    return true;
+}
+
+bool Renderer::outputIsMeasured() const
+{
+    // EDR headroom comes from AppKit; nits and SDR white only from DXGI on Windows.
+    // Everywhere else Qt reports fixed defaults (1000 nits peak, SDR white 200).
+    const QRhi::Implementation backend = m_rhi->backend();
+    return m_swapChain->hdrInfo().limitsType == QRhiSwapChainHdrInfo::ColorComponentValue
+               ? m_swapChain->format() != QRhiSwapChain::HDR10
+               : backend == QRhi::D3D11 || backend == QRhi::D3D12;
 }
 
 void Renderer::updateOutput()
@@ -382,23 +435,27 @@ void Renderer::updateOutput()
                                    && info.limits.luminanceInNits.maxLuminance > 0
                                ? info.limits.luminanceInNits.maxLuminance
                                : 1000.0f;
+    Output out;
     switch (m_swapChain->format()) {
     case QRhiSwapChain::HDRExtendedSrgbLinear:
-    case QRhiSwapChain::HDRExtendedDisplayP3Linear:
         if (info.limitsType == QRhiSwapChainHdrInfo::ColorComponentValue)
-            m_output = edrOutput(info.limits.colorComponentValue.maxColorComponentValue);
+            out = edrOutput(info.limits.colorComponentValue.maxColorComponentValue);
         else // Windows: SDR white follows the user's SDR brightness setting
-            m_output = scRgbOutput(info.sdrWhiteLevel > 0 ? info.sdrWhiteLevel : kScRgbUnitNits, peakNits);
+            out = scRgbOutput(info.sdrWhiteLevel > 0 ? info.sdrWhiteLevel : kScRgbUnitNits, peakNits);
         break;
     case QRhiSwapChain::HDR10:
-        m_output = pqOutput(info.sdrWhiteLevel > 0 ? info.sdrWhiteLevel : color::kSdrReferenceWhiteNits, peakNits);
+        out = pqOutput(info.sdrWhiteLevel > 0 ? info.sdrWhiteLevel : color::kSdrReferenceWhiteNits, peakNits);
         break;
     case QRhiSwapChain::SDR:
     default:
-        m_output = sdrOutput();
+        out = sdrOutput();
         break;
     }
-    qCInfo(lcRender) << "output" << m_output.description << info;
+    if (out.mode != OutputMode::Sdr && !outputIsMeasured())
+        out.description += QStringLiteral(" (valores por omissão do Qt, não medidos)");
+    if (out.description != m_output.description)
+        qCInfo(lcRender) << "output" << out.description << info;
+    m_output = out;
 }
 
 void Renderer::setImage(std::vector<qfloat16> pixels, QSize size)
@@ -410,9 +467,15 @@ void Renderer::setImage(std::vector<qfloat16> pixels, QSize size)
 
 void Renderer::clearImage()
 {
-    m_pendingPixels.clear();
+    m_pendingPixels = {};
     m_imagePending = false;
     m_hasImage = false;
+    if (m_imageTexture) { // give the GPU memory back now, not at the next image
+        bindImageTexture(m_placeholderTexture);
+        m_imageTexture->destroy();
+        m_imageTexture->deleteLater();
+        m_imageTexture = nullptr;
+    }
 }
 
 void Renderer::setOverlay(const QImage &overlay)
@@ -432,30 +495,37 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
 
     if (m_imagePending) {
         m_imagePending = false;
+        // Free the previous image before allocating the next one, so two large textures never
+        // coexist; QRhi defers the native release until the GPU no longer uses it. A fresh
+        // object each time: an upload still queued for an old object must never land in it.
+        if (m_imageTexture) {
+            bindImageTexture(m_placeholderTexture);
+            m_imageTexture->destroy();
+            m_imageTexture->deleteLater();
+            m_imageTexture = nullptr;
+        }
+        m_hasImage = false;
         QRhiTexture *texture = m_rhi->newTexture(QRhiTexture::RGBA16F, m_pendingSize, 1,
                                                  QRhiTexture::MipMapped | QRhiTexture::UsedWithGenerateMips);
         if (texture->create()) {
-            const quint32 bytes = quint32(m_pendingPixels.size() * sizeof(qfloat16));
-            updates->uploadTexture(texture, QRhiTextureUploadDescription(
-                                                {0, 0, QRhiTextureSubresourceUploadDescription(m_pendingPixels.data(), bytes)}));
+            // No copy: m_pendingPixels stays alive until the frame carrying this batch has ended.
+            QRhiTextureSubresourceUploadDescription level0;
+            level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels.data()),
+                                                   qsizetype(m_pendingPixels.size() * sizeof(qfloat16))));
+            updates->uploadTexture(texture, QRhiTextureUploadDescription({0, 0, level0}));
             updates->generateMips(texture);
-            m_imageTexture->deleteLater();
             m_imageTexture = texture;
-            for (QRhiShaderResourceBindings *srb : {m_imageBindingsLinear, m_imageBindingsNearest}) {
-                srb->setBindings({QRhiShaderResourceBinding::uniformBuffer(
-                                      0, QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage,
-                                      m_imageUniforms),
-                                  QRhiShaderResourceBinding::sampledTexture(
-                                      1, QRhiShaderResourceBinding::FragmentStage, m_imageTexture,
-                                      srb == m_imageBindingsLinear ? m_linearSampler : m_nearestSampler)});
-                srb->create();
-            }
+            bindImageTexture(texture);
             m_hasImage = true;
+            m_uploadInFlight = true;
         } else {
+            // Typically larger than the device allows for one resource; the viewer retries
+            // at a lower resolution.
+            qCWarning(lcRender) << "cannot create a texture of" << m_pendingSize;
             delete texture;
-            qCWarning(lcRender) << "cannot create texture of size" << m_pendingSize;
+            m_imageUploadFailed = true;
+            m_pendingPixels = {};
         }
-        m_pendingPixels = {};
     }
 
     if (m_overlayPending) {
@@ -481,36 +551,54 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
     return updates;
 }
 
-void Renderer::render(const Frame &frame)
+void Renderer::bindImageTexture(QRhiTexture *texture)
+{
+    const auto stages = QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage;
+    for (QRhiShaderResourceBindings *srb : {m_imageBindingsLinear, m_imageBindingsNearest}) {
+        srb->setBindings({QRhiShaderResourceBinding::uniformBuffer(0, stages, m_imageUniforms),
+                          QRhiShaderResourceBinding::sampledTexture(
+                              1, QRhiShaderResourceBinding::FragmentStage, texture,
+                              srb == m_imageBindingsLinear ? m_linearSampler : m_nearestSampler)});
+        srb->create();
+    }
+}
+
+bool Renderer::takeImageUploadFailure()
+{
+    return std::exchange(m_imageUploadFailed, false);
+}
+
+Renderer::RenderResult Renderer::render(const Frame &frame)
 {
     if (!m_rhi || !m_swapChain || !ensureSwapChain())
-        return;
+        return RenderResult::NotReady;
 
     QRhi::FrameOpResult result = m_rhi->beginFrame(m_swapChain);
     if (result == QRhi::FrameOpSwapChainOutOfDate) {
         m_swapChainReady = false;
         if (!ensureSwapChain())
-            return;
+            return RenderResult::NotReady;
         result = m_rhi->beginFrame(m_swapChain);
     }
+    if (result == QRhi::FrameOpDeviceLost)
+        return RenderResult::DeviceLost;
     if (result != QRhi::FrameOpSuccess) {
         qCWarning(lcRender) << "beginFrame failed" << result;
-        return;
+        return RenderResult::NotReady;
     }
 
-    // Background: an sRGB-encoded UI grey placed at SDR white, encoded for the output.
-    float clear[4] = {0, 0, 0, 1};
-    for (int c = 0; c < 3; ++c) {
-        const float linear = color::srgbToLinear(frame.background[c]) * m_output.scale;
-        switch (m_output.mode) {
-        case OutputMode::Sdr: clear[c] = frame.background[c]; break;
-        case OutputMode::ScRgb: clear[c] = linear; break;
-        case OutputMode::Pq: clear[c] = color::nitsToPq(linear); break;
-        }
-    }
+    // Background: the UI grey at SDR white, encoded like everything else for the output.
+    const color::OutputStage stage = stageFor(m_output, frame);
+    float clear[4] = {stage.background[0], stage.background[1], stage.background[2], 1.0f};
+    color::encodeOutput(m_output.mode, clear);
     recordFrame(m_swapChain->currentFrameCommandBuffer(), m_swapChain->currentFrameRenderTarget(), m_pipeline,
                 takeUpdates(), frame, m_output, clear, nullptr);
-    m_rhi->endFrame(m_swapChain);
+    result = m_rhi->endFrame(m_swapChain);
+    if (m_uploadInFlight) { // the upload has been submitted; the pixels are no longer needed
+        m_pendingPixels = {};
+        m_uploadInFlight = false;
+    }
+    return result == QRhi::FrameOpDeviceLost ? RenderResult::DeviceLost : RenderResult::Done;
 }
 
 void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhiGraphicsPipeline *pipeline,
@@ -624,6 +712,12 @@ bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize si
     const float transparent[4] = {0, 0, 0, 0};
     recordFrame(cb, target.get(), pipeline.get(), takeUpdates(), frame, output, transparent, after);
     m_rhi->endOffscreenFrame(); // waits for the GPU; the readback is complete afterwards
+    m_pendingPixels = {};
+    m_uploadInFlight = false;
+    if (takeImageUploadFailure()) {
+        *error = QStringLiteral("the image does not fit in one GPU texture");
+        return false;
+    }
 
     const std::size_t values = std::size_t(size.width()) * size.height() * 4;
     const std::size_t bytes = values * (full ? sizeof(float) : sizeof(qfloat16));

@@ -2,6 +2,8 @@
 
 #include <lcms2.h>
 
+#include <QtGlobal>
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -47,27 +49,48 @@ bool samePrimaries(const Chromaticities &a, const Chromaticities &b)
     return near(a.r, b.r) && near(a.g, b.g) && near(a.b, b.b) && near(a.w, b.w);
 }
 
-// Relative linear value (1.0 = SDR reference white) for a single channel.
-float decodeChannel(Transfer t, float v)
-{
-    switch (t) {
-    case Transfer::Linear: return v;
-    case Transfer::Srgb: return srgbToLinear(v);
-    case Transfer::Bt1886: return bt1886ToLinear(v);
-    case Transfer::Gamma18: return v < 0 ? -std::pow(-v, 1.8f) : std::pow(v, 1.8f);
-    case Transfer::Gamma22: return v < 0 ? -std::pow(-v, 2.2f) : std::pow(v, 2.2f);
-    case Transfer::Gamma28: return v < 0 ? -std::pow(-v, 2.8f) : std::pow(v, 2.8f);
-    case Transfer::Pq: return pqToNits(v) / kSdrReferenceWhiteNits;
-    case Transfer::Hlg: break; // needs all three channels, handled separately
-    }
-    return v;
-}
-
 float hlgInverseOetf(float v)
 {
     constexpr float a = 0.17883277f, b = 0.28466892f, c = 0.55991073f;
     v = std::clamp(v, 0.0f, 1.0f);
     return v <= 0.5f ? v * v / 3.0f : (std::exp((v - c) / a) + b) / 12.0f;
+}
+
+float power(float v, float gamma)
+{
+    return v < 0 ? -std::pow(-v, gamma) : std::pow(v, gamma);
+}
+
+// Per-channel decode: relative linear light (1.0 = SDR reference white), except
+// HLG, which yields scene light in [0, 1]; its OOTF needs all three channels.
+float decodeChannel(Transfer t, float gamma, float v)
+{
+    switch (t) {
+    case Transfer::Linear: return v;
+    case Transfer::Srgb: return srgbToLinear(v);
+    case Transfer::Bt1886: return bt1886ToLinear(v);
+    case Transfer::Power: return power(v, gamma);
+    case Transfer::Pq: return pqToNits(v) / kSdrReferenceWhiteNits;
+    case Transfer::Hlg: return hlgInverseOetf(v);
+    }
+    return v;
+}
+
+// D50 as LittleCMS uses it for the ICC profile connection space (cmsD50_XYZ).
+constexpr std::array<double, 3> kD50 = {0.9642, 1.0, 0.8249};
+
+// Bradford chromatic adaptation from white `ws` to white `wd` (XYZ, Y = 1).
+Matrix3 bradford(const std::array<double, 3> &ws, const std::array<double, 3> &wd)
+{
+    const Matrix3 cone = {0.8951, 0.2664, -0.1614, -0.7502, 1.7135, 0.0367, 0.0389, -0.0685, 1.0296};
+    auto apply = [&](const std::array<double, 3> &w) {
+        return std::array<double, 3>{cone[0] * w[0] + cone[1] * w[1] + cone[2] * w[2],
+                                     cone[3] * w[0] + cone[4] * w[1] + cone[5] * w[2],
+                                     cone[6] * w[0] + cone[7] * w[1] + cone[8] * w[2]};
+    };
+    const auto cs = apply(ws), cd = apply(wd);
+    const Matrix3 scale = {cd[0] / cs[0], 0, 0, 0, cd[1] / cs[1], 0, 0, 0, cd[2] / cs[2]};
+    return multiply(inverse(cone), multiply(scale, cone));
 }
 
 cmsHPROFILE createLinearScRgbProfile()
@@ -128,15 +151,15 @@ bool primariesFromCicp(int code, Chromaticities *out)
     }
 }
 
-bool transferFromCicp(int code, Transfer *out)
+bool transferFromCicp(int code, Transfer *out, float *gamma)
 {
     switch (code) {
     case 1:
     case 6:
     case 14:
     case 15: *out = Transfer::Bt1886; return true;
-    case 4: *out = Transfer::Gamma22; return true;
-    case 5: *out = Transfer::Gamma28; return true;
+    case 4: *out = Transfer::Power; *gamma = 2.2f; return true;
+    case 5: *out = Transfer::Power; *gamma = 2.8f; return true;
     case 8: *out = Transfer::Linear; return true;
     case 13: *out = Transfer::Srgb; return true;
     case 16: *out = Transfer::Pq; return true;
@@ -145,15 +168,13 @@ bool transferFromCicp(int code, Transfer *out)
     }
 }
 
-QString transferName(Transfer t)
+QString transferName(Transfer t, float gamma)
 {
     switch (t) {
     case Transfer::Linear: return QStringLiteral("linear");
     case Transfer::Srgb: return QStringLiteral("sRGB");
     case Transfer::Bt1886: return QStringLiteral("BT.1886 (γ2.4)");
-    case Transfer::Gamma18: return QStringLiteral("γ1.8");
-    case Transfer::Gamma22: return QStringLiteral("γ2.2");
-    case Transfer::Gamma28: return QStringLiteral("γ2.8");
+    case Transfer::Power: return QStringLiteral("γ%1").arg(double(gamma), 0, 'g', 3);
     case Transfer::Pq: return QStringLiteral("PQ (ST 2084)");
     case Transfer::Hlg: return QStringLiteral("HLG");
     }
@@ -166,7 +187,8 @@ QString iccDescription(const QByteArray &icc)
     if (!profile)
         return {};
     wchar_t buffer[256] = {};
-    const cmsUInt32Number n = cmsGetProfileInfo(profile, cmsInfoDescription, "en", "US", buffer, 255);
+    // The size is in bytes, not characters (wchar_t is 4 bytes on Linux and macOS).
+    const cmsUInt32Number n = cmsGetProfileInfo(profile, cmsInfoDescription, "en", "US", buffer, sizeof buffer - sizeof(wchar_t));
     cmsCloseProfile(profile);
     return n ? QString::fromWCharArray(buffer).trimmed() : QString();
 }
@@ -242,6 +264,26 @@ constexpr double kBt709ToBt2020[9] = {0.6274039, 0.3292830, 0.0433131, // row-ma
                                       0.0163914, 0.0880133, 0.8955953};
 } // namespace
 
+void encodeOutput(OutputEncoding encoding, float *rgb)
+{
+    switch (encoding) {
+    case OutputEncoding::ScRgb:
+        break; // negative components keep colours outside BT.709
+    case OutputEncoding::Pq: {
+        const float r = rgb[0], g = rgb[1], b = rgb[2];
+        for (int c = 0; c < 3; ++c) {
+            const double *m = kBt709ToBt2020 + 3 * c;
+            rgb[c] = nitsToPq(float(std::max(m[0] * r + m[1] * g + m[2] * b, 0.0)));
+        }
+        break;
+    }
+    case OutputEncoding::Sdr:
+        for (int c = 0; c < 3; ++c)
+            rgb[c] = linearToSrgb(std::clamp(rgb[c], 0.0f, 1.0f));
+        break;
+    }
+}
+
 void applyOutputStage(const OutputStage &s, float *rgba)
 {
     const float alpha = rgba[3];
@@ -270,24 +312,13 @@ void applyOutputStage(const OutputStage &s, float *rgba)
         rgb[1] = 0.0f;
     }
 
-    switch (s.encoding) {
-    case OutputEncoding::ScRgb:
-        break; // negative components keep colours outside BT.709
-    case OutputEncoding::Pq: {
-        const float r = rgb[0], g = rgb[1], b = rgb[2];
-        for (int c = 0; c < 3; ++c) {
-            const double *m = kBt709ToBt2020 + 3 * c;
-            rgb[c] = nitsToPq(float(std::max(m[0] * r + m[1] * g + m[2] * b, 0.0)));
-        }
-        break;
-    }
-    case OutputEncoding::Sdr:
-        for (float &v : rgb)
-            v = linearToSrgb(std::clamp(v, 0.0f, 1.0f));
-        break;
-    }
+    // Translucent pixels composite over the background in linear light, whatever the encoding.
     for (int c = 0; c < 3; ++c)
-        rgba[c] = rgb[c] * alpha;
+        rgb[c] = rgb[c] * alpha + s.background[c] * (1.0f - alpha);
+    encodeOutput(s.encoding, rgb);
+    for (int c = 0; c < 3; ++c)
+        rgba[c] = rgb[c];
+    rgba[3] = 1.0f;
 }
 
 Matrix3 rgbToXyz(const Chromaticities &c)
@@ -303,32 +334,49 @@ Matrix3 rgbToXyz(const Chromaticities &c)
             m[6] * s[0], m[7] * s[1], m[8] * s[2]};
 }
 
+bool isUsable(const Chromaticities &c)
+{
+    for (const double *xy : {c.r, c.g, c.b, c.w})
+        if (!std::isfinite(xy[0]) || !std::isfinite(xy[1]) || std::abs(xy[1]) < 1e-6)
+            return false;
+    if (c.w[1] <= 0)
+        return false;
+    const Matrix3 m = rgbToRgb(c, kBt709);
+    return std::all_of(m.begin(), m.end(), [](double v) { return std::isfinite(v) && std::abs(v) < 1e6; });
+}
+
 Matrix3 rgbToRgb(const Chromaticities &from, const Chromaticities &to)
 {
-    Matrix3 m = multiply(inverse(rgbToXyz(to)), rgbToXyz(from));
+    const Matrix3 toXyz = rgbToXyz(from), fromXyz = inverse(rgbToXyz(to));
     if (sameWhite(from, to))
-        return m;
-    // Bradford chromatic adaptation from the source white to the destination white.
-    const Matrix3 bradford = {0.8951, 0.2664, -0.1614, -0.7502, 1.7135, 0.0367, 0.0389, -0.0685, 1.0296};
-    const auto ws = xyToXyz(from.w), wd = xyToXyz(to.w);
-    auto cone = [&](const std::array<double, 3> &w) {
-        return std::array<double, 3>{bradford[0] * w[0] + bradford[1] * w[1] + bradford[2] * w[2],
-                                     bradford[3] * w[0] + bradford[4] * w[1] + bradford[5] * w[2],
-                                     bradford[6] * w[0] + bradford[7] * w[1] + bradford[8] * w[2]};
-    };
-    const auto cs = cone(ws), cd = cone(wd);
-    const Matrix3 scale = {cd[0] / cs[0], 0, 0, 0, cd[1] / cs[1], 0, 0, 0, cd[2] / cs[2]};
-    const Matrix3 adapt = multiply(inverse(bradford), multiply(scale, bradford));
-    return multiply(inverse(rgbToXyz(to)), multiply(adapt, rgbToXyz(from)));
+        return multiply(fromXyz, toXyz);
+    return multiply(fromXyz, multiply(bradford(xyToXyz(from.w), xyToXyz(to.w)), toXyz));
 }
+
+namespace {
+
+// Fills `lut` (3 x 65536) so that entry c * 65536 + i holds f(c, i / 65535).
+template <typename F>
+std::vector<float> buildLuts(F f)
+{
+    std::vector<float> lut(3 * 65536);
+    for (int c = 0; c < 3; ++c)
+        for (int i = 0; i < 65536; ++i)
+            lut[std::size_t(c) * 65536 + std::size_t(i)] = f(c, float(i) / 65535.0f);
+    return lut;
+}
+
+} // namespace
 
 Converter::Converter(const Descriptor &d, int integerSourceBits)
 {
     if (d.source == Descriptor::Source::Icc) {
-        m_iccTransform = createIccTransform(d.icc, &m_error);
+        if (!initMatrixShaper(d.icc, integerSourceBits))
+            m_iccTransform = createIccTransform(d.icc, &m_error);
         return;
     }
     m_transfer = d.transfer;
+    m_gamma = d.gamma;
     m_convertPrimaries = !samePrimaries(d.primaries, kBt709);
     const Matrix3 toScRgb = rgbToRgb(d.primaries, kBt709);
     for (int i = 0; i < 9; ++i)
@@ -337,19 +385,94 @@ Converter::Converter(const Descriptor &d, int integerSourceBits)
     m_lumaWeights[0] = float(xyz[3]);
     m_lumaWeights[1] = float(xyz[4]);
     m_lumaWeights[2] = float(xyz[5]);
-    // Integer sources hold exact multiples of 1/(2^n - 1): a 16-bit table is exact.
-    if (integerSourceBits > 0 && integerSourceBits <= 16 && m_transfer != Transfer::Linear
-        && m_transfer != Transfer::Hlg) {
-        m_lut.resize(65536);
-        for (int i = 0; i < 65536; ++i)
-            m_lut[std::size_t(i)] = decodeChannel(m_transfer, float(i) / 65535.0f);
+
+    // Integer sources hold exact multiples of 1/(2^n - 1): a 16-bit table is exact,
+    // and it is also where narrow-range codes (16..235 at 8 bits) are expanded.
+    if (integerSourceBits > 0 && integerSourceBits <= 16 && (m_transfer != Transfer::Linear || !d.fullRange)) {
+        const double maxCode = double((1 << integerSourceBits) - 1), k = double(1 << (integerSourceBits - 8));
+        const bool narrow = !d.fullRange;
+        m_lut = buildLuts([&](int, float v) {
+            const float signal = narrow ? float((v * maxCode - 16.0 * k) / (219.0 * k)) : v;
+            return decodeChannel(m_transfer, m_gamma, signal);
+        });
     }
+}
+
+// ICC profiles made of three tone curves and a 3x3 matrix (or one gray curve) are
+// evaluated directly: LittleCMS's float pipeline for them is several times slower,
+// and it clips tabulated curves at 1.0 anyway. The result is the same relative
+// colorimetric transform: source colorants (already in the D50 PCS) to XYZ, then to
+// linear BT.709 whose colorants are Bradford-adapted to D50, as LittleCMS does for
+// the output profile. Profiles with a non-zero black point keep LittleCMS, since
+// black-point compensation would change their shadows.
+bool Converter::initMatrixShaper(const QByteArray &icc, int integerSourceBits)
+{
+    cmsHPROFILE profile = cmsOpenProfileFromMem(icc.constData(), cmsUInt32Number(icc.size()));
+    if (!profile)
+        return false; // the general path reports the error
+    struct Close {
+        cmsHPROFILE p;
+        ~Close() { cmsCloseProfile(p); }
+    } close{profile};
+    if (qEnvironmentVariableIsSet("IMAGEVIEWER_ICC_LCMS")) // diagnostics: force LittleCMS
+        return false;
+
+    std::array<cmsToneCurve *, 3> curves{};
+    Matrix3 sourceToXyz{};
+    const cmsColorSpaceSignature space = cmsGetColorSpace(profile);
+    if (space == cmsSigRgbData && cmsIsMatrixShaper(profile)) {
+        const auto *r = static_cast<const cmsCIEXYZ *>(cmsReadTag(profile, cmsSigRedColorantTag));
+        const auto *g = static_cast<const cmsCIEXYZ *>(cmsReadTag(profile, cmsSigGreenColorantTag));
+        const auto *b = static_cast<const cmsCIEXYZ *>(cmsReadTag(profile, cmsSigBlueColorantTag));
+        curves = {static_cast<cmsToneCurve *>(cmsReadTag(profile, cmsSigRedTRCTag)),
+                  static_cast<cmsToneCurve *>(cmsReadTag(profile, cmsSigGreenTRCTag)),
+                  static_cast<cmsToneCurve *>(cmsReadTag(profile, cmsSigBlueTRCTag))};
+        if (!r || !g || !b || !curves[0] || !curves[1] || !curves[2])
+            return false;
+        sourceToXyz = {r->X, g->X, b->X, r->Y, g->Y, b->Y, r->Z, g->Z, b->Z};
+    } else if (space == cmsSigGrayData && cmsIsMatrixShaper(profile)) {
+        auto *gray = static_cast<cmsToneCurve *>(cmsReadTag(profile, cmsSigGrayTRCTag));
+        if (!gray)
+            return false;
+        curves = {gray, gray, gray}; // gray maps to R = G = B at the white point
+    } else {
+        return false;
+    }
+    cmsCIEXYZ black{};
+    if (cmsDetectBlackPoint(&black, profile, INTENT_RELATIVE_COLORIMETRIC, 0) && black.Y > 1e-5)
+        return false;
+
+    if (space == cmsSigRgbData) {
+        const Matrix3 bt709ToD50 = multiply(bradford(xyToXyz(kBt709.w), kD50), rgbToXyz(kBt709));
+        const Matrix3 m = multiply(inverse(bt709ToD50), sourceToXyz);
+        for (int i = 0; i < 9; ++i)
+            m_matrix[i] = float(m[i]);
+        m_convertPrimaries = true;
+    }
+    if (integerSourceBits > 0 && integerSourceBits <= 16) {
+        m_lut = buildLuts([&](int c, float v) { return cmsEvalToneCurveFloat(curves[std::size_t(c)], v); });
+    } else {
+        for (std::size_t c = 0; c < 3; ++c)
+            m_curves[c] = cmsDupToneCurve(curves[c]); // the profile is closed below
+    }
+    m_transfer = Transfer::Linear; // curves replace the analytic transfer
+    return true;
 }
 
 Converter::~Converter()
 {
     if (m_iccTransform)
         cmsDeleteTransform(static_cast<cmsHTRANSFORM>(m_iccTransform));
+    for (void *curve : m_curves)
+        if (curve)
+            cmsFreeToneCurve(static_cast<cmsToneCurve *>(curve));
+}
+
+float Converter::decode(int channel, float v) const
+{
+    if (const void *curve = m_curves[std::size_t(channel)])
+        return cmsEvalToneCurveFloat(static_cast<const cmsToneCurve *>(curve), v);
+    return decodeChannel(m_transfer, m_gamma, v);
 }
 
 void Converter::apply(float *rgba, std::size_t pixelCount) const
@@ -369,26 +492,29 @@ void Converter::apply(float *rgba, std::size_t pixelCount) const
         return;
     }
 
+    if (!m_lut.empty()) {
+        const float *lut = m_lut.data();
+        for (float *p = rgba; p < end; p += 4)
+            for (int c = 0; c < 3; ++c)
+                p[c] = lut[std::size_t(c) * 65536 + std::size_t(std::lrint(std::clamp(p[c], 0.0f, 1.0f) * 65535.0f))];
+    } else if (m_transfer != Transfer::Linear || m_curves[0]) {
+        for (float *p = rgba; p < end; p += 4)
+            for (int c = 0; c < 3; ++c)
+                p[c] = decode(c, p[c]);
+    }
+
     if (m_transfer == Transfer::Hlg) {
-        // BT.2100 HLG: inverse OETF, then the OOTF for the nominal 1000 cd/m2 display.
+        // BT.2100 HLG OOTF for the nominal 1000 cd/m2 display (gamma 1.2): scene light
+        // to display light, then scaled so that 203 cd/m2 is 1.0.
         const float peak = kHlgNominalPeakNits;
         const float gamma = 1.2f + 0.42f * std::log10(peak / 1000.0f);
         for (float *p = rgba; p < end; p += 4) {
-            const float r = hlgInverseOetf(p[0]), g = hlgInverseOetf(p[1]), b = hlgInverseOetf(p[2]);
-            const float ys = m_lumaWeights[0] * r + m_lumaWeights[1] * g + m_lumaWeights[2] * b;
+            const float ys = m_lumaWeights[0] * p[0] + m_lumaWeights[1] * p[1] + m_lumaWeights[2] * p[2];
             const float k = ys > 0 ? peak * std::pow(ys, gamma - 1.0f) / kSdrReferenceWhiteNits : 0.0f;
-            p[0] = r * k;
-            p[1] = g * k;
-            p[2] = b * k;
+            p[0] *= k;
+            p[1] *= k;
+            p[2] *= k;
         }
-    } else if (!m_lut.empty()) {
-        for (float *p = rgba; p < end; p += 4)
-            for (int c = 0; c < 3; ++c)
-                p[c] = m_lut[std::size_t(std::lrint(std::clamp(p[c], 0.0f, 1.0f) * 65535.0f))];
-    } else if (m_transfer != Transfer::Linear) {
-        for (float *p = rgba; p < end; p += 4)
-            for (int c = 0; c < 3; ++c)
-                p[c] = decodeChannel(m_transfer, p[c]);
     }
 
     if (m_convertPrimaries) {

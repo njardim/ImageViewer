@@ -10,6 +10,7 @@ layout(std140, binding = 0) uniform Params {
     mat4 clipCorrection; // pixels -> clip space, includes QRhi::clipSpaceCorrMatrix()
     vec4 adjust;         // x: exposure multiplier, y: output scale, z: output peak, w: unused
     vec4 tone;           // tone mapping parameters, see image.frag
+    vec4 background;     // see image.frag
     ivec4 modes;         // x: output mode, y: layer, z: clip warning, w: unused
 };
 

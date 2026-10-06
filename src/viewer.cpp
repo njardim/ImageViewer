@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace {
 constexpr int kDefaultMaxTexture = 16384;
@@ -89,25 +90,45 @@ void ViewerWindow::openFile(const QString &path)
     }
 }
 
+int ViewerWindow::textureLimit() const
+{
+    int limit = m_rendererReady ? std::min(kDefaultMaxTexture, m_renderer.maxTextureSize()) : kDefaultMaxTexture;
+    if (m_textureCap > 0)
+        limit = std::min(limit, m_textureCap);
+    return limit;
+}
+
 void ViewerWindow::startLoading(int index)
 {
     if (index < 0 || index >= m_files.size())
         return;
     m_index = index;
-    m_loadingPath = m_files.at(index);
-    const int maxTexture = m_rendererReady ? std::min(kDefaultMaxTexture, m_renderer.maxTextureSize())
-                                           : kDefaultMaxTexture;
-    const QString path = m_loadingPath;
-    m_watcher.setFuture(QtConcurrent::run([path, maxTexture] { return decodeImage(path, maxTexture); }));
-    m_message = tr("A carregar %1…").arg(QFileInfo(path).fileName());
+    m_message = tr("A carregar %1…").arg(QFileInfo(m_files.at(index)).fileName());
     updateOverlay();
+    // One decode at a time: decodes cannot be cancelled, and key auto-repeat would otherwise
+    // stack several full-resolution decodes in memory. The latest request waits its turn.
+    if (m_watcher.isRunning()) {
+        m_pendingIndex = index;
+        return;
+    }
+    m_pendingIndex = -1;
+    m_loadingPath = m_files.at(index);
+    const QString path = m_loadingPath;
+    const int maxTexture = textureLimit();
+    m_watcher.setFuture(QtConcurrent::run([path, maxTexture] { return decodeImage(path, maxTexture); }));
 }
 
 void ViewerWindow::imageDecoded()
 {
-    Image image = m_watcher.result();
+    // takeResult() moves the pixels out; result() would copy them and the future would
+    // keep its own copy alive until the next decode.
+    Image image = m_watcher.future().takeResult();
+    if (m_pendingIndex >= 0) { // superseded while decoding: go straight to the latest request
+        startLoading(std::exchange(m_pendingIndex, -1));
+        return;
+    }
     if (image.path != m_loadingPath)
-        return; // superseded by a newer request
+        return;
     m_loadingPath.clear();
     setTitle(QStringLiteral("%1 — imageViewer").arg(QFileInfo(image.path).fileName()));
 
@@ -324,10 +345,39 @@ void ViewerWindow::render()
         frame.overlayRect = QRectF(QPointF(margin, deviceSize().height() - margin - m_overlaySize.height()),
                                    QSizeF(m_overlaySize));
     }
-    m_renderer.render(frame);
+    if (m_renderer.render(frame) == Renderer::RenderResult::DeviceLost) {
+        recoverFromDeviceLoss();
+        return;
+    }
+    if (m_renderer.takeImageUploadFailure() && m_image.width > 0) {
+        // The GPU refused a texture this large: decode again at half the size.
+        m_textureCap = std::max(m_image.width, m_image.height) / 2;
+        if (m_textureCap >= 512) {
+            startLoading(m_index);
+            m_message = tr("A reduzir a imagem para caber na GPU (máximo %1 px)…").arg(m_textureCap);
+        } else {
+            m_message = tr("A GPU não aceitou a imagem.");
+            m_image = Image();
+        }
+        updateOverlay();
+        return;
+    }
     // The output is only known once the swapchain exists, and changes with the screen.
     if (m_renderer.output().description != m_overlayOutput)
         updateOverlay();
+}
+
+void ViewerWindow::recoverFromDeviceLoss()
+{
+    // Driver reset, update or GPU switch (D3D11 TDR): every GPU object is gone, including
+    // the image, whose pixels only lived on the GPU. Rebuild and decode it again.
+    qWarning("imageViewer: graphics device lost; reinitialising the renderer");
+    m_renderer.releaseResources();
+    m_rendererReady = false;
+    initializeRenderer();
+    if (m_rendererReady && m_index >= 0)
+        startLoading(m_index);
+    requestUpdate();
 }
 
 void ViewerWindow::updateOverlay()
@@ -374,10 +424,13 @@ void ViewerWindow::updateOverlay()
             const double toNits = out.nitsPerUnit;
             const double peakNits = stage.peak * toNits;
             if (stage.sourcePeak > stage.peak) {
-                lines << tr("Tone mapping BT.2390: %1 → %2 nits, idêntico até %3 nits")
-                             .arg(stage.sourcePeak * toNits, 0, 'f', 0)
-                             .arg(peakNits, 0, 'f', 0)
-                             .arg(color::eetfKneeNits(float(stage.sourcePeak * toNits), float(peakNits)), 0, 'f', 0);
+                QString line = tr("Tone mapping BT.2390: %1 → %2 nits, idêntico até %3 nits")
+                                   .arg(stage.sourcePeak * toNits, 0, 'f', 0)
+                                   .arg(peakNits, 0, 'f', 0)
+                                   .arg(color::eetfKneeNits(float(stage.sourcePeak * toNits), float(peakNits)), 0, 'f', 0);
+                if (m_image.maxComponent * stage.exposure * stage.scale * toNits > color::kPqPeakNits)
+                    line += tr(" (acima de 10 000 nits: cortado)");
+                lines << line;
             } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
                 lines << (m_toneMap ? tr("Componentes acima de %1 nits cortados (cor fora da gama da saída)")
                                     : tr("Tone mapping desligado: valores acima de %1 nits cortados"))
@@ -421,6 +474,49 @@ void ViewerWindow::updateOverlay()
     requestUpdate();
 }
 
+void ViewerWindow::rotate(int quarterTurns)
+{
+    m_quarterTurns = ((m_quarterTurns + quarterTurns) % 4 + 4) % 4;
+    clampPan();
+    updateOverlay();
+}
+
+void ViewerWindow::toggleMirror()
+{
+    m_mirrored = !m_mirrored;
+    requestUpdate();
+}
+
+void ViewerWindow::adjustExposure(float ev)
+{
+    m_exposureEv += ev;
+    updateOverlay();
+}
+
+void ViewerWindow::resetExposure()
+{
+    m_exposureEv = 0.0f;
+    updateOverlay();
+}
+
+void ViewerWindow::toggleToneMap()
+{
+    m_toneMap = !m_toneMap;
+    updateOverlay();
+}
+
+void ViewerWindow::toggleClipWarning()
+{
+    m_clipWarning = !m_clipWarning;
+    updateOverlay();
+}
+
+void ViewerWindow::toggleInfo()
+{
+    m_showInfo = !m_showInfo;
+    updateOverlay();
+}
+
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
     if (e->matches(QKeySequence::Open)) {
@@ -453,32 +549,12 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
         if (visibility() == QWindow::FullScreen)
             showNormal();
         break;
-    case Qt::Key_R:
-        m_quarterTurns = (m_quarterTurns + (shift ? 3 : 1)) % 4;
-        clampPan();
-        updateOverlay();
-        requestUpdate();
-        break;
-    case Qt::Key_H:
-        m_mirrored = !m_mirrored;
-        requestUpdate();
-        break;
-    case Qt::Key_I:
-        m_showInfo = !m_showInfo;
-        updateOverlay();
-        break;
-    case Qt::Key_E:
-        m_exposureEv += shift ? -0.5f : 0.5f;
-        updateOverlay();
-        break;
-    case Qt::Key_C:
-        m_clipWarning = !m_clipWarning;
-        updateOverlay();
-        break;
-    case Qt::Key_T:
-        m_toneMap = !m_toneMap;
-        updateOverlay();
-        break;
+    case Qt::Key_R: rotate(shift ? -1 : 1); break;
+    case Qt::Key_H: toggleMirror(); break;
+    case Qt::Key_I: toggleInfo(); break;
+    case Qt::Key_E: adjustExposure(shift ? -0.5f : 0.5f); break;
+    case Qt::Key_C: toggleClipWarning(); break;
+    case Qt::Key_T: toggleToneMap(); break;
     default:
         QWindow::keyPressEvent(e);
         return;
@@ -577,45 +653,17 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     add(tr("Aproximar"), QKeySequence(Qt::Key_Plus), [this, centre] { zoomAt(kZoomStep, centre); });
     add(tr("Afastar"), QKeySequence(Qt::Key_Minus), [this, centre] { zoomAt(1.0 / kZoomStep, centre); });
     menu.addSeparator();
-    add(tr("Rodar para a direita"), QKeySequence(Qt::Key_R), [this] {
-        m_quarterTurns = (m_quarterTurns + 1) % 4;
-        clampPan();
-        updateOverlay();
-    });
-    add(tr("Rodar para a esquerda"), QKeySequence(Qt::SHIFT | Qt::Key_R), [this] {
-        m_quarterTurns = (m_quarterTurns + 3) % 4;
-        clampPan();
-        updateOverlay();
-    });
-    add(tr("Espelhar"), QKeySequence(Qt::Key_H), [this] {
-        m_mirrored = !m_mirrored;
-        requestUpdate();
-    }, m_mirrored, true);
+    add(tr("Rodar para a direita"), QKeySequence(Qt::Key_R), [this] { rotate(1); });
+    add(tr("Rodar para a esquerda"), QKeySequence(Qt::SHIFT | Qt::Key_R), [this] { rotate(-1); });
+    add(tr("Espelhar"), QKeySequence(Qt::Key_H), [this] { toggleMirror(); }, m_mirrored, true);
     menu.addSeparator();
-    add(tr("Exposição +½ EV"), QKeySequence(Qt::Key_E), [this] {
-        m_exposureEv += 0.5f;
-        updateOverlay();
-    });
-    add(tr("Exposição −½ EV"), QKeySequence(Qt::SHIFT | Qt::Key_E), [this] {
-        m_exposureEv -= 0.5f;
-        updateOverlay();
-    });
-    add(tr("Repor exposição"), QKeySequence(), [this] {
-        m_exposureEv = 0.0f;
-        updateOverlay();
-    });
-    add(tr("Tone mapping (BT.2390)"), QKeySequence(Qt::Key_T), [this] {
-        m_toneMap = !m_toneMap;
-        updateOverlay();
-    }, m_toneMap, true);
-    add(tr("Aviso de píxeis alterados (clip ou tone mapping)"), QKeySequence(Qt::Key_C), [this] {
-        m_clipWarning = !m_clipWarning;
-        updateOverlay();
-    }, m_clipWarning, true);
-    add(tr("Informação"), QKeySequence(Qt::Key_I), [this] {
-        m_showInfo = !m_showInfo;
-        updateOverlay();
-    }, m_showInfo, true);
+    add(tr("Exposição +½ EV"), QKeySequence(Qt::Key_E), [this] { adjustExposure(0.5f); });
+    add(tr("Exposição −½ EV"), QKeySequence(Qt::SHIFT | Qt::Key_E), [this] { adjustExposure(-0.5f); });
+    add(tr("Repor exposição"), QKeySequence(), [this] { resetExposure(); });
+    add(tr("Tone mapping (BT.2390)"), QKeySequence(Qt::Key_T), [this] { toggleToneMap(); }, m_toneMap, true);
+    add(tr("Aviso de píxeis alterados (clip ou tone mapping)"), QKeySequence(Qt::Key_C),
+        [this] { toggleClipWarning(); }, m_clipWarning, true);
+    add(tr("Informação"), QKeySequence(Qt::Key_I), [this] { toggleInfo(); }, m_showInfo, true);
     add(tr("Ecrã inteiro"), QKeySequence(Qt::Key_F), [this] { toggleFullScreen(); },
         visibility() == QWindow::FullScreen, true);
     menu.addSeparator();

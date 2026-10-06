@@ -53,6 +53,17 @@ private:
     void clampPan();
     void updateOverlay();
     Renderer::Frame imageFrame() const; // colour-related fields of the current frame
+    int textureLimit() const;           // longest side the GPU texture may have
+    void recoverFromDeviceLoss();
+
+    // View actions, shared by the keyboard and the context menu.
+    void rotate(int quarterTurns);
+    void toggleMirror();
+    void adjustExposure(float ev);
+    void resetExposure();
+    void toggleToneMap();
+    void toggleClipWarning();
+    void toggleInfo();
 
     Renderer m_renderer;
     bool m_rendererReady = false;
@@ -61,6 +72,8 @@ private:
     QStringList m_files;
     int m_index = -1;
     QString m_loadingPath;
+    int m_pendingIndex = -1; // requested while a decode was running; starts when it ends
+    int m_textureCap = 0;    // learnt from a refused upload; 0 = only the device limit
     QFutureWatcher<Image> m_watcher;
     Image m_image; // metadata of the displayed image (pixels live on the GPU)
     QString m_message;

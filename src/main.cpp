@@ -2,6 +2,7 @@
 #include "viewer.h"
 
 #include <QApplication>
+#include <QByteArrayView>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QFileOpenEvent>
@@ -9,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #ifdef IMAGEVIEWER_VULKAN
 #include <QVersionNumber>
@@ -122,6 +124,7 @@ int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance
     Renderer::Frame frame;
     frame.imageRect = QRectF(0, 0, image.width, image.height);
     frame.nearest = true;
+    frame.background[0] = frame.background[1] = frame.background[2] = 0.0f; // translucency over black
     frame.exposure = std::exp2(opt.exposureEv);
     frame.toneMap = opt.toneMap;
     frame.contentPeak = image.maxComponent;
@@ -188,15 +191,46 @@ int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance
     return 0;
 }
 
+// Modes that never open a window run on a QCoreApplication: no platform plugin is
+// loaded, so they work headless (CI checks the packaged binaries this way).
+bool isConsoleMode(int argc, char *argv[])
+{
+    for (int i = 1; i < argc; ++i) {
+        const QByteArrayView arg(argv[i]);
+        if (arg == "--info" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
+            || arg == "--version")
+            return true;
+    }
+    return false;
+}
+
+// Parses an optional numeric option; a malformed value is an error, not a silent 0.
+bool readNumber(const QCommandLineParser &parser, const QCommandLineOption &option, float *out)
+{
+    if (!parser.isSet(option))
+        return true;
+    bool ok = false;
+    const float v = parser.value(option).toFloat(&ok);
+    if (!ok || !std::isfinite(v)) {
+        QTextStream(stderr) << "error: invalid number for --" << option.names().constFirst() << ": "
+                            << parser.value(option) << Qt::endl;
+        return false;
+    }
+    *out = v;
+    return true;
+}
+
 } // namespace
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
-    QApplication::setApplicationName(QStringLiteral("imageViewer"));
-    QApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
-    QApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
-    QApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    const std::unique_ptr<QCoreApplication> app = isConsoleMode(argc, argv)
+                                                      ? std::make_unique<QCoreApplication>(argc, argv)
+                                                      : std::make_unique<QApplication>(argc, argv);
+    QCoreApplication::setApplicationName(QStringLiteral("imageViewer"));
+    QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
+    QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Image viewer with verifiable SDR/HDR colour fidelity."));
@@ -227,7 +261,7 @@ int main(int argc, char *argv[])
     parser.addOptions({renderOption, outputOption, whiteOption, peakOption, exposureOption, noToneMapOption,
                        toleranceOption, pfmOption});
     parser.addPositionalArgument(QStringLiteral("file"), QStringLiteral("Image or folder to open."));
-    parser.process(app);
+    parser.process(*app);
     const QStringList files = parser.positionalArguments();
 
     if (parser.isSet(infoOption))
@@ -248,22 +282,20 @@ int main(int argc, char *argv[])
     if (harness) {
         RenderOptions opt;
         opt.output = parser.value(outputOption).toLower();
-        opt.white = parser.value(whiteOption).toFloat();
-        opt.peak = parser.value(peakOption).toFloat();
-        opt.exposureEv = parser.value(exposureOption).toFloat();
+        if (!readNumber(parser, whiteOption, &opt.white) || !readNumber(parser, peakOption, &opt.peak)
+            || !readNumber(parser, exposureOption, &opt.exposureEv) || !readNumber(parser, toleranceOption, &opt.tolerance))
+            return 2;
         opt.toneMap = !parser.isSet(noToneMapOption);
-        if (parser.isSet(toleranceOption))
-            opt.tolerance = parser.value(toleranceOption).toFloat();
         opt.pfm = parser.value(pfmOption);
         return renderHarness(files.first(), opt, vulkan);
     }
 
     ViewerWindow window(vulkan);
     FileOpenFilter fileOpenFilter(&window);
-    app.installEventFilter(&fileOpenFilter);
+    app->installEventFilter(&fileOpenFilter);
     window.resize(1280, 800);
     window.show();
     if (!files.isEmpty())
         window.openFile(files.first());
-    return app.exec();
+    return app->exec();
 }

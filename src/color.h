@@ -21,13 +21,11 @@ inline constexpr float kHlgNominalPeakNits = 1000.0f;   // BT.2100 reference dis
 
 enum class Transfer {
     Linear,
-    Srgb,     // IEC 61966-2-1
-    Bt1886,   // gamma 2.4 display EOTF (H.273 codes 1, 6, 14, 15)
-    Gamma18,  // OIIO interop "g18"
-    Gamma22,  // H.273 code 4
-    Gamma28,  // H.273 code 5
-    Pq,       // SMPTE ST 2084, absolute luminance
-    Hlg,      // ARIB STD-B67 / BT.2100 HLG
+    Srgb,   // IEC 61966-2-1
+    Bt1886, // gamma 2.4 display EOTF (H.273 codes 1, 6, 14, 15; decision D-12)
+    Power,  // pure power law with exponent Descriptor::gamma (H.273 4 and 5, PNG gAMA, OIIO gNN ids)
+    Pq,     // SMPTE ST 2084, absolute luminance
+    Hlg,    // ARIB STD-B67 / BT.2100 HLG
 };
 
 // CIE xy chromaticities of the red, green, blue primaries and the white point.
@@ -49,6 +47,8 @@ struct Descriptor {
     QByteArray icc;                     // valid when source == Icc
     Chromaticities primaries = kBt709;  // used when source != Icc
     Transfer transfer = Transfer::Srgb; // used when source != Icc
+    float gamma = 2.2f;                 // exponent when transfer == Power
+    bool fullRange = true;              // false: integer codes use the narrow (video) range, H.273
     QString description;                // human readable, for the info panel
 
     bool isHdr() const { return source != Source::Icc && (transfer == Transfer::Pq || transfer == Transfer::Hlg); }
@@ -58,8 +58,10 @@ struct Descriptor {
 
 // ITU-T H.273 code points -> descriptor fields. Return false for codes we do not handle.
 bool primariesFromCicp(int code, Chromaticities *out);
-bool transferFromCicp(int code, Transfer *out);
-QString transferName(Transfer t);
+// False for chromaticities that give no invertible RGB -> XYZ matrix (degenerate file metadata).
+bool isUsable(const Chromaticities &c);
+bool transferFromCicp(int code, Transfer *out, float *gamma);
+QString transferName(Transfer t, float gamma);
 
 // Human-readable description stored in an ICC profile (empty if unreadable).
 QString iccDescription(const QByteArray &icc);
@@ -100,17 +102,31 @@ struct OutputStage {
     float nitsPerUnit = kSdrReferenceWhiteNits; // luminance of one output unit, for the EETF
     float sourcePeak = 0.0f;     // > peak: BT.2390 EETF from this content peak (output units); otherwise clip
     bool clipWarning = false;    // paint values that are not reproduced exactly
+    float background[3] = {0.0f, 0.0f, 0.0f}; // linear, output units; translucent pixels composite over it
 };
 
-// Premultiplied linear scRGB in, premultiplied encoded output values out.
+// The PQ curve (and therefore the EETF) ends at 10 000 cd/m2.
+inline constexpr float kPqPeakNits = 10000.0f;
+
+// Premultiplied linear scRGB in; encoded output values, composited over the
+// background in linear light, out (alpha becomes 1).
 void applyOutputStage(const OutputStage &stage, float *rgba);
+
+// Encodes linear output units (BT.709 primaries) for the output, in place.
+void encodeOutput(OutputEncoding encoding, float *rgb);
 
 // Prepared conversion from the colour encoding described by a Descriptor into
 // linear scRGB. Build once per image; apply() is thread-safe and may be called
 // concurrently on disjoint pixel ranges.
+//
+// Three paths: analytic (CICP and format attributes); ICC matrix/TRC profiles
+// (almost every camera and display profile), evaluated as per-channel curves
+// plus one 3x3 matrix, which is exact for integer sources and keeps parametric
+// curves unbounded; and LittleCMS for every other ICC profile (LUT-based, or
+// with a non-zero black point that black-point compensation would move).
 class Converter {
 public:
-    // `integerSourceBits` (8 or 16) enables an exact lookup table for integer
+    // `integerSourceBits` (8 or 16) enables exact lookup tables for integer
     // sources whose samples were normalised to [0, 1]; pass 0 for float data.
     Converter(const Descriptor &d, int integerSourceBits);
     ~Converter();
@@ -119,17 +135,24 @@ public:
 
     // Non-empty when the descriptor cannot be honoured (e.g. unusable ICC profile).
     const QString &error() const { return m_error; }
+    // True when LittleCMS does the work (diagnostics and tests).
+    bool usesLittleCms() const { return m_iccTransform != nullptr; }
 
     // Converts straight-alpha RGBA float pixels in place; alpha is untouched.
     void apply(float *rgba, std::size_t pixelCount) const;
 
 private:
+    bool initMatrixShaper(const QByteArray &icc, int integerSourceBits);
+    float decode(int channel, float v) const; // per-channel transfer, float sources
+
     Transfer m_transfer = Transfer::Srgb;
-    void *m_iccTransform = nullptr; // cmsHTRANSFORM
-    std::vector<float> m_lut;       // 65536 entries when integer sources allow it
+    float m_gamma = 2.2f;
+    void *m_iccTransform = nullptr;     // cmsHTRANSFORM (general ICC path)
+    std::array<void *, 3> m_curves{};   // cmsToneCurve * (matrix/TRC path)
+    std::vector<float> m_lut;           // 3 x 65536 entries for integer sources
     bool m_convertPrimaries = false;
     float m_matrix[9] = {};
-    float m_lumaWeights[3] = {};    // source-primaries luminance, for the HLG OOTF
+    float m_lumaWeights[3] = {};        // source-primaries luminance, for the HLG OOTF
     QString m_error;
 };
 

@@ -78,6 +78,9 @@ jobs:
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
           aqtsource: git+https://github.com/miurahr/aqtinstall.git
+          # py7zr rejects a path in the 6.11 qtsvg archive (run 2: "Bad7zFile:
+          # Specified path is bad: include/QtSvg"); extract with the runner's 7-Zip.
+          extra: --external 7z
           cache: true
 
       - name: vcpkg
@@ -122,9 +125,11 @@ jobs:
       - name: On-screen fidelity test (Linux, Xvfb + lavapipe/llvmpipe)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install -y xvfb x11-apps imagemagick python3-numpy python3-pil mesa-vulkan-drivers \
+          sudo apt-get install -y xvfb x11-apps imagemagick mesa-vulkan-drivers \
             libgl1-mesa-dri libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 \
             libxcb-image0 libxkbcommon-x11-0
+          # python3 here is the setup-python interpreter, which does not see apt's python3-* packages.
+          python3 -m pip install --quiet numpy pillow
           python3 tests/screen_test.py "${{ matrix.exe }}" vulkan
           python3 tests/screen_test.py "${{ matrix.exe }}" opengl
 

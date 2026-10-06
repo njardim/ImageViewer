@@ -54,6 +54,10 @@
 **Notas de CI** (GitHub Actions, run 1 de 2026-10-06):
 - No Windows, o aqtinstall 3.3.0 não encontra os metadados do Qt 6.11.2 ("Failed to locate XML data"). O workflow usa a versão de desenvolvimento do aqtinstall só nesse job.
 - Linux e macOS instalam o Qt 6.11.2 com o aqtinstall 3.3.0 sem problemas.
+- No Windows, o aqtinstall de desenvolvimento (3.3.1.dev166) encontra o Qt 6.11.2, mas o py7zr falha ao extrair o qtsvg. A extração passa a ser feita com o 7-Zip do runner (`--external 7z`).
+- **Run 2:**
+  - **macOS arm64 verde:** build, testes de fumo, deploy e artefacto.
+  - **Linux:** build e testes de fumo verdes. O teste de ecrã falhou só porque faltava o numpy no Python do `setup-python` (corrigido com `pip`).
 - O 1.º build das dependências do vcpkg é longo. A cache binária guarda-se mesmo se o job falhar (`if: always()`).
 - O workflow cancela execuções antigas do mesmo ramo. Isto é relevante porque os minutos macOS custam 10× num repositório privado `[conhecimento]`.
 

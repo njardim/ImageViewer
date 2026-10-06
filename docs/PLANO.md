@@ -65,6 +65,7 @@
 | D-09 | 2026-10-06 | O visualizador é uma `QWindow` com swapchain QRhi própria. Os diálogos secundários usam Widgets. | O backing store dos Widgets não suporta HDR `[código: qtbase 6.11, src/widgets, src/gui/painting]`. O HDR do Qt Quick só é ativável por variável de ambiente (`QSG_RHI_HDR`) `[código: qtdeclarative 6.11, qsgrhisupport.cpp:1542]`. |
 | D-10 | 2026-10-06 | O espaço de trabalho interno é **scRGB linear** (primárias BT.709, valores estendidos, 1.0 = branco SDR) em texturas RGBA16F pré-multiplicadas. | Coincide com a saída nativa do Windows (scRGB) e do macOS (EDR), e representa qualquer gama de cor. |
 | D-11 | 2026-10-06 | Não se copia código do qView nem do ImageGlass (ambos GPL-3). Servem apenas de referência de comportamento. | Compatibilidade com D-01. |
+| D-12 | 2026-10-06 | Transferências CICP 1/6/14/15 (BT.709/601/2020) são descodificadas com a EOTF BT.1886 (γ2.4, preto 0), não com a inversa da OETF. | O conteúdo destes códigos é *display-referred* (vídeo); é a convenção dos leitores de referência. A alternativa fica registada para os testes da Fase 1. |
 
 ---
 

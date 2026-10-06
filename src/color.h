@@ -12,6 +12,7 @@
 
 #include <array>
 #include <cstddef>
+#include <vector>
 
 namespace color {
 
@@ -75,11 +76,32 @@ Matrix3 rgbToXyz(const Chromaticities &c);
 // Linear RGB in `from` -> linear RGB in `to`, with Bradford adaptation if the white points differ.
 Matrix3 rgbToRgb(const Chromaticities &from, const Chromaticities &to);
 
-// Converts `pixelCount` RGBA float pixels (straight alpha) in place from the
-// colour encoding described by `d` into linear scRGB. Alpha is left untouched.
-// `integerSourceBits` (8..16) enables an exact lookup-table fast path for
-// integer sources; pass 0 for floating-point sources.
-bool toLinearScRgb(float *rgba, std::size_t pixelCount, const Descriptor &d, int integerSourceBits,
-                   QString *error);
+// Prepared conversion from the colour encoding described by a Descriptor into
+// linear scRGB. Build once per image; apply() is thread-safe and may be called
+// concurrently on disjoint pixel ranges.
+class Converter {
+public:
+    // `integerSourceBits` (8 or 16) enables an exact lookup table for integer
+    // sources whose samples were normalised to [0, 1]; pass 0 for float data.
+    Converter(const Descriptor &d, int integerSourceBits);
+    ~Converter();
+    Converter(const Converter &) = delete;
+    Converter &operator=(const Converter &) = delete;
+
+    // Non-empty when the descriptor cannot be honoured (e.g. unusable ICC profile).
+    const QString &error() const { return m_error; }
+
+    // Converts straight-alpha RGBA float pixels in place; alpha is untouched.
+    void apply(float *rgba, std::size_t pixelCount) const;
+
+private:
+    Transfer m_transfer = Transfer::Srgb;
+    void *m_iccTransform = nullptr; // cmsHTRANSFORM
+    std::vector<float> m_lut;       // 65536 entries when integer sources allow it
+    bool m_convertPrimaries = false;
+    float m_matrix[9] = {};
+    float m_lumaWeights[3] = {};    // source-primaries luminance, for the HLG OOTF
+    QString m_error;
+};
 
 } // namespace color

@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   QT_VERSION: "6.11.2"
   VCPKG_COMMIT: "434307da09bc05b2c86996dccc8b2351fc0d5d37" # keep equal to vcpkg.json builtin-baseline
@@ -57,10 +61,23 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Qt ${{ env.QT_VERSION }}
+        if: runner.os != 'Windows'
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
           modules: qtshadertools qtimageformats
+          cache: true
+
+      # aqtinstall 3.3.0 cannot locate the Qt 6.11 Windows repository metadata
+      # (run 1: "Failed to locate XML data"); use its development version there.
+      - name: Qt ${{ env.QT_VERSION }} (Windows)
+        if: runner.os == 'Windows'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2022_64
+          modules: qtshadertools qtimageformats
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git
           cache: true
 
       - name: vcpkg

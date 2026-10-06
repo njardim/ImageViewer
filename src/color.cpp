@@ -1,12 +1,9 @@
 #include "color.h"
 
-#include <QtConcurrent/QtConcurrentMap>
-
 #include <lcms2.h>
 
 #include <algorithm>
 #include <cmath>
-#include <utility>
 #include <vector>
 
 namespace color {
@@ -50,22 +47,6 @@ bool samePrimaries(const Chromaticities &a, const Chromaticities &b)
     return near(a.r, b.r) && near(a.g, b.g) && near(a.b, b.b) && near(a.w, b.w);
 }
 
-// Runs fn(begin, end) over [0, count) in chunks on the global thread pool.
-template <typename Fn>
-void parallelFor(std::size_t count, Fn fn)
-{
-    constexpr std::size_t kChunk = std::size_t(1) << 16;
-    std::vector<std::pair<std::size_t, std::size_t>> ranges;
-    for (std::size_t b = 0; b < count; b += kChunk)
-        ranges.emplace_back(b, std::min(count, b + kChunk));
-    if (ranges.size() <= 1) {
-        if (count)
-            fn(std::size_t(0), count);
-        return;
-    }
-    QtConcurrent::blockingMap(ranges, [&fn](const std::pair<std::size_t, std::size_t> &r) { fn(r.first, r.second); });
-}
-
 // Relative linear value (1.0 = SDR reference white) for a single channel.
 float decodeChannel(Transfer t, float v)
 {
@@ -100,12 +81,12 @@ cmsHPROFILE createLinearScRgbProfile()
     return profile;
 }
 
-bool iccToLinear(float *rgba, std::size_t count, const QByteArray &icc, QString *error)
+cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
 {
     cmsHPROFILE in = cmsOpenProfileFromMem(icc.constData(), cmsUInt32Number(icc.size()));
     if (!in) {
         *error = QStringLiteral("invalid ICC profile");
-        return false;
+        return nullptr;
     }
     cmsUInt32Number inFormat = 0;
     const cmsColorSpaceSignature space = cmsGetColorSpace(in);
@@ -116,32 +97,19 @@ bool iccToLinear(float *rgba, std::size_t count, const QByteArray &icc, QString 
     if (!inFormat) {
         cmsCloseProfile(in);
         *error = QStringLiteral("unsupported ICC colour space for RGBA data");
-        return false;
+        return nullptr;
     }
     cmsHPROFILE out = createLinearScRgbProfile();
     // NOOPTIMIZE keeps the float pipeline unbounded, so colours outside the
     // BT.709 gamut survive as negative / >1 scRGB values (needed for EDR/HDR).
+    // NOCACHE makes cmsDoTransform safe to call from several threads.
     cmsHTRANSFORM xf = cmsCreateTransform(in, inFormat, out, TYPE_RGB_FLT, INTENT_RELATIVE_COLORIMETRIC,
                                           cmsFLAGS_BLACKPOINTCOMPENSATION | cmsFLAGS_NOCACHE | cmsFLAGS_NOOPTIMIZE);
     cmsCloseProfile(in);
     cmsCloseProfile(out);
-    if (!xf) {
+    if (!xf)
         *error = QStringLiteral("cannot build colour transform from ICC profile");
-        return false;
-    }
-    parallelFor(count, [&](std::size_t begin, std::size_t end) {
-        const std::size_t n = end - begin;
-        std::vector<float> rgb(n * 3);
-        cmsDoTransform(xf, rgba + begin * 4, rgb.data(), cmsUInt32Number(n));
-        float *p = rgba + begin * 4;
-        for (std::size_t i = 0; i < n; ++i, p += 4) {
-            p[0] = rgb[i * 3];
-            p[1] = rgb[i * 3 + 1];
-            p[2] = rgb[i * 3 + 2];
-        }
-    });
-    cmsDeleteTransform(xf);
-    return true;
+    return xf;
 }
 
 } // namespace
@@ -275,64 +243,84 @@ Matrix3 rgbToRgb(const Chromaticities &from, const Chromaticities &to)
     return multiply(inverse(rgbToXyz(to)), multiply(adapt, rgbToXyz(from)));
 }
 
-bool toLinearScRgb(float *rgba, std::size_t pixelCount, const Descriptor &d, int integerSourceBits, QString *error)
+Converter::Converter(const Descriptor &d, int integerSourceBits)
 {
-    if (d.source == Descriptor::Source::Icc)
-        return iccToLinear(rgba, pixelCount, d.icc, error);
-
-    const bool convertPrimaries = !samePrimaries(d.primaries, kBt709);
+    if (d.source == Descriptor::Source::Icc) {
+        m_iccTransform = createIccTransform(d.icc, &m_error);
+        return;
+    }
+    m_transfer = d.transfer;
+    m_convertPrimaries = !samePrimaries(d.primaries, kBt709);
     const Matrix3 toScRgb = rgbToRgb(d.primaries, kBt709);
+    for (int i = 0; i < 9; ++i)
+        m_matrix[i] = float(toScRgb[i]);
+    const Matrix3 xyz = rgbToXyz(d.primaries);
+    m_lumaWeights[0] = float(xyz[3]);
+    m_lumaWeights[1] = float(xyz[4]);
+    m_lumaWeights[2] = float(xyz[5]);
+    // Integer sources hold exact multiples of 1/(2^n - 1): a 16-bit table is exact.
+    if (integerSourceBits > 0 && integerSourceBits <= 16 && m_transfer != Transfer::Linear
+        && m_transfer != Transfer::Hlg) {
+        m_lut.resize(65536);
+        for (int i = 0; i < 65536; ++i)
+            m_lut[std::size_t(i)] = decodeChannel(m_transfer, float(i) / 65535.0f);
+    }
+}
 
-    if (d.transfer == Transfer::Hlg) {
+Converter::~Converter()
+{
+    if (m_iccTransform)
+        cmsDeleteTransform(static_cast<cmsHTRANSFORM>(m_iccTransform));
+}
+
+void Converter::apply(float *rgba, std::size_t pixelCount) const
+{
+    if (!m_error.isEmpty())
+        return;
+    float *const end = rgba + pixelCount * 4;
+    if (m_iccTransform) {
+        std::vector<float> rgb(pixelCount * 3);
+        cmsDoTransform(static_cast<cmsHTRANSFORM>(m_iccTransform), rgba, rgb.data(), cmsUInt32Number(pixelCount));
+        const float *q = rgb.data();
+        for (float *p = rgba; p < end; p += 4, q += 3) {
+            p[0] = q[0];
+            p[1] = q[1];
+            p[2] = q[2];
+        }
+        return;
+    }
+
+    if (m_transfer == Transfer::Hlg) {
         // BT.2100 HLG: inverse OETF, then the OOTF for the nominal 1000 cd/m2 display.
-        const Matrix3 xyz = rgbToXyz(d.primaries);
-        const float wr = float(xyz[3]), wg = float(xyz[4]), wb = float(xyz[5]);
         const float peak = kHlgNominalPeakNits;
         const float gamma = 1.2f + 0.42f * std::log10(peak / 1000.0f);
-        parallelFor(pixelCount, [&](std::size_t begin, std::size_t end) {
-            for (float *p = rgba + begin * 4, *e = rgba + end * 4; p < e; p += 4) {
-                const float r = hlgInverseOetf(p[0]), g = hlgInverseOetf(p[1]), b = hlgInverseOetf(p[2]);
-                const float ys = wr * r + wg * g + wb * b;
-                const float k = ys > 0 ? peak * std::pow(ys, gamma - 1.0f) / kSdrReferenceWhiteNits : 0.0f;
-                p[0] = r * k;
-                p[1] = g * k;
-                p[2] = b * k;
-            }
-        });
-    } else if (d.transfer != Transfer::Linear) {
-        if (integerSourceBits > 0 && integerSourceBits <= 16) {
-            // Integer sources hold exact multiples of 1/(2^n - 1); index a 16-bit table exactly.
-            std::vector<float> lut(65536);
-            for (int i = 0; i < 65536; ++i)
-                lut[i] = decodeChannel(d.transfer, float(i) / 65535.0f);
-            parallelFor(pixelCount, [&](std::size_t begin, std::size_t end) {
-                for (float *p = rgba + begin * 4, *e = rgba + end * 4; p < e; p += 4)
-                    for (int c = 0; c < 3; ++c)
-                        p[c] = lut[std::size_t(std::lrint(std::clamp(p[c], 0.0f, 1.0f) * 65535.0f))];
-            });
-        } else {
-            parallelFor(pixelCount, [&](std::size_t begin, std::size_t end) {
-                for (float *p = rgba + begin * 4, *e = rgba + end * 4; p < e; p += 4)
-                    for (int c = 0; c < 3; ++c)
-                        p[c] = decodeChannel(d.transfer, p[c]);
-            });
+        for (float *p = rgba; p < end; p += 4) {
+            const float r = hlgInverseOetf(p[0]), g = hlgInverseOetf(p[1]), b = hlgInverseOetf(p[2]);
+            const float ys = m_lumaWeights[0] * r + m_lumaWeights[1] * g + m_lumaWeights[2] * b;
+            const float k = ys > 0 ? peak * std::pow(ys, gamma - 1.0f) / kSdrReferenceWhiteNits : 0.0f;
+            p[0] = r * k;
+            p[1] = g * k;
+            p[2] = b * k;
         }
+    } else if (!m_lut.empty()) {
+        for (float *p = rgba; p < end; p += 4)
+            for (int c = 0; c < 3; ++c)
+                p[c] = m_lut[std::size_t(std::lrint(std::clamp(p[c], 0.0f, 1.0f) * 65535.0f))];
+    } else if (m_transfer != Transfer::Linear) {
+        for (float *p = rgba; p < end; p += 4)
+            for (int c = 0; c < 3; ++c)
+                p[c] = decodeChannel(m_transfer, p[c]);
     }
 
-    if (convertPrimaries) {
-        const float m[9] = {float(toScRgb[0]), float(toScRgb[1]), float(toScRgb[2]),
-                            float(toScRgb[3]), float(toScRgb[4]), float(toScRgb[5]),
-                            float(toScRgb[6]), float(toScRgb[7]), float(toScRgb[8])};
-        parallelFor(pixelCount, [&](std::size_t begin, std::size_t end) {
-            for (float *p = rgba + begin * 4, *e = rgba + end * 4; p < e; p += 4) {
-                const float r = p[0], g = p[1], b = p[2];
-                p[0] = m[0] * r + m[1] * g + m[2] * b;
-                p[1] = m[3] * r + m[4] * g + m[5] * b;
-                p[2] = m[6] * r + m[7] * g + m[8] * b;
-            }
-        });
+    if (m_convertPrimaries) {
+        const float *m = m_matrix;
+        for (float *p = rgba; p < end; p += 4) {
+            const float r = p[0], g = p[1], b = p[2];
+            p[0] = m[0] * r + m[1] * g + m[2] * b;
+            p[1] = m[3] * r + m[4] * g + m[5] * b;
+            p[2] = m[6] * r + m[7] * g + m[8] * b;
+        }
     }
-    return true;
 }
 
 } // namespace color

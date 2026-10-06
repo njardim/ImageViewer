@@ -8,30 +8,38 @@
 #include <QFileInfo>
 #include <QImage>
 #include <QImageReader>
+#include <QLoggingCategory>
 #include <QSet>
+#include <QtConcurrent/QtConcurrentMap>
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
+#include <cstring>
+#include <memory>
+
+Q_LOGGING_CATEGORY(lcDecode, "imageviewer.decode", QtWarningMsg)
 
 namespace {
 
 using color::Descriptor;
 using color::Transfer;
 
-// Decoder output before colour conversion: straight-alpha RGBA floats.
+// Decoder output before colour conversion: interleaved samples in their native type.
 struct Decoded {
+    enum class Sample { U8, U16, F32 };
     int width = 0;
     int height = 0;
-    std::vector<float> rgba;
-    int channels = 0;
-    int bits = 0;          // significant bits per sample
-    int containerBits = 0; // bits of the integer type that held the samples
-    bool isFloat = false;
-    bool hasAlpha = false;
+    Sample sample = Sample::U8;
+    int channels = 0;    // interleaved channels in `data`
+    int alphaIndex = -1; // channel holding straight alpha, -1 if none
+    bool gray = false;   // channel 0 is luminance
+    std::vector<unsigned char> data;
+    int bits = 0;        // significant bits per sample (informative)
     int orientation = 1;
     Descriptor colour;
     QString codec;
+
+    int sampleBytes() const { return sample == Sample::U8 ? 1 : sample == Sample::U16 ? 2 : 4; }
 };
 
 constexpr qint64 kMaxPixels = qint64(1) << 30; // refuse absurd dimensions before allocating
@@ -132,8 +140,10 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, Descriptor *d)
     }
     const QString cs = QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
     if (parseOiioColorSpace(cs, d)) {
+        // OIIO also fills this in when the file carries no colour tag at all, so it
+        // is reported as the decoder's interpretation, not as file metadata (F12).
         d->source = Descriptor::Source::FormatAttributes;
-        d->description = QStringLiteral("%1 (indicado pelo formato)").arg(cs);
+        d->description = QStringLiteral("%1 (atribuído pelo descodificador)").arg(cs);
         return;
     }
     d->source = Descriptor::Source::Assumed;
@@ -155,38 +165,30 @@ bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
         *error = QStringLiteral("dimensões inválidas (%1×%2×%3)").arg(w).arg(h).arg(nch);
         return false;
     }
-    std::vector<float> buf(std::size_t(w) * h * nch);
-    if (!in->read_image(0, 0, 0, nch, OIIO::TypeDesc::FLOAT, buf.data())) {
+    using Sample = Decoded::Sample;
+    const OIIO::TypeDesc stored = spec.format;
+    out->sample = stored == OIIO::TypeDesc::UINT8 ? Sample::U8
+                  : (stored == OIIO::TypeDesc::UINT16 || stored == OIIO::TypeDesc::INT8
+                     || stored == OIIO::TypeDesc::INT16) ? Sample::U16
+                                                         : Sample::F32;
+    const OIIO::TypeDesc request = out->sample == Sample::U8    ? OIIO::TypeDesc::UINT8
+                                   : out->sample == Sample::U16 ? OIIO::TypeDesc::UINT16
+                                                                : OIIO::TypeDesc::FLOAT;
+    out->data.resize(std::size_t(w) * h * nch * out->sampleBytes());
+    if (!in->read_image(0, 0, 0, nch, request, out->data.data())) {
         *error = QString::fromStdString(in->geterror());
         return false;
     }
 
-    const int alpha = spec.alpha_channel >= 0 && spec.alpha_channel < nch ? spec.alpha_channel : -1;
-    const bool gray = nch < 3 || (nch == 2 && alpha == 1);
     out->width = w;
     out->height = h;
     out->channels = nch;
-    out->isFloat = spec.format.is_floating_point();
-    out->containerBits = int(spec.format.size() * 8);
-    out->bits = spec.get_int_attribute("oiio:BitsPerSample", out->containerBits);
-    out->hasAlpha = alpha >= 0;
+    out->alphaIndex = spec.alpha_channel >= 0 && spec.alpha_channel < nch ? spec.alpha_channel : -1;
+    out->gray = nch < 3;
+    out->bits = spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8));
     out->orientation = spec.get_int_attribute("Orientation", 1);
     out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
-    describeOiio(spec, out->isFloat, &out->colour);
-
-    out->rgba.resize(std::size_t(w) * h * 4);
-    const float *s = buf.data();
-    float *d = out->rgba.data();
-    for (std::size_t i = 0, n = std::size_t(w) * h; i < n; ++i, s += nch, d += 4) {
-        if (gray) {
-            d[0] = d[1] = d[2] = s[0];
-        } else {
-            d[0] = s[0];
-            d[1] = s[1];
-            d[2] = s[2];
-        }
-        d[3] = alpha >= 0 ? s[alpha] : 1.0f;
-    }
+    describeOiio(spec, out->sample == Sample::F32, &out->colour);
     return true;
 }
 
@@ -200,12 +202,14 @@ bool decodeWithQt(const QString &path, Decoded *out, QString *error)
         return false;
     }
     const QColorSpace cs = image.colorSpace();
+    const bool deep = image.depth() > 32;
     out->width = image.width();
     out->height = image.height();
-    out->channels = image.hasAlphaChannel() ? 4 : 3;
-    out->bits = out->containerBits = image.depth() >= 64 ? 16 : 8;
-    out->isFloat = false;
-    out->hasAlpha = image.hasAlphaChannel();
+    out->sample = deep ? Decoded::Sample::U16 : Decoded::Sample::U8;
+    out->channels = 4;
+    out->alphaIndex = image.hasAlphaChannel() ? 3 : -1;
+    out->gray = false;
+    out->bits = deep ? 16 : 8;
     out->orientation = 1;
     out->codec = QStringLiteral("Qt/%1").arg(QString::fromLatin1(reader.format()));
     if (cs.isValid() && !cs.iccProfile().isEmpty()) {
@@ -215,70 +219,119 @@ bool decodeWithQt(const QString &path, Decoded *out, QString *error)
     } else {
         out->colour.description = QStringLiteral("sRGB (assumido)");
     }
-    image.setColorSpace(QColorSpace()); // keep the raw encoded values
-    image.convertTo(QImage::Format_RGBA32FPx4);
-    out->rgba.resize(std::size_t(out->width) * out->height * 4);
-    for (int y = 0; y < out->height; ++y) {
-        const float *line = reinterpret_cast<const float *>(image.constScanLine(y));
-        std::copy(line, line + std::size_t(out->width) * 4, out->rgba.data() + std::size_t(y) * out->width * 4);
-    }
+    image.setColorSpace(QColorSpace()); // keep the encoded values untouched
+    image.convertTo(deep ? QImage::Format_RGBA64 : QImage::Format_RGBA8888); // straight alpha
+    const std::size_t rowBytes = std::size_t(out->width) * 4 * out->sampleBytes();
+    out->data.resize(rowBytes * out->height);
+    for (int y = 0; y < out->height; ++y)
+        std::memcpy(out->data.data() + rowBytes * y, image.constScanLine(y), rowBytes);
     return true;
 }
 
-// Applies an EXIF orientation (1..8) so that the buffer is upright.
-void applyOrientation(Decoded *img)
+// Runs fn(range) for consecutive ranges of [0, count) on the global thread pool.
+struct Range {
+    std::size_t begin;
+    std::size_t end;
+    float max;
+};
+
+template <typename Fn>
+void forEachRange(std::size_t count, std::size_t chunk, Fn fn, std::vector<Range> *rangesOut = nullptr)
 {
-    const int o = img->orientation;
-    if (o <= 1 || o > 8)
-        return;
-    const int w = img->width, h = img->height;
-    const bool swap = o >= 5;
-    const int ow = swap ? h : w, oh = swap ? w : h;
-    std::vector<float> out(img->rgba.size());
-    for (int oy = 0; oy < oh; ++oy) {
-        for (int ox = 0; ox < ow; ++ox) {
-            int sx = ox, sy = oy;
-            switch (o) {
-            case 2: sx = w - 1 - ox; sy = oy; break;
-            case 3: sx = w - 1 - ox; sy = h - 1 - oy; break;
-            case 4: sx = ox; sy = h - 1 - oy; break;
-            case 5: sx = oy; sy = ox; break;
-            case 6: sx = oy; sy = h - 1 - ox; break;
-            case 7: sx = w - 1 - oy; sy = h - 1 - ox; break;
-            case 8: sx = w - 1 - oy; sy = ox; break;
-            }
-            const float *s = img->rgba.data() + (std::size_t(sy) * w + sx) * 4;
-            std::copy(s, s + 4, out.data() + (std::size_t(oy) * ow + ox) * 4);
-        }
-    }
-    img->rgba.swap(out);
-    img->width = ow;
-    img->height = oh;
+    std::vector<Range> ranges;
+    for (std::size_t b = 0; b < count; b += chunk)
+        ranges.push_back({b, std::min(count, b + chunk), 0.0f});
+    QtConcurrent::blockingMap(ranges, fn);
+    if (rangesOut)
+        rangesOut->swap(ranges);
 }
 
-// Box-filters a premultiplied linear buffer by an integer factor.
-void downscale(std::vector<float> &rgba, int &w, int &h, int factor)
+// Expands native samples of pixels [begin, end) into straight-alpha RGBA floats in [0, 1] (or float range).
+void expand(const Decoded &dec, std::size_t begin, std::size_t end, float *dst)
 {
-    const int ow = (w + factor - 1) / factor, oh = (h + factor - 1) / factor;
-    std::vector<float> out(std::size_t(ow) * oh * 4, 0.0f);
-    for (int oy = 0; oy < oh; ++oy) {
-        for (int ox = 0; ox < ow; ++ox) {
-            double acc[4] = {0, 0, 0, 0};
-            int n = 0;
-            for (int y = oy * factor; y < std::min(h, (oy + 1) * factor); ++y)
-                for (int x = ox * factor; x < std::min(w, (ox + 1) * factor); ++x, ++n) {
-                    const float *p = rgba.data() + (std::size_t(y) * w + x) * 4;
-                    for (int c = 0; c < 4; ++c)
-                        acc[c] += p[c];
-                }
-            float *d = out.data() + (std::size_t(oy) * ow + ox) * 4;
-            for (int c = 0; c < 4; ++c)
-                d[c] = float(acc[c] / n);
+    const int nch = dec.channels;
+    auto sample = [&dec](std::size_t index) -> float {
+        switch (dec.sample) {
+        case Decoded::Sample::U8: return dec.data[index] / 255.0f;
+        case Decoded::Sample::U16: {
+            quint16 v;
+            std::memcpy(&v, dec.data.data() + index * 2, 2);
+            return v / 65535.0f;
         }
+        case Decoded::Sample::F32: {
+            float v;
+            std::memcpy(&v, dec.data.data() + index * 4, 4);
+            return v;
+        }
+        }
+        return 0.0f;
+    };
+    for (std::size_t i = begin; i < end; ++i, dst += 4) {
+        const std::size_t base = i * std::size_t(nch);
+        if (dec.gray) {
+            dst[0] = dst[1] = dst[2] = sample(base);
+        } else {
+            dst[0] = sample(base);
+            dst[1] = sample(base + 1);
+            dst[2] = sample(base + 2);
+        }
+        dst[3] = dec.alphaIndex >= 0 ? sample(base + std::size_t(dec.alphaIndex)) : 1.0f;
     }
-    rgba.swap(out);
+}
+
+// Rotates/mirrors a half-float RGBA buffer according to an EXIF orientation (2..8).
+std::vector<qfloat16> orient(const std::vector<qfloat16> &src, int &w, int &h, int o)
+{
+    const int sw = w, sh = h;
+    const bool swap = o >= 5;
+    const int ow = swap ? sh : sw, oh = swap ? sw : sh;
+    std::vector<qfloat16> out(src.size());
+    forEachRange(std::size_t(oh), 64, [&](const Range &rows) {
+        for (int oy = int(rows.begin); oy < int(rows.end); ++oy) {
+            for (int ox = 0; ox < ow; ++ox) {
+                int sx = ox, sy = oy;
+                switch (o) {
+                case 2: sx = sw - 1 - ox; break;
+                case 3: sx = sw - 1 - ox; sy = sh - 1 - oy; break;
+                case 4: sy = sh - 1 - oy; break;
+                case 5: sx = oy; sy = ox; break;
+                case 6: sx = oy; sy = sh - 1 - ox; break;
+                case 7: sx = sw - 1 - oy; sy = sh - 1 - ox; break;
+                case 8: sx = sw - 1 - oy; sy = ox; break;
+                }
+                std::memcpy(&out[(std::size_t(oy) * ow + ox) * 4], &src[(std::size_t(sy) * sw + sx) * 4],
+                            4 * sizeof(qfloat16));
+            }
+        }
+    });
     w = ow;
     h = oh;
+    return out;
+}
+
+// Box-filters a premultiplied linear half-float buffer by an integer factor.
+std::vector<qfloat16> downscale(const std::vector<qfloat16> &src, int &w, int &h, int factor)
+{
+    const int sw = w, sh = h;
+    const int ow = (sw + factor - 1) / factor, oh = (sh + factor - 1) / factor;
+    std::vector<qfloat16> out(std::size_t(ow) * oh * 4);
+    forEachRange(std::size_t(oh), 16, [&](const Range &rows) {
+        for (int oy = int(rows.begin); oy < int(rows.end); ++oy) {
+            for (int ox = 0; ox < ow; ++ox) {
+                double acc[4] = {0, 0, 0, 0};
+                int n = 0;
+                for (int y = oy * factor; y < std::min(sh, (oy + 1) * factor); ++y)
+                    for (int x = ox * factor; x < std::min(sw, (ox + 1) * factor); ++x, ++n)
+                        for (int c = 0; c < 4; ++c)
+                            acc[c] += float(src[(std::size_t(y) * sw + x) * 4 + c]);
+                for (int c = 0; c < 4; ++c)
+                    out[(std::size_t(oy) * ow + ox) * 4 + c] = qfloat16(float(acc[c] / n));
+            }
+        }
+    });
+    w = ow;
+    h = oh;
+    return out;
 }
 
 } // namespace
@@ -296,51 +349,73 @@ Image decodeImage(const QString &path, int maxTextureSize)
         result.error = QStringLiteral("Não foi possível descodificar: %1").arg(oiioError.isEmpty() ? qtError : oiioError);
         return result;
     }
+    const qint64 readNs = timer.nsecsElapsed();
 
-    QString colourError;
-    // Integer samples normalised to their container are exact multiples of 1/(2^n - 1).
-    const int integerBits = dec.isFloat || dec.containerBits > 16 ? 0 : dec.containerBits;
-    if (!color::toLinearScRgb(dec.rgba.data(), dec.rgba.size() / 4, dec.colour, integerBits, &colourError)) {
-        // An unusable embedded profile must not block viewing; fall back visibly.
+    // Integer samples normalised to [0, 1] are exact multiples of 1/(2^n - 1).
+    const int integerBits = dec.sample == Decoded::Sample::U8 ? 8 : dec.sample == Decoded::Sample::U16 ? 16 : 0;
+    auto converter = std::make_unique<color::Converter>(dec.colour, integerBits);
+    if (!converter->error().isEmpty()) {
+        // An unusable embedded profile must not block viewing; fall back visibly (F12).
+        const QString reason = converter->error();
         dec.colour = Descriptor();
-        dec.colour.description = QStringLiteral("sRGB (assumido: %1)").arg(colourError);
-        color::toLinearScRgb(dec.rgba.data(), dec.rgba.size() / 4, dec.colour, integerBits, &colourError);
+        dec.colour.description = QStringLiteral("sRGB (assumido: %1)").arg(reason);
+        converter = std::make_unique<color::Converter>(dec.colour, integerBits);
     }
-    applyOrientation(&dec);
 
-    // Sanitize, premultiply and measure in working units.
-    constexpr float kHalfMax = 65504.0f;
-    float maxComponent = 0.0f;
-    for (std::size_t i = 0, n = dec.rgba.size(); i < n; i += 4) {
-        float *p = dec.rgba.data() + i;
-        const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
-        p[3] = a;
-        for (int c = 0; c < 3; ++c) {
-            const float v = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
-            maxComponent = std::max(maxComponent, v);
-            p[c] = v * a;
+    // One fused, parallel pass: native samples -> linear scRGB -> premultiplied half floats.
+    const std::size_t pixelCount = std::size_t(dec.width) * dec.height;
+    std::vector<qfloat16> pixels(pixelCount * 4);
+    std::vector<Range> ranges;
+    forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
+        const std::size_t n = range.end - range.begin;
+        std::vector<float> rgba(n * 4);
+        expand(dec, range.begin, range.end, rgba.data());
+        converter->apply(rgba.data(), n);
+        constexpr float kHalfMax = 65504.0f;
+        float maxComponent = 0.0f;
+        for (std::size_t i = 0; i < n * 4; i += 4) {
+            float *p = rgba.data() + i;
+            const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
+            p[3] = a;
+            for (int c = 0; c < 3; ++c) {
+                const float v = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
+                maxComponent = std::max(maxComponent, v);
+                p[c] = v * a;
+            }
         }
-    }
+        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
+        range.max = maxComponent;
+    }, &ranges);
+    float maxComponent = 0.0f;
+    for (const Range &r : ranges)
+        maxComponent = std::max(maxComponent, r.max);
+    dec.data = {}; // release native samples early
+    const qint64 convertNs = timer.nsecsElapsed();
 
-    result.sourceWidth = dec.width;
-    result.sourceHeight = dec.height;
-    const int longest = std::max(dec.width, dec.height);
+    int w = dec.width, h = dec.height;
+    if (dec.orientation >= 2 && dec.orientation <= 8)
+        pixels = orient(pixels, w, h, dec.orientation);
+    result.sourceWidth = w;
+    result.sourceHeight = h;
+    const int longest = std::max(w, h);
     if (maxTextureSize > 0 && longest > maxTextureSize)
-        downscale(dec.rgba, dec.width, dec.height, (longest + maxTextureSize - 1) / maxTextureSize);
+        pixels = downscale(pixels, w, h, (longest + maxTextureSize - 1) / maxTextureSize);
 
-    result.width = dec.width;
-    result.height = dec.height;
+    result.width = w;
+    result.height = h;
     result.codec = dec.codec;
     result.sourceChannels = dec.channels;
     result.sourceBits = dec.bits;
-    result.sourceFloat = dec.isFloat;
-    result.hasAlpha = dec.hasAlpha;
+    result.sourceFloat = dec.sample == Decoded::Sample::F32;
+    result.hasAlpha = dec.alphaIndex >= 0;
     result.orientation = dec.orientation;
     result.colour = dec.colour;
     result.maxComponent = maxComponent;
-    result.pixels.resize(dec.rgba.size());
-    qFloatToFloat16(result.pixels.data(), dec.rgba.data(), qsizetype(dec.rgba.size()));
+    result.pixels = std::move(pixels);
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
+    qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": read " << readNs / 1000000 << " ms, convert "
+                               << (convertNs - readNs) / 1000000 << " ms, orient/downscale "
+                               << (timer.nsecsElapsed() - convertNs) / 1000000 << " ms";
     return result;
 }
 

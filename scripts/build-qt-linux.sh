@@ -23,7 +23,8 @@ $sudo apt-get install -y -q build-essential cmake ninja-build perl python3 pkg-c
     libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-cursor-dev \
     libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev \
     libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-xkb-dev \
-    libxcb-glx0-dev libxrender-dev libxi-dev xvfb xauth \
+    libxcb-glx0-dev libxcb-util-dev libxcb-render0-dev libxcb-xinput-dev libxrender-dev libxi-dev libxext-dev \
+    libxfixes-dev libsm-dev libice-dev xvfb xauth x11-apps xdotool \
     libopenimageio-dev openimageio-tools liblcms2-dev
 
 # Ubuntu's OpenImageIO CMake package lists /usr/include/opencv4 even without OpenCV installed.

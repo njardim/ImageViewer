@@ -30,6 +30,7 @@ SYSTEM = platform.system()
 NATIVE = {"Windows": "d3d11", "Darwin": "metal"}
 BACKEND_NAMES = {"vulkan": "Vulkan", "opengl": "OpenGL", "d3d11": "D3D11", "metal": "Metal"}
 GPU_UNAVAILABLE = 4  # imageViewer --render: the GPU/QRhi could not be initialised
+PQ_NEUTRAL_TOLERANCE = 5e-5  # PQ code value: 1/20 of a 10-bit step (1/1023), far below a visible error
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 exe = os.path.abspath(sys.argv[1])
@@ -146,7 +147,8 @@ try:
                             f"expected {expected_backend}")
             continue
 
-        out = decode(read_pfm(pfm))  # linear BT.709, output units
+        raw = read_pfm(pfm)
+        out = decode(raw)  # linear BT.709, output units
         exposure = 2.0 ** float(args[args.index("--exposure") + 1]) if "--exposure" in args else 1.0
         k = exposure * scale
         source = levels16 * k                    # neutral row as decoded (FP16), output units
@@ -154,7 +156,14 @@ try:
         source_peak = content_peak * k
         tone_mapped = tone_map and content_luminance * k > peak  # same activation rule as Renderer::stageFor
         problems = []
-        if np.abs(neutral[:, 0] - neutral[:, 1]).max() > 1e-4 * max(1.0, peak):
+        if decode is pq_decode_bt709:
+            # Judged on the PQ signal itself: the BT.709 -> BT.2020 rows sum to 1, so grey stays R = G = B.
+            # In nits, the GPU error the harness accepts (D3D11 WARP: 9.2e-6 in code value, 1 % of a
+            # 10-bit step) is amplified by the PQ curve and the inverse matrix to 0.3 nits at 1000 nits.
+            spread = np.ptp(raw[0], axis=1).max()
+            if spread > PQ_NEUTRAL_TOLERANCE:
+                problems.append(f"neutral input is not neutral on output: PQ channels differ by {spread:.3g}")
+        elif np.ptp(neutral, axis=1).max() > 1e-4 * max(1.0, peak):
             problems.append("neutral input is not neutral on output")
         y = neutral[:, 1]
         if y.max() > peak * (1 + 1e-4):

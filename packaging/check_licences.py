@@ -25,6 +25,11 @@ FORBIDDEN = {
 # GPL-2.0-only, GPL-3.0-or-later, legacy GPL-2.0+, AGPL-3.0-only...; LGPL-* does not match.
 STRONG_COPYLEFT = re.compile(r"^A?GPL-", re.IGNORECASE)
 UNKNOWN = {"NOASSERTION", "NONE", "LicenseRef-vcpkg-null"}
+# Ports whose vcpkg port declares no licence, checked by hand against share/<port>/copyright.
+# Pinned to the reviewed version: a new version is a warning again until re-checked.
+REVIEWED = {
+    "jasper": ("4.2.9", "JasPer-2.0"),  # LICENSE.txt: JasPer License 2.0, MIT-style
+}
 
 
 class ExpressionError(ValueError):
@@ -86,13 +91,15 @@ def acceptable(expression):
 
 
 def port_licence(spdx_path):
+    """(licence or None, port version) from the port's SPDX document."""
     document = json.loads(spdx_path.read_text(encoding="utf-8"))
     package = document["packages"][0]  # SPDXRef-port
+    version = package.get("versionInfo") or ""
     for field in ("licenseConcluded", "licenseDeclared"):
         value = (package.get(field) or "").strip()
         if value and value not in UNKNOWN:
-            return value
-    return None
+            return value, version
+    return None, version
 
 
 def main():
@@ -115,10 +122,12 @@ def main():
                 warnings.append(f"{port}: no vcpkg.spdx.json, licence not checked")
             continue
         try:
-            licence = port_licence(spdx)
+            licence, version = port_licence(spdx)
         except (OSError, ValueError, KeyError, IndexError) as e:
             errors.append(f"{port}: unreadable {spdx.name}: {e}")
             continue
+        if licence is None and port in REVIEWED and version.split("#")[0] == REVIEWED[port][0]:
+            licence = REVIEWED[port][1]
         if licence is None:
             rows.append((port, "(not declared)", "check by hand"))
             warnings.append(f"{port}: licence not declared in the port, check share/{port}/copyright by hand")

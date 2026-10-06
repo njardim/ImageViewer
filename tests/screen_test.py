@@ -8,11 +8,15 @@ The screen is polled until the image appears (or a deadline passes) instead of
 sleeping for a fixed time: on CI runners the first lavapipe/llvmpipe frame can
 take several seconds (run 4 failed a fixed 6 s wait).
 
+The viewer's log must show that it rendered with the requested backend (a silent
+fallback from Vulkan to OpenGL would otherwise pass unnoticed).
+
 usage: python3 tests/screen_test.py <imageViewer> [vulkan|opengl]
 needs: Xvfb, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
 env:   SCREEN_TEST_DIR  where to keep the log and the last screenshot (default: a temp dir)
 """
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -21,11 +25,14 @@ import time
 import numpy as np
 from PIL import Image
 
+import xvfb
+
 DEADLINE_S = 60
 POLL_S = 0.5
 
 exe = os.path.abspath(sys.argv[1])
 rhi = sys.argv[2] if len(sys.argv) > 2 else "vulkan"
+expected_backend = {"vulkan": "Vulkan", "opengl": "OpenGL"}[rhi]
 work = os.environ.get("SCREEN_TEST_DIR") or tempfile.mkdtemp(prefix="imageviewer-screen-")
 os.makedirs(work, exist_ok=True)
 
@@ -36,16 +43,12 @@ Image.fromarray(reference).save(image_path)
 ref = reference.astype(int)
 h, w = ref.shape[:2]
 
-display = ":97"
-env = dict(os.environ, DISPLAY=display, QT_QPA_PLATFORM="xcb", IMAGEVIEWER_RHI=rhi,
-           IMAGEVIEWER_OUTPUT="sdr", LC_ALL="C.UTF-8", QT_LOGGING_RULES="imageviewer.*=true",
-           QT_MESSAGE_PATTERN="%{time process} %{category}: %{message}")
 log_path = os.path.join(work, f"viewer-{rhi}.log")
 shot_path = os.path.join(work, f"screen-{rhi}.png")
 
 
 def grab():
-    """Screen as an int array, or None while the X server is not accepting connections."""
+    """Screen as an int array, or None if the capture failed."""
     result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}",
                             shell=True, stderr=subprocess.DEVNULL)
     if result.returncode != 0 or not os.path.exists(shot_path):
@@ -70,15 +73,12 @@ def locate(screen):
     return best
 
 
-xvfb = subprocess.Popen(["Xvfb", display, "-screen", "0", "1600x1000x24", "-nolisten", "tcp"],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+server, display = xvfb.start("1600x1000x24")
+env = dict(os.environ, DISPLAY=display, QT_QPA_PLATFORM="xcb", IMAGEVIEWER_RHI=rhi,
+           IMAGEVIEWER_OUTPUT="sdr", LC_ALL="C.UTF-8", QT_LOGGING_RULES="imageviewer.*=true",
+           QT_MESSAGE_PATTERN="%{time process} %{category}: %{message}")
 best = None
 try:
-    start = time.monotonic()
-    while grab() is None:
-        if time.monotonic() - start > 10:
-            sys.exit("FAIL: Xvfb did not start")
-        time.sleep(0.2)
     with open(log_path, "w") as log:
         app = subprocess.Popen([exe, image_path], env=env, stdout=log, stderr=log)
         try:
@@ -96,12 +96,17 @@ try:
             app.terminate()
             app.wait(10)
 finally:
-    xvfb.terminate()
-    xvfb.wait(10)
+    xvfb.stop(server)
 
-print(open(log_path).read())
+log_text = open(log_path, encoding="utf-8", errors="replace").read()
+print(log_text)
 if app.returncode not in (None, -15, 0) and best is None:
     print(f"FAIL: {rhi}: imageViewer exited with code {app.returncode}")
+    sys.exit(1)
+backend = re.search(r"imageviewer\.render: backend \"?(\w+)", log_text)
+if not backend or backend.group(1) != expected_backend:
+    print(f"FAIL: {rhi}: the viewer rendered with {backend.group(1) if backend else 'no reported backend'}, "
+          f"expected {expected_backend}")
     sys.exit(1)
 if best is None:
     print(f"FAIL: {rhi}: image not found on screen after {elapsed:.1f} s (see {shot_path})")

@@ -26,14 +26,14 @@
 | Campo | Valor |
 |---|---|
 | Data | 2026-10-06 |
-| Fase | **0: Fundação** (falta o CI Windows verde) e **1: Núcleo de cor e HDR** (em curso) |
+| Fase | **0: Fundação** (falta o CI verde com o workflow de release) e **1: Núcleo de cor e HDR** (em curso) |
 | Ramo de trabalho | `claude/upbeat-bohr-tvnhkd` |
-| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. **Fase 1: estágio de saída com EETF BT.2390 e PQ absoluto (D-15), verificado por harness offscreen em todas as saídas (D-16): 7/7 casos em Vulkan e OpenGL.** |
-| CI | **Runs 6 e 7 verdes nos 3 sistemas.** O run 7 (`de0fe5a`, licença Apache-2.0) inclui build, testes de fumo (com orientação PFM), teste de ecrã com *polling*, harness `--render` (7 casos × Vulkan/OpenGL) e pacotes `.zip`/`.dmg`/`.tar.gz` com `LICENSE` e `NOTICE` verificados `[teste]`. |
-| Próximos passos | **1.** O Nuno cria a tag `v0.1.0-alpha` em `de0fe5a`: as sessões cloud só podem fazer push do ramo de trabalho e o push da tag deu HTTP 403 `[teste]`. A tag dispara o job `release`, que gera um rascunho com os 3 pacotes. A licença em `main` muda quando o ramo for integrado (PR) ou editando `main` diretamente. **2.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR (pacotes do CI). **3.** Fase 1: corpus PQ/HLG no harness, leitura do valor do píxel, modo SdrIcc (perfil do ecrã), deteção de ACM no Windows; decidir D-P10. **4.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
-| Bloqueios | Nenhum. Antes de uma release **pública**: licenças de terceiros nos pacotes (§9, Fase 4) e README de apresentação (D-P11). Tornar o repositório público é uma ação do Nuno. |
+| Último marco | Esqueleto C++/Qt 6.11 a compilar sem avisos. Testes de fumo do pipeline de cor passam (P3→scRGB sem limites, EXR > 1.0, orientação EXIF). **Teste de ecrã em Xvfb: rampa sRGB de 8 bits a 100 % idêntica ao ficheiro, bit a bit, em Vulkan e OpenGL** (critério F8 em SDR, Linux). CI para os 3 sistemas criado. **Fase 1: estágio de saída com EETF BT.2390 e PQ absoluto (D-15), verificado por harness offscreen em todas as saídas (D-16): 7/7 casos em Vulkan e OpenGL.** **Revisão adversarial completa** (D-21 a D-26): alfa e composição em luz linear, CICP antes de ICC, ICC matriz/curvas sem LittleCMS, camada EDR no macOS, libheif sem HEVC, perda de dispositivo GPU, descodificação sem bloqueios, licenças de terceiros nos pacotes e releases automáticas com teste dos pacotes em máquinas limpas. Localmente: testes de fumo 18/18, harness 7/7 e teste de ecrã exato em Vulkan e OpenGL `[teste]`. |
+| CI | **Runs 6 e 7 verdes nos 3 sistemas** (`de0fe5a`): build, testes de fumo, teste de ecrã, harness `--render` e pacotes com `LICENSE` e `NOTICE` `[teste]`. **Run 10** (`9903f3b`): compila em MSVC, Apple clang e GCC; falhou só nas expectativas antigas do `hdr4.exr` (o alfa pré-multiplicado passou a ser lido como tal, D-21). **Run 11** (`3aec5a9`): recompila as dependências do vcpkg (overlay do libheif, triplet macOS 13.0). O workflow novo (D-26: gate de licenças, job `verify`, job `release`) corre a partir do run 12. |
+| Próximos passos | **1.** CI verde no ramo, incluindo o job `verify` (pacotes em máquinas limpas) e o harness em D3D11/WARP e Metal. **2.** PR do ramo para `main`; o Nuno faz o merge. **3.** A release `v0.1-alpha` atual aponta para `74ddc8b` (sem workflow) e não tem pacotes: apagar a release e a tag e publicar de novo `v0.1-alpha` a partir de `main` (§11). Apagar também os artefactos antigos do CI que contêm o x265 (D-25). **4.** Validar manualmente em Windows e macOS, incluindo ecrãs HDR. **5.** Fase 1: corpus PQ/HLG no harness, leitura do valor do píxel, modo SdrIcc (perfil do ecrã), deteção de ACM no Windows; decidir D-P10. **6.** Requisito E14 (issue ImageGlass #2475) na Fase 3. |
+| Bloqueios | Nenhum. Antes de anunciar a 1.ª versão: README de apresentação (D-P11). Os pacotes ainda não são assinados (Fase 4, D-P08). |
 
-**O que existe no código** (`src/`, cerca de 2 800 linhas):
+**O que existe no código** (`src/`, cerca de 3 500 linhas):
 - descodificação OIIO com recurso ao `QImageReader`;
 - conversão única para scRGB linear em RGBA16F: LittleCMS sem limites, CICP analítico (PQ, HLG, sRGB, BT.1886, γ), espaços de cor do OIIO (incluindo ACES AP0/AP1) e cromaticidades EXR;
 - orientação EXIF;
@@ -91,7 +91,7 @@
 | D-10 | 2026-10-06 | O espaço de trabalho interno é **scRGB linear** (primárias BT.709, valores estendidos, 1.0 = branco SDR) em texturas RGBA16F pré-multiplicadas. | Coincide com a saída nativa do Windows (scRGB) e do macOS (EDR), e representa qualquer gama de cor. |
 | D-11 | 2026-10-06 | Não se copia código do qView nem do ImageGlass (ambos GPL-3). Servem apenas de referência de comportamento. | Compatibilidade com a licença do produto (D-18): código GPL-3 obrigaria o conjunto a GPL-3. |
 | D-12 | 2026-10-06 | Transferências CICP 1/6/14/15 (BT.709/601/2020) são descodificadas com a EOTF BT.1886 (γ2.4, preto 0), não com a inversa da OETF. | O conteúdo destes códigos é *display-referred* (vídeo); é a convenção dos leitores de referência. A alternativa fica registada para os testes da Fase 1. |
-| D-13 | 2026-10-06 | Os binários de distribuição são gerados **só pelo CI**. Uma tag `vX.Y.Z` cria uma *Release* em rascunho com os 3 pacotes; a compilação local serve apenas para desenvolvimento. | É reprodutível, centralizado e não depende da máquina de ninguém. O macOS só pode ser compilado num Mac e o CI tem runners dos 3 sistemas. |
+| D-13 | 2026-10-06 | Os binários de distribuição são gerados **só pelo CI**; a compilação local serve apenas para desenvolvimento. ~~Uma tag `vX.Y.Z` cria uma *Release* em rascunho~~ → formato das versões: **D-19**; fluxo de publicação: **D-26**. | É reprodutível, centralizado e não depende da máquina de ninguém. O macOS só pode ser compilado num Mac e o CI tem runners dos 3 sistemas. |
 | D-14 | 2026-10-06 | Requisito E14 (overlay de informação configurável no ecrã inteiro) a partir do pedido do Nuno ao ImageGlass (#2475). | Pedido explícito; encaixa no overlay SDR do renderizador sem alterar o viewport. |
 | D-15 | 2026-10-06 | **Estágio de saída** (resolve a D-P04). Tone mapping por omissão: **EETF BT.2390** (pretos a zero), no domínio PQ, aplicada a max(R,G,B), com todas as componentes escaladas pela mesma razão. Liga-se só quando a **luminância** máxima do conteúdo (após exposição) excede o pico da saída. O pico de origem é o máximo real da imagem. Tecla T: modo "sinal" (corte por componente). Conteúdo **PQ** mantém nits absolutos (203 nits por unidade) nas saídas PQ e scRGB do Windows; SDR e HLG ficam relativos ao branco SDR. Em SDR e EDR, 1 unidade = 203 nits para efeitos da EETF. | Identidade abaixo do joelho (H4) e conteúdo dentro do ecrã intacto (H2). Escalar por max(R,G,B) preserva a tonalidade e nunca excede o pico. A luminância como critério evita que fotos SDR de gama larga (P3 vermelho = 1,22 em BT.709) sejam escurecidas: isso é um problema de gama, não de luminância. A estatística do pico de origem fica em aberto (D-P10). |
 | D-16 | 2026-10-06 | A verificação do estágio de saída faz-se com um **harness offscreen** (`--render`): desenha a imagem 1:1 pelo shader real, lê o alvo float da GPU e compara cada píxel com `color::applyOutputStage` (referência em CPU). `tests/render_test.py` verifica ainda, de forma independente do C++, as propriedades da especificação (joelho BT.2390 calculado pela fórmula da ITU, identidade, pico, monotonia, corte). | Torna H2/H4/H6 verificáveis em CI sem ecrã HDR. Comparar só GPU com CPU não apanharia um erro de especificação partilhado; as propriedades independentes apanham. |
@@ -266,6 +266,7 @@ Versões verificadas nos *ports* do vcpkg a 2026-10-06 `[teste: microsoft/vcpkg 
 CMakeLists.txt        um único alvo: imageviewer
 CMakePresets.json     presets por SO (toolchain vcpkg)
 vcpkg.json            dependências (manifesto)
+LICENSE, NOTICE       Apache-2.0 e aviso de copyright/marca (D-18)
 CLAUDE.md             arranque para sessões novas -> lê este plano
 docs/PLANO.md         este documento
 src/
@@ -280,9 +281,13 @@ src/
   shaders/image.vert, image.frag   compilados com qsb no build
 resources/            ícones, Info.plist, .desktop, .rc, .iss
 scripts/              build-qt-linux.sh (Qt a partir do código-fonte, para sessões cloud)
-tests/                testes de fidelidade e corpus de formatos
-.github/workflows/build.yml   CI: Windows, macOS, Linux -> artefactos
+packaging/            (D-20) vcpkg/ports e vcpkg/triplets (overlays), licenses/ (textos de terceiros),
+                      check_licences.py (gate de licenças do CI)
+tests/                smoke.sh, render_test.py, screen_test.py, xvfb.py; data/ (corpus mínimo)
+.github/workflows/build.yml   CI: Windows, macOS, Linux -> pacotes verificados -> release (D-26)
 ```
+
+Estado real: `platform*`, `resources/` e o backend FFmpeg ainda não existem; a árvore acima é o alvo.
 
 Os ficheiros só se dividem quando ultrapassarem cerca de 800 linhas.
 
@@ -479,7 +484,7 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 - [x] Janela QRhi: escolhe a swapchain (SDR, scRGB ou HDR10) por sistema e regista `hdrInfo` em log *(validada em Linux/Xvfb; falta Windows, macOS e HDR real)*
 - [x] Descodificação mínima (OIIO + recurso Qt) → scRGB linear → textura → shader com modos de saída
 - [x] Ajustar, 100 %, zoom no cursor, pan, anterior/seguinte, arrastar e largar, `QFileOpenEvent` *(falta validar em execução)*
-- [~] CI GitHub Actions: Windows x64, macOS arm64, Linux x64 → build, testes de fumo e artefacto de instalação (zip). *DMG e AppImage ficam para a Fase 4.*
+- [~] CI GitHub Actions: Windows x64, macOS arm64, Linux x64 → build, testes, pacotes `.zip`/`.dmg`/`.tar.gz`, teste dos pacotes em máquinas limpas e release automática (D-26). *Falta: CI verde com este workflow. Instaladores e AppImage ficam para a Fase 4.*
 - [ ] Medição do arranque até à 1.ª frame e do tamanho dos pacotes
 
 **Aceitação:**
@@ -489,10 +494,10 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 - Em ecrã HDR (MacBook XDR e Windows HDR), a swapchain HDR é escolhida e PQ de 1000 nits mostra realce acima do branco SDR (verificação manual).
 
 ### Fase 1 — Núcleo de cor e HDR (L)
-- [ ] lcms2: ICC → scRGB; CICP analítico (sRGB, BT.709/1886, gama 2.2/2.6, PQ, HLG, linear); EXR `chromaticities`
+- [~] ICC → scRGB (LittleCMS e caminho direto matriz/curvas, D-23) ✔; CICP analítico (sRGB, BT.1886, gama, PQ, HLG com OOTF, linear, gama reduzida) com prioridade sobre ICC (D-22) ✔; EXR `chromaticities` ✔; alfa direto e pré-multiplicação em luz linear (D-21) ✔. *Falta:* testes com ficheiros PQ/HLG reais.
 - [ ] Modo SdrIcc com LUT 3D do perfil do ecrã; deteção de Advanced Color/ACM no Windows; branco SDR
 - [~] EETF BT.2390 (D-15) ✔; mapeamento HDR→SDR ✔; exposição ✔; aviso de píxeis alterados (cortados ou com tone mapping) ✔; PQ em nits absolutos ✔; indicação na interface (H6) ✔. *Falta:* leitura do valor do píxel (código e nits); teste com ficheiros PQ/HLG reais (o corpus atual é linear).
-- [~] Harness de fidelidade (D-16): render offscreen e leitura ✔ (Vulkan e OpenGL em Linux); corpus sintético linear ✔. *Falta:* corpus PQ/HLG e correr o harness em Windows (D3D11/WARP) e macOS (Metal).
+- [~] Harness de fidelidade (D-16): render offscreen e leitura ✔ (Vulkan e OpenGL em Linux); corpus sintético linear ✔. Verificação independente da tonalidade (razões R:G:B) ✔; o teste confirma o backend usado ✔. *Falta:* corpus PQ/HLG; o harness em Windows (D3D11/WARP) e macOS (Metal) está no CI mas ainda não correu.
 
 **Aceitação:** F1–F7, F10, F12 e H1–H6 em CI.
 
@@ -529,7 +534,7 @@ Esforço relativo entre parênteses. Estimativa total até à v1: 16 a 24 semana
 - [ ] Instaladores: Inno Setup; DMG com codesign e notarização; AppImage e Flatpak. Assinatura condicional a segredos de CI.
 - [ ] Testes de ponta a ponta das associações nos 3 sistemas
 - [x] `LICENSE` (Apache-2.0) e `NOTICE` dentro dos pacotes (D-18)
-- [ ] Licenças de terceiros nos pacotes: ficheiros `copyright` do vcpkg e textos LGPL do Qt. **Obrigatório antes de qualquer release pública** (R6).
+- [~] Licenças de terceiros nos pacotes (`third-party/`): ficheiros `copyright` do vcpkg, `Qt.txt` com a origem do código-fonte, textos LGPL-3.0 e GPL-3.0; gate de licenças no CI (D-25) e verificação do número de ficheiros no pacote. Verificado localmente com `cmake --install` `[teste]`; *falta o CI verde nos 3 sistemas*.
 - [ ] README público de apresentação do produto, para a 1.ª versão (pedido do Nuno, 2026-10-06; língua: D-P11), com capturas, formatos suportados, critérios de fidelidade e downloads. `CONTRIBUTING.md` com DCO.
 
 **Aceitação:**
@@ -576,7 +581,11 @@ Nunca se usa o mesmo motor do produto como referência.
 - identidade até ao joelho BT.2390 calculado em Python pela fórmula da ITU, contra a entrada arredondada a FP16 como o descodificador a guarda (erro ≤ 2e-4; medido ≤ 7,3e-5, na saída PQ) `[teste]`;
 - nunca acima do pico; monotonia; o pico do conteúdo cai no pico da saída; corte simples sem tone mapping `[teste]`.
 
-Passa em Vulkan (lavapipe) e OpenGL (llvmpipe) `[teste]`. Corre no CI Linux.
+Verifica também que o tone mapping preserva as razões R:G:B da entrada (D-15; erro ≤ 1e-3, medido 3,4e-4 no caso PQ) e que o backend usado é o pedido (um recurso silencioso de Vulkan para OpenGL fazia o teste passar sem testar o Vulkan).
+
+Passa em Vulkan (lavapipe) e OpenGL (llvmpipe) `[teste]`. Corre no CI Linux; no Windows (D3D11) e no macOS (Metal) corre com a plataforma `offscreen`. No macOS, o código de saída 4 (sem GPU) é só um aviso.
+
+**Testes de fumo** (`tests/smoke.sh`, `--info` sem plataforma gráfica): ICC P3, EXR com alfa pré-multiplicado, PNG com alfa direto, orientação EXIF, PFM, e um ficheiro por codec do vcpkg (WebP, GIF, JPEG 2000, AVIF, TIFF de 16 bits). Correm no build e de novo sobre o pacote numa máquina limpa (job `verify`).
 
 **HDR manual:** MacBook Pro XDR, ecrã HDR10 em Windows 11, KDE Plasma 6 HDR (melhor esforço). Colorímetro com ArgyllCMS `spotread`.
 
@@ -588,16 +597,19 @@ Passa em Vulkan (lavapipe) e OpenGL (llvmpipe) `[teste]`. Corre no CI Linux.
 |---|---|---|---|
 | Windows x64 | MSVC, vcpkg `x64-windows`, Qt via aqt | Inno Setup + zip portátil | Azure Trusted Signing ou certificado OV via `signtool` (opcional). Sem assinatura → aviso SmartScreen. |
 | macOS arm64 | Clang, `arm64-osx-dynamic` | `.app` + DMG | `codesign --options runtime` + `notarytool` + `stapler`. Exige Apple Developer Program (≈99 USD/ano) `[conhecimento]`. Sem notarização, o Gatekeeper bloqueia e o utilizador tem de autorizar em Definições do Sistema. |
-| Linux x64 | GCC, `x64-linux-dynamic`, compilado na base glibc mais antiga suportada | AppImage (linuxdeploy-plugin-qt); Flatpak (runtime KDE) | Não necessária; GPG opcional |
+| Linux x64 | GCC, `x64-linux-dynamic`, compilado na base glibc mais antiga suportada (hoje: Ubuntu 24.04) | AppImage (linuxdeploy-plugin-qt); Flatpak (runtime KDE) | Não necessária; GPG opcional |
 
 O deploy do Qt faz-se com `qt_generate_deploy_app_script`. As DLL e dylibs do vcpkg são copiadas pelo deploy.
 
 O primeiro build de dependências demora 30 a 90 minutos por sistema `[estimativa]`; depois fica em cache binária do vcpkg (provider `files` + `actions/cache`).
 
-**Publicar uma versão (D-13):**
-1. `git tag v0.1.0 && git push origin v0.1.0`.
-2. O CI compila nos 3 sistemas, testa, empacota (`.zip`, `.dmg`, `.tar.gz`) e cria uma *Release* em **rascunho** no GitHub com os 3 ficheiros. Tags com hífen (por exemplo `v0.1.0-alpha`) ficam marcadas como pré-release.
-3. Revê-se e publica-se o rascunho.
+**Publicar uma versão (D-19, D-26):**
+1. No GitHub: *Releases* → *Draft a new release* → *Choose a tag* → escrever `vX.Y` ou `vX.Y-sufixo` (por exemplo `v0.2` ou `v0.3-beta`) → *Create new tag on publish*, alvo `main` → marcar *Set as a pre-release* se tiver sufixo → **Publish release**. Em alternativa: `git tag v0.2 && git push origin v0.2`.
+2. O evento `release: published` (ou o push da tag) corre o workflow **tal como está no commit da tag**: compila nos 3 sistemas, testa, empacota (`.zip`, `.dmg`, `.tar.gz`), volta a testar cada pacote numa máquina limpa e confirma que `--version` mostra a versão da tag.
+3. O job `release` anexa os 3 pacotes e o `SHA256SUMS` à release (cria-a se só existir a tag; sufixo = pré-release) e gera a atestação de proveniência se o repositório for público.
+4. Uma tag fora do formato `vX.Y[-sufixo]` não dispara o workflow por push; publicada como release, o CMake recusa a versão logo no Configure e nada é anexado. Se o build ou a verificação falharem, a release fica sem pacotes: corrige-se em `main`, apaga-se a release e a tag e publica-se de novo.
+
+Nota: uma release cuja tag aponta para um commit sem este workflow (como a `v0.1-alpha` criada em `74ddc8b`) nunca recebe pacotes; é preciso recriá-la num commit que o tenha.
 
 Instalador Inno Setup, AppImage e assinatura chegam na Fase 4.
 
@@ -665,6 +677,11 @@ Nenhuma bloqueia a Fase 0. A proposta indicada é a adotada por omissão.
 - Se o OIIO 3 (vcpkg) continua a marcar PFM como `Rec709` (D-17 trata o caso de qualquer forma).
 - Se os runners Windows (sem GPU) criam um dispositivo D3D11 (WARP / Basic Render Driver) para correr o harness `--render`, e se os runners macOS têm Metal.
 - Aspeto da EETF BT.2390 em fotografias HDR reais em ecrã SDR: com o pico absoluto como origem, o joelho pode ficar muito baixo (D-P10).
+- O HLG usa a OOTF do ecrã nominal de 1000 nits (gama 1,2) qualquer que seja o ecrã real; a BT.2100 ajusta a gama ao pico do ecrã `[código: src/color.cpp]`. Rever com o corpus HLG da Fase 1.
+- Se o OIIO 3.1 entrega o perfil ICC dos ficheiros HEIF/AVIF (sem ele, um AVIF com ICC e sem CICP é tratado como sRGB).
+- Distribuição Linux mínima do `.tar.gz` (compilado em Ubuntu 24.04, glibc 2.39) e arranque em Wayland puro (hoje: X11/XWayland).
+- No CI ainda não correram: o harness em D3D11 (WARP) e Metal, a montagem do `.dmg` com `hdiutil`, o deploy das bibliotecas do vcpkg no macOS pelo `INSTALL_RPATH` e as DLL do runtime MSVC com `InstallRequiredSystemLibraries`.
+- Se publicar uma release na interface web dispara também o evento `push` da tag; se sim, o grupo de concorrência cancela uma das execuções `[inferência]`.
 
 ---
 

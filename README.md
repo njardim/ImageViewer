@@ -12,10 +12,12 @@ As dependências de produção vêm do vcpkg (manifesto `vcpkg.json`) e o Qt 6.1
 ```
 cmake --preset <windows|macos|linux>      # requer VCPKG_ROOT e -DCMAKE_PREFIX_PATH=<Qt>
 cmake --build --preset <windows|macos|linux>
-tests/smoke.sh build/<preset>/imageViewer  # teste sem interface do pipeline de cor
+tests/smoke.sh <exe>                       # teste sem interface do pipeline de cor
 ```
 
-Em Linux, com Xvfb: `tests/screen_test.py <exe> [vulkan|opengl]` (píxeis no ecrã a 100 %) e `tests/render_test.py <exe> [vulkan|opengl]` (estágio de saída SDR/EDR/scRGB/PQ e tone mapping, lidos da GPU).
+O executável `<exe>` é `build/linux/imageViewer` em Linux, `build/windows/imageViewer.exe` em Windows e `build/macos/imageViewer.app/Contents/MacOS/imageViewer` em macOS.
+
+`tests/render_test.py <exe>` verifica o estágio de saída (SDR/EDR/scRGB/PQ e tone mapping, lido da GPU): em Windows usa D3D11 e em macOS usa Metal. Em Linux corre com Xvfb e escolhe `vulkan` ou `opengl` no 2.º argumento. Também em Linux, com Xvfb, `tests/screen_test.py <exe> [vulkan|opengl]` compara os píxeis no ecrã a 100 %.
 
 Para desenvolver em Linux sem vcpkg, use `scripts/build-qt-linux.sh` (compila o Qt a partir do código-fonte) e depois o preset `linux-system`.
 
@@ -40,6 +42,14 @@ Para desenvolver em Linux sem vcpkg, use `scripts/build-qt-linux.sh` (compila o 
 | Botão direito | Menu |
 
 Para forçar o modo de saída, use `IMAGEVIEWER_OUTPUT=sdr|hdr10`.
+
+## Pacotes e releases
+
+O CI gera três pacotes: `.zip` para Windows x64, `.dmg` para macOS arm64 (macOS 13 ou posterior) e `.tar.gz` para Linux x64. Cada pacote é testado numa máquina limpa, sem o Qt nem as bibliotecas do vcpkg. Os pacotes ainda não estão assinados.
+
+O pacote Linux é compilado em Ubuntu 24.04. Por isso, precisa da glibc e da libstdc++ de uma distribuição de 2024 ou mais recente, e de X11 ou XWayland. Precisa também das bibliotecas xcb do sistema, como a `libxcb-cursor0`. O executável é `bin/imageViewer`.
+
+Para publicar uma versão, crie no GitHub uma *release* chamada `vX.Y` ou `vX.Y-sufixo` (por exemplo `v0.2` ou `v0.3-beta`), com uma tag nova com o mesmo nome. Em alternativa, envie só a tag (`git push origin vX.Y`). O CI compila e testa os três pacotes e anexa-os à *release*, juntamente com o `SHA256SUMS`. Se a *release* ainda não existir, o CI cria-a; uma tag com sufixo fica marcada como pré-release.
 
 ## Licença
 

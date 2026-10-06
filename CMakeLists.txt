@@ -25,6 +25,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # stable enough for us but carries no compatibility promise (pin Qt minor versions).
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
 find_package(Qt6 6.11 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools)
+if(Qt6_VERSION VERSION_GREATER_EQUAL 6.12)
+    message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.11 only; "
+                        "moving to a new Qt minor version is a deliberate port (docs/PLANO.md).")
+endif()
 qt_standard_project_setup()
 
 find_package(OpenImageIO CONFIG REQUIRED)
@@ -86,15 +90,54 @@ install(TARGETS imageviewer
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+# Apache-2.0 section 4: every redistribution carries the licence and the NOTICE file,
+# plus the licence texts of the third-party libraries it ships (third-party/).
+# Installed before the deploy script so that macdeployqt's signature covers them.
+if(APPLE)
+    set(doc_dir imageViewer.app/Contents/Resources)
+else()
+    set(doc_dir .)
+endif()
+install(FILES LICENSE NOTICE DESTINATION ${doc_dir})
+install(FILES
+    packaging/licenses/Qt.txt
+    packaging/licenses/LGPL-3.0.txt
+    packaging/licenses/GPL-3.0.txt
+    DESTINATION ${doc_dir}/third-party
+)
+if(DEFINED VCPKG_INSTALLED_DIR AND DEFINED VCPKG_TARGET_TRIPLET)
+    # vcpkg has installed the dependencies by now (manifest mode runs it at project()).
+    file(GLOB port_copyrights LIST_DIRECTORIES false
+        "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/*/copyright")
+    foreach(copyright IN LISTS port_copyrights)
+        get_filename_component(port_dir "${copyright}" DIRECTORY)
+        get_filename_component(port "${port_dir}" NAME)
+        # vcpkg-cmake, vcpkg-cmake-config, vcpkg-tool-*, ...: build helpers, not shipped.
+        if(NOT port MATCHES "^vcpkg-")
+            install(FILES "${copyright}" DESTINATION ${doc_dir}/third-party RENAME "${port}.txt")
+        endif()
+    endforeach()
+endif()
+
+set(deploy_options NO_TRANSLATIONS)
+if(APPLE AND DEFINED VCPKG_INSTALLED_DIR)
+    # macdeployqt resolves @rpath/ dependencies only through the LC_RPATH entries of the
+    # binary (its -libpath option is not consulted for them), and the installed executable
+    # only has @executable_path/../Frameworks. Point it at the vcpkg libraries as well:
+    # macdeployqt copies them into Contents/Frameworks and then deletes this absolute rpath.
+    set_property(TARGET imageviewer APPEND PROPERTY
+        INSTALL_RPATH "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+endif()
+if(WIN32)
+    # MSVC runtime DLLs go next to imageViewer.exe (app-local) instead of the
+    # vc_redist installer that windeployqt would add.
+    list(APPEND deploy_options NO_COMPILER_RUNTIME)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})
+    include(InstallRequiredSystemLibraries)
+endif()
 qt_generate_deploy_app_script(TARGET imageviewer
     OUTPUT_SCRIPT deploy_script
-    NO_TRANSLATIONS
+    ${deploy_options}
 )
 install(SCRIPT ${deploy_script})
-
-# Apache-2.0 section 4: every redistribution carries the licence and the NOTICE file.
-if(APPLE)
-    install(FILES LICENSE NOTICE DESTINATION imageViewer.app/Contents/Resources)
-else()
-    install(FILES LICENSE NOTICE DESTINATION .)
-endif()

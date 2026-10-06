@@ -6,22 +6,37 @@ checks two things:
   1. the harness itself: GPU result == color::applyOutputStage() (exit code 0);
   2. independently of the C++ code, on the GPU result: identity up to the
      BT.2390 knee (computed here from the ITU-R formula), never above the
-     output peak, monotonic, content peak lands on the output peak, and plain
-     clipping when tone mapping is off.
+     output peak, monotonic, content peak lands on the output peak, hue kept
+     by the tone mapping (D-15), and plain clipping when tone mapping is off.
+The backend that actually rendered must be the one requested.
 
 usage: python3 tests/render_test.py <imageViewer> [vulkan|opengl]
-needs: Xvfb (the Vulkan and OpenGL loaders need a display), numpy
+  Linux:          Xvfb + xcb; Vulkan (default) or OpenGL.
+  Windows, macOS: offscreen platform; the native backend (D3D11, Metal), no argument.
+exit:  0 pass, 1 fail, 4 no usable GPU/QRhi on this machine (the harness's own code)
+needs: numpy; on Linux also Xvfb
+env:   RENDER_TEST_DIR  where to keep the corpus and the GPU results (default: a temp dir)
 """
 import os
+import platform
+import re
 import subprocess
 import sys
 import tempfile
-import time
 
 import numpy as np
 
+SYSTEM = platform.system()
+NATIVE = {"Windows": "d3d11", "Darwin": "metal"}
+BACKEND_NAMES = {"vulkan": "Vulkan", "opengl": "OpenGL", "d3d11": "D3D11", "metal": "Metal"}
+GPU_UNAVAILABLE = 4  # imageViewer --render: the GPU/QRhi could not be initialised
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 exe = os.path.abspath(sys.argv[1])
-rhi = sys.argv[2] if len(sys.argv) > 2 else "vulkan"
+rhi = sys.argv[2] if len(sys.argv) > 2 else NATIVE.get(SYSTEM, "vulkan")
+allowed = ("vulkan", "opengl") if SYSTEM == "Linux" else (NATIVE.get(SYSTEM),)
+if rhi not in allowed:
+    sys.exit(f"usage: render_test.py <imageViewer> [{'|'.join(filter(None, allowed))}] (on {SYSTEM})")
 work = os.environ.get("RENDER_TEST_DIR") or tempfile.mkdtemp(prefix="imageviewer-render-")
 os.makedirs(work, exist_ok=True)
 
@@ -85,6 +100,9 @@ corpus = np.concatenate([np.repeat((levels[:, None] * np.array(h))[None], 4, axi
 corpus_path = os.path.join(work, "corpus.pfm")
 write_pfm(corpus_path, corpus)
 levels16 = levels.astype(np.float16).astype(np.float64)  # the decoder stores RGBA16F
+corpus16 = corpus.astype(np.float16).astype(np.float64)
+# First row of each hue whose components are all positive: (1, 0.2, 0.05) and (0.05, 0.1, 1).
+HUE_ROWS = [4 * i for i, h in enumerate(hues) if min(h) > 0 and max(h) > min(h)]
 content_peak = corpus.max()  # brightest component, working units (36.0 is exact in FP16)
 content_luminance = (corpus @ np.array([0.2126, 0.7152, 0.0722])).max()
 
@@ -100,20 +118,32 @@ CASES = [
     ("pq-clip", ["--output", "pq", "--peak", "1000", "--no-tonemap"], 203.0, 1000.0, 1.0, pq_decode_bt709, False),
 ]
 
-display = ":98"
-env = dict(os.environ, DISPLAY=display, QT_QPA_PLATFORM="xcb", IMAGEVIEWER_RHI=rhi, LC_ALL="C.UTF-8")
-xvfb = subprocess.Popen(["Xvfb", display, "-screen", "0", "640x480x24", "-nolisten", "tcp"],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+env = dict(os.environ)
+server = None
+if SYSTEM == "Linux":  # the Vulkan and OpenGL loaders need an X display
+    import xvfb
+    server, display = xvfb.start()
+    env.update(DISPLAY=display, QT_QPA_PLATFORM="xcb", IMAGEVIEWER_RHI=rhi, LC_ALL="C.UTF-8")
+else:
+    env.update(QT_QPA_PLATFORM="offscreen")
+expected_backend = BACKEND_NAMES[rhi]
 failures = []
 try:
-    time.sleep(1.0)
     for name, args, scale, peak, nits_per_unit, decode, tone_map in CASES:
         pfm = os.path.join(work, f"{rhi}-{name}.pfm")
-        run = subprocess.run([exe, "--render", corpus_path, "--pfm", pfm, *args], env=env,
-                             capture_output=True, text=True, timeout=120)
+        run = subprocess.run([exe, "--render", corpus_path, "--pfm", pfm, *args], env=env, capture_output=True,
+                             text=True, encoding="utf-8", errors="replace", timeout=120)
         print(f"--- {rhi} {name}\n{run.stdout.strip()}")
+        if run.returncode == GPU_UNAVAILABLE:
+            print(f"GPU unavailable: {run.stderr.strip()[-500:]}")
+            sys.exit(GPU_UNAVAILABLE)
         if run.returncode != 0:
             failures.append(f"{name}: harness exit {run.returncode} {run.stderr.strip()[-500:]}")
+            continue
+        backend = re.search(r"^backend:\s+(\S+)", run.stdout, re.MULTILINE)
+        if not backend or backend.group(1) != expected_backend:
+            failures.append(f"{name}: rendered with {backend.group(1) if backend else 'an unknown backend'}, "
+                            f"expected {expected_backend}")
             continue
 
         out = decode(read_pfm(pfm))  # linear BT.709, output units
@@ -141,7 +171,17 @@ try:
             brightest = out.max()
             if abs(brightest - peak) > 1e-3 * peak:
                 problems.append(f"content peak maps to {brightest:.6g}, expected {peak}")
-            print(f"    knee {knee * nits_per_unit:.1f} nits, identity below it: max error {err.max():.2g}")
+            # D-15 scales all components by one ratio: R:G:B must be the input's (FP16) ratios.
+            hue_err = 0.0
+            for row in HUE_ROWS:
+                ref = int(np.argmax(corpus16[row, 0]))
+                ratio_in = corpus16[row] / corpus16[row][:, ref:ref + 1]
+                ratio_out = out[row] / out[row][:, ref:ref + 1]
+                hue_err = max(hue_err, float(np.abs(ratio_out / ratio_in - 1).max()))
+            if hue_err > 1e-3:
+                problems.append(f"hue not preserved: R:G:B ratios off by up to {hue_err:.3g} (relative)")
+            print(f"    knee {knee * nits_per_unit:.1f} nits, identity below it: max error {err.max():.2g}, "
+                  f"hue ratio error {hue_err:.2g}")
         else:
             expected = np.minimum(source, peak)
             err = np.abs(y - expected) / np.maximum(1.0, expected)
@@ -150,8 +190,8 @@ try:
             print(f"    identity/clip: max error {err.max():.2g}")
         failures += [f"{name}: {p}" for p in problems]
 finally:
-    xvfb.terminate()
-    xvfb.wait(10)
+    if server:
+        xvfb.stop(server)
 
 if failures:
     print("FAIL\n  " + "\n  ".join(failures))

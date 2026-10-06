@@ -1,11 +1,21 @@
 name: build
 
+# Releases (docs/PLANO.md D-19, D-26): publish a GitHub release named vX.Y[-suffix]
+# (or push such a tag). This workflow, as it is at the tagged commit, builds the three
+# packages, tests them on clean machines and attaches them plus SHA256SUMS to the
+# release. A tag created from the web UI may also emit a push event; both runs share
+# the concurrency group of the tag, so only the last one survives.
 on:
   push:
     branches: [main, "claude/**"]
-    tags: ["v*"]
+    tags: ["v[0-9]+.[0-9]+", "v[0-9]+.[0-9]+-*"]
   pull_request:
   workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,7 +23,6 @@ concurrency:
 
 env:
   QT_VERSION: "6.11.2"
-  VCPKG_COMMIT: "434307da09bc05b2c86996dccc8b2351fc0d5d37" # keep equal to vcpkg.json builtin-baseline
 
 jobs:
   build:
@@ -42,9 +51,16 @@ jobs:
             triplet: x64-linux-dynamic
             exe: build/linux/imageViewer
             package: linux-x64.tar.gz
+    env:
+      PRESET: ${{ matrix.preset }}
+      TRIPLET: ${{ matrix.triplet }}
+      EXE: ${{ matrix.exe }}
+      PACKAGE: ${{ matrix.package }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: System packages (Linux)
         if: runner.os == 'Linux'
@@ -58,40 +74,48 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install nasm pkg-config autoconf autoconf-archive automake libtool
 
-      - uses: lukka/get-cmake@latest # CMake + Ninja
+      - uses: lukka/get-cmake@a89e43e22a96abafcd7a62db652a65ecd33052c9 # v4.4.4 (CMake + Ninja)
 
       - name: MSVC environment (Windows)
         if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
       - name: Qt ${{ env.QT_VERSION }}
         if: runner.os != 'Windows'
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
         with:
           version: ${{ env.QT_VERSION }}
           modules: qtshadertools qtimageformats
+          aqtversion: "==3.3.0"
           cache: true
 
       # aqtinstall 3.3.0 cannot locate the Qt 6.11 Windows repository metadata
-      # (run 1: "Failed to locate XML data"); use its development version there.
+      # (run 1: "Failed to locate XML data"); use its development version there,
+      # pinned to the master commit that built runs 4-9 (3.3.1.dev, 2026-09-11).
       - name: Qt ${{ env.QT_VERSION }} (Windows)
         if: runner.os == 'Windows'
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
         with:
           version: ${{ env.QT_VERSION }}
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
-          aqtsource: git+https://github.com/miurahr/aqtinstall.git
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
           # Only what we use. Run 2: py7zr rejected a path in the qtsvg archive;
           # run 3: parallel external 7-Zip extractions raced on the same folder.
           archives: qtbase d3dcompiler_47 opengl32sw
           cache: true
 
       - name: vcpkg
+        id: vcpkg
         shell: bash
+        env:
+          MANIFEST_HASH: ${{ hashFiles('vcpkg.json', 'packaging/vcpkg/**') }}
         run: |
+          # The vcpkg commit is the manifest's builtin-baseline (single source of truth).
+          commit="$(jq -r '."builtin-baseline"' vcpkg.json)"
+          [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::bad builtin-baseline '$commit'"; exit 1; }
           git clone --filter=tree:0 https://github.com/microsoft/vcpkg "$RUNNER_TEMP/vcpkg"
-          git -C "$RUNNER_TEMP/vcpkg" checkout "$VCPKG_COMMIT"
+          git -C "$RUNNER_TEMP/vcpkg" checkout "$commit"
           if [ "$RUNNER_OS" = "Windows" ]; then
             "$RUNNER_TEMP/vcpkg/bootstrap-vcpkg.bat" -disableMetrics
           else
@@ -100,31 +124,69 @@ jobs:
           echo "VCPKG_ROOT=$RUNNER_TEMP/vcpkg" >> "$GITHUB_ENV"
           echo "VCPKG_BINARY_SOURCES=clear;files,$RUNNER_TEMP/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
           mkdir -p "$RUNNER_TEMP/vcpkg-cache"
+          # Cache key: triplet + manifest/overlays (which include the baseline) + runner image.
+          # The image is part of the key because vcpkg's ABI hashes include the compiler:
+          # after an image update the old binaries are restored but rebuilt, and the
+          # result must be saved under a new key.
+          echo "cache-key=vcpkg-$TRIPLET-$MANIFEST_HASH-${ImageOS:-}-${ImageVersion:-}" >> "$GITHUB_OUTPUT"
+          echo "cache-prefix=vcpkg-$TRIPLET-$MANIFEST_HASH-" >> "$GITHUB_OUTPUT"
 
       - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@v4
+        id: vcpkg-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-cache
-          key: vcpkg-${{ matrix.triplet }}-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.triplet }}-
+          key: ${{ steps.vcpkg.outputs.cache-key }}
+          # Partial saves of this key first, then other runner images, then anything.
+          restore-keys: |
+            ${{ steps.vcpkg.outputs.cache-key }}-
+            ${{ steps.vcpkg.outputs.cache-prefix }}
+            vcpkg-${{ matrix.triplet }}-
 
       - name: Configure
         shell: bash
-        run: cmake --preset ${{ matrix.preset }} -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+        run: |
+          # Releases take the version from the tag (D-19); other builds append the commit.
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version_args=("-DIMAGEVIEWER_VERSION=${GITHUB_REF_NAME#v}" "-DIMAGEVIEWER_BUILD=")
+          else
+            version_args=("-DIMAGEVIEWER_BUILD=${GITHUB_SHA::7}")
+          fi
+          cmake --preset "$PRESET" -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" "${version_args[@]}"
 
       - name: Save vcpkg binary cache
-        if: always()
-        uses: actions/cache/save@v4
+        id: vcpkg-save
+        if: success() && github.event_name != 'pull_request' && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-cache
-          key: vcpkg-${{ matrix.triplet }}-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json') }}-${{ github.run_id }}
+          key: ${{ steps.vcpkg.outputs.cache-key }}
+
+      # A cold dependency build can take longer than one attempt: keep what was built.
+      # Only when the full save did not run (a later Build/test failure must not store
+      # a second multi-GB copy: the 10 GB repository cache evicts least recently used).
+      - name: Save partial vcpkg binary cache
+        if: >-
+          (failure() || cancelled()) && github.event_name != 'pull_request'
+          && steps.vcpkg.outputs.cache-key != '' && steps.vcpkg-cache.outputs.cache-hit != 'true'
+          && steps.vcpkg-save.outcome != 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/vcpkg-cache
+          key: ${{ steps.vcpkg.outputs.cache-key }}-partial-${{ github.run_id }}
+
+      - name: Licence gate (vcpkg packages)
+        shell: bash
+        run: |
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          "$py" packaging/check_licences.py "build/$PRESET/vcpkg_installed/$TRIPLET"
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
       - name: Smoke test (decode + colour pipeline)
         shell: bash
-        run: tests/smoke.sh "${{ matrix.exe }}"
+        run: tests/smoke.sh "$EXE"
 
       - name: On-screen fidelity test (Linux, Xvfb + lavapipe/llvmpipe)
         if: runner.os == 'Linux'
@@ -135,23 +197,41 @@ jobs:
             libgl1-mesa-dri libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 \
             libxcb-image0 libxkbcommon-x11-0
           # python3 here is the setup-python interpreter, which does not see apt's python3-* packages.
-          python3 -m pip install --quiet numpy pillow
-          python3 tests/screen_test.py "${{ matrix.exe }}" vulkan
-          python3 tests/screen_test.py "${{ matrix.exe }}" opengl
+          python3 -m pip install --quiet --only-binary=:all: numpy==2.5.3 pillow==12.3.0
+          python3 tests/screen_test.py "$EXE" vulkan
+          python3 tests/screen_test.py "$EXE" opengl
 
       - name: Output-stage harness (Linux, offscreen GPU readback)
         if: runner.os == 'Linux'
         env:
           RENDER_TEST_DIR: ${{ runner.temp }}/render-test
         run: |
-          python3 tests/render_test.py "${{ matrix.exe }}" vulkan
-          python3 tests/render_test.py "${{ matrix.exe }}" opengl
+          python3 tests/render_test.py "$EXE" vulkan
+          python3 tests/render_test.py "$EXE" opengl
+
+      # Windows: D3D11 on WARP must work, so any failure fails the job. macOS runners
+      # may have no usable Metal device: exit code 4 (no GPU/QRhi) is only a warning there.
+      - name: Output-stage harness (Windows D3D11 / macOS Metal, offscreen GPU readback)
+        if: runner.os != 'Linux'
+        shell: bash
+        env:
+          RENDER_TEST_DIR: ${{ runner.temp }}/render-test
+        run: |
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          "$py" -m pip install --quiet --only-binary=:all: numpy==2.5.3
+          status=0
+          "$py" tests/render_test.py "$EXE" || status=$?
+          if [ "$status" -eq 4 ] && [ "$RUNNER_OS" = macOS ]; then
+            echo "::warning title=Output-stage harness skipped::no usable Metal device on this runner (exit 4)"
+            exit 0
+          fi
+          exit "$status"
 
       - name: Upload test evidence (on failure)
-        if: failure() && runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-evidence-${{ github.run_attempt }}
+          name: test-evidence-${{ matrix.preset }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/screen-test
             ${{ runner.temp }}/render-test
@@ -159,50 +239,163 @@ jobs:
 
       - name: Deploy
         shell: bash
-        run: cmake --install build/${{ matrix.preset }} --prefix "$RUNNER_TEMP/dist"
+        run: cmake --install "build/$PRESET" --prefix "$RUNNER_TEMP/dist"
 
       - name: Package
         id: package
         shell: bash
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          [[ "$GITHUB_REF" == refs/tags/v* ]] || version="dev-${GITHUB_SHA::7}"
-          file="imageViewer-${version}-${{ matrix.package }}"
-          # Apache-2.0 section 4: the licence and NOTICE must travel with the binaries.
-          docs="$RUNNER_TEMP/dist"
-          [ "$RUNNER_OS" = macOS ] && docs="$docs/imageViewer.app/Contents/Resources"
-          test -f "$docs/LICENSE" && test -f "$docs/NOTICE"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="dev-${GITHUB_SHA::7}"
+          fi
+          file="imageViewer-${version}-${PACKAGE}"
+          dist="$RUNNER_TEMP/dist"
+          docs="$dist"
+          [ "$RUNNER_OS" = macOS ] && docs="$dist/imageViewer.app/Contents/Resources"
+          # Apache-2.0 section 4 and the third-party licences travel with the binaries.
+          for f in LICENSE NOTICE; do
+            [ -f "$docs/$f" ] || { echo "::error::$f missing from the package"; exit 1; }
+          done
+          count="$(find "$docs/third-party" -type f 2>/dev/null | wc -l)"
+          [ "$count" -ge 10 ] || { echo "::error::third-party/ has $count licence files, expected >= 10"; exit 1; }
+          # HEVC codecs must never ship (D-25); the licence gate checked the ports, this the files.
+          if find "$dist" \( -iname '*x265*' -o -iname '*de265*' \) | grep .; then
+            echo "::error::HEVC codec files in the package"; exit 1
+          fi
+          # MSVC runtime is deployed app-locally (no vc_redist installer).
+          if [ "$RUNNER_OS" = Windows ]; then
+            for f in vcruntime140.dll vcruntime140_1.dll msvcp140.dll; do
+              [ -f "$dist/bin/$f" ] || { echo "::error::$f missing next to imageViewer.exe"; exit 1; }
+            done
+          fi
           case "$RUNNER_OS" in
-            Windows) (cd "$RUNNER_TEMP/dist" && 7z a -tzip "$GITHUB_WORKSPACE/$file" . > /dev/null) ;;
-            macOS)   hdiutil create -volname imageViewer -srcfolder "$RUNNER_TEMP/dist/imageViewer.app" \
+            Windows) (cd "$dist" && 7z a -tzip "$GITHUB_WORKSPACE/$file" . > /dev/null) ;;
+            macOS)   hdiutil create -volname imageViewer -srcfolder "$dist/imageViewer.app" \
                        -ov -format UDZO "$file" ;;
-            Linux)   tar -C "$RUNNER_TEMP/dist" -czf "$file" . ;;
+            Linux)   tar -C "$dist" -czf "$file" . ;;
           esac
           echo "file=$file" >> "$GITHUB_OUTPUT"
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: imageViewer-${{ matrix.preset }}
           path: ${{ steps.package.outputs.file }}
           if-no-files-found: error
 
-  # Tags v* publish the three packages as a draft GitHub Release (unsigned for now;
-  # signing and notarisation arrive with the Phase 4 secrets, docs/PLANO.md §11).
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
+  # The packages, not the build tree, on fresh runners without Qt or vcpkg: catches
+  # libraries the deploy step missed (the run 9 .dmg did not start on a clean Mac).
+  verify:
+    name: Verify ${{ matrix.name }} package
     needs: build
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-2025
+            preset: windows
+          - name: macOS arm64
+            os: macos-15
+            preset: macos
+          - name: Linux x64
+            os: ubuntu-24.04
+            preset: linux
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: imageViewer-${{ matrix.preset }}
+          path: package
+
+      - name: Smoke test of the packaged executable
+        shell: bash
+        env:
+          QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES: "1" # --version on Windows: stdout, no dialog
+        run: |
+          shopt -s nullglob
+          packages=(package/imageViewer-*)
+          [ "${#packages[@]}" -eq 1 ] || { echo "::error::expected one package, got: ${packages[*]}"; exit 1; }
+          pkg="${packages[0]}"
+          app="$RUNNER_TEMP/app"
+          [ "$RUNNER_OS" = Windows ] && app="$(cygpath -u "$RUNNER_TEMP")/app"
+          mkdir -p "$app"
+          case "$RUNNER_OS" in
+            Windows) 7z x -y "-o$(cygpath -w "$app")" "$pkg" > /dev/null
+                     exe="$app/bin/imageViewer.exe" ;;
+            macOS)   hdiutil attach -nobrowse -readonly -mountpoint "$app" "$pkg"
+                     exe="$app/imageViewer.app/Contents/MacOS/imageViewer" ;;
+            Linux)   tar -C "$app" -xzf "$pkg"
+                     exe="$app/bin/imageViewer"
+                     if ldd "$exe" | grep 'not found'; then
+                       echo "::error::libraries missing from the package (above)"; exit 1
+                     fi ;;
+          esac
+          version="$("$exe" --version | tr -d '\r')"
+          echo "$version"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            expected="imageViewer ${GITHUB_REF_NAME#v}"
+          else
+            expected="+${GITHUB_SHA::7}"
+          fi
+          [[ "$version" == *"$expected" ]] || { echo "::error::version '$version' does not end in '$expected'"; exit 1; }
+          tests/smoke.sh "$exe"
+
+  # Tags vX.Y[-suffix] (pushed, or created by publishing a release): attach the three
+  # verified packages and SHA256SUMS to the release, creating it if needed (published;
+  # a suffix marks a pre-release). Unsigned for now: signing and notarisation arrive
+  # with the Phase 4 secrets (docs/PLANO.md §11).
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build, verify]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write     # create the release and upload its assets
+      id-token: write     # build provenance attestation
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: imageViewer-*
           path: packages
           merge-multiple: true
-      - uses: softprops/action-gh-release@v2
+
+      - name: Check the tag and the packages, write SHA256SUMS
+        run: |
+          tag="$GITHUB_REF_NAME"
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] \
+            || { echo "::error::tag '$tag' is not vX.Y or vX.Y-suffix (D-19)"; exit 1; }
+          shopt -s nullglob
+          files=(packages/*)
+          [ "${#files[@]}" -eq 3 ] || { echo "::error::expected 3 packages, got: ${files[*]}"; exit 1; }
+          (cd packages && sha256sum imageViewer-* > SHA256SUMS && cat SHA256SUMS)
+
+      # Artifact attestations need a public repository (or GitHub Enterprise Cloud).
+      - name: Build provenance attestation
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          draft: true
-          prerelease: ${{ contains(github.ref_name, '-') }}
-          files: packages/*
-          generate_release_notes: true
+          subject-path: packages/imageViewer-*
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release upload "$tag" packages/* --clobber
+          else
+            prerelease=()
+            [[ "$tag" == *-* ]] && prerelease=(--prerelease)
+            gh release create "$tag" packages/* --verify-tag --generate-notes "${prerelease[@]}"
+          fi

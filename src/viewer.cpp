@@ -24,6 +24,13 @@ constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
 constexpr double kZoomStep = 1.25;
+constexpr float kMaxExposureEv = 16.0f;
+
+// "100 %" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
+QString zoomLabel(double zoom)
+{
+    return zoom == 1.0 ? QStringLiteral("100") : QString::number(zoom * 100.0, 'f', 1);
+}
 } // namespace
 
 ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this)
@@ -47,6 +54,7 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this)
 #endif
     setTitle(QStringLiteral("imageViewer"));
     setMinimumSize(QSize(320, 240));
+    m_decodePool.setMaxThreadCount(1);
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::imageDecoded);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
@@ -69,19 +77,27 @@ void ViewerWindow::openFile(const QString &path)
         return;
     }
     if (info.isDir()) {
-        m_files = listImages(info.absoluteFilePath());
-        if (m_files.isEmpty()) {
+        QStringList files = listImages(info.absoluteFilePath());
+        if (files.isEmpty()) { // keep the current list and image
             m_message = tr("A pasta não contém imagens suportadas.");
             updateOverlay();
             return;
         }
+        m_files = std::move(files);
         startLoading(0);
         return;
     }
     m_files = listImages(info.absolutePath());
-    // QFileInfo comparison follows the file system's case sensitivity.
-    const auto it = std::find_if(m_files.cbegin(), m_files.cend(),
-                                 [&info](const QString &f) { return QFileInfo(f) == info; });
+    // Same directory, so the name decides; Windows and macOS file systems ignore case.
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+    constexpr Qt::CaseSensitivity kCase = Qt::CaseInsensitive;
+#else
+    constexpr Qt::CaseSensitivity kCase = Qt::CaseSensitive;
+#endif
+    const QString name = info.fileName();
+    const auto it = std::find_if(m_files.cbegin(), m_files.cend(), [&name](const QString &f) {
+        return QStringView(f).mid(f.lastIndexOf(QLatin1Char('/')) + 1).compare(name, kCase) == 0;
+    });
     if (it == m_files.cend()) {
         m_files.prepend(info.absoluteFilePath()); // unknown suffix: still try to decode it
         startLoading(0);
@@ -90,10 +106,10 @@ void ViewerWindow::openFile(const QString &path)
     }
 }
 
-int ViewerWindow::textureLimit() const
+int ViewerWindow::textureLimit(const QString &path) const
 {
     int limit = m_rendererReady ? std::min(kDefaultMaxTexture, m_renderer.maxTextureSize()) : kDefaultMaxTexture;
-    if (m_textureCap > 0)
+    if (m_textureCap > 0 && path == m_textureCapPath)
         limit = std::min(limit, m_textureCap);
     return limit;
 }
@@ -112,10 +128,9 @@ void ViewerWindow::startLoading(int index)
         return;
     }
     m_pendingIndex = -1;
-    m_loadingPath = m_files.at(index);
-    const QString path = m_loadingPath;
-    const int maxTexture = textureLimit();
-    m_watcher.setFuture(QtConcurrent::run([path, maxTexture] { return decodeImage(path, maxTexture); }));
+    const QString path = m_files.at(index);
+    const int maxTexture = textureLimit(path);
+    m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, maxTexture] { return decodeImage(path, maxTexture); }));
 }
 
 void ViewerWindow::imageDecoded()
@@ -124,14 +139,17 @@ void ViewerWindow::imageDecoded()
     // keep its own copy alive until the next decode.
     Image image = m_watcher.future().takeResult();
     if (m_pendingIndex >= 0) { // superseded while decoding: go straight to the latest request
-        startLoading(std::exchange(m_pendingIndex, -1));
-        return;
+        const int next = std::exchange(m_pendingIndex, -1);
+        if (m_files.value(next) != image.path) {
+            startLoading(next);
+            return;
+        }
+        m_index = next; // the request came back to the file just decoded
     }
-    if (image.path != m_loadingPath)
-        return;
-    m_loadingPath.clear();
     setTitle(QStringLiteral("%1 — imageViewer").arg(QFileInfo(image.path).fileName()));
 
+    // The same file again (smaller texture, device loss) keeps the view; a new file starts fitted.
+    const bool sameFile = image.path == m_image.path;
     if (!image.isValid()) {
         m_message = image.error;
         m_image = Image();
@@ -140,12 +158,13 @@ void ViewerWindow::imageDecoded()
     } else {
         m_message.clear();
         m_renderer.setImage(std::move(image.pixels), QSize(image.width, image.height));
-        image.pixels = {};
         m_image = std::move(image);
-        m_fit = true;
-        m_pan = {};
-        m_quarterTurns = 0;
-        m_mirrored = false;
+        if (!sameFile) {
+            m_fit = true;
+            m_pan = {};
+            m_quarterTurns = 0;
+            m_mirrored = false;
+        }
     }
     updateOverlay();
     requestUpdate();
@@ -180,11 +199,18 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::DragEnter:
     case QEvent::DragMove: {
         auto *drop = static_cast<QDropEvent *>(e);
-        if (drop->mimeData()->hasUrls()) {
+        const QList<QUrl> urls = drop->mimeData()->urls();
+        if (std::any_of(urls.cbegin(), urls.cend(), [](const QUrl &u) { return u.isLocalFile(); })) {
             drop->acceptProposedAction();
             return true;
         }
         break;
+    }
+    case QEvent::ContextMenu: { // Menu key, Shift+F10
+        auto *menu = static_cast<QContextMenuEvent *>(e);
+        showContextMenu(menu->reason() == QContextMenuEvent::Mouse ? menu->globalPos()
+                                                                    : mapToGlobal(QPoint(width() / 2, height() / 2)));
+        return true;
     }
     case QEvent::Drop: {
         auto *drop = static_cast<QDropEvent *>(e);
@@ -225,8 +251,12 @@ void ViewerWindow::initializeRenderer()
     QString error;
     if (!m_renderer.initialize(&error)) {
         m_rendererFailed = true;
-        QMessageBox::critical(nullptr, QStringLiteral("imageViewer"), error);
-        QMetaObject::invokeMethod(qApp, &QCoreApplication::quit, Qt::QueuedConnection);
+        // Not from inside expose/paint (a nested event loop in the platform's paint callback):
+        // report once control is back in the event loop, then exit with an error status.
+        QMetaObject::invokeMethod(this, [error] {
+            QMessageBox::critical(nullptr, QStringLiteral("imageViewer"), error);
+            QCoreApplication::exit(1);
+        }, Qt::QueuedConnection);
         return;
     }
     m_rendererReady = true;
@@ -292,7 +322,15 @@ void ViewerWindow::zoomAt(double factor, const QPointF &devicePos)
 
 void ViewerWindow::setActualSize()
 {
-    zoomAt(1.0 / currentZoom(), QPointF(deviceSize().width(), deviceSize().height()) / 2.0);
+    if (m_image.width == 0)
+        return;
+    // Explicit, so that an image that already fits leaves fit mode too (it must stay at
+    // 100 % when the window shrinks, and become pannable).
+    m_pan /= currentZoom();
+    m_zoom = 1.0;
+    m_fit = false;
+    clampPan();
+    updateOverlay();
 }
 
 void ViewerWindow::setFit()
@@ -350,10 +388,15 @@ void ViewerWindow::render()
         return;
     }
     if (m_renderer.takeImageUploadFailure() && m_image.width > 0) {
-        // The GPU refused a texture this large: decode again at half the size.
-        m_textureCap = std::max(m_image.width, m_image.height) / 2;
-        if (m_textureCap >= 512) {
-            startLoading(m_index);
+        // The GPU refused this texture: decode the same file again, at the device limit if
+        // it exceeded it (first image, decoded before the renderer existed), else at half size.
+        const int longest = std::max(m_image.width, m_image.height);
+        m_textureCapPath = m_image.path;
+        const int deviceMax = m_renderer.maxTextureSize();
+        m_textureCap = longest > deviceMax ? deviceMax : longest / 2;
+        const int index = int(m_files.indexOf(m_image.path));
+        if (m_textureCap >= 512 && index >= 0) {
+            startLoading(index);
             m_message = tr("A reduzir a imagem para caber na GPU (máximo %1 px)…").arg(m_textureCap);
         } else {
             m_message = tr("A GPU não aceitou a imagem.");
@@ -393,7 +436,7 @@ void ViewerWindow::updateOverlay()
                             .arg(QFileInfo(m_image.path).fileName())
                             .arg(m_index + 1)
                             .arg(m_files.size())
-                            .arg(qRound(currentZoom() * 100.0))
+                            .arg(zoomLabel(currentZoom()))
                             .arg(m_image.sourceWidth)
                             .arg(m_image.sourceHeight);
         if (m_image.width != m_image.sourceWidth)
@@ -483,13 +526,17 @@ void ViewerWindow::rotate(int quarterTurns)
 
 void ViewerWindow::toggleMirror()
 {
+    // The renderer mirrors the source before rotating it; after an odd number of quarter
+    // turns that would flip the screen vertically. H . R(t) = R(-t) . H keeps it horizontal.
     m_mirrored = !m_mirrored;
+    if (m_quarterTurns % 2)
+        m_quarterTurns = (m_quarterTurns + 2) % 4;
     requestUpdate();
 }
 
 void ViewerWindow::adjustExposure(float ev)
 {
-    m_exposureEv += ev;
+    m_exposureEv = std::clamp(m_exposureEv + ev, -kMaxExposureEv, kMaxExposureEv);
     updateOverlay();
 }
 
@@ -528,6 +575,10 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
         return;
     }
     const bool shift = e->modifiers() & Qt::ShiftModifier;
+    // Holding a toggle must not flip it back and forth; navigation, zoom and exposure repeat.
+    static const QList<int> toggles = {Qt::Key_F, Qt::Key_F11, Qt::Key_R, Qt::Key_H, Qt::Key_I, Qt::Key_C, Qt::Key_T};
+    if (e->isAutoRepeat() && toggles.contains(e->key()))
+        return;
     const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
     switch (e->key()) {
     case Qt::Key_Right:
@@ -576,6 +627,8 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
 
 void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
 {
+    if (m_dragging && !(e->buttons() & Qt::LeftButton))
+        m_dragging = false; // the release went elsewhere (e.g. to the context menu)
     if (!m_dragging)
         return;
     m_pan = m_panOrigin + (e->position() - m_dragOrigin) * devicePixelRatio();
@@ -597,10 +650,16 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 
 void ViewerWindow::wheelEvent(QWheelEvent *e)
 {
-    const bool trackpadScroll = !e->pixelDelta().isNull() && !(e->modifiers() & Qt::ControlModifier);
-    if (trackpadScroll) {
+    // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
+    // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
+    const QPointingDevice *device = e->pointingDevice();
+    const bool gesture = e->phase() != Qt::NoScrollPhase
+                         || (device && device->type() == QInputDevice::DeviceType::TouchPad);
+    if (gesture && !(e->modifiers() & Qt::ControlModifier)) {
         if (!m_fit) {
-            m_pan += QPointF(e->pixelDelta()) * devicePixelRatio();
+            const QPointF delta = !e->pixelDelta().isNull() ? QPointF(e->pixelDelta())
+                                                            : QPointF(e->angleDelta()) / 8.0; // degrees ~ pixels
+            m_pan += delta * devicePixelRatio();
             clampPan();
             requestUpdate();
         }
@@ -628,9 +687,13 @@ void ViewerWindow::showOpenDialog()
     const QString start = m_image.path.isEmpty()
                               ? QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)
                               : QFileInfo(m_image.path).absolutePath();
-    const QString path = QFileDialog::getOpenFileName(nullptr, tr("Abrir imagem"), start, filter);
-    if (!path.isEmpty())
-        openFile(path);
+    QFileDialog dialog(nullptr, tr("Abrir imagem"), start, filter);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.winId(); // create the native window so it can be parented to this QWindow
+    if (QWindow *handle = dialog.windowHandle())
+        handle->setTransientParent(this);
+    if (dialog.exec() == QDialog::Accepted && !dialog.selectedFiles().isEmpty())
+        openFile(dialog.selectedFiles().constFirst());
 }
 
 void ViewerWindow::showContextMenu(const QPoint &globalPos)
@@ -672,5 +735,6 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     menu.winId(); // create the native window so it can be parented (needed on Wayland)
     if (QWindow *handle = menu.windowHandle())
         handle->setTransientParent(this);
+    m_dragging = false;
     menu.exec(globalPos);
 }

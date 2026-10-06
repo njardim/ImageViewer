@@ -10,7 +10,15 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <limits>
 #include <memory>
+
+#if defined(Q_OS_WIN)
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 #ifdef IMAGEVIEWER_VULKAN
 #include <QVersionNumber>
@@ -156,8 +164,11 @@ int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance
             expected[c] = float(source[i + c]);
         color::applyOutputStage(stage, expected);
         for (int c = 0; c < 4; ++c) {
-            const double e = std::abs(double(gpu[i + c]) - expected[c]) / std::max(1.0, std::abs(double(expected[c])));
-            if (e > worst) {
+            // A NaN or infinity on either side is the worst possible error, never a silent pass.
+            const double e = std::isfinite(gpu[i + c]) && std::isfinite(expected[c])
+                                 ? std::abs(double(gpu[i + c]) - expected[c]) / std::max(1.0, std::abs(double(expected[c])))
+                                 : std::numeric_limits<double>::infinity();
+            if (!(e <= worst)) {
                 worst = e;
                 worstAt = i + c;
             }
@@ -197,12 +208,28 @@ bool isConsoleMode(int argc, char *argv[])
 {
     for (int i = 1; i < argc; ++i) {
         const QByteArrayView arg(argv[i]);
+        if (arg == "--") // everything after it is a file name
+            return false;
         if (arg == "--info" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
             || arg == "--version")
             return true;
     }
     return false;
 }
+
+#if defined(Q_OS_WIN)
+// imageViewer.exe is a GUI-subsystem program: from a terminal its output would vanish.
+// Console modes attach to the parent console when stdout is not already redirected.
+void attachParentConsole()
+{
+    const HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+    if ((out == nullptr || out == INVALID_HANDLE_VALUE) && AttachConsole(ATTACH_PARENT_PROCESS)) {
+        FILE *stream = nullptr;
+        freopen_s(&stream, "CONOUT$", "w", stdout);
+        freopen_s(&stream, "CONOUT$", "w", stderr);
+    }
+}
+#endif
 
 // Parses an optional numeric option; a malformed value is an error, not a silent 0.
 bool readNumber(const QCommandLineParser &parser, const QCommandLineOption &option, float *out)
@@ -224,9 +251,13 @@ bool readNumber(const QCommandLineParser &parser, const QCommandLineOption &opti
 
 int main(int argc, char *argv[])
 {
-    const std::unique_ptr<QCoreApplication> app = isConsoleMode(argc, argv)
-                                                      ? std::make_unique<QCoreApplication>(argc, argv)
-                                                      : std::make_unique<QApplication>(argc, argv);
+    const bool console = isConsoleMode(argc, argv);
+#if defined(Q_OS_WIN)
+    if (console)
+        attachParentConsole();
+#endif
+    const std::unique_ptr<QCoreApplication> app = console ? std::make_unique<QCoreApplication>(argc, argv)
+                                                          : std::make_unique<QApplication>(argc, argv);
     QCoreApplication::setApplicationName(QStringLiteral("imageViewer"));
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
@@ -264,11 +295,13 @@ int main(int argc, char *argv[])
     parser.process(*app);
     const QStringList files = parser.positionalArguments();
 
-    if (parser.isSet(infoOption))
-        return files.isEmpty() ? 2 : printInfo(files.first());
     const bool harness = parser.isSet(renderOption);
-    if (harness && files.isEmpty())
+    if ((parser.isSet(infoOption) || harness) && files.isEmpty()) {
+        QTextStream(stderr) << "error: --info and --render need a file\n\n" << parser.helpText();
         return 2;
+    }
+    if (parser.isSet(infoOption))
+        return printInfo(files.first());
 
     QVulkanInstance *vulkan = nullptr;
 #ifdef IMAGEVIEWER_VULKAN

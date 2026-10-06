@@ -8,6 +8,8 @@
 #include <QSet>
 
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 QStringList listImages(const QString &directory)
 {
@@ -23,11 +25,17 @@ QStringList listImages(const QString &directory)
             files.append(info.absoluteFilePath());
     }
 
+    // Natural order ("img2" before "img10"), keyed once per file instead of per comparison.
     QCollator collator;
     collator.setNumericMode(true);
     collator.setCaseSensitivity(Qt::CaseInsensitive);
-    std::sort(files.begin(), files.end(), [&collator](const QString &a, const QString &b) {
-        return collator.compare(QFileInfo(a).fileName(), QFileInfo(b).fileName()) < 0;
-    });
+    std::vector<std::pair<QCollatorSortKey, QString>> keyed;
+    keyed.reserve(std::size_t(files.size()));
+    for (QString &file : files)
+        keyed.emplace_back(collator.sortKey(QFileInfo(file).fileName()), std::move(file));
+    std::sort(keyed.begin(), keyed.end(), [](const auto &a, const auto &b) { return a.first.compare(b.first) < 0; });
+    files.clear();
+    for (auto &entry : keyed)
+        files.append(std::move(entry.second));
     return files;
 }

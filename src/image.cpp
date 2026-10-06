@@ -6,6 +6,7 @@
 #include <QElapsedTimer>
 #include <QHash>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QImage>
 #include <QImageReader>
 #include <QLoggingCategory>
@@ -316,6 +317,13 @@ bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
 bool decodeWithQt(const QString &path, Decoded *out, QString *error)
 {
     QImageReader reader(path);
+    // Qt's SVG reader lays out text with QFontDatabase, which aborts without a QGuiApplication
+    // (console modes such as --info run on a QCoreApplication).
+    if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())
+        && (reader.format() == "svg" || reader.format() == "svgz")) {
+        *error = QStringLiteral("SVG só é descodificado com a interface gráfica");
+        return false;
+    }
     reader.setAutoTransform(true); // orientation is applied by Qt
     QImage image = reader.read();
     if (image.isNull()) {

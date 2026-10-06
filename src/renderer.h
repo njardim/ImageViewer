@@ -81,7 +81,6 @@ public:
     // Offscreen Vulkan needs an instance; windows bring their own.
     void setVulkanInstance(QVulkanInstance *instance) { m_vulkanInstance = instance; }
     bool initialize(QString *error);
-    bool isInitialized() const { return m_rhi != nullptr; }
     // Drops every GPU object and the QRhi itself; initialize() may be called again
     // (recovery after RenderResult::DeviceLost). Pending pixels are discarded too.
     void releaseResources();

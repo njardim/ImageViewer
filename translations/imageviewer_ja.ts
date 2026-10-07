@@ -79,35 +79,35 @@
     <name>Overlay</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル名</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>画像サイズ</translation>
     </message>
     <message>
         <source>File size</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルサイズ</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ズーム</translation>
     </message>
     <message>
         <source>Color space</source>
-        <translation type="unfinished"></translation>
+        <translation>カラースペース</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>更新日時</translation>
     </message>
     <message>
         <source>Position in the folder</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダー内の位置</translation>
     </message>
     <message>
         <source>Display output</source>
-        <translation type="unfinished"></translation>
+        <translation>ディスプレイ出力</translation>
     </message>
 </context>
 <context>
@@ -213,11 +213,11 @@
     </message>
     <message>
         <source>Confirm before moving an image to the trash</source>
-        <translation type="unfinished"></translation>
+        <translation>画像をゴミ箱に入れる前に確認する</translation>
     </message>
     <message>
         <source>Show a checkerboard behind transparent areas</source>
-        <translation type="unfinished"></translation>
+        <translation>透明な部分に市松模様を表示する</translation>
     </message>
     <message>
         <source>Window</source>
@@ -226,78 +226,78 @@
     <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>情報パネルを表示（%1）</translation>
     </message>
     <message>
         <source>Overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>上部のオーバーレイ（%1）</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>常に表示</translation>
     </message>
     <message>
         <source>When the pointer is at the top</source>
-        <translation type="unfinished"></translation>
+        <translation>ポインターが上部にあるとき</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>表示しない</translation>
     </message>
     <message>
         <source>In full screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>全画面表示時：</translation>
     </message>
     <message>
         <source>In a window:</source>
-        <translation type="unfinished"></translation>
+        <translation>ウィンドウ表示時：</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>項目</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上へ移動</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下へ移動</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>項目：</translation>
     </message>
     <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Background opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>背景の不透明度：</translation>
     </message>
     <message>
         <source>Text opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>文字の不透明度：</translation>
     </message>
     <message>
         <source>Outline the text</source>
-        <translation type="unfinished"></translation>
+        <translation>文字を縁取りする</translation>
     </message>
     <message>
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>Hide after:</source>
-        <translation type="unfinished"></translation>
+        <translation>非表示にするまでの時間：</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>情報</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -318,27 +318,27 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>更新日時</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ</translation>
     </message>
     <message>
         <source>Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>降順</translation>
     </message>
     <message>
         <source>Sort images by:</source>
-        <translation type="unfinished"></translation>
+        <translation>画像の並べ替え：</translation>
     </message>
     <message>
         <source>Load the next and previous images in advance</source>
-        <translation type="unfinished"></translation>
+        <translation>前後の画像を先読みする</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -419,41 +419,41 @@
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダー</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルサイズ</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>更新日時</translation>
     </message>
     <message>
         <source>Position</source>
         <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%2 枚中 %1 枚目</translation>
     </message>
     <message>
         <source>%1 MP</source>
         <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 MP</translation>
     </message>
     <message>
         <source>reduced to %1 × %2 for the GPU</source>
-        <translation type="unfinished"></translation>
+        <translation>GPU 向けに %1 × %2 に縮小</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>画像サイズ</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -465,108 +465,108 @@
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>形式</translation>
     </message>
     <message>
         <source>Orientation</source>
         <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>向き</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
-        <translation type="unfinished"></translation>
+        <translation>EXIF %1、適用済み</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>カラー</translation>
     </message>
     <message>
         <source>Peak</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ピーク</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1× SDR 基準白（≈%2 nits）</translation>
     </message>
     <message>
         <source>Decoded in</source>
         <extracomment>Unit after a duration in milliseconds.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>デコード時間</translation>
     </message>
     <message>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ms</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>カメラ</translation>
     </message>
     <message>
         <source>Lens</source>
-        <translation type="unfinished"></translation>
+        <translation>レンズ</translation>
     </message>
     <message>
         <source>%1 s</source>
         <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>%1 mm</source>
         <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 mm</translation>
     </message>
     <message>
         <source>Exposure</source>
         <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>露出</translation>
     </message>
     <message>
         <source>Taken</source>
         <extracomment>Label of the date the photograph was taken.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>撮影日時</translation>
     </message>
     <message>
         <source>%1 %</source>
         <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>rotated %1°</source>
         <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1° 回転</translation>
     </message>
     <message>
         <source>mirrored</source>
-        <translation type="unfinished"></translation>
+        <translation>ミラー反転</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>出力</translation>
     </message>
     <message>
         <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>BT.2390 トーンマッピング：%1 nits から %2 nits へ、%3 nits までは変更なし</translation>
     </message>
     <message>
         <source>clipped above %1 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 nits を超える部分をクリップ</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>ハイライト</translation>
     </message>
     <message>
         <source>clipped above %1 nits (colors outside the output gamut)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 nits を超える部分をクリップ（出力色域外の色）</translation>
     </message>
     <message>
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 nits を超える部分をクリップ（トーンマッピング無効）</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
@@ -584,28 +584,28 @@
     </message>
     <message>
         <source>Enter a name.</source>
-        <translation type="unfinished"></translation>
+        <translation>名前を入力してください。</translation>
     </message>
     <message>
         <source>This name is not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>この名前は使用できません。</translation>
     </message>
     <message>
         <source>A name cannot contain “/” or “\”.</source>
-        <translation type="unfinished"></translation>
+        <translation>名前に「/」や「\」は使用できません。</translation>
     </message>
     <message>
         <source>The name is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>名前が長すぎます。</translation>
     </message>
     <message>
         <source>Windows does not allow this name.</source>
         <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows ではこの名前は使用できません。</translation>
     </message>
     <message>
         <source>A file with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>この名前のファイルは既に存在します。</translation>
     </message>
     <message>
         <source>Open…</source>
@@ -614,7 +614,7 @@
     <message>
         <source>Clear Menu</source>
         <extracomment>Empties the Open Recent menu.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>メニューを消去</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -630,7 +630,7 @@
     </message>
     <message>
         <source>Undo Move to Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>ごみ箱への移動を取り消す</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -646,7 +646,7 @@
     </message>
     <message>
         <source>Undo Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>ゴミ箱への移動を取り消す</translation>
     </message>
     <message>
         <source>Show in File Manager</source>
@@ -654,11 +654,11 @@
     </message>
     <message>
         <source>Rename…</source>
-        <translation type="unfinished"></translation>
+        <translation>名前を変更…</translation>
     </message>
     <message>
         <source>Delete Permanently…</source>
-        <translation type="unfinished"></translation>
+        <translation>完全に削除…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -719,11 +719,11 @@
     </message>
     <message>
         <source>Information Overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>情報オーバーレイ</translation>
     </message>
     <message>
         <source>Checkerboard Background</source>
-        <translation type="unfinished"></translation>
+        <translation>市松模様の背景</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -773,63 +773,63 @@
     </message>
     <message>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>最近開いたファイル</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」を完全に削除しますか？</translation>
     </message>
     <message>
         <source>The file does not go to the trash and cannot be restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルはゴミ箱に移動されず、元に戻すことはできません。</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>削除</translation>
     </message>
     <message>
         <source>Cannot delete “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」を削除できません。</translation>
     </message>
     <message>
         <source>Deleted “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」を削除しました</translation>
     </message>
     <message>
         <source>“%1” is no longer in the trash.</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」はゴミ箱にありません。</translation>
     </message>
     <message>
         <source>Cannot restore “%1”: a file with that name exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」を元に戻せません：同じ名前のファイルが存在します。</translation>
     </message>
     <message>
         <source>Cannot restore “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」を元に戻せません。</translation>
     </message>
     <message>
         <source>Restored “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」を元に戻しました</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>名前を変更</translation>
     </message>
     <message>
         <source>New name</source>
-        <translation type="unfinished"></translation>
+        <translation>新しい名前</translation>
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translation>新しい名前：</translation>
     </message>
     <message>
         <source>Cannot rename “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」の名前を変更できません。</translation>
     </message>
     <message>
         <source>Renamed to “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>「%1」に名前を変更しました</translation>
     </message>
     <message>
         <source>View</source>

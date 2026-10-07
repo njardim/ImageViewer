@@ -79,35 +79,35 @@
     <name>Overlay</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>尺寸</translation>
     </message>
     <message>
         <source>File size</source>
-        <translation type="unfinished"></translation>
+        <translation>文件大小</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>缩放</translation>
     </message>
     <message>
         <source>Color space</source>
-        <translation type="unfinished"></translation>
+        <translation>色彩空间</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>修改日期</translation>
     </message>
     <message>
         <source>Position in the folder</source>
-        <translation type="unfinished"></translation>
+        <translation>在文件夹中的位置</translation>
     </message>
     <message>
         <source>Display output</source>
-        <translation type="unfinished"></translation>
+        <translation>显示输出</translation>
     </message>
 </context>
 <context>
@@ -213,11 +213,11 @@
     </message>
     <message>
         <source>Confirm before moving an image to the trash</source>
-        <translation type="unfinished"></translation>
+        <translation>将图像移到废纸篓前进行确认</translation>
     </message>
     <message>
         <source>Show a checkerboard behind transparent areas</source>
-        <translation type="unfinished"></translation>
+        <translation>在透明区域后显示棋盘格背景</translation>
     </message>
     <message>
         <source>Window</source>
@@ -226,78 +226,78 @@
     <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>显示信息面板（%1）</translation>
     </message>
     <message>
         <source>Overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>顶部叠加层（%1）</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>始终</translation>
     </message>
     <message>
         <source>When the pointer is at the top</source>
-        <translation type="unfinished"></translation>
+        <translation>指针位于顶部时</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>从不</translation>
     </message>
     <message>
         <source>In full screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>全屏时：</translation>
     </message>
     <message>
         <source>In a window:</source>
-        <translation type="unfinished"></translation>
+        <translation>窗口模式下：</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>字段</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上移</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下移</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>字段：</translation>
     </message>
     <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Background opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>背景不透明度：</translation>
     </message>
     <message>
         <source>Text opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>文字不透明度：</translation>
     </message>
     <message>
         <source>Outline the text</source>
-        <translation type="unfinished"></translation>
+        <translation>为文字添加轮廓</translation>
     </message>
     <message>
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>Hide after:</source>
-        <translation type="unfinished"></translation>
+        <translation>隐藏延迟：</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>信息</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -318,27 +318,27 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>修改日期</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <source>Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>降序</translation>
     </message>
     <message>
         <source>Sort images by:</source>
-        <translation type="unfinished"></translation>
+        <translation>图像排序方式：</translation>
     </message>
     <message>
         <source>Load the next and previous images in advance</source>
-        <translation type="unfinished"></translation>
+        <translation>提前加载上一张和下一张图像</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -419,41 +419,41 @@
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>文件</translation>
     </message>
     <message>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>文件夹</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>文件大小</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>修改时间</translation>
     </message>
     <message>
         <source>Position</source>
         <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %1 张，共 %2 张</translation>
     </message>
     <message>
         <source>%1 MP</source>
         <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 MP</translation>
     </message>
     <message>
         <source>reduced to %1 × %2 for the GPU</source>
-        <translation type="unfinished"></translation>
+        <translation>已缩小至 %1 × %2 以适应 GPU</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>尺寸</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -465,108 +465,108 @@
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>格式</translation>
     </message>
     <message>
         <source>Orientation</source>
         <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>方向</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
-        <translation type="unfinished"></translation>
+        <translation>EXIF %1，已应用</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>色彩</translation>
     </message>
     <message>
         <source>Peak</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>峰值</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1× SDR 参考白（≈%2 nits）</translation>
     </message>
     <message>
         <source>Decoded in</source>
         <extracomment>Unit after a duration in milliseconds.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>解码耗时</translation>
     </message>
     <message>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ms</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>相机</translation>
     </message>
     <message>
         <source>Lens</source>
-        <translation type="unfinished"></translation>
+        <translation>镜头</translation>
     </message>
     <message>
         <source>%1 s</source>
         <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>%1 mm</source>
         <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 mm</translation>
     </message>
     <message>
         <source>Exposure</source>
         <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>曝光</translation>
     </message>
     <message>
         <source>Taken</source>
         <extracomment>Label of the date the photograph was taken.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>拍摄时间</translation>
     </message>
     <message>
         <source>%1 %</source>
         <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>rotated %1°</source>
         <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>旋转 %1°</translation>
     </message>
     <message>
         <source>mirrored</source>
-        <translation type="unfinished"></translation>
+        <translation>已镜像</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>输出</translation>
     </message>
     <message>
         <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>BT.2390 色调映射，从 %1 nits 映射到 %2 nits，%3 nits 以下保持不变</translation>
     </message>
     <message>
         <source>clipped above %1 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>高于 %1 nits 的部分被裁剪</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>高光</translation>
     </message>
     <message>
         <source>clipped above %1 nits (colors outside the output gamut)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>高于 %1 nits 的部分被裁剪（色彩超出输出色域）</translation>
     </message>
     <message>
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>高于 %1 nits 的部分被裁剪（色调映射已关闭）</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
@@ -584,28 +584,28 @@
     </message>
     <message>
         <source>Enter a name.</source>
-        <translation type="unfinished"></translation>
+        <translation>请输入名称。</translation>
     </message>
     <message>
         <source>This name is not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>不允许使用此名称。</translation>
     </message>
     <message>
         <source>A name cannot contain “/” or “\”.</source>
-        <translation type="unfinished"></translation>
+        <translation>名称不能包含“/”或“\”。</translation>
     </message>
     <message>
         <source>The name is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>名称太长。</translation>
     </message>
     <message>
         <source>Windows does not allow this name.</source>
         <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows 不允许使用此名称。</translation>
     </message>
     <message>
         <source>A file with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>已存在同名文件。</translation>
     </message>
     <message>
         <source>Open…</source>
@@ -614,7 +614,7 @@
     <message>
         <source>Clear Menu</source>
         <extracomment>Empties the Open Recent menu.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>清除菜单</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -630,7 +630,7 @@
     </message>
     <message>
         <source>Undo Move to Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>撤销移到回收站</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -646,7 +646,7 @@
     </message>
     <message>
         <source>Undo Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>撤销移到废纸篓</translation>
     </message>
     <message>
         <source>Show in File Manager</source>
@@ -654,11 +654,11 @@
     </message>
     <message>
         <source>Rename…</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名…</translation>
     </message>
     <message>
         <source>Delete Permanently…</source>
-        <translation type="unfinished"></translation>
+        <translation>永久删除…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -719,11 +719,11 @@
     </message>
     <message>
         <source>Information Overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>信息叠加层</translation>
     </message>
     <message>
         <source>Checkerboard Background</source>
-        <translation type="unfinished"></translation>
+        <translation>棋盘格背景</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -773,63 +773,63 @@
     </message>
     <message>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>打开最近使用的文件</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>要永久删除“%1”吗？</translation>
     </message>
     <message>
         <source>The file does not go to the trash and cannot be restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>该文件不会移到废纸篓，且无法恢复。</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Cannot delete “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法删除“%1”。</translation>
     </message>
     <message>
         <source>Deleted “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>已删除“%1”</translation>
     </message>
     <message>
         <source>“%1” is no longer in the trash.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”已不在废纸篓中。</translation>
     </message>
     <message>
         <source>Cannot restore “%1”: a file with that name exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法还原“%1”：已存在同名文件。</translation>
     </message>
     <message>
         <source>Cannot restore “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法还原“%1”。</translation>
     </message>
     <message>
         <source>Restored “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>已还原“%1”</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名</translation>
     </message>
     <message>
         <source>New name</source>
-        <translation type="unfinished"></translation>
+        <translation>新名称</translation>
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translation>新名称：</translation>
     </message>
     <message>
         <source>Cannot rename “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法重命名“%1”。</translation>
     </message>
     <message>
         <source>Renamed to “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>已重命名为“%1”</translation>
     </message>
     <message>
         <source>View</source>

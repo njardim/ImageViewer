@@ -137,16 +137,22 @@ void ViewerWindow::scheduleWork()
             qCInfo(lcNavigation).noquote() << "shown from the cache:" << QFileInfo(current).fileName();
             showImage(std::move(*cached), limit);
         } else {
-            m_message = tr("Loading %1…").arg(QFileInfo(current).fileName());
+            m_loadingMessage = tr("Loading %1…").arg(displayFileName(QFileInfo(current).fileName()));
+            m_message = m_loadingMessage;
             updateOverlay();
             // A running decode (perhaps of this very file) is waited for: decodeFinished() comes back here.
-            if (!m_watcher.isRunning())
+            if (!m_decodeBusy)
                 startDecode(current, limit, 0);
             return;
         }
+    } else if (!m_loadingMessage.isEmpty() && m_message == m_loadingMessage) {
+        // Back to the image on screen before the other one arrived (Right, Left).
+        m_message = m_image.error;
+        m_loadingMessage.clear();
+        updateOverlay();
     }
     // The requested image is on screen: use the idle decode thread for its neighbours.
-    if (m_watcher.isRunning() || !m_settings.preload || !m_rendererReady)
+    if (m_decodeBusy || !m_settings.preload || !m_rendererReady)
         return;
     const QStringList wanted = neighbourhood();
     for (qsizetype i = 1; i < wanted.size(); ++i) {
@@ -161,7 +167,9 @@ void ViewerWindow::scheduleWork()
 
 void ViewerWindow::startDecode(const QString &path, int limit, qint64 maxPixels)
 {
+    m_decodeBusy = true;
     m_jobLimit = limit;
+    m_jobGeneration = m_decodeGeneration;
     m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, limit, maxPixels] {
         return decodeImage(path, limit, maxPixels);
     }));
@@ -172,6 +180,11 @@ void ViewerWindow::decodeFinished()
     // takeResult() moves the image out; result() would copy it and the future would keep
     // its own reference to the pixels alive until the next decode.
     Image image = m_watcher.future().takeResult();
+    m_decodeBusy = false;
+    if (m_jobGeneration != m_decodeGeneration) { // decoded for another language: decode again
+        scheduleWork();
+        return;
+    }
     const int limit = m_jobLimit;
     m_cache.insert(image, limit); // kept only if it is still the current image or a neighbour
     const QString current = currentPath();
@@ -180,14 +193,16 @@ void ViewerWindow::decodeFinished()
         qCInfo(lcNavigation).noquote() << "decoded for display:" << QFileInfo(image.path).fileName();
         showImage(std::move(image), limit);
     } else if (image.isValid()) {
-        qCInfo(lcNavigation).noquote() << "preloaded:" << QFileInfo(image.path).fileName();
+        const bool kept = m_cache.state(image.path, limit) == ImageCache::State::Ready;
+        qCInfo(lcNavigation).noquote() << (kept ? "preloaded:" : "preloaded, but over the memory budget:")
+                                       << QFileInfo(image.path).fileName();
     }
     scheduleWork();
 }
 
 void ViewerWindow::showImage(Image image, int limit)
 {
-    setTitle(QStringLiteral("%1 — imageViewer").arg(QFileInfo(image.path).fileName()));
+    setTitle(QStringLiteral("%1 — imageViewer").arg(displayFileName(QFileInfo(image.path).fileName())));
     // The same file again (smaller texture, device loss, language, changed on disk) keeps
     // the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
@@ -211,12 +226,18 @@ void ViewerWindow::showImage(Image image, int limit)
     }
     m_shownLimit = limit;
     m_imageStale = false;
+    m_loadingMessage.clear();
     // Editors often save by replacing the file: watch the path again each time it is shown.
     const QStringList watchedFiles = m_folderWatcher.files();
     if (!watchedFiles.isEmpty())
         m_folderWatcher.removePaths(watchedFiles);
-    if (QFileInfo::exists(m_image.path))
+    const QFileInfo shown(m_image.path);
+    if (shown.exists()) {
         m_folderWatcher.addPath(m_image.path);
+        // Changed while it was being decoded (before the watch above existed): look again.
+        if (shown.size() != m_image.fileSize || shown.lastModified() != m_image.modified)
+            m_folderTimer.start();
+    }
     // At either end of a non-looping folder a side button may have nothing left to do.
     setHoverZone(zoneAt(mapFromGlobal(QCursor::pos(screen()))));
     updateOverlay();

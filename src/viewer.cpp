@@ -237,6 +237,7 @@ void ViewerWindow::initializeRenderer()
     }
     m_rendererReady = true;
     updateOverlay();
+    scheduleWork(); // preloading waits for the renderer (the texture limit is known now)
 }
 
 void ViewerWindow::resizeEvent(QResizeEvent *)
@@ -391,10 +392,11 @@ void ViewerWindow::render()
         m_textureCapPath = m_image.path;
         const int deviceMax = m_renderer.maxTextureSize();
         m_textureCap = longest > deviceMax ? deviceMax : longest / 2;
-        const int index = int(m_files.indexOf(m_image.path));
-        if (m_textureCap >= 512 && index >= 0) {
+        if (currentPath() != m_image.path) {
+            // The user has moved on meanwhile: the cap applies when this file comes back.
+        } else if (m_textureCap >= 512) {
             m_imageStale = true;
-            startLoading(index);
+            scheduleWork();
             //: %1: a size in pixels.
             m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(QLocale().toString(m_textureCap));
         } else {
@@ -407,6 +409,7 @@ void ViewerWindow::render()
             refused.error = tr("The GPU did not accept the image.");
             m_message = refused.error;
             m_image = std::move(refused);
+            m_shownLimit = textureLimit(m_image.path); // counts as shown at the capped size too
         }
         updateOverlay();
         return;
@@ -474,10 +477,12 @@ void ViewerWindow::applySettings(const Settings &settings)
     m_settings.save();
     if (settings.language != previous.language) {
         applyLanguage(settings.language);
-        // Descriptions are composed while decoding: decode again for the new language.
+        // Descriptions are composed while decoding: decode again for the new language,
+        // including a decode still running (its result is dropped when it arrives).
+        ++m_decodeGeneration;
         m_cache.clear();
-        if (currentFileIsShown())
-            reloadCurrent();
+        if (!m_image.path.isEmpty())
+            m_imageStale = true;
     }
     if (settings.toneMap != previous.toneMap)
         m_toneMap = settings.toneMap;

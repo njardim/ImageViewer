@@ -173,8 +173,15 @@ private:
     // One decode at a time: they cannot be cancelled, and each needs a full image of memory.
     QThreadPool m_decodePool;
     QFutureWatcher<Image> m_watcher;
+    // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
+    // as soon as the worker ends, while the finished signal is still queued, and setting a
+    // new future then would discard the result that was never delivered.
+    bool m_decodeBusy = false;
     int m_jobLimit = 0;                   // texture limit of the running decode
+    int m_jobGeneration = 0;              // ...and the m_decodeGeneration it started in
+    int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
+    bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher
     QString m_copyPath;
     ImageCache m_cache;
     Image m_image; // metadata of the displayed image (pixels live on the GPU and in the cache)
@@ -191,6 +198,7 @@ private:
     };
     QList<TrashedFile> m_trashed; // for Undo, most recent last
     QString m_message; // loading status or error; cleared when an image arrives
+    QString m_loadingMessage; // the "Loading…" text in m_message, while it is there
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
 

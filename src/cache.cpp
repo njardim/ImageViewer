@@ -41,7 +41,7 @@ std::optional<Image> ImageCache::find(const QString &path, int textureLimit)
     if (i < 0)
         return std::nullopt;
     const Entry &entry = m_entries.at(i);
-    if (entry.state != State::Ready || entry.textureLimit != textureLimit)
+    if (entry.state != State::Ready || entry.textureLimit != textureLimit || !entry.image.isValid())
         return std::nullopt;
     const QFileInfo info(path);
     if (!info.exists() || info.size() != entry.image.fileSize || info.lastModified() != entry.image.modified) {
@@ -72,19 +72,26 @@ void ImageCache::insert(const Image &image, int textureLimit)
         return;
     remove(image.path);
     Entry entry{image, textureLimit, image.overPixelLimit ? State::Skipped : State::Ready};
-    if (entry.state == State::Skipped)
+    // Room for it, counting only the images more important than this one.
+    qint64 moreImportant = 0;
+    for (const Entry &other : std::as_const(m_entries))
+        if (priority(other.image.path) < rank)
+            moreImportant += other.image.pixelBytes();
+    if (entry.state == State::Ready && moreImportant + image.pixelBytes() > m_budget)
+        entry.state = State::Skipped; // otherwise the scheduler would decode it again and again
+    if (entry.state == State::Skipped) {
+        entry.image.pixels.reset();
         entry.image.error.clear(); // not a failure: decoded normally once the user asks for it
-    const qint64 size = image.pixelBytes();
-    if (size > m_budget)
-        return;
-    // Evict less important images until this one fits; never a more important one.
+    }
+    // Evict less important images until this one fits.
+    const qint64 size = entry.image.pixelBytes();
     while (bytes() + size > m_budget) {
         auto victim = std::max_element(m_entries.begin(), m_entries.end(), [this](const Entry &a, const Entry &b) {
             return priority(a.image.path) < priority(b.image.path);
         });
-        if (victim == m_entries.end() || priority(victim->image.path) < rank)
-            return;
-        m_entries.erase(victim);
+        if (victim == m_entries.end())
+            break;
+        m_entries.erase(victim); // always less important: the more important ones fit with this one
     }
     m_entries.append(std::move(entry));
 }

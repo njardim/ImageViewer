@@ -222,8 +222,12 @@ QString cleanText(const std::string &raw)
     QString text = QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256))).simplified();
     text.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
     text = text.simplified(); // tabs and newlines became spaces first; removed characters may leave two
-    if (text.size() > 64)
-        text = text.left(63) + QChar(0x2026);
+    if (text.size() > 64) {
+        text.truncate(63);
+        if (text.back().isHighSurrogate()) // never half a character
+            text.chop(1);
+        text += QChar(0x2026);
+    }
     return text;
 }
 
@@ -712,7 +716,7 @@ QString exposureTimeText(float seconds, const QLocale &locale)
 {
     // Fractions only where they are whole (1/3, 1/8000); 0.4 s stays a decimal, not "1/3".
     const double reciprocal = seconds > 0.0f ? 1.0 / double(seconds) : 0.0;
-    if (seconds >= 1.0f || reciprocal <= 0.0 || std::abs(reciprocal - std::round(reciprocal)) > 0.02 * reciprocal)
+    if (seconds >= 1.0f || reciprocal < 1.5 || std::abs(reciprocal - std::round(reciprocal)) > 0.02 * reciprocal)
         return locale.toString(double(seconds), 'g', 3);
     return QStringLiteral("1/") + locale.toString(qlonglong(std::llround(reciprocal)));
 }

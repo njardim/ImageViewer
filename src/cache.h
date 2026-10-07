@@ -25,8 +25,9 @@ public:
     qint64 maxPreloadPixels() const { return m_budget / 3 / 8; }
 
     // The image decoded for `path` at `textureLimit`, if the file has not changed since
-    // (size and modification time); a stale entry is dropped. Failed decodes are returned
-    // too (their error is the answer); images skipped as too large are not.
+    // (size and modification time); a stale entry is dropped. Only usable images: a failed
+    // decode is tried again when the user comes back to the file (it may have been a
+    // passing I/O error), and skipped ones were never decoded.
     std::optional<Image> find(const QString &path, int textureLimit);
     // Ready or Skipped entries need no further preloading; the file is not checked.
     State state(const QString &path, int textureLimit) const;
@@ -34,8 +35,10 @@ public:
     // Paths worth keeping, most important first (current image, then its neighbours).
     // Everything else is dropped now; inserts beyond the budget evict from the end.
     void retain(const QStringList &paths);
-    // Stores a finished decode (also a failed one, or one over the preload limit) for one of
-    // the retained paths; anything else, or an image that cannot fit, is not kept.
+    // Stores a finished decode for one of the retained paths (anything else is dropped). A
+    // failed decode is kept as such, so it is not preloaded again; an image over the preload
+    // limit, or one that does not fit the budget beside more important ones, is kept as
+    // Skipped, without pixels, for the same reason.
     void insert(const Image &image, int textureLimit);
     void remove(const QString &path);
     void clear();

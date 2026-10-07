@@ -798,6 +798,13 @@ None of them blocks Phase 0. The stated proposal is the one adopted by default.
 - The Ethnologue 2026 figures behind D-27 against ethnologue.com (only secondary sources were reachable).
 - Undoing a move to the trash (0.2) restores the file by renaming it back and removes the trash's record of it (freedesktop `info/*.trashinfo`; the `$I…` file next to `$R…` in the Windows Recycle Bin). Check on Windows and macOS that the Recycle Bin and the Trash show no stale entry afterwards.
 - Folder watching (0.2) on Windows: whether watching a folder stops the user from renaming or deleting that folder in Explorer while imageViewer shows it; and how network shares report changes.
+- Known limits left after the 0.2 review (D-35), each with its reason:
+  - Folder listing runs on the GUI thread: about 0.35 s by name and 0.5 s by date for 50,000 files `[test: review, Linux]`; ordinary folders are unaffected. Moving it to a worker (or skipping re-lists when nothing changed) is for 0.3.
+  - Closing the window waits for a decode that is running (seconds for a very large image).
+  - The cache budget uses physical memory, not a container's (cgroup) limit.
+  - A file replaced by another of the same size and modification time is not noticed by the cache.
+  - Letter shortcuts on a keyboard with only a non-Latin layout (e.g. Russian alone) follow Qt's alternatives, which need a Latin layout configured as well (`us,ru` is the usual setup) `[test: xdotool, setxkbmap ru]`.
+  - A Qt built without ICU (the local cloud build) falls back to POSIX collation: no natural order there; the official Qt binaries used by CI and the packages include ICU `[knowledge]`.
 - ~~Whether publishing a release in the web interface also fires the tag `push`~~: yes. The `release` event run gets canceled and the `push` run does the work (runs 18 and 19) `[test]`. The canceled run is harmless.
 
 ---

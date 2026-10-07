@@ -2,6 +2,8 @@
 // the context menu, file operations and dialogs. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "folder.h"
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
@@ -240,7 +242,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     switch (command) {
     case Command::ShowInFolder:
     case Command::CopyPath: return !m_image.path.isEmpty();
-    case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyWatcher.isRunning();
+    case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyBusy;
     case Command::Rename:
     case Command::MoveToTrash:
     case Command::DeletePermanently: return currentFileIsShown(); // also a file that failed to decode
@@ -511,19 +513,21 @@ void ViewerWindow::showInFolder()
 
 void ViewerWindow::copyImage()
 {
-    if (m_copyWatcher.isRunning() || !currentFileIsShown())
+    if (m_copyBusy || !currentFileIsShown())
         return;
     // The displayed pixels live on the GPU, possibly reduced: decode the file again at full
     // resolution, on the decode thread (after any decode already running).
     m_copyPath = m_image.path;
     showNotice(tr("Copying the image…"));
     const QString path = m_copyPath;
+    m_copyBusy = true;
     m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path] { return decodeForClipboard(path); }));
 }
 
 void ViewerWindow::imageCopied()
 {
     QImage image = m_copyWatcher.future().takeResult();
+    m_copyBusy = false;
     if (image.isNull()) {
         showNotice(tr("Cannot copy the image."));
         return;
@@ -549,7 +553,7 @@ void ViewerWindow::moveToTrash()
     if (!currentFileIsShown())
         return;
     const QString path = m_image.path;
-    const QString name = QFileInfo(path).fileName();
+    const QString name = displayFileName(QFileInfo(path).fileName());
     if (m_settings.confirmTrash) {
         QMessageBox box;
         box.setTextFormat(Qt::PlainText); // a file name is never markup
@@ -607,7 +611,7 @@ void ViewerWindow::deletePermanently()
     if (!currentFileIsShown())
         return;
     const QString path = m_image.path;
-    const QString name = QFileInfo(path).fileName();
+    const QString name = displayFileName(QFileInfo(path).fileName());
     // Always asked, whatever the trash setting: this cannot be undone.
     QMessageBox box;
     box.setTextFormat(Qt::PlainText); // a file name is never markup
@@ -636,7 +640,7 @@ void ViewerWindow::undoTrash()
     if (m_trashed.isEmpty())
         return;
     const TrashedFile entry = m_trashed.takeLast();
-    const QString name = QFileInfo(entry.original).fileName();
+    const QString name = displayFileName(QFileInfo(entry.original).fileName());
     // The trash may have been emptied, and another file trashed later under the same name:
     // only the file that was moved there goes back.
     const QFileInfo inTrash(entry.inTrash);
@@ -705,6 +709,8 @@ void ViewerWindow::renameFile()
     if (!renameProblem(name, directory, path).isEmpty()) // the folder may have changed meanwhile
         return;
     const QString target = QDir(directory).absoluteFilePath(name);
+    // Taken before the rename: the cache checks the file under its old name.
+    std::optional<Image> kept = m_cache.find(path, m_shownLimit);
     bool renamed;
     if (QFileInfo::exists(target)) {
         // Only a change of case on a case-insensitive file system gets here: go through a
@@ -720,10 +726,10 @@ void ViewerWindow::renameFile()
         renamed = QFile::rename(path, target);
     }
     if (!renamed) {
-        showNotice(tr("Cannot rename “%1”.").arg(info.fileName()));
+        showNotice(tr("Cannot rename “%1”.").arg(displayFileName(info.fileName())));
         return;
     }
-    // The decoded image stays on screen under its new name.
+    // The decoded image stays on screen and in the cache, under its new name.
     m_cache.remove(path);
     if (m_textureCapPath == path)
         m_textureCapPath = target; // it still needs the reduced size it was shown at
@@ -734,9 +740,14 @@ void ViewerWindow::renameFile()
         saveRecentFiles(m_recent);
     }
     m_files[m_index] = target;
-    setTitle(QStringLiteral("%1 — imageViewer").arg(QFileInfo(target).fileName()));
-    showNotice(tr("Renamed to “%1”").arg(QFileInfo(target).fileName()));
+    const QString shownName = displayFileName(QFileInfo(target).fileName());
+    setTitle(QStringLiteral("%1 — imageViewer").arg(shownName));
+    showNotice(tr("Renamed to “%1”").arg(shownName));
     relist(); // its place in the sort order may have changed
+    if (kept) {
+        kept->path = target; // renaming keeps the size and the modification time
+        m_cache.insert(*kept, m_shownLimit);
+    }
     const QStringList watchedFiles = m_folderWatcher.files();
     if (!watchedFiles.isEmpty())
         m_folderWatcher.removePaths(watchedFiles);

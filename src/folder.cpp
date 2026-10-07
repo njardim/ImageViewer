@@ -12,6 +12,13 @@
 #include <utility>
 #include <vector>
 
+QString displayFileName(const QString &name)
+{
+    QString shown = name;
+    shown.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
+    return shown;
+}
+
 QStringList listImages(const QString &directory, FolderSort sort, bool descending)
 {
     static const QSet<QString> suffixes(supportedSuffixes().begin(), supportedSuffixes().end());

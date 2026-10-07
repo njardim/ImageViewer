@@ -16,6 +16,7 @@
 #include <QSize>
 #include <QString>
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -53,6 +54,13 @@ public:
     static Output scRgbOutput(float whiteNits, float peakNits); // Windows: 1.0 = 80 nits
     static Output pqOutput(float whiteNits, float peakNits);    // HDR10, output units are nits
 
+    // UI layers drawn over the image at SDR white, each from its own small texture so
+    // that changing one (hover feedback) does not re-upload the others.
+    enum OverlayLayer { InfoLayer, PreviousButtonLayer, NextButtonLayer, OverlayLayerCount };
+
+    // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
+    enum class OutputPreference { Automatic, Sdr, Hdr10 };
+
     // What to draw this frame. Rectangles are in device pixels, origin top-left.
     struct Frame {
         QRectF imageRect;      // where the (oriented) image lands
@@ -65,7 +73,7 @@ public:
         float contentPeak = 0.0f;          // brightest RGB component, working units
         float contentLuminancePeak = 0.0f; // brightest luminance, working units
         bool absoluteLuminance = false;    // PQ content: keep absolute nits where the output allows it
-        QRectF overlayRect;    // empty: no overlay
+        QRectF overlayRects[OverlayLayerCount]; // empty: layer not drawn
         float background[3] = {0.129f, 0.129f, 0.129f}; // sRGB-encoded
     };
 
@@ -91,7 +99,8 @@ public:
     // Takes ownership of the pixels (linear scRGB, premultiplied RGBA16F).
     void setImage(std::vector<qfloat16> pixels, QSize size);
     void clearImage();
-    void setOverlay(const QImage &overlay); // RGBA8888_Premultiplied, device pixels
+    void setOverlay(int layer, const QImage &overlay); // RGBA8888_Premultiplied, device pixels; null hides
+    void setOutputPreference(OutputPreference preference);
 
     RenderResult render(const Frame &frame);
     // True once after an image could not be put on the GPU (e.g. larger than the
@@ -138,10 +147,17 @@ private:
     QRhiSampler *m_overlaySampler = nullptr;
     QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
     QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
-    QRhiTexture *m_overlayTexture = nullptr;
     QRhiShaderResourceBindings *m_imageBindingsLinear = nullptr;
     QRhiShaderResourceBindings *m_imageBindingsNearest = nullptr;
-    QRhiShaderResourceBindings *m_overlayBindings = nullptr;
+    struct OverlaySlot {
+        QRhiTexture *texture = nullptr;
+        QRhiShaderResourceBindings *bindings = nullptr;
+        QImage pending;
+        bool isPending = false;
+        bool present = false;
+    };
+    std::array<OverlaySlot, OverlayLayerCount> m_overlays;
+    OutputPreference m_outputPreference = OutputPreference::Automatic;
     QRhiResourceUpdateBatch *m_initialUpdates = nullptr;
     bool m_swapChainReady = false;
     bool m_outputDirty = true; // hdrInfo must be read again
@@ -153,7 +169,4 @@ private:
     bool m_uploadInFlight = false; // m_pendingPixels back an upload until the frame ends
     bool m_hasImage = false;
     bool m_imageUploadFailed = false;
-    QImage m_pendingOverlay;
-    bool m_overlayPending = false;
-    bool m_hasOverlay = false;
 };

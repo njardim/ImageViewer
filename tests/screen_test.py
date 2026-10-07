@@ -74,9 +74,13 @@ def locate(screen):
 
 
 server, display = xvfb.start("1600x1000x24")
+# A fresh settings store (QSettings follows XDG_CONFIG_HOME): defaults, and the user's own
+# settings neither read nor overwritten.
+config = os.path.join(work, "config")
+os.makedirs(config, exist_ok=True)
 env = dict(os.environ, DISPLAY=display, QT_QPA_PLATFORM="xcb", IMAGEVIEWER_RHI=rhi,
-           IMAGEVIEWER_OUTPUT="sdr", LC_ALL="C.UTF-8", QT_LOGGING_RULES="imageviewer.*=true",
-           QT_MESSAGE_PATTERN="%{time process} %{category}: %{message}")
+           IMAGEVIEWER_OUTPUT="sdr", LC_ALL="C.UTF-8", LANGUAGE="en", XDG_CONFIG_HOME=config,
+           QT_LOGGING_RULES="imageviewer.*=true", QT_MESSAGE_PATTERN="%{time process} %{category}: %{message}")
 best = None
 try:
     with open(log_path, "w") as log:

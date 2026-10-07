@@ -1,10 +1,12 @@
 #include "image.h"
+#include "settings.h"
 #include "viewer.h"
 
 #include <QApplication>
 #include <QByteArrayView>
 #include <QCommandLineParser>
 #include <QFile>
+#include <QFileInfo>
 #include <QFileOpenEvent>
 #include <QTextStream>
 
@@ -102,7 +104,7 @@ bool writePfm(const QString &path, const std::vector<float> &rgba, int width, in
     return true;
 }
 
-// `imageviewer --render <file>`: the fidelity harness (docs/PLANO.md §10). Draws the
+// `imageviewer --render <file>`: the fidelity harness (docs/PLAN.md §10). Draws the
 // image 1:1 offscreen through the real shader for a chosen output, reads the target
 // back and compares every pixel with color::applyOutputStage().
 int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance *vulkan)
@@ -323,12 +325,18 @@ int main(int argc, char *argv[])
         return renderHarness(files.first(), opt, vulkan);
     }
 
+    // The interface only: --info and --render output stays English (tests parse it).
+    const Settings settings = Settings::load();
+    applyLanguage(settings.language);
+
     ViewerWindow window(vulkan);
     FileOpenFilter fileOpenFilter(&window);
     app->installEventFilter(&fileOpenFilter);
-    window.resize(1280, 800);
-    window.show();
+    const SessionState session = SessionState::load();
+    window.showRestored(session);
     if (!files.isEmpty())
         window.openFile(files.first());
+    else if (settings.reopenLastImage && !session.lastFile.isEmpty() && QFileInfo::exists(session.lastFile))
+        window.openFile(session.lastFile);
     return app->exec();
 }

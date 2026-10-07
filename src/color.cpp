@@ -2,6 +2,7 @@
 
 #include <lcms2.h>
 
+#include <QCoreApplication>
 #include <QtGlobal>
 
 #include <algorithm>
@@ -108,7 +109,7 @@ cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
 {
     cmsHPROFILE in = cmsOpenProfileFromMem(icc.constData(), cmsUInt32Number(icc.size()));
     if (!in) {
-        *error = QStringLiteral("invalid ICC profile");
+        *error = QCoreApplication::translate("Color", "invalid ICC profile");
         return nullptr;
     }
     cmsUInt32Number inFormat = 0;
@@ -119,7 +120,7 @@ cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
         inFormat = FLOAT_SH(1) | COLORSPACE_SH(PT_GRAY) | EXTRA_SH(3) | CHANNELS_SH(1) | BYTES_SH(4);
     if (!inFormat) {
         cmsCloseProfile(in);
-        *error = QStringLiteral("unsupported ICC colour space for RGBA data");
+        *error = QCoreApplication::translate("Color", "unsupported ICC color space for RGBA data");
         return nullptr;
     }
     cmsHPROFILE out = createLinearScRgbProfile();
@@ -131,7 +132,7 @@ cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
     cmsCloseProfile(in);
     cmsCloseProfile(out);
     if (!xf)
-        *error = QStringLiteral("cannot build colour transform from ICC profile");
+        *error = QCoreApplication::translate("Color", "cannot build a color transform from the ICC profile");
     return xf;
 }
 

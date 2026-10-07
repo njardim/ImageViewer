@@ -8,7 +8,7 @@ licence of the port plus its enabled features to packages[0].licenseConcluded)
 and fails when:
   - a port is under a GPL/AGPL licence with no LGPL or permissive alternative
     (an SPDX "OR" with an acceptable branch is fine, "AND" needs every part);
-  - a port that must never ship is installed (FORBIDDEN, docs/PLANO.md §5).
+  - a port that must never ship is installed (FORBIDDEN, docs/PLAN.md §5).
 Ports without a declared licence are listed as warnings. Standard library only,
 so it runs unchanged on the Windows, macOS and Linux runners.
 """

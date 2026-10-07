@@ -1,6 +1,6 @@
 #version 440
 
-// Output stage of the colour pipeline (docs/PLANO.md §6.2). Image textures hold
+// Output stage of the colour pipeline (docs/PLAN.md §6.2). Image textures hold
 // linear scRGB (BT.709 primaries, 1.0 = SDR reference white), premultiplied.
 // Overlay textures hold sRGB-encoded UI pixels, premultiplied.
 // color::applyOutputStage() (src/color.cpp) is the CPU reference of this code.

@@ -1,6 +1,6 @@
 name: build
 
-# Releases (docs/PLANO.md D-19, D-26): publish a GitHub release named vX.Y[-suffix]
+# Releases (docs/PLAN.md D-19, D-26): publish a GitHub release named vX.Y[-suffix]
 # (or push such a tag). This workflow, as it is at the tagged commit, builds the three
 # packages, tests them on clean machines and attaches them plus SHA256SUMS to the
 # release. A tag created from the web UI may also emit a push event; both runs share
@@ -100,9 +100,9 @@ jobs:
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
           aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
-          # Only what we use. Run 2: py7zr rejected a path in the qtsvg archive;
-          # run 3: parallel external 7-Zip extractions raced on the same folder.
-          archives: qtbase d3dcompiler_47 opengl32sw
+          # Only what we use (qttools: lupdate/lrelease for the UI translations). Run 2: py7zr
+          # rejected a path in the qtsvg archive; run 3: parallel external 7-Zip extractions raced.
+          archives: qtbase qttools d3dcompiler_47 opengl32sw
           cache: true
 
       - name: vcpkg
@@ -184,6 +184,16 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
+      # Releases must ship every UI language complete; elsewhere missing ones only warn (D-27).
+      - name: Translations gate
+        if: runner.os == 'Linux'
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            python3 tests/check_translations.py --require-complete
+          else
+            python3 tests/check_translations.py
+          fi
+
       - name: Smoke test (decode + colour pipeline)
         shell: bash
         run: tests/smoke.sh "$EXE"
@@ -193,13 +203,21 @@ jobs:
         env:
           SCREEN_TEST_DIR: ${{ runner.temp }}/screen-test
         run: |
-          sudo apt-get install -y xvfb x11-apps imagemagick mesa-vulkan-drivers \
+          sudo apt-get install -y xvfb x11-apps xdotool imagemagick mesa-vulkan-drivers \
             libgl1-mesa-dri libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 \
             libxcb-image0 libxkbcommon-x11-0
           # python3 here is the setup-python interpreter, which does not see apt's python3-* packages.
           python3 -m pip install --quiet --only-binary=:all: numpy==2.5.3 pillow==12.3.0
           python3 tests/screen_test.py "$EXE" vulkan
           python3 tests/screen_test.py "$EXE" opengl
+
+      - name: Interaction test (Linux, Xvfb + xdotool)
+        if: runner.os == 'Linux'
+        env:
+          UI_TEST_DIR: ${{ runner.temp }}/ui-test
+        run: |
+          python3 tests/ui_test.py "$EXE" vulkan
+          UI_TEST_DIR="$UI_TEST_DIR-opengl" python3 tests/ui_test.py "$EXE" opengl
 
       - name: Output-stage harness (Linux, offscreen GPU readback)
         if: runner.os == 'Linux'
@@ -235,6 +253,7 @@ jobs:
           path: |
             ${{ runner.temp }}/screen-test
             ${{ runner.temp }}/render-test
+            ${{ runner.temp }}/ui-test*
           if-no-files-found: ignore
 
       - name: Deploy
@@ -356,7 +375,7 @@ jobs:
   # Tags vX.Y[-suffix] (pushed, or created by publishing a release): attach the three
   # verified packages and SHA256SUMS to the release, creating it if needed (published;
   # a suffix marks a pre-release). Unsigned for now: signing and notarisation arrive
-  # with the Phase 4 secrets (docs/PLANO.md §11).
+  # with the Phase 4 secrets (docs/PLAN.md §11).
   release:
     name: Publish release
     if: startsWith(github.ref, 'refs/tags/v')

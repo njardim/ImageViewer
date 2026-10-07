@@ -1,11 +1,12 @@
 // Decoding front end: file -> linear scRGB half-float RGBA (premultiplied).
 // Backends are tried in order (OpenImageIO, then Qt's QImageReader); FFmpeg and
-// SVG backends join in Phase 2 (docs/PLANO.md §9).
+// SVG backends join in Phase 2 (docs/PLAN.md §9).
 #pragma once
 
 #include "color.h"
 
 #include <QFloat16>
+#include <QImage>
 #include <QString>
 #include <QStringList>
 
@@ -36,6 +37,11 @@ struct Image {
 // Decodes `path`. Images larger than `maxTextureSize` on either axis are reduced
 // with a box filter in linear light (tiling arrives in Phase 2).
 Image decodeImage(const QString &path, int maxTextureSize);
+
+// Decodes `path` at full resolution for the clipboard: 16-bit sRGB, straight alpha.
+// HDR values above SDR white and colours outside sRGB are clipped (the clipboard
+// formats other applications read are SDR). A null image when decoding fails.
+QImage decodeForClipboard(const QString &path);
 
 // Lower-case file suffixes (without dot) that the available backends can read.
 const QStringList &supportedSuffixes();

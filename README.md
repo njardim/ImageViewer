@@ -1,56 +1,108 @@
 # imageViewer
 
-Visualizador de imagens multiplataforma (Windows, macOS, Linux) em C++20 e Qt 6.11. Tem uma interface minimalista e uma **fidelidade de cor verificável em SDR e HDR**. A cobertura de formatos visada é a união de qView, ImageGlass e FFmpeg.
+**An image viewer for Windows, macOS and Linux whose colors you can verify — in SDR and in HDR.**
 
-- Plano, decisões e estado atual: [`docs/PLANO.md`](docs/PLANO.md)
-- Regras para quem trabalha no código (incluindo o Claude): [`CLAUDE.md`](CLAUDE.md)
+imageViewer shows images the way they were made. Every image is converted once, from its own color description (ICC profile or CICP code points), into a linear wide-gamut working space at 16-bit floating point. It is then sent to the display through a real HDR output where the system offers one: scRGB on Windows, EDR on macOS, HDR10 where available. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which. Fidelity is tested automatically on every build, not just claimed (see [How fidelity is verified](#how-fidelity-is-verified)).
 
-## Compilar
+The interface stays out of the way: the image fills the window, everything else is a right-click or a key away, and it speaks 16 languages.
 
-As dependências de produção vêm do vcpkg (manifesto `vcpkg.json`) e o Qt 6.11 vem dos binários oficiais.
+> Status: **0.1** — early releases. The color pipeline, HDR output and the essential viewer functions are in place; see the [plan](docs/PLAN.md) for what comes next.
 
-```
-cmake --preset <windows|macos|linux>      # requer VCPKG_ROOT e -DCMAKE_PREFIX_PATH=<Qt>
-cmake --build --preset <windows|macos|linux>
-tests/smoke.sh <exe>                       # teste sem interface do pipeline de cor
-```
+## Download
 
-O executável `<exe>` é `build/linux/imageViewer` em Linux, `build/windows/imageViewer.exe` em Windows e `build/macos/imageViewer.app/Contents/MacOS/imageViewer` em macOS.
+Get the latest version from [Releases](https://github.com/njardim/ImageViewer/releases):
 
-`tests/render_test.py <exe>` verifica o estágio de saída (SDR/EDR/scRGB/PQ e tone mapping, lido da GPU): em Windows usa D3D11 e em macOS usa Metal. Em Linux corre com Xvfb e escolhe `vulkan` ou `opengl` no 2.º argumento. Também em Linux, com Xvfb, `tests/screen_test.py <exe> [vulkan|opengl]` compara os píxeis no ecrã a 100 %.
+| System | Package | Requirements |
+|---|---|---|
+| Windows x64 | `imageViewer-<version>-windows-x64.zip` — unzip and run `bin/imageViewer.exe` | Windows 10 (22H2) or 11 |
+| macOS (Apple silicon) | `imageViewer-<version>-macos-arm64.dmg` — drag `imageViewer.app` to Applications | macOS 13 or later |
+| Linux x64 | `imageViewer-<version>-linux-x64.tar.gz` — extract and run `bin/imageViewer` | glibc 2.39 (Ubuntu 24.04 or newer distributions), X11 or XWayland, `libopengl0`, `libegl1`, `libxcb-cursor0` |
 
-Para desenvolver em Linux sem vcpkg, use `scripts/build-qt-linux.sh` (compila o Qt a partir do código-fonte) e depois o preset `linux-system`.
+`SHA256SUMS` lists the checksums of the packages. Each package is built and tested by CI on a clean machine, and on public releases it carries a GitHub build provenance attestation (`gh attestation verify <file> --repo njardim/ImageViewer`).
 
-## Utilização
+The packages are **not signed yet**:
+- **Windows:** SmartScreen asks for confirmation. Choose *More info → Run anyway*.
+- **macOS:** Gatekeeper blocks the first launch. Open *System Settings → Privacy & Security* and choose *Open Anyway*.
 
-`imageViewer [ficheiro|pasta]`. Use `imageViewer --info <ficheiro>` para ver o que o pipeline de cor deteta, e `imageViewer --render <ficheiro> --output sdr|edr|scrgb|pq` para desenhar a imagem fora do ecrã e comparar a GPU com a referência em CPU (`--help` lista as opções).
+## Features (0.1)
 
-| Tecla | Ação |
+- **Color-managed decoding:** ICC v2/v4 profiles, CICP (PQ, HLG, BT.709/BT.2020, linear), EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images. Wide-gamut colors are kept, not clipped to sRGB.
+- **HDR output:** scRGB (Windows), EDR (macOS) and HDR10/PQ, with absolute luminance for PQ content. BT.2390 tone mapping only when an image exceeds the display; exposure control; an option to highlight clipped or tone-mapped pixels.
+- **Formats:** JPEG, PNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, PFM, Radiance HDR, BMP, TGA, PSD (composite), camera RAW (LibRaw) and more through OpenImageIO. HEIC is pending a patent decision.
+- **Viewing:**
+  - zoom at the cursor, exact 100 % (one image pixel per screen pixel), fit to window, pan;
+  - rotate and flip horizontally or vertically;
+  - full screen, and an information panel showing the color chain and the output.
+- **Navigation:** folders in natural order, previous/next by keyboard, mouse side buttons or the clickable sides of the window; first and last image; optional looping.
+- **File actions:**
+  - copy the image (16-bit sRGB bitmap plus the file) or its path;
+  - move to the trash or Recycle Bin, with a confirmation you can turn off;
+  - show the file in Explorer, Finder or your file manager.
+- **Settings:** language, background color, window size and position remembered, side zones, display output (automatic, SDR, HDR10), tone mapping.
+- **16 interface languages:** English, 简体中文, हिन्दी, Español, العربية, Français, বাংলা, Português, Bahasa Indonesia, اردو, Русский, Deutsch, 日本語, मराठी, Tiếng Việt, తెలుగు. All languages except English are machine translations awaiting review by native speakers; [corrections are welcome](CONTRIBUTING.md#translations).
+
+## Using it
+
+`imageViewer [file or folder]`, drag and drop, or *Open* from the right-click menu.
+
+| Key | Action |
 |---|---|
-| ← → | Imagem anterior / seguinte |
-| 0 | Ajustar à janela |
-| 1 | 100 % (píxeis reais) |
-| + / − / roda | Zoom |
-| F, duplo clique | Ecrã inteiro |
-| R / Shift+R | Rodar |
-| H | Espelhar |
-| I | Informação |
-| E / Shift+E | Exposição ±½ EV |
-| T | Tone mapping BT.2390 ligado / desligado (desligado: corte no pico) |
-| C | Aviso de píxeis alterados (cortados ou com tone mapping) |
-| Ctrl/⌘+O | Abrir |
-| Botão direito | Menu |
+| ← → (or click the window's sides) | Previous / next image |
+| Home / End | First / last image |
+| + / − / mouse wheel | Zoom |
+| 0 / 1 | Fit to window / 100 % |
+| F, F11, double-click | Full screen |
+| R / Shift+R | Rotate clockwise / counterclockwise |
+| H / V | Flip horizontally / vertically |
+| I | Information panel |
+| E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
+| T | Tone mapping on/off (off: clip at the display's peak) |
+| C | Highlight altered (clipped or tone-mapped) pixels |
+| Ctrl+C / Ctrl+Shift+C | Copy image / copy file path |
+| Delete | Move to the trash |
+| Ctrl+, | Settings |
+| Right-click | Menu with every command |
 
-Para forçar o modo de saída, use `IMAGEVIEWER_OUTPUT=sdr|hdr10`.
+On macOS, Ctrl is ⌘.
 
-## Pacotes e releases
+## How fidelity is verified
 
-O CI gera três pacotes: `.zip` para Windows x64, `.dmg` para macOS arm64 (macOS 13 ou posterior) e `.tar.gz` para Linux x64. Cada pacote é testado numa máquina limpa, sem o Qt nem as bibliotecas do vcpkg. Os pacotes ainda não estão assinados.
+On every change, CI runs these tests on Windows, macOS and Linux:
+- **Decode and color tests:** a Display P3 red keeps its out-of-sRGB value, an EXR keeps values above SDR white, alpha is handled correctly, and each codec decodes exactly. The same tests run again on the packaged application.
+- **Output tests:** the GPU output is read back for SDR, EDR, scRGB and HDR10, with and without tone mapping, and compared with:
+  - a CPU reference implementation;
+  - the BT.2390 specification, computed independently: identity below the knee, the peak landing on the display peak, monotonic output, hues preserved.
+- **On-screen test:** an 8-bit image shown at 100 % must be identical to the file, bit for bit.
+- **Interaction test:** a user is simulated clicking the window's sides, flipping and rotating the image (compared pixel for pixel), deleting with confirmation and quitting with the session saved.
 
-O pacote Linux é compilado em Ubuntu 24.04. Por isso, precisa da glibc e da libstdc++ de uma distribuição de 2024 ou mais recente, e de X11 ou XWayland. Precisa também das bibliotecas de sistema que o Qt usa e que não vêm no pacote: OpenGL/EGL do libglvnd (`libopengl0`, `libegl1`, presentes em qualquer desktop) e as bibliotecas xcb, como a `libxcb-cursor0`. O executável é `bin/imageViewer`.
+[`docs/PLAN.md`](docs/PLAN.md) lists the fidelity criteria (§7), the decisions behind them (§2) and the test results (§1).
 
-Para publicar uma versão, crie no GitHub uma *release* chamada `vX.Y` ou `vX.Y-sufixo` (por exemplo `v0.2` ou `v0.3-beta`), com uma tag nova com o mesmo nome. Em alternativa, envie só a tag (`git push origin vX.Y`). O CI compila e testa os três pacotes e anexa-os à *release*, juntamente com o `SHA256SUMS`. Se a *release* ainda não existir, o CI cria-a; uma tag com sufixo fica marcada como pré-release.
+## Building from source
 
-## Licença
+The dependencies are Qt 6.11 (official binaries) and OpenImageIO, LittleCMS and their codecs (from vcpkg, using the manifest `vcpkg.json`).
 
-[Apache License 2.0](LICENSE). Ver também [`NOTICE`](NOTICE): a marca "Cristallumnis" não está incluída na licença. As contribuições são aceites com *sign-off* DCO (`git commit -s`).
+```
+cmake --preset <windows|macos|linux> -DCMAKE_PREFIX_PATH=<Qt 6.11 directory>   # needs VCPKG_ROOT
+cmake --build --preset <windows|macos|linux>
+tests/smoke.sh <executable>
+```
+
+To develop on Linux without vcpkg, run `scripts/build-qt-linux.sh` (builds Qt from source) and use the `linux-system` preset. `CLAUDE.md` describes the full test set and the rules for working on the code.
+
+Command-line tools for diagnosis:
+- `imageViewer --info <file>` prints what the color pipeline sees.
+- `imageViewer --render <file> --output sdr|edr|scrgb|pq` draws the image off screen and compares the GPU with the CPU reference.
+
+## Releases
+
+Versions are numbered `X.Y` (for example 0.1, 0.2, 1.0), with an optional suffix such as `-beta`. Publishing a GitHub release named `vX.Y` builds, tests and attaches the three packages automatically; nobody builds release binaries by hand.
+
+## Contributing
+
+Contributions are welcome, including translations; see [`CONTRIBUTING.md`](CONTRIBUTING.md). Commits need a [Developer Certificate of Origin](https://developercertificate.org/) sign-off (`git commit -s`).
+
+## License
+
+[Apache License 2.0](LICENSE). See [`NOTICE`](NOTICE). The name and logo "Cristallumnis" are trademarks of Cristallumnis, Lda. and are not licensed under the Apache License. The packages include the licenses of the third-party components in their `third-party` folder.
+
+© 2026 Cristallumnis, Lda.

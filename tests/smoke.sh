@@ -32,6 +32,10 @@ check alpha8.png 'pixel\[0,0\]: +0\.577[0-9]* 0\.127[0-9]* 0\.031[0-9]* a=0\.50'
 # EXIF orientation 6 rotates 300x200 into 200x300 exactly once.
 check orient6.jpg 'size: +200x300' "EXIF orientation 6 applied once"
 
+# EXIF shooting data for the information panel (D-34); the model holds a tab and a BEL
+# character, which must not reach the panel. Made with Pillow 12.3.
+check camera.jpg 'camera: +Cristallumnis \| Cristallumnis Test Camera X1 \| 50mm F1\.8 \| 1/250 s \| f/2\.8 \| ISO 400 \| 50 mm \| 2026-10-07T12:34:56$' "EXIF camera data read and cleaned"
+
 check rows2.pfm 'colour: +linear' "PFM read as linear (OIIO labels it Rec709)"
 check rows2.pfm 'pixel\[0,0\]: +0\.25 0\.5 1 a=1' "PFM rows stored bottom to top are flipped"
 

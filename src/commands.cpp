@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
@@ -25,6 +26,8 @@
 #include <QUuid>
 #include <QVBoxLayout>
 #include <QtConcurrent/QtConcurrentRun>
+
+Q_LOGGING_CATEGORY(lcFiles, "imageviewer.files", QtWarningMsg)
 
 namespace {
 
@@ -536,6 +539,7 @@ void ViewerWindow::moveToTrash()
 #endif
         return;
     }
+    qCInfo(lcFiles).noquote() << "moved to the trash:" << path << "->" << inTrash;
     if (!inTrash.isEmpty()) {
         m_trashed.append({path, inTrash});
         while (m_trashed.size() > kMaxUndo)
@@ -593,6 +597,7 @@ void ViewerWindow::undoTrash()
         return;
     }
     forgetTrashRecord(entry.inTrash);
+    qCInfo(lcFiles).noquote() << "restored from the trash:" << entry.inTrash << "->" << entry.original;
     showNotice(tr("Restored “%1”").arg(name));
     openFile(entry.original);
 }

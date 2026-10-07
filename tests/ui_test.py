@@ -7,7 +7,11 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      and the left edge goes back;
   2. H, V, R and Shift+R flip and rotate the view (compared with numpy's flips/rotations);
   3. Delete asks for confirmation, Return moves the file to the trash, the next image follows;
-  4. Ctrl+Q quits and the session (last file, window geometry) is in the settings file.
+  4. Ctrl+Z restores it (no stale trash record); stepping to a neighbour uses the preload
+     cache (log); F2 renames; Shift+Delete always asks (Return cancels) and then deletes;
+     a file created or deleted by another program shows up or goes away (folder watching);
+     Shift+I shows the top overlay without moving the image by a pixel (E14);
+  5. Ctrl+Q quits and the session (last file, window geometry) is in the settings file.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -17,6 +21,7 @@ env:   UI_TEST_DIR  where to keep the files, the log and the last screenshot (de
 """
 import configparser
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -37,15 +42,19 @@ home = os.path.join(work, "home")
 pictures = os.path.join(home, "pictures")
 config = os.path.join(work, "config")
 data = os.path.join(home, ".local", "share")
+# A reused UI_TEST_DIR must not carry an earlier run's settings or trash into this one.
+for d in (home, config):
+    shutil.rmtree(d, ignore_errors=True)
 for d in (pictures, config, data):
     os.makedirs(d, exist_ok=True)
 log_path = os.path.join(work, f"viewer-{rhi}.log")
 shot_path = os.path.join(work, f"screen-{rhi}.png")
 
 refs = {}
-for i, name in enumerate(("a", "b", "c")):
+for i, name in enumerate(("a", "b", "c", "e")):
     pixels = np.random.default_rng(i + 1).integers(0, 256, (64, 96, 3), dtype=np.uint8)
-    Image.fromarray(pixels).save(os.path.join(pictures, f"{name}.png"))
+    if name != "e":  # e.png is created later, by "another program"
+        Image.fromarray(pixels).save(os.path.join(pictures, f"{name}.png"))
     refs[name] = pixels.astype(int)
 
 
@@ -78,6 +87,33 @@ def wait_for(what, ref):
             return
         time.sleep(POLL_S)
     fail(f"{what}: not on screen after {DEADLINE_S} s (see {shot_path})")
+
+
+def wait_until(what, condition):
+    start = time.monotonic()
+    while time.monotonic() - start < DEADLINE_S:
+        if app.poll() is not None:
+            fail(f"{what}: imageViewer exited with code {app.returncode}")
+        if condition():
+            print(f"ok   {what} ({time.monotonic() - start:.1f} s)")
+            return
+        time.sleep(POLL_S)
+    fail(f"{what}: not after {DEADLINE_S} s (see {shot_path} and {log_path})")
+
+
+def log_text():
+    with open(log_path, encoding="utf-8", errors="replace") as f:
+        return f.read()
+
+
+def find_dialog(title):
+    """Window id of a visible dialog with this exact title, waiting for it."""
+    found = []
+    start = time.monotonic()
+    while not found and time.monotonic() - start < DEADLINE_S:
+        found = xdotool("search", "--onlyvisible", "--name", f"^{title}$").stdout.split()
+        time.sleep(POLL_S)
+    return found[0] if found else None
 
 
 def xdotool(*args):
@@ -160,7 +196,83 @@ try:
                 fail(f"b.png was not moved to {os.path.dirname(trashed)}")
             print("ok   b.png is in the trash, not in the folder")
 
-            # 4. Quit; the session is saved.
+            # 4. Undo, preloading, rename, permanent delete, folder watching, top overlay.
+            xdotool("key", "ctrl+z")
+            wait_for("Ctrl+Z restores the trashed image", refs["b"])
+            info = os.path.join(data, "Trash", "info", "b.png.trashinfo")
+            if not os.path.exists(os.path.join(pictures, "b.png")) or os.path.exists(trashed) or os.path.exists(info):
+                fail("b.png not restored cleanly (file back in the folder, no trash record left)")
+            print("ok   b.png back in the folder, trash record removed")
+
+            # c.png was the image on screen before the undo, and is b's next neighbour.
+            xdotool("key", "Right")
+            wait_for("Right shows the next image again", refs["c"])
+            wait_until("it came from the preload cache", lambda: "shown from the cache: c.png" in log_text())
+
+            xdotool("key", "F2")
+            rename = find_dialog("Rename")
+            if not rename:
+                fail("F2 did not open the Rename dialog")
+            xdotool("windowfocus", "--sync", rename)
+            xdotool("type", "--delay", "50", "d")  # replaces the selected "c", keeps ".png"
+            xdotool("key", "Return")
+            wait_until("F2 renames c.png to d.png",
+                       lambda: os.path.exists(os.path.join(pictures, "d.png"))
+                       and not os.path.exists(os.path.join(pictures, "c.png")))
+            wait_for("the renamed image stays on screen", refs["c"])
+
+            xdotool("key", "shift+Delete")
+            box = find_dialog("imageViewer")
+            if not box:
+                fail("Shift+Delete did not ask for confirmation")
+            xdotool("windowfocus", "--sync", box)
+            xdotool("key", "Return")  # the default button is Cancel
+            time.sleep(1)
+            if not os.path.exists(os.path.join(pictures, "d.png")):
+                fail("Return deleted the file: Cancel must be the default")
+            print("ok   Shift+Delete asks first; Return cancels")
+            xdotool("key", "shift+Delete")
+            box = find_dialog("imageViewer")
+            if not box:
+                fail("Shift+Delete did not ask for confirmation the second time")
+            xdotool("windowfocus", "--sync", box)
+            xdotool("key", "Tab")  # from Cancel to Delete
+            xdotool("key", "space")
+            wait_until("Shift+Delete then Delete removes d.png for good",
+                       lambda: not os.path.exists(os.path.join(pictures, "d.png")))
+            if os.path.exists(os.path.join(data, "Trash", "files", "d.png")):
+                fail("d.png went to the trash instead of being deleted")
+            wait_for("the previous image takes its place", refs["b"])
+
+            # Another program adds a file, then deletes the one on screen.
+            Image.fromarray(refs["e"].astype(np.uint8)).save(os.path.join(pictures, "e.png"))
+
+            def end_shows_e():
+                xdotool("key", "End")
+                time.sleep(0.5)
+                screen = grab()
+                return screen is not None and find(screen, refs["e"]) is not None
+            wait_until("a file created by another program appears in the folder", end_shows_e)
+            os.remove(os.path.join(pictures, "e.png"))
+            wait_for("the image deleted by another program is replaced", refs["b"])
+
+            # E14: the top overlay appears without moving or changing the image.
+            screen = grab()
+            before = find(screen, refs["b"]) if screen is not None else None
+            if before is None:
+                fail("image not found before showing the top overlay")
+
+            def overlay_shown():
+                shot = grab()
+                if shot is None:
+                    return False
+                band = shot[y + 8:y + 48, x + w // 2 - 150:x + w // 2 + 150]
+                return (band.min(axis=2) > 200).sum() > 30 and find(shot, refs["b"]) == before
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            xdotool("key", "shift+i")
+            wait_until("Shift+I shows the top overlay, the image stays exactly in place", overlay_shown)
+
+            # 5. Quit; the session is saved.
             xdotool("key", "ctrl+q")
             app.wait(15)
         finally:
@@ -177,7 +289,7 @@ settings_file = os.path.join(config, "Cristallumnis", "imageViewer.conf")
 store = configparser.ConfigParser(interpolation=None)
 store.read(settings_file)
 last = store.get("session", "lastFile", fallback="")
-if os.path.basename(last) != "c.png" or not store.get("session", "geometry", fallback="").startswith("@Rect("):
+if os.path.basename(last) != "b.png" or not store.get("session", "geometry", fallback="").startswith("@Rect("):
     fail(f"session not saved as expected in {settings_file}: lastFile={last!r}")
 print("ok   session saved (last file, window geometry)")
 print(f"{rhi}: all interaction checks passed")

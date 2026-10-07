@@ -229,8 +229,9 @@ void ViewerWindow::updateOverlay()
         }
         height += lineHeight + (row.gapBefore ? sectionGap : 0.0);
     }
-    // Never larger than the window: long values are elided, rows that do not fit are left out.
-    const qreal maxWidth = std::max(120.0, this->width() - 2 * kMargin);
+    // At most half a large window (a long folder path must not cover the image), never larger
+    // than a small one: long values are elided, rows that do not fit are left out.
+    const qreal maxWidth = std::max(120.0, std::min(this->width() - 2 * kMargin, std::max(480.0, this->width() * 0.5)));
     const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kMargin);
     const qreal contentWidth = std::max(spanWidth, labelWidth > 0 ? labelWidth + columnGap + valueWidth : 0.0);
     const QSizeF logical(std::ceil(std::min(contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(height, maxHeight)));

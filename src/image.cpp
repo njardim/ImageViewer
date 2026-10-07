@@ -219,9 +219,9 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
 // one line, bounded length.
 QString cleanText(const std::string &raw)
 {
-    QString text = QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256)));
+    QString text = QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256))).simplified();
     text.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
-    text = text.simplified();
+    text = text.simplified(); // tabs and newlines became spaces first; removed characters may leave two
     if (text.size() > 64)
         text = text.left(63) + QChar(0x2026);
     return text;

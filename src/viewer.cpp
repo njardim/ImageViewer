@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeyEvent>
+#include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPlatformSurfaceEvent>
@@ -89,20 +90,35 @@ ViewerWindow::~ViewerWindow()
 void ViewerWindow::showRestored(const SessionState &session)
 {
     m_lastDirectory = session.lastDirectory;
+    QRect geometry = session.geometry;
     bool placed = false;
-    if (m_settings.rememberGeometry && session.geometry.isValid()) {
-        // Only where a screen still shows a usable part of it: monitors change between sessions.
-        const QList<QScreen *> screens = QGuiApplication::screens();
-        placed = std::any_of(screens.cbegin(), screens.cend(), [&session](const QScreen *screen) {
-            const QRect visible = screen->availableGeometry().intersected(session.geometry);
-            return visible.width() >= 160 && visible.height() >= 120;
-        });
+    if (m_settings.rememberGeometry && geometry.isValid()) {
+        // Only where a screen still shows a usable part of it (monitors change between
+        // sessions), and never larger than that screen (a hand-edited or corrupt value).
+        const QScreen *best = nullptr;
+        qint64 bestArea = 0;
+        for (const QScreen *screen : QGuiApplication::screens()) {
+            const QRect visible = screen->availableGeometry().intersected(geometry);
+            const qint64 area = qint64(visible.width()) * visible.height();
+            if (visible.width() >= 160 && visible.height() >= 120 && area > bestArea) {
+                best = screen;
+                bestArea = area;
+            }
+        }
+        if (best) {
+            const QRect available = best->availableGeometry();
+            geometry.setSize(geometry.size().boundedTo(available.size()));
+            geometry.moveLeft(std::clamp(geometry.left(), available.left(), available.right() - geometry.width() + 1));
+            geometry.moveTop(std::clamp(geometry.top(), available.top(), available.bottom() - geometry.height() + 1));
+            placed = true;
+        }
     }
     if (placed)
-        setGeometry(session.geometry);
+        setGeometry(geometry);
     else
         resize(1280, 800);
-    m_normalGeometry = geometry();
+    m_normalGeometry = this->geometry();
+    m_maximizedBeforeFullScreen = session.maximized;
     if (placed && session.fullScreen)
         showFullScreen();
     else if (placed && session.maximized)
@@ -115,8 +131,8 @@ void ViewerWindow::saveSession() const
 {
     SessionState session;
     session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
-    session.maximized = windowStates().testFlag(Qt::WindowMaximized);
     session.fullScreen = windowStates().testFlag(Qt::WindowFullScreen);
+    session.maximized = session.fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
     session.lastFile = m_image.path;
     session.lastDirectory = m_lastDirectory;
     session.save();
@@ -379,7 +395,8 @@ void ViewerWindow::render()
         if (m_textureCap >= 512 && index >= 0) {
             m_imageStale = true;
             startLoading(index);
-            m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(m_textureCap);
+            //: %1: a size in pixels.
+            m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(QLocale().toString(m_textureCap));
         } else {
             // Keep the path, so this file counts as shown (with its error) and is not
             // decoded and uploaded again until the user comes back to it.
@@ -417,17 +434,28 @@ void ViewerWindow::recoverFromDeviceLoss()
     requestUpdate();
 }
 
+double ViewerWindow::sideZoneWidth() const
+{
+    if (!m_settings.sideZones || m_files.size() < 2)
+        return 0.0;
+    // Narrow windows keep a middle for panning and double-clicks.
+    return std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
+}
+
+bool ViewerWindow::inSideStrip(const QPointF &position) const
+{
+    const double zone = sideZoneWidth();
+    return zone > 0.0 && position.y() >= 0 && position.y() < height()
+           && ((position.x() >= 0 && position.x() < zone) || (position.x() < width() && position.x() >= width() - zone));
+}
+
 ViewerWindow::Zone ViewerWindow::zoneAt(const QPointF &position) const
 {
-    if (!m_settings.sideZones || m_files.size() < 2 || position.y() < 0 || position.y() >= height())
+    if (!inSideStrip(position))
         return Zone::None;
-    // Narrow windows keep a middle for panning and double-clicks.
-    const double zone = std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
-    if (position.x() >= 0 && position.x() < zone)
+    if (position.x() < sideZoneWidth())
         return hasNeighbour(-1) ? Zone::Previous : Zone::None;
-    if (position.x() < width() && position.x() >= width() - zone)
-        return hasNeighbour(+1) ? Zone::Next : Zone::None;
-    return Zone::None;
+    return hasNeighbour(+1) ? Zone::Next : Zone::None;
 }
 
 void ViewerWindow::setHoverZone(Zone zone)
@@ -522,7 +550,7 @@ void ViewerWindow::toggleInfo()
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && visibility() == QWindow::FullScreen) {
-        showNormal();
+        leaveFullScreen();
         return;
     }
     if (!executeShortcut(e))
@@ -602,6 +630,10 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
         mousePressEvent(e); // quick clicks on a side keep navigating
         return;
     }
+    // The first click may have reached the end of a folder that does not loop: the second
+    // click of the pair is still a click on the side, never a request for full screen.
+    if (inSideStrip(e->position()))
+        return;
     toggleFullScreen();
 }
 
@@ -629,8 +661,18 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
 
 void ViewerWindow::toggleFullScreen()
 {
-    if (visibility() == QWindow::FullScreen)
-        showNormal();
+    if (visibility() == QWindow::FullScreen) {
+        leaveFullScreen();
+        return;
+    }
+    m_maximizedBeforeFullScreen = windowStates().testFlag(Qt::WindowMaximized);
+    showFullScreen();
+}
+
+void ViewerWindow::leaveFullScreen()
+{
+    if (m_maximizedBeforeFullScreen)
+        showMaximized();
     else
-        showFullScreen();
+        showNormal();
 }

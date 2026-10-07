@@ -66,6 +66,7 @@ private:
     void initializeRenderer();
     void render();
     void toggleFullScreen();
+    void leaveFullScreen(); // back to maximized or normal, whichever it was
     void applySettings(const Settings &settings);
     void saveSession() const;
 
@@ -81,6 +82,8 @@ private:
     Renderer::Frame imageFrame() const; // colour-related fields of the current frame
     int textureLimit(const QString &path) const; // longest side the GPU texture may have
     void recoverFromDeviceLoss();
+    double sideZoneWidth() const;                // logical pixels; 0 without side zones
+    bool inSideStrip(const QPointF &position) const; // over a side zone, even one with nothing to do
     Zone zoneAt(const QPointF &position) const;  // logical pixels
     QRectF zoneButtonRect(Zone zone) const;      // device pixels
     void setHoverZone(Zone zone);
@@ -183,6 +186,8 @@ private:
     struct TrashedFile {
         QString original;
         QString inTrash;
+        qint64 size = -1;   // what was moved, so Undo never restores another file that
+        QDateTime modified; // later took the same name in the trash
     };
     QList<TrashedFile> m_trashed; // for Undo, most recent last
     QString m_message; // loading status or error; cleared when an image arrives
@@ -203,8 +208,11 @@ private:
     QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
     QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
+    // What Shift+I turns the overlay back on to, in a window and in full screen.
+    OverlayVisibility m_overlayRestore[2] = {OverlayVisibility::Always, OverlayVisibility::Hover};
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
+    bool m_maximizedBeforeFullScreen = false;
 
     bool m_dragging = false;
     QPointF m_dragOrigin;

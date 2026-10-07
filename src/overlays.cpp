@@ -62,6 +62,13 @@ QImage navigationButton(bool next, int pixels, bool pressed)
     return image;
 }
 
+// In right-to-left interfaces a value (a path, a file name) is laid out in its own direction,
+// as a unit: without the isolate, "/tmp/a" showed as "tmp/a/" and "(1) photo" as "photo (1)".
+QString isolated(const QString &text)
+{
+    return QGuiApplication::layoutDirection() == Qt::RightToLeft ? QChar(0x2068) + text + QChar(0x2069) : text;
+}
+
 struct Row {
     QString label; // empty: the value spans both columns (messages)
     QString value;
@@ -114,7 +121,7 @@ void ViewerWindow::updateOverlay()
                                     .arg(locale.toString(m_image.width), locale.toString(m_image.height));
         rows.append({tr("Dimensions"), dimensions, true});
         //: Bits per channel of the image file, e.g. "16-bit".
-        QStringList format = {m_image.codec, tr("%1-bit").arg(m_image.sourceBits)};
+        QStringList format = {m_image.codec, tr("%1-bit").arg(locale.toString(m_image.sourceBits))};
         if (m_image.sourceFloat)
             format << tr("floating point");
         if (m_image.hasAlpha)
@@ -122,8 +129,9 @@ void ViewerWindow::updateOverlay()
         rows.append({tr("Format"), format.join(dot)});
         if (m_image.orientation > 1)
             //: The EXIF orientation tag (2 to 8) of the file, already applied to the image.
-            rows.append({tr("Orientation"), tr("EXIF %1, applied").arg(m_image.orientation)});
+            rows.append({tr("Orientation"), tr("EXIF %1, applied").arg(locale.toString(m_image.orientation))});
         rows.append({tr("Color"), m_image.colour.description});
+        //: nits: candela per square metre, the unit of luminance.
         rows.append({tr("Peak"), tr("%1× SDR white (≈%2 nits)")
                                      .arg(locale.toString(double(m_image.maxComponent), 'f', 2),
                                           locale.toString(double(m_image.maxComponent * color::kSdrReferenceWhiteNits),
@@ -174,8 +182,9 @@ void ViewerWindow::updateOverlay()
                 view << tr("mirrored");
         }
         if (m_exposureEv != 0.0f)
+            //: The viewer's exposure adjustment in EV (photographic stops), e.g. "exposure +1.5 EV".
             view << tr("exposure %1 EV")
-                        .arg((m_exposureEv > 0 ? QStringLiteral("+") : QString())
+                        .arg((m_exposureEv > 0 ? locale.positiveSign() : QString())
                              + locale.toString(double(m_exposureEv), 'f', 1));
         if (m_clipWarning)
             view << tr("altered pixels highlighted");
@@ -189,6 +198,7 @@ void ViewerWindow::updateOverlay()
             const double toNits = out.nitsPerUnit;
             const double peakNits = stage.peak * toNits;
             if (stage.sourcePeak > stage.peak) {
+                //: nits: candela per square metre, the unit of luminance.
                 QString line = tr("BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits")
                                    .arg(locale.toString(stage.sourcePeak * toNits, 'f', 0),
                                         locale.toString(peakNits, 'f', 0),
@@ -196,11 +206,14 @@ void ViewerWindow::updateOverlay()
                                                                             float(peakNits)),
                                                         'f', 0));
                 if (m_image.maxComponent * stage.exposure * stage.scale * toNits > color::kPqPeakNits)
+                    //: nits: candela per square metre, the unit of luminance.
                     line += dot + tr("clipped above %1 nits").arg(locale.toString(double(color::kPqPeakNits), 'f', 0));
                 rows.append({tr("Highlights"), line});
             } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
                 rows.append({tr("Highlights"),
+                             //: nits: candela per square metre, the unit of luminance.
                              (m_toneMap ? tr("clipped above %1 nits (colors outside the output gamut)")
+                                        //: nits: candela per square metre, the unit of luminance.
                                         : tr("clipped above %1 nits (tone mapping off)"))
                                  .arg(locale.toString(peakNits, 'f', 0))});
             }
@@ -262,7 +275,7 @@ void ViewerWindow::updateOverlay()
         if (row.label.isEmpty()) {
             painter.setPen(QColor(235, 235, 235));
             painter.drawText(cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
-                             metrics.elidedText(row.value, Qt::ElideRight, inner));
+                             isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)));
         } else {
             const qreal valueX = labelColumn + columnGap;
             painter.setPen(QColor(165, 165, 165));
@@ -271,7 +284,7 @@ void ViewerWindow::updateOverlay()
             painter.setPen(QColor(235, 235, 235));
             const qreal w = std::max<qreal>(0.0, inner - valueX);
             painter.drawText(cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
-                             metrics.elidedText(row.value, Qt::ElideMiddle, w));
+                             isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)));
         }
         y += lineHeight;
     }
@@ -325,12 +338,16 @@ void ViewerWindow::updateTopOverlay()
         return;
     const QLocale locale;
     QStringList parts;
+    int nameIndex = -1; // where the file name is among the parts shown
     // Hidden (the default in a window): nothing to paint or upload on every zoom step.
     if (!m_image.path.isEmpty() && topOverlayMode() != OverlayVisibility::Hidden) {
         const bool hasImage = m_image.width > 0;
         for (OverlayField field : std::as_const(m_settings.overlayFields)) {
             switch (field) {
-            case OverlayField::Name: parts << QFileInfo(m_image.path).fileName(); break;
+            case OverlayField::Name:
+                nameIndex = int(parts.size());
+                parts << QFileInfo(m_image.path).fileName();
+                break;
             case OverlayField::Dimensions:
                 if (hasImage)
                     parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
@@ -385,17 +402,15 @@ void ViewerWindow::updateTopOverlay()
     const qreal maxText = std::max(60.0, width() - 2 * kMargin - 2 * paddingX);
     QString text = parts.join(separator);
     // Too wide: shorten the file name first (it is usually the longest part), then the line.
-    if (metrics.horizontalAdvance(text) > maxText && m_settings.overlayFields.contains(OverlayField::Name)) {
-        const int nameIndex = int(m_settings.overlayFields.indexOf(OverlayField::Name));
-        if (nameIndex < parts.size()) {
-            QStringList others = parts;
-            others.removeAt(nameIndex);
-            const qreal rest = metrics.horizontalAdvance(others.join(separator) + separator);
-            parts[nameIndex] = metrics.elidedText(parts.at(nameIndex), Qt::ElideMiddle, std::max(60.0, maxText - rest));
-            text = parts.join(separator);
-        }
+    if (metrics.horizontalAdvance(text) > maxText && nameIndex >= 0) {
+        QStringList others = parts;
+        others.removeAt(nameIndex);
+        const qreal rest = metrics.horizontalAdvance(others.join(separator) + separator);
+        parts[nameIndex] = metrics.elidedText(parts.at(nameIndex), Qt::ElideMiddle, std::max(60.0, maxText - rest));
     }
-    text = metrics.elidedText(text, Qt::ElideRight, maxText);
+    for (QString &part : parts)
+        part = isolated(part);
+    text = metrics.elidedText(parts.join(separator), Qt::ElideRight, maxText);
     const QSizeF logical(std::ceil(metrics.horizontalAdvance(text) + 2 * paddingX),
                          std::ceil(metrics.height() + 2 * paddingY));
 
@@ -469,7 +484,7 @@ QRectF ViewerWindow::zoneButtonRect(Zone zone) const
 {
     const double dpr = devicePixelRatio();
     const double pixels = std::round(kNavigationButtonSize * dpr);
-    const double zoneWidth = std::min<double>(m_settings.sideZoneWidth, width() / 4.0) * dpr;
+    const double zoneWidth = sideZoneWidth() * dpr;
     const double centreX = zone == Zone::Previous ? zoneWidth / 2.0 : deviceSize().width() - zoneWidth / 2.0;
     // Whole device pixels: the button texture is sampled 1:1.
     return QRectF(QPointF(std::round(centreX - pixels / 2.0), std::round((deviceSize().height() - pixels) / 2.0)),

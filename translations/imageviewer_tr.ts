@@ -224,11 +224,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show the information panel (I)</source>
+        <source>Show the information panel (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Overlay at the top (Shift+I)</source>
+        <source>Overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -388,6 +390,7 @@
     <name>ViewerWindow</name>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
+        <extracomment>%1: a size in pixels.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -488,6 +491,7 @@
     </message>
     <message>
         <source>Peak</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -547,6 +551,7 @@
     </message>
     <message>
         <source>exposure %1 EV</source>
+        <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -563,10 +568,12 @@
     </message>
     <message>
         <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>clipped above %1 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -575,10 +582,12 @@
     </message>
     <message>
         <source>clipped above %1 nits (colors outside the output gamut)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>clipped above %1 nits (tone mapping off)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -705,6 +714,7 @@
     </message>
     <message>
         <source>Actual Size (100 %)</source>
+        <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -741,10 +751,12 @@
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decrease Exposure (−½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -863,6 +875,10 @@
     </message>
     <message>
         <source>Deleted “%1”</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>“%1” is no longer in the trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

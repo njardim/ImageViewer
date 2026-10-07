@@ -12,7 +12,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      a file created, deleted or rewritten by another program shows up, goes away or is
      shown again (folder watching); Shift+I shows the top overlay without moving the image
      by a pixel (E14); B shows the checkerboard behind a transparent image;
-  5. Ctrl+Q quits and the session (last file, window geometry) is in the settings file.
+  5. Ctrl+Q quits and the session (last file, window geometry) is in the settings file;
+  6. after a restart with settings written by 0.1, they still apply and move to [app].
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -307,6 +308,42 @@ try:
             # 5. Quit; the session is saved.
             xdotool("key", "ctrl+q")
             app.wait(15)
+            if app.returncode != 0:
+                print(log_text())
+                fail(f"imageViewer exited with code {app.returncode}")
+            settings_file = os.path.join(config, "Cristallumnis", "imageViewer.conf")
+            store = configparser.ConfigParser(interpolation=None)
+            store.read(settings_file)
+            last = store.get("session", "lastFile", fallback="")
+            if os.path.basename(last) != "f.png" or not store.get("session", "geometry", fallback="").startswith("@Rect("):
+                fail(f"session not saved as expected in {settings_file}: lastFile={last!r}")
+            print("ok   session saved (last file, window geometry)")
+
+            # 6. Settings of 0.1 (group "general", which Qt writes as [%General] in INI files)
+            #    load after a restart and are saved again under [app]: with "do not ask again"
+            #    from 0.1, Delete moves the file to the trash at once.
+            with open(settings_file, encoding="utf-8") as f:
+                text = f.read()
+            start = text.index("[app]")
+            end = text.find("\n[", start + 1)
+            text = text[:start] + text[end + 1 if end >= 0 else len(text):]
+            text += "\n[%General]\nconfirmTrash=false\nlanguage=\nreopenLastImage=false\n"
+            with open(settings_file, "w", encoding="utf-8") as f:
+                f.write(text)
+            app = subprocess.Popen([exe, os.path.join(pictures, "a.png")], env=env, stdout=log, stderr=log)
+            wait_for("restart shows the first image", refs["a"])
+            xdotool("key", "Delete")
+            wait_until("Delete trashes at once (the 0.1 setting was read)",
+                       lambda: not os.path.exists(os.path.join(pictures, "a.png")))
+            if xdotool("search", "--onlyvisible", "--name", "^imageViewer$").stdout.split():
+                fail("a confirmation was shown although the 0.1 settings said not to ask")
+            xdotool("key", "ctrl+q")
+            app.wait(15)
+            with open(settings_file, encoding="utf-8") as f:
+                text = f.read()
+            if "[%General]" in text or "confirmTrash=false" not in text.split("[app]", 1)[-1].split("\n[", 1)[0]:
+                fail(f"settings not migrated to [app] in {settings_file}")
+            print("ok   0.1 settings migrated to [app]")
         finally:
             if app.poll() is None:
                 app.terminate()
@@ -317,11 +354,4 @@ finally:
 if app.returncode != 0:
     print(open(log_path, encoding="utf-8", errors="replace").read())
     fail(f"imageViewer exited with code {app.returncode}")
-settings_file = os.path.join(config, "Cristallumnis", "imageViewer.conf")
-store = configparser.ConfigParser(interpolation=None)
-store.read(settings_file)
-last = store.get("session", "lastFile", fallback="")
-if os.path.basename(last) != "f.png" or not store.get("session", "geometry", fallback="").startswith("@Rect("):
-    fail(f"session not saved as expected in {settings_file}: lastFile={last!r}")
-print("ok   session saved (last file, window geometry)")
 print(f"{rhi}: all interaction checks passed")

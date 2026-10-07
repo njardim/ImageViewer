@@ -10,6 +10,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QKeySequence>
 #include <QLabel>
 #include <QLibraryInfo>
 #include <QListWidget>
@@ -104,6 +105,37 @@ FolderSort sortFromKey(const QString &key)
     return FolderSort::Name;
 }
 
+// A stored boolean; anything but true/false/1/0 (a hand-edited or corrupt file) is the default.
+bool boolFrom(const QVariant &value, bool fallback)
+{
+    if (value.typeId() == QMetaType::Bool)
+        return value.toBool();
+    const QString text = value.toString().trimmed().toLower();
+    if (text == QLatin1String("true") || text == QLatin1String("1"))
+        return true;
+    if (text == QLatin1String("false") || text == QLatin1String("0"))
+        return false;
+    return fallback;
+}
+
+bool boolValue(const QSettings &store, const QString &key, bool fallback)
+{
+    return boolFrom(store.value(key), fallback);
+}
+
+// The "app" group was called "general" up to 0.2: in INI files (Linux) QSettings writes that
+// group as [%General] and reads it back as "General", so the values never loaded. Read the
+// old spellings once; save() writes the new key and removes them.
+QVariant appValue(const QSettings &store, const char *name)
+{
+    for (const char *group : {"app/", "general/", "General/"}) {
+        const QString key = QLatin1String(group) + QLatin1String(name);
+        if (store.contains(key))
+            return store.value(key);
+    }
+    return {};
+}
+
 int boundedInt(const QSettings &store, const QString &key, int fallback, int low, int high)
 {
     bool ok = false;
@@ -169,18 +201,18 @@ Settings Settings::load()
     const QSettings store;
     const Settings defaults;
     Settings s;
-    s.language = store.value(QStringLiteral("general/language"), defaults.language).toString();
+    s.language = appValue(store, "language").toString();
     if (!s.language.isEmpty() && !isKnownLanguage(s.language))
         s.language.clear();
-    s.confirmTrash = store.value(QStringLiteral("general/confirmTrash"), defaults.confirmTrash).toBool();
-    s.reopenLastImage = store.value(QStringLiteral("general/reopenLastImage"), defaults.reopenLastImage).toBool();
+    s.confirmTrash = boolFrom(appValue(store, "confirmTrash"), defaults.confirmTrash);
+    s.reopenLastImage = boolFrom(appValue(store, "reopenLastImage"), defaults.reopenLastImage);
 
     const QColor background(store.value(QStringLiteral("window/background")).toString());
     s.background = background.isValid() ? background.toRgb() : defaults.background;
     s.background.setAlpha(255);
-    s.checkerboard = store.value(QStringLiteral("window/checkerboard"), defaults.checkerboard).toBool();
-    s.rememberGeometry = store.value(QStringLiteral("window/rememberGeometry"), defaults.rememberGeometry).toBool();
-    s.showInfo = store.value(QStringLiteral("window/showInfo"), defaults.showInfo).toBool();
+    s.checkerboard = boolValue(store, QStringLiteral("window/checkerboard"), defaults.checkerboard);
+    s.rememberGeometry = boolValue(store, QStringLiteral("window/rememberGeometry"), defaults.rememberGeometry);
+    s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
 
     s.overlayFullScreen = visibilityFromKey(store.value(QStringLiteral("overlay/fullScreen")).toString(),
                                             defaults.overlayFullScreen);
@@ -188,7 +220,11 @@ Settings Settings::load()
     if (store.contains(QStringLiteral("overlay/fields"))) {
         // Comma-separated ids; an empty value means "no fields". Unknown or repeated ids are dropped.
         s.overlayFields.clear();
-        const QStringList ids = store.value(QStringLiteral("overlay/fields")).toString().split(QLatin1Char(','), Qt::SkipEmptyParts);
+        // Written as one comma-separated string; a hand-edited file without quotes reads as a list.
+        const QVariant stored = store.value(QStringLiteral("overlay/fields"));
+        const QString joined = stored.typeId() == QMetaType::QStringList ? stored.toStringList().join(QLatin1Char(','))
+                                                                          : stored.toString();
+        const QStringList ids = joined.split(QLatin1Char(','), Qt::SkipEmptyParts);
         for (const QString &id : ids)
             for (OverlayField field : allOverlayFields())
                 if (id == QLatin1String(fieldKey(field)) && !s.overlayFields.contains(field))
@@ -198,19 +234,19 @@ Settings Settings::load()
                                             defaults.overlayBackgroundOpacity, 0, 100);
     s.overlayTextOpacity = boundedInt(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
                                       kMinOverlayTextOpacity, 100);
-    s.overlayOutline = store.value(QStringLiteral("overlay/outline"), defaults.overlayOutline).toBool();
+    s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
     s.overlayHideDelayMs = boundedInt(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
                                       kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
 
-    s.loop = store.value(QStringLiteral("navigation/loop"), defaults.loop).toBool();
-    s.sideZones = store.value(QStringLiteral("navigation/sideZones"), defaults.sideZones).toBool();
+    s.loop = boolValue(store, QStringLiteral("navigation/loop"), defaults.loop);
+    s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
     s.sideZoneWidth = boundedInt(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
                                  kMinSideZoneWidth, kMaxSideZoneWidth);
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
-    s.sortDescending = store.value(QStringLiteral("navigation/sortDescending"), defaults.sortDescending).toBool();
-    s.preload = store.value(QStringLiteral("navigation/preload"), defaults.preload).toBool();
+    s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
+    s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
 
-    s.toneMap = store.value(QStringLiteral("color/toneMap"), defaults.toneMap).toBool();
+    s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
     return s;
 }
@@ -219,9 +255,11 @@ void Settings::save() const
 {
     QSettings store;
     store.setValue(QStringLiteral("version"), kSettingsVersion);
-    store.setValue(QStringLiteral("general/language"), language);
-    store.setValue(QStringLiteral("general/confirmTrash"), confirmTrash);
-    store.setValue(QStringLiteral("general/reopenLastImage"), reopenLastImage);
+    store.remove(QStringLiteral("general")); // pre-0.2 spellings (see appValue())
+    store.remove(QStringLiteral("General"));
+    store.setValue(QStringLiteral("app/language"), language);
+    store.setValue(QStringLiteral("app/confirmTrash"), confirmTrash);
+    store.setValue(QStringLiteral("app/reopenLastImage"), reopenLastImage);
     store.setValue(QStringLiteral("window/background"), background.name(QColor::HexRgb));
     store.setValue(QStringLiteral("window/checkerboard"), checkerboard);
     store.setValue(QStringLiteral("window/rememberGeometry"), rememberGeometry);
@@ -253,8 +291,8 @@ SessionState SessionState::load()
     const QRect geometry = store.value(QStringLiteral("session/geometry")).toRect();
     if (geometry.isValid() && geometry.width() >= 160 && geometry.height() >= 120)
         s.geometry = geometry;
-    s.maximized = store.value(QStringLiteral("session/maximized"), false).toBool();
-    s.fullScreen = store.value(QStringLiteral("session/fullScreen"), false).toBool();
+    s.maximized = boolValue(store, QStringLiteral("session/maximized"), false);
+    s.fullScreen = boolValue(store, QStringLiteral("session/fullScreen"), false);
     s.lastFile = store.value(QStringLiteral("session/lastFile")).toString();
     s.lastDirectory = store.value(QStringLiteral("session/lastDirectory")).toString();
     return s;
@@ -425,9 +463,13 @@ SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
     // Information (D-34): the detailed panel and the compact overlay at the top.
     auto *information = new QWidget;
     auto *informationLayout = new QVBoxLayout(information);
-    m_showInfo = new QCheckBox(tr("Show the information panel (I)"));
+    // Key names as the platform writes them (⇧I on macOS).
+    const auto keyName = [](QKeyCombination key) { return QKeySequence(key).toString(QKeySequence::NativeText); };
+    //: %1: the keyboard shortcut, e.g. "I".
+    m_showInfo = new QCheckBox(tr("Show the information panel (%1)").arg(keyName(Qt::Key_I)));
     informationLayout->addWidget(m_showInfo);
-    auto *overlayBox = new QGroupBox(tr("Overlay at the top (Shift+I)"));
+    //: %1: the keyboard shortcut, e.g. "Shift+I".
+    auto *overlayBox = new QGroupBox(tr("Overlay at the top (%1)").arg(keyName(Qt::SHIFT | Qt::Key_I)));
     auto *overlayForm = new QFormLayout(overlayBox);
     const auto fillVisibility = [](QComboBox *combo) {
         combo->addItem(tr("Always"), QString::fromLatin1(visibilityKey(OverlayVisibility::Always)));

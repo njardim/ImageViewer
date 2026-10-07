@@ -76,6 +76,41 @@
     </message>
 </context>
 <context>
+    <name>Overlay</name>
+    <message>
+        <source>File name</source>
+        <translation>फ़ाइल का नाम</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>आयाम</translation>
+    </message>
+    <message>
+        <source>File size</source>
+        <translation>फ़ाइल का आकार</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>ज़ूम</translation>
+    </message>
+    <message>
+        <source>Color space</source>
+        <translation>कलर स्पेस</translation>
+    </message>
+    <message>
+        <source>Date modified</source>
+        <translation>संशोधन की तिथि</translation>
+    </message>
+    <message>
+        <source>Position in the folder</source>
+        <translation>फ़ोल्डर में स्थिति</translation>
+    </message>
+    <message>
+        <source>Display output</source>
+        <translation>डिस्प्ले आउटपुट</translation>
+    </message>
+</context>
+<context>
     <name>Renderer</name>
     <message>
         <source>SDR (sRGB)</source>
@@ -137,10 +172,6 @@
         <translation>अंग्रेज़ी के अलावा अन्य भाषाएँ मशीनी अनुवाद हैं, जिनकी मूल भाषी वक्ताओं द्वारा समीक्षा होनी बाकी है।</translation>
     </message>
     <message>
-        <source>Confirm before deleting an image</source>
-        <translation>छवि हटाने से पहले पुष्टि करें</translation>
-    </message>
-    <message>
         <source>Reopen the last image at startup</source>
         <translation>प्रारंभ होने पर अंतिम छवि फिर से खोलें</translation>
     </message>
@@ -181,12 +212,92 @@
         <translation>विंडो का आकार और स्थिति याद रखें</translation>
     </message>
     <message>
-        <source>Show the information panel</source>
-        <translation>जानकारी पैनल दिखाएँ</translation>
+        <source>Confirm before moving an image to the trash</source>
+        <translation>छवि को ट्रैश में ले जाने से पहले पुष्टि करें</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas</source>
+        <translation>पारदर्शी क्षेत्रों के पीछे चेकरबोर्ड दिखाएँ</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>विंडो</translation>
+    </message>
+    <message>
+        <source>Show the information panel (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <translation>जानकारी पैनल दिखाएँ (%1)</translation>
+    </message>
+    <message>
+        <source>Overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>शीर्ष पर ओवरले (%1)</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>हमेशा</translation>
+    </message>
+    <message>
+        <source>When the pointer is at the top</source>
+        <translation>जब पॉइंटर शीर्ष पर हो</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>कभी नहीं</translation>
+    </message>
+    <message>
+        <source>In full screen:</source>
+        <translation>पूर्ण स्क्रीन में:</translation>
+    </message>
+    <message>
+        <source>In a window:</source>
+        <translation>विंडो में:</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation>फ़ील्ड</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>ऊपर ले जाएँ</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>नीचे ले जाएँ</translation>
+    </message>
+    <message>
+        <source>Fields:</source>
+        <translation>फ़ील्ड:</translation>
+    </message>
+    <message>
+        <source> %</source>
+        <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
+        <translation> %</translation>
+    </message>
+    <message>
+        <source>Background opacity:</source>
+        <translation>पृष्ठभूमि की अपारदर्शिता:</translation>
+    </message>
+    <message>
+        <source>Text opacity:</source>
+        <translation>टेक्स्ट की अपारदर्शिता:</translation>
+    </message>
+    <message>
+        <source>Outline the text</source>
+        <translation>टेक्स्ट की रूपरेखा बनाएँ</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
+        <translation> सेकंड</translation>
+    </message>
+    <message>
+        <source>Hide after:</source>
+        <translation>इसके बाद छिपाएँ:</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>जानकारी</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -204,6 +315,30 @@
     <message>
         <source>Width of each side:</source>
         <translation>प्रत्येक भाग की चौड़ाई:</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>नाम</translation>
+    </message>
+    <message>
+        <source>Date modified</source>
+        <translation>संशोधन की तिथि</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>आकार</translation>
+    </message>
+    <message>
+        <source>Descending</source>
+        <translation>अवरोही</translation>
+    </message>
+    <message>
+        <source>Sort images by:</source>
+        <translation>छवियों को इसके अनुसार क्रमबद्ध करें:</translation>
+    </message>
+    <message>
+        <source>Load the next and previous images in advance</source>
+        <translation>अगली और पिछली छवियाँ पहले से लोड करें</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -275,6 +410,7 @@
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
+        <extracomment>%1: a size in pixels.</extracomment>
         <translation>GPU के अनुरूप छवि छोटी की जा रही है (अधिकतम %1 px)…</translation>
     </message>
     <message>
@@ -282,8 +418,42 @@
         <translation>GPU ने छवि स्वीकार नहीं की।</translation>
     </message>
     <message>
-        <source>(reduced to %1×%2)</source>
-        <translation>(%1×%2 तक छोटी की गई)</translation>
+        <source>File</source>
+        <translation>फ़ाइल</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>फ़ोल्डर</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>आकार</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>संशोधित</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
+        <translation>स्थिति</translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation>%2 में से %1</translation>
+    </message>
+    <message>
+        <source>%1 MP</source>
+        <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
+        <translation>%1 MP</translation>
+    </message>
+    <message>
+        <source>reduced to %1 × %2 for the GPU</source>
+        <translation>GPU के लिए %1 × %2 तक छोटी की गई</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>आयाम</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -294,20 +464,113 @@
         <translation>अल्फ़ा</translation>
     </message>
     <message>
-        <source>Peak %1× SDR white (≈%2 nits)</source>
-        <translation>शिखर %1× SDR सफ़ेद (≈%2 nits)</translation>
+        <source>Format</source>
+        <translation>फ़ॉर्मैट</translation>
     </message>
     <message>
-        <source>decoded in %1 ms</source>
-        <translation>%1 ms में डिकोड की गई</translation>
+        <source>Orientation</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
+        <translation>ओरिएंटेशन</translation>
     </message>
     <message>
-        <source>Output: %1</source>
-        <extracomment>%1: the display output, e.g. &quot;HDR10 (PQ) · SDR white 203 nits · peak 1000 nits&quot;.</extracomment>
-        <translation>आउटपुट: %1</translation>
+        <source>EXIF %1, applied</source>
+        <translation>EXIF %1, लागू</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>रंग</translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>शिखर</translation>
+    </message>
+    <message>
+        <source>%1× SDR white (≈%2 nits)</source>
+        <translation>%1× SDR सफ़ेद (≈%2 nits)</translation>
+    </message>
+    <message>
+        <source>Decoded in</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
+        <translation>डिकोड करने में लगा समय</translation>
+    </message>
+    <message>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>कैमरा</translation>
+    </message>
+    <message>
+        <source>Lens</source>
+        <translation>लेंस</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>%1 mm</source>
+        <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
+        <translation>%1 mm</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
+        <translation>एक्सपोज़र</translation>
+    </message>
+    <message>
+        <source>Taken</source>
+        <extracomment>Label of the date the photograph was taken.</extracomment>
+        <translation>खींचा गया</translation>
+    </message>
+    <message>
+        <source>%1 %</source>
+        <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
+        <translation>%1 %</translation>
+    </message>
+    <message>
+        <source>rotated %1°</source>
+        <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
+        <translation>%1° घुमाया गया</translation>
+    </message>
+    <message>
+        <source>mirrored</source>
+        <translation>प्रतिबिंबित</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>आउटपुट</translation>
+    </message>
+    <message>
+        <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>%1 से %2 nits तक BT.2390 टोन मैपिंग, %3 nits तक अपरिवर्तित</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>%1 nits से ऊपर क्लिप किया गया</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>हाइलाइट्स</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits (colors outside the output gamut)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>%1 nits से ऊपर क्लिप किया गया (आउटपुट गैमट से बाहर के रंग)</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits (tone mapping off)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>%1 nits से ऊपर क्लिप किया गया (टोन मैपिंग बंद)</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
+        <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>एक्सपोज़र %1 EV</translation>
     </message>
     <message>
@@ -315,29 +578,43 @@
         <translation>बदले गए पिक्सेल हाइलाइट किए गए</translation>
     </message>
     <message>
-        <source>(clipped above %1 nits)</source>
-        <translation>(%1 nits से ऊपर क्लिप किया गया)</translation>
-    </message>
-    <message>
         <source>%1-bit</source>
         <extracomment>Bits per channel of the image file, e.g. &quot;16-bit&quot;.</extracomment>
         <translation>%1-बिट</translation>
     </message>
     <message>
-        <source>BT.2390 tone mapping: %1 → %2 nits, unchanged up to %3 nits</source>
-        <translation>BT.2390 टोन मैपिंग: %1 → %2 nits, %3 nits तक अपरिवर्तित</translation>
+        <source>Enter a name.</source>
+        <translation>कोई नाम दर्ज करें।</translation>
     </message>
     <message>
-        <source>Components above %1 nits clipped (color outside the output gamut)</source>
-        <translation>%1 nits से ऊपर के घटक क्लिप किए गए (रंग आउटपुट गैमट से बाहर)</translation>
+        <source>This name is not allowed.</source>
+        <translation>यह नाम अनुमत नहीं है।</translation>
     </message>
     <message>
-        <source>Tone mapping off: values above %1 nits clipped</source>
-        <translation>टोन मैपिंग बंद: %1 nits से ऊपर के मान क्लिप किए गए</translation>
+        <source>A name cannot contain “/” or “\”.</source>
+        <translation>नाम में “/” या “\” नहीं हो सकता।</translation>
+    </message>
+    <message>
+        <source>The name is too long.</source>
+        <translation>नाम बहुत लंबा है।</translation>
+    </message>
+    <message>
+        <source>Windows does not allow this name.</source>
+        <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
+        <translation>Windows इस नाम की अनुमति नहीं देता।</translation>
+    </message>
+    <message>
+        <source>A file with this name already exists.</source>
+        <translation>इस नाम की फ़ाइल पहले से मौजूद है।</translation>
     </message>
     <message>
         <source>Open…</source>
         <translation>खोलें…</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <extracomment>Empties the Open Recent menu.</extracomment>
+        <translation>मेनू साफ़ करें</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -352,6 +629,10 @@
         <translation>रीसायकल बिन में ले जाएँ</translation>
     </message>
     <message>
+        <source>Undo Move to Recycle Bin</source>
+        <translation>रीसायकल बिन में ले जाना पूर्ववत करें</translation>
+    </message>
+    <message>
         <source>Show in Finder</source>
         <translation>Finder में दिखाएँ</translation>
     </message>
@@ -364,8 +645,20 @@
         <translation>ट्रैश में ले जाएँ</translation>
     </message>
     <message>
+        <source>Undo Move to Trash</source>
+        <translation>ट्रैश में ले जाना पूर्ववत करें</translation>
+    </message>
+    <message>
         <source>Show in File Manager</source>
         <translation>फ़ाइल प्रबंधक में दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Rename…</source>
+        <translation>नाम बदलें…</translation>
+    </message>
+    <message>
+        <source>Delete Permanently…</source>
+        <translation>स्थायी रूप से हटाएँ…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -413,6 +706,7 @@
     </message>
     <message>
         <source>Actual Size (100 %)</source>
+        <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>वास्तविक आकार (100 %)</translation>
     </message>
     <message>
@@ -422,6 +716,14 @@
     <message>
         <source>Information Panel</source>
         <translation>जानकारी पैनल</translation>
+    </message>
+    <message>
+        <source>Information Overlay</source>
+        <translation>जानकारी ओवरले</translation>
+    </message>
+    <message>
+        <source>Checkerboard Background</source>
+        <translation>चेकरबोर्ड पृष्ठभूमि</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -441,10 +743,12 @@
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>एक्सपोज़र बढ़ाएँ (+½ EV)</translation>
     </message>
     <message>
         <source>Decrease Exposure (−½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>एक्सपोज़र घटाएँ (−½ EV)</translation>
     </message>
     <message>
@@ -466,6 +770,66 @@
     <message>
         <source>About Qt</source>
         <translation>Qt के बारे में</translation>
+    </message>
+    <message>
+        <source>Open Recent</source>
+        <translation>हाल की फ़ाइलें खोलें</translation>
+    </message>
+    <message>
+        <source>Delete “%1” permanently?</source>
+        <translation>“%1” को स्थायी रूप से हटाएँ?</translation>
+    </message>
+    <message>
+        <source>The file does not go to the trash and cannot be restored.</source>
+        <translation>फ़ाइल ट्रैश में नहीं जाएगी और उसे पुनर्स्थापित नहीं किया जा सकता।</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>हटाएँ</translation>
+    </message>
+    <message>
+        <source>Cannot delete “%1”.</source>
+        <translation>“%1” को हटाया नहीं जा सका।</translation>
+    </message>
+    <message>
+        <source>Deleted “%1”</source>
+        <translation>“%1” हटाया गया</translation>
+    </message>
+    <message>
+        <source>“%1” is no longer in the trash.</source>
+        <translation>“%1” अब ट्रैश में नहीं है।</translation>
+    </message>
+    <message>
+        <source>Cannot restore “%1”: a file with that name exists.</source>
+        <translation>“%1” को पुनर्स्थापित नहीं किया जा सका: इस नाम की फ़ाइल पहले से मौजूद है।</translation>
+    </message>
+    <message>
+        <source>Cannot restore “%1”.</source>
+        <translation>“%1” को पुनर्स्थापित नहीं किया जा सका।</translation>
+    </message>
+    <message>
+        <source>Restored “%1”</source>
+        <translation>“%1” पुनर्स्थापित किया गया</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>नाम बदलें</translation>
+    </message>
+    <message>
+        <source>New name</source>
+        <translation>नया नाम</translation>
+    </message>
+    <message>
+        <source>New name:</source>
+        <translation>नया नाम:</translation>
+    </message>
+    <message>
+        <source>Cannot rename “%1”.</source>
+        <translation>“%1” का नाम नहीं बदला जा सका।</translation>
+    </message>
+    <message>
+        <source>Renamed to “%1”</source>
+        <translation>नाम बदलकर “%1” किया गया</translation>
     </message>
     <message>
         <source>View</source>

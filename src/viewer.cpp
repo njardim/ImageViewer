@@ -1,21 +1,16 @@
+// ViewerWindow, part 1: the window, rendering, view state (zoom, pan, rotation, exposure)
+// and input. See viewer.h for the other parts.
 #include "viewer.h"
 
-#include "folder.h"
-
-#include <QCursor>
 #include <QFileInfo>
-#include <QFontMetricsF>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
-#include <QPainter>
-#include <QPainterPath>
 #include <QPlatformSurfaceEvent>
 #include <QScreen>
 #include <QStyleHints>
-#include <QtConcurrent/QtConcurrentRun>
 
 #include <algorithm>
 #include <cmath>
@@ -26,37 +21,7 @@ constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
 constexpr float kMaxExposureEv = 16.0f;
-constexpr double kNavigationButtonSize = 56.0; // logical pixels
-constexpr int kNoticeMs = 3000;
-
-// "100 %" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
-QString zoomLabel(double zoom)
-{
-    return zoom == 1.0 ? QLocale().toString(100) : QLocale().toString(zoom * 100.0, 'f', 1);
-}
-
-// The round previous/next button of a side zone, drawn at `pixels` (device) size.
-QImage navigationButton(bool next, int pixels, bool pressed)
-{
-    QImage image(pixels, pixels, QImage::Format_RGBA8888_Premultiplied);
-    image.setDevicePixelRatio(pixels / kNavigationButtonSize);
-    image.fill(Qt::transparent);
-    QPainter painter(&image);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, pressed ? 180 : 125));
-    const double s = kNavigationButtonSize;
-    painter.drawEllipse(QRectF(0.5, 0.5, s - 1.0, s - 1.0));
-    painter.setPen(QPen(QColor(240, 240, 240), 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    const double c = s / 2.0, half = s * 0.16, depth = s * 0.08;
-    const double dir = next ? 1.0 : -1.0;
-    QPainterPath chevron;
-    chevron.moveTo(c - dir * depth, c - half);
-    chevron.lineTo(c + dir * depth, c);
-    chevron.lineTo(c - dir * depth, c + half);
-    painter.drawPath(chevron);
-    return image;
-}
+constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
 
 ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settings(Settings::load())
@@ -84,13 +49,27 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     m_showInfo = m_settings.showInfo;
     m_renderer.setOutputPreference(m_settings.output);
     m_decodePool.setMaxThreadCount(1);
+    m_recent = loadRecentFiles();
     m_noticeTimer.setSingleShot(true);
-    m_noticeTimer.setInterval(kNoticeMs);
     connect(&m_noticeTimer, &QTimer::timeout, this, [this] {
         m_notice.clear();
         updateOverlay();
     });
-    connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::imageDecoded);
+    m_topOverlayTimer.setSingleShot(true);
+    connect(&m_topOverlayTimer, &QTimer::timeout, this, [this] {
+        m_pointerAtTop = false;
+        requestUpdate();
+    });
+    m_folderTimer.setSingleShot(true);
+    m_folderTimer.setInterval(kFolderSettleMs);
+    connect(&m_folderTimer, &QTimer::timeout, this, &ViewerWindow::refreshFolder);
+    connect(&m_folderWatcher, &QFileSystemWatcher::directoryChanged, &m_folderTimer, qOverload<>(&QTimer::start));
+    connect(&m_folderWatcher, &QFileSystemWatcher::fileChanged, &m_folderTimer, qOverload<>(&QTimer::start));
+    connect(this, &QWindow::visibilityChanged, this, [this] {
+        updateOverlay(); // the top overlay has its own setting for full screen
+        requestUpdate();
+    });
+    connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::decodeFinished);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
@@ -111,20 +90,35 @@ ViewerWindow::~ViewerWindow()
 void ViewerWindow::showRestored(const SessionState &session)
 {
     m_lastDirectory = session.lastDirectory;
+    QRect geometry = session.geometry;
     bool placed = false;
-    if (m_settings.rememberGeometry && session.geometry.isValid()) {
-        // Only where a screen still shows a usable part of it: monitors change between sessions.
-        const QList<QScreen *> screens = QGuiApplication::screens();
-        placed = std::any_of(screens.cbegin(), screens.cend(), [&session](const QScreen *screen) {
-            const QRect visible = screen->availableGeometry().intersected(session.geometry);
-            return visible.width() >= 160 && visible.height() >= 120;
-        });
+    if (m_settings.rememberGeometry && geometry.isValid()) {
+        // Only where a screen still shows a usable part of it (monitors change between
+        // sessions), and never larger than that screen (a hand-edited or corrupt value).
+        const QScreen *best = nullptr;
+        qint64 bestArea = 0;
+        for (const QScreen *screen : QGuiApplication::screens()) {
+            const QRect visible = screen->availableGeometry().intersected(geometry);
+            const qint64 area = qint64(visible.width()) * visible.height();
+            if (visible.width() >= 160 && visible.height() >= 120 && area > bestArea) {
+                best = screen;
+                bestArea = area;
+            }
+        }
+        if (best) {
+            const QRect available = best->availableGeometry();
+            geometry.setSize(geometry.size().boundedTo(available.size()));
+            geometry.moveLeft(std::clamp(geometry.left(), available.left(), available.right() - geometry.width() + 1));
+            geometry.moveTop(std::clamp(geometry.top(), available.top(), available.bottom() - geometry.height() + 1));
+            placed = true;
+        }
     }
     if (placed)
-        setGeometry(session.geometry);
+        setGeometry(geometry);
     else
         resize(1280, 800);
-    m_normalGeometry = geometry();
+    m_normalGeometry = this->geometry();
+    m_maximizedBeforeFullScreen = session.maximized;
     if (placed && session.fullScreen)
         showFullScreen();
     else if (placed && session.maximized)
@@ -137,52 +131,12 @@ void ViewerWindow::saveSession() const
 {
     SessionState session;
     session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
-    session.maximized = windowStates().testFlag(Qt::WindowMaximized);
     session.fullScreen = windowStates().testFlag(Qt::WindowFullScreen);
+    session.maximized = session.fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
     session.lastFile = m_image.path;
     session.lastDirectory = m_lastDirectory;
     session.save();
     m_settings.save(); // includes the information panel toggled with I
-}
-
-void ViewerWindow::openFile(const QString &path)
-{
-    const QFileInfo info(path);
-    if (!info.exists()) {
-        m_message = tr("File not found: %1").arg(path);
-        updateOverlay();
-        return;
-    }
-    if (info.isDir()) {
-        QStringList files = listImages(info.absoluteFilePath());
-        if (files.isEmpty()) { // keep the current list and image
-            m_message = tr("The folder contains no supported images.");
-            updateOverlay();
-            return;
-        }
-        m_files = std::move(files);
-        m_lastDirectory = info.absoluteFilePath();
-        startLoading(0);
-        return;
-    }
-    m_files = listImages(info.absolutePath());
-    m_lastDirectory = info.absolutePath();
-    // Same directory, so the name decides; Windows and macOS file systems ignore case.
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-    constexpr Qt::CaseSensitivity kCase = Qt::CaseInsensitive;
-#else
-    constexpr Qt::CaseSensitivity kCase = Qt::CaseSensitive;
-#endif
-    const QString name = info.fileName();
-    const auto it = std::find_if(m_files.cbegin(), m_files.cend(), [&name](const QString &f) {
-        return QStringView(f).mid(f.lastIndexOf(QLatin1Char('/')) + 1).compare(name, kCase) == 0;
-    });
-    if (it == m_files.cend()) {
-        m_files.prepend(info.absoluteFilePath()); // unknown suffix: still try to decode it
-        startLoading(0);
-    } else {
-        startLoading(int(it - m_files.cbegin()));
-    }
 }
 
 int ViewerWindow::textureLimit(const QString &path) const
@@ -191,88 +145,6 @@ int ViewerWindow::textureLimit(const QString &path) const
     if (m_textureCap > 0 && path == m_textureCapPath)
         limit = std::min(limit, m_textureCap);
     return limit;
-}
-
-void ViewerWindow::startLoading(int index)
-{
-    if (index < 0 || index >= m_files.size())
-        return;
-    m_index = index;
-    m_message = tr("Loading %1…").arg(QFileInfo(m_files.at(index)).fileName());
-    updateOverlay();
-    // One decode at a time: decodes cannot be cancelled, and key auto-repeat would otherwise
-    // stack several full-resolution decodes in memory. The latest request waits its turn.
-    if (m_watcher.isRunning()) {
-        m_pendingIndex = index;
-        return;
-    }
-    m_pendingIndex = -1;
-    const QString path = m_files.at(index);
-    const int maxTexture = textureLimit(path);
-    m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, maxTexture] { return decodeImage(path, maxTexture); }));
-}
-
-void ViewerWindow::imageDecoded()
-{
-    // takeResult() moves the pixels out; result() would copy them and the future would
-    // keep its own copy alive until the next decode.
-    Image image = m_watcher.future().takeResult();
-    if (m_pendingIndex >= 0) { // superseded while decoding: go straight to the latest request
-        const int next = std::exchange(m_pendingIndex, -1);
-        if (m_files.value(next) != image.path) {
-            startLoading(next);
-            return;
-        }
-        m_index = next; // the request came back to the file just decoded
-    }
-    setTitle(QStringLiteral("%1 — imageViewer").arg(QFileInfo(image.path).fileName()));
-
-    // The same file again (smaller texture, device loss, language) keeps the view; a new file starts fitted.
-    const bool sameFile = image.path == m_image.path;
-    if (!image.isValid()) {
-        m_message = image.error;
-        m_image = Image();
-        m_image.path = image.path;
-        m_renderer.clearImage();
-    } else {
-        m_message.clear();
-        m_renderer.setImage(std::move(image.pixels), QSize(image.width, image.height));
-        m_image = std::move(image);
-        if (!sameFile) {
-            m_fit = true;
-            m_pan = {};
-            m_quarterTurns = 0;
-            m_mirrored = false;
-        }
-    }
-    // At either end of a non-looping folder a side button may have nothing left to do.
-    setHoverZone(zoneAt(mapFromGlobal(QCursor::pos(screen()))));
-    updateOverlay();
-    requestUpdate();
-}
-
-bool ViewerWindow::hasNeighbour(int delta) const
-{
-    if (m_files.size() < 2)
-        return false;
-    const int target = m_index + delta;
-    return m_settings.loop || (target >= 0 && target < m_files.size());
-}
-
-void ViewerWindow::step(int delta)
-{
-    if (m_files.isEmpty())
-        return;
-    const int n = int(m_files.size());
-    int target = m_index + delta;
-    if (target < 0 || target >= n) {
-        if (!m_settings.loop) {
-            showNotice(delta > 0 ? tr("This is the last image.") : tr("This is the first image."));
-            return;
-        }
-        target = (target % n + n) % n;
-    }
-    startLoading(target);
 }
 
 bool ViewerWindow::event(QEvent *e)
@@ -291,6 +163,7 @@ bool ViewerWindow::event(QEvent *e)
         break;
     case QEvent::Leave:
         setHoverZone(Zone::None);
+        setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
         // The user may have toggled HDR or changed SDR brightness meanwhile.
@@ -364,6 +237,7 @@ void ViewerWindow::initializeRenderer()
     }
     m_rendererReady = true;
     updateOverlay();
+    scheduleWork(); // preloading waits for the renderer (the texture limit is known now)
 }
 
 void ViewerWindow::resizeEvent(QResizeEvent *)
@@ -478,6 +352,14 @@ Renderer::Frame ViewerWindow::imageFrame() const
     frame.background[0] = float(m_settings.background.redF());
     frame.background[1] = float(m_settings.background.greenF());
     frame.background[2] = float(m_settings.background.blueF());
+    frame.checkerboard = m_settings.checkerboard && m_image.hasAlpha;
+    if (frame.checkerboard) {
+        // The second colour is the background made lighter (dark backgrounds) or darker.
+        const float luma = 0.2126f * frame.background[0] + 0.7152f * frame.background[1] + 0.0722f * frame.background[2];
+        const float delta = luma < 0.5f ? 0.12f : -0.12f;
+        for (int c = 0; c < 3; ++c)
+            frame.checkerColour[c] = std::clamp(frame.background[c] + delta, 0.0f, 1.0f);
+    }
     return frame;
 }
 
@@ -492,20 +374,13 @@ void ViewerWindow::render()
         frame.mirrored = m_mirrored;
         const double zoom = currentZoom();
         frame.nearest = zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6; // decision D-P09
+        if (frame.checkerboard) { // cells of 8 logical pixels, whatever the zoom
+            const double cell = 8.0 * devicePixelRatio();
+            frame.checkerCells[0] = float(m_image.width * zoom / cell);
+            frame.checkerCells[1] = float(m_image.height * zoom / cell);
+        }
     }
-    if (!m_overlaySize.isEmpty()) {
-        const double margin = 12.0 * devicePixelRatio();
-        const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
-                             ? deviceSize().width() - margin - m_overlaySize.width()
-                             : margin;
-        frame.overlayRects[Renderer::InfoLayer] =
-            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_overlaySize.height())),
-                   QSizeF(m_overlaySize));
-    }
-    if (m_hoverZone == Zone::Previous)
-        frame.overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);
-    else if (m_hoverZone == Zone::Next)
-        frame.overlayRects[Renderer::NextButtonLayer] = zoneButtonRect(Zone::Next);
+    placeOverlays(&frame);
     if (m_renderer.render(frame) == Renderer::RenderResult::DeviceLost) {
         recoverFromDeviceLoss();
         return;
@@ -517,13 +392,24 @@ void ViewerWindow::render()
         m_textureCapPath = m_image.path;
         const int deviceMax = m_renderer.maxTextureSize();
         m_textureCap = longest > deviceMax ? deviceMax : longest / 2;
-        const int index = int(m_files.indexOf(m_image.path));
-        if (m_textureCap >= 512 && index >= 0) {
-            startLoading(index);
-            m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(m_textureCap);
+        if (currentPath() != m_image.path) {
+            // The user has moved on meanwhile: the cap applies when this file comes back.
+        } else if (m_textureCap >= 512) {
+            m_imageStale = true;
+            scheduleWork();
+            //: %1: a size in pixels.
+            m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(QLocale().toString(m_textureCap));
         } else {
-            m_message = tr("The GPU did not accept the image.");
-            m_image = Image();
+            // Keep the path, so this file counts as shown (with its error) and is not
+            // decoded and uploaded again until the user comes back to it.
+            Image refused;
+            refused.path = m_image.path;
+            refused.fileSize = m_image.fileSize;
+            refused.modified = m_image.modified;
+            refused.error = tr("The GPU did not accept the image.");
+            m_message = refused.error;
+            m_image = std::move(refused);
+            m_shownLimit = textureLimit(m_image.path); // counts as shown at the capped size too
         }
         updateOverlay();
         return;
@@ -542,153 +428,37 @@ void ViewerWindow::recoverFromDeviceLoss()
     m_rendererReady = false;
     initializeRenderer();
     if (m_rendererReady) {
+        m_topOverlayKey.clear(); // every overlay texture is gone too
+        updateOverlay();
         updateNavigationButtons();
-        if (m_index >= 0)
-            startLoading(m_index);
+        m_imageStale = true; // uploaded again from the cache, or decoded again
+        scheduleWork();
     }
     requestUpdate();
 }
 
-void ViewerWindow::showNotice(const QString &text)
+double ViewerWindow::sideZoneWidth() const
 {
-    m_notice = text;
-    m_noticeTimer.start();
-    updateOverlay();
+    if (!m_settings.sideZones || m_files.size() < 2)
+        return 0.0;
+    // Narrow windows keep a middle for panning and double-clicks.
+    return std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
 }
 
-void ViewerWindow::updateOverlay()
+bool ViewerWindow::inSideStrip(const QPointF &position) const
 {
-    if (!m_rendererReady)
-        return;
-    m_overlayOutput = m_renderer.output().description;
-    const QLocale locale;
-    QStringList lines;
-    if (!m_notice.isEmpty())
-        lines << m_notice;
-    if (!m_message.isEmpty())
-        lines << m_message;
-    if (m_showInfo && m_image.width > 0) {
-        QString first = QStringLiteral("%1  ·  %2/%3  ·  %4 %  ·  %5×%6")
-                            .arg(QFileInfo(m_image.path).fileName(), locale.toString(m_index + 1),
-                                 locale.toString(m_files.size()), zoomLabel(currentZoom()),
-                                 locale.toString(m_image.sourceWidth), locale.toString(m_image.sourceHeight));
-        if (m_image.width != m_image.sourceWidth)
-            first += QLatin1Char(' ')
-                     + tr("(reduced to %1×%2)").arg(locale.toString(m_image.width), locale.toString(m_image.height));
-        lines << first;
-        //: Bits per channel of the image file, e.g. "16-bit".
-        QStringList format = {tr("%1-bit").arg(m_image.sourceBits)};
-        if (m_image.sourceFloat)
-            format << tr("floating point");
-        if (m_image.hasAlpha)
-            format << tr("alpha");
-        lines << QStringLiteral("%1  ·  %2  ·  %3").arg(m_image.codec, locale.createSeparatedList(format),
-                                                      m_image.colour.description);
-        lines << tr("Peak %1× SDR white (≈%2 nits)").arg(locale.toString(double(m_image.maxComponent), 'f', 2),
-                                                      locale.toString(double(m_image.maxComponent
-                                                                             * color::kSdrReferenceWhiteNits),
-                                                                      'f', 0))
-                     + QStringLiteral("  ·  ")
-                     + tr("decoded in %1 ms").arg(locale.toString(m_image.decodeMs, 'f', 0));
-    }
-    if (m_showInfo) {
-        //: %1: the display output, e.g. "HDR10 (PQ) · SDR white 203 nits · peak 1000 nits".
-        QStringList output = {tr("Output: %1").arg(m_renderer.output().description), m_renderer.backendName()};
-        if (m_exposureEv != 0.0f)
-            output << tr("exposure %1 EV")
-                          .arg((m_exposureEv > 0 ? QStringLiteral("+") : QString())
-                               + locale.toString(double(m_exposureEv), 'f', 1));
-        if (m_clipWarning)
-            output << tr("altered pixels highlighted");
-        lines << output.join(QStringLiteral("  ·  "));
-        if (m_image.width > 0) {
-            // Whether the image is shown as is, tone mapped or clipped (criteria H4, H6).
-            const Renderer::Output &out = m_renderer.output();
-            const color::OutputStage stage = Renderer::stageFor(out, imageFrame());
-            const double toNits = out.nitsPerUnit;
-            const double peakNits = stage.peak * toNits;
-            if (stage.sourcePeak > stage.peak) {
-                QString line = tr("BT.2390 tone mapping: %1 → %2 nits, unchanged up to %3 nits")
-                                   .arg(locale.toString(stage.sourcePeak * toNits, 'f', 0),
-                                        locale.toString(peakNits, 'f', 0),
-                                        locale.toString(color::eetfKneeNits(float(stage.sourcePeak * toNits),
-                                                                            float(peakNits)),
-                                                        'f', 0));
-                if (m_image.maxComponent * stage.exposure * stage.scale * toNits > color::kPqPeakNits)
-                    line += QLatin1Char(' ')
-                            + tr("(clipped above %1 nits)").arg(locale.toString(double(color::kPqPeakNits), 'f', 0));
-                lines << line;
-            } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
-                lines << (m_toneMap ? tr("Components above %1 nits clipped (color outside the output gamut)")
-                                    : tr("Tone mapping off: values above %1 nits clipped"))
-                             .arg(locale.toString(peakNits, 'f', 0));
-            }
-        }
-    }
-
-    if (lines.isEmpty()) {
-        m_overlaySize = {};
-        m_renderer.setOverlay(Renderer::InfoLayer, QImage());
-        requestUpdate();
-        return;
-    }
-
-    const qreal dpr = devicePixelRatio();
-    const QFont font = QGuiApplication::font();
-    const QFontMetricsF metrics(font);
-    const qreal padding = 10.0, lineHeight = metrics.height() + 2.0;
-    qreal width = 0;
-    for (const QString &line : std::as_const(lines))
-        width = std::max(width, metrics.horizontalAdvance(line));
-    // Never wider than the window (long file names): the panel clips instead.
-    const qreal maxWidth = std::max(80.0, this->width() - 24.0);
-    const QSizeF logical(std::ceil(std::min(width + 2 * padding, maxWidth)),
-                         std::ceil(lines.size() * lineHeight + 2 * padding - 2.0));
-
-    QImage overlay((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
-    overlay.setDevicePixelRatio(dpr);
-    overlay.fill(Qt::transparent);
-    QPainter painter(&overlay);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setLayoutDirection(QGuiApplication::layoutDirection());
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, 150));
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), 8, 8);
-    painter.setPen(QColor(235, 235, 235));
-    painter.setFont(font);
-    // AlignLeft is the start of the line: Qt mirrors it in right-to-left layouts.
-    for (int i = 0; i < lines.size(); ++i)
-        painter.drawText(QRectF(padding, padding + i * lineHeight, logical.width() - 2 * padding, lineHeight),
-                         Qt::AlignLeft | Qt::AlignTop, lines.at(i));
-    painter.end();
-
-    m_overlaySize = overlay.size();
-    m_renderer.setOverlay(Renderer::InfoLayer, overlay);
-    requestUpdate();
+    const double zone = sideZoneWidth();
+    return zone > 0.0 && position.y() >= 0 && position.y() < height()
+           && ((position.x() >= 0 && position.x() < zone) || (position.x() < width() && position.x() >= width() - zone));
 }
 
 ViewerWindow::Zone ViewerWindow::zoneAt(const QPointF &position) const
 {
-    if (!m_settings.sideZones || m_files.size() < 2 || position.y() < 0 || position.y() >= height())
+    if (!inSideStrip(position))
         return Zone::None;
-    // Narrow windows keep a middle for panning and double-clicks.
-    const double zone = std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
-    if (position.x() >= 0 && position.x() < zone)
+    if (position.x() < sideZoneWidth())
         return hasNeighbour(-1) ? Zone::Previous : Zone::None;
-    if (position.x() < width() && position.x() >= width() - zone)
-        return hasNeighbour(+1) ? Zone::Next : Zone::None;
-    return Zone::None;
-}
-
-QRectF ViewerWindow::zoneButtonRect(Zone zone) const
-{
-    const double dpr = devicePixelRatio();
-    const double pixels = std::round(kNavigationButtonSize * dpr);
-    const double zoneWidth = std::min<double>(m_settings.sideZoneWidth, width() / 4.0) * dpr;
-    const double centreX = zone == Zone::Previous ? zoneWidth / 2.0 : deviceSize().width() - zoneWidth / 2.0;
-    // Whole device pixels: the button texture is sampled 1:1.
-    return QRectF(QPointF(std::round(centreX - pixels / 2.0), std::round((deviceSize().height() - pixels) / 2.0)),
-                  QSizeF(pixels, pixels));
+    return hasNeighbour(+1) ? Zone::Next : Zone::None;
 }
 
 void ViewerWindow::setHoverZone(Zone zone)
@@ -700,20 +470,6 @@ void ViewerWindow::setHoverZone(Zone zone)
     updateNavigationButtons();
 }
 
-void ViewerWindow::updateNavigationButtons()
-{
-    if (!m_rendererReady)
-        return;
-    const int pixels = int(std::lround(kNavigationButtonSize * devicePixelRatio()));
-    const bool pressed = m_pressZone != Zone::None && m_pressZone == m_hoverZone && !m_pressMoved;
-    m_renderer.setOverlay(Renderer::PreviousButtonLayer, m_hoverZone == Zone::Previous
-                                                             ? navigationButton(false, pixels, pressed)
-                                                             : QImage());
-    m_renderer.setOverlay(Renderer::NextButtonLayer,
-                          m_hoverZone == Zone::Next ? navigationButton(true, pixels, pressed) : QImage());
-    requestUpdate();
-}
-
 void ViewerWindow::applySettings(const Settings &settings)
 {
     const Settings previous = m_settings;
@@ -721,14 +477,21 @@ void ViewerWindow::applySettings(const Settings &settings)
     m_settings.save();
     if (settings.language != previous.language) {
         applyLanguage(settings.language);
-        // Descriptions are composed while decoding: decode again for the new language.
-        if (currentFileIsShown() && m_image.width > 0)
-            startLoading(m_index);
+        // Descriptions are composed while decoding: decode again for the new language,
+        // including a decode still running (its result is dropped when it arrives).
+        ++m_decodeGeneration;
+        m_cache.clear();
+        if (!m_image.path.isEmpty())
+            m_imageStale = true;
     }
     if (settings.toneMap != previous.toneMap)
         m_toneMap = settings.toneMap;
     m_showInfo = settings.showInfo;
     m_renderer.setOutputPreference(settings.output);
+    if (settings.sortBy != previous.sortBy || settings.sortDescending != previous.sortDescending)
+        relist();
+    else
+        scheduleWork(); // preloading switched on or off, looping changed the neighbours
     setHoverZone(Zone::None);
     updateOverlay();
     requestUpdate();
@@ -792,7 +555,7 @@ void ViewerWindow::toggleInfo()
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && visibility() == QWindow::FullScreen) {
-        showNormal();
+        leaveFullScreen();
         return;
     }
     if (!executeShortcut(e))
@@ -832,6 +595,7 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         m_dragging = false;
         m_pressZone = Zone::None;
         setHoverZone(zoneAt(e->position()));
+        setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
         return;
     }
     if (m_pressZone != Zone::None && !m_pressMoved) {
@@ -871,6 +635,10 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
         mousePressEvent(e); // quick clicks on a side keep navigating
         return;
     }
+    // The first click may have reached the end of a folder that does not loop: the second
+    // click of the pair is still a click on the side, never a request for full screen.
+    if (inSideStrip(e->position()))
+        return;
     toggleFullScreen();
 }
 
@@ -898,8 +666,18 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
 
 void ViewerWindow::toggleFullScreen()
 {
-    if (visibility() == QWindow::FullScreen)
-        showNormal();
+    if (visibility() == QWindow::FullScreen) {
+        leaveFullScreen();
+        return;
+    }
+    m_maximizedBeforeFullScreen = windowStates().testFlag(Qt::WindowMaximized);
+    showFullScreen();
+}
+
+void ViewerWindow::leaveFullScreen()
+{
+    if (m_maximizedBeforeFullScreen)
+        showMaximized();
     else
-        showFullScreen();
+        showNormal();
 }

@@ -1,28 +1,43 @@
-// ViewerWindow, part 2 (decision D-30): the command table that drives the keyboard and
-// the context menu, file operations and dialogs. Display and input live in viewer.cpp.
+// ViewerWindow, part 4 (decision D-30): the command table that drives the keyboard and
+// the context menu, file operations and dialogs. See viewer.h for the other parts.
 #include "viewer.h"
+
+#include "folder.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QKeyEvent>
+#include <QLabel>
+#include <QLoggingCategory>
+#include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QPalette>
 #include <QProcess>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QUrl>
+#include <QUuid>
+#include <QVBoxLayout>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
+
+#include <algorithm>
+
+Q_LOGGING_CATEGORY(lcFiles, "imageviewer.files", QtWarningMsg)
 
 namespace {
 
 constexpr double kZoomStep = 1.25;
+constexpr int kMaxUndo = 50;
 
 // Dialogs and menus are widgets; the viewer is a QWindow. Parenting their native window
 // keeps them above it, centred on it and, on Wayland, positioned at all.
@@ -31,6 +46,86 @@ void makeTransient(QWidget &widget, QWindow *parent)
     widget.winId();
     if (QWindow *handle = widget.windowHandle())
         handle->setTransientParent(parent);
+}
+
+// Removes the trash's own record of a file that was taken back out of it, so the trash does
+// not list a file that is no longer there (freedesktop info file, Windows $I file).
+void forgetTrashRecord(const QString &inTrash)
+{
+    const QFileInfo item(inTrash);
+#if defined(Q_OS_WIN)
+    const QString name = item.fileName();
+    if (name.startsWith(QLatin1String("$R")))
+        QFile::remove(item.absolutePath() + QStringLiteral("/$I") + name.mid(2));
+#elif defined(Q_OS_MACOS)
+    Q_UNUSED(item); // the Finder keeps its "put back" data elsewhere and drops it by itself
+#else
+    // <trash>/files/<name> is described by <trash>/info/<name>.trashinfo.
+    const QDir files = item.absoluteDir();
+    if (files.dirName() == QLatin1String("files"))
+        QFile::remove(QDir(files.absoluteFilePath(QStringLiteral("../info"))).absoluteFilePath(item.fileName() + QStringLiteral(".trashinfo")));
+#endif
+}
+
+// Whether the trash's own record of `inTrash` still names `original`. Only the freedesktop
+// trash keeps a readable record next to the file; elsewhere size and date decide.
+bool trashRecordNames(const QString &inTrash, const QString &original)
+{
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+    Q_UNUSED(inTrash);
+    Q_UNUSED(original);
+    return true;
+#else
+    const QFileInfo item(inTrash);
+    QFile record(QDir(item.absoluteDir().absoluteFilePath(QStringLiteral("../info"))).absoluteFilePath(item.fileName() + QStringLiteral(".trashinfo")));
+    if (!record.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+    while (!record.atEnd()) {
+        const QByteArray line = record.readLine(64 * 1024).trimmed();
+        if (line.startsWith("Path="))
+            return QFile::decodeName(QByteArray::fromPercentEncoding(line.mid(5))) == original;
+    }
+    return false;
+#endif
+}
+
+// Why `name` cannot be the new name of a file in `directory`, or an empty string.
+QString renameProblem(const QString &name, const QString &directory, const QString &original)
+{
+    const QString trimmed = name.trimmed();
+    if (trimmed.isEmpty())
+        return QCoreApplication::translate("ViewerWindow", "Enter a name.");
+    if (trimmed == QLatin1String(".") || trimmed == QLatin1String(".."))
+        return QCoreApplication::translate("ViewerWindow", "This name is not allowed.");
+    if (name.contains(QLatin1Char('/')) || name.contains(QLatin1Char('\\')))
+        return QCoreApplication::translate("ViewerWindow", "A name cannot contain “/” or “\\”.");
+    if (name.toUtf8().size() > 255)
+        return QCoreApplication::translate("ViewerWindow", "The name is too long.");
+#if defined(Q_OS_WIN)
+    static const QString forbidden = QStringLiteral("<>:\"|?*");
+    const bool reservedChar = std::any_of(name.cbegin(), name.cend(), [](QChar c) {
+        return c.unicode() < 32 || forbidden.contains(c);
+    });
+    const QString stem = name.section(QLatin1Char('.'), 0, 0).trimmed().toUpper();
+    static const QStringList devices = {QStringLiteral("CON"), QStringLiteral("PRN"), QStringLiteral("AUX"), QStringLiteral("NUL"),
+                                        QStringLiteral("COM1"), QStringLiteral("COM2"), QStringLiteral("COM3"), QStringLiteral("COM4"),
+                                        QStringLiteral("COM5"), QStringLiteral("COM6"), QStringLiteral("COM7"), QStringLiteral("COM8"),
+                                        QStringLiteral("COM9"), QStringLiteral("LPT1"), QStringLiteral("LPT2"), QStringLiteral("LPT3"),
+                                        QStringLiteral("LPT4"), QStringLiteral("LPT5"), QStringLiteral("LPT6"), QStringLiteral("LPT7"),
+                                        QStringLiteral("LPT8"), QStringLiteral("LPT9")};
+    if (reservedChar || devices.contains(stem) || name.endsWith(QLatin1Char('.')) || name.endsWith(QLatin1Char(' ')))
+        //: Windows forbids < > : " | ? *, control characters, device names such as CON, and a final dot or space.
+        return QCoreApplication::translate("ViewerWindow", "Windows does not allow this name.");
+#else
+    if (name.contains(QChar(0)))
+        return QCoreApplication::translate("ViewerWindow", "This name is not allowed.");
+#endif
+    const QFileInfo target(QDir(directory).absoluteFilePath(name));
+    // A change of case alone is allowed: on case-insensitive file systems the "existing" file
+    // is this one. Where both names do exist, renameFile() fails safely (rename never overwrites).
+    if (target.exists() && name.compare(QFileInfo(original).fileName(), Qt::CaseInsensitive) != 0)
+        return QCoreApplication::translate("ViewerWindow", "A file with this name already exists.");
+    return {};
 }
 
 } // namespace
@@ -43,10 +138,14 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
     // modifiers follow the platforms' (copy, quit, settings, trash).
     static const QList<CommandInfo> table = {
         {C::Open, {K(Qt::CTRL | Qt::Key_O)}, false},
+        {C::ClearRecent, {}, false},
         {C::ShowInFolder, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_E)}, false},
         {C::CopyImage, {K(Qt::CTRL | Qt::Key_C)}, false},
         {C::CopyPath, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_C)}, false},
+        {C::Rename, {K(Qt::Key_F2)}, false},
         {C::MoveToTrash, {K(Qt::Key_Delete), K(Qt::CTRL | Qt::Key_Backspace)}, false},
+        {C::DeletePermanently, {K(Qt::SHIFT | Qt::Key_Delete)}, false},
+        {C::UndoTrash, {K(Qt::CTRL | Qt::Key_Z)}, false},
         {C::Settings, {K(Qt::CTRL | Qt::Key_Comma)}, false},
         {C::Quit, {K(Qt::CTRL | Qt::Key_Q)}, false},
         {C::Previous, {K(Qt::Key_Left), K(Qt::Key_PageUp), K(Qt::Key_Backspace)}, true},
@@ -59,6 +158,8 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
         {C::Info, {K(Qt::Key_I)}, false},
+        {C::InfoOverlay, {K(Qt::SHIFT | Qt::Key_I)}, false},
+        {C::Checkerboard, {K(Qt::Key_B)}, false},
         {C::RotateClockwise, {K(Qt::Key_R)}, false},
         {C::RotateCounterclockwise, {K(Qt::SHIFT | Qt::Key_R)}, false},
         {C::FlipHorizontal, {K(Qt::Key_H)}, false},
@@ -78,16 +179,23 @@ QString ViewerWindow::commandText(Command command) const
 {
     switch (command) {
     case Command::Open: return tr("Open…");
+    //: Empties the Open Recent menu.
+    case Command::ClearRecent: return tr("Clear Menu");
 #if defined(Q_OS_WIN)
     case Command::ShowInFolder: return tr("Show in Explorer");
     case Command::MoveToTrash: return m_settings.confirmTrash ? tr("Move to Recycle Bin…") : tr("Move to Recycle Bin");
+    case Command::UndoTrash: return tr("Undo Move to Recycle Bin");
 #elif defined(Q_OS_MACOS)
     case Command::ShowInFolder: return tr("Show in Finder");
     case Command::MoveToTrash: return m_settings.confirmTrash ? tr("Move to Trash…") : tr("Move to Trash");
+    case Command::UndoTrash: return tr("Undo Move to Trash");
 #else
     case Command::ShowInFolder: return tr("Show in File Manager");
     case Command::MoveToTrash: return m_settings.confirmTrash ? tr("Move to Trash…") : tr("Move to Trash");
+    case Command::UndoTrash: return tr("Undo Move to Trash");
 #endif
+    case Command::Rename: return tr("Rename…");
+    case Command::DeletePermanently: return tr("Delete Permanently…");
     case Command::CopyImage: return tr("Copy Image");
     case Command::CopyPath: return tr("Copy File Path");
     case Command::Settings: return tr("Settings…");
@@ -99,14 +207,19 @@ QString ViewerWindow::commandText(Command command) const
     case Command::ZoomIn: return tr("Zoom In");
     case Command::ZoomOut: return tr("Zoom Out");
     case Command::Fit: return tr("Fit to Window");
+    //: "100 %" is a zoom percentage; write the percent sign as your language does.
     case Command::ActualSize: return tr("Actual Size (100 %)");
     case Command::FullScreen: return tr("Full Screen");
     case Command::Info: return tr("Information Panel");
+    case Command::InfoOverlay: return tr("Information Overlay");
+    case Command::Checkerboard: return tr("Checkerboard Background");
     case Command::RotateClockwise: return tr("Rotate Clockwise");
     case Command::RotateCounterclockwise: return tr("Rotate Counterclockwise");
     case Command::FlipHorizontal: return tr("Flip Horizontally");
     case Command::FlipVertical: return tr("Flip Vertically");
+    //: EV: exposure value, photographic stops; ½ EV is half a stop.
     case Command::ExposureUp: return tr("Increase Exposure (+½ EV)");
+    //: EV: exposure value, photographic stops; ½ EV is half a stop.
     case Command::ExposureDown: return tr("Decrease Exposure (−½ EV)");
     case Command::ExposureReset: return tr("Reset Exposure");
     case Command::ToneMap: return tr("Tone Mapping (BT.2390)");
@@ -119,8 +232,8 @@ QString ViewerWindow::commandText(Command command) const
 
 bool ViewerWindow::currentFileIsShown() const
 {
-    return m_index >= 0 && m_index < m_files.size() && !m_image.path.isEmpty() && m_files.at(m_index) == m_image.path
-           && !m_watcher.isRunning();
+    // Preloading keeps the decode thread busy in the background: that does not matter here.
+    return !m_image.path.isEmpty() && currentPath() == m_image.path;
 }
 
 bool ViewerWindow::isCommandEnabled(Command command) const
@@ -129,8 +242,12 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     switch (command) {
     case Command::ShowInFolder:
     case Command::CopyPath: return !m_image.path.isEmpty();
-    case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyWatcher.isRunning();
-    case Command::MoveToTrash: return currentFileIsShown(); // also a file that failed to decode
+    case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyBusy;
+    case Command::Rename:
+    case Command::MoveToTrash:
+    case Command::DeletePermanently: return currentFileIsShown(); // also a file that failed to decode
+    case Command::UndoTrash: return !m_trashed.isEmpty();
+    case Command::ClearRecent: return !m_recent.isEmpty();
     case Command::Previous: return hasNeighbour(-1);
     case Command::Next: return hasNeighbour(+1);
     case Command::First:
@@ -156,6 +273,8 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     switch (command) {
     case Command::FullScreen: return visibility() == QWindow::FullScreen;
     case Command::Info: return m_showInfo;
+    case Command::InfoOverlay: return topOverlayMode() != OverlayVisibility::Hidden;
+    case Command::Checkerboard: return m_settings.checkerboard;
     case Command::ToneMap: return m_toneMap;
     case Command::ClipWarning: return m_clipWarning;
     default: *checkable = false; return false;
@@ -167,22 +286,37 @@ void ViewerWindow::execute(Command command)
     const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
     switch (command) {
     case Command::Open: showOpenDialog(); break;
+    case Command::ClearRecent:
+        m_recent.clear();
+        saveRecentFiles(m_recent);
+        break;
     case Command::ShowInFolder: showInFolder(); break;
     case Command::CopyImage: copyImage(); break;
     case Command::CopyPath: copyPath(); break;
+    case Command::Rename: renameFile(); break;
     case Command::MoveToTrash: moveToTrash(); break;
+    case Command::DeletePermanently: deletePermanently(); break;
+    case Command::UndoTrash: undoTrash(); break;
     case Command::Settings: showSettings(); break;
     case Command::Quit: close(); break;
     case Command::Previous: step(-1); break;
     case Command::Next: step(+1); break;
-    case Command::First: startLoading(0); break;
-    case Command::Last: startLoading(int(m_files.size()) - 1); break;
+    case Command::First:
+        m_direction = 1;
+        startLoading(0);
+        break;
+    case Command::Last:
+        m_direction = -1;
+        startLoading(int(m_files.size()) - 1);
+        break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
     case Command::ZoomOut: zoomAt(1.0 / kZoomStep, centre); break;
     case Command::Fit: setFit(); break;
     case Command::ActualSize: setActualSize(); break;
     case Command::FullScreen: toggleFullScreen(); break;
     case Command::Info: toggleInfo(); break;
+    case Command::InfoOverlay: toggleTopOverlay(); break;
+    case Command::Checkerboard: toggleCheckerboard(); break;
     case Command::RotateClockwise: rotate(1); break;
     case Command::RotateCounterclockwise: rotate(-1); break;
     case Command::FlipHorizontal: flipHorizontal(); break;
@@ -199,15 +333,22 @@ void ViewerWindow::execute(Command command)
 
 bool ViewerWindow::executeShortcut(QKeyEvent *e)
 {
-    Qt::KeyboardModifiers modifiers = e->modifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
-    const int key = e->key();
-    // "+" and "-" need Shift on many keyboard layouts: they match with or without it.
-    if (key == Qt::Key_Plus || key == Qt::Key_Minus || key == Qt::Key_Equal)
-        modifiers &= ~Qt::ShiftModifier;
-    const QKeyCombination pressed(modifiers, Qt::Key(key));
+    // Every combination this press stands for on the current keyboard layout, as Qt's own
+    // shortcuts see it (on AZERTY the "1" key types "&" and gives 1 with Shift).
+    QList<QKeyCombination> candidates = QKeyMapper::possibleKeys(e);
+    candidates.prepend(e->keyCombination());
+    QList<QKeyCombination> pressed;
+    for (const QKeyCombination candidate : std::as_const(candidates)) {
+        Qt::KeyboardModifiers modifiers = candidate.keyboardModifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
+        const Qt::Key key = candidate.key();
+        // "+", "-" and the digits need Shift on many layouts: they match with or without it.
+        if (key == Qt::Key_Plus || key == Qt::Key_Minus || key == Qt::Key_Equal || (key >= Qt::Key_0 && key <= Qt::Key_9))
+            modifiers &= ~Qt::ShiftModifier;
+        pressed << QKeyCombination(modifiers, key);
+    }
     for (const CommandInfo &info : commands()) {
         for (const QKeySequence &shortcut : info.shortcuts) {
-            if (shortcut.count() != 1 || shortcut[0] != pressed)
+            if (shortcut.count() != 1 || !pressed.contains(shortcut[0]))
                 continue;
             // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
             if (!e->isAutoRepeat() || info.repeats) {
@@ -243,11 +384,29 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     // at the top level, view, image and colour controls in submenus, application last.
     QMenu menu;
     addCommand(&menu, Command::Open);
+    QMenu *recent = menu.addMenu(tr("Open Recent"));
+    recent->setToolTipsVisible(true);
+    // Not checked for existence here (a network path can take seconds): openFile() reports
+    // a missing file and drops it from the list.
+    for (const QString &file : std::as_const(m_recent)) {
+        QString label = QFileInfo(file).fileName();
+        label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
+        QAction *action = recent->addAction(label);
+        action->setToolTip(QDir::toNativeSeparators(file));
+        connect(action, &QAction::triggered, this, [this, file] { openFile(file); });
+    }
+    if (!recent->isEmpty())
+        recent->addSeparator();
+    addCommand(recent, Command::ClearRecent);
     addCommand(&menu, Command::ShowInFolder);
     menu.addSeparator();
     addCommand(&menu, Command::CopyImage);
     addCommand(&menu, Command::CopyPath);
+    menu.addSeparator();
+    addCommand(&menu, Command::Rename);
     addCommand(&menu, Command::MoveToTrash);
+    addCommand(&menu, Command::DeletePermanently);
+    addCommand(&menu, Command::UndoTrash);
     menu.addSeparator();
 
     QMenu *view = menu.addMenu(tr("View"));
@@ -258,6 +417,8 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     view->addSeparator();
     addCommand(view, Command::FullScreen);
     addCommand(view, Command::Info);
+    addCommand(view, Command::InfoOverlay);
+    addCommand(view, Command::Checkerboard);
 
     QMenu *image = menu.addMenu(tr("Image"));
     addCommand(image, Command::RotateClockwise);
@@ -328,32 +489,45 @@ void ViewerWindow::showInFolder()
     // dbus-send splits arrays at commas, so they are percent-encoded in the URL.
     QString url = QUrl::fromLocalFile(path).toString(QUrl::FullyEncoded);
     url.replace(QLatin1Char(','), QStringLiteral("%2C"));
-    QProcess dbus;
-    dbus.start(QStringLiteral("dbus-send"),
-               {QStringLiteral("--session"), QStringLiteral("--print-reply"),
-                QStringLiteral("--dest=org.freedesktop.FileManager1"), QStringLiteral("--type=method_call"),
-                QStringLiteral("/org/freedesktop/FileManager1"), QStringLiteral("org.freedesktop.FileManager1.ShowItems"),
-                QStringLiteral("array:string:") + url, QStringLiteral("string:")});
-    if (!dbus.waitForFinished(3000) || dbus.exitStatus() != QProcess::NormalExit || dbus.exitCode() != 0)
-        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(path).absolutePath()));
+    // Asynchronous: a file manager that is slow to start must not freeze the viewer.
+    const QUrl folder = QUrl::fromLocalFile(QFileInfo(path).absolutePath());
+    auto *dbus = new QProcess(this);
+    connect(dbus, &QProcess::finished, this, [dbus, folder](int code, QProcess::ExitStatus status) {
+        if (status != QProcess::NormalExit || code != 0)
+            QDesktopServices::openUrl(folder);
+        dbus->deleteLater();
+    });
+    connect(dbus, &QProcess::errorOccurred, this, [dbus, folder](QProcess::ProcessError error) {
+        if (error != QProcess::FailedToStart)
+            return; // the other errors end in finished()
+        QDesktopServices::openUrl(folder);
+        dbus->deleteLater();
+    });
+    dbus->start(QStringLiteral("dbus-send"),
+                {QStringLiteral("--session"), QStringLiteral("--print-reply"), QStringLiteral("--reply-timeout=15000"),
+                 QStringLiteral("--dest=org.freedesktop.FileManager1"), QStringLiteral("--type=method_call"),
+                 QStringLiteral("/org/freedesktop/FileManager1"), QStringLiteral("org.freedesktop.FileManager1.ShowItems"),
+                 QStringLiteral("array:string:") + url, QStringLiteral("string:")});
 #endif
 }
 
 void ViewerWindow::copyImage()
 {
-    if (m_copyWatcher.isRunning() || !currentFileIsShown())
+    if (m_copyBusy || !currentFileIsShown())
         return;
     // The displayed pixels live on the GPU, possibly reduced: decode the file again at full
     // resolution, on the decode thread (after any decode already running).
     m_copyPath = m_image.path;
     showNotice(tr("Copying the image…"));
     const QString path = m_copyPath;
+    m_copyBusy = true;
     m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path] { return decodeForClipboard(path); }));
 }
 
 void ViewerWindow::imageCopied()
 {
     QImage image = m_copyWatcher.future().takeResult();
+    m_copyBusy = false;
     if (image.isNull()) {
         showNotice(tr("Cannot copy the image."));
         return;
@@ -379,9 +553,10 @@ void ViewerWindow::moveToTrash()
     if (!currentFileIsShown())
         return;
     const QString path = m_image.path;
-    const QString name = QFileInfo(path).fileName();
+    const QString name = displayFileName(QFileInfo(path).fileName());
     if (m_settings.confirmTrash) {
         QMessageBox box;
+        box.setTextFormat(Qt::PlainText); // a file name is never markup
         box.setIcon(QMessageBox::Question);
         box.setWindowTitle(QStringLiteral("imageViewer"));
 #if defined(Q_OS_WIN)
@@ -405,7 +580,10 @@ void ViewerWindow::moveToTrash()
             m_settings.save();
         }
     }
-    if (!QFile::moveToTrash(path)) {
+    if (!currentFileIsShown() || m_image.path != path) // the folder changed while the dialog was open
+        return;
+    QString inTrash;
+    if (!QFile::moveToTrash(path, &inTrash)) {
 #if defined(Q_OS_WIN)
         showNotice(tr("Cannot move “%1” to the Recycle Bin.").arg(name));
 #else
@@ -413,25 +591,192 @@ void ViewerWindow::moveToTrash()
 #endif
         return;
     }
+    qCInfo(lcFiles).noquote() << "moved to the trash:" << path << "->" << inTrash;
+    if (!inTrash.isEmpty()) {
+        const QFileInfo moved(inTrash);
+        m_trashed.append({path, inTrash, moved.size(), moved.lastModified()});
+        while (m_trashed.size() > kMaxUndo)
+            m_trashed.removeFirst();
+    }
 #if defined(Q_OS_WIN)
     showNotice(tr("Moved “%1” to the Recycle Bin").arg(name));
 #else
     showNotice(tr("Moved “%1” to the trash").arg(name));
 #endif
-    // The next image takes the deleted one's place; after the last, the previous one.
-    m_files.removeAt(m_index);
-    m_image = Image();
-    m_renderer.clearImage();
-    if (m_files.isEmpty()) {
-        m_index = -1;
-        setTitle(QStringLiteral("imageViewer"));
-        m_message = tr("No images left in this folder.");
-        setHoverZone(Zone::None);
-        updateOverlay();
-        requestUpdate();
+    removeCurrentFromList();
+}
+
+void ViewerWindow::deletePermanently()
+{
+    if (!currentFileIsShown())
+        return;
+    const QString path = m_image.path;
+    const QString name = displayFileName(QFileInfo(path).fileName());
+    // Always asked, whatever the trash setting: this cannot be undone.
+    QMessageBox box;
+    box.setTextFormat(Qt::PlainText); // a file name is never markup
+    box.setIcon(QMessageBox::Warning);
+    box.setWindowTitle(QStringLiteral("imageViewer"));
+    box.setText(tr("Delete “%1” permanently?").arg(name));
+    box.setInformativeText(tr("The file does not go to the trash and cannot be restored."));
+    QPushButton *remove = box.addButton(tr("Delete"), QMessageBox::DestructiveRole);
+    QPushButton *cancel = box.addButton(tr("Cancel"), QMessageBox::RejectRole);
+    box.setDefaultButton(cancel);
+    box.setEscapeButton(cancel);
+    makeTransient(box, this);
+    box.exec();
+    if (box.clickedButton() != remove || !currentFileIsShown() || m_image.path != path)
+        return;
+    if (!QFile::remove(path)) {
+        showNotice(tr("Cannot delete “%1”.").arg(name));
         return;
     }
-    startLoading(std::min(m_index, int(m_files.size()) - 1));
+    showNotice(tr("Deleted “%1”").arg(name));
+    removeCurrentFromList();
+}
+
+void ViewerWindow::undoTrash()
+{
+    if (m_trashed.isEmpty())
+        return;
+    const TrashedFile entry = m_trashed.takeLast();
+    const QString name = displayFileName(QFileInfo(entry.original).fileName());
+    // The trash may have been emptied, and another file trashed later under the same name:
+    // only the file that was moved there goes back.
+    const QFileInfo inTrash(entry.inTrash);
+    if (!inTrash.exists() || inTrash.size() != entry.size || inTrash.lastModified() != entry.modified
+        || !trashRecordNames(entry.inTrash, entry.original)) {
+        showNotice(tr("“%1” is no longer in the trash.").arg(name));
+        return;
+    }
+    if (QFileInfo::exists(entry.original)) {
+        m_trashed.append(entry); // the user may rename or move the other file and try again
+        showNotice(tr("Cannot restore “%1”: a file with that name exists.").arg(name));
+        return;
+    }
+    // Same volume (each volume has its own trash), so this is a rename, not a copy.
+    if (!QFile::rename(entry.inTrash, entry.original)) {
+        showNotice(tr("Cannot restore “%1”.").arg(name));
+        return;
+    }
+    forgetTrashRecord(entry.inTrash);
+    qCInfo(lcFiles).noquote() << "restored from the trash:" << entry.inTrash << "->" << entry.original;
+    showNotice(tr("Restored “%1”").arg(name));
+    openFile(entry.original);
+}
+
+void ViewerWindow::renameFile()
+{
+    if (!currentFileIsShown())
+        return;
+    const QString path = m_image.path;
+    const QFileInfo info(path);
+    const QString directory = info.absolutePath();
+
+    QDialog dialog;
+    dialog.setWindowTitle(tr("Rename"));
+    auto *edit = new QLineEdit(info.fileName());
+    edit->setAccessibleName(tr("New name"));
+    // The name without its extension is selected, ready to be typed over.
+    const qsizetype dot = info.fileName().lastIndexOf(QLatin1Char('.'));
+    edit->setSelection(0, int(dot > 0 ? dot : info.fileName().size()));
+    auto *problem = new QLabel;
+    problem->setForegroundRole(QPalette::PlaceholderText);
+    auto *buttons = new QDialogButtonBox;
+    QPushButton *ok = buttons->addButton(tr("Rename"), QDialogButtonBox::AcceptRole);
+    buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
+    ok->setDefault(true);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    const auto validate = [&] {
+        const QString reason = edit->text() == info.fileName() ? QString() : renameProblem(edit->text(), directory, path);
+        problem->setText(reason);
+        ok->setEnabled(reason.isEmpty());
+    };
+    connect(edit, &QLineEdit::textChanged, &dialog, validate);
+    validate();
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(new QLabel(tr("New name:")));
+    layout->addWidget(edit);
+    layout->addWidget(problem);
+    layout->addWidget(buttons);
+    dialog.resize(std::max(420, dialog.sizeHint().width()), dialog.sizeHint().height());
+    makeTransient(dialog, this);
+    if (dialog.exec() != QDialog::Accepted || !currentFileIsShown() || m_image.path != path
+        || edit->text() == info.fileName())
+        return;
+    const QString name = edit->text();
+    if (!renameProblem(name, directory, path).isEmpty()) // the folder may have changed meanwhile
+        return;
+    const QString target = QDir(directory).absoluteFilePath(name);
+    // Taken before the rename: the cache checks the file under its old name.
+    std::optional<Image> kept = m_cache.find(path, m_shownLimit);
+    bool renamed;
+    if (QFileInfo::exists(target)) {
+        // Only a change of case on a case-insensitive file system gets here: go through a
+        // temporary name, which every file system accepts.
+        const QString temporary = QDir(directory).absoluteFilePath(
+            QStringLiteral(".imageviewer-rename-%1").arg(QUuid::createUuid().toString(QUuid::Id128)));
+        renamed = QFile::rename(path, temporary);
+        if (renamed && !QFile::rename(temporary, target)) {
+            QFile::rename(temporary, path);
+            renamed = false;
+        }
+    } else {
+        renamed = QFile::rename(path, target);
+    }
+    if (!renamed) {
+        showNotice(tr("Cannot rename “%1”.").arg(displayFileName(info.fileName())));
+        return;
+    }
+    // The decoded image stays on screen and in the cache, under its new name.
+    m_cache.remove(path);
+    if (m_textureCapPath == path)
+        m_textureCapPath = target; // it still needs the reduced size it was shown at
+    m_image.path = target;
+    const qsizetype recentIndex = m_recent.indexOf(path);
+    if (recentIndex >= 0) {
+        m_recent[recentIndex] = target;
+        saveRecentFiles(m_recent);
+    }
+    m_files[m_index] = target;
+    const QString shownName = displayFileName(QFileInfo(target).fileName());
+    setTitle(QStringLiteral("%1 — imageViewer").arg(shownName));
+    showNotice(tr("Renamed to “%1”").arg(shownName));
+    relist(); // its place in the sort order may have changed
+    if (kept) {
+        kept->path = target; // renaming keeps the size and the modification time
+        m_cache.insert(*kept, m_shownLimit);
+    }
+    const QStringList watchedFiles = m_folderWatcher.files();
+    if (!watchedFiles.isEmpty())
+        m_folderWatcher.removePaths(watchedFiles);
+    m_folderWatcher.addPath(target);
+}
+
+void ViewerWindow::toggleTopOverlay()
+{
+    // Off, and back on to the mode it had (always, or on hover at the top), separately for a
+    // window and for full screen; the menu shows it checked whenever it is on.
+    const bool fullScreen = visibility() == QWindow::FullScreen;
+    OverlayVisibility &mode = fullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
+    OverlayVisibility &restore = m_overlayRestore[fullScreen ? 1 : 0];
+    if (mode != OverlayVisibility::Hidden) {
+        restore = mode;
+        mode = OverlayVisibility::Hidden;
+    } else {
+        mode = restore;
+    }
+    m_settings.save();
+    updateTopOverlay();
+    requestUpdate();
+}
+
+void ViewerWindow::toggleCheckerboard()
+{
+    m_settings.checkerboard = !m_settings.checkerboard;
+    m_settings.save();
+    requestUpdate();
 }
 
 void ViewerWindow::showSettings()

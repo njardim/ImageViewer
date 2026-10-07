@@ -76,6 +76,41 @@
     </message>
 </context>
 <context>
+    <name>Overlay</name>
+    <message>
+        <source>File name</source>
+        <translation>Nome do ficheiro</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>Dimensões</translation>
+    </message>
+    <message>
+        <source>File size</source>
+        <translation>Tamanho do ficheiro</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Ampliação</translation>
+    </message>
+    <message>
+        <source>Color space</source>
+        <translation>Espaço de cor</translation>
+    </message>
+    <message>
+        <source>Date modified</source>
+        <translation>Data de modificação</translation>
+    </message>
+    <message>
+        <source>Position in the folder</source>
+        <translation>Posição na pasta</translation>
+    </message>
+    <message>
+        <source>Display output</source>
+        <translation>Saída para o ecrã</translation>
+    </message>
+</context>
+<context>
     <name>Renderer</name>
     <message>
         <source>SDR (sRGB)</source>
@@ -137,10 +172,6 @@
         <translation>Os idiomas que não o inglês são traduções automáticas a aguardar revisão por falantes nativos.</translation>
     </message>
     <message>
-        <source>Confirm before deleting an image</source>
-        <translation>Confirmar antes de eliminar uma imagem</translation>
-    </message>
-    <message>
         <source>Reopen the last image at startup</source>
         <translation>Reabrir a última imagem ao iniciar</translation>
     </message>
@@ -181,12 +212,92 @@
         <translation>Memorizar o tamanho e a posição da janela</translation>
     </message>
     <message>
-        <source>Show the information panel</source>
-        <translation>Mostrar o painel de informações</translation>
+        <source>Confirm before moving an image to the trash</source>
+        <translation>Confirmar antes de mover uma imagem para o Lixo ou a Reciclagem</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas</source>
+        <translation>Mostrar um padrão de xadrez atrás das áreas transparentes</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Janela</translation>
+    </message>
+    <message>
+        <source>Show the information panel (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <translation>Mostrar o painel de informações (%1)</translation>
+    </message>
+    <message>
+        <source>Overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Sobreposição no topo (%1)</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>Sempre</translation>
+    </message>
+    <message>
+        <source>When the pointer is at the top</source>
+        <translation>Quando o ponteiro está no topo</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>Nunca</translation>
+    </message>
+    <message>
+        <source>In full screen:</source>
+        <translation>Em ecrã inteiro:</translation>
+    </message>
+    <message>
+        <source>In a window:</source>
+        <translation>Numa janela:</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation>Campos</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Mover para cima</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Mover para baixo</translation>
+    </message>
+    <message>
+        <source>Fields:</source>
+        <translation>Campos:</translation>
+    </message>
+    <message>
+        <source> %</source>
+        <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
+        <translation> %</translation>
+    </message>
+    <message>
+        <source>Background opacity:</source>
+        <translation>Opacidade do fundo:</translation>
+    </message>
+    <message>
+        <source>Text opacity:</source>
+        <translation>Opacidade do texto:</translation>
+    </message>
+    <message>
+        <source>Outline the text</source>
+        <translation>Contornar o texto</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
+        <translation> s</translation>
+    </message>
+    <message>
+        <source>Hide after:</source>
+        <translation>Ocultar após:</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Informações</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -204,6 +315,30 @@
     <message>
         <source>Width of each side:</source>
         <translation>Largura de cada lado:</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nome</translation>
+    </message>
+    <message>
+        <source>Date modified</source>
+        <translation>Data de modificação</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Tamanho</translation>
+    </message>
+    <message>
+        <source>Descending</source>
+        <translation>Decrescente</translation>
+    </message>
+    <message>
+        <source>Sort images by:</source>
+        <translation>Ordenar imagens por:</translation>
+    </message>
+    <message>
+        <source>Load the next and previous images in advance</source>
+        <translation>Carregar antecipadamente a imagem seguinte e a anterior</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -275,6 +410,7 @@
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
+        <extracomment>%1: a size in pixels.</extracomment>
         <translation>A reduzir a imagem para caber na GPU (no máximo %1 px)…</translation>
     </message>
     <message>
@@ -282,8 +418,42 @@
         <translation>A GPU não aceitou a imagem.</translation>
     </message>
     <message>
-        <source>(reduced to %1×%2)</source>
-        <translation>(reduzida para %1×%2)</translation>
+        <source>File</source>
+        <translation>Ficheiro</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Pasta</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Tamanho</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Modificado</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
+        <translation>Posição</translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation>%1 de %2</translation>
+    </message>
+    <message>
+        <source>%1 MP</source>
+        <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
+        <translation>%1 MP</translation>
+    </message>
+    <message>
+        <source>reduced to %1 × %2 for the GPU</source>
+        <translation>reduzida a %1 × %2 para a GPU</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>Dimensões</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -294,20 +464,113 @@
         <translation>alfa</translation>
     </message>
     <message>
-        <source>Peak %1× SDR white (≈%2 nits)</source>
-        <translation>Pico %1× branco SDR (≈%2 nits)</translation>
+        <source>Format</source>
+        <translation>Formato</translation>
     </message>
     <message>
-        <source>decoded in %1 ms</source>
-        <translation>descodificada em %1 ms</translation>
+        <source>Orientation</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
+        <translation>Orientação</translation>
     </message>
     <message>
-        <source>Output: %1</source>
-        <extracomment>%1: the display output, e.g. &quot;HDR10 (PQ) · SDR white 203 nits · peak 1000 nits&quot;.</extracomment>
-        <translation>Saída: %1</translation>
+        <source>EXIF %1, applied</source>
+        <translation>EXIF %1, aplicada</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Cor</translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>Pico</translation>
+    </message>
+    <message>
+        <source>%1× SDR white (≈%2 nits)</source>
+        <translation>%1× o branco SDR (≈%2 nits)</translation>
+    </message>
+    <message>
+        <source>Decoded in</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
+        <translation>Descodificado em</translation>
+    </message>
+    <message>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>Câmara</translation>
+    </message>
+    <message>
+        <source>Lens</source>
+        <translation>Objetiva</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>%1 mm</source>
+        <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
+        <translation>%1 mm</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
+        <translation>Exposição</translation>
+    </message>
+    <message>
+        <source>Taken</source>
+        <extracomment>Label of the date the photograph was taken.</extracomment>
+        <translation>Captada em</translation>
+    </message>
+    <message>
+        <source>%1 %</source>
+        <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
+        <translation>%1 %</translation>
+    </message>
+    <message>
+        <source>rotated %1°</source>
+        <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
+        <translation>rodada %1°</translation>
+    </message>
+    <message>
+        <source>mirrored</source>
+        <translation>espelhada</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Saída</translation>
+    </message>
+    <message>
+        <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>mapeamento de tons BT.2390 de %1 para %2 nits, inalterado até %3 nits</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>recorte acima de %1 nits</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Realces</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits (colors outside the output gamut)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>recorte acima de %1 nits (cores fora da gama de saída)</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits (tone mapping off)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>recorte acima de %1 nits (mapeamento de tons desativado)</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
+        <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>exposição %1 EV</translation>
     </message>
     <message>
@@ -315,29 +578,43 @@
         <translation>píxeis alterados realçados</translation>
     </message>
     <message>
-        <source>(clipped above %1 nits)</source>
-        <translation>(recortado acima de %1 nits)</translation>
-    </message>
-    <message>
         <source>%1-bit</source>
         <extracomment>Bits per channel of the image file, e.g. &quot;16-bit&quot;.</extracomment>
         <translation>%1 bits</translation>
     </message>
     <message>
-        <source>BT.2390 tone mapping: %1 → %2 nits, unchanged up to %3 nits</source>
-        <translation>Mapeamento de tons BT.2390: %1 → %2 nits, inalterado até %3 nits</translation>
+        <source>Enter a name.</source>
+        <translation>Introduza um nome.</translation>
     </message>
     <message>
-        <source>Components above %1 nits clipped (color outside the output gamut)</source>
-        <translation>Componentes acima de %1 nits recortados (cor fora da gama de saída)</translation>
+        <source>This name is not allowed.</source>
+        <translation>Este nome não é permitido.</translation>
     </message>
     <message>
-        <source>Tone mapping off: values above %1 nits clipped</source>
-        <translation>Mapeamento de tons desativado: valores acima de %1 nits recortados</translation>
+        <source>A name cannot contain “/” or “\”.</source>
+        <translation>Um nome não pode conter “/” nem “\”.</translation>
+    </message>
+    <message>
+        <source>The name is too long.</source>
+        <translation>O nome é demasiado longo.</translation>
+    </message>
+    <message>
+        <source>Windows does not allow this name.</source>
+        <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
+        <translation>O Windows não permite este nome.</translation>
+    </message>
+    <message>
+        <source>A file with this name already exists.</source>
+        <translation>Já existe um ficheiro com este nome.</translation>
     </message>
     <message>
         <source>Open…</source>
         <translation>Abrir…</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <extracomment>Empties the Open Recent menu.</extracomment>
+        <translation>Limpar menu</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -352,6 +629,10 @@
         <translation>Mover para a Reciclagem</translation>
     </message>
     <message>
+        <source>Undo Move to Recycle Bin</source>
+        <translation>Anular mover para a Reciclagem</translation>
+    </message>
+    <message>
         <source>Show in Finder</source>
         <translation>Mostrar no Finder</translation>
     </message>
@@ -364,8 +645,20 @@
         <translation>Mover para o Lixo</translation>
     </message>
     <message>
+        <source>Undo Move to Trash</source>
+        <translation>Anular mover para o Lixo</translation>
+    </message>
+    <message>
         <source>Show in File Manager</source>
         <translation>Mostrar no gestor de ficheiros</translation>
+    </message>
+    <message>
+        <source>Rename…</source>
+        <translation>Mudar o nome…</translation>
+    </message>
+    <message>
+        <source>Delete Permanently…</source>
+        <translation>Eliminar permanentemente…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -413,6 +706,7 @@
     </message>
     <message>
         <source>Actual Size (100 %)</source>
+        <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Tamanho real (100 %)</translation>
     </message>
     <message>
@@ -422,6 +716,14 @@
     <message>
         <source>Information Panel</source>
         <translation>Painel de informações</translation>
+    </message>
+    <message>
+        <source>Information Overlay</source>
+        <translation>Sobreposição de informações</translation>
+    </message>
+    <message>
+        <source>Checkerboard Background</source>
+        <translation>Fundo em xadrez</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -441,10 +743,12 @@
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Aumentar exposição (+½ EV)</translation>
     </message>
     <message>
         <source>Decrease Exposure (−½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Diminuir exposição (−½ EV)</translation>
     </message>
     <message>
@@ -466,6 +770,66 @@
     <message>
         <source>About Qt</source>
         <translation>Acerca do Qt</translation>
+    </message>
+    <message>
+        <source>Open Recent</source>
+        <translation>Abrir recentes</translation>
+    </message>
+    <message>
+        <source>Delete “%1” permanently?</source>
+        <translation>Eliminar “%1” permanentemente?</translation>
+    </message>
+    <message>
+        <source>The file does not go to the trash and cannot be restored.</source>
+        <translation>O ficheiro não é movido para o Lixo ou a Reciclagem e não pode ser restaurado.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
+    </message>
+    <message>
+        <source>Cannot delete “%1”.</source>
+        <translation>Não é possível eliminar “%1”.</translation>
+    </message>
+    <message>
+        <source>Deleted “%1”</source>
+        <translation>“%1” eliminado</translation>
+    </message>
+    <message>
+        <source>“%1” is no longer in the trash.</source>
+        <translation>“%1” já não está no Lixo ou na Reciclagem.</translation>
+    </message>
+    <message>
+        <source>Cannot restore “%1”: a file with that name exists.</source>
+        <translation>Não é possível restaurar “%1”: já existe um ficheiro com esse nome.</translation>
+    </message>
+    <message>
+        <source>Cannot restore “%1”.</source>
+        <translation>Não é possível restaurar “%1”.</translation>
+    </message>
+    <message>
+        <source>Restored “%1”</source>
+        <translation>“%1” restaurado</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Mudar o nome</translation>
+    </message>
+    <message>
+        <source>New name</source>
+        <translation>Novo nome</translation>
+    </message>
+    <message>
+        <source>New name:</source>
+        <translation>Novo nome:</translation>
+    </message>
+    <message>
+        <source>Cannot rename “%1”.</source>
+        <translation>Não é possível mudar o nome de “%1”.</translation>
+    </message>
+    <message>
+        <source>Renamed to “%1”</source>
+        <translation>Nome alterado para “%1”</translation>
     </message>
     <message>
         <source>View</source>

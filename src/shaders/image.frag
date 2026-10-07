@@ -14,6 +14,8 @@ layout(std140, binding = 0) uniform Params {
     vec4 tone;   // x: nits per output unit, y: content peak (output units; <= peak: clip, no tone mapping),
                  // z: PQ(content peak in nits), w: PQ(output peak) / PQ(content peak)
     vec4 background; // rgb: what translucent image pixels composite over (linear, output units)
+    vec4 checker;    // xy: checkerboard cells across the texture; z: 1 = on (image layer only)
+    vec4 checkerColour; // rgb: colour of every other cell (linear, output units)
     ivec4 modes; // x: 0 SDR sRGB, 1 linear scRGB/EDR, 2 PQ BT.2020; y: 0 image, 1 overlay; z: clip warning
 };
 
@@ -95,7 +97,15 @@ void main()
 
     if (modes.y == 0) {
         // Composite in linear light, so alpha means the same in every output encoding (F6).
-        rgb = rgb * alpha + background.rgb * (1.0 - alpha);
+        // The checkerboard only chooses what lies underneath; color::applyOutputStage()
+        // composites over the plain background, which is what the harness checks.
+        vec3 under = background.rgb;
+        if (checker.z > 0.5) {
+            vec2 cell = floor(v_texcoord * checker.xy); // float maths: legacy GLSL targets lack integer '&'
+            if (mod(cell.x + cell.y, 2.0) >= 1.0)
+                under = checkerColour.rgb;
+        }
+        rgb = rgb * alpha + under * (1.0 - alpha);
         alpha = 1.0;
     }
 

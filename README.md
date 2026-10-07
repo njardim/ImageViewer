@@ -4,9 +4,9 @@
 
 imageViewer shows images the way they were made. Every image is converted once, from its own color description (ICC profile or CICP code points), into a linear wide-gamut working space at 16-bit floating point. It is then sent to the display through a real HDR output where the system offers one: scRGB on Windows, EDR on macOS, HDR10 where available. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which. Fidelity is tested automatically on every build, not just claimed (see [How fidelity is verified](#how-fidelity-is-verified)).
 
-The interface stays out of the way: the image fills the window, everything else is a right-click or a key away, and it speaks 16 languages.
+The interface stays out of the way: the image fills the window, everything else is a right-click or a key away, and it speaks 37 languages.
 
-> Status: **0.1** — early releases. The color pipeline, HDR output and the essential viewer functions are in place; see the [plan](docs/PLAN.md) for what comes next.
+> Status: **0.2** — early releases. The color pipeline, HDR output and the essential viewer functions are in place; see the [plan](docs/PLAN.md) for what comes next.
 
 ## Download
 
@@ -24,7 +24,7 @@ The packages are **not signed yet**:
 - **Windows:** SmartScreen asks for confirmation. Choose *More info → Run anyway*.
 - **macOS:** Gatekeeper blocks the first launch. Open *System Settings → Privacy & Security* and choose *Open Anyway*.
 
-## Features (0.1)
+## Features (0.2)
 
 - **Color-managed decoding:** ICC v2/v4 profiles, CICP (PQ, HLG, BT.709/BT.2020, linear), EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images. Wide-gamut colors are kept, not clipped to sRGB.
 - **HDR output:** scRGB (Windows), EDR (macOS) and HDR10/PQ, with absolute luminance for PQ content. BT.2390 tone mapping only when an image exceeds the display; exposure control; an option to highlight clipped or tone-mapped pixels.
@@ -32,14 +32,15 @@ The packages are **not signed yet**:
 - **Viewing:**
   - zoom at the cursor, exact 100 % (one image pixel per screen pixel), fit to window, pan;
   - rotate and flip horizontally or vertically;
-  - full screen, and an information panel showing the color chain and the output.
-- **Navigation:** folders in natural order, previous/next by keyboard, mouse side buttons or the clickable sides of the window; first and last image; optional looping.
+  - full screen; an optional checkerboard behind transparent areas.
+- **Information:** one panel (I) with everything about the image: file, dimensions, format, color description, peak, camera data (EXIF), view and output, including whether highlights are tone mapped or clipped. A compact line at the top (Shift+I) shows the file name, dimensions, file size, zoom, color space and date, configurable and shown on hover in full screen; it never moves the image.
+- **Navigation:** folders sorted by name (natural order), date or size, ascending or descending; previous/next by keyboard, mouse side buttons or the clickable sides of the window; first and last image; optional looping. The next and previous images are loaded in advance, so stepping either way is immediate. The folder is watched: files added, removed or changed by other programs show up at once.
 - **File actions:**
   - copy the image (16-bit sRGB bitmap plus the file) or its path;
-  - move to the trash or Recycle Bin, with a confirmation you can turn off;
-  - show the file in Explorer, Finder or your file manager.
-- **Settings:** language, background color, window size and position remembered, side zones, display output (automatic, SDR, HDR10), tone mapping.
-- **16 interface languages:** English, 简体中文, हिन्दी, Español, العربية, Français, বাংলা, Português, Bahasa Indonesia, اردو, Русский, Deutsch, 日本語, मराठी, Tiếng Việt, తెలుగు. All languages except English are machine translations awaiting review by native speakers; [corrections are welcome](CONTRIBUTING.md#translations).
+  - rename; move to the trash or Recycle Bin (with a confirmation you can turn off) and undo it; delete permanently (always asks);
+  - open recent files; show the file in Explorer, Finder or your file manager.
+- **Settings:** language, background color and checkerboard, window size and position remembered, information panel and top overlay, side zones, sorting, preloading, display output (automatic, SDR, HDR10), tone mapping.
+- **37 interface languages:** English, the most spoken languages (简体中文, हिन्दी, Español, العربية, Français, বাংলা, Português, Bahasa Indonesia, اردو, Русский, Deutsch, 日本語, मराठी, Tiếng Việt, తెలుగు), 한국어, Italiano, Türkçe and every official language of the European Union (Български, Hrvatski, Čeština, Dansk, Nederlands, Eesti, Suomi, Ελληνικά, Magyar, Gaeilge, Latviešu, Lietuvių, Malti, Polski, Română, Slovenčina, Slovenščina, Svenska). All languages except English are machine translations awaiting review by native speakers; [corrections are welcome](CONTRIBUTING.md#translations).
 
 ## Using it
 
@@ -54,12 +55,15 @@ The packages are **not signed yet**:
 | F, F11, double-click | Full screen |
 | R / Shift+R | Rotate clockwise / counterclockwise |
 | H / V | Flip horizontally / vertically |
-| I | Information panel |
+| I / Shift+I | Information panel / overlay at the top |
+| B | Checkerboard behind transparent areas |
 | E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
 | T | Tone mapping on/off (off: clip at the display's peak) |
 | C | Highlight altered (clipped or tone-mapped) pixels |
 | Ctrl+C / Ctrl+Shift+C | Copy image / copy file path |
-| Delete | Move to the trash |
+| F2 | Rename |
+| Delete / Ctrl+Z | Move to the trash / undo |
+| Shift+Delete | Delete permanently |
 | Ctrl+, | Settings |
 | Right-click | Menu with every command |
 
@@ -67,13 +71,13 @@ On macOS, Ctrl is ⌘.
 
 ## How fidelity is verified
 
-On every change, CI runs these tests on Windows, macOS and Linux:
+On every change, CI builds and tests on Windows, macOS and Linux (the on-screen and interaction tests need a display server, so they run on Linux, under Xvfb):
 - **Decode and color tests:** a Display P3 red keeps its out-of-sRGB value, an EXR keeps values above SDR white, alpha is handled correctly, and each codec decodes exactly. The same tests run again on the packaged application.
 - **Output tests:** the GPU output is read back for SDR, EDR, scRGB and HDR10, with and without tone mapping, and compared with:
   - a CPU reference implementation;
   - the BT.2390 specification, computed independently: identity below the knee, the peak landing on the display peak, monotonic output, hues preserved.
 - **On-screen test:** an 8-bit image shown at 100 % must be identical to the file, bit for bit.
-- **Interaction test:** a user is simulated clicking the window's sides, flipping and rotating the image (compared pixel for pixel), deleting with confirmation and quitting with the session saved.
+- **Interaction test:** a user is simulated clicking the window's sides, flipping and rotating the image (compared pixel for pixel), moving a file to the trash and back, renaming, deleting permanently, reacting to files changed by another program, showing the top overlay without moving the image by a pixel, and quitting with the session saved.
 
 [`docs/PLAN.md`](docs/PLAN.md) lists the fidelity criteria (§7), the decisions behind them (§2) and the test results (§1).
 

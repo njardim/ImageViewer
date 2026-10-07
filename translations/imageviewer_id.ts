@@ -76,6 +76,41 @@
     </message>
 </context>
 <context>
+    <name>Overlay</name>
+    <message>
+        <source>File name</source>
+        <translation>Nama file</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>Dimensi</translation>
+    </message>
+    <message>
+        <source>File size</source>
+        <translation>Ukuran file</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Zoom</translation>
+    </message>
+    <message>
+        <source>Color space</source>
+        <translation>Ruang warna</translation>
+    </message>
+    <message>
+        <source>Date modified</source>
+        <translation>Tanggal diubah</translation>
+    </message>
+    <message>
+        <source>Position in the folder</source>
+        <translation>Posisi dalam folder</translation>
+    </message>
+    <message>
+        <source>Display output</source>
+        <translation>Keluaran layar</translation>
+    </message>
+</context>
+<context>
     <name>Renderer</name>
     <message>
         <source>SDR (sRGB)</source>
@@ -137,10 +172,6 @@
         <translation>Bahasa selain bahasa Inggris merupakan terjemahan mesin yang menunggu ditinjau oleh penutur asli.</translation>
     </message>
     <message>
-        <source>Confirm before deleting an image</source>
-        <translation>Konfirmasi sebelum menghapus gambar</translation>
-    </message>
-    <message>
         <source>Reopen the last image at startup</source>
         <translation>Buka kembali gambar terakhir saat memulai</translation>
     </message>
@@ -181,12 +212,92 @@
         <translation>Ingat ukuran dan posisi jendela</translation>
     </message>
     <message>
-        <source>Show the information panel</source>
-        <translation>Tampilkan panel informasi</translation>
+        <source>Confirm before moving an image to the trash</source>
+        <translation>Konfirmasi sebelum memindahkan gambar ke Tong Sampah</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas</source>
+        <translation>Tampilkan pola papan catur di belakang area transparan</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Jendela</translation>
+    </message>
+    <message>
+        <source>Show the information panel (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <translation>Tampilkan panel informasi (%1)</translation>
+    </message>
+    <message>
+        <source>Overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Overlay di bagian atas (%1)</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>Selalu</translation>
+    </message>
+    <message>
+        <source>When the pointer is at the top</source>
+        <translation>Saat penunjuk berada di atas</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>Tidak pernah</translation>
+    </message>
+    <message>
+        <source>In full screen:</source>
+        <translation>Dalam layar penuh:</translation>
+    </message>
+    <message>
+        <source>In a window:</source>
+        <translation>Dalam jendela:</translation>
+    </message>
+    <message>
+        <source>Fields</source>
+        <translation>Bidang</translation>
+    </message>
+    <message>
+        <source>Move Up</source>
+        <translation>Pindah ke Atas</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation>Pindah ke Bawah</translation>
+    </message>
+    <message>
+        <source>Fields:</source>
+        <translation>Bidang:</translation>
+    </message>
+    <message>
+        <source> %</source>
+        <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
+        <translation> %</translation>
+    </message>
+    <message>
+        <source>Background opacity:</source>
+        <translation>Opasitas latar belakang:</translation>
+    </message>
+    <message>
+        <source>Text opacity:</source>
+        <translation>Opasitas teks:</translation>
+    </message>
+    <message>
+        <source>Outline the text</source>
+        <translation>Beri garis tepi pada teks</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
+        <translation> detik</translation>
+    </message>
+    <message>
+        <source>Hide after:</source>
+        <translation>Sembunyikan setelah:</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Informasi</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -204,6 +315,30 @@
     <message>
         <source>Width of each side:</source>
         <translation>Lebar setiap sisi:</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nama</translation>
+    </message>
+    <message>
+        <source>Date modified</source>
+        <translation>Tanggal diubah</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Ukuran</translation>
+    </message>
+    <message>
+        <source>Descending</source>
+        <translation>Menurun</translation>
+    </message>
+    <message>
+        <source>Sort images by:</source>
+        <translation>Urutkan gambar menurut:</translation>
+    </message>
+    <message>
+        <source>Load the next and previous images in advance</source>
+        <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -275,6 +410,7 @@
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
+        <extracomment>%1: a size in pixels.</extracomment>
         <translation>Memperkecil gambar agar muat di GPU (maksimal %1 px)…</translation>
     </message>
     <message>
@@ -282,8 +418,42 @@
         <translation>GPU tidak menerima gambar.</translation>
     </message>
     <message>
-        <source>(reduced to %1×%2)</source>
-        <translation>(diperkecil menjadi %1×%2)</translation>
+        <source>File</source>
+        <translation>File</translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation>Folder</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Ukuran</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Diubah</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
+        <translation>Posisi</translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation>%1 dari %2</translation>
+    </message>
+    <message>
+        <source>%1 MP</source>
+        <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
+        <translation>%1 MP</translation>
+    </message>
+    <message>
+        <source>reduced to %1 × %2 for the GPU</source>
+        <translation>diperkecil menjadi %1 × %2 untuk GPU</translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation>Dimensi</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -294,20 +464,113 @@
         <translation>alfa</translation>
     </message>
     <message>
-        <source>Peak %1× SDR white (≈%2 nits)</source>
-        <translation>Puncak %1× putih SDR (≈%2 nits)</translation>
+        <source>Format</source>
+        <translation>Format</translation>
     </message>
     <message>
-        <source>decoded in %1 ms</source>
-        <translation>didekode dalam %1 ms</translation>
+        <source>Orientation</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
+        <translation>Orientasi</translation>
     </message>
     <message>
-        <source>Output: %1</source>
-        <extracomment>%1: the display output, e.g. &quot;HDR10 (PQ) · SDR white 203 nits · peak 1000 nits&quot;.</extracomment>
-        <translation>Keluaran: %1</translation>
+        <source>EXIF %1, applied</source>
+        <translation>EXIF %1, diterapkan</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Warna</translation>
+    </message>
+    <message>
+        <source>Peak</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>Puncak</translation>
+    </message>
+    <message>
+        <source>%1× SDR white (≈%2 nits)</source>
+        <translation>%1× putih SDR (≈%2 nits)</translation>
+    </message>
+    <message>
+        <source>Decoded in</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
+        <translation>Didekode dalam</translation>
+    </message>
+    <message>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>Kamera</translation>
+    </message>
+    <message>
+        <source>Lens</source>
+        <translation>Lensa</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <source>%1 mm</source>
+        <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
+        <translation>%1 mm</translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
+        <translation>Eksposur</translation>
+    </message>
+    <message>
+        <source>Taken</source>
+        <extracomment>Label of the date the photograph was taken.</extracomment>
+        <translation>Diambil</translation>
+    </message>
+    <message>
+        <source>%1 %</source>
+        <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
+        <translation>%1 %</translation>
+    </message>
+    <message>
+        <source>rotated %1°</source>
+        <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
+        <translation>diputar %1°</translation>
+    </message>
+    <message>
+        <source>mirrored</source>
+        <translation>dicerminkan</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation>Keluaran</translation>
+    </message>
+    <message>
+        <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>Pemetaan nada BT.2390 dari %1 ke %2 nits, tidak berubah hingga %3 nits</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>terpotong di atas %1 nits</translation>
+    </message>
+    <message>
+        <source>Highlights</source>
+        <translation>Area terang</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits (colors outside the output gamut)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>terpotong di atas %1 nits (warna di luar gamut keluaran)</translation>
+    </message>
+    <message>
+        <source>clipped above %1 nits (tone mapping off)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
+        <translation>terpotong di atas %1 nits (pemetaan nada nonaktif)</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
+        <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>eksposur %1 EV</translation>
     </message>
     <message>
@@ -315,29 +578,43 @@
         <translation>piksel yang berubah disorot</translation>
     </message>
     <message>
-        <source>(clipped above %1 nits)</source>
-        <translation>(dipangkas di atas %1 nits)</translation>
-    </message>
-    <message>
         <source>%1-bit</source>
         <extracomment>Bits per channel of the image file, e.g. &quot;16-bit&quot;.</extracomment>
         <translation>%1-bit</translation>
     </message>
     <message>
-        <source>BT.2390 tone mapping: %1 → %2 nits, unchanged up to %3 nits</source>
-        <translation>Pemetaan nada BT.2390: %1 → %2 nits, tidak berubah hingga %3 nits</translation>
+        <source>Enter a name.</source>
+        <translation>Masukkan nama.</translation>
     </message>
     <message>
-        <source>Components above %1 nits clipped (color outside the output gamut)</source>
-        <translation>Komponen di atas %1 nits dipangkas (warna di luar gamut keluaran)</translation>
+        <source>This name is not allowed.</source>
+        <translation>Nama ini tidak diizinkan.</translation>
     </message>
     <message>
-        <source>Tone mapping off: values above %1 nits clipped</source>
-        <translation>Pemetaan nada nonaktif: nilai di atas %1 nits dipangkas</translation>
+        <source>A name cannot contain “/” or “\”.</source>
+        <translation>Nama tidak boleh mengandung “/” atau “\”.</translation>
+    </message>
+    <message>
+        <source>The name is too long.</source>
+        <translation>Nama terlalu panjang.</translation>
+    </message>
+    <message>
+        <source>Windows does not allow this name.</source>
+        <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
+        <translation>Windows tidak mengizinkan nama ini.</translation>
+    </message>
+    <message>
+        <source>A file with this name already exists.</source>
+        <translation>File dengan nama ini sudah ada.</translation>
     </message>
     <message>
         <source>Open…</source>
         <translation>Buka…</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <extracomment>Empties the Open Recent menu.</extracomment>
+        <translation>Bersihkan Menu</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -352,6 +629,10 @@
         <translation>Pindahkan ke Recycle Bin</translation>
     </message>
     <message>
+        <source>Undo Move to Recycle Bin</source>
+        <translation>Urungkan Pemindahan ke Recycle Bin</translation>
+    </message>
+    <message>
         <source>Show in Finder</source>
         <translation>Tampilkan di Finder</translation>
     </message>
@@ -364,8 +645,20 @@
         <translation>Pindahkan ke Tong Sampah</translation>
     </message>
     <message>
+        <source>Undo Move to Trash</source>
+        <translation>Urungkan Pemindahan ke Tong Sampah</translation>
+    </message>
+    <message>
         <source>Show in File Manager</source>
         <translation>Tampilkan di Pengelola File</translation>
+    </message>
+    <message>
+        <source>Rename…</source>
+        <translation>Ganti Nama…</translation>
+    </message>
+    <message>
+        <source>Delete Permanently…</source>
+        <translation>Hapus Permanen…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -413,6 +706,7 @@
     </message>
     <message>
         <source>Actual Size (100 %)</source>
+        <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Ukuran Sebenarnya (100 %)</translation>
     </message>
     <message>
@@ -422,6 +716,14 @@
     <message>
         <source>Information Panel</source>
         <translation>Panel Informasi</translation>
+    </message>
+    <message>
+        <source>Information Overlay</source>
+        <translation>Overlay Informasi</translation>
+    </message>
+    <message>
+        <source>Checkerboard Background</source>
+        <translation>Latar Belakang Papan Catur</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -441,10 +743,12 @@
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Tambah Eksposur (+½ EV)</translation>
     </message>
     <message>
         <source>Decrease Exposure (−½ EV)</source>
+        <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Kurangi Eksposur (−½ EV)</translation>
     </message>
     <message>
@@ -466,6 +770,66 @@
     <message>
         <source>About Qt</source>
         <translation>Tentang Qt</translation>
+    </message>
+    <message>
+        <source>Open Recent</source>
+        <translation>Buka Terbaru</translation>
+    </message>
+    <message>
+        <source>Delete “%1” permanently?</source>
+        <translation>Hapus “%1” secara permanen?</translation>
+    </message>
+    <message>
+        <source>The file does not go to the trash and cannot be restored.</source>
+        <translation>File tidak dipindahkan ke Tong Sampah dan tidak dapat dipulihkan.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Hapus</translation>
+    </message>
+    <message>
+        <source>Cannot delete “%1”.</source>
+        <translation>Tidak dapat menghapus “%1”.</translation>
+    </message>
+    <message>
+        <source>Deleted “%1”</source>
+        <translation>“%1” dihapus</translation>
+    </message>
+    <message>
+        <source>“%1” is no longer in the trash.</source>
+        <translation>“%1” tidak lagi ada di Tong Sampah.</translation>
+    </message>
+    <message>
+        <source>Cannot restore “%1”: a file with that name exists.</source>
+        <translation>Tidak dapat memulihkan “%1”: sudah ada file dengan nama tersebut.</translation>
+    </message>
+    <message>
+        <source>Cannot restore “%1”.</source>
+        <translation>Tidak dapat memulihkan “%1”.</translation>
+    </message>
+    <message>
+        <source>Restored “%1”</source>
+        <translation>“%1” dipulihkan</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Ganti Nama</translation>
+    </message>
+    <message>
+        <source>New name</source>
+        <translation>Nama baru</translation>
+    </message>
+    <message>
+        <source>New name:</source>
+        <translation>Nama baru:</translation>
+    </message>
+    <message>
+        <source>Cannot rename “%1”.</source>
+        <translation>Tidak dapat mengganti nama “%1”.</translation>
+    </message>
+    <message>
+        <source>Renamed to “%1”</source>
+        <translation>Nama diganti menjadi “%1”</translation>
     </message>
     <message>
         <source>View</source>

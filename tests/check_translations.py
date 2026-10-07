@@ -16,7 +16,8 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
-PLACEHOLDER = re.compile(r"%(?:L)?\d+|%n")
+# Qt's arg() markers run from %1 to %99: "%100" (Turkish for "100 %") is text, not a placeholder.
+PLACEHOLDER = re.compile(r"%L?[1-9][0-9]?(?![0-9])|%n")
 MARKERS = ("&&", ";;", "(*)")
 TAG = re.compile(r"</?[a-zA-Z][^>]*>")
 

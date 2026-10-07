@@ -1,13 +1,17 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
-// swapchain (decision D-09). Owns navigation, view state, input and overlays.
-// viewer.cpp: display, view state and input; commands.cpp: the command table, menus,
-// file operations and dialogs (decision D-30).
+// swapchain (decision D-09). ViewerWindow is implemented in four files:
+//   viewer.cpp      display, view state and input;
+//   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
+//   overlays.cpp    information panel, top overlay (D-34) and navigation buttons;
+//   commands.cpp    the command table, menus, file operations and dialogs (D-30).
 #pragma once
 
+#include "cache.h"
 #include "image.h"
 #include "renderer.h"
 #include "settings.h"
 
+#include <QFileSystemWatcher>
 #include <QFutureWatcher>
 #include <QImage>
 #include <QKeySequence>
@@ -34,9 +38,10 @@ public:
 
     // Every user command: one table drives the keyboard, the context menu and its submenus.
     enum class Command {
-        Open, ShowInFolder, CopyImage, CopyPath, MoveToTrash, Settings, Quit,
+        Open, ClearRecent, ShowInFolder, CopyImage, CopyPath,
+        Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
-        ZoomIn, ZoomOut, Fit, ActualSize, FullScreen, Info,
+        ZoomIn, ZoomOut, Fit, ActualSize, FullScreen, Info, InfoOverlay, Checkerboard,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         About, AboutQt,
@@ -60,11 +65,8 @@ private:
     // viewer.cpp
     void initializeRenderer();
     void render();
-    void startLoading(int index);
-    void imageDecoded();
-    void step(int delta);
-    bool hasNeighbour(int delta) const; // false at either end when navigation does not loop
     void toggleFullScreen();
+    void leaveFullScreen(); // back to maximized or normal, whichever it was
     void applySettings(const Settings &settings);
     void saveSession() const;
 
@@ -77,12 +79,11 @@ private:
     void setActualSize();
     void setFit();
     void clampPan();
-    void updateOverlay();
-    void updateNavigationButtons();
-    void showNotice(const QString &text); // brief message in the information panel
     Renderer::Frame imageFrame() const; // colour-related fields of the current frame
     int textureLimit(const QString &path) const; // longest side the GPU texture may have
     void recoverFromDeviceLoss();
+    double sideZoneWidth() const;                // logical pixels; 0 without side zones
+    bool inSideStrip(const QPointF &position) const; // over a side zone, even one with nothing to do
     Zone zoneAt(const QPointF &position) const;  // logical pixels
     QRectF zoneButtonRect(Zone zone) const;      // device pixels
     void setHoverZone(Zone zone);
@@ -96,6 +97,35 @@ private:
     void toggleToneMap();
     void toggleClipWarning();
     void toggleInfo();
+
+    // navigation.cpp
+    QString currentPath() const; // the requested entry of m_files, empty when there is none
+    void startLoading(int index);
+    void step(int delta);
+    bool hasNeighbour(int delta) const; // false at either end when navigation does not loop
+    QStringList neighbourhood() const;  // current image, then the neighbours, direction of travel first
+    bool needsDisplay(const QString &path, int limit) const; // not what the window shows now
+    void scheduleWork();                // show from the cache, else decode; then preload
+    void startDecode(const QString &path, int limit, qint64 maxPixels);
+    void decodeFinished();
+    void showImage(Image image, int limit);
+    void reloadCurrent();               // decode the shown file again, keeping the view
+    void setFolder(const QString &folder);
+    void relist();                      // folder sorted per the settings, keeping the current file
+    void refreshFolder();               // after a change on disk
+    void removeCurrentFromList();       // the file is gone: the next one takes its place
+    void addRecentFile(const QString &path);
+
+    // overlays.cpp
+    void updateOverlay();               // information panel (and the top overlay's content)
+    void updateTopOverlay();
+    OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
+    bool topOverlayVisible() const;
+    void setPointerAtTop(bool atTop);
+    double topActivationHeight() const; // logical pixels
+    void placeOverlays(Renderer::Frame *frame) const;
+    void updateNavigationButtons();
+    void showNotice(const QString &text); // brief message in the information panel
 
     // commands.cpp
     struct CommandInfo {
@@ -116,30 +146,59 @@ private:
     void copyImage();
     void imageCopied();
     void copyPath();
+    void renameFile();
     void moveToTrash();
+    void deletePermanently();
+    void undoTrash();
+    void toggleTopOverlay();
+    void toggleCheckerboard();
     void showSettings();
     void showAbout();
-    bool currentFileIsShown() const; // the displayed image is the current entry, nothing loading
+    bool currentFileIsShown() const; // the displayed image is the current entry of the folder
 
     Renderer m_renderer;
     bool m_rendererReady = false;
     bool m_rendererFailed = false;
     Settings m_settings;
     QString m_lastDirectory;
+    QStringList m_recent; // Open Recent, most recent first
 
     QStringList m_files;
     int m_index = -1;
-    int m_pendingIndex = -1; // requested while a decode was running; starts when it ends
+    int m_direction = 1; // of the last step: the neighbour ahead is preloaded first
     QString m_textureCapPath; // the file whose upload the GPU refused...
     int m_textureCap = 0;     // ...and the size that file is decoded at now
     // Decodes run on their own thread: decodeImage() itself fans out on the global pool
     // with blockingMap, which deadlocks if the decode occupies the pool's only thread.
+    // One decode at a time: they cannot be cancelled, and each needs a full image of memory.
     QThreadPool m_decodePool;
     QFutureWatcher<Image> m_watcher;
+    // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
+    // as soon as the worker ends, while the finished signal is still queued, and setting a
+    // new future then would discard the result that was never delivered.
+    bool m_decodeBusy = false;
+    int m_jobLimit = 0;                   // texture limit of the running decode
+    int m_jobGeneration = 0;              // ...and the m_decodeGeneration it started in
+    int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
+    bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher
     QString m_copyPath;
-    Image m_image; // metadata of the displayed image (pixels live on the GPU)
+    ImageCache m_cache;
+    Image m_image; // metadata of the displayed image (pixels live on the GPU and in the cache)
+    int m_shownLimit = 0;     // texture limit m_image was decoded at
+    bool m_imageStale = false; // the shown image must be decoded or uploaded again
+    QString m_folder;
+    QFileSystemWatcher m_folderWatcher; // the folder and the shown file
+    QTimer m_folderTimer;               // changes come in bursts: re-list once they settle
+    struct TrashedFile {
+        QString original;
+        QString inTrash;
+        qint64 size = -1;   // what was moved, so Undo never restores another file that
+        QDateTime modified; // later took the same name in the trash
+    };
+    QList<TrashedFile> m_trashed; // for Undo, most recent last
     QString m_message; // loading status or error; cleared when an image arrives
+    QString m_loadingMessage; // the "Loading…" text in m_message, while it is there
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
 
@@ -154,7 +213,14 @@ private:
     bool m_showInfo = true;
     QSize m_overlaySize; // device pixels; empty when no overlay is shown
     QString m_overlayOutput; // output description the overlay was built with
+    QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
+    QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads
+    bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
+    // What Shift+I turns the overlay back on to, in a window and in full screen.
+    OverlayVisibility m_overlayRestore[2] = {OverlayVisibility::Always, OverlayVisibility::Hover};
+    QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
+    bool m_maximizedBeforeFullScreen = false;
 
     bool m_dragging = false;
     QPointF m_dragOrigin;

@@ -548,7 +548,7 @@ Relative effort in parentheses. Total estimate to v1: 16 to 24 weeks for a senio
 - [x] Minimal decoding (OIIO + Qt fallback) → linear scRGB → texture → shader with output modes
 - [x] Fit, 100 %, zoom at cursor, pan, previous/next, drag and drop, `QFileOpenEvent` *(still to be validated at runtime)*
 - [x] GitHub Actions CI: Windows x64, macOS arm64, Linux x64 → build, tests, `.zip`/`.dmg`/`.tar.gz` packages, package testing on clean machines and automatic release (D-26). Green in run 14 `[test]`. Release `v0.1-alpha` published by the `release` job (run 19) `[test]`. *Installers and AppImage are left for Phase 4.*
-- [ ] Measurement of startup time to the 1st frame and of package size
+- [~] Measurement of package size ✔ (v0.1: Windows 42.5 MB, macOS 37.5 MB, Linux 49.0 MB); startup time to the 1st frame still to measure
 
 **Acceptance:**
 - CI green on all 3 systems.

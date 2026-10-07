@@ -229,7 +229,7 @@ bool isConsoleMode(int argc, char *argv[])
         const QByteArrayView arg(argv[i]);
         if (arg == "--") // everything after it is a file name
             return false;
-        if (arg == "--info" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
+        if (arg == "--info" || arg == "--formats" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
             || arg == "--version")
             return true;
     }
@@ -289,6 +289,9 @@ int main(int argc, char *argv[])
     const QCommandLineOption infoOption(QStringLiteral("info"),
                                         QStringLiteral("Decode the file, print what the colour pipeline sees, exit."));
     parser.addOption(infoOption);
+    const QCommandLineOption formatsOption(QStringLiteral("formats"),
+                                           QStringLiteral("Print the file formats each decoder of this build reads, exit."));
+    parser.addOption(formatsOption);
     const QCommandLineOption renderOption(
         QStringLiteral("render"),
         QStringLiteral("Fidelity harness: render the file offscreen 1:1, compare with the CPU reference, exit."));
@@ -313,6 +316,12 @@ int main(int argc, char *argv[])
     parser.addPositionalArgument(QStringLiteral("file"), QStringLiteral("Image or folder to open."));
     parser.process(*app);
     const QStringList files = parser.positionalArguments();
+    if (parser.isSet(formatsOption)) {
+        QTextStream out(stdout);
+        for (const QString &line : formatReport())
+            out << line << '\n';
+        return 0;
+    }
 
     const bool harness = parser.isSet(renderOption);
     if ((parser.isSet(infoOption) || harness) && files.isEmpty()) {

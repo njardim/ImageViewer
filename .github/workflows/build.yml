@@ -253,6 +253,14 @@ jobs:
           fi
           exit "$status"
 
+      # The application menu's Quit (and Cmd+Q) take AppKit's terminate path, which the Linux
+      # tests cannot reach; macOS showed its crash reporter there in 0.2.
+      - name: Quit test (macOS application menu)
+        if: runner.os == 'macOS'
+        env:
+          QUIT_TEST_DIR: ${{ runner.temp }}/quit-test
+        run: python3 tests/quit_test.py "$EXE"
+
       - name: Upload test evidence (on failure)
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -262,6 +270,7 @@ jobs:
             ${{ runner.temp }}/screen-test
             ${{ runner.temp }}/render-test
             ${{ runner.temp }}/ui-test*
+            ${{ runner.temp }}/quit-test
           if-no-files-found: ignore
 
       - name: Deploy

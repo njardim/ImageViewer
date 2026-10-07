@@ -78,6 +78,14 @@ QImage decodeForClipboard(const QString &path);
 // Lower-case file suffixes (without dot) that the available backends can read.
 const QStringList &supportedSuffixes();
 
+// One line per decoder and format family with the suffixes it claims, for `--formats`.
+QStringList formatReport();
+
+// Stops the decoders' own worker threads. Called once, after the last decode has finished
+// and before the process exits: OpenImageIO requires it, and threads left to the C++
+// runtime's exit-time destructors can abort the process (seen on macOS).
+void shutdownDecoders();
+
 // An exposure time as photographers write it, without the unit: "1/250" below one second
 // (the reciprocal rounded), "2.5" from one second up.
 QString exposureTimeText(float seconds, const QLocale &locale);

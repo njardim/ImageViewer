@@ -9,6 +9,10 @@ exe="$1"
 data="$(cd "$(dirname "$0")/data" && pwd)"
 failures=0
 
+# The formats this build reads, by decoder: a record in every CI log, and a check that the
+# option works on the packaged binary.
+"$exe" --formats | sed 's/^/     /'
+
 check() { # file, extended regex expected in the --info output, description
     local out
     out="$("$exe" --info "$data/$1" 2>/dev/null || true)"

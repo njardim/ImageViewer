@@ -688,6 +688,29 @@ QImage decodeForClipboard(const QString &path)
     return out;
 }
 
+QStringList formatReport()
+{
+    QStringList lines;
+    // "fmt:ext,ext;fmt:ext", one entry per OpenImageIO plugin built into this binary.
+    const QString oiio = QString::fromStdString(OIIO::get_string_attribute("extension_list"));
+    for (const QString &entry : oiio.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
+        const qsizetype colon = entry.indexOf(QLatin1Char(':'));
+        lines << QStringLiteral("OpenImageIO %1: %2").arg(entry.left(colon), entry.mid(colon + 1).replace(QLatin1Char(','), QLatin1Char(' ')));
+    }
+    QStringList qt;
+    for (const QByteArray &format : QImageReader::supportedImageFormats())
+        qt << QString::fromLatin1(format);
+    lines << QStringLiteral("Qt: ") + qt.join(QLatin1Char(' '));
+    return lines;
+}
+
+void shutdownDecoders()
+{
+#if OIIO_VERSION >= OIIO_MAKE_VERSION(3, 0, 0)
+    OIIO::shutdown();
+#endif
+}
+
 const QStringList &supportedSuffixes()
 {
     static const QStringList list = [] {

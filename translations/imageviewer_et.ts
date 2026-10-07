@@ -378,6 +378,10 @@
         <translation>Tühista</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Rakenda</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Taasta vaikeväärtused</translation>
     </message>

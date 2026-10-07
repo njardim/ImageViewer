@@ -378,6 +378,10 @@
         <translation>Prekliči</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Uporabi</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Obnovi privzeto</translation>
     </message>

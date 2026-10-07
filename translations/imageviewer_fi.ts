@@ -378,6 +378,10 @@
         <translation>Peruuta</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Käytä</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Palauta oletukset</translation>
     </message>

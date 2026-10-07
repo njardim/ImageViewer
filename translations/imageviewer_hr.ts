@@ -378,6 +378,10 @@
         <translation>Odustani</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Primijeni</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Vrati zadano</translation>
     </message>

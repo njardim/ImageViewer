@@ -378,6 +378,10 @@
         <translation>रद्द करें</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>लागू करें</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>डिफ़ॉल्ट पुनर्स्थापित करें</translation>
     </message>

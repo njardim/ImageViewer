@@ -378,6 +378,10 @@
         <translation>বাতিল করুন</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>প্রয়োগ করুন</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>ডিফল্ট পুনরুদ্ধার করুন</translation>
     </message>

@@ -378,6 +378,10 @@
         <translation>Anulare</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Aplică</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Restabilire valori implicite</translation>
     </message>

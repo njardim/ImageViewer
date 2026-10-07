@@ -378,6 +378,10 @@
         <translation>Abbrechen</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Übernehmen</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Standardwerte wiederherstellen</translation>
     </message>

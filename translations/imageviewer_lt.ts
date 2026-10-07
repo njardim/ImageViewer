@@ -378,6 +378,10 @@
         <translation>Atšaukti</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Taikyti</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Atkurti numatytuosius</translation>
     </message>

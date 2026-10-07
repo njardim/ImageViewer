@@ -378,6 +378,10 @@
         <translation>Zrušiť</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Použiť</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Obnoviť predvolené</translation>
     </message>

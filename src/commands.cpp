@@ -784,8 +784,9 @@ void ViewerWindow::showSettings()
     m_settings.showInfo = m_showInfo;
     SettingsDialog dialog(m_settings);
     makeTransient(dialog, this);
-    if (dialog.exec() == QDialog::Accepted)
-        applySettings(dialog.settings());
+    // Apply and OK both deliver the values here; Cancel keeps whatever Apply already applied.
+    connect(&dialog, &SettingsDialog::applied, this, &ViewerWindow::applySettings);
+    dialog.exec();
 }
 
 void ViewerWindow::showAbout()

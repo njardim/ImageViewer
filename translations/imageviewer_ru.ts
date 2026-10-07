@@ -378,6 +378,10 @@
         <translation>Отмена</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Восстановить значения по умолчанию</translation>
     </message>

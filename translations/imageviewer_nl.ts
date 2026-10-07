@@ -378,6 +378,10 @@
         <translation>Annuleren</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Toepassen</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Standaardwaarden herstellen</translation>
     </message>

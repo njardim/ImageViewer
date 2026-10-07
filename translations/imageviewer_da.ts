@@ -378,6 +378,10 @@
         <translation>Annuller</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Anvend</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Gendan standarder</translation>
     </message>

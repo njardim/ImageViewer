@@ -378,6 +378,10 @@
         <translation>إلغاء الأمر</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>تطبيق</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>استعادة الإعدادات الافتراضية</translation>
     </message>

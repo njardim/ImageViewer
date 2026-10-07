@@ -378,6 +378,10 @@
         <translation>Avbryt</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Verkställ</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Återställ standardvärden</translation>
     </message>

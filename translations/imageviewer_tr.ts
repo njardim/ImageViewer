@@ -378,6 +378,10 @@
         <translation>İptal</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Uygula</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Varsayılanları geri yükle</translation>
     </message>

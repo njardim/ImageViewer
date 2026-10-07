@@ -378,6 +378,10 @@
         <translation>Batal</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Terapkan</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Pulihkan Bawaan</translation>
     </message>

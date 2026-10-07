@@ -378,6 +378,10 @@
         <translation>Annulla</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Applica</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Ripristina predefiniti</translation>
     </message>

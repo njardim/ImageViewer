@@ -378,6 +378,10 @@
         <translation>Anuluj</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Zastosuj</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Przywróć domyślne</translation>
     </message>

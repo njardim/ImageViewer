@@ -378,6 +378,10 @@
         <translation>キャンセル</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>適用</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>既定値に戻す</translation>
     </message>

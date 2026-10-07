@@ -378,6 +378,10 @@
         <translation>취소</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>기본값 복원</translation>
     </message>

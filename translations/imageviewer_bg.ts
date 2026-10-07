@@ -378,6 +378,10 @@
         <translation>Отказ</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Приложи</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Възстановяване на стандартните</translation>
     </message>

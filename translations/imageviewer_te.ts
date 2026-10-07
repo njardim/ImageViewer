@@ -378,6 +378,10 @@
         <translation>రద్దు చేయి</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>వర్తింపజేయి</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>డిఫాల్ట్‌లను పునరుద్ధరించు</translation>
     </message>

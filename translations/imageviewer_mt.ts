@@ -378,6 +378,10 @@
         <translation>Ikkanċella</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Applika</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Irrestawra l-valuri predefiniti</translation>
     </message>

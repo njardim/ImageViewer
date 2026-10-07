@@ -378,6 +378,10 @@
         <translation>Hủy</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Áp dụng</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Khôi phục mặc định</translation>
     </message>

@@ -378,6 +378,10 @@
         <translation>取消</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>应用</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
     </message>

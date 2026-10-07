@@ -378,6 +378,10 @@
         <translation>Ακύρωση</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Εφαρμογή</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Επαναφορά προεπιλογών</translation>
     </message>

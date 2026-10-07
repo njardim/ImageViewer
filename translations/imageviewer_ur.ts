@@ -378,6 +378,10 @@
         <translation>منسوخ کریں</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>لاگو کریں</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>ڈیفالٹس بحال کریں</translation>
     </message>

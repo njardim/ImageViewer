@@ -378,6 +378,10 @@
         <translation>Atcelt</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Lietot</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Atjaunot noklusējumus</translation>
     </message>

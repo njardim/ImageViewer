@@ -32,7 +32,8 @@
 namespace {
 
 // Bumped when a stored value changes meaning; load() can then migrate older files.
-constexpr int kSettingsVersion = 1;
+// 2 (0.3): the side zones' default width went from 200 to 100 px (D-36).
+constexpr int kSettingsVersion = 2;
 
 const char *outputKey(Renderer::OutputPreference preference)
 {
@@ -242,6 +243,9 @@ Settings Settings::load()
     s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
     s.sideZoneWidth = boundedInt(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
                                  kMinSideZoneWidth, kMaxSideZoneWidth);
+    // Up to 0.2 every save stored the old 200 px default like a choice; it becomes the new one.
+    if (store.value(QStringLiteral("version")).toInt() < 2 && s.sideZoneWidth == 200)
+        s.sideZoneWidth = defaults.sideZoneWidth;
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
     s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
@@ -300,8 +304,7 @@ SessionState SessionState::load()
 
 void SessionState::save() const
 {
-    QSettings store;
-    store.setValue(QStringLiteral("version"), kSettingsVersion);
+    QSettings store; // "version" describes the preferences: only Settings::save() writes it
     if (geometry.isValid())
         store.setValue(QStringLiteral("session/geometry"), geometry);
     store.setValue(QStringLiteral("session/maximized"), maximized);
@@ -404,8 +407,17 @@ QString applyLanguage(const QString &code)
 
 SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
 {
+    buildUi();
+    setValues(settings);
+    m_applied = this->settings(); // as the dialog shows them (normalised), so nothing reads as changed
+    updateApplyButton();
+}
+
+void SettingsDialog::buildUi()
+{
     setWindowTitle(tr("Settings"));
     auto *tabs = new QTabWidget;
+    m_tabs = tabs;
 
     // General
     auto *general = new QWidget;
@@ -568,10 +580,15 @@ SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
     auto *buttons = new QDialogButtonBox;
     QPushButton *ok = buttons->addButton(tr("OK"), QDialogButtonBox::AcceptRole);
     buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
+    m_apply = buttons->addButton(tr("Apply"), QDialogButtonBox::ApplyRole);
     QPushButton *defaults = buttons->addButton(tr("Restore Defaults"), QDialogButtonBox::ResetRole);
     ok->setDefault(true);
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(buttons, &QDialogButtonBox::accepted, this, [this] {
+        apply();
+        accept();
+    });
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject); // keeps what Apply applied
+    connect(m_apply, &QPushButton::clicked, this, &SettingsDialog::apply);
     connect(defaults, &QPushButton::clicked, this, [this] {
         // setValues() only touches what the dialog shows; settings() keeps the rest from m_initial.
         Settings fresh;
@@ -582,7 +599,65 @@ SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
     auto *layout = new QVBoxLayout(this);
     layout->addWidget(tabs);
     layout->addWidget(buttons);
-    setValues(settings);
+
+    // Apply is enabled while the dialog shows anything other than what the viewer uses.
+    // (Every widget is the dialog's descendant only from here on, through the layout.)
+    for (QAbstractButton *button : findChildren<QAbstractButton *>())
+        if (button->isCheckable())
+            connect(button, &QAbstractButton::toggled, this, &SettingsDialog::updateApplyButton);
+    for (QComboBox *combo : findChildren<QComboBox *>())
+        connect(combo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updateApplyButton);
+    for (QSpinBox *spin : findChildren<QSpinBox *>())
+        connect(spin, &QSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
+    connect(m_overlayDelay, &QDoubleSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
+    connect(m_overlayFields, &QListWidget::itemChanged, this, &SettingsDialog::updateApplyButton);
+    // Reordering: by dragging (rows moved) or with Move Up/Down (taken and inserted).
+    QAbstractItemModel *fields = m_overlayFields->model();
+    connect(fields, &QAbstractItemModel::rowsMoved, this, &SettingsDialog::updateApplyButton);
+    connect(fields, &QAbstractItemModel::rowsInserted, this, &SettingsDialog::updateApplyButton);
+}
+
+void SettingsDialog::apply()
+{
+    const Settings values = settings();
+    if (values == m_applied)
+        return;
+    m_applied = values;
+    updateApplyButton();
+    Q_EMIT applied(values);
+}
+
+void SettingsDialog::updateApplyButton()
+{
+    if (m_apply)
+        m_apply->setEnabled(settings() != m_applied);
+}
+
+void SettingsDialog::changeEvent(QEvent *event)
+{
+    // Applying another language retranslates everything else at once; this dialog is rebuilt
+    // after the click that applied it has returned (its button is among what gets replaced).
+    if (event->type() == QEvent::LanguageChange && m_tabs && !m_rebuildQueued) {
+        m_rebuildQueued = true;
+        QMetaObject::invokeMethod(this, &SettingsDialog::rebuildUi, Qt::QueuedConnection);
+    }
+    QDialog::changeEvent(event);
+}
+
+void SettingsDialog::rebuildUi()
+{
+    m_rebuildQueued = false;
+    const Settings shown = settings(); // including changes not applied yet
+    const int tab = m_tabs->currentIndex();
+    m_apply = nullptr; // updateApplyButton() is called while the new widgets are filled
+    delete layout();
+    delete m_backgroundGroup; // owned by the dialog, not by a widget
+    qDeleteAll(findChildren<QWidget *>(Qt::FindDirectChildrenOnly));
+    buildUi();
+    setValues(shown);
+    m_tabs->setCurrentIndex(tab);
+    m_tabs->setFocus(); // the focused widget was replaced: keep the keyboard in the dialog
+    updateApplyButton();
 }
 
 void SettingsDialog::setValues(const Settings &settings)
@@ -639,6 +714,7 @@ void SettingsDialog::setBackground(const QColor &color)
         m_customBackground->setChecked(true);
         m_customBackground->setIcon(swatchIcon(color));
     }
+    updateApplyButton(); // a new custom colour toggles no button
 }
 
 void SettingsDialog::chooseCustomBackground()

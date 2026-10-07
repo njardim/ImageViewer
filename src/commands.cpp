@@ -27,6 +27,8 @@
 #include <QVBoxLayout>
 #include <QtConcurrent/QtConcurrentRun>
 
+#include <algorithm>
+
 Q_LOGGING_CATEGORY(lcFiles, "imageviewer.files", QtWarningMsg)
 
 namespace {

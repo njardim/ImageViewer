@@ -381,8 +381,15 @@ void ViewerWindow::render()
             startLoading(index);
             m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(m_textureCap);
         } else {
-            m_message = tr("The GPU did not accept the image.");
-            m_image = Image();
+            // Keep the path, so this file counts as shown (with its error) and is not
+            // decoded and uploaded again until the user comes back to it.
+            Image refused;
+            refused.path = m_image.path;
+            refused.fileSize = m_image.fileSize;
+            refused.modified = m_image.modified;
+            refused.error = tr("The GPU did not accept the image.");
+            m_message = refused.error;
+            m_image = std::move(refused);
         }
         updateOverlay();
         return;

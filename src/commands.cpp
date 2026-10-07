@@ -530,7 +530,7 @@ void ViewerWindow::moveToTrash()
             m_settings.save();
         }
     }
-    if (m_image.path != path) // the folder changed while the dialog was open
+    if (!currentFileIsShown() || m_image.path != path) // the folder changed while the dialog was open
         return;
     QString inTrash;
     if (!QFile::moveToTrash(path, &inTrash)) {
@@ -573,7 +573,7 @@ void ViewerWindow::deletePermanently()
     box.setEscapeButton(cancel);
     makeTransient(box, this);
     box.exec();
-    if (box.clickedButton() != remove || m_image.path != path)
+    if (box.clickedButton() != remove || !currentFileIsShown() || m_image.path != path)
         return;
     if (!QFile::remove(path)) {
         showNotice(tr("Cannot delete “%1”.").arg(name));
@@ -641,7 +641,8 @@ void ViewerWindow::renameFile()
     layout->addWidget(buttons);
     dialog.resize(std::max(420, dialog.sizeHint().width()), dialog.sizeHint().height());
     makeTransient(dialog, this);
-    if (dialog.exec() != QDialog::Accepted || m_image.path != path || edit->text() == info.fileName())
+    if (dialog.exec() != QDialog::Accepted || !currentFileIsShown() || m_image.path != path
+        || edit->text() == info.fileName())
         return;
     const QString name = edit->text();
     if (!renameProblem(name, directory, path).isEmpty()) // the folder may have changed meanwhile

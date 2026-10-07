@@ -6,7 +6,8 @@ and is quit the way users quit a Mac application: imageViewer > Quit imageViewer
 bar, then Cmd+Q, then a "quit" Apple event, whichever this machine lets a script send. The
 test fails when the process ends with a signal or a non-zero code, or when macOS wrote a
 crash report for it. Two rounds: right after the image appears (a preload is usually still
-decoding) and after the application has gone idle.
+decoding) and after the application has gone idle. A failing round is run again under lldb,
+which prints every thread's backtrace at the crash.
 
 usage: python3 tests/quit_test.py <imageViewer.app/Contents/MacOS/imageViewer>
 env:   QUIT_TEST_DIR  where to keep the images and the logs (default: a temp dir)
@@ -34,7 +35,7 @@ reports = os.path.expanduser("~/Library/Logs/DiagnosticReports")
 
 
 def crash_reports():
-    return set(glob.glob(os.path.join(reports, "imageViewer*")))
+    return set(glob.glob(os.path.join(reports, "imageViewer*"))) | set(glob.glob("/Library/Logs/DiagnosticReports/imageViewer*"))
 
 
 def osascript(script):
@@ -55,14 +56,18 @@ def quit_routes(pid):
     yield "quit Apple event", 'tell application id "com.cristallumnis.imageviewer" to quit'
 
 
-def run_round(label, settle_s):
+def run_round(label, settle_s, debugger=False):
     log_path = os.path.join(work, f"viewer-{label}.log")
     env = dict(os.environ, LANG="en_US.UTF-8",
                QT_LOGGING_RULES="imageviewer.*=true;qt.qpa.application=true",
                QT_MESSAGE_PATTERN="%{time process} %{category}: %{message}")
     before = crash_reports()
+    command = [exe, image]
+    if debugger:
+        # On a crash, lldb's batch mode runs the -k commands: all threads' backtraces.
+        command = ["lldb", "--batch", "-o", "run", "-k", "thread backtrace all", "-k", "quit 1", "--", exe, image]
     with open(log_path, "w") as log:
-        app = subprocess.Popen([exe, image], env=env, stdout=log, stderr=log)
+        app = subprocess.Popen(command, env=env, stdout=log, stderr=log)
         start = time.monotonic()
         shown = False
         while time.monotonic() - start < DEADLINE_S and app.poll() is None:
@@ -71,6 +76,11 @@ def run_round(label, settle_s):
             if "decoded for display" in text or "shown from the cache" in text:
                 shown = True
                 break
+        pid = app.pid
+        if debugger and shown:
+            found = subprocess.run(["pgrep", "-n", "-x", "imageViewer"], capture_output=True, text=True).stdout.split()
+            shown = bool(found)
+            pid = int(found[0]) if found else 0
         if not shown:
             app.kill()
             app.wait()
@@ -78,13 +88,13 @@ def run_round(label, settle_s):
             return f"{label}: the image was not shown within {DEADLINE_S} s (exit code {app.returncode})"
         time.sleep(settle_s)
         used = None
-        for route, script in quit_routes(app.pid):
+        for route, script in quit_routes(pid):
             ok, output = osascript(script)
             print(f"{label}: {route}: {'sent' if ok else 'refused: ' + output}")
             if not ok:
                 continue
             try:
-                app.wait(EXIT_S)
+                app.wait(EXIT_S * (3 if debugger else 1))
                 used = route
                 break
             except subprocess.TimeoutExpired:
@@ -93,14 +103,21 @@ def run_round(label, settle_s):
             app.kill()
             app.wait()
             return None  # nothing could quit it here: reported by the caller as skipped
-    time.sleep(5)  # ReportCrash writes the report a moment after the process ends
-    new_reports = sorted(crash_reports() - before)
-    print(open(log_path, encoding="utf-8", errors="replace").read())
+    # ReportCrash writes the report a moment after the process ends.
+    new_reports = []
+    for _ in range(20):
+        new_reports = sorted(crash_reports() - before)
+        if new_reports or app.returncode == 0:
+            break
+        time.sleep(1)
+    text = open(log_path, encoding="utf-8", errors="replace").read()
+    print(text)
     for path in new_reports:
         print(f"--- {path}")
         with open(path, encoding="utf-8", errors="replace") as report:
-            print("".join(report.readlines()[:200]))
-    if app.returncode != 0 or new_reports:
+            print("".join(report.readlines()[:300]))
+    crashed = app.returncode != 0 or new_reports or (debugger and "stop reason = signal" in text)
+    if crashed:
         return (f"{label}: quit through the {used} ended with code {app.returncode}"
                 f"{' and a crash report' if new_reports else ''}")
     print(f"{label}: quit through the {used}: clean exit")
@@ -115,6 +132,7 @@ for label, settle_s in (("while-preloading", 0.0), ("idle", 3.0)):
         skipped = True
     elif outcome:
         failures.append(outcome)
+        run_round(label + "-lldb", settle_s, debugger=True)  # for the backtraces only
 for failure in failures:
     print(f"FAIL: {failure}")
 if skipped and not failures:

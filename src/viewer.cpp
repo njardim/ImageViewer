@@ -83,6 +83,10 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
 
 ViewerWindow::~ViewerWindow()
 {
+    // QWindow's own destructor still hides a window that was never closed (the macOS
+    // application menu quits that way) and emits visibilityChanged, when this object's
+    // members are already destroyed: none of the handlers below may run from here on.
+    disconnect(this, nullptr, this, nullptr);
     m_watcher.waitForFinished();
     m_copyWatcher.waitForFinished();
 }

@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
+#include <QScopeGuard>
 #include <QTextStream>
 
 #include <algorithm>
@@ -281,6 +282,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    // Runs after the viewer window (declared later, destroyed first) has waited for its last
+    // decode, and before the application object goes.
+    const auto decoders = qScopeGuard(&shutdownDecoders);
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Image viewer with verifiable SDR/HDR colour fidelity."));

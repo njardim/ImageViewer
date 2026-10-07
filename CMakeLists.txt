@@ -24,12 +24,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Qt 6.11: QRhi (HDR swapchains) is reached through Qt6::GuiPrivate; its API is
 # stable enough for us but carries no compatibility promise (pin Qt minor versions).
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
-find_package(Qt6 6.11 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools)
+find_package(Qt6 6.11 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools LinguistTools)
 if(Qt6_VERSION VERSION_GREATER_EQUAL 6.12)
     message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.11 only; "
-                        "moving to a new Qt minor version is a deliberate port (docs/PLANO.md).")
+                        "moving to a new Qt minor version is a deliberate port (docs/PLAN.md).")
 endif()
-qt_standard_project_setup()
+# User-interface languages (decision D-27): English is the source; the others are the most
+# spoken languages with a standard UI locale. Keep in sync with uiLanguages() in src/settings.cpp.
+qt_standard_project_setup(
+    I18N_SOURCE_LANGUAGE en
+    I18N_TRANSLATED_LANGUAGES zh_CN hi es ar fr bn pt id ur ru de ja mr vi te
+)
 
 find_package(OpenImageIO CONFIG REQUIRED)
 
@@ -43,7 +48,8 @@ endif()
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp
+    src/viewer.h src/viewer.cpp src/commands.cpp
+    src/settings.h src/settings.cpp
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
     src/color.h src/color.cpp
@@ -56,6 +62,14 @@ qt_add_shaders(imageviewer "shaders"
     FILES
         src/shaders/image.vert
         src/shaders/image.frag
+)
+
+# translations/imageviewer_<lang>.ts, compiled into the executable under :/i18n.
+# Refresh them after changing UI strings: cmake --build <dir> --target update_translations
+qt_add_translations(imageviewer
+    TS_FILE_BASE imageviewer
+    TS_FILE_DIR translations
+    LUPDATE_OPTIONS -no-obsolete -locations none
 )
 
 target_compile_definitions(imageviewer PRIVATE

@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "imageviewer",
   "version": "0.1.0",
-  "description": "Image viewer with verifiable SDR/HDR colour fidelity. Licence rules: docs/PLANO.md §5.",
+  "description": "Image viewer with verifiable SDR/HDR color fidelity. License rules: docs/PLAN.md §5.",
   "builtin-baseline": "434307da09bc05b2c86996dccc8b2351fc0d5d37",
   "dependencies": [
     {

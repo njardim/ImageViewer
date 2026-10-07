@@ -2,17 +2,19 @@
 
 #include "folder.h"
 
-#include <QApplication>
-#include <QFileDialog>
+#include <QCursor>
 #include <QFileInfo>
 #include <QFontMetricsF>
+#include <QGuiApplication>
 #include <QKeyEvent>
-#include <QMenu>
+#include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPlatformSurfaceEvent>
-#include <QStandardPaths>
+#include <QScreen>
+#include <QStyleHints>
 #include <QtConcurrent/QtConcurrentRun>
 
 #include <algorithm>
@@ -23,17 +25,41 @@ namespace {
 constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
-constexpr double kZoomStep = 1.25;
 constexpr float kMaxExposureEv = 16.0f;
+constexpr double kNavigationButtonSize = 56.0; // logical pixels
+constexpr int kNoticeMs = 3000;
 
 // "100 %" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
 QString zoomLabel(double zoom)
 {
-    return zoom == 1.0 ? QStringLiteral("100") : QString::number(zoom * 100.0, 'f', 1);
+    return zoom == 1.0 ? QLocale().toString(100) : QLocale().toString(zoom * 100.0, 'f', 1);
+}
+
+// The round previous/next button of a side zone, drawn at `pixels` (device) size.
+QImage navigationButton(bool next, int pixels, bool pressed)
+{
+    QImage image(pixels, pixels, QImage::Format_RGBA8888_Premultiplied);
+    image.setDevicePixelRatio(pixels / kNavigationButtonSize);
+    image.fill(Qt::transparent);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(0, 0, 0, pressed ? 180 : 125));
+    const double s = kNavigationButtonSize;
+    painter.drawEllipse(QRectF(0.5, 0.5, s - 1.0, s - 1.0));
+    painter.setPen(QPen(QColor(240, 240, 240), 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    const double c = s / 2.0, half = s * 0.16, depth = s * 0.08;
+    const double dir = next ? 1.0 : -1.0;
+    QPainterPath chevron;
+    chevron.moveTo(c - dir * depth, c - half);
+    chevron.lineTo(c + dir * depth, c);
+    chevron.lineTo(c - dir * depth, c + half);
+    painter.drawPath(chevron);
+    return image;
 }
 } // namespace
 
-ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this)
+ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settings(Settings::load())
 {
 #if defined(Q_OS_WIN)
     Q_UNUSED(vulkan);
@@ -54,40 +80,93 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this)
 #endif
     setTitle(QStringLiteral("imageViewer"));
     setMinimumSize(QSize(320, 240));
+    m_toneMap = m_settings.toneMap;
+    m_showInfo = m_settings.showInfo;
+    m_renderer.setOutputPreference(m_settings.output);
     m_decodePool.setMaxThreadCount(1);
+    m_noticeTimer.setSingleShot(true);
+    m_noticeTimer.setInterval(kNoticeMs);
+    connect(&m_noticeTimer, &QTimer::timeout, this, [this] {
+        m_notice.clear();
+        updateOverlay();
+    });
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::imageDecoded);
+    connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
             m_renderer.refreshOutput();
         updateOverlay();
+        updateNavigationButtons();
     });
+    // The macOS application menu quits without closing the window first.
+    connect(qGuiApp, &QCoreApplication::aboutToQuit, this, &ViewerWindow::saveSession);
 }
 
 ViewerWindow::~ViewerWindow()
 {
     m_watcher.waitForFinished();
+    m_copyWatcher.waitForFinished();
+}
+
+void ViewerWindow::showRestored(const SessionState &session)
+{
+    m_lastDirectory = session.lastDirectory;
+    bool placed = false;
+    if (m_settings.rememberGeometry && session.geometry.isValid()) {
+        // Only where a screen still shows a usable part of it: monitors change between sessions.
+        const QList<QScreen *> screens = QGuiApplication::screens();
+        placed = std::any_of(screens.cbegin(), screens.cend(), [&session](const QScreen *screen) {
+            const QRect visible = screen->availableGeometry().intersected(session.geometry);
+            return visible.width() >= 160 && visible.height() >= 120;
+        });
+    }
+    if (placed)
+        setGeometry(session.geometry);
+    else
+        resize(1280, 800);
+    m_normalGeometry = geometry();
+    if (placed && session.fullScreen)
+        showFullScreen();
+    else if (placed && session.maximized)
+        showMaximized();
+    else
+        show();
+}
+
+void ViewerWindow::saveSession() const
+{
+    SessionState session;
+    session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
+    session.maximized = windowStates().testFlag(Qt::WindowMaximized);
+    session.fullScreen = windowStates().testFlag(Qt::WindowFullScreen);
+    session.lastFile = m_image.path;
+    session.lastDirectory = m_lastDirectory;
+    session.save();
+    m_settings.save(); // includes the information panel toggled with I
 }
 
 void ViewerWindow::openFile(const QString &path)
 {
     const QFileInfo info(path);
     if (!info.exists()) {
-        m_message = tr("Ficheiro não encontrado: %1").arg(path);
+        m_message = tr("File not found: %1").arg(path);
         updateOverlay();
         return;
     }
     if (info.isDir()) {
         QStringList files = listImages(info.absoluteFilePath());
         if (files.isEmpty()) { // keep the current list and image
-            m_message = tr("A pasta não contém imagens suportadas.");
+            m_message = tr("The folder contains no supported images.");
             updateOverlay();
             return;
         }
         m_files = std::move(files);
+        m_lastDirectory = info.absoluteFilePath();
         startLoading(0);
         return;
     }
     m_files = listImages(info.absolutePath());
+    m_lastDirectory = info.absolutePath();
     // Same directory, so the name decides; Windows and macOS file systems ignore case.
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
     constexpr Qt::CaseSensitivity kCase = Qt::CaseInsensitive;
@@ -119,7 +198,7 @@ void ViewerWindow::startLoading(int index)
     if (index < 0 || index >= m_files.size())
         return;
     m_index = index;
-    m_message = tr("A carregar %1…").arg(QFileInfo(m_files.at(index)).fileName());
+    m_message = tr("Loading %1…").arg(QFileInfo(m_files.at(index)).fileName());
     updateOverlay();
     // One decode at a time: decodes cannot be cancelled, and key auto-repeat would otherwise
     // stack several full-resolution decodes in memory. The latest request waits its turn.
@@ -148,7 +227,7 @@ void ViewerWindow::imageDecoded()
     }
     setTitle(QStringLiteral("%1 — imageViewer").arg(QFileInfo(image.path).fileName()));
 
-    // The same file again (smaller texture, device loss) keeps the view; a new file starts fitted.
+    // The same file again (smaller texture, device loss, language) keeps the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
     if (!image.isValid()) {
         m_message = image.error;
@@ -166,8 +245,18 @@ void ViewerWindow::imageDecoded()
             m_mirrored = false;
         }
     }
+    // At either end of a non-looping folder a side button may have nothing left to do.
+    setHoverZone(zoneAt(mapFromGlobal(QCursor::pos(screen()))));
     updateOverlay();
     requestUpdate();
+}
+
+bool ViewerWindow::hasNeighbour(int delta) const
+{
+    if (m_files.size() < 2)
+        return false;
+    const int target = m_index + delta;
+    return m_settings.loop || (target >= 0 && target < m_files.size());
 }
 
 void ViewerWindow::step(int delta)
@@ -175,7 +264,15 @@ void ViewerWindow::step(int delta)
     if (m_files.isEmpty())
         return;
     const int n = int(m_files.size());
-    startLoading(((m_index + delta) % n + n) % n);
+    int target = m_index + delta;
+    if (target < 0 || target >= n) {
+        if (!m_settings.loop) {
+            showNotice(delta > 0 ? tr("This is the last image.") : tr("This is the first image."));
+            return;
+        }
+        target = (target % n + n) % n;
+    }
+    startLoading(target);
 }
 
 bool ViewerWindow::event(QEvent *e)
@@ -188,6 +285,12 @@ bool ViewerWindow::event(QEvent *e)
         if (static_cast<QPlatformSurfaceEvent *>(e)->surfaceEventType()
             == QPlatformSurfaceEvent::SurfaceAboutToBeDestroyed)
             m_renderer.releaseSwapChain();
+        break;
+    case QEvent::Close:
+        saveSession();
+        break;
+    case QEvent::Leave:
+        setHoverZone(Zone::None);
         break;
     case QEvent::WindowActivate:
         // The user may have toggled HDR or changed SDR brightness meanwhile.
@@ -265,9 +368,18 @@ void ViewerWindow::initializeRenderer()
 
 void ViewerWindow::resizeEvent(QResizeEvent *)
 {
+    if (windowStates() == Qt::WindowNoState)
+        m_normalGeometry = geometry();
     clampPan();
     updateOverlay(); // the fit zoom shown in the overlay may have changed
+    updateNavigationButtons();
     requestUpdate();
+}
+
+void ViewerWindow::moveEvent(QMoveEvent *)
+{
+    if (windowStates() == Qt::WindowNoState)
+        m_normalGeometry = geometry();
 }
 
 QSizeF ViewerWindow::deviceSize() const
@@ -363,6 +475,9 @@ Renderer::Frame ViewerWindow::imageFrame() const
     frame.contentPeak = m_image.maxComponent;
     frame.contentLuminancePeak = m_image.maxLuminance;
     frame.absoluteLuminance = m_image.colour.isAbsolute();
+    frame.background[0] = float(m_settings.background.redF());
+    frame.background[1] = float(m_settings.background.greenF());
+    frame.background[2] = float(m_settings.background.blueF());
     return frame;
 }
 
@@ -380,9 +495,17 @@ void ViewerWindow::render()
     }
     if (!m_overlaySize.isEmpty()) {
         const double margin = 12.0 * devicePixelRatio();
-        frame.overlayRect = QRectF(QPointF(margin, deviceSize().height() - margin - m_overlaySize.height()),
-                                   QSizeF(m_overlaySize));
+        const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
+                             ? deviceSize().width() - margin - m_overlaySize.width()
+                             : margin;
+        frame.overlayRects[Renderer::InfoLayer] =
+            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_overlaySize.height())),
+                   QSizeF(m_overlaySize));
     }
+    if (m_hoverZone == Zone::Previous)
+        frame.overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);
+    else if (m_hoverZone == Zone::Next)
+        frame.overlayRects[Renderer::NextButtonLayer] = zoneButtonRect(Zone::Next);
     if (m_renderer.render(frame) == Renderer::RenderResult::DeviceLost) {
         recoverFromDeviceLoss();
         return;
@@ -397,9 +520,9 @@ void ViewerWindow::render()
         const int index = int(m_files.indexOf(m_image.path));
         if (m_textureCap >= 512 && index >= 0) {
             startLoading(index);
-            m_message = tr("A reduzir a imagem para caber na GPU (máximo %1 px)…").arg(m_textureCap);
+            m_message = tr("Reducing the image to fit the GPU (at most %1 px)…").arg(m_textureCap);
         } else {
-            m_message = tr("A GPU não aceitou a imagem.");
+            m_message = tr("The GPU did not accept the image.");
             m_image = Image();
         }
         updateOverlay();
@@ -418,9 +541,19 @@ void ViewerWindow::recoverFromDeviceLoss()
     m_renderer.releaseResources();
     m_rendererReady = false;
     initializeRenderer();
-    if (m_rendererReady && m_index >= 0)
-        startLoading(m_index);
+    if (m_rendererReady) {
+        updateNavigationButtons();
+        if (m_index >= 0)
+            startLoading(m_index);
+    }
     requestUpdate();
+}
+
+void ViewerWindow::showNotice(const QString &text)
+{
+    m_notice = text;
+    m_noticeTimer.start();
+    updateOverlay();
 }
 
 void ViewerWindow::updateOverlay()
@@ -428,38 +561,46 @@ void ViewerWindow::updateOverlay()
     if (!m_rendererReady)
         return;
     m_overlayOutput = m_renderer.output().description;
+    const QLocale locale;
     QStringList lines;
+    if (!m_notice.isEmpty())
+        lines << m_notice;
     if (!m_message.isEmpty())
         lines << m_message;
     if (m_showInfo && m_image.width > 0) {
         QString first = QStringLiteral("%1  ·  %2/%3  ·  %4 %  ·  %5×%6")
-                            .arg(QFileInfo(m_image.path).fileName())
-                            .arg(m_index + 1)
-                            .arg(m_files.size())
-                            .arg(zoomLabel(currentZoom()))
-                            .arg(m_image.sourceWidth)
-                            .arg(m_image.sourceHeight);
+                            .arg(QFileInfo(m_image.path).fileName(), locale.toString(m_index + 1),
+                                 locale.toString(m_files.size()), zoomLabel(currentZoom()),
+                                 locale.toString(m_image.sourceWidth), locale.toString(m_image.sourceHeight));
         if (m_image.width != m_image.sourceWidth)
-            first += tr("  (reduzida a %1×%2)").arg(m_image.width).arg(m_image.height);
+            first += QLatin1Char(' ')
+                     + tr("(reduced to %1×%2)").arg(locale.toString(m_image.width), locale.toString(m_image.height));
         lines << first;
-        lines << QStringLiteral("%1  ·  %2 bits%3%4  ·  %5")
-                     .arg(m_image.codec)
-                     .arg(m_image.sourceBits)
-                     .arg(m_image.sourceFloat ? QStringLiteral(" float") : QString())
-                     .arg(m_image.hasAlpha ? tr(" + alfa") : QString())
-                     .arg(m_image.colour.description);
-        lines << tr("Máximo %1× o branco SDR (≈%2 nits)  ·  descodificação %3 ms")
-                     .arg(double(m_image.maxComponent), 0, 'f', 2)
-                     .arg(double(m_image.maxComponent * color::kSdrReferenceWhiteNits), 0, 'f', 0)
-                     .arg(m_image.decodeMs, 0, 'f', 0);
+        //: Bits per channel of the image file, e.g. "16-bit".
+        QStringList format = {tr("%1-bit").arg(m_image.sourceBits)};
+        if (m_image.sourceFloat)
+            format << tr("floating point");
+        if (m_image.hasAlpha)
+            format << tr("alpha");
+        lines << QStringLiteral("%1  ·  %2  ·  %3").arg(m_image.codec, locale.createSeparatedList(format),
+                                                      m_image.colour.description);
+        lines << tr("Peak %1× SDR white (≈%2 nits)").arg(locale.toString(double(m_image.maxComponent), 'f', 2),
+                                                      locale.toString(double(m_image.maxComponent
+                                                                             * color::kSdrReferenceWhiteNits),
+                                                                      'f', 0))
+                     + QStringLiteral("  ·  ")
+                     + tr("decoded in %1 ms").arg(locale.toString(m_image.decodeMs, 'f', 0));
     }
     if (m_showInfo) {
-        QString output = tr("Saída: %1  ·  %2").arg(m_renderer.output().description, m_renderer.backendName());
+        //: %1: the display output, e.g. "HDR10 (PQ) · SDR white 203 nits · peak 1000 nits".
+        QStringList output = {tr("Output: %1").arg(m_renderer.output().description), m_renderer.backendName()};
         if (m_exposureEv != 0.0f)
-            output += tr("  ·  exposição %1%2 EV").arg(m_exposureEv > 0 ? "+" : "").arg(double(m_exposureEv), 0, 'f', 1);
+            output << tr("exposure %1 EV")
+                          .arg((m_exposureEv > 0 ? QStringLiteral("+") : QString())
+                               + locale.toString(double(m_exposureEv), 'f', 1));
         if (m_clipWarning)
-            output += tr("  ·  aviso de píxeis alterados");
-        lines << output;
+            output << tr("altered pixels highlighted");
+        lines << output.join(QStringLiteral("  ·  "));
         if (m_image.width > 0) {
             // Whether the image is shown as is, tone mapped or clipped (criteria H4, H6).
             const Renderer::Output &out = m_renderer.output();
@@ -467,24 +608,27 @@ void ViewerWindow::updateOverlay()
             const double toNits = out.nitsPerUnit;
             const double peakNits = stage.peak * toNits;
             if (stage.sourcePeak > stage.peak) {
-                QString line = tr("Tone mapping BT.2390: %1 → %2 nits, idêntico até %3 nits")
-                                   .arg(stage.sourcePeak * toNits, 0, 'f', 0)
-                                   .arg(peakNits, 0, 'f', 0)
-                                   .arg(color::eetfKneeNits(float(stage.sourcePeak * toNits), float(peakNits)), 0, 'f', 0);
+                QString line = tr("BT.2390 tone mapping: %1 → %2 nits, unchanged up to %3 nits")
+                                   .arg(locale.toString(stage.sourcePeak * toNits, 'f', 0),
+                                        locale.toString(peakNits, 'f', 0),
+                                        locale.toString(color::eetfKneeNits(float(stage.sourcePeak * toNits),
+                                                                            float(peakNits)),
+                                                        'f', 0));
                 if (m_image.maxComponent * stage.exposure * stage.scale * toNits > color::kPqPeakNits)
-                    line += tr(" (acima de 10 000 nits: cortado)");
+                    line += QLatin1Char(' ')
+                            + tr("(clipped above %1 nits)").arg(locale.toString(double(color::kPqPeakNits), 'f', 0));
                 lines << line;
             } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
-                lines << (m_toneMap ? tr("Componentes acima de %1 nits cortados (cor fora da gama da saída)")
-                                    : tr("Tone mapping desligado: valores acima de %1 nits cortados"))
-                             .arg(peakNits, 0, 'f', 0);
+                lines << (m_toneMap ? tr("Components above %1 nits clipped (color outside the output gamut)")
+                                    : tr("Tone mapping off: values above %1 nits clipped"))
+                             .arg(locale.toString(peakNits, 'f', 0));
             }
         }
     }
 
     if (lines.isEmpty()) {
         m_overlaySize = {};
-        m_renderer.setOverlay(QImage());
+        m_renderer.setOverlay(Renderer::InfoLayer, QImage());
         requestUpdate();
         return;
     }
@@ -496,24 +640,97 @@ void ViewerWindow::updateOverlay()
     qreal width = 0;
     for (const QString &line : std::as_const(lines))
         width = std::max(width, metrics.horizontalAdvance(line));
-    const QSizeF logical(std::ceil(width + 2 * padding), std::ceil(lines.size() * lineHeight + 2 * padding - 2.0));
+    // Never wider than the window (long file names): the panel clips instead.
+    const qreal maxWidth = std::max(80.0, this->width() - 24.0);
+    const QSizeF logical(std::ceil(std::min(width + 2 * padding, maxWidth)),
+                         std::ceil(lines.size() * lineHeight + 2 * padding - 2.0));
 
     QImage overlay((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
     overlay.setDevicePixelRatio(dpr);
     overlay.fill(Qt::transparent);
     QPainter painter(&overlay);
     painter.setRenderHint(QPainter::Antialiasing);
+    painter.setLayoutDirection(QGuiApplication::layoutDirection());
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(0, 0, 0, 150));
     painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), 8, 8);
     painter.setPen(QColor(235, 235, 235));
     painter.setFont(font);
+    // AlignLeft is the start of the line: Qt mirrors it in right-to-left layouts.
     for (int i = 0; i < lines.size(); ++i)
-        painter.drawText(QPointF(padding, padding + metrics.ascent() + i * lineHeight), lines.at(i));
+        painter.drawText(QRectF(padding, padding + i * lineHeight, logical.width() - 2 * padding, lineHeight),
+                         Qt::AlignLeft | Qt::AlignTop, lines.at(i));
     painter.end();
 
     m_overlaySize = overlay.size();
-    m_renderer.setOverlay(overlay);
+    m_renderer.setOverlay(Renderer::InfoLayer, overlay);
+    requestUpdate();
+}
+
+ViewerWindow::Zone ViewerWindow::zoneAt(const QPointF &position) const
+{
+    if (!m_settings.sideZones || m_files.size() < 2 || position.y() < 0 || position.y() >= height())
+        return Zone::None;
+    // Narrow windows keep a middle for panning and double-clicks.
+    const double zone = std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
+    if (position.x() >= 0 && position.x() < zone)
+        return hasNeighbour(-1) ? Zone::Previous : Zone::None;
+    if (position.x() < width() && position.x() >= width() - zone)
+        return hasNeighbour(+1) ? Zone::Next : Zone::None;
+    return Zone::None;
+}
+
+QRectF ViewerWindow::zoneButtonRect(Zone zone) const
+{
+    const double dpr = devicePixelRatio();
+    const double pixels = std::round(kNavigationButtonSize * dpr);
+    const double zoneWidth = std::min<double>(m_settings.sideZoneWidth, width() / 4.0) * dpr;
+    const double centreX = zone == Zone::Previous ? zoneWidth / 2.0 : deviceSize().width() - zoneWidth / 2.0;
+    // Whole device pixels: the button texture is sampled 1:1.
+    return QRectF(QPointF(std::round(centreX - pixels / 2.0), std::round((deviceSize().height() - pixels) / 2.0)),
+                  QSizeF(pixels, pixels));
+}
+
+void ViewerWindow::setHoverZone(Zone zone)
+{
+    if (zone == m_hoverZone)
+        return;
+    m_hoverZone = zone;
+    setCursor(zone == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    updateNavigationButtons();
+}
+
+void ViewerWindow::updateNavigationButtons()
+{
+    if (!m_rendererReady)
+        return;
+    const int pixels = int(std::lround(kNavigationButtonSize * devicePixelRatio()));
+    const bool pressed = m_pressZone != Zone::None && m_pressZone == m_hoverZone && !m_pressMoved;
+    m_renderer.setOverlay(Renderer::PreviousButtonLayer, m_hoverZone == Zone::Previous
+                                                             ? navigationButton(false, pixels, pressed)
+                                                             : QImage());
+    m_renderer.setOverlay(Renderer::NextButtonLayer,
+                          m_hoverZone == Zone::Next ? navigationButton(true, pixels, pressed) : QImage());
+    requestUpdate();
+}
+
+void ViewerWindow::applySettings(const Settings &settings)
+{
+    const Settings previous = m_settings;
+    m_settings = settings;
+    m_settings.save();
+    if (settings.language != previous.language) {
+        applyLanguage(settings.language);
+        // Descriptions are composed while decoding: decode again for the new language.
+        if (currentFileIsShown() && m_image.width > 0)
+            startLoading(m_index);
+    }
+    if (settings.toneMap != previous.toneMap)
+        m_toneMap = settings.toneMap;
+    m_showInfo = settings.showInfo;
+    m_renderer.setOutputPreference(settings.output);
+    setHoverZone(Zone::None);
+    updateOverlay();
     requestUpdate();
 }
 
@@ -524,7 +741,7 @@ void ViewerWindow::rotate(int quarterTurns)
     updateOverlay();
 }
 
-void ViewerWindow::toggleMirror()
+void ViewerWindow::flipHorizontal()
 {
     // The renderer mirrors the source before rotating it; after an odd number of quarter
     // turns that would flip the screen vertically. H . R(t) = R(-t) . H keeps it horizontal.
@@ -532,6 +749,13 @@ void ViewerWindow::toggleMirror()
     if (m_quarterTurns % 2)
         m_quarterTurns = (m_quarterTurns + 2) % 4;
     requestUpdate();
+}
+
+void ViewerWindow::flipVertical()
+{
+    // On screen, V = R(180) . H.
+    flipHorizontal();
+    rotate(2);
 }
 
 void ViewerWindow::adjustExposure(float ev)
@@ -561,74 +785,62 @@ void ViewerWindow::toggleClipWarning()
 void ViewerWindow::toggleInfo()
 {
     m_showInfo = !m_showInfo;
+    m_settings.showInfo = m_showInfo;
     updateOverlay();
 }
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
-    if (e->matches(QKeySequence::Open)) {
-        showOpenDialog();
+    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && visibility() == QWindow::FullScreen) {
+        showNormal();
         return;
     }
-    if (e->matches(QKeySequence::Quit) || (e->key() == Qt::Key_Q && e->modifiers() == Qt::ControlModifier)) {
-        close();
-        return;
-    }
-    const bool shift = e->modifiers() & Qt::ShiftModifier;
-    // Holding a toggle must not flip it back and forth; navigation, zoom and exposure repeat.
-    static const QList<int> toggles = {Qt::Key_F, Qt::Key_F11, Qt::Key_R, Qt::Key_H, Qt::Key_I, Qt::Key_C, Qt::Key_T};
-    if (e->isAutoRepeat() && toggles.contains(e->key()))
-        return;
-    const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
-    switch (e->key()) {
-    case Qt::Key_Right:
-    case Qt::Key_PageDown:
-    case Qt::Key_Space: step(+1); break;
-    case Qt::Key_Left:
-    case Qt::Key_PageUp:
-    case Qt::Key_Backspace: step(-1); break;
-    case Qt::Key_Home: startLoading(0); break;
-    case Qt::Key_End: startLoading(int(m_files.size()) - 1); break;
-    case Qt::Key_0: setFit(); break;
-    case Qt::Key_1: setActualSize(); break;
-    case Qt::Key_Plus:
-    case Qt::Key_Equal: zoomAt(kZoomStep, centre); break;
-    case Qt::Key_Minus: zoomAt(1.0 / kZoomStep, centre); break;
-    case Qt::Key_F:
-    case Qt::Key_F11: toggleFullScreen(); break;
-    case Qt::Key_Escape:
-        if (visibility() == QWindow::FullScreen)
-            showNormal();
-        break;
-    case Qt::Key_R: rotate(shift ? -1 : 1); break;
-    case Qt::Key_H: toggleMirror(); break;
-    case Qt::Key_I: toggleInfo(); break;
-    case Qt::Key_E: adjustExposure(shift ? -0.5f : 0.5f); break;
-    case Qt::Key_C: toggleClipWarning(); break;
-    case Qt::Key_T: toggleToneMap(); break;
-    default:
+    if (!executeShortcut(e))
         QWindow::keyPressEvent(e);
-        return;
-    }
 }
 
 void ViewerWindow::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() == Qt::RightButton) {
+    switch (e->button()) {
+    case Qt::RightButton:
         showContextMenu(e->globalPosition().toPoint());
         return;
+    case Qt::BackButton: // mouse side buttons
+        step(-1);
+        return;
+    case Qt::ForwardButton:
+        step(+1);
+        return;
+    case Qt::LeftButton:
+        break;
+    default:
+        return;
     }
-    if (e->button() == Qt::LeftButton && !m_fit) {
-        m_dragging = true;
-        m_dragOrigin = e->position();
-        m_panOrigin = m_pan;
-    }
+    m_pressZone = zoneAt(e->position());
+    m_pressMoved = false;
+    m_dragOrigin = e->position();
+    m_panOrigin = m_pan;
+    m_dragging = !m_fit;
+    if (m_pressZone != Zone::None)
+        updateNavigationButtons(); // pressed look
 }
 
 void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
 {
-    if (m_dragging && !(e->buttons() & Qt::LeftButton))
-        m_dragging = false; // the release went elsewhere (e.g. to the context menu)
+    if (!(e->buttons() & Qt::LeftButton)) {
+        // No press in progress (or its release went elsewhere, e.g. to the context menu).
+        m_dragging = false;
+        m_pressZone = Zone::None;
+        setHoverZone(zoneAt(e->position()));
+        return;
+    }
+    if (m_pressZone != Zone::None && !m_pressMoved) {
+        // A press on a side zone is a click until it moves beyond the platform's drag distance.
+        if ((e->position() - m_dragOrigin).manhattanLength() < QGuiApplication::styleHints()->startDragDistance())
+            return;
+        m_pressMoved = true;
+        updateNavigationButtons();
+    }
     if (!m_dragging)
         return;
     m_pan = m_panOrigin + (e->position() - m_dragOrigin) * devicePixelRatio();
@@ -638,14 +850,28 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
 
 void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() == Qt::LeftButton)
-        m_dragging = false;
+    if (e->button() != Qt::LeftButton)
+        return;
+    m_dragging = false;
+    const Zone pressed = std::exchange(m_pressZone, Zone::None);
+    const Zone released = zoneAt(e->position());
+    if (pressed != Zone::None && !m_pressMoved && released == pressed)
+        step(pressed == Zone::Next ? +1 : -1);
+    // Refresh unconditionally: the button loses its pressed look even when the zone is unchanged.
+    m_hoverZone = released;
+    setCursor(released == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    updateNavigationButtons();
 }
 
 void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (e->button() == Qt::LeftButton)
-        toggleFullScreen();
+    if (e->button() != Qt::LeftButton)
+        return;
+    if (zoneAt(e->position()) != Zone::None) {
+        mousePressEvent(e); // quick clicks on a side keep navigating
+        return;
+    }
+    toggleFullScreen();
 }
 
 void ViewerWindow::wheelEvent(QWheelEvent *e)
@@ -667,7 +893,7 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     }
     const double steps = e->angleDelta().y() / 120.0;
     if (steps != 0.0)
-        zoomAt(std::pow(kZoomStep, steps), e->position() * devicePixelRatio());
+        zoomAt(std::pow(1.25, steps), e->position() * devicePixelRatio());
 }
 
 void ViewerWindow::toggleFullScreen()
@@ -676,65 +902,4 @@ void ViewerWindow::toggleFullScreen()
         showNormal();
     else
         showFullScreen();
-}
-
-void ViewerWindow::showOpenDialog()
-{
-    QStringList patterns;
-    for (const QString &suffix : supportedSuffixes())
-        patterns << QStringLiteral("*.") + suffix;
-    const QString filter = tr("Imagens (%1);;Todos os ficheiros (*)").arg(patterns.join(QLatin1Char(' ')));
-    const QString start = m_image.path.isEmpty()
-                              ? QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)
-                              : QFileInfo(m_image.path).absolutePath();
-    QFileDialog dialog(nullptr, tr("Abrir imagem"), start, filter);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.winId(); // create the native window so it can be parented to this QWindow
-    if (QWindow *handle = dialog.windowHandle())
-        handle->setTransientParent(this);
-    if (dialog.exec() == QDialog::Accepted && !dialog.selectedFiles().isEmpty())
-        openFile(dialog.selectedFiles().constFirst());
-}
-
-void ViewerWindow::showContextMenu(const QPoint &globalPos)
-{
-    QMenu menu;
-    auto add = [&](const QString &text, const QKeySequence &shortcut, auto slot, bool checked = false,
-                   bool checkable = false) {
-        QAction *action = menu.addAction(text);
-        action->setShortcut(shortcut);
-        action->setCheckable(checkable);
-        action->setChecked(checked);
-        connect(action, &QAction::triggered, this, slot);
-        return action;
-    };
-    const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
-    add(tr("Abrir…"), QKeySequence::Open, [this] { showOpenDialog(); });
-    menu.addSeparator();
-    add(tr("Ajustar à janela"), QKeySequence(Qt::Key_0), [this] { setFit(); });
-    add(tr("Tamanho real (100 %)"), QKeySequence(Qt::Key_1), [this] { setActualSize(); });
-    add(tr("Aproximar"), QKeySequence(Qt::Key_Plus), [this, centre] { zoomAt(kZoomStep, centre); });
-    add(tr("Afastar"), QKeySequence(Qt::Key_Minus), [this, centre] { zoomAt(1.0 / kZoomStep, centre); });
-    menu.addSeparator();
-    add(tr("Rodar para a direita"), QKeySequence(Qt::Key_R), [this] { rotate(1); });
-    add(tr("Rodar para a esquerda"), QKeySequence(Qt::SHIFT | Qt::Key_R), [this] { rotate(-1); });
-    add(tr("Espelhar"), QKeySequence(Qt::Key_H), [this] { toggleMirror(); }, m_mirrored, true);
-    menu.addSeparator();
-    add(tr("Exposição +½ EV"), QKeySequence(Qt::Key_E), [this] { adjustExposure(0.5f); });
-    add(tr("Exposição −½ EV"), QKeySequence(Qt::SHIFT | Qt::Key_E), [this] { adjustExposure(-0.5f); });
-    add(tr("Repor exposição"), QKeySequence(), [this] { resetExposure(); });
-    add(tr("Tone mapping (BT.2390)"), QKeySequence(Qt::Key_T), [this] { toggleToneMap(); }, m_toneMap, true);
-    add(tr("Aviso de píxeis alterados (clip ou tone mapping)"), QKeySequence(Qt::Key_C),
-        [this] { toggleClipWarning(); }, m_clipWarning, true);
-    add(tr("Informação"), QKeySequence(Qt::Key_I), [this] { toggleInfo(); }, m_showInfo, true);
-    add(tr("Ecrã inteiro"), QKeySequence(Qt::Key_F), [this] { toggleFullScreen(); },
-        visibility() == QWindow::FullScreen, true);
-    menu.addSeparator();
-    add(tr("Sair"), QKeySequence::Quit, [this] { close(); });
-
-    menu.winId(); // create the native window so it can be parented (needed on Wayland)
-    if (QWindow *handle = menu.windowHandle())
-        handle->setTransientParent(this);
-    m_dragging = false;
-    menu.exec(globalPos);
 }

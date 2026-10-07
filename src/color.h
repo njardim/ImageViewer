@@ -88,7 +88,7 @@ inline float luminance(float r, float g, float b) { return 0.2126f * r + 0.7152f
 float eetfBt2390(float nits, float sourcePeakNits, float targetPeakNits);
 float eetfKneeNits(float sourcePeakNits, float targetPeakNits);
 
-// Output stage of the pipeline (docs/PLANO.md §6.2): exposure, scale to output
+// Output stage of the pipeline (docs/PLAN.md §6.2): exposure, scale to output
 // units, tone mapping or clip, encoding. src/shaders/image.frag implements the
 // same arithmetic on the GPU; applyOutputStage() is the reference used by the
 // fidelity harness (`--render`).

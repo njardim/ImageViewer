@@ -3,6 +3,7 @@
 #include <OpenImageIO/imageio.h>
 
 #include <QColorSpace>
+#include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QHash>
 #include <QFileInfo>
@@ -89,7 +90,7 @@ bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
     const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
     if (budget <= 0 || needed <= budget)
         return true;
-    *error = QStringLiteral("imagem demasiado grande para a memória (precisa de %1 GB, limite %2 GB)")
+    *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
                  .arg(double(needed) / (1 << 30), 0, 'f', 1)
                  .arg(double(budget) / (1 << 30), 0, 'f', 1);
     return false;
@@ -187,7 +188,7 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
         d->source = Descriptor::Source::Icc;
         d->icc = QByteArray(static_cast<const char *>(p->data()), qsizetype(p->type().size()));
         const QString name = color::iccDescription(d->icc);
-        d->description = QStringLiteral("ICC: %1").arg(name.isEmpty() ? QStringLiteral("(sem descrição)") : name);
+        d->description = QStringLiteral("ICC: %1").arg(name.isEmpty() ? QCoreApplication::translate("Image", "(no description)") : name);
         return;
     }
     if (const OIIO::ParamValue *p = spec.find_attribute("chromaticities");
@@ -198,10 +199,10 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
             d->source = Descriptor::Source::FormatAttributes;
             d->primaries = chroma;
             d->transfer = Transfer::Linear;
-            d->description = QStringLiteral("linear, cromaticidades do ficheiro");
+            d->description = QCoreApplication::translate("Image", "linear, chromaticities from the file");
             return;
         }
-        d->description = QStringLiteral("linear BT.709 (assumido: cromaticidades do ficheiro inválidas)");
+        d->description = QCoreApplication::translate("Image", "linear BT.709 (assumed: the file's chromaticities are invalid)");
         d->source = Descriptor::Source::Assumed;
         d->primaries = color::kBt709;
         d->transfer = Transfer::Linear;
@@ -215,13 +216,13 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
         // OIIO also fills this in when the file carries no colour tag at all, so it
         // is reported as the decoder's interpretation, not as file metadata (F12).
         d->source = Descriptor::Source::FormatAttributes;
-        d->description = QStringLiteral("%1 (atribuído pelo descodificador)").arg(cs);
+        d->description = QCoreApplication::translate("Image", "%1 (assigned by the decoder)").arg(cs);
         return;
     }
     d->source = Descriptor::Source::Assumed;
     d->primaries = color::kBt709;
     d->transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-    d->description = isFloat ? QStringLiteral("linear BT.709 (assumido)") : QStringLiteral("sRGB (assumido)");
+    d->description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
 }
 
 bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
@@ -240,7 +241,7 @@ bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
     const OIIO::ImageSpec &spec = in->spec();
     const int w = spec.width, h = spec.height, nch = spec.nchannels;
     if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels) {
-        *error = QStringLiteral("dimensões inválidas (%1×%2×%3)").arg(w).arg(h).arg(nch);
+        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(nch);
         return false;
     }
 
@@ -310,7 +311,7 @@ bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
     default: return false;
     }
     d->source = Descriptor::Source::FormatAttributes;
-    d->description = QStringLiteral("%1 (metadados do ficheiro, via Qt)").arg(cs.description());
+    d->description = QCoreApplication::translate("Image", "%1 (file metadata, via Qt)").arg(cs.description());
     return true;
 }
 
@@ -321,7 +322,7 @@ bool decodeWithQt(const QString &path, Decoded *out, QString *error)
     // (console modes such as --info run on a QCoreApplication).
     if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())
         && (reader.format() == "svg" || reader.format() == "svgz")) {
-        *error = QStringLiteral("SVG só é descodificado com a interface gráfica");
+        *error = QCoreApplication::translate("Image", "SVG is only decoded in the graphical interface");
         return false;
     }
     reader.setAutoTransform(true); // orientation is applied by Qt
@@ -354,7 +355,7 @@ bool decodeWithQt(const QString &path, Decoded *out, QString *error)
         out->colour.description = QStringLiteral("ICC: %1").arg(cs.description());
     } else if (!(cs.isValid() && describeQtColorSpace(cs, &out->colour))) {
         out->colour.transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-        out->colour.description = isFloat ? QStringLiteral("linear BT.709 (assumido)") : QStringLiteral("sRGB (assumido)");
+        out->colour.description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
     }
     image.setColorSpace(QColorSpace()); // keep the encoded values untouched
     image.convertTo(isFloat ? QImage::Format_RGBA32FPx4 : deep ? QImage::Format_RGBA64 : QImage::Format_RGBA8888);
@@ -502,7 +503,7 @@ Image decode(const QString &path, int maxTextureSize)
     if (!decodeWithOiio(path, &dec, &oiioError)) {
         dec = Decoded(); // nothing from the failed attempt may leak into the fallback
         if (!decodeWithQt(path, &dec, &qtError)) {
-            result.error = QStringLiteral("Não foi possível descodificar: %1").arg(oiioError.isEmpty() ? qtError : oiioError);
+            result.error = QCoreApplication::translate("Image", "Cannot decode: %1").arg(oiioError.isEmpty() ? qtError : oiioError);
             return result;
         }
     }
@@ -516,7 +517,7 @@ Image decode(const QString &path, int maxTextureSize)
         const QString reason = converter->error();
         dec.colour = Descriptor();
         dec.colour.transfer = dec.isInteger() ? Transfer::Srgb : Transfer::Linear;
-        dec.colour.description = QStringLiteral("%1 (assumido: %2)")
+        dec.colour.description = QCoreApplication::translate("Image", "%1 (assumed: %2)")
                                      .arg(dec.isInteger() ? QStringLiteral("sRGB") : QStringLiteral("linear BT.709"),
                                           reason);
         converter = std::make_unique<color::Converter>(dec.colour, integerBits);
@@ -598,14 +599,42 @@ Image decodeImage(const QString &path, int maxTextureSize)
     } catch (const std::bad_alloc &) {
         Image failed;
         failed.path = path;
-        failed.error = QStringLiteral("Memória insuficiente para descodificar a imagem.");
+        failed.error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
         return failed;
     } catch (const std::exception &e) {
         Image failed;
         failed.path = path;
-        failed.error = QStringLiteral("Erro ao descodificar: %1").arg(QString::fromLocal8Bit(e.what()));
+        failed.error = QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
         return failed;
     }
+}
+
+QImage decodeForClipboard(const QString &path)
+{
+    Image image = decodeImage(path, 0);
+    if (!image.isValid())
+        return {};
+    QImage out(image.width, image.height, QImage::Format_RGBA64);
+    if (out.isNull())
+        return {};
+    const std::size_t width = std::size_t(image.width);
+    forEachRange(std::size_t(image.height), 64, [&](Range &rows) {
+        for (std::size_t y = rows.begin; y < rows.end; ++y) {
+            const qfloat16 *src = image.pixels.data() + y * width * 4;
+            auto *dst = reinterpret_cast<QRgba64 *>(out.scanLine(int(y)));
+            for (std::size_t x = 0; x < width; ++x, src += 4) {
+                const float alpha = std::clamp(float(src[3]), 0.0f, 1.0f);
+                quint16 v[3];
+                for (int c = 0; c < 3; ++c) {
+                    const float straight = alpha > 0.0f ? float(src[c]) / alpha : 0.0f;
+                    v[c] = quint16(std::lround(color::linearToSrgb(std::clamp(straight, 0.0f, 1.0f)) * 65535.0f));
+                }
+                dst[x] = QRgba64::fromRgba64(v[0], v[1], v[2], quint16(std::lround(alpha * 65535.0f)));
+            }
+        }
+    });
+    out.setColorSpace(QColorSpace::SRgb);
+    return out;
 }
 
 const QStringList &supportedSuffixes()

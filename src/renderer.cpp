@@ -2,6 +2,7 @@
 
 #include <rhi/qrhi.h>
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QLoggingCategory>
 #include <QMatrix4x4>
@@ -78,7 +79,7 @@ void setStage(Uniforms *u, const color::OutputStage &s)
 Renderer::Output Renderer::sdrOutput()
 {
     Output out;
-    out.description = QStringLiteral("SDR (sRGB)");
+    out.description = QCoreApplication::translate("Renderer", "SDR (sRGB)");
     return out;
 }
 
@@ -87,8 +88,9 @@ Renderer::Output Renderer::edrOutput(float headroom)
     Output out;
     out.mode = OutputMode::ScRgb;
     out.peak = std::max(1.0f, headroom);
-    out.description = out.peak > 1.0f ? QStringLiteral("EDR · headroom %1×").arg(double(out.peak), 0, 'f', 2)
-                                      : QStringLiteral("sRGB linear gerido pelo ColorSync · sem headroom HDR");
+    out.description = out.peak > 1.0f
+                          ? QCoreApplication::translate("Renderer", "EDR · headroom %1×").arg(double(out.peak), 0, 'f', 2)
+                          : QCoreApplication::translate("Renderer", "Linear sRGB managed by ColorSync · no HDR headroom");
     return out;
 }
 
@@ -100,7 +102,9 @@ Renderer::Output Renderer::scRgbOutput(float whiteNits, float peakNits)
     out.absoluteScale = color::kSdrReferenceWhiteNits / kScRgbUnitNits;
     out.peak = std::max(out.scale, peakNits / kScRgbUnitNits);
     out.nitsPerUnit = kScRgbUnitNits;
-    out.description = QStringLiteral("scRGB · branco SDR %1 nits · pico %2 nits").arg(whiteNits).arg(peakNits);
+    out.description = QCoreApplication::translate("Renderer", "scRGB · SDR white %1 nits · peak %2 nits")
+                          .arg(whiteNits)
+                          .arg(peakNits);
     return out;
 }
 
@@ -112,7 +116,9 @@ Renderer::Output Renderer::pqOutput(float whiteNits, float peakNits)
     out.absoluteScale = color::kSdrReferenceWhiteNits;
     out.peak = std::max(whiteNits, peakNits);
     out.nitsPerUnit = 1.0f;
-    out.description = QStringLiteral("HDR10 (PQ) · branco SDR %1 nits · pico %2 nits").arg(whiteNits).arg(peakNits);
+    out.description = QCoreApplication::translate("Renderer", "HDR10 (PQ) · SDR white %1 nits · peak %2 nits")
+                          .arg(whiteNits)
+                          .arg(peakNits);
     return out;
 }
 
@@ -154,10 +160,14 @@ void Renderer::releaseResources()
     };
     drop(m_imageBindingsLinear);
     drop(m_imageBindingsNearest);
-    drop(m_overlayBindings);
     drop(m_imageTexture);
     drop(m_placeholderTexture);
-    drop(m_overlayTexture);
+    for (OverlaySlot &slot : m_overlays) {
+        drop(slot.bindings);
+        drop(slot.texture);
+        slot.pending = QImage();
+        slot.isPending = slot.present = false;
+    }
     drop(m_linearSampler);
     drop(m_nearestSampler);
     drop(m_overlaySampler);
@@ -167,9 +177,7 @@ void Renderer::releaseResources()
     drop(m_rhi);
     m_fallbackSurface.reset();
     m_pendingPixels = {};
-    m_pendingOverlay = QImage();
     m_imagePending = m_uploadInFlight = m_hasImage = false;
-    m_overlayPending = m_hasOverlay = false;
     m_outputDirty = true;
 }
 
@@ -232,16 +240,16 @@ bool Renderer::createRhi()
 bool Renderer::initialize(QString *error)
 {
     if (!createRhi()) {
-        *error = QStringLiteral("Não foi possível inicializar a GPU (QRhi).");
+        *error = QCoreApplication::translate("Renderer", "Cannot initialize the GPU (QRhi).");
         return false;
     }
     if (!m_rhi->isTextureFormatSupported(QRhiTexture::RGBA16F)) {
-        *error = QStringLiteral("A GPU não suporta texturas RGBA16F.");
+        *error = QCoreApplication::translate("Renderer", "The GPU does not support RGBA16F textures.");
         return false;
     }
     qCInfo(lcRender) << "backend" << m_rhi->backendName() << m_rhi->driverInfo();
 
-    m_vertices = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, 2 * kQuadBytes);
+    m_vertices = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, (1 + OverlayLayerCount) * kQuadBytes);
     m_imageUniforms = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(Uniforms));
     m_overlayUniforms = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(Uniforms));
     m_linearSampler = m_rhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::Linear,
@@ -253,13 +261,12 @@ bool Renderer::initialize(QString *error)
     const bool created = m_vertices->create() && m_imageUniforms->create() && m_overlayUniforms->create()
                          && m_linearSampler->create() && m_nearestSampler->create() && m_overlaySampler->create();
     if (!created) {
-        *error = QStringLiteral("Falha ao criar recursos da GPU.");
+        *error = QCoreApplication::translate("Renderer", "Cannot create GPU resources.");
         return false;
     }
 
     QRhiResourceUpdateBatch *updates = m_rhi->nextResourceUpdateBatch();
     m_placeholderTexture = createPlaceholder(m_rhi, QRhiTexture::RGBA16F, updates);
-    m_overlayTexture = createPlaceholder(m_rhi, QRhiTexture::RGBA8, updates);
     const auto stages = QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage;
     auto makeBindings = [&](QRhiBuffer *ubuf, QRhiTexture *texture, QRhiSampler *sampler) {
         QRhiShaderResourceBindings *srb = m_rhi->newShaderResourceBindings();
@@ -271,11 +278,14 @@ bool Renderer::initialize(QString *error)
     };
     m_imageBindingsLinear = makeBindings(m_imageUniforms, m_placeholderTexture, m_linearSampler);
     m_imageBindingsNearest = makeBindings(m_imageUniforms, m_placeholderTexture, m_nearestSampler);
-    m_overlayBindings = makeBindings(m_overlayUniforms, m_overlayTexture, m_overlaySampler);
+    for (OverlaySlot &slot : m_overlays) {
+        slot.texture = createPlaceholder(m_rhi, QRhiTexture::RGBA8, updates);
+        slot.bindings = makeBindings(m_overlayUniforms, slot.texture, m_overlaySampler);
+    }
     m_initialUpdates = updates; // placeholder uploads ride along with the first frame
 
     if (m_window && !createSwapChainResources()) {
-        *error = QStringLiteral("Falha ao criar a swapchain.");
+        *error = QCoreApplication::translate("Renderer", "Cannot create the swapchain.");
         return false;
     }
     return true;
@@ -297,14 +307,16 @@ int Renderer::maxTextureSize() const
 }
 
 // Prefers linear extended sRGB (scRGB / EDR) whenever the screen can show HDR:
-// it matches the working space directly. IMAGEVIEWER_OUTPUT=sdr|hdr10 overrides.
+// it matches the working space directly. The user's preference (Settings) and,
+// above it, IMAGEVIEWER_OUTPUT=sdr|hdr10 (tests, diagnosis) override.
 int Renderer::chooseFormat() const
 {
     const QByteArray forced = qgetenv("IMAGEVIEWER_OUTPUT").toLower();
     auto supported = [this](QRhiSwapChain::Format f) { return m_swapChain->isFormatSupported(f); };
-    if (forced == "sdr")
+    if (forced == "sdr" || (forced.isEmpty() && m_outputPreference == OutputPreference::Sdr))
         return QRhiSwapChain::SDR;
-    if (forced == "hdr10" && supported(QRhiSwapChain::HDR10))
+    if ((forced == "hdr10" || (forced.isEmpty() && m_outputPreference == OutputPreference::Hdr10))
+        && supported(QRhiSwapChain::HDR10))
         return QRhiSwapChain::HDR10;
     // macOS: an SDR layer carries the display's colour space, so sRGB values would reach
     // wide-gamut screens unconverted. The extended linear sRGB tag works on every screen
@@ -452,7 +464,7 @@ void Renderer::updateOutput()
         break;
     }
     if (out.mode != OutputMode::Sdr && !outputIsMeasured())
-        out.description += QStringLiteral(" (valores por omissão do Qt, não medidos)");
+        out.description += QLatin1Char(' ') + QCoreApplication::translate("Renderer", "(Qt defaults, not measured)");
     if (out.description != m_output.description)
         qCInfo(lcRender) << "output" << out.description << info;
     m_output = out;
@@ -478,10 +490,20 @@ void Renderer::clearImage()
     }
 }
 
-void Renderer::setOverlay(const QImage &overlay)
+void Renderer::setOverlay(int layer, const QImage &overlay)
 {
-    m_pendingOverlay = overlay;
-    m_overlayPending = true;
+    if (layer < 0 || layer >= OverlayLayerCount)
+        return;
+    m_overlays[layer].pending = overlay;
+    m_overlays[layer].isPending = true;
+}
+
+void Renderer::setOutputPreference(OutputPreference preference)
+{
+    if (preference == m_outputPreference)
+        return;
+    m_outputPreference = preference;
+    refreshOutput();
 }
 
 QRhiResourceUpdateBatch *Renderer::takeUpdates()
@@ -528,25 +550,27 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         }
     }
 
-    if (m_overlayPending) {
-        m_overlayPending = false;
-        m_hasOverlay = !m_pendingOverlay.isNull();
-        if (m_hasOverlay) {
-            if (m_overlayTexture->pixelSize() != m_pendingOverlay.size()) {
-                m_overlayTexture->deleteLater();
-                m_overlayTexture = m_rhi->newTexture(QRhiTexture::RGBA8, m_pendingOverlay.size());
-                m_overlayTexture->create();
-                m_overlayBindings->setBindings(
+    for (OverlaySlot &slot : m_overlays) {
+        if (!slot.isPending)
+            continue;
+        slot.isPending = false;
+        slot.present = !slot.pending.isNull();
+        if (slot.present) {
+            if (slot.texture->pixelSize() != slot.pending.size()) {
+                slot.texture->deleteLater();
+                slot.texture = m_rhi->newTexture(QRhiTexture::RGBA8, slot.pending.size());
+                slot.texture->create();
+                slot.bindings->setBindings(
                     {QRhiShaderResourceBinding::uniformBuffer(
                          0, QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage,
                          m_overlayUniforms),
                      QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage,
-                                                               m_overlayTexture, m_overlaySampler)});
-                m_overlayBindings->create();
+                                                               slot.texture, m_overlaySampler)});
+                slot.bindings->create();
             }
-            updates->uploadTexture(m_overlayTexture, m_pendingOverlay);
+            updates->uploadTexture(slot.texture, slot.pending);
         }
-        m_pendingOverlay = QImage();
+        slot.pending = QImage();
     }
     return updates;
 }
@@ -625,17 +649,19 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
         dst[2] = uvs[src][0];
         dst[3] = uvs[src][1];
     };
-    float vertices[8][4];
+    float vertices[4 * (1 + OverlayLayerCount)][4];
     vertex(vertices[0], 0); // TL
     vertex(vertices[1], 3); // BL
     vertex(vertices[2], 1); // TR
     vertex(vertices[3], 2); // BR
-    const QRectF o = frame.overlayRect;
-    const float overlay[4][4] = {{float(o.left()), float(o.top()), 0, 0},
-                                 {float(o.left()), float(o.bottom()), 0, 1},
-                                 {float(o.right()), float(o.top()), 1, 0},
-                                 {float(o.right()), float(o.bottom()), 1, 1}};
-    std::memcpy(vertices[4], overlay, sizeof overlay);
+    for (int layer = 0; layer < OverlayLayerCount; ++layer) {
+        const QRectF o = frame.overlayRects[layer];
+        const float quad[4][4] = {{float(o.left()), float(o.top()), 0, 0},
+                                  {float(o.left()), float(o.bottom()), 0, 1},
+                                  {float(o.right()), float(o.top()), 1, 0},
+                                  {float(o.right()), float(o.bottom()), 1, 1}};
+        std::memcpy(vertices[4 * (1 + layer)], quad, sizeof quad);
+    }
     updates->updateDynamicBuffer(m_vertices, 0, sizeof vertices, vertices);
 
     Uniforms u{};
@@ -662,9 +688,11 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
         cb->setVertexInput(0, 1, &input);
         cb->draw(4);
     }
-    if (m_hasOverlay && !o.isEmpty()) {
-        cb->setShaderResources(m_overlayBindings);
-        const QRhiCommandBuffer::VertexInput input(m_vertices, kQuadBytes);
+    for (int layer = 0; layer < OverlayLayerCount; ++layer) {
+        if (!m_overlays[layer].present || frame.overlayRects[layer].isEmpty())
+            continue;
+        cb->setShaderResources(m_overlays[layer].bindings);
+        const QRhiCommandBuffer::VertexInput input(m_vertices, quint32((1 + layer) * kQuadBytes));
         cb->setVertexInput(0, 1, &input);
         cb->draw(4);
     }

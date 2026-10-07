@@ -53,6 +53,8 @@ struct Decoded {
     int orientation = 1;
     Descriptor colour;
     QString codec;
+    CameraInfo camera;
+    bool overLimit = false;        // larger than the pixel limit asked for: nothing was read
 
     int sampleBytes() const
     {
@@ -69,18 +71,6 @@ struct Decoded {
 
 constexpr qint64 kMaxPixels = qint64(1) << 30; // refuse absurd dimensions before anything else
 constexpr qint64 kWorkingBytesPerPixel = 16;    // RGBA16F result plus one orient/downscale copy
-
-qint64 physicalMemoryBytes()
-{
-#if defined(Q_OS_WIN)
-    MEMORYSTATUSEX status{};
-    status.dwLength = sizeof status;
-    return GlobalMemoryStatusEx(&status) ? qint64(status.ullTotalPhys) : 0;
-#else
-    const long pages = sysconf(_SC_PHYS_PAGES), pageSize = sysconf(_SC_PAGE_SIZE);
-    return pages > 0 && pageSize > 0 ? qint64(pages) * pageSize : 0;
-#endif
-}
 
 // Refuses images whose decode would need more than ~60 % of physical memory:
 // failing early with a message beats swapping the machine or an OOM kill.
@@ -225,7 +215,40 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
     d->description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
 }
 
-bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
+// EXIF text is file content: no control characters (they would break the panel's layout),
+// one line, bounded length.
+QString cleanText(const std::string &raw)
+{
+    QString text = QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256)));
+    text.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
+    text = text.simplified();
+    if (text.size() > 64)
+        text = text.left(63) + QChar(0x2026);
+    return text;
+}
+
+// Shooting data as OpenImageIO names it (EXIF tags, also filled by the RAW reader).
+CameraInfo cameraFromOiio(const OIIO::ImageSpec &spec)
+{
+    CameraInfo camera;
+    camera.make = cleanText(spec.get_string_attribute("Make"));
+    camera.model = cleanText(spec.get_string_attribute("Model"));
+    camera.lens = cleanText(spec.get_string_attribute("Exif:LensModel"));
+    const QString taken = cleanText(spec.get_string_attribute("Exif:DateTimeOriginal"));
+    camera.taken = QDateTime::fromString(taken.left(19), QStringLiteral("yyyy:MM:dd HH:mm:ss"));
+    // Values outside any real camera's range are treated as absent rather than shown.
+    const auto inRange = [](float v, float lo, float hi) { return std::isfinite(v) && v >= lo && v <= hi ? v : 0.0f; };
+    camera.exposureTime = inRange(spec.get_float_attribute("ExposureTime"), 1e-6f, 1e5f);
+    camera.fNumber = inRange(spec.get_float_attribute("FNumber"), 0.5f, 1000.0f);
+    camera.focalLength = inRange(spec.get_float_attribute("Exif:FocalLength"), 0.1f, 1e5f);
+    int iso = spec.get_int_attribute("Exif:PhotographicSensitivity");
+    if (iso <= 0)
+        iso = spec.get_int_attribute("Exif:ISOSpeedRatings");
+    camera.iso = iso > 0 && iso <= 10'000'000 ? iso : 0;
+    return camera;
+}
+
+bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
 {
     OIIO::ImageSpec config;
     // Straight alpha where the format stores it (PNG, TIFF, WebP, HEIF...): OIIO would
@@ -242,6 +265,10 @@ bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
     const int w = spec.width, h = spec.height, nch = spec.nchannels;
     if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels) {
         *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(nch);
+        return false;
+    }
+    if (maxPixels > 0 && qint64(w) * h > maxPixels) {
+        out->overLimit = true;
         return false;
     }
 
@@ -284,6 +311,7 @@ bool decodeWithOiio(const QString &path, Decoded *out, QString *error)
     out->bits = spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8));
     out->orientation = spec.get_int_attribute("Orientation", 1);
     out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
+    out->camera = cameraFromOiio(spec);
     describeOiio(spec, !out->isInteger(), in->format_name(), &out->colour);
     return true;
 }
@@ -315,7 +343,7 @@ bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
     return true;
 }
 
-bool decodeWithQt(const QString &path, Decoded *out, QString *error)
+bool decodeWithQt(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
 {
     QImageReader reader(path);
     // Qt's SVG reader lays out text with QFontDatabase, which aborts without a QGuiApplication
@@ -323,6 +351,10 @@ bool decodeWithQt(const QString &path, Decoded *out, QString *error)
     if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())
         && (reader.format() == "svg" || reader.format() == "svgz")) {
         *error = QCoreApplication::translate("Image", "SVG is only decoded in the graphical interface");
+        return false;
+    }
+    if (const QSize size = reader.size(); maxPixels > 0 && size.isValid() && qint64(size.width()) * size.height() > maxPixels) {
+        out->overLimit = true;
         return false;
     }
     reader.setAutoTransform(true); // orientation is applied by Qt
@@ -491,18 +523,32 @@ std::vector<qfloat16> downscale(const std::vector<qfloat16> &src, int &w, int &h
     return out;
 }
 
-Image decode(const QString &path, int maxTextureSize)
+Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
 {
     QElapsedTimer timer;
     timer.start();
     Image result;
     result.path = path;
+    // Before reading: a change during the decode then shows as a different file next time.
+    const QFileInfo info(path);
+    result.fileSize = info.size();
+    result.modified = info.lastModified();
 
     Decoded dec;
     QString oiioError, qtError;
-    if (!decodeWithOiio(path, &dec, &oiioError)) {
+    if (!decodeWithOiio(path, maxPixels, &dec, &oiioError)) {
+        if (dec.overLimit) {
+            result.overPixelLimit = true;
+            result.error = QStringLiteral("larger than the pixel limit"); // never shown
+            return result;
+        }
         dec = Decoded(); // nothing from the failed attempt may leak into the fallback
-        if (!decodeWithQt(path, &dec, &qtError)) {
+        if (!decodeWithQt(path, maxPixels, &dec, &qtError)) {
+            if (dec.overLimit) {
+                result.overPixelLimit = true;
+                result.error = QStringLiteral("larger than the pixel limit");
+                return result;
+            }
             result.error = QCoreApplication::translate("Image", "Cannot decode: %1").arg(oiioError.isEmpty() ? qtError : oiioError);
             return result;
         }
@@ -577,9 +623,10 @@ Image decode(const QString &path, int maxTextureSize)
     result.hasAlpha = dec.alphaIndex >= 0;
     result.orientation = dec.orientation;
     result.colour = dec.colour;
+    result.camera = dec.camera;
     result.maxComponent = maxComponent;
     result.maxLuminance = maxLuminance;
-    result.pixels = std::move(pixels);
+    result.pixels = std::make_shared<const std::vector<qfloat16>>(std::move(pixels));
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
     qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": read " << readNs / 1000000 << " ms, convert "
                                << (convertNs - readNs) / 1000000 << " ms, orient/downscale "
@@ -590,12 +637,12 @@ Image decode(const QString &path, int maxTextureSize)
 
 } // namespace
 
-Image decodeImage(const QString &path, int maxTextureSize)
+Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels)
 {
     // Runs on a worker thread: an exception escaping here would be rethrown by
     // QFuture::result() on the GUI thread and terminate the application.
     try {
-        return decode(path, maxTextureSize);
+        return decode(path, maxTextureSize, maxPixels);
     } catch (const std::bad_alloc &) {
         Image failed;
         failed.path = path;
@@ -620,7 +667,7 @@ QImage decodeForClipboard(const QString &path)
     const std::size_t width = std::size_t(image.width);
     forEachRange(std::size_t(image.height), 64, [&](Range &rows) {
         for (std::size_t y = rows.begin; y < rows.end; ++y) {
-            const qfloat16 *src = image.pixels.data() + y * width * 4;
+            const qfloat16 *src = image.pixels->data() + y * width * 4;
             auto *dst = reinterpret_cast<QRgba64 *>(out.scanLine(int(y)));
             for (std::size_t x = 0; x < width; ++x, src += 4) {
                 const float alpha = std::clamp(float(src[3]), 0.0f, 1.0f);
@@ -659,4 +706,25 @@ const QStringList &supportedSuffixes()
         return sorted;
     }();
     return list;
+}
+
+QString exposureTimeText(float seconds, const QLocale &locale)
+{
+    // Fractions only where they are whole (1/3, 1/8000); 0.4 s stays a decimal, not "1/3".
+    const double reciprocal = seconds > 0.0f ? 1.0 / double(seconds) : 0.0;
+    if (seconds >= 1.0f || reciprocal <= 0.0 || std::abs(reciprocal - std::round(reciprocal)) > 0.02 * reciprocal)
+        return locale.toString(double(seconds), 'g', 3);
+    return QStringLiteral("1/") + locale.toString(qlonglong(std::llround(reciprocal)));
+}
+
+qint64 physicalMemoryBytes()
+{
+#if defined(Q_OS_WIN)
+    MEMORYSTATUSEX status{};
+    status.dwLength = sizeof status;
+    return GlobalMemoryStatusEx(&status) ? qint64(status.ullTotalPhys) : 0;
+#else
+    const long pages = sysconf(_SC_PHYS_PAGES), pageSize = sysconf(_SC_PAGE_SIZE);
+    return pages > 0 && pageSize > 0 ? qint64(pages) * pageSize : 0;
+#endif
 }

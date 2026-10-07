@@ -29,11 +29,15 @@ if(Qt6_VERSION VERSION_GREATER_EQUAL 6.12)
     message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.11 only; "
                         "moving to a new Qt minor version is a deliberate port (docs/PLAN.md).")
 endif()
-# User-interface languages (decision D-27): English is the source; the others are the most
-# spoken languages with a standard UI locale. Keep in sync with uiLanguages() in src/settings.cpp.
+# User-interface languages (decisions D-27, D-32): English is the source; the 16 most spoken
+# languages, Korean, Italian, Turkish and every official EU language. Keep in sync with
+# uiLanguages() in src/settings.cpp.
 qt_standard_project_setup(
     I18N_SOURCE_LANGUAGE en
-    I18N_TRANSLATED_LANGUAGES zh_CN hi es ar fr bn pt id ur ru de ja mr vi te
+    I18N_TRANSLATED_LANGUAGES
+        zh_CN hi es ar fr bn pt id ur ru de ja mr vi te
+        ko it tr
+        bg hr cs da nl et fi el hu ga lv lt mt pl ro sk sl sv
 )
 
 find_package(OpenImageIO CONFIG REQUIRED)
@@ -48,7 +52,8 @@ endif()
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/commands.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp
+    src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp

@@ -69,11 +69,28 @@ int printInfo(const QString &path)
         << "max:         " << image.maxComponent << "x SDR white ("
         << image.maxComponent * color::kSdrReferenceWhiteNits << " nits)\n"
         << "decode:      " << QString::number(image.decodeMs, 'f', 1) << " ms\n";
+    if (const CameraInfo &c = image.camera; !c.isEmpty()) {
+        QStringList parts;
+        for (const QString &text : {c.make, c.model, c.lens})
+            if (!text.isEmpty())
+                parts << text;
+        if (c.exposureTime > 0)
+            parts << exposureTimeText(c.exposureTime, QLocale::c()) + QStringLiteral(" s");
+        if (c.fNumber > 0)
+            parts << QStringLiteral("f/") + QString::number(c.fNumber, 'f', 1);
+        if (c.iso > 0)
+            parts << QStringLiteral("ISO %1").arg(c.iso);
+        if (c.focalLength > 0)
+            parts << QString::number(c.focalLength, 'f', 0) + QStringLiteral(" mm");
+        if (c.taken.isValid())
+            parts << c.taken.toString(Qt::ISODate);
+        out << "camera:      " << parts.join(QStringLiteral(" | ")) << '\n';
+    }
     // First pixel in working units, useful for colour checks on synthetic files.
-    const float a = image.pixels[3];
-    out << "pixel[0,0]:  " << (a > 0 ? float(image.pixels[0]) / a : 0.f) << ' '
-        << (a > 0 ? float(image.pixels[1]) / a : 0.f) << ' ' << (a > 0 ? float(image.pixels[2]) / a : 0.f)
-        << " a=" << a << Qt::endl;
+    const qfloat16 *pixel = image.pixels->data();
+    const float a = pixel[3];
+    out << "pixel[0,0]:  " << (a > 0 ? float(pixel[0]) / a : 0.f) << ' ' << (a > 0 ? float(pixel[1]) / a : 0.f) << ' '
+        << (a > 0 ? float(pixel[2]) / a : 0.f) << " a=" << a << Qt::endl;
     return 0;
 }
 
@@ -149,9 +166,9 @@ int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance
         out << "error: " << error << Qt::endl;
         return 4;
     }
-    const std::vector<qfloat16> source = image.pixels;
+    const std::vector<qfloat16> &source = *image.pixels; // shared with the renderer, never modified
     const QSize size(image.width, image.height);
-    renderer.setImage(std::move(image.pixels), size);
+    renderer.setImage(image.pixels, size);
     std::vector<float> gpu;
     if (!renderer.renderToBuffer(frame, output, size, &gpu, &error)) {
         out << "error: " << error << Qt::endl;

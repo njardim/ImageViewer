@@ -6,10 +6,13 @@
 #include <QColorDialog>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLibraryInfo>
+#include <QListWidget>
 #include <QLocale>
 #include <QPainter>
 #include <QPalette>
@@ -22,6 +25,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 
 namespace {
@@ -48,6 +52,65 @@ Renderer::OutputPreference outputFromKey(const QString &key)
     return Renderer::OutputPreference::Automatic;
 }
 
+const char *visibilityKey(OverlayVisibility visibility)
+{
+    switch (visibility) {
+    case OverlayVisibility::Always: return "always";
+    case OverlayVisibility::Hidden: return "hidden";
+    case OverlayVisibility::Hover: break;
+    }
+    return "hover";
+}
+
+OverlayVisibility visibilityFromKey(const QString &key, OverlayVisibility fallback)
+{
+    for (OverlayVisibility v : {OverlayVisibility::Always, OverlayVisibility::Hover, OverlayVisibility::Hidden})
+        if (key == QLatin1String(visibilityKey(v)))
+            return v;
+    return fallback;
+}
+
+const char *fieldKey(OverlayField field)
+{
+    switch (field) {
+    case OverlayField::Name: return "name";
+    case OverlayField::Dimensions: return "dimensions";
+    case OverlayField::FileSize: return "fileSize";
+    case OverlayField::Zoom: return "zoom";
+    case OverlayField::ColorSpace: return "colorSpace";
+    case OverlayField::Modified: return "modified";
+    case OverlayField::Position: return "position";
+    case OverlayField::Output: return "output";
+    }
+    return "";
+}
+
+const char *sortKey(FolderSort sort)
+{
+    switch (sort) {
+    case FolderSort::Modified: return "modified";
+    case FolderSort::Size: return "size";
+    case FolderSort::Name: break;
+    }
+    return "name";
+}
+
+FolderSort sortFromKey(const QString &key)
+{
+    if (key == QLatin1String("modified"))
+        return FolderSort::Modified;
+    if (key == QLatin1String("size"))
+        return FolderSort::Size;
+    return FolderSort::Name;
+}
+
+int boundedInt(const QSettings &store, const QString &key, int fallback, int low, int high)
+{
+    bool ok = false;
+    const int value = store.value(key, fallback).toInt(&ok);
+    return ok ? std::clamp(value, low, high) : fallback;
+}
+
 bool isKnownLanguage(const QString &code)
 {
     const QList<UiLanguage> &languages = uiLanguages();
@@ -72,6 +135,35 @@ QIcon swatchIcon(const QColor &color)
 
 } // namespace
 
+QList<OverlayField> Settings::defaultOverlayFields()
+{
+    return {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,
+            OverlayField::Zoom, OverlayField::ColorSpace, OverlayField::Modified};
+}
+
+const QList<OverlayField> &Settings::allOverlayFields()
+{
+    static const QList<OverlayField> all = {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,
+                                            OverlayField::Zoom, OverlayField::ColorSpace, OverlayField::Modified,
+                                            OverlayField::Position, OverlayField::Output};
+    return all;
+}
+
+QString overlayFieldName(OverlayField field)
+{
+    switch (field) {
+    case OverlayField::Name: return QCoreApplication::translate("Overlay", "File name");
+    case OverlayField::Dimensions: return QCoreApplication::translate("Overlay", "Dimensions");
+    case OverlayField::FileSize: return QCoreApplication::translate("Overlay", "File size");
+    case OverlayField::Zoom: return QCoreApplication::translate("Overlay", "Zoom");
+    case OverlayField::ColorSpace: return QCoreApplication::translate("Overlay", "Color space");
+    case OverlayField::Modified: return QCoreApplication::translate("Overlay", "Date modified");
+    case OverlayField::Position: return QCoreApplication::translate("Overlay", "Position in the folder");
+    case OverlayField::Output: return QCoreApplication::translate("Overlay", "Display output");
+    }
+    return {};
+}
+
 Settings Settings::load()
 {
     const QSettings store;
@@ -86,14 +178,37 @@ Settings Settings::load()
     const QColor background(store.value(QStringLiteral("window/background")).toString());
     s.background = background.isValid() ? background.toRgb() : defaults.background;
     s.background.setAlpha(255);
+    s.checkerboard = store.value(QStringLiteral("window/checkerboard"), defaults.checkerboard).toBool();
     s.rememberGeometry = store.value(QStringLiteral("window/rememberGeometry"), defaults.rememberGeometry).toBool();
     s.showInfo = store.value(QStringLiteral("window/showInfo"), defaults.showInfo).toBool();
 
+    s.overlayFullScreen = visibilityFromKey(store.value(QStringLiteral("overlay/fullScreen")).toString(),
+                                            defaults.overlayFullScreen);
+    s.overlayWindow = visibilityFromKey(store.value(QStringLiteral("overlay/window")).toString(), defaults.overlayWindow);
+    if (store.contains(QStringLiteral("overlay/fields"))) {
+        // Comma-separated ids; an empty value means "no fields". Unknown or repeated ids are dropped.
+        s.overlayFields.clear();
+        const QStringList ids = store.value(QStringLiteral("overlay/fields")).toString().split(QLatin1Char(','), Qt::SkipEmptyParts);
+        for (const QString &id : ids)
+            for (OverlayField field : allOverlayFields())
+                if (id == QLatin1String(fieldKey(field)) && !s.overlayFields.contains(field))
+                    s.overlayFields.append(field);
+    }
+    s.overlayBackgroundOpacity = boundedInt(store, QStringLiteral("overlay/backgroundOpacity"),
+                                            defaults.overlayBackgroundOpacity, 0, 100);
+    s.overlayTextOpacity = boundedInt(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
+                                      kMinOverlayTextOpacity, 100);
+    s.overlayOutline = store.value(QStringLiteral("overlay/outline"), defaults.overlayOutline).toBool();
+    s.overlayHideDelayMs = boundedInt(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
+                                      kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
+
     s.loop = store.value(QStringLiteral("navigation/loop"), defaults.loop).toBool();
     s.sideZones = store.value(QStringLiteral("navigation/sideZones"), defaults.sideZones).toBool();
-    bool ok = false;
-    const int width = store.value(QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth).toInt(&ok);
-    s.sideZoneWidth = ok ? std::clamp(width, kMinSideZoneWidth, kMaxSideZoneWidth) : defaults.sideZoneWidth;
+    s.sideZoneWidth = boundedInt(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
+                                 kMinSideZoneWidth, kMaxSideZoneWidth);
+    s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
+    s.sortDescending = store.value(QStringLiteral("navigation/sortDescending"), defaults.sortDescending).toBool();
+    s.preload = store.value(QStringLiteral("navigation/preload"), defaults.preload).toBool();
 
     s.toneMap = store.value(QStringLiteral("color/toneMap"), defaults.toneMap).toBool();
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
@@ -108,11 +223,25 @@ void Settings::save() const
     store.setValue(QStringLiteral("general/confirmTrash"), confirmTrash);
     store.setValue(QStringLiteral("general/reopenLastImage"), reopenLastImage);
     store.setValue(QStringLiteral("window/background"), background.name(QColor::HexRgb));
+    store.setValue(QStringLiteral("window/checkerboard"), checkerboard);
     store.setValue(QStringLiteral("window/rememberGeometry"), rememberGeometry);
     store.setValue(QStringLiteral("window/showInfo"), showInfo);
+    store.setValue(QStringLiteral("overlay/fullScreen"), QString::fromLatin1(visibilityKey(overlayFullScreen)));
+    store.setValue(QStringLiteral("overlay/window"), QString::fromLatin1(visibilityKey(overlayWindow)));
+    QStringList ids;
+    for (OverlayField field : overlayFields)
+        ids << QString::fromLatin1(fieldKey(field));
+    store.setValue(QStringLiteral("overlay/fields"), ids.join(QLatin1Char(',')));
+    store.setValue(QStringLiteral("overlay/backgroundOpacity"), overlayBackgroundOpacity);
+    store.setValue(QStringLiteral("overlay/textOpacity"), overlayTextOpacity);
+    store.setValue(QStringLiteral("overlay/outline"), overlayOutline);
+    store.setValue(QStringLiteral("overlay/hideDelayMs"), overlayHideDelayMs);
     store.setValue(QStringLiteral("navigation/loop"), loop);
     store.setValue(QStringLiteral("navigation/sideZones"), sideZones);
     store.setValue(QStringLiteral("navigation/sideZoneWidth"), sideZoneWidth);
+    store.setValue(QStringLiteral("navigation/sortBy"), QString::fromLatin1(sortKey(sortBy)));
+    store.setValue(QStringLiteral("navigation/sortDescending"), sortDescending);
+    store.setValue(QStringLiteral("navigation/preload"), preload);
     store.setValue(QStringLiteral("color/toneMap"), toneMap);
     store.setValue(QStringLiteral("color/output"), QString::fromLatin1(outputKey(output)));
 }
@@ -143,26 +272,68 @@ void SessionState::save() const
     store.setValue(QStringLiteral("session/lastDirectory"), lastDirectory);
 }
 
+QStringList loadRecentFiles()
+{
+    const QSettings store;
+    QStringList files;
+    for (const QString &file : store.value(QStringLiteral("recent/files")).toStringList())
+        if (!file.isEmpty() && !files.contains(file) && files.size() < kMaxRecentFiles)
+            files << file;
+    return files;
+}
+
+void saveRecentFiles(const QStringList &files)
+{
+    QSettings store;
+    if (files.isEmpty())
+        store.remove(QStringLiteral("recent/files"));
+    else
+        store.setValue(QStringLiteral("recent/files"), files.mid(0, kMaxRecentFiles));
+}
+
 const QList<UiLanguage> &uiLanguages()
 {
-    // English first (the source language), then by total speakers, Ethnologue 2026 (docs/PLAN.md, D-27).
+    // Sorted by the English name of the language, so the order is the same whatever the
+    // interface language (D-32): the 16 most spoken languages (D-27), Korean, Italian and
+    // Turkish, and every official language of the European Union.
     static const QList<UiLanguage> languages = {
-        {QStringLiteral("en"), QStringLiteral("English")},
-        {QStringLiteral("zh_CN"), QStringLiteral("简体中文")},
-        {QStringLiteral("hi"), QStringLiteral("हिन्दी")},
-        {QStringLiteral("es"), QStringLiteral("Español")},
         {QStringLiteral("ar"), QStringLiteral("العربية")},
-        {QStringLiteral("fr"), QStringLiteral("Français")},
         {QStringLiteral("bn"), QStringLiteral("বাংলা")},
-        {QStringLiteral("pt"), QStringLiteral("Português")},
-        {QStringLiteral("id"), QStringLiteral("Bahasa Indonesia")},
-        {QStringLiteral("ur"), QStringLiteral("اردو")},
-        {QStringLiteral("ru"), QStringLiteral("Русский")},
+        {QStringLiteral("bg"), QStringLiteral("Български")},
+        {QStringLiteral("zh_CN"), QStringLiteral("简体中文")},
+        {QStringLiteral("hr"), QStringLiteral("Hrvatski")},
+        {QStringLiteral("cs"), QStringLiteral("Čeština")},
+        {QStringLiteral("da"), QStringLiteral("Dansk")},
+        {QStringLiteral("nl"), QStringLiteral("Nederlands")},
+        {QStringLiteral("en"), QStringLiteral("English")},
+        {QStringLiteral("et"), QStringLiteral("Eesti")},
+        {QStringLiteral("fi"), QStringLiteral("Suomi")},
+        {QStringLiteral("fr"), QStringLiteral("Français")},
         {QStringLiteral("de"), QStringLiteral("Deutsch")},
+        {QStringLiteral("el"), QStringLiteral("Ελληνικά")},
+        {QStringLiteral("hi"), QStringLiteral("हिन्दी")},
+        {QStringLiteral("hu"), QStringLiteral("Magyar")},
+        {QStringLiteral("id"), QStringLiteral("Bahasa Indonesia")},
+        {QStringLiteral("ga"), QStringLiteral("Gaeilge")},
+        {QStringLiteral("it"), QStringLiteral("Italiano")},
         {QStringLiteral("ja"), QStringLiteral("日本語")},
+        {QStringLiteral("ko"), QStringLiteral("한국어")},
+        {QStringLiteral("lv"), QStringLiteral("Latviešu")},
+        {QStringLiteral("lt"), QStringLiteral("Lietuvių")},
+        {QStringLiteral("mt"), QStringLiteral("Malti")},
         {QStringLiteral("mr"), QStringLiteral("मराठी")},
-        {QStringLiteral("vi"), QStringLiteral("Tiếng Việt")},
+        {QStringLiteral("pl"), QStringLiteral("Polski")},
+        {QStringLiteral("pt"), QStringLiteral("Português")},
+        {QStringLiteral("ro"), QStringLiteral("Română")},
+        {QStringLiteral("ru"), QStringLiteral("Русский")},
+        {QStringLiteral("sk"), QStringLiteral("Slovenčina")},
+        {QStringLiteral("sl"), QStringLiteral("Slovenščina")},
+        {QStringLiteral("es"), QStringLiteral("Español")},
+        {QStringLiteral("sv"), QStringLiteral("Svenska")},
         {QStringLiteral("te"), QStringLiteral("తెలుగు")},
+        {QStringLiteral("tr"), QStringLiteral("Türkçe")},
+        {QStringLiteral("ur"), QStringLiteral("اردو")},
+        {QStringLiteral("vi"), QStringLiteral("Tiếng Việt")},
     };
     return languages;
 }
@@ -193,7 +364,7 @@ QString applyLanguage(const QString &code)
     return used;
 }
 
-SettingsDialog::SettingsDialog(const Settings &settings)
+SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
 {
     setWindowTitle(tr("Settings"));
     auto *tabs = new QTabWidget;
@@ -211,7 +382,7 @@ SettingsDialog::SettingsDialog(const Settings &settings)
     translationNote->setWordWrap(true);
     translationNote->setForegroundRole(QPalette::PlaceholderText); // secondary, but still read by screen readers
     generalForm->addRow(QString(), translationNote);
-    m_confirmTrash = new QCheckBox(tr("Confirm before deleting an image"));
+    m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
     generalForm->addRow(m_confirmTrash);
     m_reopenLast = new QCheckBox(tr("Reopen the last image at startup"));
     generalForm->addRow(m_reopenLast);
@@ -245,11 +416,70 @@ SettingsDialog::SettingsDialog(const Settings &settings)
     swatches->addStretch();
     connect(m_customBackground, &QToolButton::clicked, this, &SettingsDialog::chooseCustomBackground);
     windowForm->addRow(tr("Background:"), swatches);
+    m_checkerboard = new QCheckBox(tr("Show a checkerboard behind transparent areas"));
+    windowForm->addRow(m_checkerboard);
     m_rememberGeometry = new QCheckBox(tr("Remember the window size and position"));
     windowForm->addRow(m_rememberGeometry);
-    m_showInfo = new QCheckBox(tr("Show the information panel"));
-    windowForm->addRow(m_showInfo);
     tabs->addTab(window, tr("Window"));
+
+    // Information (D-34): the detailed panel and the compact overlay at the top.
+    auto *information = new QWidget;
+    auto *informationLayout = new QVBoxLayout(information);
+    m_showInfo = new QCheckBox(tr("Show the information panel (I)"));
+    informationLayout->addWidget(m_showInfo);
+    auto *overlayBox = new QGroupBox(tr("Overlay at the top (Shift+I)"));
+    auto *overlayForm = new QFormLayout(overlayBox);
+    const auto fillVisibility = [](QComboBox *combo) {
+        combo->addItem(tr("Always"), QString::fromLatin1(visibilityKey(OverlayVisibility::Always)));
+        combo->addItem(tr("When the pointer is at the top"), QString::fromLatin1(visibilityKey(OverlayVisibility::Hover)));
+        combo->addItem(tr("Never"), QString::fromLatin1(visibilityKey(OverlayVisibility::Hidden)));
+    };
+    m_overlayFullScreen = new QComboBox;
+    fillVisibility(m_overlayFullScreen);
+    overlayForm->addRow(tr("In full screen:"), m_overlayFullScreen);
+    m_overlayWindow = new QComboBox;
+    fillVisibility(m_overlayWindow);
+    overlayForm->addRow(tr("In a window:"), m_overlayWindow);
+    m_overlayFields = new QListWidget;
+    m_overlayFields->setDragDropMode(QAbstractItemView::InternalMove);
+    m_overlayFields->setDefaultDropAction(Qt::MoveAction);
+    m_overlayFields->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_overlayFields->setAccessibleName(tr("Fields"));
+    auto *moveUp = new QPushButton(tr("Move Up"));
+    auto *moveDown = new QPushButton(tr("Move Down"));
+    connect(moveUp, &QPushButton::clicked, this, [this] { moveOverlayField(-1); });
+    connect(moveDown, &QPushButton::clicked, this, [this] { moveOverlayField(+1); });
+    auto *moveButtons = new QVBoxLayout;
+    moveButtons->addWidget(moveUp);
+    moveButtons->addWidget(moveDown);
+    moveButtons->addStretch();
+    auto *fieldsRow = new QHBoxLayout;
+    fieldsRow->addWidget(m_overlayFields, 1);
+    fieldsRow->addLayout(moveButtons);
+    overlayForm->addRow(tr("Fields:"), fieldsRow);
+    m_overlayBackground = new QSpinBox;
+    m_overlayBackground->setRange(0, 100);
+    m_overlayBackground->setSingleStep(10);
+    //: Unit after a percentage; keep the leading space if your language separates it.
+    m_overlayBackground->setSuffix(tr(" %"));
+    overlayForm->addRow(tr("Background opacity:"), m_overlayBackground);
+    m_overlayText = new QSpinBox;
+    m_overlayText->setRange(Settings::kMinOverlayTextOpacity, 100);
+    m_overlayText->setSingleStep(10);
+    m_overlayText->setSuffix(tr(" %"));
+    overlayForm->addRow(tr("Text opacity:"), m_overlayText);
+    m_overlayOutline = new QCheckBox(tr("Outline the text"));
+    overlayForm->addRow(m_overlayOutline);
+    m_overlayDelay = new QDoubleSpinBox;
+    m_overlayDelay->setRange(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
+    m_overlayDelay->setDecimals(1);
+    m_overlayDelay->setSingleStep(0.5);
+    //: Unit after a number of seconds; keep the leading space if your language separates units.
+    m_overlayDelay->setSuffix(tr(" s"));
+    overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
+    informationLayout->addWidget(overlayBox);
+    informationLayout->addStretch();
+    tabs->addTab(information, tr("Information"));
 
     // Navigation
     auto *navigation = new QWidget;
@@ -265,6 +495,18 @@ SettingsDialog::SettingsDialog(const Settings &settings)
     m_sideZoneWidth->setSuffix(tr(" px"));
     navigationForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
     connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
+    m_sortBy = new QComboBox;
+    m_sortBy->addItem(tr("Name"), QString::fromLatin1(sortKey(FolderSort::Name)));
+    m_sortBy->addItem(tr("Date modified"), QString::fromLatin1(sortKey(FolderSort::Modified)));
+    m_sortBy->addItem(tr("Size"), QString::fromLatin1(sortKey(FolderSort::Size)));
+    m_sortDescending = new QCheckBox(tr("Descending"));
+    auto *sortRow = new QHBoxLayout;
+    sortRow->addWidget(m_sortBy);
+    sortRow->addWidget(m_sortDescending);
+    sortRow->addStretch();
+    navigationForm->addRow(tr("Sort images by:"), sortRow);
+    m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
+    navigationForm->addRow(m_preload);
     tabs->addTab(navigation, tr("Navigation"));
 
     // Color & HDR
@@ -289,6 +531,7 @@ SettingsDialog::SettingsDialog(const Settings &settings)
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(defaults, &QPushButton::clicked, this, [this] {
+        // setValues() only touches what the dialog shows; settings() keeps the rest from m_initial.
         Settings fresh;
         fresh.language = m_language->currentData().toString(); // the language is not a "setting to reset"
         setValues(fresh);
@@ -306,12 +549,36 @@ void SettingsDialog::setValues(const Settings &settings)
     m_confirmTrash->setChecked(settings.confirmTrash);
     m_reopenLast->setChecked(settings.reopenLastImage);
     setBackground(settings.background);
+    m_checkerboard->setChecked(settings.checkerboard);
     m_rememberGeometry->setChecked(settings.rememberGeometry);
     m_showInfo->setChecked(settings.showInfo);
+    m_overlayFullScreen->setCurrentIndex(
+        std::max(0, m_overlayFullScreen->findData(QString::fromLatin1(visibilityKey(settings.overlayFullScreen)))));
+    m_overlayWindow->setCurrentIndex(
+        std::max(0, m_overlayWindow->findData(QString::fromLatin1(visibilityKey(settings.overlayWindow)))));
+    // The chosen fields first, in their order, then the others in their usual order.
+    m_overlayFields->clear();
+    QList<OverlayField> order = settings.overlayFields;
+    for (OverlayField field : Settings::allOverlayFields())
+        if (!order.contains(field))
+            order.append(field);
+    for (OverlayField field : order) {
+        auto *item = new QListWidgetItem(overlayFieldName(field), m_overlayFields);
+        item->setData(Qt::UserRole, int(field));
+        item->setFlags((item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled) & ~Qt::ItemIsDropEnabled);
+        item->setCheckState(settings.overlayFields.contains(field) ? Qt::Checked : Qt::Unchecked);
+    }
+    m_overlayBackground->setValue(settings.overlayBackgroundOpacity);
+    m_overlayText->setValue(settings.overlayTextOpacity);
+    m_overlayOutline->setChecked(settings.overlayOutline);
+    m_overlayDelay->setValue(settings.overlayHideDelayMs / 1000.0);
     m_loop->setChecked(settings.loop);
     m_sideZones->setChecked(settings.sideZones);
     m_sideZoneWidth->setValue(settings.sideZoneWidth);
     m_sideZoneWidth->setEnabled(settings.sideZones);
+    m_sortBy->setCurrentIndex(std::max(0, m_sortBy->findData(QString::fromLatin1(sortKey(settings.sortBy)))));
+    m_sortDescending->setChecked(settings.sortDescending);
+    m_preload->setChecked(settings.preload);
     m_toneMap->setChecked(settings.toneMap);
     m_output->setCurrentIndex(std::max(0, m_output->findData(QString::fromLatin1(outputKey(settings.output)))));
 }
@@ -335,18 +602,45 @@ void SettingsDialog::chooseCustomBackground()
     setBackground(chosen.isValid() ? chosen.toRgb() : m_background); // cancelled: restore the selection
 }
 
+void SettingsDialog::moveOverlayField(int delta)
+{
+    const int row = m_overlayFields->currentRow();
+    const int target = row + delta;
+    if (row < 0 || target < 0 || target >= m_overlayFields->count())
+        return;
+    QListWidgetItem *item = m_overlayFields->takeItem(row);
+    m_overlayFields->insertItem(target, item);
+    m_overlayFields->setCurrentRow(target);
+}
+
 Settings SettingsDialog::settings() const
 {
-    Settings s;
+    Settings s = m_initial;
     s.language = m_language->currentData().toString();
     s.confirmTrash = m_confirmTrash->isChecked();
     s.reopenLastImage = m_reopenLast->isChecked();
     s.background = m_background;
+    s.checkerboard = m_checkerboard->isChecked();
     s.rememberGeometry = m_rememberGeometry->isChecked();
     s.showInfo = m_showInfo->isChecked();
+    s.overlayFullScreen = visibilityFromKey(m_overlayFullScreen->currentData().toString(), OverlayVisibility::Hover);
+    s.overlayWindow = visibilityFromKey(m_overlayWindow->currentData().toString(), OverlayVisibility::Hidden);
+    s.overlayFields.clear();
+    for (int i = 0; i < m_overlayFields->count(); ++i) {
+        const QListWidgetItem *item = m_overlayFields->item(i);
+        if (item->checkState() == Qt::Checked)
+            s.overlayFields.append(OverlayField(item->data(Qt::UserRole).toInt()));
+    }
+    s.overlayBackgroundOpacity = m_overlayBackground->value();
+    s.overlayTextOpacity = m_overlayText->value();
+    s.overlayOutline = m_overlayOutline->isChecked();
+    s.overlayHideDelayMs = int(std::lround(m_overlayDelay->value() * 1000.0));
     s.loop = m_loop->isChecked();
     s.sideZones = m_sideZones->isChecked();
     s.sideZoneWidth = m_sideZoneWidth->value();
+    s.sortBy = sortFromKey(m_sortBy->currentData().toString());
+    s.sortDescending = m_sortDescending->isChecked();
+    s.preload = m_preload->isChecked();
     s.toneMap = m_toneMap->isChecked();
     s.output = outputFromKey(m_output->currentData().toString());
     return s;

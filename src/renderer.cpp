@@ -23,9 +23,11 @@ struct Uniforms {
     float adjust[4];
     float tone[4];
     float background[4];
+    float checker[4];       // x, y: cells across the texture; z: 1 = on
+    float checkerColour[4]; // linear, output units
     qint32 modes[4];
 };
-static_assert(sizeof(Uniforms) == 128, "uniform block must match the shaders");
+static_assert(sizeof(Uniforms) == 160, "uniform block must match the shaders");
 
 constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
 constexpr int kQuadBytes = 4 * kVertexStride;
@@ -470,7 +472,7 @@ void Renderer::updateOutput()
     m_output = out;
 }
 
-void Renderer::setImage(std::vector<qfloat16> pixels, QSize size)
+void Renderer::setImage(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size)
 {
     m_pendingPixels = std::move(pixels);
     m_pendingSize = size;
@@ -529,11 +531,12 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         m_hasImage = false;
         QRhiTexture *texture = m_rhi->newTexture(QRhiTexture::RGBA16F, m_pendingSize, 1,
                                                  QRhiTexture::MipMapped | QRhiTexture::UsedWithGenerateMips);
-        if (texture->create()) {
+        const std::size_t expected = std::size_t(std::max(0, m_pendingSize.width())) * std::size_t(std::max(0, m_pendingSize.height())) * 4;
+        if (m_pendingPixels && m_pendingPixels->size() == expected && expected > 0 && texture->create()) {
             // No copy: m_pendingPixels stays alive until the frame carrying this batch has ended.
             QRhiTextureSubresourceUploadDescription level0;
-            level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels.data()),
-                                                   qsizetype(m_pendingPixels.size() * sizeof(qfloat16))));
+            level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels->data()),
+                                                   qsizetype(m_pendingPixels->size() * sizeof(qfloat16))));
             updates->uploadTexture(texture, QRhiTextureUploadDescription({0, 0, level0}));
             updates->generateMips(texture);
             m_imageTexture = texture;
@@ -668,7 +671,15 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
     std::memcpy(u.clipCorrection, projection.constData(), sizeof u.clipCorrection);
     setStage(&u, stageFor(output, frame));
     u.modes[1] = 0;
+    if (frame.checkerboard && frame.checkerCells[0] > 0.0f && frame.checkerCells[1] > 0.0f) {
+        u.checker[0] = frame.checkerCells[0];
+        u.checker[1] = frame.checkerCells[1];
+        u.checker[2] = 1.0f;
+        for (int c = 0; c < 3; ++c) // like the background: UI colour at SDR white
+            u.checkerColour[c] = color::srgbToLinear(frame.checkerColour[c]) * output.scale;
+    }
     updates->updateDynamicBuffer(m_imageUniforms, 0, sizeof u, &u);
+    u.checker[2] = 0.0f;
     color::OutputStage ui; // the overlay sits at SDR white, never tone mapped
     ui.encoding = output.mode;
     ui.scale = output.scale;

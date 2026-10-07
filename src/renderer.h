@@ -56,7 +56,7 @@ public:
 
     // UI layers drawn over the image at SDR white, each from its own small texture so
     // that changing one (hover feedback) does not re-upload the others.
-    enum OverlayLayer { InfoLayer, PreviousButtonLayer, NextButtonLayer, OverlayLayerCount };
+    enum OverlayLayer { InfoLayer, TopLayer, PreviousButtonLayer, NextButtonLayer, OverlayLayerCount };
 
     // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
     enum class OutputPreference { Automatic, Sdr, Hdr10 };
@@ -75,6 +75,12 @@ public:
         bool absoluteLuminance = false;    // PQ content: keep absolute nits where the output allows it
         QRectF overlayRects[OverlayLayerCount]; // empty: layer not drawn
         float background[3] = {0.129f, 0.129f, 0.129f}; // sRGB-encoded
+        // Checks behind translucent image pixels, anchored to the image: `checkerCells` is the
+        // number of cells along the texture's width and height; every other cell uses
+        // `checkerColour` (sRGB-encoded) instead of the background. Off in the harness.
+        bool checkerboard = false;
+        float checkerCells[2] = {0.0f, 0.0f};
+        float checkerColour[3] = {0.0f, 0.0f, 0.0f};
     };
 
     // The output-stage parameters the shader receives for the image layer.
@@ -96,8 +102,9 @@ public:
     // Re-evaluates the swapchain format (e.g. after moving to another screen).
     void refreshOutput();
 
-    // Takes ownership of the pixels (linear scRGB, premultiplied RGBA16F).
-    void setImage(std::vector<qfloat16> pixels, QSize size);
+    // Linear scRGB, premultiplied RGBA16F. The buffer is shared (preload cache, decision D-33)
+    // and only read; the renderer keeps its reference until the upload has been submitted.
+    void setImage(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size);
     void clearImage();
     void setOverlay(int layer, const QImage &overlay); // RGBA8888_Premultiplied, device pixels; null hides
     void setOutputPreference(OutputPreference preference);
@@ -163,7 +170,7 @@ private:
     bool m_outputDirty = true; // hdrInfo must be read again
     Output m_output;
 
-    std::vector<qfloat16> m_pendingPixels;
+    std::shared_ptr<const std::vector<qfloat16>> m_pendingPixels;
     QSize m_pendingSize;
     bool m_imagePending = false;
     bool m_uploadInFlight = false; // m_pendingPixels back an upload until the frame ends

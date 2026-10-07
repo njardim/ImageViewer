@@ -582,7 +582,7 @@ void ViewerWindow::updateOverlay()
             format << tr("floating point");
         if (m_image.hasAlpha)
             format << tr("alpha");
-        lines << QStringLiteral("%1  ·  %2  ·  %3").arg(m_image.codec, format.join(QStringLiteral(", ")),
+        lines << QStringLiteral("%1  ·  %2  ·  %3").arg(m_image.codec, locale.createSeparatedList(format),
                                                       m_image.colour.description);
         lines << tr("Peak %1× SDR white (≈%2 nits)").arg(locale.toString(double(m_image.maxComponent), 'f', 2),
                                                       locale.toString(double(m_image.maxComponent
@@ -656,11 +656,10 @@ void ViewerWindow::updateOverlay()
     painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), 8, 8);
     painter.setPen(QColor(235, 235, 235));
     painter.setFont(font);
-    const Qt::Alignment align =
-        (QGuiApplication::layoutDirection() == Qt::RightToLeft ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignTop;
+    // AlignLeft is the start of the line: Qt mirrors it in right-to-left layouts.
     for (int i = 0; i < lines.size(); ++i)
-        painter.drawText(QRectF(padding, padding + i * lineHeight, logical.width() - 2 * padding, lineHeight), align,
-                         lines.at(i));
+        painter.drawText(QRectF(padding, padding + i * lineHeight, logical.width() - 2 * padding, lineHeight),
+                         Qt::AlignLeft | Qt::AlignTop, lines.at(i));
     painter.end();
 
     m_overlaySize = overlay.size();

@@ -5,385 +5,385 @@
     <name>Color</name>
     <message>
         <source>invalid ICC profile</source>
-        <translation type="unfinished"></translation>
+        <translation>neplatný profil ICC</translation>
     </message>
     <message>
         <source>unsupported ICC color space for RGBA data</source>
-        <translation type="unfinished"></translation>
+        <translation>nepodporovaný farebný priestor ICC pre údaje RGBA</translation>
     </message>
     <message>
         <source>cannot build a color transform from the ICC profile</source>
-        <translation type="unfinished"></translation>
+        <translation>z profilu ICC sa nepodarilo vytvoriť farebnú transformáciu</translation>
     </message>
 </context>
 <context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
-        <translation type="unfinished"></translation>
+        <translation>obrázok je príliš veľký pre dostupnú pamäť (potrebuje %1&#xa0;GB, limit %2&#xa0;GB)</translation>
     </message>
     <message>
         <source>(no description)</source>
-        <translation type="unfinished"></translation>
+        <translation>(bez popisu)</translation>
     </message>
     <message>
         <source>linear, chromaticities from the file</source>
-        <translation type="unfinished"></translation>
+        <translation>lineárny, súradnice chromatickosti zo súboru</translation>
     </message>
     <message>
         <source>linear BT.709 (assumed: the file&apos;s chromaticities are invalid)</source>
-        <translation type="unfinished"></translation>
+        <translation>lineárny BT.709 (predpokladá sa: súradnice chromatickosti v súbore sú neplatné)</translation>
     </message>
     <message>
         <source>%1 (assigned by the decoder)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (priradené dekodérom)</translation>
     </message>
     <message>
         <source>linear BT.709 (assumed)</source>
-        <translation type="unfinished"></translation>
+        <translation>lineárny BT.709 (predpokladá sa)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
-        <translation type="unfinished"></translation>
+        <translation>sRGB (predpokladá sa)</translation>
     </message>
     <message>
         <source>invalid dimensions (%1×%2×%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>neplatné rozmery (%1×%2×%3)</translation>
     </message>
     <message>
         <source>%1 (file metadata, via Qt)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (metadáta súboru, cez Qt)</translation>
     </message>
     <message>
         <source>SVG is only decoded in the graphical interface</source>
-        <translation type="unfinished"></translation>
+        <translation>SVG sa dekóduje iba v grafickom rozhraní</translation>
     </message>
     <message>
         <source>Cannot decode: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa dekódovať: %1</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (predpokladá sa: %2)</translation>
     </message>
     <message>
         <source>Not enough memory to decode the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie je dostatok pamäte na dekódovanie obrázka.</translation>
     </message>
     <message>
         <source>Decoding error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba dekódovania: %1</translation>
     </message>
 </context>
 <context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>Názov súboru</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmery</translation>
     </message>
     <message>
         <source>File size</source>
-        <translation type="unfinished"></translation>
+        <translation>Veľkosť súboru</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Priblíženie</translation>
     </message>
     <message>
         <source>Color space</source>
-        <translation type="unfinished"></translation>
+        <translation>Farebný priestor</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Dátum úpravy</translation>
     </message>
     <message>
         <source>Position in the folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Poloha v priečinku</translation>
     </message>
     <message>
         <source>Display output</source>
-        <translation type="unfinished"></translation>
+        <translation>Výstup displeja</translation>
     </message>
 </context>
 <context>
     <name>Renderer</name>
     <message>
         <source>SDR (sRGB)</source>
-        <translation type="unfinished"></translation>
+        <translation>SDR (sRGB)</translation>
     </message>
     <message>
         <source>EDR · headroom %1×</source>
-        <translation type="unfinished"></translation>
+        <translation>EDR · rezerva jasu %1×</translation>
     </message>
     <message>
         <source>Linear sRGB managed by ColorSync · no HDR headroom</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineárny sRGB spravovaný systémom ColorSync · bez rezervy jasu HDR</translation>
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
-        <translation type="unfinished"></translation>
+        <translation>scRGB · biela SDR %1&#xa0;cd/m² · špička %2&#xa0;cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
-        <translation type="unfinished"></translation>
+        <translation>HDR10 (PQ) · biela SDR %1&#xa0;cd/m² · špička %2&#xa0;cd/m²</translation>
     </message>
     <message>
         <source>Cannot initialize the GPU (QRhi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa inicializovať GPU (QRhi).</translation>
     </message>
     <message>
         <source>The GPU does not support RGBA16F textures.</source>
-        <translation type="unfinished"></translation>
+        <translation>GPU nepodporuje textúry RGBA16F.</translation>
     </message>
     <message>
         <source>Cannot create GPU resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa vytvoriť prostriedky GPU.</translation>
     </message>
     <message>
         <source>Cannot create the swapchain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodarilo sa vytvoriť swapchain.</translation>
     </message>
     <message>
         <source>(Qt defaults, not measured)</source>
-        <translation type="unfinished"></translation>
+        <translation>(predvolené hodnoty Qt, nemerané)</translation>
     </message>
 </context>
 <context>
     <name>SettingsDialog</name>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavenia</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Predvolený systémový</translation>
     </message>
     <message>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jazyk:</translation>
     </message>
     <message>
         <source>Languages other than English are machine translations awaiting review by native speakers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Iné jazyky ako angličtina sú strojové preklady čakajúce na kontrolu rodenými hovorcami.</translation>
     </message>
     <message>
         <source>Confirm before moving an image to the trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Pred presunutím obrázka do koša vyžadovať potvrdenie</translation>
     </message>
     <message>
         <source>Reopen the last image at startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Pri spustení znovu otvoriť posledný obrázok</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Všeobecné</translation>
     </message>
     <message>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation>Čierna</translation>
     </message>
     <message>
         <source>Dark gray</source>
-        <translation type="unfinished"></translation>
+        <translation>Tmavosivá</translation>
     </message>
     <message>
         <source>Gray</source>
-        <translation type="unfinished"></translation>
+        <translation>Sivá</translation>
     </message>
     <message>
         <source>Light gray</source>
-        <translation type="unfinished"></translation>
+        <translation>Svetlosivá</translation>
     </message>
     <message>
         <source>White</source>
-        <translation type="unfinished"></translation>
+        <translation>Biela</translation>
     </message>
     <message>
         <source>Custom…</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlastná…</translation>
     </message>
     <message>
         <source>Background:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozadie:</translation>
     </message>
     <message>
         <source>Show a checkerboard behind transparent areas</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobraziť šachovnicu za priehľadnými oblasťami</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
-        <translation type="unfinished"></translation>
+        <translation>Pamätať si veľkosť a polohu okna</translation>
     </message>
     <message>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zobraziť informačný panel (%1)</translation>
     </message>
     <message>
         <source>Overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prekrytie hore (%1)</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Vždy</translation>
     </message>
     <message>
         <source>When the pointer is at the top</source>
-        <translation type="unfinished"></translation>
+        <translation>Keď je ukazovateľ myši hore</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Nikdy</translation>
     </message>
     <message>
         <source>In full screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>Na celej obrazovke:</translation>
     </message>
     <message>
         <source>In a window:</source>
-        <translation type="unfinished"></translation>
+        <translation>V okne:</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Polia</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunúť nahor</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunúť nadol</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>Polia:</translation>
     </message>
     <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <source>Background opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepriehľadnosť pozadia:</translation>
     </message>
     <message>
         <source>Text opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepriehľadnosť textu:</translation>
     </message>
     <message>
         <source>Outline the text</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrysovať text</translation>
     </message>
     <message>
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> s</translation>
     </message>
     <message>
         <source>Hide after:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skryť po:</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informácie</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
-        <translation type="unfinished"></translation>
+        <translation>Po poslednom obrázku pokračovať prvým</translation>
     </message>
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
-        <translation type="unfinished"></translation>
+        <translation>Kliknutím na ľavú alebo pravú stranu okna prejdete na predchádzajúci alebo nasledujúci obrázok</translation>
     </message>
     <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> px</translation>
     </message>
     <message>
         <source>Width of each side:</source>
-        <translation type="unfinished"></translation>
+        <translation>Šírka každej strany:</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Názov</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Dátum úpravy</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Veľkosť</translation>
     </message>
     <message>
         <source>Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>Zostupne</translation>
     </message>
     <message>
         <source>Sort images by:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoradiť obrázky podľa:</translation>
     </message>
     <message>
         <source>Load the next and previous images in advance</source>
-        <translation type="unfinished"></translation>
+        <translation>Načítavať vopred nasledujúci a predchádzajúci obrázok</translation>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="unfinished"></translation>
+        <translation>Navigácia</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automaticky (HDR, ak ho displej podporuje)</translation>
     </message>
     <message>
         <source>SDR (sRGB)</source>
-        <translation type="unfinished"></translation>
+        <translation>SDR (sRGB)</translation>
     </message>
     <message>
         <source>HDR10 (PQ)</source>
-        <translation type="unfinished"></translation>
+        <translation>HDR10 (PQ)</translation>
     </message>
     <message>
         <source>Display output:</source>
-        <translation type="unfinished"></translation>
+        <translation>Výstup displeja:</translation>
     </message>
     <message>
         <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapovať tóny obrázkov HDR presahujúcich možnosti displeja (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farby &amp;&amp; HDR</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrušiť</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnoviť predvolené</translation>
     </message>
     <message>
         <source>Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farba pozadia</translation>
     </message>
 </context>
 <context>
@@ -391,543 +391,543 @@
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zmenšovanie obrázka, aby sa zmestil do GPU (najviac %1&#xa0;px)…</translation>
     </message>
     <message>
         <source>The GPU did not accept the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>GPU obrázok neprijalo.</translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Súbor sa nenašiel: %1</translation>
     </message>
     <message>
         <source>The folder contains no supported images.</source>
-        <translation type="unfinished"></translation>
+        <translation>Priečinok neobsahuje žiadne podporované obrázky.</translation>
     </message>
     <message>
         <source>This is the last image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Toto je posledný obrázok.</translation>
     </message>
     <message>
         <source>This is the first image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Toto je prvý obrázok.</translation>
     </message>
     <message>
         <source>Loading %1…</source>
-        <translation type="unfinished"></translation>
+        <translation>Načítavanie %1…</translation>
     </message>
     <message>
         <source>No images left in this folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>V tomto priečinku už nezostal žiadny obrázok.</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Súbor</translation>
     </message>
     <message>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Priečinok</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Veľkosť</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Upravené</translation>
     </message>
     <message>
         <source>Position</source>
         <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Poloha</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 z %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
         <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1&#xa0;MP</translation>
     </message>
     <message>
         <source>reduced to %1 × %2 for the GPU</source>
-        <translation type="unfinished"></translation>
+        <translation>zmenšené na %1 × %2 pre GPU</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozmery</translation>
     </message>
     <message>
         <source>%1-bit</source>
         <extracomment>Bits per channel of the image file, e.g. &quot;16-bit&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1-bitový</translation>
     </message>
     <message>
         <source>floating point</source>
-        <translation type="unfinished"></translation>
+        <translation>s pohyblivou rádovou čiarkou</translation>
     </message>
     <message>
         <source>alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>alfa</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formát</translation>
     </message>
     <message>
         <source>Orientation</source>
         <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Orientácia</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
-        <translation type="unfinished"></translation>
+        <translation>EXIF %1, použité</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farba</translation>
     </message>
     <message>
         <source>Peak</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Špičková jasnosť</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1× biela SDR (≈%2&#xa0;cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
         <extracomment>Unit after a duration in milliseconds.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Čas dekódovania</translation>
     </message>
     <message>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&#xa0;ms</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotoaparát</translation>
     </message>
     <message>
         <source>Lens</source>
-        <translation type="unfinished"></translation>
+        <translation>Objektív</translation>
     </message>
     <message>
         <source>%1 s</source>
         <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1&#xa0;s</translation>
     </message>
     <message>
         <source>%1 mm</source>
         <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1&#xa0;mm</translation>
     </message>
     <message>
         <source>Exposure</source>
         <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Expozícia</translation>
     </message>
     <message>
         <source>Taken</source>
         <extracomment>Label of the date the photograph was taken.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dátum nasnímania</translation>
     </message>
     <message>
         <source>%1 %</source>
         <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1&#xa0;%</translation>
     </message>
     <message>
         <source>rotated %1°</source>
         <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>otočené o %1°</translation>
     </message>
     <message>
         <source>mirrored</source>
-        <translation type="unfinished"></translation>
+        <translation>zrkadlené</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>expozícia %1&#xa0;EV</translation>
     </message>
     <message>
         <source>altered pixels highlighted</source>
-        <translation type="unfinished"></translation>
+        <translation>zmenené pixely zvýraznené</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazenie</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Výstup</translation>
     </message>
     <message>
         <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>mapovanie tónov BT.2390 z %1 na %2&#xa0;cd/m², bez zmeny do %3&#xa0;cd/m²</translation>
     </message>
     <message>
         <source>clipped above %1 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>orezané nad %1&#xa0;cd/m²</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>Svetlá</translation>
     </message>
     <message>
         <source>clipped above %1 nits (colors outside the output gamut)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>orezané nad %1&#xa0;cd/m² (farby mimo výstupného gamutu)</translation>
     </message>
     <message>
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>orezané nad %1&#xa0;cd/m² (mapovanie tónov vypnuté)</translation>
     </message>
     <message>
         <source>Enter a name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadajte názov.</translation>
     </message>
     <message>
         <source>This name is not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento názov nie je povolený.</translation>
     </message>
     <message>
         <source>A name cannot contain “/” or “\”.</source>
-        <translation type="unfinished"></translation>
+        <translation>Názov nesmie obsahovať „/“ ani „\“.</translation>
     </message>
     <message>
         <source>The name is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>Názov je príliš dlhý.</translation>
     </message>
     <message>
         <source>Windows does not allow this name.</source>
         <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows tento názov nepovoľuje.</translation>
     </message>
     <message>
         <source>A file with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Súbor s týmto názvom už existuje.</translation>
     </message>
     <message>
         <source>Open…</source>
-        <translation type="unfinished"></translation>
+        <translation>Otvoriť…</translation>
     </message>
     <message>
         <source>Clear Menu</source>
         <extracomment>Empties the Open Recent menu.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vymazať ponuku</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobraziť v Prieskumníkovi</translation>
     </message>
     <message>
         <source>Move to Recycle Bin…</source>
-        <translation type="unfinished"></translation>
+        <translation>Presunúť do Koša…</translation>
     </message>
     <message>
         <source>Move to Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Presunúť do Koša</translation>
     </message>
     <message>
         <source>Undo Move to Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrátiť späť presunutie do Koša</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobraziť vo Finderi</translation>
     </message>
     <message>
         <source>Move to Trash…</source>
-        <translation type="unfinished"></translation>
+        <translation>Presunúť do koša…</translation>
     </message>
     <message>
         <source>Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Presunúť do koša</translation>
     </message>
     <message>
         <source>Undo Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Vrátiť späť presunutie do koša</translation>
     </message>
     <message>
         <source>Show in File Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobraziť v správcovi súborov</translation>
     </message>
     <message>
         <source>Rename…</source>
-        <translation type="unfinished"></translation>
+        <translation>Premenovať…</translation>
     </message>
     <message>
         <source>Delete Permanently…</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstrániť natrvalo…</translation>
     </message>
     <message>
         <source>Copy Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopírovať obrázok</translation>
     </message>
     <message>
         <source>Copy File Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopírovať cestu k súboru</translation>
     </message>
     <message>
         <source>Settings…</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavenia…</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukončiť</translation>
     </message>
     <message>
         <source>Previous Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Predchádzajúci obrázok</translation>
     </message>
     <message>
         <source>Next Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasledujúci obrázok</translation>
     </message>
     <message>
         <source>First Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Prvý obrázok</translation>
     </message>
     <message>
         <source>Last Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Posledný obrázok</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Priblížiť</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Oddialiť</translation>
     </message>
     <message>
         <source>Fit to Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Prispôsobiť oknu</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Skutočná veľkosť (100&#xa0;%)</translation>
     </message>
     <message>
         <source>Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Celá obrazovka</translation>
     </message>
     <message>
         <source>Information Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Informačný panel</translation>
     </message>
     <message>
         <source>Information Overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>Informačné prekrytie</translation>
     </message>
     <message>
         <source>Checkerboard Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Šachovnicové pozadie</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
-        <translation type="unfinished"></translation>
+        <translation>Otočiť v smere hodinových ručičiek</translation>
     </message>
     <message>
         <source>Rotate Counterclockwise</source>
-        <translation type="unfinished"></translation>
+        <translation>Otočiť proti smeru hodinových ručičiek</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Preklopiť vodorovne</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Preklopiť zvisle</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zvýšiť expozíciu (+½ EV)</translation>
     </message>
     <message>
         <source>Decrease Exposure (−½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Znížiť expozíciu (−½ EV)</translation>
     </message>
     <message>
         <source>Reset Exposure</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnoviť expozíciu</translation>
     </message>
     <message>
         <source>Tone Mapping (BT.2390)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapovanie tónov (BT.2390)</translation>
     </message>
     <message>
         <source>Highlight Altered Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Zvýrazniť zmenené pixely</translation>
     </message>
     <message>
         <source>About imageViewer</source>
-        <translation type="unfinished"></translation>
+        <translation>O aplikácii imageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>O Qt</translation>
     </message>
     <message>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Otvoriť nedávne</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrázok</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farby &amp;&amp; HDR</translation>
     </message>
     <message>
         <source>Go</source>
-        <translation type="unfinished"></translation>
+        <translation>Prejsť</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomocník</translation>
     </message>
     <message>
         <source>Images (%1);;All files (*)</source>
         <extracomment>File dialog filters: keep &quot;%1&quot;, &quot;;;&quot; and &quot;(*)&quot; exactly.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Obrázky (%1);;Všetky súbory (*)</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Otvoriť obrázok</translation>
     </message>
     <message>
         <source>Copying the image…</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopírovanie obrázka…</translation>
     </message>
     <message>
         <source>Cannot copy the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrázok sa nepodarilo skopírovať.</translation>
     </message>
     <message>
         <source>Image copied to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrázok skopírovaný do schránky</translation>
     </message>
     <message>
         <source>File path copied to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Cesta k súboru skopírovaná do schránky</translation>
     </message>
     <message>
         <source>Move “%1” to the Recycle Bin?</source>
-        <translation type="unfinished"></translation>
+        <translation>Presunúť „%1“ do Koša?</translation>
     </message>
     <message>
         <source>Move “%1” to the trash?</source>
-        <translation type="unfinished"></translation>
+        <translation>Presunúť „%1“ do koša?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Zrušiť</translation>
     </message>
     <message>
         <source>Do not ask again</source>
-        <translation type="unfinished"></translation>
+        <translation>Znova sa nepýtať</translation>
     </message>
     <message>
         <source>Cannot move “%1” to the Recycle Bin.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ sa nepodarilo presunúť do Koša.</translation>
     </message>
     <message>
         <source>Cannot move “%1” to the trash.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ sa nepodarilo presunúť do koša.</translation>
     </message>
     <message>
         <source>Moved “%1” to the Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ presunuté do Koša</translation>
     </message>
     <message>
         <source>Moved “%1” to the trash</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ presunuté do koša</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstrániť „%1“ natrvalo?</translation>
     </message>
     <message>
         <source>The file does not go to the trash and cannot be restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Súbor sa nepresunie do koša a nebude ho možné obnoviť.</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstrániť</translation>
     </message>
     <message>
         <source>Cannot delete “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ sa nepodarilo odstrániť.</translation>
     </message>
     <message>
         <source>Deleted “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ odstránené</translation>
     </message>
     <message>
         <source>“%1” is no longer in the trash.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ už nie je v koši.</translation>
     </message>
     <message>
         <source>Cannot restore “%1”: a file with that name exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ sa nepodarilo obnoviť: súbor s týmto názvom už existuje.</translation>
     </message>
     <message>
         <source>Cannot restore “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ sa nepodarilo obnoviť.</translation>
     </message>
     <message>
         <source>Restored “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ obnovené</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Premenovať</translation>
     </message>
     <message>
         <source>New name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nový názov</translation>
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nový názov:</translation>
     </message>
     <message>
         <source>Cannot rename “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>„%1“ sa nepodarilo premenovať.</translation>
     </message>
     <message>
         <source>Renamed to “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>Premenované na „%1“</translation>
     </message>
     <message>
         <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prehliadač obrázkov s overiteľnou vernosťou farieb v SDR aj HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencované podľa Apache License, Version 2.0.</translation>
     </message>
     <message>
         <source>The licenses of the third-party components are in the &lt;i&gt;third-party&lt;/i&gt; folder installed with the application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencie komponentov tretích strán sa nachádzajú v priečinku &lt;i&gt;third-party&lt;/i&gt;, ktorý sa inštaluje spolu s aplikáciou.</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
 </context>
 </TS>

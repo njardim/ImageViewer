@@ -79,35 +79,35 @@
     <name>Overlay</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre del archivo</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensiones</translation>
     </message>
     <message>
         <source>File size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño del archivo</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoom</translation>
     </message>
     <message>
         <source>Color space</source>
-        <translation type="unfinished"></translation>
+        <translation>Espacio de color</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Fecha de modificación</translation>
     </message>
     <message>
         <source>Position in the folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Posición en la carpeta</translation>
     </message>
     <message>
         <source>Display output</source>
-        <translation type="unfinished"></translation>
+        <translation>Salida de pantalla</translation>
     </message>
 </context>
 <context>
@@ -213,11 +213,11 @@
     </message>
     <message>
         <source>Confirm before moving an image to the trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmar antes de mover una imagen a la Papelera</translation>
     </message>
     <message>
         <source>Show a checkerboard behind transparent areas</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar un fondo de cuadros detrás de las áreas transparentes</translation>
     </message>
     <message>
         <source>Window</source>
@@ -226,78 +226,78 @@
     <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar el panel de información (%1)</translation>
     </message>
     <message>
         <source>Overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Superposición en la parte superior (%1)</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Siempre</translation>
     </message>
     <message>
         <source>When the pointer is at the top</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuando el puntero está en la parte superior</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Nunca</translation>
     </message>
     <message>
         <source>In full screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>En pantalla completa:</translation>
     </message>
     <message>
         <source>In a window:</source>
-        <translation type="unfinished"></translation>
+        <translation>En una ventana:</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Campos</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Subir</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Bajar</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>Campos:</translation>
     </message>
     <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <source>Background opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacidad del fondo:</translation>
     </message>
     <message>
         <source>Text opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacidad del texto:</translation>
     </message>
     <message>
         <source>Outline the text</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir contorno al texto</translation>
     </message>
     <message>
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> s</translation>
     </message>
     <message>
         <source>Hide after:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar después de:</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Información</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -318,27 +318,27 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Fecha de modificación</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño</translation>
     </message>
     <message>
         <source>Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>Descendente</translation>
     </message>
     <message>
         <source>Sort images by:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordenar las imágenes por:</translation>
     </message>
     <message>
         <source>Load the next and previous images in advance</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargar de antemano la imagen siguiente y la anterior</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -419,41 +419,41 @@
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo</translation>
     </message>
     <message>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Carpeta</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificado</translation>
     </message>
     <message>
         <source>Position</source>
         <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Posición</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 de %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
         <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 MP</translation>
     </message>
     <message>
         <source>reduced to %1 × %2 for the GPU</source>
-        <translation type="unfinished"></translation>
+        <translation>reducida a %1 × %2 para la GPU</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensiones</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -465,108 +465,108 @@
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato</translation>
     </message>
     <message>
         <source>Orientation</source>
         <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Orientación</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
-        <translation type="unfinished"></translation>
+        <translation>EXIF %1, aplicada</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Color</translation>
     </message>
     <message>
         <source>Peak</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pico</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1× el blanco SDR (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
         <extracomment>Unit after a duration in milliseconds.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Decodificado en</translation>
     </message>
     <message>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ms</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Cámara</translation>
     </message>
     <message>
         <source>Lens</source>
-        <translation type="unfinished"></translation>
+        <translation>Objetivo</translation>
     </message>
     <message>
         <source>%1 s</source>
         <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 s</translation>
     </message>
     <message>
         <source>%1 mm</source>
         <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 mm</translation>
     </message>
     <message>
         <source>Exposure</source>
         <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exposición</translation>
     </message>
     <message>
         <source>Taken</source>
         <extracomment>Label of the date the photograph was taken.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fecha de captura</translation>
     </message>
     <message>
         <source>%1 %</source>
         <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 %</translation>
     </message>
     <message>
         <source>rotated %1°</source>
         <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>girada %1°</translation>
     </message>
     <message>
         <source>mirrored</source>
-        <translation type="unfinished"></translation>
+        <translation>reflejada</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Salida</translation>
     </message>
     <message>
         <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>mapeo de tonos BT.2390 de %1 a %2 nits, sin cambios hasta %3 nits</translation>
     </message>
     <message>
         <source>clipped above %1 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>recorte por encima de %1 nits</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>Luces altas</translation>
     </message>
     <message>
         <source>clipped above %1 nits (colors outside the output gamut)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>recorte por encima de %1 nits (colores fuera de la gama de salida)</translation>
     </message>
     <message>
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>recorte por encima de %1 nits (mapeo de tonos desactivado)</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
@@ -584,28 +584,28 @@
     </message>
     <message>
         <source>Enter a name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriba un nombre.</translation>
     </message>
     <message>
         <source>This name is not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Este nombre no está permitido.</translation>
     </message>
     <message>
         <source>A name cannot contain “/” or “\”.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un nombre no puede contener “/” ni “\”.</translation>
     </message>
     <message>
         <source>The name is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>El nombre es demasiado largo.</translation>
     </message>
     <message>
         <source>Windows does not allow this name.</source>
         <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows no permite este nombre.</translation>
     </message>
     <message>
         <source>A file with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya existe un archivo con este nombre.</translation>
     </message>
     <message>
         <source>Open…</source>
@@ -614,7 +614,7 @@
     <message>
         <source>Clear Menu</source>
         <extracomment>Empties the Open Recent menu.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Borrar menú</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -630,7 +630,7 @@
     </message>
     <message>
         <source>Undo Move to Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>Deshacer mover a la Papelera de reciclaje</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -646,7 +646,7 @@
     </message>
     <message>
         <source>Undo Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Deshacer mover a la Papelera</translation>
     </message>
     <message>
         <source>Show in File Manager</source>
@@ -654,11 +654,11 @@
     </message>
     <message>
         <source>Rename…</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar nombre…</translation>
     </message>
     <message>
         <source>Delete Permanently…</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar permanentemente…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -719,11 +719,11 @@
     </message>
     <message>
         <source>Information Overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>Superposición de información</translation>
     </message>
     <message>
         <source>Checkerboard Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Fondo de cuadros</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -773,63 +773,63 @@
     </message>
     <message>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir recientes</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Eliminar “%1” permanentemente?</translation>
     </message>
     <message>
         <source>The file does not go to the trash and cannot be restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>El archivo no se mueve a la Papelera y no se puede restaurar.</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <source>Cannot delete “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede eliminar “%1”.</translation>
     </message>
     <message>
         <source>Deleted “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” se eliminó</translation>
     </message>
     <message>
         <source>“%1” is no longer in the trash.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” ya no está en la Papelera.</translation>
     </message>
     <message>
         <source>Cannot restore “%1”: a file with that name exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede restaurar “%1”: ya existe un archivo con ese nombre.</translation>
     </message>
     <message>
         <source>Cannot restore “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede restaurar “%1”.</translation>
     </message>
     <message>
         <source>Restored “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” se restauró</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar nombre</translation>
     </message>
     <message>
         <source>New name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo nombre</translation>
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo nombre:</translation>
     </message>
     <message>
         <source>Cannot rename “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede cambiar el nombre de “%1”.</translation>
     </message>
     <message>
         <source>Renamed to “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>Se cambió el nombre a “%1”</translation>
     </message>
     <message>
         <source>View</source>

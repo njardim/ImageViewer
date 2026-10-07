@@ -30,7 +30,7 @@
 | Working branch | `claude/upbeat-bohr-tvnhkd` |
 | Latest milestone | **Release `v0.1` published** (2026-10-07, run 28, from `main` `51485b2`, merge of PR #2): packages Windows 42.5 MB, macOS 37.5 MB, Linux 49.0 MB, plus `SHA256SUMS` `[test]`. Contents (§9, "Release 0.1"): English-only repository and interface translated into 16 languages (D-27), qView feature set with grouped context menu and command table (D-28, D-30), Settings window and saved session (D-29), clickable side zones (D-31), new interaction test on Xvfb. **Earlier:** first published version `v0.1-alpha` (pre-release, 2026-10-06), produced only by CI from `main` (`3c0fd61`, merge of PR #1), with the 3 packages, `SHA256SUMS` and the provenance attestation `[test: run 19]`. Before that: C++/Qt 6.11 skeleton compiling without warnings. Color pipeline smoke tests pass (unbounded P3→scRGB, EXR > 1.0, EXIF orientation). **Screen test under Xvfb: 8-bit sRGB ramp at 100 % identical to the file, bit for bit, on Vulkan and OpenGL** (criterion F8 in SDR, Linux). CI for the 3 systems set up. **Phase 1: output stage with BT.2390 EETF and absolute PQ (D-15), verified by an offscreen harness on every output (D-16): 7/7 cases on Vulkan and OpenGL.** **Full adversarial review** (D-21 to D-26): alpha and compositing in linear light, CICP before ICC, matrix/curve ICC without LittleCMS, EDR layer on macOS, libheif without HEVC, GPU device loss, non-blocking decoding, third-party licenses in the packages, and automatic releases with package testing on clean machines. Locally: smoke tests 18/18, harness 7/7 and exact screen test on Vulkan and OpenGL `[test]`. |
 | CI | **Runs 6 and 7 green on all 3 systems** (`de0fe5a`): build, smoke tests, screen test, `--render` harness and packages with `LICENSE` and `NOTICE` `[test]`. **Run 10** (`9903f3b`): compiles with MSVC, Apple clang and GCC; failed only on the old `hdr4.exr` expectations (premultiplied alpha is now read as such, D-21). **Run 11** (`3aec5a9`): rebuilds the vcpkg dependencies (libheif overlay, macOS 13.0 triplet). **Run 12** (`55099a0`, new workflow D-26): Linux and macOS green, including the harness on **Metal** and the license gate `[test]`. On Windows, the harness on **D3D11/WARP** passes all 7 cases (GPU = CPU, error ≤ 5.6e-5), but the independent neutrality check in the PQ case failed. The tolerance in nits (0.1 nit) was tighter than WARP's precision: 9.2e-6 in the PQ code value gives up to 0.3 nit at 1000 nits, one thirtieth of a 10-bit step `[test]`. The check is now done on the PQ signal (tolerance of 5e-5). **Run 13** (`7967c4b`): all 3 builds went green, including the D3D11/WARP harness. The **Windows and macOS packages start and pass the smoke tests on a clean machine**, which validates `INSTALL_RPATH` for `macdeployqt` and the MSVC runtime DLLs `[test]`. The Linux package depends on `libOpenGL.so.0` and `libEGL.so.1` (libglvnd, linked by Qt), which the runner's minimal image does not have. They are system libraries and are never bundled in the package: they are documented as a requirement and the `verify` job installs them. **Run 14** (`abe9e7c`): **all green**, with 3 builds and 3 packages verified on clean machines `[test]`. **Run 17** (`main`, after the merge): green, and the vcpkg cache from `main` becomes available to all branches. **Release:** publishing through the web interface fired both the `release` event (run 18) and the tag `push` event (run 19). The concurrency group canceled run 18, and run 19 did build, verify and release `[test]`. **Runs 21–23** (`e06944b`…`a531419`, release 0.1): all green on the 3 systems, including the interaction test (Linux, Vulkan and OpenGL), the translations gate and the 3 packages on clean machines; the Windows build now installs `qttools` for `lrelease` `[test]`. |
-| Next steps | **1.** ~~Release 0.1~~ ✔. **2.** Native review of the translations (D-P13); Nuno reviews European Portuguese. **3.** ImageGlass feature set (§8.1) for 0.2, with the remaining qView items (rename, undo trash, recent files, file info, preloading). **To do (Nuno):** delete the CI artifacts from commits before `3aec5a9`, which contain x265 (GPL-2), in a public repository (D-25). **4.** Validate manually on Windows and macOS, including HDR displays. **5.** Phase 1: PQ/HLG corpus in the harness, pixel value readout, SdrIcc mode (display profile), ACM detection on Windows; decide D-P10. **6.** Requirement E14 (ImageGlass issue #2475) in Phase 3. |
+| Next steps | **1.** ~~Release 0.1~~ ✔. **2.** **Release 0.2** (§9, decisions D-32 to D-35): 37 languages, preloading of the next and previous images, consolidated information panel and the E14 top overlay, rename, permanent delete, undo, recent files, sorting, folder watching, checkerboard; then the full adversarial review (D-35, §11) before the PR. **3.** Native review of the translations (D-P13); Nuno reviews European Portuguese. **To do (Nuno):** delete the CI artifacts of runs #2 to #9, which contain x265 (GPL-2), in a public repository (D-25); steps in §11, "Deleting old CI artifacts". **4.** Validate manually on Windows and macOS, including HDR displays. **5.** Phase 1: PQ/HLG corpus in the harness, pixel value readout, SdrIcc mode (display profile), ACM detection on Windows; decide D-P10. **6.** Release 0.3: the rest of §8.1 (slideshow, window matching the image, zoom and title bar modes, shortcut editor, open with). |
 | Blockers | None. Before announcing the release: a public-facing README (D-P11). The packages are not signed yet (Phase 4, D-P08). |
 
 **What exists in the code** (`src/`, about 4,500 lines):
@@ -110,6 +110,10 @@
 | D-29 | 2026-10-07 | **Settings and session in `QSettings`** (registry on Windows, plist on macOS, INI on Linux; organization "Cristallumnis", application "imageViewer"). One `Settings` struct with defaults; `load()` validates every value (unknown language → system, colour → default, width clamped, unknown enum → automatic). Session state saved on close: normal window geometry, maximized/full screen, last file, last folder. Tests that start the GUI use their own `XDG_CONFIG_HOME`. | One place for every preference keeps the dialog, the defaults and the stored values consistent; validation keeps a corrupt or hand-edited file from breaking the application. |
 | D-30 | 2026-10-07 | **One command table** drives the keyboard and the context menu: each user action is a `ViewerWindow::Command` with its shortcuts, label, enabled/checked state and handler. Context menu grouped like desktop applications: frequent file actions at the top level (Open, Show in folder, Copy image, Copy path, Move to trash), then **View**, **Image**, **Color & HDR**, **Go** submenus, then Settings, **Help**, Quit. `ViewerWindow` is split in `viewer.cpp` (display, view state, input) and `commands.cpp` (commands, menus, file operations, dialogs). Platform wording: "Show in Explorer/Finder/File Manager", "Recycle Bin" on Windows. The macOS menu bar waits until it can be tested on a Mac (native key equivalents could fire commands twice). | Keyboard and menus can no longer drift apart; similar actions are grouped where users look for them; viewer.cpp would have exceeded the D-08 size limit. |
 | D-31 | 2026-10-07 | **Clickable side zones** for previous/next image: 200 logical pixels on each side (Settings, 80–400; at most a quarter of the window), a round 56 px button with a chevron shown while hovering, a click (press and release within the platform's drag distance) navigates, a drag still pans, a double-click in a zone keeps navigating; disabled with fewer than two images or at either end when navigation does not loop. Mouse back/forward buttons also navigate. Not mirrored in right-to-left languages (like media controls). | Owner's request (qView has no such zones; ImageGlass shows similar buttons on hover). Each UI layer has its own small texture in the renderer, so hover feedback never re-uploads the information panel. |
+| D-32 | 2026-10-07 | **37 interface languages** (resolves D-P12). The 16 of D-27 stay; added: **Korean, Italian, Turkish** (display, streaming and film markets) and every official EU language that was missing: **Bulgarian, Croatian, Czech, Danish, Dutch, Estonian, Finnish, Greek, Hungarian, Irish, Latvian, Lithuanian, Maltese, Polish, Romanian, Slovak, Slovenian, Swedish**. With English, French, German, Italian, Portuguese and Spanish, all 24 official EU languages are covered. The Settings list shows each language by its own name, sorted by its English name (stable whatever the interface language). Plural forms follow Qt Linguist's rules per language. All 36 translations are machine-generated and await native review (D-P13); Irish and Maltese have the least training material behind them, so they are the first candidates for review `[inference]`. | Owner's decision (2026-10-07): keep the work already done, add the market languages and cover the European Union, the first market of a Portuguese company. |
+| D-33 | 2026-10-07 | **Preloading of the next and the previous image.** Once the requested image is shown, the decode thread decodes its two neighbours (first in the direction of travel, then the other) into a RAM cache of finished images: linear scRGB RGBA16F, exactly what is uploaded to the GPU, so a step either way skips the decode and only the upload remains. The cache keeps the current image and its two neighbours only, within a budget of a quarter of physical memory (at least 256 MiB, at most 4 GiB). A neighbour whose source exceeds a third of the budget (8 bytes per pixel) is not preloaded; the check uses the header, before any pixel is read. Entries are keyed by path, file size, modification time and texture limit, checked against the file before use, and dropped when the file is renamed, deleted or changed, and on a language change (descriptions are composed while decoding). Cache and renderer share the pixel buffer (`std::shared_ptr`), so nothing is copied. There is still one decode thread: a preload cannot be cancelled, so a jump to a non-neighbouring image can wait for at most one preload. Setting: "Preload the next and previous images" (on). `ImageCache` lives in `cache.{h,cpp}`. | Owner's request: the previous image must also appear at once when navigating backwards. qView preloads ±1 by default, ImageGlass 0–10 (§8.1). Phase 3 target: the next image in ≤ 50 ms. Keeping the current image's pixels in RAM is what makes the step back instant. |
+| D-34 | 2026-10-07 | **Information in two places only.** (1) **The information panel (I)** holds every detail, as in 0.1-alpha, in one bottom-corner panel with label and value columns: file (name, folder, size, modified, position in the folder), image (dimensions and megapixels, format, bit depth, alpha, orientation), colour (description of the source, peak), camera when present (make and model, lens, exposure time, aperture, ISO, focal length, date taken), view and output (zoom, rotation and mirroring, exposure, output, graphics backend, tone mapping or clipping). There is no separate file-information dialog. (2) **The top overlay (E14)**: one compact line at the top of the window that never changes the viewport; by default exactly the six fields of ImageGlass issue #2475 (file name, dimensions, file size, zoom, colour space, modification date); position in the folder and output mode are optional fields; fields can be switched off and reordered; visibility set separately for full screen (default: show on hover at the top, hide after a delay) and for the window (default: hidden); background opacity, text opacity and text outline; Shift+I shows or hides it. The drawing code of `ViewerWindow` moves to `overlays.cpp` (viewer.cpp had passed the D-08 limit at 905 lines). | Owner's request (2026-10-07): no information scattered across the application; a quick glance at the top, with only what the ImageGlass request asked for. |
+| D-35 | 2026-10-07 | **Full adversarial review before every pull request**, of the whole codebase and not only the changes, for bugs, security, performance and structure. The procedure is in §11 ("Before every pull request"); a PR is not opened while a confirmed bug or security finding is open. | Owner's rule. The review before 0.1-alpha found defects that tests and diff reviews had missed: alpha 4.5× too dark, x265 (GPL-2) inside the packages, an unlaunchable `.dmg` (D-21, D-25, D-26). |
 
 ---
 
@@ -134,9 +138,9 @@ ImageGlass 10 is already cross-platform and reads more than 90 formats `[doc]`. 
 - **E9. Minimal professional tools:** pixel value as code value and in nits, clipping warning (pixels above the display peak) and exposure for linear content.
 - **E10. File actions:** move to trash with undo, rename, copy image/path, show in folder, open with.
 - **E11. Fullscreen and slideshow.**
-- **E12. Integration:** associations and single instance on all 3 systems; minimal settings; automatic theme; interface in 16 languages (D-27).
+- **E12. Integration:** associations and single instance on all 3 systems; minimal settings; automatic theme; interface in 37 languages (D-27, D-32).
 - **E13. Distribution:** packages for the 3 systems produced in CI, with signing optional but recommended.
-- **E14. Configurable info overlay** (D-14, origin: [ImageGlass #2475](https://github.com/d2phap/ImageGlass/issues/2475), opened by Nuno on 2026-10-03; in ImageGlass it is labeled *feature*/*ready* and planned for v10.1 `[doc: issue page, read on 2026-10-06 through a tool that summarizes the content]`).
+- **E14. Configurable info overlay** (D-14, origin: [ImageGlass #2475](https://github.com/d2phap/ImageGlass/issues/2475), opened by Nuno on 2026-10-03; in ImageGlass it is labeled *feature*/*ready* and planned for v10.1 `[doc: issue page, read on 2026-10-06 through a tool that summarizes the content]`). Nuno reports that ImageGlass has since implemented it; on 2026-10-07 the issue page still showed it open and the release notes up to v10.0.6.906 (2026-09-05) did not mention it `[doc]`, so imageViewer follows the issue text, not their implementation (D-11).
   - **Behavior:**
     - compact information at the top of the image in fullscreen, drawn on top;
     - reserves no space, and the viewport does not change when the overlay appears or disappears;
@@ -426,19 +430,20 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 - info;
 - fullscreen.
 
-**Info overlay (E14):** in fullscreen, by default in "show on mouse hover and auto-hide" mode, with the configurable fields of E14. The current Phase 0 diagnostic overlay is the technical starting point: an SDR texture composited on top, without affecting the layout.
+**Info overlay (E14, D-34, Shift+I):** one compact line at the top, its own renderer layer at SDR white, so the viewport never moves. Defaults: in full screen, shown while the pointer is in the top band and hidden after 1.5 s; in a window, hidden. Fields (on by default: the six of ImageGlass #2475): file name, dimensions, file size, zoom, colour space, modification date; optional: position in the folder, output mode. Settings: order and choice of fields, background opacity (0–100 %), text opacity, text outline, hide delay.
 
-**Info panel (I key):**
-- file, dimensions, codec;
-- bit depth and alpha;
-- **color chain:** source → working space → output mode and display (SDR/HDR, peak, SDR white);
-- HDR metadata;
-- EXIF.
+**Info panel (I key, D-34)**, the single place for every detail, label and value columns:
+- **File:** name, folder, size, modified, position in the folder;
+- **Image:** dimensions and megapixels (and the reduced size if the GPU limit applied), format, bit depth, floating point, alpha, EXIF orientation;
+- **Color:** source description (CICP, ICC, format attributes or assumed), peak in SDR-white units and nits;
+- **Camera** (only when present): make and model, lens, exposure time, aperture, ISO, focal length, date taken;
+- **View and output:** zoom, rotation and mirroring, exposure; output mode and display (SDR/HDR, peak, SDR white), graphics backend, tone mapping or clipping;
+- HDR metadata (MaxCLL, MaxFALL, mastering display) once the decoders expose them (§14).
 
-**Context menu** (the single source of actions, D-30; as in release 0.1, later items in brackets):
-- Open…, [Open Recent ▸, Open With ▸], Show in Explorer/Finder/File Manager
-- Copy Image, Copy File Path, Move to Trash/Recycle Bin…, [Rename…, Undo]
-- **View ▸** Zoom In, Zoom Out, Fit to Window, Actual Size (100 %) | Full Screen, Information Panel
+**Context menu** (the single source of actions, D-30; as in release 0.2, later items in brackets):
+- Open…, Open Recent ▸ (10 files, Clear Menu), [Open With ▸], Show in Explorer/Finder/File Manager
+- Copy Image, Copy File Path, Rename…, Move to Trash/Recycle Bin…, Delete Permanently…, Undo Move to Trash
+- **View ▸** Zoom In, Zoom Out, Fit to Window, Actual Size (100 %) | Full Screen, Information Panel, Information Overlay, Checkerboard Background
 - **Image ▸** Rotate Clockwise, Rotate Counterclockwise | Flip Horizontally, Flip Vertically
 - **Color & HDR ▸** Increase/Decrease/Reset Exposure | Tone Mapping (BT.2390), Highlight Altered Pixels
 - **Go ▸** Previous, Next | First, Last [| Slideshow]
@@ -460,8 +465,10 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 | Ctrl/⌘+Shift+E | Show in folder |
 | Ctrl/⌘ + / − / 0 / 1 | Zoom in / out / fit / 100 % (also without Ctrl) |
 | Mouse back / forward | Previous / next |
-| I | Info |
+| I | Info panel |
+| Shift+I | Info overlay (E14) |
 | Del | Trash |
+| Shift+Del | Delete permanently (always asks) |
 | Ctrl/⌘+Z | Undo |
 | F2 | Rename |
 | Ctrl/⌘+C | Copy image |
@@ -475,16 +482,17 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 | T | Tone mapping on/off |
 | Ctrl/⌘+, | Settings |
 
-**Settings** (D-29; release 0.1 in bold, later ones plain):
-- **General:** **language** (system default or one of 16), **confirm before deleting**, **reopen the last image at startup**;
-- **Window:** **background** (black, dark gray `#212121`, gray, light gray, white, custom), **remember window size and position**, **show the information panel**; theme;
-- **Navigation:** **loop at the ends of the folder**, **side click zones and their width**; sorting; mouse wheel behavior; preload memory;
+**Settings** (D-29; releases 0.1 and 0.2 in bold, later ones plain):
+- **General:** **language** (system default or one of 37), **confirm before moving to the trash**, **reopen the last image at startup**;
+- **Window:** **background** (black, dark gray `#212121`, gray, light gray, white, custom), **checkerboard behind transparency**, **remember window size and position**; theme;
+- **Information:** **show the information panel**; **top overlay: visibility in full screen and in a window (always, on hover, hidden), fields and their order, background opacity, text opacity, text outline, hide delay**;
+- **Navigation:** **loop at the ends of the folder**, **side click zones and their width**, **sort by name, date modified or size, ascending or descending**, **preload the next and previous images**; mouse wheel behavior;
 - **Color & HDR:** **display output (automatic, SDR, HDR10)**, **tone mapping at startup (BT.2390)**; SDR target profile (automatic or custom ICC);
 - "Associations…" button (Phase 4).
 
 ### 8.1 Feature parity: qView and ImageGlass (D-28)
 
-Sources: qView 7.1 (2025-07-26) and ImageGlass 9.6.1 (2026-08-05) — documentation, release notes and UI resource/string files; some default values were read from their source files as facts only, no code was copied (D-11) `[doc]`. ImageGlass 10 (beta) is a cross-platform rewrite with HDR tone mapping to SDR (§4.2). Status: ✔ = in imageViewer 0.1, a version = planned there, — = not planned.
+Sources: qView 7.1 (2025-07-26) and ImageGlass 9.6.1 (2026-08-05) — documentation, release notes and UI resource/string files; some default values were read from their source files as facts only, no code was copied (D-11) `[doc]`. ImageGlass 10 (beta) is a cross-platform rewrite with HDR tone mapping to SDR (§4.2). Status: ✔ = in imageViewer 0.1, a version = planned there, — = not planned. Window matching the image, zoom modes and title bar modes moved from 0.2 to 0.3 on 2026-10-07 to keep 0.2 reviewable.
 
 | Feature | qView | ImageGlass | imageViewer |
 |---|---|---|---|
@@ -503,24 +511,25 @@ Sources: qView 7.1 (2025-07-26) and ImageGlass 9.6.1 (2026-08-05) — documentat
 | First/last image, loop | yes | yes | ✔ (loop optional) |
 | Settings window, saved preferences | yes | yes | ✔ (4 tabs) |
 | Window geometry and state remembered | yes | yes | ✔ (plus reopen last image, optional) |
-| Interface languages | 30 | 43 | ✔ 16 (D-27) |
+| Interface languages | 30 | 43 | ✔ 16 (D-27); 0.2: 37 (D-32) |
 | Recent files | yes (10) | no | 0.2 |
-| File information dialog | yes | via system dialog | 0.2 (info panel, E8) |
-| Preloading neighbours | yes (±1 / ±4) | yes (0–10) | 0.2 (Phase 3 target: ≤ 50 ms) |
-| Sort modes | 6 | 9 | 0.2 (3, §4.1) |
+| File information dialog | yes | via system dialog | 0.2 (consolidated information panel, D-34) |
+| Preloading neighbours | yes (±1 / ±4) | yes (0–10) | 0.2 (±1, D-33; Phase 3 target: ≤ 50 ms) |
+| Sort modes | 6 | 9 | 0.2 (name, date modified, size; ascending or descending) |
 | Slideshow | yes | yes | 0.3 (E11) |
 | Animation controls | yes | yes | Phase 2 (E6) |
 | Shortcut editor | yes | config file only | 0.3 |
-| Window matches image size | yes | yes (Window Fit) | 0.2 |
-| Titlebar text modes | yes (4) | yes (tags) | 0.2 (with E14) |
-| Zoom modes (fit width/height, fill, lock) | partly | yes (6 + lock) | 0.2 |
+| Window matches image size | yes | yes (Window Fit) | 0.3 |
+| Titlebar text modes | yes (4) | yes (tags) | 0.3 |
+| Fullscreen information overlay (E14) | no | requested in #2475 | 0.2 (D-34) |
+| Zoom modes (fit width/height, fill, lock) | partly | yes (6 + lock) | 0.3 |
 | Checkerboard behind transparency | no | yes | 0.2 |
 | Thumbnail gallery, toolbar | no | yes | — (D-08 minimalism; reconsider after 1.0) |
 | Color picker / pixel value | no | yes | Phase 1 (E9, code value and nits) |
 | Channel view, invert colors | no | yes | 0.3 |
 | Crop, resize, save edited | no | yes | — (viewer, not editor) |
 | Open URL, paste image | URL | paste | 0.3 |
-| Real-time folder watching | no | yes | 0.2 (E2) |
+| Real-time folder watching | no | yes | 0.2 (E2: folder and current file) |
 | Frameless window, always on top | no | yes | 0.3 |
 | Print, share, set as wallpaper | no | yes | — |
 | Color management | display profile, sRGB, P3 | monitor or any ICC | ✔ ICC/CICP into scRGB, HDR output (D-10, D-15); display ICC: Phase 1 |
@@ -541,6 +550,20 @@ Relative effort in parentheses. Total estimate to v1: 16 to 24 weeks for a senio
 - [x] Interaction test on Xvfb with xdotool: side zones, flips/rotations, trash with confirmation, saved session (`tests/ui_test.py`) `[test]`
 - [x] Public README and `CONTRIBUTING.md` (DCO, translations)
 - [x] Green CI (runs 21–23), PR #2, release `v0.1` published by CI (run 28) `[test]`
+
+### Release 0.2 (October 2026, in progress)
+- [ ] 37 interface languages (D-32): Korean, Italian, Turkish and the 18 missing EU languages; every string translated; `check_translations --require-complete` green
+- [ ] Preloading of the next and previous images: RAM cache with a budget, shared pixels, direction of travel first, setting (D-33)
+- [ ] Consolidated information panel: file, image, colour, camera EXIF, view and output (D-34); `--info` prints the camera line
+- [ ] Top information overlay (E14, D-34): fields and order, visibility in full screen and in a window, opacities, outline, hide delay, Shift+I; new Settings tab "Information"
+- [ ] File actions (D-28): rename (F2), delete permanently (Shift+Delete, always asks), undo move to trash (Ctrl+Z), Open Recent (10, Clear Menu)
+- [ ] Folder: sort by name, date modified or size, ascending or descending; watch the folder and the current file (re-list; reload a changed image keeping the view)
+- [ ] Checkerboard behind transparency (Settings and View menu), anchored to the image
+- [ ] Tests: smoke (camera EXIF), interaction test (rename, permanent delete, undo, overlay leaves the image untouched, preloaded step)
+- [ ] Full adversarial review of the whole codebase (D-35); findings fixed or recorded
+- [ ] Green CI, PR, release `v0.2` published by CI
+
+Moved to 0.3: window matching the image size, zoom modes, title bar modes, slideshow, shortcut editor (§8.1).
 
 ### Phase 0 — Foundation (M)
 - [x] `CMakeLists.txt`, `CMakePresets.json`, `vcpkg.json`, `CLAUDE.md`, `scripts/build-qt-linux.sh`
@@ -573,8 +596,8 @@ Relative effort in parentheses. Total estimate to v1: 16 to 24 weeks for a senio
 
 ### Phase 3 — Viewer and UX (L)
 - [x] Context menu (D-30), settings (D-29), i18n (D-27), file actions: copy image/path, trash, show in folder (D-28)
-- [ ] Cache and preloading, *file watcher*, info panel (E8), macOS menu bar, themes, accessibility review, rename/undo trash/recent files (§8.1)
-- [ ] **E14 / ImageGlass #2475 — configurable info overlay:**
+- [ ] Cache and preloading, *file watcher*, info panel (E8), rename/undo trash/recent files (§8.1): release 0.2 (§9). macOS menu bar, themes, accessibility review: later.
+- [ ] **E14 / ImageGlass #2475 — configurable info overlay** (release 0.2, D-34):
   - [ ] Overlay at the top in fullscreen, without reserving space; zoom, pan and scale unchanged when showing or hiding it.
   - [ ] Visibility modes: always visible · hidden · show on mouse hover and auto-hide (activation zone at the top; configurable delay).
   - [ ] Appearance: background opacity (0–100 %, including transparent), independent text opacity, text shadow or outline.
@@ -671,6 +694,20 @@ Qt is deployed with `qt_generate_deploy_app_script`. The vcpkg DLLs and dylibs a
 
 The first dependency build takes 30 to 90 minutes per system `[estimate]`; after that it is kept in the vcpkg binary cache (`files` provider + `actions/cache`).
 
+**Before every pull request (D-35):** at the end of each release's development and before opening its PR, a full adversarial review of the whole codebase, not only the diff.
+1. **Scope:** `src/` (including the shaders), `CMakeLists.txt` and presets, `tests/`, `.github/workflows/`, `packaging/`, `scripts/`, `translations/` and the documents that make claims about the code (README, this plan, CLAUDE.md).
+2. **Reviewers:** several independent reviewers in parallel, one per area, each looking for the four kinds of defect:
+   - **bugs:** logic and edge cases (empty folder, one image, huge, corrupt, read-only or vanished files, right-to-left languages, HiDPI, GPU device loss), threads and object lifetimes, error paths;
+   - **security:** every file is untrusted input (dimensions, allocation sizes, integer overflow, decoder limits); paths and process arguments (never through a shell); clipboard, drag and drop and stored settings validated; no secrets in the repository; licences (the CI gate);
+   - **performance:** nothing slow on the UI thread (decoding, file I/O, folder listing), memory peaks and the cache budget, copies of pixel buffers, GPU uploads, work done per frame;
+   - **structure:** the rules in CLAUDE.md (English, `tr()`, commands, settings, file-size limit of D-08), duplicated logic, dead code, names, comments that no longer match the code.
+3. **Verification:** each finding is reproduced (a test, a script or the exact code path) before it is fixed; findings that do not reproduce are discarded with a one-line reason.
+4. **Fixes:** every confirmed finding in the release's scope is fixed; anything deliberately left goes to §13 or §14 with its reason. No PR is opened while a confirmed bug or security finding is open.
+5. **Re-test:** a build without warnings, `tests/smoke.sh`, `render_test.py`, `screen_test.py` and `ui_test.py` on Vulkan and OpenGL, `check_translations.py --require-complete`, and CI green on the 3 systems.
+6. **Record:** the PR description lists the areas reviewed, the confirmed findings with their fixes, and what was deferred.
+
+**Deleting old CI artifacts** (for example those built before D-25, which contain x265): artifacts belong to workflow runs, not to pull requests; GitHub does not delete pull requests (they can only be closed), and closing one leaves its runs and artifacts in place. In the repository: *Actions* → workflow **build** → open the run → at the bottom of its summary page, under **Artifacts**, the trash icon next to each artifact (it cannot be undone) `[doc: github/docs, remove-workflow-artifacts.md]`. Alternatively the run's **⋯** menu → *Delete workflow run* → confirm, which deletes the whole run `[doc: github/docs, delete-a-workflow-run.md]`, including its logs and artifacts `[knowledge]`. Artifacts expire on their own after the retention period (90 days unless the repository sets another) `[doc]`. The runs with x265 are #2 to #9 (commits `8d51f14` to `3020de6`); runs #1, #10 and #11 have no such artifacts `[test: workflow run listing, 2026-10-07]`.
+
 **Publishing a release (D-19, D-26):**
 1. On GitHub: *Releases* → *Draft a new release* → *Choose a tag* → type `vX.Y` or `vX.Y-suffix` (for example `v0.2` or `v0.3-beta`) → *Create new tag on publish*, target `main` → tick *Set as a pre-release* if it has a suffix → **Publish release**. Alternatively: `git tag v0.2 && git push origin v0.2`.
 2. The `release: published` event (or the tag push) runs the workflow **as it exists in the tagged commit**: it builds on the 3 systems, tests, packages (`.zip`, `.dmg`, `.tar.gz`), re-tests each package on a clean machine and confirms that `--version` shows the tag's version.
@@ -731,8 +768,8 @@ None of them blocks Phase 0. The stated proposal is the one adopted by default.
 | D-P09 | Single instance by default; nearest neighbor from 200 % up; relative colorimetric intent with BPC; no automatic updates; no telemetry | Adopted. |
 | D-P10 | EETF source peak: the image's absolute maximum (current) or a high percentile (99.9 %) / MaxCLL. | With the absolute maximum, a single specular pixel at 10,000 nits lowers the knee for the whole image (e.g. HDR 7300 nits → SDR: knee at 28 nits). A percentile preserves the midtones and clips the extremes. Decide with real HDR images in Phase 1. |
 | D-P11 | ~~Language of the public README and `CONTRIBUTING`~~ | **Resolved by D-27:** English, like everything in the repository. |
-| D-P12 | Language list: by total speakers (D-27) or by Cristallumnis' markets? | Today's list follows the owner's rule (the 16 most spoken). If markets matter more, Korean, Italian and Turkish (display, streaming and film industries) would replace Marathi, Telugu and Vietnamese. **Nuno's decision.** |
-| D-P13 | Native review of the 15 machine translations | Invite native-speaking contributors (CONTRIBUTING explains how, with Qt Linguist); Nuno reviews European Portuguese; a reviewed language drops the "machine translation" note for that language. |
+| D-P12 | ~~Language list: by total speakers (D-27) or by Cristallumnis' markets?~~ | **Resolved by D-32:** both; Korean, Italian and Turkish added without removing any language, plus every official EU language. |
+| D-P13 | Native review of the 36 machine translations | Invite native-speaking contributors (CONTRIBUTING explains how, with Qt Linguist); Nuno reviews European Portuguese; a reviewed language drops the "machine translation" note for that language. Irish and Maltese first (D-32). |
 | D-P14 | Linux backend if the Vulkan widget issue (§14) reproduces on real desktops | Use OpenGL when no HDR swapchain is available (Vulkan is only needed for HDR on Linux), keeping Vulkan for HDR. Decide after testing on a Linux desktop with a real Vulkan driver. |
 
 ---
@@ -755,6 +792,8 @@ None of them blocks Phase 0. The stated proposal is the one adopted by default.
 - Right-to-left layout of the overlay and of the side zones, checked by native Arabic/Urdu speakers; fonts for Indic scripts on minimal Linux installations.
 - Qt's own dialogs (color picker, non-native file dialog on Linux) stay in English until Qt's translations (`qtbase_*.qm`) are deployed with the packages.
 - The Ethnologue 2026 figures behind D-27 against ethnologue.com (only secondary sources were reachable).
+- Undoing a move to the trash (0.2) restores the file by renaming it back and removes the trash's record of it (freedesktop `info/*.trashinfo`; the `$I…` file next to `$R…` in the Windows Recycle Bin). Check on Windows and macOS that the Recycle Bin and the Trash show no stale entry afterwards.
+- Folder watching (0.2) on Windows: whether watching a folder stops the user from renaming or deleting that folder in Explorer while imageViewer shows it; and how network shares report changes.
 - ~~Whether publishing a release in the web interface also fires the tag `push`~~: yes. The `release` event run gets canceled and the `push` run does the work (runs 18 and 19) `[test]`. The canceled run is harmless.
 
 ---

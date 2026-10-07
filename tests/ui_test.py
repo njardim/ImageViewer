@@ -9,8 +9,9 @@ opened from a folder; every step waits until the expected pixels are on screen, 
   3. Delete asks for confirmation, Return moves the file to the trash, the next image follows;
   4. Ctrl+Z restores it (no stale trash record); stepping to a neighbour uses the preload
      cache (log); F2 renames; Shift+Delete always asks (Return cancels) and then deletes;
-     a file created or deleted by another program shows up or goes away (folder watching);
-     Shift+I shows the top overlay without moving the image by a pixel (E14);
+     a file created, deleted or rewritten by another program shows up, goes away or is
+     shown again (folder watching); Shift+I shows the top overlay without moving the image
+     by a pixel (E14); B shows the checkerboard behind a transparent image;
   5. Ctrl+Q quits and the session (last file, window geometry) is in the settings file.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
@@ -205,9 +206,11 @@ try:
             print("ok   b.png back in the folder, trash record removed")
 
             # c.png was the image on screen before the undo, and is b's next neighbour.
+            cache_hits = log_text().count("shown from the cache: c.png")
             xdotool("key", "Right")
             wait_for("Right shows the next image again", refs["c"])
-            wait_until("it came from the preload cache", lambda: "shown from the cache: c.png" in log_text())
+            wait_until("it came from the preload cache",
+                       lambda: log_text().count("shown from the cache: c.png") > cache_hits)
 
             xdotool("key", "F2")
             rename = find_dialog("Rename")
@@ -227,7 +230,8 @@ try:
                 fail("Shift+Delete did not ask for confirmation")
             xdotool("windowfocus", "--sync", box)
             xdotool("key", "Return")  # the default button is Cancel
-            time.sleep(1)
+            wait_until("Return closes the confirmation",
+                       lambda: not xdotool("search", "--onlyvisible", "--name", "^imageViewer$").stdout.split())
             if not os.path.exists(os.path.join(pictures, "d.png")):
                 fail("Return deleted the file: Cancel must be the default")
             print("ok   Shift+Delete asks first; Return cancels")
@@ -255,10 +259,13 @@ try:
             wait_until("a file created by another program appears in the folder", end_shows_e)
             os.remove(os.path.join(pictures, "e.png"))
             wait_for("the image deleted by another program is replaced", refs["b"])
+            # An editor saves new content into the file on screen: it is decoded again.
+            Image.fromarray(refs["e"].astype(np.uint8)).save(os.path.join(pictures, "b.png"))
+            wait_for("an image rewritten by another program is shown again", refs["e"])
 
             # E14: the top overlay appears without moving or changing the image.
             screen = grab()
-            before = find(screen, refs["b"]) if screen is not None else None
+            before = find(screen, refs["e"]) if screen is not None else None
             if before is None:
                 fail("image not found before showing the top overlay")
 
@@ -267,10 +274,35 @@ try:
                 if shot is None:
                     return False
                 band = shot[y + 8:y + 48, x + w // 2 - 150:x + w // 2 + 150]
-                return (band.min(axis=2) > 200).sum() > 30 and find(shot, refs["b"]) == before
+                return (band.min(axis=2) > 200).sum() > 30 and find(shot, refs["e"]) == before
             xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
             xdotool("key", "shift+i")
             wait_until("Shift+I shows the top overlay, the image stays exactly in place", overlay_shown)
+
+            # Checkerboard: a fully transparent image shows 8-pixel cells of the background
+            # (#212121) and of a lighter grey, anchored to the image's top-left corner.
+            Image.new("RGBA", (96, 64), (255, 0, 0, 0)).save(os.path.join(pictures, "f.png"))
+            cells = (np.add.outer(np.arange(64) // 8, np.arange(96) // 8) % 2).astype(bool)
+
+            def image_area(shot, dx, dy):
+                cx, cy = x + (w - 96) // 2 + dx, y + (h - 64) // 2 + dy
+                area = shot[cy:cy + 64, cx:cx + 96]
+                return area if area.shape[:2] == (64, 96) else None
+
+            def matches(expect_dark, expect_light):
+                xdotool("key", "End")
+                shot = grab()
+                for dy in (-1, 0, 1):  # the centred image may sit half a pixel either way
+                    for dx in (-1, 0, 1):
+                        area = image_area(shot, dx, dy) if shot is not None else None
+                        if area is not None and np.abs(area[~cells] - expect_dark).max() <= 2 \
+                                and np.abs(area[cells] - expect_light).max() <= 2:
+                            return True
+                return False
+            # Before B: nothing but the background where the transparent image lies.
+            wait_until("End shows the transparent image over the plain background", lambda: matches(0x21, 0x21))
+            xdotool("key", "b")
+            wait_until("B shows the checkerboard behind the transparent image", lambda: matches(0x21, 0x40))
 
             # 5. Quit; the session is saved.
             xdotool("key", "ctrl+q")
@@ -289,7 +321,7 @@ settings_file = os.path.join(config, "Cristallumnis", "imageViewer.conf")
 store = configparser.ConfigParser(interpolation=None)
 store.read(settings_file)
 last = store.get("session", "lastFile", fallback="")
-if os.path.basename(last) != "b.png" or not store.get("session", "geometry", fallback="").startswith("@Rect("):
+if os.path.basename(last) != "f.png" or not store.get("session", "geometry", fallback="").startswith("@Rect("):
     fail(f"session not saved as expected in {settings_file}: lastFile={last!r}")
 print("ok   session saved (last file, window geometry)")
 print(f"{rhi}: all interaction checks passed")

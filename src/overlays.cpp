@@ -325,7 +325,8 @@ void ViewerWindow::updateTopOverlay()
         return;
     const QLocale locale;
     QStringList parts;
-    if (!m_image.path.isEmpty()) {
+    // Hidden (the default in a window): nothing to paint or upload on every zoom step.
+    if (!m_image.path.isEmpty() && topOverlayMode() != OverlayVisibility::Hidden) {
         const bool hasImage = m_image.width > 0;
         for (OverlayField field : std::as_const(m_settings.overlayFields)) {
             switch (field) {

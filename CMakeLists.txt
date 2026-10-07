@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 # Versions are X.Y with an optional suffix: 0.1, 0.2-alpha, 1.0 (decision D-19).
 # Release builds take it from the tag (CI passes -DIMAGEVIEWER_VERSION=...);
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
-set(IMAGEVIEWER_VERSION "0.1-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
+set(IMAGEVIEWER_VERSION "0.2-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
     message(FATAL_ERROR "IMAGEVIEWER_VERSION must be X.Y or X.Y-suffix, got '${IMAGEVIEWER_VERSION}'")

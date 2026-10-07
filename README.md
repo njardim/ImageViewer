@@ -56,6 +56,7 @@ The packages are **not signed yet**:
 | R / Shift+R | Rotate clockwise / counterclockwise |
 | H / V | Flip horizontally / vertically |
 | I / Shift+I | Information panel / overlay at the top |
+| B | Checkerboard behind transparent areas |
 | E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
 | T | Tone mapping on/off (off: clip at the display's peak) |
 | C | Highlight altered (clipped or tone-mapped) pixels |
@@ -70,7 +71,7 @@ On macOS, Ctrl is ⌘.
 
 ## How fidelity is verified
 
-On every change, CI runs these tests on Windows, macOS and Linux:
+On every change, CI builds and tests on Windows, macOS and Linux (the on-screen and interaction tests need a display server, so they run on Linux, under Xvfb):
 - **Decode and color tests:** a Display P3 red keeps its out-of-sRGB value, an EXR keeps values above SDR white, alpha is handled correctly, and each codec decodes exactly. The same tests run again on the packaged application.
 - **Output tests:** the GPU output is read back for SDR, EDR, scRGB and HDR10, with and without tone mapping, and compared with:
   - a CPU reference implementation;

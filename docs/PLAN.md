@@ -33,7 +33,7 @@
 | Next steps | **1.** ~~Release 0.1~~ ✔. **2.** **Release 0.2** (§9, decisions D-32 to D-35): 37 languages, preloading of the next and previous images, consolidated information panel and the E14 top overlay, rename, permanent delete, undo, recent files, sorting, folder watching, checkerboard; then the full adversarial review (D-35, §11) before the PR. **3.** Native review of the translations (D-P13); Nuno reviews European Portuguese. **To do (Nuno):** delete the CI artifacts of runs #2 to #9, which contain x265 (GPL-2), in a public repository (D-25); steps in §11, "Deleting old CI artifacts". **4.** Validate manually on Windows and macOS, including HDR displays. **5.** Phase 1: PQ/HLG corpus in the harness, pixel value readout, SdrIcc mode (display profile), ACM detection on Windows; decide D-P10. **6.** Release 0.3: the rest of §8.1 (slideshow, window matching the image, zoom and title bar modes, shortcut editor, open with). |
 | Blockers | None. Before announcing the release: a public-facing README (D-P11). The packages are not signed yet (Phase 4, D-P08). |
 
-**What exists in the code** (`src/`, about 4,500 lines):
+**What exists in the code** (`src/`, about 6,400 lines in October 2026):
 - OIIO decoding with `QImageReader` as fallback;
 - single conversion to linear scRGB in RGBA16F: unbounded LittleCMS, analytic CICP (PQ, HLG, sRGB, BT.1886, γ), OIIO color spaces (including ACES AP0/AP1) and EXR chromaticities;
 - EXIF orientation;
@@ -42,9 +42,9 @@
 - `hdrInfo` → SDR white scale and display peak;
 - shader with SDR, scRGB and PQ outputs; BT.2390 EETF tone mapping or clipping (T key); PQ in absolute nits where the output allows it (D-15); CPU reference of the same stage (`color::applyOutputStage`);
 - `--render` harness: 1:1 offscreen render, GPU readback and comparison with the reference (D-16);
-- diagnostic overlay at SDR white level;
-- zoom at cursor, exact 100 %, pan, view rotation and mirroring, exposure, altered-pixel warning;
-- folder navigation with natural sorting; drag and drop; context menu; `--info`.
+- information panel and E14 top overlay at SDR white level (D-34);
+- zoom at cursor, exact 100 %, pan, view rotation and mirroring, exposure, altered-pixel warning, checkerboard behind transparency;
+- folder navigation sorted by name, date or size, preloading of both neighbours (D-33), folder watching; drag and drop; command table and context menu (D-30); settings and session (D-29); file actions (copy, rename, trash and undo, permanent delete, recent files); `--info`.
 
 **Notes for cloud sessions** (Linux container):
 - `download.qt.io` and GitHub *releases* are blocked by the proxy `[test]`. Qt 6.11 is built from GitHub with `scripts/build-qt-linux.sh` (≈15 min with 4 vCPU).
@@ -67,7 +67,7 @@
   - **Linux:** the screen test did not find the image. The viewer log had only the decode line, without the `backend` line: at 6 s the renderer had not started yet `[test]`.
   - **Cause:** the test waited for a fixed time. Locally, the Vulkan window (lavapipe) becomes exact in 0.9–1.3 s; in a cold run it took 11 s `[test]`. On a freshly provisioned runner, Mesa/LLVM startup can take longer than 6 s `[inference]`.
   - **Fix:** `tests/screen_test.py` *polls* the screen until the image appears exact, with a 60 s deadline, and fails immediately if the viewer exits. The log now has per-line timestamps. On failure, CI saves the screenshot and the log as an artifact.
-- The 1st build of the vcpkg dependencies is long. The binary cache is saved even if the job fails (`if: always()`).
+- The 1st build of the vcpkg dependencies is long. The binary cache is saved even if the job fails (`if: always()`; later a partial save, only when the regular save did not happen).
 - A new push to the branch cancels the run in progress (concurrency group). During the 1st Windows vcpkg build, it is best to hold back pushes until the job finishes.
 - **Run 4, Windows:** the 1st vcpkg build took 34 min. After that, the full Windows job takes about 1.5 min with the cache `[test]`.
 - **Run 5 (9711205):** Windows and macOS green with the Phase 1 code, which confirms that it compiles with MSVC and Apple clang. On Linux, the screen test with *polling* passed in 20 s. The `--render` harness failed in every case with "neutral is not neutral": the decoded pixel (0,0) was the last row of the corpus `[test]`.
@@ -280,13 +280,16 @@ CLAUDE.md             entry point for new sessions -> reads this plan
 docs/PLAN.md          this document
 src/
   main.cpp            QApplication, arguments, language, session restore, QFileOpenEvent
-  viewer.h/.cpp       ViewerWindow (QWindow): display, zoom/pan, navigation, input, overlays
+  viewer.h/.cpp       ViewerWindow (QWindow): window, rendering, zoom/pan/rotation, input
+  navigation.cpp      ViewerWindow: folder, loading, preloading, folder watching (D-33)
+  overlays.cpp        ViewerWindow: information panel, top overlay, navigation buttons (D-34)
   commands.cpp        ViewerWindow: command table, context menu, file operations, dialogs (D-30)
+  cache.h/.cpp        preload cache of decoded images (D-33)
   settings.h/.cpp     Settings + session (QSettings), Settings dialog, UI languages (D-27, D-29)
   renderer.h/.cpp     QRhi: SDR/HDR swapchain, textures, pipeline, output modes
   image.h/.cpp        Image + decodeFile(): OIIO -> FFmpeg -> SVG -> Qt; conversion to linear scRGB
   color.h/.cpp        ICC (lcms2), CICP (PQ/HLG/sRGB/...), matrices, display 3D LUT
-  folder.h/.cpp       listing, natural sorting, cache and preloading
+  folder.h/.cpp       listing and sorting (natural name order, date, size)
   platform.h          per-OS services (display ICC profile, HDR state, show in folder)
   platform_win.cpp | platform_mac.mm | platform_linux.cpp
   shaders/image.vert, image.frag   compiled with qsb at build time
@@ -469,6 +472,7 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 | Shift+I | Info overlay (E14) |
 | Del | Trash |
 | Shift+Del | Delete permanently (always asks) |
+| B | Checkerboard behind transparency |
 | Ctrl/⌘+Z | Undo |
 | F2 | Rename |
 | Ctrl/⌘+C | Copy image |
@@ -672,9 +676,9 @@ On the PQ outputs, neutrality (R = G = B for a gray) is checked on the BT.2020 s
 
 It passes on Vulkan (lavapipe) and OpenGL (llvmpipe) `[test]`. It runs in the Linux CI; on Windows (D3D11) and macOS (Metal) it runs with the `offscreen` platform. On macOS, exit code 4 (no GPU) is only a warning.
 
-**Smoke tests** (`tests/smoke.sh`, `--info` without a graphics platform): P3 ICC, EXR with premultiplied alpha, PNG with straight alpha, EXIF orientation, PFM, and one file per vcpkg codec (WebP, GIF, JPEG 2000, AVIF, 16-bit TIFF). They run in the build and again on the package on a clean machine (`verify` job).
+**Smoke tests** (`tests/smoke.sh`, `--info` without a graphics platform): P3 ICC, EXR with premultiplied alpha, PNG with straight alpha, EXIF orientation, EXIF camera data with control characters removed (`camera.jpg`), PFM, and one file per vcpkg codec (WebP, GIF, JPEG 2000, AVIF, 16-bit TIFF). They run in the build and again on the package on a clean machine (`verify` job).
 
-**Interaction test** (`tests/ui_test.py`, Xvfb + xdotool, Vulkan and OpenGL): three noise images in a folder; hovering the right edge shows the button, clicks on the sides navigate, H/V/R/Shift+R flip and rotate (compared pixel for pixel with numpy's flips and rotations), Delete asks first and Return moves the file to the trash (checked in `$XDG_DATA_HOME/Trash`), Ctrl+Q saves the session (checked in the settings file). The application runs with its own `HOME`, `XDG_CONFIG_HOME` and `XDG_DATA_HOME` `[test]`.
+**Interaction test** (`tests/ui_test.py`, Xvfb + xdotool, Vulkan and OpenGL): three noise images in a folder; hovering the right edge shows the button, clicks on the sides navigate, H/V/R/Shift+R flip and rotate (compared pixel for pixel with numpy's flips and rotations), Delete asks first and Return moves the file to the trash (checked in `$XDG_DATA_HOME/Trash`); since 0.2 also: Ctrl+Z restores it with no trash record left, the step to the neighbour comes from the preload cache (log), F2 renames, Shift+Delete asks with Cancel as default and then deletes, a file added, deleted or rewritten by another program appears, is replaced or is shown again, Shift+I shows the top overlay without moving the image by a pixel, and B shows the checkerboard behind a transparent image (cells compared with the expected pattern); Ctrl+Q saves the session (checked in the settings file). The application runs with its own `HOME`, `XDG_CONFIG_HOME` and `XDG_DATA_HOME` `[test]`.
 
 **Translations gate** (`tests/check_translations.py`): every finished translation keeps the source's placeholders, `&&`, `;;`, `(*)` and HTML tags; on release tags every language must be complete (D-27).
 

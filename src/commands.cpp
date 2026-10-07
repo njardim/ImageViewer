@@ -133,7 +133,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
         {C::Info, {K(Qt::Key_I)}, false},
         {C::InfoOverlay, {K(Qt::SHIFT | Qt::Key_I)}, false},
-        {C::Checkerboard, {}, false},
+        {C::Checkerboard, {K(Qt::Key_B)}, false},
         {C::RotateClockwise, {K(Qt::Key_R)}, false},
         {C::RotateCounterclockwise, {K(Qt::SHIFT | Qt::Key_R)}, false},
         {C::FlipHorizontal, {K(Qt::Key_H)}, false},

@@ -184,11 +184,19 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
-      # Releases must ship every UI language complete; elsewhere missing ones only warn (D-27).
+      # Every tr() string must be in the .ts files (update_translations was run), and releases
+      # and pull requests into main need every UI language complete; elsewhere missing
+      # translations only warn while work is in progress (D-27).
       - name: Translations gate
         if: runner.os == 'Linux'
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+          cmake --build --preset ${{ matrix.preset }} --target update_translations > /dev/null
+          if ! git diff --quiet -- translations/; then
+            git diff --stat -- translations/
+            echo "::error::translations/*.ts are out of date: run the update_translations target and translate the new strings"
+            exit 1
+          fi
+          if [[ "$GITHUB_REF" == refs/tags/v* || "$GITHUB_BASE_REF" == main ]]; then
             python3 tests/check_translations.py --require-complete
           else
             python3 tests/check_translations.py

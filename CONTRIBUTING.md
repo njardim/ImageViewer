@@ -30,7 +30,7 @@ See [Building from source](README.md#building-from-source). Before opening a pul
 - `tests/render_test.py`, `tests/screen_test.py` and `tests/ui_test.py <executable> [vulkan|opengl]`: GPU output, on-screen pixels and interaction (Linux, under Xvfb);
 - `tests/check_translations.py`: translations.
 
-CI runs all of them on Windows, macOS and Linux.
+CI runs the smoke tests and the output harness on Windows, macOS and Linux, and the on-screen, interaction and translation checks on Linux.
 
 ## Translations
 

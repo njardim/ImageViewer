@@ -50,4 +50,4 @@ When you change interface text in the code, regenerate the files with `cmake --b
 Open an issue with:
 - the version (`imageViewer --version`) and your system;
 - for color problems, the output of `imageViewer --info <file>` and, if possible, the file;
-- for HDR problems, the line starting with "Output:" in the information panel (press I).
+- for HDR problems, the "Output" and "Highlights" rows of the information panel (press I).

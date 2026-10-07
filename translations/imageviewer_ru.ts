@@ -303,7 +303,7 @@
     </message>
     <message>
         <source>Output: %1</source>
-        <extracomment>%1: the display output (e.g. &quot;HDR10 (PQ) · SDR white 203 nits&quot;), %2: the graphics API.</extracomment>
+        <extracomment>%1: the display output, e.g. &quot;HDR10 (PQ) · SDR white 203 nits · peak 1000 nits&quot;.</extracomment>
         <translation>Вывод: %1</translation>
     </message>
     <message>

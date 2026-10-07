@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>linear BT.709 (assumed: the file&apos;s chromaticities are invalid)</source>
-        <translation>BT.709 linéaire (supposé : les chromaticités du fichier ne sont pas valides)</translation>
+        <translation>BT.709 linéaire (supposé&#xa0;: les chromaticités du fichier ne sont pas valides)</translation>
     </message>
     <message>
         <source>%1 (assigned by the decoder)</source>
@@ -60,11 +60,11 @@
     </message>
     <message>
         <source>Cannot decode: %1</source>
-        <translation>Impossible de décoder : %1</translation>
+        <translation>Impossible de décoder&#xa0;: %1</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
-        <translation>%1 (supposé : %2)</translation>
+        <translation>%1 (supposé&#xa0;: %2)</translation>
     </message>
     <message>
         <source>Not enough memory to decode the image.</source>
@@ -72,7 +72,7 @@
     </message>
     <message>
         <source>Decoding error: %1</source>
-        <translation>Erreur de décodage : %1</translation>
+        <translation>Erreur de décodage&#xa0;: %1</translation>
     </message>
 </context>
 <context>
@@ -130,7 +130,7 @@
     </message>
     <message>
         <source>Language:</source>
-        <translation>Langue :</translation>
+        <translation>Langue&#xa0;:</translation>
     </message>
     <message>
         <source>Languages other than English are machine translations awaiting review by native speakers.</source>
@@ -174,7 +174,7 @@
     </message>
     <message>
         <source>Background:</source>
-        <translation>Arrière-plan :</translation>
+        <translation>Arrière-plan&#xa0;:</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -203,7 +203,7 @@
     </message>
     <message>
         <source>Width of each side:</source>
-        <translation>Largeur de chaque côté :</translation>
+        <translation>Largeur de chaque côté&#xa0;:</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -223,7 +223,7 @@
     </message>
     <message>
         <source>Display output:</source>
-        <translation>Sortie d’affichage :</translation>
+        <translation>Sortie d’affichage&#xa0;:</translation>
     </message>
     <message>
         <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
@@ -255,7 +255,7 @@
     <name>ViewerWindow</name>
     <message>
         <source>File not found: %1</source>
-        <translation>Fichier introuvable : %1</translation>
+        <translation>Fichier introuvable&#xa0;: %1</translation>
     </message>
     <message>
         <source>The folder contains no supported images.</source>
@@ -303,8 +303,8 @@
     </message>
     <message>
         <source>Output: %1</source>
-        <extracomment>%1: the display output (e.g. &quot;HDR10 (PQ) · SDR white 203 nits&quot;), %2: the graphics API.</extracomment>
-        <translation>Sortie : %1</translation>
+        <extracomment>%1: the display output, e.g. &quot;HDR10 (PQ) · SDR white 203 nits · peak 1000 nits&quot;.</extracomment>
+        <translation>Sortie&#xa0;: %1</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
@@ -325,7 +325,7 @@
     </message>
     <message>
         <source>BT.2390 tone mapping: %1 → %2 nits, unchanged up to %3 nits</source>
-        <translation>Mappage des tons BT.2390 : %1 → %2 nits, inchangé jusqu’à %3 nits</translation>
+        <translation>Mappage des tons BT.2390&#xa0;: %1 → %2 nits, inchangé jusqu’à %3 nits</translation>
     </message>
     <message>
         <source>Components above %1 nits clipped (color outside the output gamut)</source>
@@ -333,7 +333,7 @@
     </message>
     <message>
         <source>Tone mapping off: values above %1 nits clipped</source>
-        <translation>Mappage des tons désactivé : valeurs au-delà de %1 nits écrêtées</translation>
+        <translation>Mappage des tons désactivé&#xa0;: valeurs au-delà de %1 nits écrêtées</translation>
     </message>
     <message>
         <source>Open…</source>
@@ -515,11 +515,11 @@
     </message>
     <message>
         <source>Move “%1” to the Recycle Bin?</source>
-        <translation>Déplacer « %1 » vers la Corbeille ?</translation>
+        <translation>Déplacer «&#xa0;%1&#xa0;» vers la Corbeille&#xa0;?</translation>
     </message>
     <message>
         <source>Move “%1” to the trash?</source>
-        <translation>Placer « %1 » dans la Corbeille ?</translation>
+        <translation>Placer «&#xa0;%1&#xa0;» dans la Corbeille&#xa0;?</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -531,19 +531,19 @@
     </message>
     <message>
         <source>Cannot move “%1” to the Recycle Bin.</source>
-        <translation>Impossible de déplacer « %1 » vers la Corbeille.</translation>
+        <translation>Impossible de déplacer «&#xa0;%1&#xa0;» vers la Corbeille.</translation>
     </message>
     <message>
         <source>Cannot move “%1” to the trash.</source>
-        <translation>Impossible de placer « %1 » dans la Corbeille.</translation>
+        <translation>Impossible de placer «&#xa0;%1&#xa0;» dans la Corbeille.</translation>
     </message>
     <message>
         <source>Moved “%1” to the Recycle Bin</source>
-        <translation>« %1 » a été déplacé vers la Corbeille</translation>
+        <translation>«&#xa0;%1&#xa0;» a été déplacé vers la Corbeille</translation>
     </message>
     <message>
         <source>Moved “%1” to the trash</source>
-        <translation>« %1 » a été placé dans la Corbeille</translation>
+        <translation>«&#xa0;%1&#xa0;» a été placé dans la Corbeille</translation>
     </message>
     <message>
         <source>No images left in this folder.</source>

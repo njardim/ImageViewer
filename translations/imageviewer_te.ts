@@ -79,35 +79,35 @@
     <name>Overlay</name>
     <message>
         <source>File name</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫైల్ పేరు</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>కొలతలు</translation>
     </message>
     <message>
         <source>File size</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫైల్ పరిమాణం</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>జూమ్</translation>
     </message>
     <message>
         <source>Color space</source>
-        <translation type="unfinished"></translation>
+        <translation>కలర్ స్పేస్</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>సవరించిన తేదీ</translation>
     </message>
     <message>
         <source>Position in the folder</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫోల్డర్‌లో స్థానం</translation>
     </message>
     <message>
         <source>Display output</source>
-        <translation type="unfinished"></translation>
+        <translation>డిస్‌ప్లే అవుట్‌పుట్</translation>
     </message>
 </context>
 <context>
@@ -213,11 +213,11 @@
     </message>
     <message>
         <source>Confirm before moving an image to the trash</source>
-        <translation type="unfinished"></translation>
+        <translation>చిత్రాన్ని ట్రాష్‌కు తరలించే ముందు నిర్ధారించు</translation>
     </message>
     <message>
         <source>Show a checkerboard behind transparent areas</source>
-        <translation type="unfinished"></translation>
+        <translation>పారదర్శక ప్రాంతాల వెనుక చెకర్‌బోర్డ్ చూపు</translation>
     </message>
     <message>
         <source>Window</source>
@@ -226,78 +226,78 @@
     <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>సమాచార ప్యానెల్ చూపు (%1)</translation>
     </message>
     <message>
         <source>Overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>పైన ఓవర్‌లే (%1)</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>ఎల్లప్పుడూ</translation>
     </message>
     <message>
         <source>When the pointer is at the top</source>
-        <translation type="unfinished"></translation>
+        <translation>పాయింటర్ పైన ఉన్నప్పుడు</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>ఎప్పుడూ కాదు</translation>
     </message>
     <message>
         <source>In full screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>పూర్తి స్క్రీన్‌లో:</translation>
     </message>
     <message>
         <source>In a window:</source>
-        <translation type="unfinished"></translation>
+        <translation>విండోలో:</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫీల్డ్‌లు</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished"></translation>
+        <translation>పైకి జరుపు</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished"></translation>
+        <translation>కిందకు జరుపు</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫీల్డ్‌లు:</translation>
     </message>
     <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <source>Background opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>నేపథ్య అపారదర్శకత:</translation>
     </message>
     <message>
         <source>Text opacity:</source>
-        <translation type="unfinished"></translation>
+        <translation>టెక్స్ట్ అపారదర్శకత:</translation>
     </message>
     <message>
         <source>Outline the text</source>
-        <translation type="unfinished"></translation>
+        <translation>టెక్స్ట్‌కు అవుట్‌లైన్ ఇవ్వు</translation>
     </message>
     <message>
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation> సెకన్లు</translation>
     </message>
     <message>
         <source>Hide after:</source>
-        <translation type="unfinished"></translation>
+        <translation>తర్వాత దాచు:</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>సమాచారం</translation>
     </message>
     <message>
         <source>After the last image, continue with the first</source>
@@ -318,27 +318,27 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>పేరు</translation>
     </message>
     <message>
         <source>Date modified</source>
-        <translation type="unfinished"></translation>
+        <translation>సవరించిన తేదీ</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>పరిమాణం</translation>
     </message>
     <message>
         <source>Descending</source>
-        <translation type="unfinished"></translation>
+        <translation>అవరోహణ</translation>
     </message>
     <message>
         <source>Sort images by:</source>
-        <translation type="unfinished"></translation>
+        <translation>చిత్రాలను ఇలా క్రమబద్ధీకరించు:</translation>
     </message>
     <message>
         <source>Load the next and previous images in advance</source>
-        <translation type="unfinished"></translation>
+        <translation>తదుపరి మరియు మునుపటి చిత్రాలను ముందుగానే లోడ్ చేయి</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -419,41 +419,41 @@
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫైల్</translation>
     </message>
     <message>
         <source>Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫోల్డర్</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>పరిమాణం</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>సవరించబడింది</translation>
     </message>
     <message>
         <source>Position</source>
         <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>స్థానం</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%2లో %1</translation>
     </message>
     <message>
         <source>%1 MP</source>
         <extracomment>Megapixels, e.g. &quot;24.0 MP&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 MP</translation>
     </message>
     <message>
         <source>reduced to %1 × %2 for the GPU</source>
-        <translation type="unfinished"></translation>
+        <translation>GPU కోసం %1 × %2కు తగ్గించబడింది</translation>
     </message>
     <message>
         <source>Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>కొలతలు</translation>
     </message>
     <message>
         <source>floating point</source>
@@ -465,108 +465,108 @@
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫార్మాట్</translation>
     </message>
     <message>
         <source>Orientation</source>
         <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ఓరియంటేషన్</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
-        <translation type="unfinished"></translation>
+        <translation>EXIF %1, వర్తింపజేయబడింది</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>రంగు</translation>
     </message>
     <message>
         <source>Peak</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>గరిష్ఠం</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1× SDR తెలుపు (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
         <extracomment>Unit after a duration in milliseconds.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>డీకోడ్ చేయడానికి పట్టిన సమయం</translation>
     </message>
     <message>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 మిల్లీసెకన్లు</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>కెమెరా</translation>
     </message>
     <message>
         <source>Lens</source>
-        <translation type="unfinished"></translation>
+        <translation>లెన్స్</translation>
     </message>
     <message>
         <source>%1 s</source>
         <extracomment>Exposure time of a photograph, e.g. &quot;1/250 s&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 సెకన్లు</translation>
     </message>
     <message>
         <source>%1 mm</source>
         <extracomment>Focal length of the lens, e.g. &quot;50 mm&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 మిమీ</translation>
     </message>
     <message>
         <source>Exposure</source>
         <extracomment>Label of the photograph&apos;s shooting settings: exposure time, aperture, ISO, focal length.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ఎక్స్‌పోజర్</translation>
     </message>
     <message>
         <source>Taken</source>
         <extracomment>Label of the date the photograph was taken.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>తీసిన తేదీ</translation>
     </message>
     <message>
         <source>%1 %</source>
         <extracomment>A zoom percentage, e.g. &quot;100 %&quot;; write the percent sign as your language does.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 %</translation>
     </message>
     <message>
         <source>rotated %1°</source>
         <extracomment>The view is rotated clockwise by this many degrees.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1° తిప్పబడింది</translation>
     </message>
     <message>
         <source>mirrored</source>
-        <translation type="unfinished"></translation>
+        <translation>మిర్రర్ చేయబడింది</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>అవుట్‌పుట్</translation>
     </message>
     <message>
         <source>BT.2390 tone mapping from %1 to %2 nits, unchanged up to %3 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>BT.2390 టోన్ మ్యాపింగ్ %1 నుండి %2 nits వరకు, %3 nits వరకు మార్పు లేదు</translation>
     </message>
     <message>
         <source>clipped above %1 nits</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 nits పైన క్లిప్ చేయబడింది</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>హైలైట్‌లు</translation>
     </message>
     <message>
         <source>clipped above %1 nits (colors outside the output gamut)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 nits పైన క్లిప్ చేయబడింది (అవుట్‌పుట్ గ్యామట్ వెలుపలి రంగులు)</translation>
     </message>
     <message>
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 nits పైన క్లిప్ చేయబడింది (టోన్ మ్యాపింగ్ ఆఫ్)</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>
@@ -584,28 +584,28 @@
     </message>
     <message>
         <source>Enter a name.</source>
-        <translation type="unfinished"></translation>
+        <translation>పేరును నమోదు చేయి.</translation>
     </message>
     <message>
         <source>This name is not allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>ఈ పేరు అనుమతించబడదు.</translation>
     </message>
     <message>
         <source>A name cannot contain “/” or “\”.</source>
-        <translation type="unfinished"></translation>
+        <translation>పేరులో “/” లేదా “\” ఉండకూడదు.</translation>
     </message>
     <message>
         <source>The name is too long.</source>
-        <translation type="unfinished"></translation>
+        <translation>పేరు చాలా పొడవుగా ఉంది.</translation>
     </message>
     <message>
         <source>Windows does not allow this name.</source>
         <extracomment>Windows forbids &lt; &gt; : &quot; | ? *, control characters, device names such as CON, and a final dot or space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows ఈ పేరును అనుమతించదు.</translation>
     </message>
     <message>
         <source>A file with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>ఈ పేరుతో ఫైల్ ఇప్పటికే ఉంది.</translation>
     </message>
     <message>
         <source>Open…</source>
@@ -614,7 +614,7 @@
     <message>
         <source>Clear Menu</source>
         <extracomment>Empties the Open Recent menu.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>మెనూను క్లియర్ చేయి</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -630,7 +630,7 @@
     </message>
     <message>
         <source>Undo Move to Recycle Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>రీసైకిల్ బిన్‌కు తరలించడాన్ని రద్దు చేయి</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -646,7 +646,7 @@
     </message>
     <message>
         <source>Undo Move to Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>ట్రాష్‌కు తరలించడాన్ని రద్దు చేయి</translation>
     </message>
     <message>
         <source>Show in File Manager</source>
@@ -654,11 +654,11 @@
     </message>
     <message>
         <source>Rename…</source>
-        <translation type="unfinished"></translation>
+        <translation>పేరు మార్చు…</translation>
     </message>
     <message>
         <source>Delete Permanently…</source>
-        <translation type="unfinished"></translation>
+        <translation>శాశ్వతంగా తొలగించు…</translation>
     </message>
     <message>
         <source>Copy Image</source>
@@ -719,11 +719,11 @@
     </message>
     <message>
         <source>Information Overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>సమాచార ఓవర్‌లే</translation>
     </message>
     <message>
         <source>Checkerboard Background</source>
-        <translation type="unfinished"></translation>
+        <translation>చెకర్‌బోర్డ్ నేపథ్యం</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>
@@ -773,63 +773,63 @@
     </message>
     <message>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>ఇటీవలివి తెరువు</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”ని శాశ్వతంగా తొలగించాలా?</translation>
     </message>
     <message>
         <source>The file does not go to the trash and cannot be restored.</source>
-        <translation type="unfinished"></translation>
+        <translation>ఫైల్ ట్రాష్‌కు వెళ్లదు మరియు పునరుద్ధరించడం సాధ్యం కాదు.</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>తొలగించు</translation>
     </message>
     <message>
         <source>Cannot delete “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”ని తొలగించడం సాధ్యం కాలేదు.</translation>
     </message>
     <message>
         <source>Deleted “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” తొలగించబడింది</translation>
     </message>
     <message>
         <source>“%1” is no longer in the trash.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” ఇకపై ట్రాష్‌లో లేదు.</translation>
     </message>
     <message>
         <source>Cannot restore “%1”: a file with that name exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”ని పునరుద్ధరించడం సాధ్యం కాలేదు: ఆ పేరుతో ఫైల్ ఉంది.</translation>
     </message>
     <message>
         <source>Cannot restore “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”ని పునరుద్ధరించడం సాధ్యం కాలేదు.</translation>
     </message>
     <message>
         <source>Restored “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” పునరుద్ధరించబడింది</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>పేరు మార్చు</translation>
     </message>
     <message>
         <source>New name</source>
-        <translation type="unfinished"></translation>
+        <translation>కొత్త పేరు</translation>
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translation>కొత్త పేరు:</translation>
     </message>
     <message>
         <source>Cannot rename “%1”.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” పేరు మార్చడం సాధ్యం కాలేదు.</translation>
     </message>
     <message>
         <source>Renamed to “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” అని పేరు మార్చబడింది</translation>
     </message>
     <message>
         <source>View</source>

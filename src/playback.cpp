@@ -67,6 +67,13 @@ void ViewerWindow::frameDecoded()
         showNotice(result.error);
         return;
     }
+    if (m_animation->frameCount() == 1) {
+        // An "animation" of one image (an APNG, JPEG XL or AVIF sequence can be): it stays a
+        // still image rather than being shown again at every tick.
+        stopAnimation();
+        updateOverlay();
+        return;
+    }
     m_readyFrame = result.frame;
     if (m_frameDue)
         presentFrame(*m_readyFrame);

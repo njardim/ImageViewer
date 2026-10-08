@@ -99,6 +99,11 @@ QString missingHevcMessage();
 bool systemHeicAvailable();
 bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QString *error);
 
+// heif.cpp: AVIF image sequences through libheif (1.23 or later at build time).
+bool heifSequencesAvailable();
+bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
+                        std::unique_ptr<FrameReader> *frames);
+
 // codecs.cpp: libjxl, libwebp and APNG, which parse the file from memory.
 bool codecAvailable(Decoder decoder);
 bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,

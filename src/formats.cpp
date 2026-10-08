@@ -51,6 +51,7 @@ bool isJpegXl(QByteArrayView h)
 }
 bool isWebP(QByteArrayView h) { return startsWith(h, "RIFF") && startsWith(h, "WEBP", 8); }
 bool isAvif(QByteArrayView h) { return hasBrand(h, {"avif", "avis"}); }
+bool isAvifSequence(QByteArrayView h) { return hasBrand(h, {"avis"}); }
 bool isHeic(QByteArrayView h) { return hasBrand(h, {"heic", "heix", "heim", "heis", "hevc", "hevx", "hevm", "hevs"}); }
 bool isPng(QByteArrayView h) { return startsWithBytes(h, {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}); }
 // A PNG whose animation control chunk comes before its image data.
@@ -125,6 +126,7 @@ using D = Decoder;
 const QList<Format> kFormats = {
     {"jpegxl", "JPEG XL", "jxl", D::Jxl, CanHdr | CanAlpha | CanAnimate, isJpegXl, false, "gradient.jxl"},
     {"webp", "WebP", "webp", D::WebP, CanAlpha | CanAnimate, isWebP, false, "lossless.webp"},
+    {"avifs", "AVIF sequence", "avif avifs", D::Heif, CanHdr | CanAlpha | CanAnimate, isAvifSequence, false, "anim.avif"},
     {"avif", "AVIF", "avif avifs", D::OpenImageIO, CanHdr | CanAlpha, isAvif, false, "flat.avif"},
     // Read through Qt where Qt has a HEIF plugin (macOS: the system's ImageIO); D-39 replaces it.
     {"heic", "HEIC/HEIF", "heic heif hif heics", D::System, CanAlpha, isHeic, false, "orange.heic"},
@@ -170,6 +172,7 @@ const char *decoderName(Decoder d)
     case Decoder::Jxl: return "libjxl";
     case Decoder::WebP: return "libwebp";
     case Decoder::Apng: return "APNG";
+    case Decoder::Heif: return "libheif";
     case Decoder::Qt: return "Qt";
     case Decoder::System: return "system";
     }
@@ -231,6 +234,7 @@ bool isAvailable(const Format &format)
         return oiioSuffixes().contains(first);
 #endif
     case Decoder::Apng: return oiioSuffixes().contains(QStringLiteral("png")); // frames go through its PNG reader
+    case Decoder::Heif: return heifSequencesAvailable(); // without it, the "avif" row reads the still image
     case Decoder::OpenImageIO: return oiioSuffixes().contains(first);
     case Decoder::Qt: return qtFormats().contains(first);
     case Decoder::System: return systemHeicAvailable(); // HEIC is the only one so far

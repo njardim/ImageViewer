@@ -108,7 +108,9 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
             d->primaries = c.primaries;
             d->transfer = c.transfer;
             d->gamma = c.gamma;
-            d->fullRange = v[3] != 0;
+            // The range flag describes the stored samples. libheif hands OpenImageIO RGB it
+            // has already expanded from narrow-range YCbCr, so for HEIF/AVIF it is always full.
+            d->fullRange = v[3] != 0 || std::strcmp(format, "heif") == 0;
             d->description = QStringLiteral("CICP %1/%2/%3/%4 — %5")
                                  .arg(v[0]).arg(v[1]).arg(v[2]).arg(v[3])
                                  .arg(color::transferName(c.transfer, c.gamma));
@@ -455,6 +457,12 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
         if (!readWholeFile(path, &bytes, error))
             return false;
         return decodeCodec(decoder, std::move(bytes), maxPixels, out, error, frames);
+    }
+    case Decoder::Heif: {
+        QByteArray bytes;
+        if (!readWholeFile(path, &bytes, error))
+            return false;
+        return decodeHeifSequence(std::move(bytes), maxPixels, out, error, frames);
     }
     case Decoder::Qt: return decodeWithQt(path, maxPixels, out, error);
     case Decoder::System: return decodeSystemHeic(path, maxPixels, out, error);

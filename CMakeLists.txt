@@ -68,7 +68,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/codecs.cpp src/syscodecs.cpp
+    src/decoders.h src/decoders.cpp src/codecs.cpp src/heif.cpp src/syscodecs.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
 )
@@ -116,6 +116,18 @@ elseif(WEBP_INCLUDE_DIR AND WEBP_LIBRARY AND WEBP_DEMUX_LIBRARY)
     target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBWEBP)
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
     message(FATAL_ERROR "libwebp (with libwebpdemux) not found")
+endif()
+# AVIF sequences (heif.cpp): libheif's track API, compiled in from libheif 1.23 on.
+find_package(libheif CONFIG QUIET)
+if(TARGET heif)
+    target_link_libraries(imageviewer PRIVATE heif)
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBHEIF)
+    message(STATUS "AVIF sequences: libheif ${libheif_VERSION}")
+    if(IMAGEVIEWER_REQUIRE_ALL_DECODERS AND libheif_VERSION VERSION_LESS 1.23)
+        message(FATAL_ERROR "libheif ${libheif_VERSION} has no usable track API (1.23 or later needed)")
+    endif()
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "libheif not found (AVIF sequences)")
 endif()
 # HEIC through the system's decoders (D-39, syscodecs.cpp).
 if(APPLE)

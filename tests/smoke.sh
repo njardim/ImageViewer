@@ -76,6 +76,20 @@ for f in anim.gif anim.webp anim.jxl anim.png; do
     check "$f" 'frames: +3, loops 0, ms 100 200 300$' "animation: 3 frames and their durations"
     check "$f" 'frame px: +1\.000 0\.000 0\.000 \| 0\.000 1\.000 0\.000 \| 0\.000 0\.000 1\.000$' "animation: every frame's colour"
 done
+# AVIF image sequences (libheif 1.23 track API; CI requires it, local builds against an older
+# distribution libheif skip these): the same three frames, Pillow 12.3 at quality 100, which
+# is still lossy (blue comes back as 0.99).
+if "$exe" --formats 2>/dev/null | grep -Eq '^avifs \| .* \| yes \|'; then
+    check anim.avif 'codec: +libheif \(sequence\)' "AVIF sequence read by libheif"
+    check anim.avif 'frames: +3, loops 0, ms 100 200 300$' "AVIF sequence: frames and durations"
+    check anim.avif 'frame px: +(1\.000|0\.99[0-9]) 0\.00[0-9] 0\.00[0-9] \| 0\.00[0-9] (1\.000|0\.99[0-9]) 0\.00[0-9] \| 0\.00[0-9] 0\.00[0-9] (1\.000|0\.99[0-9])$' "AVIF sequence: every frame's colour"
+    check anim-narrow.avif 'frame px: +1\.000 0\.2[12][0-9] 0\.000 \| 0\.000 1\.000 0\.000$' "AVIF sequence in narrow range expanded once"
+else
+    echo "skip anim.avif: this build reads no AVIF sequences (libheif older than 1.23)"
+fi
+# Narrow-range AVIF (nclx full_range_flag 0): libheif hands over full-range RGB, which must
+# not be expanded a second time (OpenImageIO 3 passes the flag on as CICP).
+check narrow.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF narrow range expanded once"
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
 check blend.png 'frame px: +1\.000 0\.000 0\.000 \| 0\.212 0\.216 0\.000 \| 0\.000 0\.000 1\.000$' "APNG blend over the previous frame"
 
@@ -104,6 +118,7 @@ fi
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
+    [ "$id" = avifs ] && [ "$available" = no ] && continue # see the AVIF sequence checks above
     if [ "$available" != yes ]; then
         echo "FAIL $id: has a test file ($test) but is not available in this build"
         failures=$((failures + 1))

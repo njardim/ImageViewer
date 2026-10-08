@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>デコードエラー：%1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC 画像には、Microsoft Store の Microsoft「HEIF Image Extensions」と「HEVC Video Extensions」が必要です。</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 画像には HEVC デコーダーが必要ですが、このシステムでは imageViewer に含まれていません（特許のため）。先に別の形式に変換してください。</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

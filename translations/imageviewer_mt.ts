@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Żball fid-dekodifikazzjoni: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>L-immaġini HEIC jeħtieġu l-estensjonijiet ta’ Microsoft “HEIF Image Extensions” u “HEVC Video Extensions”, mill-Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>L-immaġini HEIC jeħtieġu dekoder HEVC, li imageViewer ma jinkludix f’din is-sistema (privattivi); l-ewwel ikkonvertihom f’format ieħor.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>
@@ -815,7 +823,7 @@
     </message>
     <message>
         <source>Previous Frame</source>
-        <translation>Il-qafas ta' qabel</translation>
+        <translation>Il-qafas ta&apos; qabel</translation>
     </message>
     <message>
         <source>Next Frame</source>

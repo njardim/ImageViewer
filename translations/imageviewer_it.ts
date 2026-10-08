@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Errore di decodifica: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Le immagini HEIC richiedono le estensioni Microsoft «HEIF Image Extensions» e «HEVC Video Extensions», dal Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Le immagini HEIC richiedono un decodificatore HEVC, che imageViewer non include su questo sistema (brevetti); convertirle prima in un altro formato.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>
@@ -811,7 +819,7 @@
     </message>
     <message>
         <source>Pause Animation</source>
-        <translation>Metti in pausa l'animazione</translation>
+        <translation>Metti in pausa l&apos;animazione</translation>
     </message>
     <message>
         <source>Previous Frame</source>

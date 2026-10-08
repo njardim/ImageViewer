@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Napaka pri dekodiranju: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Slike HEIC potrebujejo Microsoftovi razširitvi »HEIF Image Extensions« in »HEVC Video Extensions« iz trgovine Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Slike HEIC potrebujejo dekodirnik HEVC, ki ga imageViewer v tem sistemu ne vključuje (patenti); najprej jih pretvorite v drug format.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

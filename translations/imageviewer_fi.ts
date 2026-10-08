@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Purkuvirhe: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC-kuvat vaativat Microsoftin laajennukset ”HEIF Image Extensions” ja ”HEVC Video Extensions” Microsoft Storesta.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-kuvat vaativat HEVC-dekooderin, jota imageViewer ei sisällä tässä järjestelmässä (patentit); muunna ne ensin toiseen muotoon.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

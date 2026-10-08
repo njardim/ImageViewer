@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Erreur de décodage&#xa0;: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Les images HEIC nécessitent les extensions Microsoft « HEIF Image Extensions » et « HEVC Video Extensions », disponibles dans le Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Les images HEIC nécessitent un décodeur HEVC, qu’imageViewer n’inclut pas sur ce système (brevets) ; convertissez-les d’abord dans un autre format.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>
@@ -803,7 +811,7 @@
     </message>
     <message>
         <source>Pause Animation</source>
-        <translation>Mettre l'animation en pause</translation>
+        <translation>Mettre l&apos;animation en pause</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -989,7 +997,7 @@
     </message>
     <message>
         <source>Animation playing</source>
-        <translation>Lecture de l'animation</translation>
+        <translation>Lecture de l&apos;animation</translation>
     </message>
     <message>
         <source>Slideshow: a new image every %1 s</source>

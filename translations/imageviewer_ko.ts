@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>디코딩 오류: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC 이미지를 열려면 Microsoft Store의 Microsoft “HEIF Image Extensions”와 “HEVC Video Extensions”가 필요합니다.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 imageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

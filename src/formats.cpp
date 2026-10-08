@@ -1,5 +1,7 @@
 #include "formats.h"
 
+#include "decoders.h"
+
 #include <OpenImageIO/imageio.h>
 
 #include <QImageReader>
@@ -125,7 +127,7 @@ const QList<Format> kFormats = {
     {"webp", "WebP", "webp", D::WebP, CanAlpha | CanAnimate, isWebP, false, "lossless.webp"},
     {"avif", "AVIF", "avif avifs", D::OpenImageIO, CanHdr | CanAlpha, isAvif, false, "flat.avif"},
     // Read through Qt where Qt has a HEIF plugin (macOS: the system's ImageIO); D-39 replaces it.
-    {"heic", "HEIC/HEIF", "heic heif hif heics", D::Qt, 0, isHeic, false, nullptr},
+    {"heic", "HEIC/HEIF", "heic heif hif heics", D::System, CanAlpha, isHeic, false, "orange.heic"},
     {"apng", "Animated PNG", "png apng", D::Apng, CanHdr | CanAlpha | CanAnimate, isApng, false, "anim.png"},
     {"png", "PNG", "png", D::OpenImageIO, CanHdr | CanAlpha, isPng, false, "alpha8.png"},
     {"jpeg", "JPEG", "jpg jpeg jpe jfif jfi jif", D::OpenImageIO, 0, isJpeg, false, "orient6.jpg"},
@@ -169,6 +171,7 @@ const char *decoderName(Decoder d)
     case Decoder::WebP: return "libwebp";
     case Decoder::Apng: return "APNG";
     case Decoder::Qt: return "Qt";
+    case Decoder::System: return "system";
     }
     return "?";
 }
@@ -230,6 +233,7 @@ bool isAvailable(const Format &format)
     case Decoder::Apng: return oiioSuffixes().contains(QStringLiteral("png")); // frames go through its PNG reader
     case Decoder::OpenImageIO: return oiioSuffixes().contains(first);
     case Decoder::Qt: return qtFormats().contains(first);
+    case Decoder::System: return systemHeicAvailable(); // HEIC is the only one so far
     }
     return false;
 }
@@ -262,7 +266,7 @@ const QStringList &supportedSuffixes()
     static const QStringList list = [] {
         QSet<QString> set;
         for (const Format &f : kFormats)
-            if (isAvailable(f))
+            if (isAvailable(f) || f.decoder == Decoder::System)
                 for (const QString &s : f.suffixes())
                     set.insert(s);
         QStringList sorted(set.begin(), set.end());
@@ -274,7 +278,7 @@ const QStringList &supportedSuffixes()
 
 QStringList formatReport()
 {
-    // id | name | decoder | available | capabilities | extensions | test file (tests/smoke.sh reads it)
+    // id | name | decoder | availability | capabilities | extensions | test file (tests/smoke.sh reads it)
     QStringList lines;
     for (const Format &f : kFormats) {
         QStringList caps;
@@ -288,7 +292,10 @@ QStringList formatReport()
             caps << QStringLiteral("pages");
         lines << QStringList{QString::fromLatin1(f.id), QString::fromLatin1(f.name),
                              QString::fromLatin1(decoderName(f.decoder)),
-                             isAvailable(f) ? QStringLiteral("yes") : QStringLiteral("no"), caps.join(QLatin1Char(',')),
+                             isAvailable(f)                   ? QStringLiteral("yes")
+                             : f.decoder == Decoder::System ? QStringLiteral("system-missing")
+                                                            : QStringLiteral("no"),
+                             caps.join(QLatin1Char(',')),
                              f.suffixes().join(QLatin1Char(' ')), QString::fromLatin1(f.testFile ? f.testFile : "")}
                      .join(QStringLiteral(" | "));
     }

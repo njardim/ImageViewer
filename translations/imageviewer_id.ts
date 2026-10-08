@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Kesalahan dekode: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Gambar HEIC memerlukan “HEIF Image Extensions” dan “HEVC Video Extensions” dari Microsoft, di Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Gambar HEIC memerlukan dekoder HEVC, yang tidak disertakan imageViewer pada sistem ini (paten); konversikan dulu ke format lain.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

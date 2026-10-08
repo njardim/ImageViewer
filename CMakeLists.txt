@@ -68,7 +68,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/codecs.cpp
+    src/decoders.h src/decoders.cpp src/codecs.cpp src/syscodecs.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
 )
@@ -116,6 +116,12 @@ elseif(WEBP_INCLUDE_DIR AND WEBP_LIBRARY AND WEBP_DEMUX_LIBRARY)
     target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBWEBP)
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
     message(FATAL_ERROR "libwebp (with libwebpdemux) not found")
+endif()
+# HEIC through the system's decoders (D-39, syscodecs.cpp).
+if(APPLE)
+    target_link_libraries(imageviewer PRIVATE "-framework ImageIO" "-framework CoreGraphics" "-framework CoreFoundation")
+elseif(WIN32)
+    target_link_libraries(imageviewer PRIVATE windowscodecs ole32)
 endif()
 
 if(MSVC)

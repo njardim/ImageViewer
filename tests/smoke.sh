@@ -79,10 +79,31 @@ done
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
 check blend.png 'frame px: +1\.000 0\.000 0\.000 \| 0\.212 0\.216 0\.000 \| 0\.000 0\.000 1\.000$' "APNG blend over the previous frame"
 
-# The registry (D-38): every format that names a test file is in this build and decodes it.
+# HEIC (D-39): the system's decoder where there is one (ImageIO on macOS; WIC on Windows with
+# Microsoft's HEIF and HEVC extensions), else OpenImageIO if its libheif has an HEVC decoder
+# (a distribution's), else a note on how to get one. orange.heic: heif-enc 1.17, quality 95,
+# 4:2:0, from sRGB (255,128,0) -> linear (1, 0.2158, 0), within 0.02 (lossy).
+heic_out="$("$exe" --info "$data/orange.heic" 2>&1 || true)"
+heic_available="$("$exe" --formats 2>/dev/null | awk -F' *[|] *' '$1 == "heic" { print $4 }')"
+if grep -q 'HEVC' <<<"$heic_out" && { [ "$heic_available" = system-missing ] || [ "$(uname -s | cut -c1-5)" = MINGW ] || [ "$(uname -s | cut -c1-4)" = MSYS ]; }; then
+    echo "ok   orange.heic: no HEVC decoder on this system ($heic_available), the note says how to get one"
+elif ! awk '/^pixel\[0,0\]:/ { d = ($2 - 1)^2 + ($3 - 0.2158)^2 + $4^2; found = 1 } END { exit !(found && d <= 0.0004) }' <<<"$heic_out"; then
+    echo "FAIL orange.heic: expected pixel (1, 0.2158, 0) within 0.02, or the HEVC note"
+    echo "$heic_out" | sed 's/^/     /'
+    failures=$((failures + 1))
+elif [ "$heic_available" = yes ] && ! grep -Eq 'codec: +(ImageIO \(macOS\)|WIC \(Windows\))' <<<"$heic_out"; then
+    echo "FAIL orange.heic: the system's decoder is available but did not decode it"
+    echo "$heic_out" | sed 's/^/     /'
+    failures=$((failures + 1))
+else
+    echo "ok   orange.heic: decoded by $(sed -n 's/^codec: *//p' <<<"$heic_out"), pixel within 0.02"
+fi
+
+# The registry (D-38): every format that names a test file is in this build and decodes it
+# (HEIC, which depends on the system, above).
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
-    [ -z "$test" ] && continue
+    [ -z "$test" ] || [ "$id" = heic ] && continue
     if [ "$available" != yes ]; then
         echo "FAIL $id: has a test file ($test) but is not available in this build"
         failures=$((failures + 1))

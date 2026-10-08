@@ -15,6 +15,7 @@ enum class Decoder {
     WebP,        // libwebp: ICC profiles and animation
     Apng,        // animated PNG: frames rebuilt as PNGs for OpenImageIO, composited here
     Qt,          // QImageReader plugins (ICNS, XPM, SVG...)
+    System,      // the operating system's decoders (D-39): HEIC through ImageIO (macOS) or WIC (Windows)
 };
 
 enum FormatCapability : unsigned {
@@ -45,7 +46,7 @@ struct Format {
 const QList<Format> &formats();
 
 // Whether this build can read the format: its library is linked and, for OpenImageIO and
-// Qt, the plugin is present at run time.
+// Qt, the plugin is present at run time; for the System decoder, the system has the codec.
 bool isAvailable(const Format &format);
 
 // How many bytes detectFormat() wants from the start of the file.
@@ -55,9 +56,11 @@ inline constexpr qsizetype kFormatHeadBytes = 64 * 1024;
 // a signature), by its suffix. nullptr when nothing matches: decoders then try in turn.
 const Format *detectFormat(QByteArrayView head, const QString &suffix);
 
-// Lower-case suffixes (without dot) of every available format, sorted.
+// Lower-case suffixes (without dot) of every available format, sorted. Formats the system
+// decodes are listed even where its codec is missing, so that opening one says how to add it.
 const QStringList &supportedSuffixes();
 
-// `--formats`: one line per format, "id | name | decoder | yes/no | capabilities | extensions |
-// test file" (tests/smoke.sh decodes every test file).
+// `--formats`: one line per format, "id | name | decoder | availability | capabilities |
+// extensions | test file", availability being yes, no or system-missing (the System decoder
+// without the system's codec). tests/smoke.sh decodes every test file.
 QStringList formatReport();

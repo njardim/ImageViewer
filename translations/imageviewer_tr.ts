@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Kod çözme hatası: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC görüntüleri için Microsoft Store'dan Microsoft'un “HEIF Image Extensions” ve “HEVC Video Extensions” uzantıları gerekir.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC görüntüleri için bir HEVC kod çözücü gerekir; imageViewer bunu bu sistemde içermez (patentler). Önce bunları başka bir biçime dönüştürün.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>
@@ -994,7 +1002,7 @@
     <message>
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
-        <translation>Slayt gösterisi: her %1 sn'de yeni bir görüntü</translation>
+        <translation>Slayt gösterisi: her %1 sn&apos;de yeni bir görüntü</translation>
     </message>
 </context>
 </TS>

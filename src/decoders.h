@@ -93,6 +93,12 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error);
 // OpenImageIO on a file in memory; `name` only tells it the format (e.g. "frame.png").
 bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error);
 
+// syscodecs.cpp: the operating system's HEIC decoder (D-39).
+// What to do when the system has no HEVC decoder (Windows: the Microsoft Store extensions).
+QString missingHevcMessage();
+bool systemHeicAvailable();
+bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QString *error);
+
 // codecs.cpp: libjxl, libwebp and APNG, which parse the file from memory.
 bool codecAvailable(Decoder decoder);
 bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,

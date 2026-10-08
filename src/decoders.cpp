@@ -457,6 +457,7 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
         return decodeCodec(decoder, std::move(bytes), maxPixels, out, error, frames);
     }
     case Decoder::Qt: return decodeWithQt(path, maxPixels, out, error);
+    case Decoder::System: return decodeSystemHeic(path, maxPixels, out, error);
     case Decoder::OpenImageIO: break;
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
@@ -616,7 +617,10 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     }
     if (frames)
         frames->reset();
-    *error = firstError;
+    // A HEIC file where the system has no HEVC decoder (and OpenImageIO's libheif has none
+    // either): say how to get one rather than why the last decoder failed.
+    const bool noSystemCodec = format && format->decoder == Decoder::System && !isAvailable(*format);
+    *error = noSystemCodec ? missingHevcMessage() : firstError;
     return false;
 }
 

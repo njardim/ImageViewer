@@ -82,6 +82,14 @@
         <source>Decoding error: %1</source>
         <translation>Earráid díchódaithe: %1</translation>
     </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Teastaíonn síntí Microsoft “HEIF Image Extensions” agus “HEVC Video Extensions” ó Microsoft Store le haghaidh íomhánna HEIC.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Teastaíonn díchódóir HEVC le haghaidh íomhánna HEIC, rud nach bhfuil san áireamh in imageViewer ar an gcóras seo (paitinní); tiontaigh go formáid eile iad ar dtús.</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

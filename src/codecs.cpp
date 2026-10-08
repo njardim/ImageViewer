@@ -804,7 +804,8 @@ bool codecAvailable(Decoder decoder)
 #endif
     case Decoder::Apng: return true;
     case Decoder::OpenImageIO:
-    case Decoder::Qt: break;
+    case Decoder::Qt:
+    case Decoder::System: break;
     }
     return false;
 }

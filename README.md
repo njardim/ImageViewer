@@ -28,7 +28,7 @@ The packages are **not signed yet**:
 
 - **Color-managed decoding:** ICC v2/v4 profiles, CICP (PQ, HLG, BT.709/BT.2020, linear), EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images. Wide-gamut colors are kept, not clipped to sRGB.
 - **HDR output:** scRGB (Windows), EDR (macOS) and HDR10/PQ, with absolute luminance for PQ content. BT.2390 tone mapping only when an image exceeds the display; exposure control; an option to highlight clipped or tone-mapped pixels.
-- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, camera RAW (LibRaw) and more; `imageViewer --formats` lists what a build reads, and with which library. Files are recognised by their content, not their extension. HEIC through the operating system is in progress.
+- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, camera RAW (LibRaw) and more; `imageViewer --formats` lists what a build reads, and with which library. Files are recognised by their content, not their extension. HEIC is decoded by the operating system: macOS always; Windows with Microsoft's “HEIF Image Extensions” and “HEVC Video Extensions” from the Microsoft Store; Linux when the distribution's libheif has an HEVC decoder (e.g. `libheif-plugin-libde265`). imageViewer ships no HEVC decoder (patents).
 - **Animation:** GIF, WebP, APNG and JPEG XL play with their own timing and loop count; pause and step frame by frame.
 - **Viewing:**
   - zoom at the cursor, exact 100 % (one image pixel per screen pixel), fit to window, pan;

@@ -251,7 +251,7 @@ Versions checked in the vcpkg *ports* on 2026-10-06 `[test: microsoft/vcpkg mast
 | C++20, CMake ≥ 3.24, Ninja | — | — | Build |
 | **Qt** (Core, Gui/QRhi, Widgets, Network, ShaderTools) | 6.11.2 | LGPLv3 (dynamic linking) | UI, GPU rendering (D3D11/12, Metal, Vulkan, OpenGL), `QLocalServer` |
 | **OpenImageIO** | 3.1.14 | Apache-2.0 | Main decoder (features: libheif, jpegxl, libraw, openjpeg, webp, gif, opencolorio) |
-| ↳ libheif / libde265 / dav1d or aom | 1.23.5 / 1.1.3 / 1.5.4 | LGPL-3 / LGPL-3 / BSD | HEIC, AVIF |
+| ↳ libheif / aom | 1.23.5 / 3.x | LGPL-3 / BSD | AVIF (HEIC goes through the operating system, D-39) |
 | **libjxl** (used directly since 0.3: OIIO's port is built without it and keeps only the last frame of an animation) | 0.12.0 | BSD-3 | JPEG XL, stills and animation |
 | ↳ LibRaw | 0.22.2 | LGPL-2.1 or CDDL | RAW |
 | ↳ OpenEXR | 3.5.2 | BSD-3 | EXR |
@@ -264,7 +264,7 @@ Versions checked in the vcpkg *ports* on 2026-10-06 `[test: microsoft/vcpkg mast
 **Excluded licenses:**
 - exiv2 (GPL-2): metadata comes from OIIO.
 - FFmpeg's `gpl` and `nonfree` features.
-- x265, including libheif's **default** `hevc` feature in vcpkg `[test: vcpkg ports/libheif]`. HEIC decoding uses libde265 without that feature.
+- x265, including libheif's **default** `hevc` feature in vcpkg `[test: vcpkg ports/libheif]`; libde265 is left out too. HEIC is decoded by the operating system (D-39).
 - lcms `fastfloat` and `threaded` plugins (GPL-3.0) `[test: vcpkg ports/lcms]`.
 - LibRaw GPL packs.
 - Ghostscript (AGPL).
@@ -588,7 +588,7 @@ Moved to 0.3: window matching the image size, zoom modes, title bar modes, slide
 - [x] Animation: GIF (OpenImageIO subimages), WebP (libwebp), APNG (frames rebuilt as PNGs, composited with the APNG dispose and blend operations), JPEG XL (libjxl); every frame converted like the first, kept in memory up to an eighth of the RAM; loop counts; frame times as browsers apply them; the next frame decoded on its own thread; nothing decoded while the window is hidden; K pauses, `,` `.` step frames (E6) `[test: smoke, animation_test.py on Vulkan and OpenGL]`
 - [x] Slideshow (E11): S starts and stops it, Esc stops it, a manual step restarts the interval, the end of a folder that does not loop ends it; interval in the Settings (1–3600 s, default 5) `[test: animation_test.py]`
 - [ ] AVIF image sequences (libheif ≥ 1.20 track API)
-- [ ] HEIC through ImageIO and WIC, with the note on HEVC support (D-39)
+- [x] HEIC through the system (D-39): ImageIO on macOS, drawn by ColorSync into extended linear sRGB floats (the working space, so no second conversion); WIC on Windows at 8 bits per channel with the embedded ICC profile (WIC treats its 16-bit integer formats as linear and would change the curve `[doc: .NET PixelFormats.Rgba64, "gamma of 1.0"]`); elsewhere OpenImageIO, which decodes HEIC when the distribution's libheif has an HEVC plugin (libheif-plugin-libde265) `[test: local, Ubuntu 24.04]`; otherwise a note on how to get a decoder (the Microsoft Store extensions on Windows). `--formats` reports `system-missing`; HEIC files are listed in folders either way `[test: smoke, both Linux paths]`. Not yet verified: ImageIO on CI, WIC with the extensions installed (CI runners have none) and 10-bit or HDR HEIC, which this path reads as SDR
 - [ ] Decode worker process with GraphicsMagick 1.3.48 (D-38); fuzz smoke test in CI
 - [ ] Tests, translations, full adversarial review (D-35), green CI, PR, release `v0.3`
 

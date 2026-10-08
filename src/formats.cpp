@@ -51,6 +51,23 @@ bool isWebP(QByteArrayView h) { return startsWith(h, "RIFF") && startsWith(h, "W
 bool isAvif(QByteArrayView h) { return hasBrand(h, {"avif", "avis"}); }
 bool isHeic(QByteArrayView h) { return hasBrand(h, {"heic", "heix", "heim", "heis", "hevc", "hevx", "hevm", "hevs"}); }
 bool isPng(QByteArrayView h) { return startsWithBytes(h, {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}); }
+// A PNG whose animation control chunk comes before its image data.
+bool isApng(QByteArrayView h)
+{
+    if (!isPng(h))
+        return false;
+    for (qsizetype at = 8; at + 8 <= h.size();) {
+        if (startsWith(h, "acTL", at + 4))
+            return true;
+        if (startsWith(h, "IDAT", at + 4))
+            return false;
+        const quint32 length = bigEndian32(h, at);
+        if (length > quint32(h.size()))
+            return false;
+        at += qsizetype(length) + 12;
+    }
+    return false;
+}
 bool isJpeg(QByteArrayView h) { return startsWithBytes(h, {0xFF, 0xD8, 0xFF}); }
 bool isGif(QByteArrayView h) { return startsWith(h, "GIF87a") || startsWith(h, "GIF89a"); }
 bool isExr(QByteArrayView h) { return startsWithBytes(h, {0x76, 0x2F, 0x31, 0x01}); }
@@ -109,6 +126,7 @@ const QList<Format> kFormats = {
     {"avif", "AVIF", "avif avifs", D::OpenImageIO, CanHdr | CanAlpha, isAvif, false, "flat.avif"},
     // Read through Qt where Qt has a HEIF plugin (macOS: the system's ImageIO); D-39 replaces it.
     {"heic", "HEIC/HEIF", "heic heif hif heics", D::Qt, 0, isHeic, false, nullptr},
+    {"apng", "Animated PNG", "png apng", D::Apng, CanHdr | CanAlpha | CanAnimate, isApng, false, "anim.png"},
     {"png", "PNG", "png", D::OpenImageIO, CanHdr | CanAlpha, isPng, false, "alpha8.png"},
     {"jpeg", "JPEG", "jpg jpeg jpe jfif jfi jif", D::OpenImageIO, 0, isJpeg, false, "orient6.jpg"},
     {"gif", "GIF", "gif", D::OpenImageIO, CanAlpha | CanAnimate, isGif, false, "palette.gif"},
@@ -149,6 +167,7 @@ const char *decoderName(Decoder d)
     case Decoder::OpenImageIO: return "OpenImageIO";
     case Decoder::Jxl: return "libjxl";
     case Decoder::WebP: return "libwebp";
+    case Decoder::Apng: return "APNG";
     case Decoder::Qt: return "Qt";
     }
     return "?";
@@ -208,6 +227,7 @@ bool isAvailable(const Format &format)
 #else
         return oiioSuffixes().contains(first);
 #endif
+    case Decoder::Apng: return oiioSuffixes().contains(QStringLiteral("png")); // frames go through its PNG reader
     case Decoder::OpenImageIO: return oiioSuffixes().contains(first);
     case Decoder::Qt: return qtFormats().contains(first);
     }

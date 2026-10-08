@@ -1,5 +1,6 @@
 #include "decoders.h"
 
+#include <OpenImageIO/filesystem.h>
 #include <OpenImageIO/imageio.h>
 #include <OpenImageIO/tiffutils.h>
 
@@ -18,16 +19,6 @@
 #include <cstring>
 #include <vector>
 
-#ifdef IMAGEVIEWER_HAVE_LIBJXL
-#include <jxl/decode.h>
-#include <jxl/decode_cxx.h>
-#include <jxl/thread_parallel_runner.h>
-#include <jxl/thread_parallel_runner_cxx.h>
-#include <jxl/version.h>
-#endif
-#ifdef IMAGEVIEWER_HAVE_LIBWEBP
-#include <webp/demux.h>
-#endif
 
 namespace {
 
@@ -36,19 +27,6 @@ using color::Transfer;
 
 constexpr qint64 kWorkingBytesPerPixel = 16;    // RGBA16F result plus one orient/downscale copy
 
-// Refuses images whose decode would need more than ~60 % of physical memory:
-// failing early with a message beats swapping the machine or an OOM kill.
-bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
-{
-    static const qint64 budget = physicalMemoryBytes() / 10 * 6;
-    const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
-    if (budget <= 0 || needed <= budget)
-        return true;
-    *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
-                 .arg(double(needed) / (1 << 30), 0, 'f', 1)
-                 .arg(double(budget) / (1 << 30), 0, 'f', 1);
-    return false;
-}
 
 // Parses an OpenImageIO colour space name. OIIO 3 uses colour interop ids of the
 // form <transfer>_<primaries>_<scene|display>; OIIO 2 used ad-hoc names.
@@ -173,10 +151,7 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
         d->description = QCoreApplication::translate("Image", "%1 (assigned by the decoder)").arg(cs);
         return;
     }
-    d->source = Descriptor::Source::Assumed;
-    d->primaries = color::kBt709;
-    d->transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-    d->description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
+    assumeDefault(isFloat, d);
 }
 
 // EXIF text is file content: no control characters (they would break the panel's layout),
@@ -216,7 +191,12 @@ CameraInfo cameraFromOiio(const OIIO::ImageSpec &spec)
     return camera;
 }
 
-bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
+// Defined after OiioFrames: the frames after the first of an animated GIF.
+std::unique_ptr<FrameReader> makeOiioFrames(std::unique_ptr<OIIO::ImageInput> in, const Decoded &first,
+                                            OIIO::TypeDesc request, int loopCount);
+int oiioFrameDurationMs(const OIIO::ImageSpec &spec);
+
+OIIO::ImageSpec oiioConfig()
 {
     OIIO::ImageSpec config;
     // Straight alpha where the format stores it (PNG, TIFF, WebP, HEIF...): OIIO would
@@ -224,11 +204,14 @@ bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString
     config.attribute("oiio:UnassociatedAlpha", 1);
     // PFM stores rows bottom to top; OIIO 3.1 flips them only when asked (pnminput.cpp).
     config.attribute("pnm:pfmflip", 1);
-    auto in = OIIO::ImageInput::open(path.toUtf8().toStdString(), &config);
-    if (!in) {
-        *error = QString::fromStdString(OIIO::geterror());
-        return false;
-    }
+    return config;
+}
+
+// Reads the first subimage of an opened file. With `frames`, a file of several subimages is
+// read as an animation (GIF).
+bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *out, QString *error,
+              std::unique_ptr<FrameReader> *frames)
+{
     const OIIO::ImageSpec &spec = in->spec();
     const int w = spec.width, h = spec.height, nch = spec.nchannels;
     if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels) {
@@ -281,7 +264,29 @@ bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString
     out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
     out->camera = cameraFromOiio(spec);
     describeOiio(spec, !out->isInteger(), in->format_name(), &out->colour);
+    if (frames) {
+        const int durationMs = oiioFrameDurationMs(spec);
+        const int loop = spec.get_int_attribute("gif:LoopCount", spec.get_int_attribute("oiio:LoopCount", 0));
+        if (in->seek_subimage(1, 0)) {
+            out->durationMs = durationMs;
+            *frames = makeOiioFrames(std::move(in), *out, request, loop);
+        } else {
+            (void)in->geterror(); // a single image: no frames, and no error left behind
+        }
+    }
     return true;
+}
+
+bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString *error,
+                    std::unique_ptr<FrameReader> *frames = nullptr)
+{
+    const OIIO::ImageSpec config = oiioConfig();
+    auto in = OIIO::ImageInput::open(path.toUtf8().toStdString(), &config);
+    if (!in) {
+        *error = QString::fromStdString(OIIO::geterror());
+        return false;
+    }
+    return readOiio(std::move(in), maxPixels, out, error, frames);
 }
 
 // Describes a QColorSpace that was not built from an ICC profile (PNG gAMA/cHRM/sRGB chunks).
@@ -367,6 +372,114 @@ bool decodeWithQt(const QString &path, qint64 maxPixels, Decoded *out, QString *
 }
 
 
+
+
+
+// The frames after the first of an animated GIF, composited by OpenImageIO (its subimages).
+class OiioFrames final : public FrameReader {
+public:
+    OiioFrames(std::unique_ptr<OIIO::ImageInput> in, const Decoded &first, OIIO::TypeDesc request, int loopCount)
+        : m_in(std::move(in)), m_request(request), m_loop(loopCount)
+    {
+        copyLayout(first, &m_layout);
+    }
+
+    bool next(Decoded *out, int *durationMs, QString *error) override
+    {
+        if (!m_in->seek_subimage(m_next, 0)) {
+            (void)m_in->geterror(); // past the last frame: not an error
+            m_count = m_next;
+            return false;
+        }
+        const OIIO::ImageSpec &spec = m_in->spec();
+        if (spec.width != m_layout.width || spec.height != m_layout.height || spec.nchannels < m_layout.channels) {
+            *error = damaged(m_in->format_name());
+            return false;
+        }
+        copyLayout(m_layout, out);
+        out->data.reset(new unsigned char[frameBytes(m_layout)]);
+        if (!m_in->read_image(m_next, 0, 0, m_layout.channels, m_request, out->data.get())) {
+            *error = QString::fromStdString(m_in->geterror());
+            return false;
+        }
+        *durationMs = oiioFrameDurationMs(spec);
+        ++m_next;
+        return true;
+    }
+
+    bool rewind(QString *) override
+    {
+        m_next = 0;
+        return true;
+    }
+
+    int frameCount() const override { return m_count; }
+    int loopCount() const override { return m_loop; }
+
+private:
+    std::unique_ptr<OIIO::ImageInput> m_in;
+    OIIO::TypeDesc m_request;
+    Decoded m_layout;
+    int m_next = 1;
+    int m_count = 0;
+    int m_loop = 0;
+};
+
+std::unique_ptr<FrameReader> makeOiioFrames(std::unique_ptr<OIIO::ImageInput> in, const Decoded &first,
+                                            OIIO::TypeDesc request, int loopCount)
+{
+    return std::make_unique<OiioFrames>(std::move(in), first, request, loopCount);
+}
+
+// GIF delays, in hundredths of a second, as OpenImageIO reports them.
+int oiioFrameDurationMs(const OIIO::ImageSpec &spec)
+{
+    if (const OIIO::ParamValue *p = spec.find_attribute("FramesPerSecond"); p && p->type() == OIIO::TypeRational) {
+        const int *fps = static_cast<const int *>(p->data()); // numerator, denominator
+        if (fps[0] > 0 && fps[1] >= 0)
+            return playableMs(1000.0 * fps[1] / fps[0]);
+    }
+    return 100;
+}
+
+bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint64 maxPixels, Decoded *out,
+                QString *error, std::unique_ptr<FrameReader> *frames)
+{
+    switch (decoder) {
+    case Decoder::Jxl:
+    case Decoder::WebP:
+    case Decoder::Apng: {
+        if (!codecAvailable(decoder))
+            break;
+        QByteArray bytes;
+        if (!readWholeFile(path, &bytes, error))
+            return false;
+        return decodeCodec(decoder, std::move(bytes), maxPixels, out, error, frames);
+    }
+    case Decoder::Qt: return decodeWithQt(path, maxPixels, out, error);
+    case Decoder::OpenImageIO: break;
+    }
+    // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
+    const bool animatable = frames && format && format->decoder == Decoder::OpenImageIO && (format->capabilities & CanAnimate);
+    return decodeWithOiio(path, maxPixels, out, error, animatable ? frames : nullptr);
+}
+
+} // namespace
+
+// Refuses images whose decode would need more than ~60 % of physical memory:
+// failing early with a message beats swapping the machine or an OOM kill.
+bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
+{
+    static const qint64 budget = physicalMemoryBytes() / 10 * 6;
+    const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
+    if (budget <= 0 || needed <= budget)
+        return true;
+    *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
+                 .arg(double(needed) / (1 << 30), 0, 'f', 1)
+                 .arg(double(budget) / (1 << 30), 0, 'f', 1);
+    return false;
+}
+
 // A file that names its format but cannot be read as one (one message for every back end).
 QString damaged(const char *formatName)
 {
@@ -400,349 +513,78 @@ void assumeDefault(bool isFloat, Descriptor *d)
     d->source = Descriptor::Source::Assumed;
     d->primaries = color::kBt709;
     d->transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-    d->description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)")
-                             : QCoreApplication::translate("Image", "sRGB (assumed)");
+    d->description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
 }
 
-#ifdef IMAGEVIEWER_HAVE_LIBJXL
-// libjxl 0.9 dropped the unused pixel-format argument of the colour queries.
-#if JPEGXL_NUMERIC_VERSION >= JPEGXL_COMPUTE_NUMERIC_VERSION(0, 9, 0)
-#define JXL_COLOR_ARGS(dec) (dec), JXL_COLOR_PROFILE_TARGET_DATA
-#else
-#define JXL_COLOR_ARGS(dec) (dec), nullptr, JXL_COLOR_PROFILE_TARGET_DATA
-#endif
-
-// JPEG XL's enumerated colour encoding (the CICP-like description of D-22).
-bool describeJxl(const JxlColorEncoding &e, Descriptor *d)
+// How long a frame is shown: browsers play delays of 10 ms or less at 100 ms (GIF and WebP
+// files rely on it), and nothing waits longer than a minute.
+int playableMs(double ms)
 {
-    if (e.color_space != JXL_COLOR_SPACE_RGB && e.color_space != JXL_COLOR_SPACE_GRAY)
+    return ms <= 10.0 ? 100 : int(std::lround(std::min(ms, 60000.0)));
+}
+
+// The first frame's layout (size, samples, channels, colour) on a later frame of the same file.
+void copyLayout(const Decoded &from, Decoded *to)
+{
+    to->width = from.width;
+    to->height = from.height;
+    to->sample = from.sample;
+    to->channels = from.channels;
+    to->sourceChannels = from.sourceChannels;
+    to->alphaIndex = from.alphaIndex;
+    to->associatedAlpha = from.associatedAlpha;
+    to->gray = from.gray;
+    to->bits = from.bits;
+    to->orientation = from.orientation;
+    to->colour = from.colour;
+    to->codec = from.codec;
+}
+
+std::size_t frameBytes(const Decoded &d)
+{
+    return std::size_t(d.width) * std::size_t(d.height) * std::size_t(d.channels) * std::size_t(d.sampleBytes());
+}
+
+// The whole file in memory, for decoders that parse from a buffer. Read, not mapped: a mapping
+// outlives the decode in an animation, and another program truncating the file would then
+// crash the viewer (SIGBUS).
+bool readWholeFile(const QString &path, QByteArray *bytes, QString *error)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        *error = file.errorString();
         return false;
-    color::Chromaticities c = color::kBt709;
-    QString primaries = QStringLiteral("BT.709");
-    if (e.color_space == JXL_COLOR_SPACE_RGB) {
-        switch (e.primaries) {
-        case JXL_PRIMARIES_SRGB: break;
-        case JXL_PRIMARIES_2100: c = color::kBt2020; primaries = QStringLiteral("BT.2020"); break;
-        case JXL_PRIMARIES_P3: c = color::kDisplayP3; primaries = QStringLiteral("P3"); break;
-        case JXL_PRIMARIES_CUSTOM:
-            c = {{e.primaries_red_xy[0], e.primaries_red_xy[1]}, {e.primaries_green_xy[0], e.primaries_green_xy[1]},
-                 {e.primaries_blue_xy[0], e.primaries_blue_xy[1]}, {0.3127, 0.3290}};
-            primaries = QCoreApplication::translate("Image", "custom primaries");
-            break;
-        default: return false;
-        }
     }
-    switch (e.white_point) {
-    case JXL_WHITE_POINT_D65: c.w[0] = 0.3127; c.w[1] = 0.3290; break;
-    case JXL_WHITE_POINT_E: c.w[0] = c.w[1] = 1.0 / 3.0; break;
-    case JXL_WHITE_POINT_DCI: c.w[0] = 0.314; c.w[1] = 0.351; break;
-    case JXL_WHITE_POINT_CUSTOM: c.w[0] = e.white_point_xy[0]; c.w[1] = e.white_point_xy[1]; break;
-    default: return false;
-    }
-    if (!color::isUsable(c))
+    if (file.size() > (qint64(1) << 31)) {
+        *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
+                     .arg(double(file.size()) / (1 << 30), 0, 'f', 1)
+                     .arg(2.0, 0, 'f', 1);
         return false;
-    Transfer transfer = Transfer::Srgb;
-    float gamma = 2.2f;
-    switch (e.transfer_function) {
-    case JXL_TRANSFER_FUNCTION_709: transfer = Transfer::Bt1886; break; // decision D-12
-    case JXL_TRANSFER_FUNCTION_LINEAR: transfer = Transfer::Linear; break;
-    case JXL_TRANSFER_FUNCTION_SRGB: transfer = Transfer::Srgb; break;
-    case JXL_TRANSFER_FUNCTION_PQ: transfer = Transfer::Pq; break;
-    case JXL_TRANSFER_FUNCTION_HLG: transfer = Transfer::Hlg; break;
-    case JXL_TRANSFER_FUNCTION_DCI: transfer = Transfer::Power; gamma = 2.6f; break;
-    case JXL_TRANSFER_FUNCTION_GAMMA: // stored as the encoding exponent, e.g. 1/2.2
-        if (!(e.gamma > 0.1 && e.gamma <= 1.0))
-            return false;
-        transfer = Transfer::Power;
-        gamma = float(1.0 / e.gamma);
-        break;
-    default: return false;
     }
-    d->source = Descriptor::Source::Cicp;
-    d->primaries = c;
-    d->transfer = transfer;
-    d->gamma = gamma;
-    d->fullRange = true;
-    d->description = QStringLiteral("JPEG XL: %1, %2").arg(primaries, color::transferName(transfer, gamma));
+    *bytes = file.readAll();
+    if (bytes->size() != file.size()) {
+        *error = file.errorString();
+        return false;
+    }
     return true;
 }
 
-// The first frame of a JPEG XL file (an animation's first frame, composited), at its
-// native depth, with straight alpha and the colour encoding of the decoded samples.
-bool decodeJxl(QByteArrayView file, qint64 maxPixels, Decoded *out, QString *error)
+bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error)
 {
-    const QString invalid = damaged("JPEG XL");
-    JxlDecoderPtr dec = JxlDecoderMake(nullptr);
-    JxlThreadParallelRunnerPtr runner =
-        JxlThreadParallelRunnerMake(nullptr, JxlThreadParallelRunnerDefaultNumWorkerThreads());
-    if (!dec || !runner
-        || JxlDecoderSubscribeEvents(dec.get(), JXL_DEC_BASIC_INFO | JXL_DEC_COLOR_ENCODING | JXL_DEC_FULL_IMAGE | JXL_DEC_BOX)
-               != JXL_DEC_SUCCESS
-        || JxlDecoderSetParallelRunner(dec.get(), JxlThreadParallelRunner, runner.get()) != JXL_DEC_SUCCESS
-        || JxlDecoderSetKeepOrientation(dec.get(), JXL_TRUE) != JXL_DEC_SUCCESS // applied once, by image.cpp
-        || JxlDecoderSetUnpremultiplyAlpha(dec.get(), JXL_TRUE) != JXL_DEC_SUCCESS
-        || JxlDecoderSetDecompressBoxes(dec.get(), JXL_TRUE) != JXL_DEC_SUCCESS
-        || JxlDecoderSetInput(dec.get(), reinterpret_cast<const uint8_t *>(file.data()), std::size_t(file.size()))
-               != JXL_DEC_SUCCESS) {
-        *error = invalid;
+    OIIO::Filesystem::IOMemReader memory(bytes.data(), std::size_t(bytes.size())); // outlives the reader below
+    OIIO::Filesystem::IOProxy *proxy = &memory;
+    OIIO::ImageSpec config = oiioConfig();
+    // With a configuration, OpenImageIO's readers take the proxy from it, not from the argument.
+    config.attribute("oiio:ioproxy", OIIO::TypeDesc::PTR, &proxy);
+    auto in = OIIO::ImageInput::open(name, &config, proxy);
+    if (!in) {
+        *error = QString::fromStdString(OIIO::geterror());
         return false;
     }
-    JxlDecoderCloseInput(dec.get());
-
-    JxlBasicInfo info{};
-    JxlPixelFormat format{};
-    std::vector<uint8_t> exif; // the "Exif" box: 4-byte offset, then a TIFF header
-    bool readingExif = false;
-    constexpr std::size_t kMaxExifBytes = 1 << 20;
-    const auto finishExif = [&] {
-        if (!readingExif)
-            return;
-        exif.resize(exif.size() - JxlDecoderReleaseBoxBuffer(dec.get()));
-        readingExif = false;
-        if (exif.size() > 4) {
-            const std::size_t offset = std::size_t(exif[0]) << 24 | std::size_t(exif[1]) << 16 | std::size_t(exif[2]) << 8 | exif[3];
-            if (offset < exif.size() - 4) // the codestream's orientation rules; EXIF's is ignored
-                out->camera = cameraFromExif(QByteArrayView(exif.data() + 4 + offset, qsizetype(exif.size() - 4 - offset)), nullptr);
-        }
-    };
-    for (;;) {
-        switch (JxlDecoderProcessInput(dec.get())) {
-        case JXL_DEC_BASIC_INFO: {
-            if (JxlDecoderGetBasicInfo(dec.get(), &info) != JXL_DEC_SUCCESS) {
-                *error = invalid;
-                return false;
-            }
-            const qint64 pixels = qint64(info.xsize) * info.ysize;
-            if (info.xsize == 0 || info.ysize == 0 || pixels > kMaxPixels) {
-                *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)")
-                             .arg(info.xsize).arg(info.ysize).arg(info.num_color_channels);
-                return false;
-            }
-            if (maxPixels > 0 && pixels > maxPixels) {
-                out->overLimit = true;
-                return false;
-            }
-            using Sample = Decoded::Sample;
-            out->sample = info.exponent_bits_per_sample > 0 ? (info.bits_per_sample <= 16 ? Sample::F16 : Sample::F32)
-                          : info.bits_per_sample <= 8   ? Sample::U8
-                                                        : Sample::U16;
-            out->gray = info.num_color_channels == 1;
-            const bool alpha = info.alpha_bits > 0;
-            out->channels = (out->gray ? 1 : 3) + (alpha ? 1 : 0);
-            out->alphaIndex = alpha ? out->channels - 1 : -1;
-            out->sourceChannels = int(info.num_color_channels + info.num_extra_channels);
-            out->bits = int(info.bits_per_sample);
-            out->width = int(info.xsize);
-            out->height = int(info.ysize);
-            out->orientation = info.orientation >= 1 && info.orientation <= 8 ? int(info.orientation) : 1;
-            out->codec = QStringLiteral("libjxl");
-            const JxlDataType type = out->sample == Sample::U8    ? JXL_TYPE_UINT8
-                                     : out->sample == Sample::U16 ? JXL_TYPE_UINT16
-                                     : out->sample == Sample::F16 ? JXL_TYPE_FLOAT16
-                                                                  : JXL_TYPE_FLOAT;
-            format = {uint32_t(out->channels), type, JXL_NATIVE_ENDIAN, 0};
-            if (!fitsInMemory(pixels, out->channels * out->sampleBytes(), error))
-                return false;
-            break;
-        }
-        case JXL_DEC_COLOR_ENCODING: {
-            // The encoding of the samples the decoder outputs (for lossy XYB files, the one
-            // the image was encoded from).
-            JxlColorEncoding encoding{};
-            if (JxlDecoderGetColorAsEncodedProfile(JXL_COLOR_ARGS(dec.get()), &encoding) == JXL_DEC_SUCCESS
-                && describeJxl(encoding, &out->colour))
-                break;
-            std::size_t size = 0;
-            if (JxlDecoderGetICCProfileSize(JXL_COLOR_ARGS(dec.get()), &size) == JXL_DEC_SUCCESS && size > 0
-                && size < (std::size_t(1) << 26)) {
-                QByteArray icc(qsizetype(size), Qt::Uninitialized);
-                if (JxlDecoderGetColorAsICCProfile(JXL_COLOR_ARGS(dec.get()), reinterpret_cast<uint8_t *>(icc.data()), size)
-                    == JXL_DEC_SUCCESS) {
-                    describeIcc(icc, &out->colour);
-                    break;
-                }
-            }
-            assumeDefault(!out->isInteger(), &out->colour);
-            break;
-        }
-        case JXL_DEC_NEED_IMAGE_OUT_BUFFER: {
-            std::size_t bytes = 0;
-            const std::size_t expected = std::size_t(out->width) * std::size_t(out->height) * std::size_t(out->channels)
-                                         * std::size_t(out->sampleBytes());
-            if (JxlDecoderImageOutBufferSize(dec.get(), &format, &bytes) != JXL_DEC_SUCCESS || bytes != expected) {
-                *error = invalid;
-                return false;
-            }
-            out->data.reset(new unsigned char[bytes]);
-            if (JxlDecoderSetImageOutBuffer(dec.get(), &format, out->data.get(), bytes) != JXL_DEC_SUCCESS) {
-                *error = invalid;
-                return false;
-            }
-            break;
-        }
-        case JXL_DEC_BOX: {
-            finishExif();
-            JxlBoxType type{};
-            if (JxlDecoderGetBoxType(dec.get(), type, JXL_TRUE) == JXL_DEC_SUCCESS && std::memcmp(type, "Exif", 4) == 0) {
-                exif.assign(4096, 0);
-                readingExif = JxlDecoderSetBoxBuffer(dec.get(), exif.data(), exif.size()) == JXL_DEC_SUCCESS;
-            }
-            break;
-        }
-        case JXL_DEC_BOX_NEED_MORE_OUTPUT: {
-            const std::size_t used = exif.size() - JxlDecoderReleaseBoxBuffer(dec.get());
-            if (exif.size() >= kMaxExifBytes) { // not a real EXIF block: stop collecting it
-                readingExif = false;
-                exif.clear();
-                break;
-            }
-            exif.resize(exif.size() * 2);
-            // The new buffer ends where the vector ends, so finishExif()'s arithmetic still holds.
-            readingExif = JxlDecoderSetBoxBuffer(dec.get(), exif.data() + used, exif.size() - used) == JXL_DEC_SUCCESS;
-            break;
-        }
-        case JXL_DEC_FULL_IMAGE:
-            if (info.have_animation) { // the first frame is enough; trailing boxes are not read
-                finishExif();
-                return true;
-            }
-            break; // a still image: read on for EXIF boxes after the codestream
-        case JXL_DEC_SUCCESS:
-            finishExif();
-            if (!out->data) {
-                *error = invalid;
-                return false;
-            }
-            return true;
-        case JXL_DEC_NEED_MORE_INPUT:
-        case JXL_DEC_ERROR:
-        default:
-            *error = invalid;
-            return false;
-        }
-    }
-}
-#undef JXL_COLOR_ARGS
-#endif // IMAGEVIEWER_HAVE_LIBJXL
-
-#ifdef IMAGEVIEWER_HAVE_LIBWEBP
-// The first frame of a WebP file (an animation's first frame, composited), 8-bit straight
-// RGBA, with the ICC profile and EXIF the file carries (OpenImageIO assumes sRGB for WebP).
-bool decodeWebP(QByteArrayView file, qint64 maxPixels, Decoded *out, QString *error)
-{
-    const QString invalid = damaged("WebP");
-    const WebPData data{reinterpret_cast<const uint8_t *>(file.data()), std::size_t(file.size())};
-    std::unique_ptr<WebPDemuxer, void (*)(WebPDemuxer *)> demux(WebPDemux(&data), WebPDemuxDelete);
-    if (!demux) {
-        *error = invalid;
-        return false;
-    }
-    const int w = int(WebPDemuxGetI(demux.get(), WEBP_FF_CANVAS_WIDTH));
-    const int h = int(WebPDemuxGetI(demux.get(), WEBP_FF_CANVAS_HEIGHT));
-    const uint32_t flags = WebPDemuxGetI(demux.get(), WEBP_FF_FORMAT_FLAGS);
-    const qint64 pixels = qint64(w) * h;
-    if (w <= 0 || h <= 0 || pixels > kMaxPixels) {
-        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(4);
-        return false;
-    }
-    if (maxPixels > 0 && pixels > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
-    if (!fitsInMemory(pixels, 4, error))
-        return false;
-    WebPChunkIterator chunk;
-    if ((flags & ICCP_FLAG) && WebPDemuxGetChunk(demux.get(), "ICCP", 1, &chunk)) {
-        describeIcc(QByteArray(reinterpret_cast<const char *>(chunk.chunk.bytes), qsizetype(chunk.chunk.size)), &out->colour);
-        WebPDemuxReleaseChunkIterator(&chunk);
-    } else {
-        assumeDefault(false, &out->colour); // the WebP specification's default
-    }
-    if ((flags & EXIF_FLAG) && WebPDemuxGetChunk(demux.get(), "EXIF", 1, &chunk)) {
-        QByteArrayView exif(chunk.chunk.bytes, qsizetype(chunk.chunk.size));
-        if (exif.startsWith("Exif\0\0"))
-            exif = exif.sliced(6);
-        out->camera = cameraFromExif(exif, &out->orientation);
-        WebPDemuxReleaseChunkIterator(&chunk);
-    }
-
-    WebPAnimDecoderOptions options;
-    if (!WebPAnimDecoderOptionsInit(&options)) {
-        *error = invalid;
-        return false;
-    }
-    options.color_mode = MODE_RGBA; // straight alpha
-    options.use_threads = 1;
-    std::unique_ptr<WebPAnimDecoder, void (*)(WebPAnimDecoder *)> decoder(WebPAnimDecoderNew(&data, &options),
-                                                                           WebPAnimDecoderDelete);
-    uint8_t *frame = nullptr;
-    int timestamp = 0;
-    if (!decoder || !WebPAnimDecoderGetNext(decoder.get(), &frame, &timestamp) || !frame) {
-        *error = invalid;
-        return false;
-    }
-    const std::size_t bytes = std::size_t(pixels) * 4;
-    out->data.reset(new unsigned char[bytes]);
-    std::memcpy(out->data.get(), frame, bytes);
-    out->width = w;
-    out->height = h;
-    out->sample = Decoded::Sample::U8;
-    out->channels = 4;
-    out->alphaIndex = (flags & ALPHA_FLAG) ? 3 : -1;
-    out->sourceChannels = (flags & ALPHA_FLAG) ? 4 : 3;
-    out->bits = 8;
-    out->codec = QStringLiteral("libwebp");
-    return true;
-}
-#endif // IMAGEVIEWER_HAVE_LIBWEBP
-
-// The whole file in memory for decoders that parse from a buffer: mapped when the system
-// allows it, read otherwise.
-class FileBytes {
-public:
-    explicit FileBytes(QFile &file)
-    {
-        const qint64 size = file.size();
-        if (size <= 0)
-            return;
-        if (uchar *mapped = file.map(0, size)) {
-            m_view = QByteArrayView(mapped, size);
-        } else if (file.seek(0)) {
-            m_copy = file.readAll();
-            m_view = m_copy;
-        }
-    }
-    QByteArrayView view() const { return m_view; }
-
-private:
-    QByteArray m_copy;
-    QByteArrayView m_view;
-};
-
-bool decodeWith(Decoder decoder, const QString &path, QFile &file, qint64 maxPixels, Decoded *out, QString *error)
-{
-    switch (decoder) {
-    case Decoder::Jxl:
-#ifdef IMAGEVIEWER_HAVE_LIBJXL
-        return decodeJxl(FileBytes(file).view(), maxPixels, out, error);
-#else
-        break;
-#endif
-    case Decoder::WebP:
-#ifdef IMAGEVIEWER_HAVE_LIBWEBP
-        return decodeWebP(FileBytes(file).view(), maxPixels, out, error);
-#else
-        break;
-#endif
-    case Decoder::Qt: return decodeWithQt(path, maxPixels, out, error);
-    case Decoder::OpenImageIO: break;
-    }
-    return decodeWithOiio(path, maxPixels, out, error);
+    return readOiio(std::move(in), 0, out, error, nullptr);
 }
 
-} // namespace
-
-bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
+bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -751,6 +593,7 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     }
     // Detection by content (D-38): the format's own back end first, then the general ones.
     const QByteArray head = file.read(kFormatHeadBytes);
+    file.close();
     const Format *format = detectFormat(head, QFileInfo(path).suffix());
     QList<Decoder> order;
     if (format && isAvailable(*format))
@@ -761,14 +604,18 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     QString firstError;
     for (Decoder decoder : std::as_const(order)) {
         *out = Decoded(); // nothing from a failed attempt may leak into the next one
+        if (frames)
+            frames->reset();
         QString why;
-        if (decodeWith(decoder, path, file, maxPixels, out, &why))
+        if (decodeWith(decoder, path, format, maxPixels, out, &why, frames))
             return true;
         if (out->overLimit)
             return false;
         if (firstError.isEmpty())
             firstError = why;
     }
+    if (frames)
+        frames->reset();
     *error = firstError;
     return false;
 }

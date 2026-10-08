@@ -156,6 +156,64 @@ std::vector<qfloat16> downscale(const std::vector<qfloat16> &src, int &w, int &h
     return out;
 }
 
+// The display buffer of one decoded frame.
+struct Converted {
+    std::vector<qfloat16> pixels; // linear scRGB, premultiplied
+    int width = 0;
+    int height = 0;
+    float maxComponent = 0.0f;
+    float maxLuminance = 0.0f;
+};
+
+// One fused, parallel pass: native samples -> linear scRGB -> premultiplied half floats; then
+// the orientation, applied once, and the reduction by `factor` (1: none).
+Converted convertFrame(Decoded &dec, const color::Converter &converter, int factor)
+{
+    Converted out;
+    const std::size_t pixelCount = std::size_t(dec.width) * dec.height;
+    std::vector<qfloat16> pixels(pixelCount * 4);
+    std::vector<Range> ranges;
+    forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
+        const std::size_t n = range.end - range.begin;
+        std::vector<float> rgba(n * 4);
+        expand(dec, range.begin, range.end, rgba.data());
+        converter.apply(rgba.data(), n);
+        constexpr float kHalfMax = 65504.0f;
+        float maxComponent = 0.0f, maxLuminance = 0.0f;
+        for (std::size_t i = 0; i < n * 4; i += 4) {
+            float *p = rgba.data() + i;
+            const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
+            p[3] = a;
+            for (int c = 0; c < 3; ++c)
+                p[c] = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
+            if (a > 0.0f) { // invisible pixels do not drive tone mapping
+                maxComponent = std::max({maxComponent, p[0], p[1], p[2]});
+                maxLuminance = std::max(maxLuminance, color::luminance(p[0], p[1], p[2]));
+            }
+            for (int c = 0; c < 3; ++c)
+                p[c] *= a;
+        }
+        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
+        range.max = maxComponent;
+        range.maxLuminance = maxLuminance;
+    }, &ranges);
+    for (const Range &r : ranges) {
+        out.maxComponent = std::max(out.maxComponent, r.max);
+        out.maxLuminance = std::max(out.maxLuminance, r.maxLuminance);
+    }
+    dec.data.reset(); // release native samples early
+
+    int w = dec.width, h = dec.height;
+    if (dec.orientation >= 2 && dec.orientation <= 8)
+        pixels = orient(pixels, w, h, dec.orientation);
+    if (factor > 1)
+        pixels = downscale(pixels, w, h, factor);
+    out.pixels = std::move(pixels);
+    out.width = w;
+    out.height = h;
+    return out;
+}
+
 Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
 {
     QElapsedTimer timer;
@@ -169,7 +227,8 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
 
     Decoded dec;
     QString error;
-    if (!decodeFile(path, maxPixels, &dec, &error)) {
+    std::unique_ptr<FrameReader> frames;
+    if (!decodeFile(path, maxPixels, &dec, &error, &frames)) {
         if (dec.overLimit) {
             result.overPixelLimit = true;
             result.error = QStringLiteral("larger than the pixel limit"); // never shown
@@ -193,54 +252,14 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
                                           reason);
         converter = std::make_unique<color::Converter>(dec.colour, integerBits);
     }
+    const bool littleCms = converter->usesLittleCms();
 
-    // One fused, parallel pass: native samples -> linear scRGB -> premultiplied half floats.
-    const std::size_t pixelCount = std::size_t(dec.width) * dec.height;
-    std::vector<qfloat16> pixels(pixelCount * 4);
-    std::vector<Range> ranges;
-    forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
-        const std::size_t n = range.end - range.begin;
-        std::vector<float> rgba(n * 4);
-        expand(dec, range.begin, range.end, rgba.data());
-        converter->apply(rgba.data(), n);
-        constexpr float kHalfMax = 65504.0f;
-        float maxComponent = 0.0f, maxLuminance = 0.0f;
-        for (std::size_t i = 0; i < n * 4; i += 4) {
-            float *p = rgba.data() + i;
-            const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
-            p[3] = a;
-            for (int c = 0; c < 3; ++c)
-                p[c] = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
-            if (a > 0.0f) { // invisible pixels do not drive tone mapping
-                maxComponent = std::max({maxComponent, p[0], p[1], p[2]});
-                maxLuminance = std::max(maxLuminance, color::luminance(p[0], p[1], p[2]));
-            }
-            for (int c = 0; c < 3; ++c)
-                p[c] *= a;
-        }
-        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
-        range.max = maxComponent;
-        range.maxLuminance = maxLuminance;
-    }, &ranges);
-    float maxComponent = 0.0f, maxLuminance = 0.0f;
-    for (const Range &r : ranges) {
-        maxComponent = std::max(maxComponent, r.max);
-        maxLuminance = std::max(maxLuminance, r.maxLuminance);
-    }
-    dec.data.reset(); // release native samples early
-    const qint64 convertNs = timer.nsecsElapsed();
-
-    int w = dec.width, h = dec.height;
-    if (dec.orientation >= 2 && dec.orientation <= 8)
-        pixels = orient(pixels, w, h, dec.orientation);
-    result.sourceWidth = w;
-    result.sourceHeight = h;
-    const int longest = std::max(w, h);
-    if (maxTextureSize > 0 && longest > maxTextureSize)
-        pixels = downscale(pixels, w, h, (longest + maxTextureSize - 1) / maxTextureSize);
-
-    result.width = w;
-    result.height = h;
+    // Orientation swaps the axes but keeps the longest side, so the reduction is known here.
+    const int longest = std::max(dec.width, dec.height);
+    const int factor = maxTextureSize > 0 && longest > maxTextureSize ? (longest + maxTextureSize - 1) / maxTextureSize : 1;
+    const bool swapsAxes = dec.orientation >= 5 && dec.orientation <= 8;
+    result.sourceWidth = swapsAxes ? dec.height : dec.width;
+    result.sourceHeight = swapsAxes ? dec.width : dec.height;
     result.codec = dec.codec;
     result.sourceChannels = dec.sourceChannels;
     result.sourceBits = dec.bits;
@@ -249,18 +268,107 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
     result.orientation = dec.orientation;
     result.colour = dec.colour;
     result.camera = dec.camera;
-    result.maxComponent = maxComponent;
-    result.maxLuminance = maxLuminance;
-    result.pixels = std::make_shared<const std::vector<qfloat16>>(std::move(pixels));
+    const int firstDurationMs = dec.durationMs;
+    Converted first = convertFrame(dec, *converter, factor);
+    const qint64 convertNs = timer.nsecsElapsed();
+
+    result.width = first.width;
+    result.height = first.height;
+    result.maxComponent = first.maxComponent;
+    result.maxLuminance = first.maxLuminance;
+    result.pixels = std::make_shared<const std::vector<qfloat16>>(std::move(first.pixels));
+    if (frames)
+        result.animation = std::make_shared<Animation>(std::move(frames), std::move(converter), factor, result.width,
+                                                       result.height, result.pixels, firstDurationMs);
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
     qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": read " << readNs / 1000000 << " ms, convert "
-                               << (convertNs - readNs) / 1000000 << " ms, orient/downscale "
-                               << (timer.nsecsElapsed() - convertNs) / 1000000 << " ms"
-                               << (converter->usesLittleCms() ? " (LittleCMS)" : "");
+                               << (convertNs - readNs) / 1000000 << " ms" << (littleCms ? " (LittleCMS)" : "")
+                               << (result.animation ? ", animated" : "");
     return result;
 }
 
 } // namespace
+
+Animation::Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
+                     int width, int height, PixelBuffer first, int firstDurationMs)
+    : m_reader(std::move(reader)), m_converter(std::move(converter)), m_factor(factor), m_width(width),
+      m_height(height), m_loops(m_reader->loopCount()),
+      // Every frame stays in memory while they fit in an eighth of the RAM (at least 128 MiB,
+      // at most 1 GiB); beyond that, each loop decodes them again.
+      m_budget(std::clamp(physicalMemoryBytes() / 8, qint64(128) << 20, qint64(1) << 30))
+{
+    m_count = m_reader->frameCount();
+    m_kept.push_back({0, std::move(first), firstDurationMs});
+    m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+}
+
+Animation::~Animation() = default;
+
+bool Animation::frame(int index, Frame *out, QString *error)
+{
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    const int known = m_count.load();
+    if (index < 0 || (known > 0 && index >= known))
+        index = 0;
+    if (index < int(m_kept.size()) && m_kept[index].pixels) {
+        *out = m_kept[index];
+        return true;
+    }
+    if (index < m_next) { // passed already and not kept: from the start again
+        if (!m_reader->rewind(error))
+            return false;
+        m_next = 0;
+    }
+    for (;;) {
+        Decoded dec;
+        int durationMs = 0;
+        QString why;
+        if (!m_reader->next(&dec, &durationMs, &why)) {
+            if (!why.isEmpty()) {
+                *error = why;
+                return false;
+            }
+            // Past the last frame: the count is known now, and playback goes on from the first.
+            m_count = std::max(1, m_next);
+            m_reader->rewind(&why);
+            m_next = 0;
+            *out = m_kept.front();
+            return true;
+        }
+        const int at = m_next++;
+        if (m_reader->frameCount() > 0)
+            m_count = m_reader->frameCount();
+        const bool kept = at < int(m_kept.size()) && m_kept[at].pixels;
+        if (kept || (at < index && !m_keepAll)) {
+            if (at == index) {
+                *out = m_kept[at];
+                return true;
+            }
+            continue; // read past without converting
+        }
+        Converted c = convertFrame(dec, *m_converter, m_factor);
+        if (c.width != m_width || c.height != m_height) {
+            *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(c.width).arg(c.height).arg(4);
+            return false;
+        }
+        Frame frame{at, std::make_shared<const std::vector<qfloat16>>(std::move(c.pixels)), durationMs};
+        const qint64 bytes = qint64(frame.pixels->size() * sizeof(qfloat16));
+        if (m_keepAll && m_keptBytes + bytes <= m_budget) {
+            if (int(m_kept.size()) <= at)
+                m_kept.resize(std::size_t(at) + 1);
+            m_kept[std::size_t(at)] = frame;
+            m_keptBytes += bytes;
+        } else if (m_keepAll) { // too many to keep: only the first stays, for showing it at once
+            m_keepAll = false;
+            m_kept.resize(1);
+            m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+        }
+        if (at == index) {
+            *out = std::move(frame);
+            return true;
+        }
+    }
+}
 
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels)
 {

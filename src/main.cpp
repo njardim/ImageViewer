@@ -88,6 +88,37 @@ int printInfo(const QString &path)
             parts << c.taken.toString(Qt::ISODate);
         out << "camera:      " << parts.join(QStringLiteral(" | ")) << '\n';
     }
+    if (const std::shared_ptr<Animation> &animation = image.animation) {
+        // Every frame once, as the viewer plays them (at most 10 000).
+        QStringList durations;
+        Animation::Frame frame;
+        QString error;
+        int frames = 0;
+        for (int i = 1; i <= 10000; ++i) {
+            if (!animation->frame(i, &frame, &error)) {
+                out << "error: frame " << i << ": " << error << Qt::endl;
+                return 1;
+            }
+            if (frame.index == 0)
+                break;
+            frames = i;
+        }
+        QStringList firstPixels; // straight colour of pixel (0,0) of each frame
+        for (int i = 0; i <= frames && i < 8; ++i) {
+            animation->frame(i, &frame, &error);
+            durations << QString::number(frame.durationMs);
+            const qfloat16 *p = frame.pixels->data();
+            const float a = p[3];
+            QStringList rgb;
+            for (int c = 0; c < 3; ++c)
+                rgb << QString::number(a > 0 ? float(p[c]) / a : 0.0f, 'f', 3);
+            firstPixels << rgb.join(QLatin1Char(' '));
+        }
+        const QString more = frames >= 8 ? QStringLiteral(" ...") : QString();
+        out << "frames:      " << frames + 1 << ", loops " << animation->loopCount() << ", ms "
+            << durations.join(QLatin1Char(' ')) << more << '\n'
+            << "frame px:    " << firstPixels.join(QStringLiteral(" | ")) << more << '\n';
+    }
     // First pixel in working units, useful for colour checks on synthetic files.
     const qfloat16 *pixel = image.pixels->data();
     const float a = pixel[3];

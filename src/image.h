@@ -12,7 +12,9 @@
 #include <QString>
 #include <QStringList>
 
+#include <atomic>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 // Shooting data from the file's EXIF, when the decoder exposes it (strings already cleaned:
@@ -36,6 +38,9 @@ struct CameraInfo {
 
 using PixelBuffer = std::shared_ptr<const std::vector<qfloat16>>;
 
+class FrameReader;
+class Animation;
+
 struct Image {
     QString path;
     QString error;   // non-empty when decoding failed
@@ -58,11 +63,54 @@ struct Image {
     CameraInfo camera;
     double decodeMs = 0.0;
     // width * height * 4, linear scRGB, premultiplied alpha. Shared, never modified: the
-    // preload cache and the renderer hold the same buffer (decision D-33).
+    // preload cache and the renderer hold the same buffer (decision D-33). The first frame
+    // of an animation.
     PixelBuffer pixels;
+    // The frames after the first, for an animated image (E6); null for still images.
+    std::shared_ptr<Animation> animation;
 
     bool isValid() const { return error.isEmpty() && pixels && !pixels->empty(); }
     qint64 pixelBytes() const { return pixels ? qint64(pixels->size() * sizeof(qfloat16)) : 0; }
+};
+
+// The frames of an animated image (E6), decoded on demand and converted exactly like the
+// first (same colour conversion, orientation and size). Frames stay in memory while they fit
+// in a budget, so later loops and stepping back decode nothing. frame() may run on a worker
+// thread; one call at a time is served, the others wait.
+class Animation {
+public:
+    struct Frame {
+        int index = 0;
+        PixelBuffer pixels;  // as Image::pixels
+        int durationMs = 0;  // how long it is shown
+    };
+
+    Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
+              int width, int height, PixelBuffer first, int firstDurationMs);
+    ~Animation();
+    Animation(const Animation &) = delete;
+    Animation &operator=(const Animation &) = delete;
+
+    int frameCount() const { return m_count.load(); } // 0 while unknown
+    int loopCount() const { return m_loops; }         // 0 = forever
+    // Frame `index`; the first frame when `index` lies past the last one (whose number is
+    // known from then on). False with *error set when the file cannot be read any more.
+    bool frame(int index, Frame *out, QString *error);
+
+private:
+    std::mutex m_mutex;
+    std::unique_ptr<FrameReader> m_reader;
+    std::unique_ptr<color::Converter> m_converter;
+    int m_factor = 1;
+    int m_width = 0;
+    int m_height = 0;
+    int m_loops = 0;
+    qint64 m_budget = 0;
+    std::atomic<int> m_count{0};
+    int m_next = 1;               // index of the frame the reader produces next
+    std::vector<Frame> m_kept;    // by index; the first is always there
+    qint64 m_keptBytes = 0;
+    bool m_keepAll = true;        // every frame fits in the budget so far
 };
 
 // Decodes `path`. Images larger than `maxTextureSize` on either axis are reduced

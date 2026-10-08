@@ -68,7 +68,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp
+    src/decoders.h src/decoders.cpp src/codecs.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
 )

@@ -13,6 +13,7 @@ enum class Decoder {
     OpenImageIO, // most still formats, RAW (LibRaw), EXR, DPX, AVIF (libheif)
     Jxl,         // libjxl
     WebP,        // libwebp: ICC profiles and animation
+    Apng,        // animated PNG: frames rebuilt as PNGs for OpenImageIO, composited here
     Qt,          // QImageReader plugins (ICNS, XPM, SVG...)
 };
 

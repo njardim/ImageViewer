@@ -69,6 +69,16 @@ check pq.jxl 'max: +4\.92[0-9]*x SDR white \(99[89]\.[0-9]* nits\)' "JPEG XL PQ 
 check p3red.webp 'colour: +ICC: Display P3' "WebP ICC profile read"
 check p3red.webp 'pixel\[0,0\]: +1\.22[0-9]* -0\.04[0-9]* -0\.019' "WebP P3 red -> scRGB"
 
+# Animation (E6): three 8x6 frames, red, green and blue, shown 100, 200 and 300 ms, looping
+# forever (Pillow 12.3; the JPEG XL with cjxl 0.7 from the GIF). blend.png composites a
+# half-transparent green over red (APNG blend OVER): sRGB (127, 128, 0) -> linear (0.212, 0.216, 0).
+for f in anim.gif anim.webp anim.jxl anim.png; do
+    check "$f" 'frames: +3, loops 0, ms 100 200 300$' "animation: 3 frames and their durations"
+    check "$f" 'frame px: +1\.000 0\.000 0\.000 \| 0\.000 1\.000 0\.000 \| 0\.000 0\.000 1\.000$' "animation: every frame's colour"
+done
+check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
+check blend.png 'frame px: +1\.000 0\.000 0\.000 \| 0\.212 0\.216 0\.000 \| 0\.000 0\.000 1\.000$' "APNG blend over the previous frame"
+
 # The registry (D-38): every format that names a test file is in this build and decodes it.
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"

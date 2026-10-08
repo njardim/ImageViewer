@@ -84,7 +84,7 @@
     </message>
     <message>
         <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
-        <translation>HEIC görüntüleri için Microsoft Store'dan Microsoft'un “HEIF Image Extensions” ve “HEVC Video Extensions” uzantıları gerekir.</translation>
+        <translation>HEIC görüntüleri için Microsoft Store&apos;dan Microsoft&apos;un “HEIF Image Extensions” ve “HEVC Video Extensions” uzantıları gerekir.</translation>
     </message>
     <message>
         <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>

@@ -93,6 +93,7 @@ public:
 
     int frameCount() const { return m_count.load(); } // 0 while unknown
     int loopCount() const { return m_loops; }         // 0 = forever
+    int firstDurationMs() const { return m_firstDurationMs; }
     // Frame `index`; the first frame when `index` lies past the last one (whose number is
     // known from then on). False with *error set when the file cannot be read any more.
     bool frame(int index, Frame *out, QString *error);
@@ -105,6 +106,7 @@ private:
     int m_width = 0;
     int m_height = 0;
     int m_loops = 0;
+    int m_firstDurationMs = 0;
     qint64 m_budget = 0;
     std::atomic<int> m_count{0};
     int m_next = 1;               // index of the frame the reader produces next

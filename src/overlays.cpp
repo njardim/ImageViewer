@@ -127,6 +127,15 @@ void ViewerWindow::updateOverlay()
         if (m_image.hasAlpha)
             format << tr("alpha");
         rows.append({tr("Format"), format.join(dot)});
+        if (m_animation) {
+            const int count = m_animation->frameCount();
+            //: The frame of an animation on screen, e.g. "frame 3 of 24".
+            QString frames = count > 0 ? tr("frame %1 of %2").arg(locale.toString(m_frameIndex + 1), locale.toString(count))
+                                       : tr("frame %1").arg(locale.toString(m_frameIndex + 1));
+            if (m_animationPaused)
+                frames += dot + tr("paused");
+            rows.append({tr("Animation"), frames});
+        }
         if (m_image.orientation > 1)
             //: The EXIF orientation tag (2 to 8) of the file, already applied to the image.
             rows.append({tr("Orientation"), tr("EXIF %1, applied").arg(locale.toString(m_image.orientation))});

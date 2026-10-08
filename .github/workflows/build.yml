@@ -227,6 +227,8 @@ jobs:
         run: |
           python3 tests/ui_test.py "$EXE" vulkan
           UI_TEST_DIR="$UI_TEST_DIR-opengl" python3 tests/ui_test.py "$EXE" opengl
+          ANIMATION_TEST_DIR="$UI_TEST_DIR-animation" python3 tests/animation_test.py "$EXE" vulkan
+          ANIMATION_TEST_DIR="$UI_TEST_DIR-animation-opengl" python3 tests/animation_test.py "$EXE" opengl
 
       - name: Output-stage harness (Linux, offscreen GPU readback)
         if: runner.os == 'Linux'

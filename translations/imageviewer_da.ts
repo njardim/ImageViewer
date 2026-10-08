@@ -349,6 +349,11 @@
         <translation>Indlæs næste og forrige billede på forhånd</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diasshow (%1), tid pr. billede:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigation</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU&apos;en accepterede ikke billedet.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Diasshow stoppet</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>ramme %1 af %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>ramme %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>sat på pause</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animation</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Fremhæv ændrede pixels</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Sæt animation på pause</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Forrige ramme</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Næste ramme</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Diasshow</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Om imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animation sat på pause</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animation afspilles</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Diasshow: et nyt billede hvert %1 s</translation>
     </message>
 </context>
 </TS>

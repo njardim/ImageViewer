@@ -349,6 +349,11 @@
         <translation>Načítavať vopred nasledujúci a predchádzajúci obrázok</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Prezentácia (%1), čas na obrázok:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigácia</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU obrázok neprijalo.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Prezentácia zastavená</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Formát</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>snímka %1 z %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>snímka %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pozastavené</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animácia</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Zvýrazniť zmenené pixely</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pozastaviť animáciu</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Predchádzajúca snímka</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Nasledujúca snímka</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Prezentácia</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>O aplikácii imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animácia pozastavená</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animácia sa prehráva</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Prezentácia: nový obrázok každých %1 s</translation>
     </message>
 </context>
 </TS>

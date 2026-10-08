@@ -349,6 +349,11 @@
         <translation>Заранее загружать следующее и предыдущее изображения</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Слайд-шоу (%1), время на изображение:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Навигация</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>GPU не принял изображение.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Слайд-шоу остановлено</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Файл</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>Формат</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>кадр %1 из %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>кадр %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>на паузе</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Анимация</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>Выделять изменённые пиксели</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Приостановить анимацию</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Предыдущий кадр</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Следующий кадр</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Слайд-шоу</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>О программе imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>ОК</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Анимация приостановлена</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Анимация воспроизводится</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Слайд-шоу: новое изображение каждые %1 с</translation>
     </message>
 </context>
 </TS>

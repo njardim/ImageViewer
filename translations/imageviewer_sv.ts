@@ -349,6 +349,11 @@
         <translation>Läs in nästa och föregående bild i förväg</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Bildspel (%1), tid per bild:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigering</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU:n godtog inte bilden.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Bildspelet stoppat</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>bildruta %1 av %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>bildruta %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pausad</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animering</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Markera ändrade pixlar</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pausa animering</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Föregående bildruta</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Nästa bildruta</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Bildspel</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Om imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animeringen pausad</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animeringen spelas</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Bildspel: en ny bild var %1 s</translation>
     </message>
 </context>
 </TS>

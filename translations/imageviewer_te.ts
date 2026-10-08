@@ -349,6 +349,11 @@
         <translation>తదుపరి మరియు మునుపటి చిత్రాలను ముందుగానే లోడ్ చేయి</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>స్లైడ్‌షో (%1), ఒక్కో చిత్రానికి సమయం:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>నావిగేషన్</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>GPU చిత్రాన్ని అంగీకరించలేదు.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>స్లైడ్‌షో ఆపబడింది</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>ఫైల్</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>ఫార్మాట్</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>%2 లో ఫ్రేమ్ %1</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>ఫ్రేమ్ %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>పాజ్ చేయబడింది</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>యానిమేషన్</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>యానిమేషన్‌ను పాజ్ చేయి</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>మునుపటి ఫ్రేమ్</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>తదుపరి ఫ్రేమ్</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>స్లైడ్‌షో</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer గురించి</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>సరే</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>యానిమేషన్ పాజ్ చేయబడింది</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>యానిమేషన్ ప్లే అవుతోంది</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>స్లైడ్‌షో: ప్రతి %1 సెకన్లకు కొత్త చిత్రం</translation>
     </message>
 </context>
 </TS>

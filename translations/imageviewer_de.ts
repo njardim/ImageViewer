@@ -349,6 +349,11 @@
         <translation>Nächstes und vorheriges Bild im Voraus laden</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diashow (%1), Zeit pro Bild:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigation</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>Die GPU hat das Bild nicht angenommen.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Diashow beendet</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Datei</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>Einzelbild %1 von %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>Einzelbild %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>angehalten</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animation</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>Veränderte Pixel hervorheben</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Animation anhalten</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Vorheriges Einzelbild</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Nächstes Einzelbild</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Diashow</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Über imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animation angehalten</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animation läuft</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Diashow: alle %1 s ein neues Bild</translation>
     </message>
 </context>
 </TS>

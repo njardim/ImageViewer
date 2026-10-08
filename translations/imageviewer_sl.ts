@@ -349,6 +349,11 @@
         <translation>Vnaprej naloži naslednjo in prejšnjo sliko</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diaprojekcija (%1), čas na sliko:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Krmarjenje</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU slike ni sprejel.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Diaprojekcija ustavljena</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>sličica %1 od %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>sličica %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>začasno ustavljeno</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animacija</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Označi spremenjene piksle</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Začasno ustavi animacijo</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Prejšnja sličica</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Naslednja sličica</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Diaprojekcija</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>O programu imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>V redu</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animacija začasno ustavljena</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animacija se predvaja</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Diaprojekcija: nova slika vsakih %1 s</translation>
     </message>
 </context>
 </TS>

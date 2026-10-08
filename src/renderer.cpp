@@ -477,6 +477,14 @@ void Renderer::setImage(std::shared_ptr<const std::vector<qfloat16>> pixels, QSi
     m_pendingPixels = std::move(pixels);
     m_pendingSize = size;
     m_imagePending = true;
+    m_frameUpdate = false;
+}
+
+void Renderer::setFrame(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size)
+{
+    const bool replacesImage = m_imagePending && !m_frameUpdate; // a new image still waits: keep its path
+    setImage(std::move(pixels), size);
+    m_frameUpdate = !replacesImage;
 }
 
 void Renderer::clearImage()
@@ -517,8 +525,20 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         m_initialUpdates = nullptr;
     }
 
+    const std::size_t pendingValues = std::size_t(std::max(0, m_pendingSize.width())) * std::size_t(std::max(0, m_pendingSize.height())) * 4;
+    if (m_imagePending && m_frameUpdate && m_imageTexture && m_hasImage && m_imageTexture->pixelSize() == m_pendingSize
+        && m_pendingPixels && m_pendingPixels->size() == pendingValues) {
+        // Another frame of the same animation: the texture stays, only its contents change.
+        m_imagePending = m_frameUpdate = false;
+        QRhiTextureSubresourceUploadDescription level0;
+        level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels->data()),
+                                               qsizetype(m_pendingPixels->size() * sizeof(qfloat16))));
+        updates->uploadTexture(m_imageTexture, QRhiTextureUploadDescription({0, 0, level0}));
+        updates->generateMips(m_imageTexture);
+        m_uploadInFlight = true;
+    }
     if (m_imagePending) {
-        m_imagePending = false;
+        m_imagePending = m_frameUpdate = false;
         // Free the previous image before allocating the next one, so two large textures never
         // coexist; QRhi defers the native release until the GPU no longer uses it. A fresh
         // object each time: an upload still queued for an old object must never land in it.

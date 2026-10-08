@@ -349,6 +349,11 @@
         <translation>Charger à l’avance l’image suivante et la précédente</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diaporama (%1), durée par image :</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigation</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>Le GPU n’a pas accepté l’image.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Diaporama arrêté</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Fichier</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>trame %1 sur %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>trame %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>en pause</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animation</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>Mettre en évidence les pixels modifiés</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Mettre l'animation en pause</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Trame précédente</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Trame suivante</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Diaporama</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>À propos d’imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animation en pause</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Lecture de l'animation</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Diaporama : une nouvelle image toutes les %1 s</translation>
     </message>
 </context>
 </TS>

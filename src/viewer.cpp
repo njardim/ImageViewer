@@ -70,6 +70,11 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
         requestUpdate();
     });
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::decodeFinished);
+    m_framePool.setMaxThreadCount(1);
+    connect(&m_frameWatcher, &QFutureWatcher<FrameResult>::finished, this, &ViewerWindow::frameDecoded);
+    m_frameTimer.setSingleShot(true);
+    connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
+    connect(&m_slideshowTimer, &QTimer::timeout, this, &ViewerWindow::slideshowTimeout);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
@@ -89,6 +94,7 @@ ViewerWindow::~ViewerWindow()
     disconnect(this, nullptr, this, nullptr);
     m_watcher.waitForFinished();
     m_copyWatcher.waitForFinished();
+    m_frameWatcher.waitForFinished();
 }
 
 void ViewerWindow::showRestored(const SessionState &session)
@@ -223,6 +229,10 @@ void ViewerWindow::exposeEvent(QExposeEvent *)
         return;
     if (!m_rendererReady && !m_rendererFailed)
         initializeRenderer();
+    if (m_waitingForExpose) { // an animation waited while the window was hidden
+        m_waitingForExpose = false;
+        frameTimeout();
+    }
     requestUpdate();
 }
 
@@ -558,8 +568,13 @@ void ViewerWindow::toggleInfo()
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && visibility() == QWindow::FullScreen) {
-        leaveFullScreen();
+    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && (m_slideshow || visibility() == QWindow::FullScreen)) {
+        if (m_slideshow) {
+            stopSlideshow();
+            showNotice(tr("Slideshow stopped"));
+        }
+        if (visibility() == QWindow::FullScreen)
+            leaveFullScreen();
         return;
     }
     if (!executeShortcut(e))

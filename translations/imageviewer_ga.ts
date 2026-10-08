@@ -349,6 +349,11 @@
         <translation>Luchtaigh an chéad íomhá eile agus an íomhá roimhe seo roimh ré</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Taispeántas sleamhnán (%1), am in aghaidh na híomhá:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Nascleanúint</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Níor ghlac an GPU leis an íomhá.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Stopadh an taispeántas sleamhnán</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Formáid</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>fráma %1 as %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>fráma %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>ar sos</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Beochan</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Aibhsigh na picteilíní athraithe</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Cuir an bheochan ar sos</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>An fráma roimhe seo</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>An chéad fhráma eile</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Taispeántas sleamhnán</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Maidir le imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Beochan ar sos</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Beochan á seinm</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Taispeántas sleamhnán: íomhá nua gach %1 s</translation>
     </message>
 </context>
 </TS>

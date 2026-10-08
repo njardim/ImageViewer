@@ -349,6 +349,11 @@
         <translation>다음 및 이전 이미지를 미리 불러오기</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>슬라이드 쇼(%1), 이미지당 시간:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>탐색</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU가 이미지를 받아들이지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>슬라이드 쇼 중지됨</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>형식</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>프레임 %1/%2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>프레임 %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>일시 정지됨</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>애니메이션</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>변경된 픽셀 강조 표시</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>애니메이션 일시 정지</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>이전 프레임</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>다음 프레임</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>슬라이드 쇼</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer 정보</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>확인</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>애니메이션 일시 정지됨</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>애니메이션 재생 중</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>슬라이드 쇼: %1초마다 새 이미지</translation>
     </message>
 </context>
 </TS>

@@ -349,6 +349,11 @@
         <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Tayangan slide (%1), waktu per gambar:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigasi</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>GPU tidak menerima gambar.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Tayangan slide dihentikan</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>File</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>bingkai %1 dari %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>bingkai %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>dijeda</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animasi</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>Sorot Piksel yang Berubah</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Jeda animasi</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Bingkai sebelumnya</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Bingkai berikutnya</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Tayangan slide</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Tentang imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animasi dijeda</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animasi diputar</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Tayangan slide: gambar baru setiap %1 dtk</translation>
     </message>
 </context>
 </TS>

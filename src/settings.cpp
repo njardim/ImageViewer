@@ -249,6 +249,8 @@ Settings Settings::load()
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
     s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
+    s.slideshowSeconds = boundedInt(store, QStringLiteral("navigation/slideshowSeconds"), defaults.slideshowSeconds,
+                                    kMinSlideshowSeconds, kMaxSlideshowSeconds);
 
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
@@ -284,6 +286,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/sortBy"), QString::fromLatin1(sortKey(sortBy)));
     store.setValue(QStringLiteral("navigation/sortDescending"), sortDescending);
     store.setValue(QStringLiteral("navigation/preload"), preload);
+    store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("color/toneMap"), toneMap);
     store.setValue(QStringLiteral("color/output"), QString::fromLatin1(outputKey(output)));
 }
@@ -561,6 +564,13 @@ void SettingsDialog::buildUi()
     navigationForm->addRow(tr("Sort images by:"), sortRow);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     navigationForm->addRow(m_preload);
+    m_slideshowSeconds = new QSpinBox;
+    m_slideshowSeconds->setRange(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
+    //: Unit after a number of seconds; keep the leading space if your language separates units.
+    m_slideshowSeconds->setSuffix(tr(" s"));
+    //: %1: the key that starts and stops the slideshow, e.g. "S".
+    navigationForm->addRow(tr("Slideshow (%1), time per image:").arg(QKeySequence(Qt::Key_S).toString(QKeySequence::NativeText)),
+                           m_slideshowSeconds);
     tabs->addTab(navigation, tr("Navigation"));
 
     // Color & HDR
@@ -699,6 +709,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_sortBy->setCurrentIndex(std::max(0, m_sortBy->findData(QString::fromLatin1(sortKey(settings.sortBy)))));
     m_sortDescending->setChecked(settings.sortDescending);
     m_preload->setChecked(settings.preload);
+    m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toneMap->setChecked(settings.toneMap);
     m_output->setCurrentIndex(std::max(0, m_output->findData(QString::fromLatin1(outputKey(settings.output)))));
 }
@@ -762,6 +773,7 @@ Settings SettingsDialog::settings() const
     s.sortBy = sortFromKey(m_sortBy->currentData().toString());
     s.sortDescending = m_sortDescending->isChecked();
     s.preload = m_preload->isChecked();
+    s.slideshowSeconds = m_slideshowSeconds->value();
     s.toneMap = m_toneMap->isChecked();
     s.output = outputFromKey(m_output->currentData().toString());
     return s;

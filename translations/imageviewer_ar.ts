@@ -349,6 +349,11 @@
         <translation>تحميل الصورة التالية والسابقة مسبقاً</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>عرض الشرائح (%1)، الوقت لكل صورة:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>التنقل</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>لم يقبل GPU الصورة.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>توقف عرض الشرائح</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>الملف</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>الصيغة</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>الإطار %1 من %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>الإطار %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>متوقف مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>الرسوم المتحركة</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>تمييز وحدات البكسل المعدلة</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>إيقاف الرسوم المتحركة مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>الإطار السابق</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>الإطار التالي</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>عرض الشرائح</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>حول imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>موافق</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>الرسوم المتحركة متوقفة مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>الرسوم المتحركة قيد التشغيل</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>عرض الشرائح: صورة جديدة كل %1 ث</translation>
     </message>
 </context>
 </TS>

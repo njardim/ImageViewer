@@ -99,6 +99,8 @@ void ViewerWindow::step(int delta)
         target = (target % n + n) % n;
     }
     m_direction = delta > 0 ? 1 : -1;
+    if (m_slideshow) // the next image comes a full interval after this one
+        m_slideshowTimer.start();
     startLoading(target);
 }
 
@@ -211,6 +213,7 @@ void ViewerWindow::showImage(Image image, int limit)
         image.pixels.reset();
         m_image = std::move(image);
         m_renderer.clearImage();
+        stopAnimation();
     } else {
         m_message.clear();
         m_renderer.setImage(image.pixels, QSize(image.width, image.height));
@@ -223,6 +226,7 @@ void ViewerWindow::showImage(Image image, int limit)
             m_mirrored = false;
         }
         clampPan();
+        startAnimation(); // or stops the previous one
     }
     m_shownLimit = limit;
     m_imageStale = false;

@@ -349,6 +349,11 @@
         <translation>Carica in anticipo l&apos;immagine successiva e quella precedente</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Presentazione (%1), tempo per immagine:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigazione</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>La GPU non ha accettato l&apos;immagine.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Presentazione interrotta</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Formato</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>fotogramma %1 di %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>fotogramma %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>in pausa</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animazione</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Evidenzia pixel modificati</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Metti in pausa l'animazione</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Fotogramma precedente</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Fotogramma successivo</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Presentazione</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Informazioni su imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animazione in pausa</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animazione in riproduzione</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Presentazione: una nuova immagine ogni %1 s</translation>
     </message>
 </context>
 </TS>

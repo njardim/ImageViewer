@@ -54,12 +54,15 @@ struct Settings {
     FolderSort sortBy = FolderSort::Name;
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
+    int slideshowSeconds = 5;  // between images in the slideshow (E11)
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping on at startup
     Renderer::OutputPreference output = Renderer::OutputPreference::Automatic;
 
     static constexpr int kMinSideZoneWidth = 80;
     static constexpr int kMaxSideZoneWidth = 400;
+    static constexpr int kMinSlideshowSeconds = 1;
+    static constexpr int kMaxSlideshowSeconds = 3600;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
     static constexpr int kMinOverlayHideDelayMs = 300;
     static constexpr int kMaxOverlayHideDelayMs = 10000;
@@ -160,6 +163,7 @@ private:
     QComboBox *m_sortBy = nullptr;
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
+    QSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
     QComboBox *m_output = nullptr;
 };

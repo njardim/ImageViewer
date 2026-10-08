@@ -349,6 +349,11 @@
         <translation>Tải trước ảnh trước và ảnh tiếp theo</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Trình chiếu (%1), thời gian mỗi ảnh:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Điều hướng</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>GPU không chấp nhận ảnh.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Đã dừng trình chiếu</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Tệp</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>Định dạng</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>khung %1 trên %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>khung %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>tạm dừng</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Hoạt ảnh</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>Làm nổi bật điểm ảnh bị thay đổi</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Tạm dừng hoạt ảnh</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Khung trước</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Khung tiếp theo</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Trình chiếu</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Giới thiệu về imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Đã tạm dừng hoạt ảnh</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Đang phát hoạt ảnh</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Trình chiếu: ảnh mới mỗi %1 giây</translation>
     </message>
 </context>
 </TS>

@@ -349,6 +349,11 @@
         <translation>Iš anksto įkelti kitą ir ankstesnį vaizdus</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Skaidrių peržiūra (%1), laikas vienam vaizdui:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Naršymas</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU nepriėmė vaizdo.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Skaidrių peržiūra sustabdyta</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Formatas</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>kadras %1 iš %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>kadras %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pristabdyta</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animacija</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Paryškinti pakeistus pikselius</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pristabdyti animaciją</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Ankstesnis kadras</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Kitas kadras</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Skaidrių peržiūra</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Apie imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>Gerai</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animacija pristabdyta</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animacija leidžiama</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Skaidrių peržiūra: naujas vaizdas kas %1 s</translation>
     </message>
 </context>
 </TS>

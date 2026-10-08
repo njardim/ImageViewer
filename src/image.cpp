@@ -292,7 +292,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
 Animation::Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
                      int width, int height, PixelBuffer first, int firstDurationMs)
     : m_reader(std::move(reader)), m_converter(std::move(converter)), m_factor(factor), m_width(width),
-      m_height(height), m_loops(m_reader->loopCount()),
+      m_height(height), m_loops(m_reader->loopCount()), m_firstDurationMs(firstDurationMs),
       // Every frame stays in memory while they fit in an eighth of the RAM (at least 128 MiB,
       // at most 1 GiB); beyond that, each loop decodes them again.
       m_budget(std::clamp(physicalMemoryBytes() / 8, qint64(128) << 20, qint64(1) << 30))

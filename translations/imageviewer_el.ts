@@ -349,6 +349,11 @@
         <translation>Προφόρτωση της επόμενης και της προηγούμενης εικόνας</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Παρουσίαση (%1), χρόνος ανά εικόνα:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Πλοήγηση</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Η GPU δεν αποδέχτηκε την εικόνα.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Η παρουσίαση σταμάτησε</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Μορφή</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>καρέ %1 από %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>καρέ %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>σε παύση</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Κίνηση</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Επισήμανση τροποποιημένων pixel</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Παύση κίνησης</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Προηγούμενο καρέ</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Επόμενο καρέ</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Παρουσίαση</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Σχετικά με το imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Η κίνηση είναι σε παύση</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Αναπαραγωγή κίνησης</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Παρουσίαση: νέα εικόνα κάθε %1 δ</translation>
     </message>
 </context>
 </TS>

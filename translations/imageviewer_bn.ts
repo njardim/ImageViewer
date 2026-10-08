@@ -349,6 +349,11 @@
         <translation>পরের ও আগের ছবি আগে থেকে লোড করুন</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>স্লাইডশো (%1), প্রতি ছবির সময়:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>নেভিগেশন</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>GPU ছবিটি গ্রহণ করেনি।</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>স্লাইডশো বন্ধ হয়েছে</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>ফাইল</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>ফরম্যাট</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>%2-এর মধ্যে ফ্রেম %1</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>ফ্রেম %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>বিরতিতে</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>অ্যানিমেশন</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>পরিবর্তিত পিক্সেল হাইলাইট করুন</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>অ্যানিমেশন বিরতি দিন</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>আগের ফ্রেম</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>পরের ফ্রেম</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>স্লাইডশো</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer সম্পর্কে</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>ঠিক আছে</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>অ্যানিমেশন বিরতিতে</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>অ্যানিমেশন চলছে</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>স্লাইডশো: প্রতি %1 সেকেন্ডে একটি নতুন ছবি</translation>
     </message>
 </context>
 </TS>

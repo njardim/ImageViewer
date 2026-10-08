@@ -349,6 +349,11 @@
         <translation>पुढील आणि मागील प्रतिमा आधीच लोड करा</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>स्लाइडशो (%1), प्रति प्रतिमा वेळ:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>नेव्हिगेशन</translation>
     </message>
@@ -430,6 +435,10 @@
         <translation>GPU ने प्रतिमा स्वीकारली नाही.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>स्लाइडशो थांबवला</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>फाइल</translation>
     </message>
@@ -478,6 +487,23 @@
     <message>
         <source>Format</source>
         <translation>स्वरूप</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>%2 पैकी फ्रेम %1</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>फ्रेम %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>थांबवले</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>ॲनिमेशन</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -776,6 +802,22 @@
         <translation>बदललेले पिक्सेल हायलाइट करा</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>ॲनिमेशन थांबवा</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>मागील फ्रेम</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>पुढील फ्रेम</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>स्लाइडशो</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer बद्दल</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>ठीक आहे</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>ॲनिमेशन थांबवले</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>ॲनिमेशन चालू आहे</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>स्लाइडशो: दर %1 सेकंदांनी नवीन प्रतिमा</translation>
     </message>
 </context>
 </TS>

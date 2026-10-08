@@ -349,6 +349,11 @@
         <translation>Tgħabbi minn qabel l-immaġni li jmiss u l-preċedenti</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Preżentazzjoni (%1), ħin għal kull stampa:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigazzjoni</translation>
     </message>
@@ -408,6 +413,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Il-GPU ma aċċettatx l-immaġni.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Il-preżentazzjoni twaqqfet</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -487,6 +496,23 @@
     <message>
         <source>Format</source>
         <translation>Format</translation>
+    </message>
+    <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>qafas %1 minn %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>qafas %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>fuq pawża</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animazzjoni</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -784,6 +810,22 @@
         <translation>Enfasizza l-pixels mibdula</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Agħmel pawża lill-animazzjoni</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Il-qafas ta' qabel</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Il-qafas li jmiss</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Preżentazzjoni</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Dwar imageViewer</translation>
     </message>
@@ -940,6 +982,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>L-animazzjoni fuq pawża</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>L-animazzjoni qed tindaqq</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Preżentazzjoni: stampa ġdida kull %1 s</translation>
     </message>
 </context>
 </TS>

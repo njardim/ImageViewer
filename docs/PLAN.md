@@ -118,6 +118,7 @@
 | D-37 | 2026-10-08 | **Who writes the code.** Application code, tests and build scripts are written by the main session's model, never delegated to a less capable model; parallel reviewers (D-35) run on the same model. Less capable models may only translate the interface (`translations/*.ts`), and their output still passes `tests/check_translations.py`. | Owner's rule (2026-10-08): code written by weaker models degrades the codebase. |
 | D-38 | 2026-10-08 | **Formats: one registry, detection by content, hybrid isolation** (resolves D-P05). (1) One table of formats (`formats.{h,cpp}`): extensions, MIME type, signature, decoder, capabilities (HDR, alpha, animation, pages), library and licence, test file. It drives detection, the Open dialog filter, `--formats`, the README table, the file associations (Phase 4) and a CI check that every format has a test file decoded on the 3 systems. (2) The file's first bytes choose the decoder; the extension only decides between candidates and for formats without a signature (TGA). (3) Specialist libraries, fuzzed continuously upstream (OSS-Fuzz), run in the application: libjpeg-turbo, libpng, libwebp, libjxl, libheif with aom/dav1d, OpenEXR, libtiff, OpenJPEG, LibRaw, OpenImageIO. (4) The long tail goes to **GraphicsMagick 1.3.48** (MIT, released 2026-07-23 `[test: NEWS.txt of the release tarball]`), only inside a separate **decode worker** process (the same executable started with `--decode-worker`, D-08): an allow-list of coders (no delegates or external programs, no pseudo-formats such as MSL, MVG or TXT), pixel, memory and time limits, the worker killed on timeout; a crash there means "cannot open this file", never a crash of the viewer. (5) A fuzz smoke test in CI: every test file corrupted in many ways must decode or fail cleanly, within a time limit. | Owner's request (2026-10-08): as many formats as possible, safely and uniformly. ImageMagick, the engine behind Magick.NET, was the alternative: more formats, but no vcpkg port (our own build on 3 systems), delegates under GPL/AGPL (Ghostscript, jbigkit, FFTW) and a larger attack surface `[knowledge]`. The owner accepted GraphicsMagick on condition of its latest release; vcpkg's baseline has 1.3.45 (2024), so an overlay port carries 1.3.48. |
 | D-39 | 2026-10-08 | **HEIC through the operating system** (resolves D-P03). macOS: ImageIO (licensed by Apple). Windows: WIC with Microsoft's HEIF and HEVC Video Extensions when installed. Linux: no HEVC decoder ships; the distribution's own libheif with libde265 may be used later. When the system cannot decode a HEIC file, the message says how to add HEVC support (the Microsoft Store extension on Windows). No HEVC decoder is distributed in our packages. | HEVC patents (R4): the system's decoders are already licensed; the owner wants a clear note for the user rather than a silent failure. |
+| D-41 | 2026-10-08 | **Files for 0.3** (D-08 size rule). `codecs.cpp`: the back ends that parse from memory (libjxl, libwebp, APNG); `decoders.cpp`: OpenImageIO, Qt, detection and the helpers they share; `files.cpp`: the file operations of `ViewerWindow` (show, copy, rename, trash and undo, delete), out of `commands.cpp`, which had reached 809 lines; `playback.cpp`: animation playback and the slideshow. | `decoders.cpp` would have passed 1,000 lines and `commands.cpp` 850; each new file holds one concern. |
 | D-40 | 2026-10-08 | **Release 0.3 = formats first.** Registry and detection by content (D-38), JPEG XL (libjxl), animation of GIF, WebP, APNG, JPEG XL and AVIF sequences with pause and frame stepping (E6), slideshow (E11), HEIC through the system (D-39), the decode worker with GraphicsMagick (D-38), the fuzz smoke test. Window matching the image, zoom modes, title bar modes, shortcut editor and Open With move to 0.4. | Owner's decision (2026-10-08): JPEG XL files did not open and animated WebP stayed still in 0.2; format coverage is the product's second differentiator (§3). |
 
 ---
@@ -288,13 +289,16 @@ src/
   viewer.h/.cpp       ViewerWindow (QWindow): window, rendering, zoom/pan/rotation, input
   navigation.cpp      ViewerWindow: folder, loading, preloading, folder watching (D-33)
   overlays.cpp        ViewerWindow: information panel, top overlay, navigation buttons (D-34)
-  commands.cpp        ViewerWindow: command table, context menu, file operations, dialogs (D-30)
+  commands.cpp        ViewerWindow: command table, context menu, dialogs (D-30)
+  files.cpp           ViewerWindow: file operations — show, copy, rename, trash and undo, delete (D-41)
+  playback.cpp        ViewerWindow: animation playback and slideshow (E6, E11, D-41)
   cache.h/.cpp        preload cache of decoded images (D-33)
   settings.h/.cpp     Settings + session (QSettings), Settings dialog, UI languages (D-27, D-29)
   renderer.h/.cpp     QRhi: SDR/HDR swapchain, textures, pipeline, output modes
   image.h/.cpp        Image + decodeImage(): the single conversion to linear scRGB, orientation, downscale
   formats.h/.cpp      format registry (D-38): signatures, decoders, capabilities, test files, --formats
-  decoders.h/.cpp     back ends (D-38): OpenImageIO, Qt, libjxl, libwebp; detection and fallbacks
+  decoders.h/.cpp     back ends (D-38): OpenImageIO, Qt, frame readers; detection and fallbacks
+  codecs.cpp          back ends that parse from memory: libjxl, libwebp, APNG (D-41)
   color.h/.cpp        ICC (lcms2), CICP (PQ/HLG/sRGB/...), matrices, display 3D LUT
   folder.h/.cpp       listing and sorting (natural name order, date, size)
   platform.h          per-OS services (display ICC profile, HDR state, show in folder)
@@ -456,7 +460,7 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 - **View ▸** Zoom In, Zoom Out, Fit to Window, Actual Size (100 %) | Full Screen, Information Panel, Information Overlay, Checkerboard Background
 - **Image ▸** Rotate Clockwise, Rotate Counterclockwise | Flip Horizontally, Flip Vertically
 - **Color & HDR ▸** Increase/Decrease/Reset Exposure | Tone Mapping (BT.2390), Highlight Altered Pixels
-- **Go ▸** Previous, Next | First, Last [| Slideshow]
+- **Go ▸** Previous, Next | First, Last | Slideshow | Pause Animation, Previous Frame, Next Frame
 - Settings…, **Help ▸** About imageViewer, About Qt, Quit
 
 **Shortcuts:**
@@ -497,7 +501,7 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 - **General:** **language** (system default or one of 37), **confirm before moving to the trash**, **reopen the last image at startup**;
 - **Window:** **background** (black, dark gray `#212121`, gray, light gray, white, custom), **checkerboard behind transparency**, **remember window size and position**; theme;
 - **Information:** **show the information panel**; **top overlay: visibility in full screen and in a window (always, on hover, hidden), fields and their order, background opacity, text opacity, text outline, hide delay**;
-- **Navigation:** **loop at the ends of the folder**, **side click zones and their width**, **sort by name, date modified or size, ascending or descending**, **preload the next and previous images**; mouse wheel behavior;
+- **Navigation:** **loop at the ends of the folder**, **side click zones and their width**, **sort by name, date modified or size, ascending or descending**, **preload the next and previous images**, **slideshow interval**; mouse wheel behavior;
 - **Color & HDR:** **display output (automatic, SDR, HDR10)**, **tone mapping at startup (BT.2390)**; SDR target profile (automatic or custom ICC);
 - "Associations…" button (Phase 4).
 
@@ -581,7 +585,9 @@ Moved to 0.3: window matching the image size, zoom modes, title bar modes, slide
 - [x] Side zones 100 px by default and Apply in the Settings (D-36); `--formats` prints what each decoder of the build reads
 - [x] Format registry and detection by content (D-38): 32 formats, `--formats` table, CI decodes every format's test file on the 3 systems; CI configures with `IMAGEVIEWER_REQUIRE_ALL_DECODERS`
 - [x] JPEG XL through libjxl: native depth (16-bit sRGB exact), enumerated colour encoding or ICC, HDR (BT.2020 PQ at 1000 nits), EXIF camera data `[test: smoke]`; WebP through libwebp now honours its ICC profile (Display P3 red 1.225 instead of 1.0) `[test: smoke]`
-- [ ] Animation: GIF, WebP, APNG, JPEG XL, AVIF sequences; K pauses, `,` `.` step frames (E6); slideshow (E11)
+- [x] Animation: GIF (OpenImageIO subimages), WebP (libwebp), APNG (frames rebuilt as PNGs, composited with the APNG dispose and blend operations), JPEG XL (libjxl); every frame converted like the first, kept in memory up to an eighth of the RAM; loop counts; frame times as browsers apply them; the next frame decoded on its own thread; nothing decoded while the window is hidden; K pauses, `,` `.` step frames (E6) `[test: smoke, animation_test.py on Vulkan and OpenGL]`
+- [x] Slideshow (E11): S starts and stops it, Esc stops it, a manual step restarts the interval, the end of a folder that does not loop ends it; interval in the Settings (1–3600 s, default 5) `[test: animation_test.py]`
+- [ ] AVIF image sequences (libheif ≥ 1.20 track API)
 - [ ] HEIC through ImageIO and WIC, with the note on HEVC support (D-39)
 - [ ] Decode worker process with GraphicsMagick 1.3.48 (D-38); fuzz smoke test in CI
 - [ ] Tests, translations, full adversarial review (D-35), green CI, PR, release `v0.3`

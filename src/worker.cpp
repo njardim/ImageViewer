@@ -12,10 +12,16 @@
 //   interleaved RGB(A) samples, straight alpha, rows from the top, native byte order.
 // Exit codes: 0 decoded, 1 not decoded (reason on standard error), 2 bad arguments,
 // 3 over the pixel limit asked for.
+#if defined(_WIN32) && !defined(NOMINMAX)
+#define NOMINMAX // std::min and std::max, not the macros of windows.h (GraphicsMagick includes it)
+#endif
+
 #include "decoders.h"
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QElapsedTimer>
+#include <QFile>
 #include <QLocale>
 #include <QLoggingCategory>
 #include <QProcess>
@@ -27,6 +33,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -53,7 +60,11 @@ namespace {
 
 constexpr char kMagic[8] = {'I', 'V', 'W', 'O', 'R', 'K', 'E', 'R'};
 constexpr int kHeaderWords = 7;
-constexpr qint64 kMaxInputBytes = qint64(1) << 30;
+constexpr qint64 kMaxInputBytes = qint64(1) << 31; // as readWholeFile()
+// Memory per pixel of a worker decode: GraphicsMagick's 16-bit RGBA cache and the answer in
+// the worker, the answer and its copy here (fitsInMemory() adds the conversion's 16).
+constexpr int kWorkerNativeBytesPerPixel = 8 + 8 + 8 + 8;
+constexpr qint64 kWorkerBytesPerPixel = kWorkerNativeBytesPerPixel + 16;
 constexpr qint64 kMaxIccBytes = qint64(1) << 26;
 constexpr int kTimeoutMs = 30000;
 constexpr int kExitDecoded = 0, kExitFailed = 1, kExitUsage = 2, kExitOverLimit = 3;
@@ -136,6 +147,18 @@ bool keepOnlyAllowedCoders()
     MagickFree(all);
     for (const std::string &name : unwanted)
         UnregisterMagickInfo(name.c_str());
+    // No delegates (external programs) either: an allowed coder can hand an embedded image
+    // to a missing one (DICOM's JPEG fragments), which GraphicsMagick then offers to a
+    // delegate of delegates.mgk. The worker runs where no such file can be found (see
+    // decodeInWorker()); if one is found anyway, decode nothing.
+    // (Without a file, GraphicsMagick's list holds one empty placeholder, no command.)
+    GetExceptionInfo(&exception);
+    bool delegates = false;
+    for (const DelegateInfo *delegate = GetDelegateInfo("*", "*", &exception); delegate; delegate = delegate->next)
+        delegates = delegates || (delegate->commands && *delegate->commands);
+    DestroyExceptionInfo(&exception);
+    if (delegates)
+        return false;
     // A build with loadable coder modules would load an unregistered coder again when asked
     // for it: check that the dangerous ones are really gone, or decode nothing.
     for (const char *name : {"PS", "EPS", "PDF", "MSL", "MVG", "TXT", "URL", "HTTP", "SVG", "MPC"}) {
@@ -195,9 +218,13 @@ int runDecodeWorker(int argc, char **argv)
         return kExitFailed;
     }
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
-    InitializeMagick(argv[0]);
+    // GraphicsMagick looks for its configuration files (delegates.mgk, log.mgk) around the
+    // directory of the "client" it is given: an empty file in the private working directory
+    // the viewer made for this decode (decodeInWorker()), so it finds none.
+    const std::string client = (std::filesystem::current_path() / "bin" / "imageViewer").string();
+    InitializeMagick(std::filesystem::exists(client) ? client.c_str() : argv[0]);
     if (!keepOnlyAllowedCoders()) {
-        std::fprintf(stderr, "cannot restrict the coders\n");
+        std::fprintf(stderr, "cannot restrict the coders and delegates\n");
         return kExitFailed;
     }
     // Pixels as asked, 16-bit RGBA in memory at most, nothing on disk.
@@ -208,7 +235,7 @@ int runDecodeWorker(int argc, char **argv)
     SetMagickResourceLimit(MapResource, 0);
     SetMagickResourceLimit(DiskResource, 0);
     SetMagickResourceLimit(ReadResource, magick_int64_t(4) << 30);
-    SetMagickResourceLimit(ImagesResource, 16); // XCF layers
+    SetMagickResourceLimit(ImagesResource, 4096); // XCF: one per layer
     SetMagickResourceLimit(ThreadsResource, 1);
 
     ExceptionInfo exception;
@@ -282,11 +309,16 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     QByteArray bytes;
     if (!readWholeFile(path, &bytes, error))
         return false;
-    if (bytes.isEmpty() || bytes.size() > kMaxInputBytes) {
+    if (bytes.isEmpty()) {
         *error = damaged(format.name);
         return false;
     }
-    const qint64 limit = maxPixels > 0 ? std::min(maxPixels, kMaxPixels) : kMaxPixels;
+    // The pixels asked for, within what this machine's memory can take (checked again with
+    // the real size as soon as the answer's header arrives).
+    const qint64 budget = decodeMemoryBudget();
+    qint64 limit = maxPixels > 0 ? std::min(maxPixels, kMaxPixels) : kMaxPixels;
+    if (budget > 0)
+        limit = std::max<qint64>(1, std::min(limit, budget / kWorkerBytesPerPixel));
     QProcess worker;
     // The worker sees no GraphicsMagick settings of the user's environment (configuration
     // paths, debug logging, coder stability), only the arguments.
@@ -294,15 +326,24 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     for (const QString &key : environment.keys())
         if (key.startsWith(QLatin1String("MAGICK_"), Qt::CaseInsensitive))
             environment.remove(key);
-    // An empty working directory: coders that look for companion files by a relative name
-    // (CUT's palette) find nothing of the user's there.
+    // A private, empty working directory (QTemporaryDir: owner only), removed afterwards with
+    // whatever the worker left there:
+    // - coders that look for companion files by a relative name (CUT's palette) find nothing;
+    // - GraphicsMagick's temporary files (MAT and DICOM copy data to disk) land here and
+    //   go, even when the worker crashes or is stopped;
+    // - "bin/imageViewer", an empty file, is the client path GraphicsMagick searches for
+    //   its configuration (delegates.mgk names external programs), as is HOME (~/.magick).
     const QTemporaryDir sandbox;
-    if (!sandbox.isValid()) {
+    QFile client(sandbox.path() + QStringLiteral("/bin/imageViewer"));
+    if (!sandbox.isValid() || !QDir(sandbox.path()).mkdir(QStringLiteral("bin")) || !client.open(QIODevice::WriteOnly)) {
         *error = damaged(format.name);
         return false;
     }
+    client.close();
     worker.setWorkingDirectory(sandbox.path());
-    environment.insert(QStringLiteral("MAGICK_CODER_MODULE_PATH"), sandbox.path()); // no modules either
+    const QString place = QDir::toNativeSeparators(sandbox.path());
+    for (const char *variable : {"MAGICK_TMPDIR", "TMPDIR", "TMP", "TEMP", "HOME", "MAGICK_CODER_MODULE_PATH"})
+        environment.insert(QString::fromLatin1(variable), place);
     worker.setProcessEnvironment(environment);
     worker.setProgram(QCoreApplication::applicationFilePath());
     worker.setArguments({QStringLiteral("--decode-worker"), QString::fromLatin1(format.id).toUpper(), QString::number(limit)});
@@ -321,16 +362,21 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     QByteArray answer;
     QByteArray messages;
     Answer a;
+    QString tooLarge;
     bool haveHeader = false, broken = false, timedOut = false;
     QElapsedTimer clock;
     clock.start();
     const auto collect = [&] {
         answer += worker.readAllStandardOutput();
+        const QByteArray said = worker.readAllStandardError(); // always drained: QProcess would keep it all
         if (messages.size() < 4096)
-            messages += worker.readAllStandardError().left(4096);
+            messages += said.left(4096 - messages.size());
         if (!haveHeader && answer.size() >= kHeaderBytes) {
             haveHeader = parseHeader(answer, limit, &a);
             broken = !haveHeader;
+            // The real size is known: no use waiting for an image this machine cannot take.
+            if (haveHeader && !fitsInMemory(qint64(a.width) * a.height, kWorkerNativeBytesPerPixel, &tooLarge))
+                broken = true;
         }
         if (haveHeader && answer.size() > a.totalBytes())
             broken = true;
@@ -357,14 +403,22 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
                      .arg(QLocale().toString(kTimeoutMs / 1000));
         return false;
     }
+    if (!tooLarge.isEmpty()) {
+        *error = tooLarge;
+        return false;
+    }
     if (broken || worker.exitStatus() != QProcess::NormalExit) {
         qCWarning(lcWorker) << "decode worker failed:" << worker.exitStatus() << worker.exitCode() << "broken answer" << broken
                             << path;
         *error = damaged(format.name);
         return false;
     }
-    if (worker.exitCode() == kExitOverLimit && maxPixels > 0) {
-        out->overLimit = true;
+    if (worker.exitCode() == kExitOverLimit) {
+        // Over the pixels asked for (preloading skips it), or over this machine's memory.
+        if (maxPixels > 0)
+            out->overLimit = true;
+        else
+            *error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
         return false;
     }
     if (worker.exitCode() != kExitDecoded || !haveHeader || answer.size() != a.totalBytes()) {

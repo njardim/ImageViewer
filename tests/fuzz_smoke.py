@@ -5,8 +5,9 @@ decoded); a crash, an abort, a hang or any other exit code fails the test. Mutat
 deterministic (seeded per file), so a failure reproduces from its name.
 
 Not real fuzzing (libFuzzer with coverage, Phase 5): it catches the crashes a damaged file
-reaches easily, in our code and in the libraries, and in the decode worker it checks that a
-crash there stays there.
+reaches easily, in our code and in the libraries. A crash or a hang of the decode worker
+(GraphicsMagick) does not reach the viewer, which reports the file as damaged: the viewer's
+log line for it counts as a failure here too.
 
 usage: python3 tests/fuzz_smoke.py <imageViewer> [mutations per file, default 12]
 env:   FUZZ_SMOKE_DIR  where the mutated files are kept (default: a temporary directory);
@@ -62,12 +63,18 @@ def mutations(content, rng):
         yield f"{kind}{rng.randrange(1 << 16):04x}", bytes(b)
 
 
+# What the viewer logs (worker.cpp) when the decode worker crashed, hung or answered nonsense.
+WORKER_FAILURES = (b"QProcess::CrashExit", b"decode worker stopped after", b"broken answer true")
+
+
 def run(path):
     start = time.monotonic()
     try:
         result = subprocess.run([exe, "--info", path], env=env, capture_output=True, timeout=TIMEOUT_S)
     except subprocess.TimeoutExpired:
         return "hang", TIMEOUT_S
+    if any(marker in result.stderr for marker in WORKER_FAILURES):
+        return "worker", time.monotonic() - start
     return result.returncode, time.monotonic() - start
 
 
@@ -93,10 +100,15 @@ for name in files:
         if code in (0, 1):
             os.remove(path)
         else:
-            failures.append(f"{os.path.basename(path)}: {'no answer within %d s' % TIMEOUT_S if code == 'hang' else 'exit code %s' % code}")
+            why = {"hang": f"no answer within {TIMEOUT_S} s",
+                   "worker": "the decode worker crashed, hung or answered nonsense"}.get(code, f"exit code {code}")
+            failures.append(f"{os.path.basename(path)}: {why}")
             print(f"FAIL {failures[-1]}", flush=True)
 
 print(f"{cases} corrupted files from {len(files)} test files; slowest {slowest[0]:.1f} s ({slowest[1]})")
+if cases == 0:
+    print(f"FAIL no test files in {data}")
+    sys.exit(1)
 if failures:
     print(f"{len(failures)} failure(s); the files are in {work}")
     sys.exit(1)

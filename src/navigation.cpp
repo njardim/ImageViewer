@@ -29,8 +29,7 @@ void ViewerWindow::openFile(const QString &path)
     const QFileInfo info(path);
     if (!info.exists()) {
         m_message = tr("File not found: %1").arg(path);
-        if (m_recent.removeAll(path) > 0)
-            saveRecentFiles(m_recent);
+        editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
         updateOverlay();
         return;
     }
@@ -285,6 +284,7 @@ void ViewerWindow::relist()
     } else if (m_files.isEmpty()) {
         // Everything was deleted or moved away.
         m_index = -1;
+        stopAnimation();
         m_image = Image();
         m_renderer.clearImage();
         m_cache.clear();
@@ -326,10 +326,10 @@ void ViewerWindow::removeCurrentFromList()
 {
     const QString path = currentPath();
     m_cache.remove(path);
-    m_recent.removeAll(path);
-    saveRecentFiles(m_recent);
+    editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
     // The next image takes the removed one's place; after the last, the previous one.
     m_files.removeAt(m_index);
+    stopAnimation();
     m_image = Image();
     m_renderer.clearImage();
     if (m_files.isEmpty()) {
@@ -348,9 +348,17 @@ void ViewerWindow::removeCurrentFromList()
 
 void ViewerWindow::addRecentFile(const QString &path)
 {
-    m_recent.removeAll(path);
-    m_recent.prepend(path);
-    while (m_recent.size() > kMaxRecentFiles)
-        m_recent.removeLast();
+    editRecentFiles([&path](QStringList &recent) {
+        recent.removeAll(path);
+        recent.prepend(path);
+        while (recent.size() > kMaxRecentFiles)
+            recent.removeLast();
+    });
+}
+
+void ViewerWindow::editRecentFiles(const std::function<void(QStringList &)> &edit)
+{
+    m_recent = loadRecentFiles();
+    edit(m_recent);
     saveRecentFiles(m_recent);
 }

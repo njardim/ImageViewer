@@ -263,6 +263,16 @@ namespace {
 constexpr double kBt709ToBt2020[9] = {0.6274039, 0.3292830, 0.0433131, // row-major (ITU-R BT.2087)
                                       0.0690973, 0.9195404, 0.0113623,
                                       0.0163914, 0.0880133, 0.8955953};
+constexpr double kBt2020ToBt709[9] = {1.6604910, -0.5876411, -0.0728499, // its inverse
+                                      -0.1245505, 1.1328999, -0.0083494,
+                                      -0.0181507, -0.1005789, 1.1187296};
+
+void multiply(const double *m, float *rgb)
+{
+    const double r = rgb[0], g = rgb[1], b = rgb[2];
+    for (int c = 0; c < 3; ++c)
+        rgb[c] = float(m[3 * c] * r + m[3 * c + 1] * g + m[3 * c + 2] * b);
+}
 } // namespace
 
 void encodeOutput(OutputEncoding encoding, float *rgb)
@@ -292,7 +302,7 @@ void applyOutputStage(const OutputStage &s, float *rgba)
     for (int c = 0; c < 3; ++c)
         rgb[c] = (alpha > 0.0f ? rgba[c] / alpha : 0.0f) * s.exposure * s.scale;
 
-    bool altered;
+    bool altered = false;
     if (s.sourcePeak > s.peak) {
         // Hue-preserving: the curve acts on max(R,G,B) and all components follow its ratio.
         const float m = std::max({rgb[0], rgb[1], rgb[2]});
@@ -303,11 +313,19 @@ void applyOutputStage(const OutputStage &s, float *rgba)
             for (float &v : rgb)
                 v *= ratio;
         }
-    } else {
-        altered = std::max({rgb[0], rgb[1], rgb[2]}) > s.peak;
     }
+    // The peak is a limit of the display. scRGB/EDR and PQ displays have gamuts wider than
+    // BT.709, so the limit applies in BT.2020 there: a colour below the peak but outside
+    // BT.709 (Display P3 red: R = 1.22 in BT.709, 0.75 in BT.2020) is not cut (F3).
+    const bool wide = s.encoding != OutputEncoding::Sdr;
+    if (wide)
+        multiply(kBt709ToBt2020, rgb);
+    if (s.sourcePeak <= s.peak)
+        altered = std::max({rgb[0], rgb[1], rgb[2]}) > s.peak;
     for (float &v : rgb)
         v = std::min(v, s.peak);
+    if (wide)
+        multiply(kBt2020ToBt709, rgb);
     if (s.clipWarning && altered) {
         rgb[0] = rgb[2] = s.peak;
         rgb[1] = 0.0f;

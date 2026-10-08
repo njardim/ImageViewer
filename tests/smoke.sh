@@ -29,10 +29,20 @@ check() { # file, extended regex expected in the --info output, description
 check p3red16.png 'colour: +ICC: Display P3' "embedded ICC profile recognised"
 check p3red16.png 'pixel\[0,0\]: +1\.22[0-9]* -0\.04[0-9]* -0\.019' "P3 red -> scRGB (1.225, -0.042, -0.020)"
 # Linear EXR above SDR white: the file stores premultiplied (4,4,4,0.5), i.e. colour 8 at alpha 0.5.
-check hdr4.exr 'max: +8x SDR white' "EXR straight colour 8.0 preserved (HDR headroom)"
+# The peak that drives tone mapping is what can reach the screen: 8 at alpha 0.5 over a
+# background of at most SDR white is 0.5·8 + 0.5 = 4.5 (it was the straight 8 before 0.3).
+check hdr4.exr 'max: +4\.5x SDR white' "EXR peak as seen over the background"
 check hdr4.exr 'pixel\[0,0\]: +8 8 8 a=0\.5' "EXR premultiplied alpha read as such"
 # PNG alpha is straight: every pixel (200,100,50,128) -> sRGB-decoded colour, alpha 128/255.
 check alpha8.png 'pixel\[0,0\]: +0\.577[0-9]* 0\.127[0-9]* 0\.031[0-9]* a=0\.50' "PNG straight alpha kept straight"
+# The same pixel from BMP and SGI (Pillow 12.3): their readers keep straight alpha without
+# saying so, which must not be read as premultiplied (it was, up to 0.3-dev: 1 0.572 0.126).
+for f in alpha8.bmp alpha8.sgi; do
+    check "$f" 'pixel\[0,0\]: +0\.577[0-9]* 0\.127[0-9]* 0\.031[0-9]* a=0\.50' "straight alpha kept straight"
+done
+# A palette GIF whose colour 0 is transparent (OpenImageIO gives the alpha channel index as 4
+# of 4; it was dropped up to 0.3-dev).
+check transparent.gif 'pixel\[0,0\]: +0 0 0 a=0$' "GIF transparency kept"
 # EXIF orientation 6 rotates 300x200 into 200x300 exactly once.
 check orient6.jpg 'size: +200x300' "EXIF orientation 6 applied once"
 
@@ -91,6 +101,9 @@ fi
 # not be expanded a second time (OpenImageIO 3 passes the flag on as CICP).
 check narrow.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF narrow range expanded once"
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
+# GIF loops as browsers play them: no NETSCAPE block once, a count N (repeats) N + 1 times.
+check noloop.gif 'frames: +3, loops 1, ' "GIF without a loop count plays once"
+check loop2.gif 'frames: +3, loops 3, ' "GIF loop count 2 plays 3 times"
 check blend.png 'frame px: +1\.000 0\.000 0\.000 \| 0\.212 0\.216 0\.000 \| 0\.000 0\.000 1\.000$' "APNG blend over the previous frame"
 
 # The decode worker (D-38): GraphicsMagick in its own process, for the long tail. CI requires
@@ -135,15 +148,31 @@ else
     echo "ok   orange.heic: decoded by $(sed -n 's/^codec: *//p' <<<"$heic_out"), pixel within 0.02"
 fi
 
+# Formats read by OpenImageIO and Qt, test files written by oiiotool, GraphicsMagick and
+# Pillow or built by tests/longtail_data.py: sRGB (255, 128, 0) -> linear (1, 0.2158, 0).
+for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orange.iff orange.rla orange.pic \
+         orange.fits gm.xpm; do
+    if "$exe" --formats 2>/dev/null | grep -q " | $f\$"; then
+        check "$f" 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "colour exact"
+    fi
+done
+check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
+check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
+
 # The registry (D-38): every format that names a test file is in this build and decodes it
-# (HEIC, which depends on the system, above).
+# (HEIC, which depends on the system, above). CI builds with every decoder
+# (IMAGEVIEWER_REQUIRE_ALL_DECODERS), so a missing one fails there; a local build with fewer
+# libraries (no libheif 1.23, no GraphicsMagick, Qt without some plugins) skips it.
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
-    decoder="$(echo "$decoder" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
-    [ "$id" = avifs ] && [ "$available" = no ] && continue # see the AVIF sequence checks above
-    [ "$decoder" = GraphicsMagick ] && [ "$available" = no ] && continue # see the decode worker checks above
-    if [ "$available" != yes ]; then
+    if [ "$id" = svg ]; then
+        echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
+        continue
+    fi
+    if [ "$available" != yes ] && [ -z "${CI:-}" ]; then
+        echo "skip $id: not in this build ($test)"
+    elif [ "$available" != yes ]; then
         echo "FAIL $id: has a test file ($test) but is not available in this build"
         failures=$((failures + 1))
     elif "$exe" --info "$data/$test" >/dev/null 2>&1; then

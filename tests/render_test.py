@@ -198,6 +198,19 @@ try:
                 problems.append(f"not identity/clip: max error {err.max():.3g}")
             print(f"    identity/clip: max error {err.max():.2g}")
         failures += [f"{name}: {p}" for p in problems]
+
+    # Wide gamut at the peak (F3): Display P3 red is R = 1.2246 in linear BT.709 but within
+    # BT.2020, so an extended-range output whose peak is SDR white (EDR without headroom,
+    # e.g. an external monitor on macOS) must keep it; it was clipped per BT.709 channel to 1.
+    p3 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "p3red16.png")
+    run = subprocess.run([exe, "--render", p3, "--output", "edr", "--peak", "1"], env=env, capture_output=True,
+                         text=True, encoding="utf-8", errors="replace", timeout=120)
+    pixel = re.search(r"^pixel\[0,0\]:\s+(\S+)\s+(\S+)\s+(\S+)", run.stdout, re.MULTILINE)
+    print(f"--- {rhi} wide gamut at the peak\n{run.stdout.strip()}")
+    if run.returncode != 0 or not pixel:
+        failures.append(f"wide gamut: harness exit {run.returncode} {run.stderr.strip()[-300:]}")
+    elif abs(float(pixel.group(1)) - 1.2246) > 2e-3:
+        failures.append(f"wide gamut: P3 red R = {pixel.group(1)} at an SDR peak, expected 1.2246 (not clipped)")
 finally:
     if server:
         xvfb.stop(server)
@@ -205,4 +218,4 @@ finally:
 if failures:
     print("FAIL\n  " + "\n  ".join(failures))
     sys.exit(1)
-print(f"{rhi}: all {len(CASES)} output-stage cases pass")
+print(f"{rhi}: all {len(CASES)} output-stage cases and the wide-gamut case pass")

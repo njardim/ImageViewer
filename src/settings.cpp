@@ -257,6 +257,12 @@ Settings Settings::load()
     return s;
 }
 
+bool Settings::storedIsOutdated()
+{
+    const QSettings store;
+    return store.value(QStringLiteral("version")).toInt() < kSettingsVersion && !store.allKeys().isEmpty();
+}
+
 void Settings::save() const
 {
     QSettings store;

@@ -17,6 +17,11 @@ vcpkg_make_configure(
     AUTORECONF
     OPTIONS
         ${options}
+        # No absolute paths compiled in: an installed build looks for its configuration
+        # (delegates.mgk names external programs to run) in the build machine's prefix,
+        # a path that may exist, and be writable by others, on a user's computer. Not
+        # installed, it looks only around the client path imageViewer's worker gives it.
+        --disable-installed
         # 16 bits per sample: DICOM, MIFF, VIFF and others keep their depth.
         --with-quantum-depth=16
         --disable-openmp

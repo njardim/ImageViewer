@@ -6,8 +6,11 @@
 // so a slow decode slows the animation down instead of skipping frames.
 #include "viewer.h"
 
+#include <QApplication>
 #include <QLocale>
 #include <QtConcurrent/QtConcurrentRun>
+
+#include <algorithm>
 
 void ViewerWindow::startAnimation()
 {
@@ -28,6 +31,11 @@ void ViewerWindow::stopAnimation()
 {
     m_frameTimer.stop();
     ++m_frameGeneration; // a frame still being decoded is dropped when it arrives
+    if (m_animation) {
+        // Its other frames would stay in memory, outside the cache's budget. Trimmed on the
+        // frame thread, after a frame still being decoded, so the window never waits.
+        m_framePool.start([animation = m_animation] { animation->trim(); });
+    }
     m_animation.reset();
     m_readyFrame.reset();
     m_frameDue = false;
@@ -108,6 +116,10 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
         }
     }
     m_renderer.setFrame(shown.pixels, QSize(m_image.width, m_image.height));
+    // The tone mapping follows the brightest frame shown so far. The peak only rises, so a
+    // playing animation does not pump; the first frame's peak is the image's own.
+    m_image.maxComponent = std::max(m_image.maxComponent, shown.maxComponent);
+    m_image.maxLuminance = std::max(m_image.maxLuminance, shown.maxLuminance);
     m_frameIndex = shown.index;
     m_frameDurationMs = shown.durationMs;
     if (m_animationPaused) {
@@ -132,18 +144,26 @@ void ViewerWindow::togglePause()
         m_frameDue = false;
         showNotice(tr("Animation paused"));
     } else {
-        // An animation that had played all its loops starts over.
         const int loops = m_animation->loopCount();
-        if (loops > 0 && m_loopsDone >= loops)
+        if (loops > 0 && m_loopsDone >= loops) {
+            // Every loop played (stopped on the last frame): start over from the first
+            // frame, shown at once. Frame index 0 keeps that arrival from counting as a loop.
             m_loopsDone = 0;
-        if (m_readyFrame && m_readyFrame->index == m_frameIndex + 1) {
-            m_wantedFrame = m_readyFrame->index;
-        } else {
+            m_frameIndex = 0;
             m_readyFrame.reset();
-            m_wantedFrame = m_frameIndex + 1;
-            requestFrame(m_wantedFrame);
+            m_wantedFrame = 0;
+            m_frameDue = true;
+            requestFrame(0);
+        } else {
+            if (m_readyFrame && m_readyFrame->index == m_frameIndex + 1) {
+                m_wantedFrame = m_readyFrame->index;
+            } else {
+                m_readyFrame.reset();
+                m_wantedFrame = m_frameIndex + 1;
+                requestFrame(m_wantedFrame);
+            }
+            m_frameTimer.start(m_frameDurationMs);
         }
-        m_frameTimer.start(m_frameDurationMs);
         showNotice(tr("Animation playing"));
     }
     updateOverlay();
@@ -197,6 +217,11 @@ void ViewerWindow::stopSlideshow()
 
 void ViewerWindow::slideshowTimeout()
 {
+    // Not behind a dialog or a menu: the image they act on must stay the one on screen.
+    if (QGuiApplication::modalWindow() || QApplication::activePopupWidget()) {
+        m_slideshowTimer.start(m_settings.slideshowSeconds * 1000);
+        return;
+    }
     if (!hasNeighbour(+1)) { // the end of a folder that does not loop
         stopSlideshow();
         showNotice(tr("Slideshow stopped"));

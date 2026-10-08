@@ -395,6 +395,8 @@ int main(int argc, char *argv[])
 
     // The interface only: --info and --render output stays English (tests parse it).
     const Settings settings = Settings::load();
+    if (Settings::storedIsOutdated())
+        settings.save();
     applyLanguage(settings.language);
 
     ViewerWindow window(vulkan);

@@ -180,9 +180,13 @@ private:
             return false;
         }
         using Sample = Decoded::Sample;
-        out->sample = info.exponent_bits_per_sample > 0 ? (info.bits_per_sample <= 16 ? Sample::F16 : Sample::F32)
-                      : info.bits_per_sample <= 8   ? Sample::U8
-                                                    : Sample::U16;
+        // Lossy files are coded in XYB: libjxl turns them into the original colour space when
+        // it can describe it, and otherwise into linear sRGB, which 8 or 16-bit integers would
+        // band and clip to the sRGB gamut. Floats keep both.
+        const bool xyb = !info.uses_original_profile;
+        out->sample = info.exponent_bits_per_sample > 0 || xyb ? (info.bits_per_sample <= 16 ? Sample::F16 : Sample::F32)
+                      : info.bits_per_sample <= 8               ? Sample::U8
+                                                                : Sample::U16;
         out->gray = info.num_color_channels == 1;
         const bool alpha = info.alpha_bits > 0;
         out->channels = (out->gray ? 1 : 3) + (alpha ? 1 : 0);

@@ -24,6 +24,7 @@
 #include <QTimer>
 #include <QWindow>
 
+#include <functional>
 #include <optional>
 
 class QMenu;
@@ -78,6 +79,10 @@ private:
     void toggleFullScreen();
     void leaveFullScreen(); // back to maximized or normal, whichever it was
     void applySettings(const Settings &settings);
+    // Sets one preference changed outside the Settings dialog (a toggle) and saves it into the
+    // stored preferences rather than saving all of this instance's: another instance may have
+    // saved others since this one started.
+    void savePreference(const std::function<void(Settings &)> &change);
     void saveSession() const;
 
     QSizeF deviceSize() const;
@@ -144,6 +149,9 @@ private:
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
     void addRecentFile(const QString &path);
+    // Every instance shares the recent files: a change is made to the stored list, which may
+    // have grown in another instance meanwhile, and m_recent follows it.
+    void editRecentFiles(const std::function<void(QStringList &)> &edit);
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)

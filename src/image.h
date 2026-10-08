@@ -83,6 +83,8 @@ public:
         int index = 0;
         PixelBuffer pixels;  // as Image::pixels
         int durationMs = 0;  // how long it is shown
+        float maxComponent = 0.0f; // as Image::maxComponent, for this frame
+        float maxLuminance = 0.0f;
     };
 
     Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
@@ -96,9 +98,14 @@ public:
     int firstDurationMs() const { return m_firstDurationMs; }
     // Frame `index`; the first frame when `index` lies past the last one (whose number is
     // known from then on). False with *error set when the file cannot be read any more.
+    // Runs on a worker thread and never throws (out of memory is an error like any other).
     bool frame(int index, Frame *out, QString *error);
+    // Drops every kept frame but the first, for an animation no longer on screen: the preload
+    // cache, which may keep it, counts the first frame only. Waits for a frame() in progress.
+    void trim();
 
 private:
+    bool frameLocked(int index, Frame *out, QString *error);
     std::mutex m_mutex;
     std::unique_ptr<FrameReader> m_reader;
     std::unique_ptr<color::Converter> m_converter;

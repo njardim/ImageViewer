@@ -145,8 +145,7 @@ void ViewerWindow::saveSession() const
     session.maximized = session.fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
     session.lastFile = m_image.path;
     session.lastDirectory = m_lastDirectory;
-    session.save();
-    m_settings.save(); // includes the information panel toggled with I
+    session.save(); // preferences are saved when they change, never here (U2)
 }
 
 int ViewerWindow::textureLimit(const QString &path) const
@@ -422,6 +421,7 @@ void ViewerWindow::render()
             refused.modified = m_image.modified;
             refused.error = tr("The GPU did not accept the image.");
             m_message = refused.error;
+            stopAnimation();
             m_image = std::move(refused);
             m_shownLimit = textureLimit(m_image.path); // counts as shown at the capped size too
         }
@@ -484,6 +484,14 @@ void ViewerWindow::setHoverZone(Zone zone)
     updateNavigationButtons();
 }
 
+void ViewerWindow::savePreference(const std::function<void(Settings &)> &change)
+{
+    change(m_settings);
+    Settings stored = Settings::load();
+    change(stored);
+    stored.save();
+}
+
 void ViewerWindow::applySettings(const Settings &settings)
 {
     const Settings previous = m_settings;
@@ -500,6 +508,8 @@ void ViewerWindow::applySettings(const Settings &settings)
     }
     if (settings.toneMap != previous.toneMap)
         m_toneMap = settings.toneMap;
+    if (m_slideshow && settings.slideshowSeconds != previous.slideshowSeconds)
+        m_slideshowTimer.start(settings.slideshowSeconds * 1000); // a running slideshow takes the new interval
     m_showInfo = settings.showInfo;
     m_renderer.setOutputPreference(settings.output);
     if (settings.sortBy != previous.sortBy || settings.sortDescending != previous.sortDescending)
@@ -562,7 +572,7 @@ void ViewerWindow::toggleClipWarning()
 void ViewerWindow::toggleInfo()
 {
     m_showInfo = !m_showInfo;
-    m_settings.showInfo = m_showInfo;
+    savePreference([on = m_showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
 }
 

@@ -115,8 +115,21 @@ bool isRadiance(QByteArrayView h) { return startsWith(h, "#?RADIANCE") || starts
 bool isPsd(QByteArrayView h) { return startsWith(h, "8BPS"); }
 bool isDds(QByteArrayView h) { return startsWith(h, "DDS "); }
 bool isBmp(QByteArrayView h) { return startsWith(h, "BM") && h.size() >= 26; }
-bool isIco(QByteArrayView h) { return startsWithBytes(h, {0x00, 0x00, 0x01, 0x00}); }
-bool isCur(QByteArrayView h) { return startsWithBytes(h, {0x00, 0x00, 0x02, 0x00}); }
+// An icon directory: type 1 (icon) or 2 (cursor), at least one entry whose reserved byte is
+// 0 and whose image starts after the directory. An uncompressed true-colour TGA without an
+// ID starts with the same 00 00 02 00, but its next two bytes (the colour map's first
+// index) are 0, which no directory has.
+bool isIconDirectory(QByteArrayView h, unsigned char type)
+{
+    if (!startsWithBytes(h, {0x00, 0x00, type, 0x00}) || h.size() < 22)
+        return false;
+    const auto *p = reinterpret_cast<const unsigned char *>(h.data());
+    const unsigned count = unsigned(p[4]) | unsigned(p[5]) << 8;
+    const quint32 offset = quint32(p[18]) | quint32(p[19]) << 8 | quint32(p[20]) << 16 | quint32(p[21]) << 24;
+    return count >= 1 && p[9] == 0 && offset >= 6 + 16 * count;
+}
+bool isIco(QByteArrayView h) { return isIconDirectory(h, 0x01); }
+bool isCur(QByteArrayView h) { return isIconDirectory(h, 0x02); }
 bool isFits(QByteArrayView h) { return startsWith(h, "SIMPLE  ="); }
 bool isPnm(QByteArrayView h)
 {
@@ -163,32 +176,32 @@ const QList<Format> kFormats = {
     {"gif", "GIF", "gif", D::OpenImageIO, CanAlpha | CanAnimate, isGif, false, "palette.gif"},
     {"openexr", "OpenEXR", "exr sxr mxr", D::OpenImageIO, CanHdr | CanAlpha | CanHavePages, isExr, false, "hdr4.exr"},
     {"jpeg2000", "JPEG 2000 / HTJ2K", "jp2 j2k j2c jph", D::OpenImageIO, CanAlpha, isJpeg2000, false, "lossless.jp2"},
-    {"dpx", "DPX", "dpx", D::OpenImageIO, CanHdr | CanAlpha, isDpx, false, nullptr},
-    {"cineon", "Cineon", "cin", D::OpenImageIO, 0, isCineon, false, nullptr},
-    {"hdr", "Radiance HDR", "hdr rgbe", D::OpenImageIO, CanHdr, isRadiance, false, nullptr},
-    {"psd", "Photoshop (composite)", "psd psb pdd", D::OpenImageIO, CanAlpha, isPsd, false, nullptr},
-    {"dds", "DirectDraw Surface", "dds", D::OpenImageIO, CanAlpha, isDds, false, nullptr},
-    {"bmp", "BMP", "bmp dib", D::OpenImageIO, CanAlpha, isBmp, false, nullptr},
-    {"ico", "Windows icon", "ico", D::OpenImageIO, CanAlpha | CanHavePages, isIco, false, nullptr},
-    {"cur", "Windows cursor", "cur", D::Qt, CanAlpha, isCur, false, nullptr},
-    {"fits", "FITS", "fits", D::OpenImageIO, CanHdr, isFits, false, nullptr},
+    {"dpx", "DPX", "dpx", D::OpenImageIO, CanHdr | CanAlpha, isDpx, false, "orange.dpx"},
+    {"cineon", "Cineon", "cin", D::OpenImageIO, 0, isCineon, false, "gm.cin"},
+    {"hdr", "Radiance HDR", "hdr rgbe", D::OpenImageIO, CanHdr, isRadiance, false, "orange.hdr"},
+    {"psd", "Photoshop (composite)", "psd psb pdd", D::OpenImageIO, CanAlpha, isPsd, false, "gm.psd"},
+    {"dds", "DirectDraw Surface", "dds", D::OpenImageIO, CanAlpha, isDds, false, "orange.dds"},
+    {"bmp", "BMP", "bmp dib", D::OpenImageIO, CanAlpha, isBmp, false, "orange.bmp"},
+    {"ico", "Windows icon", "ico", D::OpenImageIO, CanAlpha | CanHavePages, isIco, false, "orange.ico"},
+    {"cur", "Windows cursor", "cur", D::Qt, CanAlpha, isCur, false, "orange.cur"},
+    {"fits", "FITS", "fits", D::OpenImageIO, CanHdr, isFits, false, "orange.fits"},
     {"pnm", "Netpbm (PBM, PGM, PPM, PFM)", "ppm pgm pbm pnm pfm", D::OpenImageIO, CanHdr, isPnm, false, "rows2.pfm"},
-    {"sgi", "SGI", "sgi rgb rgba bw int inta", D::OpenImageIO, CanAlpha, isSgi, false, nullptr},
-    {"softimage", "Softimage PIC", "pic", D::OpenImageIO, CanAlpha, isSoftimage, false, nullptr},
-    {"iff", "Maya IFF", "iff z", D::OpenImageIO, CanAlpha, isMayaIff, false, nullptr},
-    {"zfile", "Pixar zfile", "zfile", D::OpenImageIO, CanHdr, isZfile, false, nullptr},
-    {"icns", "Apple icon", "icns", D::Qt, CanAlpha, isIcns, false, nullptr},
-    {"xpm", "XPM", "xpm", D::Qt, CanAlpha, isXpm, false, nullptr},
-    {"svg", "SVG", "svg svgz", D::Qt, CanAlpha, isSvg, false, nullptr},
+    {"sgi", "SGI", "sgi rgb rgba bw int inta", D::OpenImageIO, CanAlpha, isSgi, false, "orange.sgi"},
+    {"softimage", "Softimage PIC", "pic", D::OpenImageIO, CanAlpha, isSoftimage, false, "orange.pic"},
+    {"iff", "Maya IFF", "iff z", D::OpenImageIO, CanAlpha, isMayaIff, false, "orange.iff"},
+    {"zfile", "Pixar zfile", "zfile", D::OpenImageIO, CanHdr, isZfile, false, "gray.zfile"},
+    {"icns", "Apple icon", "icns", D::Qt, CanAlpha, isIcns, false, "orange.icns"},
+    {"xpm", "XPM", "xpm", D::Qt, CanAlpha, isXpm, false, "gm.xpm"},
+    {"svg", "SVG", "svg svgz", D::Qt, CanAlpha, isSvg, false, "orange.svg"},
     {"tiff", "TIFF", "tif tiff tx env sm vsm", D::OpenImageIO, CanHdr | CanAlpha | CanHavePages, isTiff, true, "rgb16.tif"},
     // Without a signature of their own: known by their extension.
     {"raw", "Camera RAW (LibRaw)",
      "dng cr2 cr3 crw nef nrw arw srf sr2 raf orf rw2 rwl pef srw x3f 3fr fff iiq cap eip mef mos mrw "
      "kdc dcr k25 erf bay bmq cs1 dc2 drf dsc ia kc2 mdc ptx pxn qtk raw rdc rwz sti cine",
      D::OpenImageIO, 0, nullptr, false, nullptr},
-    {"targa", "Targa", "tga tpic", D::OpenImageIO, CanAlpha, nullptr, false, nullptr},
-    {"rla", "Wavefront RLA", "rla", D::OpenImageIO, CanAlpha, nullptr, false, nullptr},
-    {"xbm", "XBM", "xbm", D::Qt, 0, nullptr, false, nullptr},
+    {"targa", "Targa", "tga tpic", D::OpenImageIO, CanAlpha, nullptr, false, "orange.tga"},
+    {"rla", "Wavefront RLA", "rla", D::OpenImageIO, CanAlpha, nullptr, false, "orange.rla"},
+    {"xbm", "XBM", "xbm", D::Qt, 0, nullptr, false, "gm.xbm"},
     // The long tail (D-38): GraphicsMagick in the decode worker; the coder is the id in upper
     // case and must be in worker.cpp's allow-list.
     {"xcf", "GIMP XCF", "xcf", D::GraphicsMagick, CanAlpha, isXcf, false, "layers.xcf"},
@@ -207,7 +220,7 @@ const QList<Format> kFormats = {
     {"mac", "MacPaint", "mac", D::GraphicsMagick, 0, nullptr, false, "bw.mac"},
     {"pix", "Alias PIX", "pix", D::GraphicsMagick, 0, nullptr, false, "rgb.pix"},
     {"otb", "Nokia OTA bitmap", "otb", D::GraphicsMagick, 0, nullptr, false, "gm.otb"},
-    {"wbmp", "Wireless bitmap", "wbmp", D::Qt, 0, nullptr, false, nullptr},
+    {"wbmp", "Wireless bitmap", "wbmp", D::Qt, 0, nullptr, false, "gm.wbmp"},
 };
 
 const char *decoderName(Decoder d)

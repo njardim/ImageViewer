@@ -54,10 +54,13 @@ float pqDecode(float e)
     return 10000.0 * pow(max(p - PQ_C1, 0.0) / (PQ_C2 - PQ_C3 * p), 1.0 / PQ_M1);
 }
 
-// Linear BT.709 -> linear BT.2020 (ITU-R BT.2087), column-major.
+// Linear BT.709 -> linear BT.2020 (ITU-R BT.2087), column-major, and back.
 const mat3 BT709_TO_BT2020 = mat3(0.6274039, 0.0690973, 0.0163914,
                                   0.3292830, 0.9195404, 0.0880133,
                                   0.0433131, 0.0113623, 0.8955953);
+const mat3 BT2020_TO_BT709 = mat3(1.6604910, -0.1245505, -0.0181507,
+                                  -0.5876411, 1.1328999, -0.1005789,
+                                  -0.0728499, -0.0083494, 1.1187296);
 
 void main()
 {
@@ -88,10 +91,17 @@ void main()
                      + (-2.0 * t3 + 3.0 * t2) * tone.w;
             rgb *= pqDecode(e2 * tone.z) / (m * tone.x);
         }
-    } else {
-        altered = any(greaterThan(rgb, vec3(peak)));
     }
+    // The peak limits the display: in BT.2020 for scRGB/EDR and PQ, whose gamuts are wider
+    // than BT.709, so that wide-gamut colours below the peak are not cut (color.cpp).
+    bool wide = modes.x == MODE_SCRGB || modes.x == MODE_PQ;
+    if (wide)
+        rgb = BT709_TO_BT2020 * rgb;
+    if (tone.y <= peak)
+        altered = any(greaterThan(rgb, vec3(peak)));
     rgb = min(rgb, vec3(peak));
+    if (wide)
+        rgb = BT2020_TO_BT709 * rgb;
     if (modes.z != 0 && modes.y == 0 && altered)
         rgb = vec3(peak, 0.0, peak);
 

@@ -187,8 +187,13 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
             for (int c = 0; c < 3; ++c)
                 p[c] = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
             if (a > 0.0f) { // invisible pixels do not drive tone mapping
-                maxComponent = std::max({maxComponent, p[0], p[1], p[2]});
-                maxLuminance = std::max(maxLuminance, color::luminance(p[0], p[1], p[2]));
+                // What can reach the screen over a background: a·c + (1 − a)·min(c, 1). The
+                // colour itself when opaque or within SDR; a nearly transparent pixel whose
+                // straight colour is large (premultiplied 0.0005 at alpha 1e-4 is 5.0) does
+                // not set the peak of the whole image.
+                const auto visible = [a](float c) { return a * c + (1.0f - a) * std::min(c, 1.0f); };
+                maxComponent = std::max({maxComponent, visible(p[0]), visible(p[1]), visible(p[2])});
+                maxLuminance = std::max(maxLuminance, visible(color::luminance(p[0], p[1], p[2])));
             }
             for (int c = 0; c < 3; ++c)
                 p[c] *= a;
@@ -307,6 +312,27 @@ Animation::~Animation() = default;
 bool Animation::frame(int index, Frame *out, QString *error)
 {
     const std::lock_guard<std::mutex> lock(m_mutex);
+    // An exception here would be rethrown by QFuture::result() on the GUI thread and end the
+    // application, as in decodeImage().
+    try {
+        return frameLocked(index, out, error);
+    } catch (const std::bad_alloc &) {
+        *error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
+    } catch (const std::exception &e) {
+        *error = QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
+    }
+    return false;
+}
+
+void Animation::trim()
+{
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    m_kept.resize(1);
+    m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+}
+
+bool Animation::frameLocked(int index, Frame *out, QString *error)
+{
     const int known = m_count.load();
     if (index < 0 || (known > 0 && index >= known))
         index = 0;
@@ -351,7 +377,8 @@ bool Animation::frame(int index, Frame *out, QString *error)
             *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(c.width).arg(c.height).arg(4);
             return false;
         }
-        Frame frame{at, std::make_shared<const std::vector<qfloat16>>(std::move(c.pixels)), durationMs};
+        Frame frame{at, std::make_shared<const std::vector<qfloat16>>(std::move(c.pixels)), durationMs, c.maxComponent,
+                    c.maxLuminance};
         const qint64 bytes = qint64(frame.pixels->size() * sizeof(qfloat16));
         if (m_keepAll && m_keptBytes + bytes <= m_budget) {
             if (int(m_kept.size()) <= at)

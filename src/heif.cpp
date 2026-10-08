@@ -186,6 +186,11 @@ private:
     {
         m_track.reset();
         m_context.reset(heif_context_alloc());
+        // libheif's own limit on frame size: the size the track declares is not checked
+        // against the frames it holds, which are what gets decoded.
+        if (m_context)
+            if (heif_security_limits *limits = heif_context_get_security_limits(m_context.get()))
+                limits->max_image_size_pixels = std::min<uint64_t>(limits->max_image_size_pixels, uint64_t(m_pixelLimit));
         if (!m_context
             || heif_context_read_from_memory_without_copy(m_context.get(), m_bytes.constData(), std::size_t(m_bytes.size()),
                                                           nullptr)
@@ -200,6 +205,7 @@ private:
     bool start(qint64 maxPixels, Decoded *first, QString *error)
     {
         const QString invalid = damaged("AVIF");
+        m_pixelLimit = maxPixels > 0 ? std::min(maxPixels, kMaxPixels) : kMaxPixels;
         if (!m_options || !openTrack()) {
             *error = invalid;
             return false;
@@ -229,8 +235,9 @@ private:
         const heif_error coded = heif_track_decode_next_image(m_track.get(), &raw, heif_colorspace_undefined,
                                                               heif_chroma_undefined, m_options.get());
         ImagePtr image(raw, heif_image_release);
-        if (coded.code != heif_error_Ok || !image) {
-            *error = invalid;
+        if (coded.code != heif_error_Ok || !image || heif_image_get_primary_width(image.get()) != w
+            || heif_image_get_primary_height(image.get()) != h) {
+            *error = invalid; // also a frame of another size than the track declares
             return false;
         }
         const heif_channel channel = heif_image_get_colorspace(image.get()) == heif_colorspace_RGB
@@ -276,6 +283,7 @@ private:
     std::unique_ptr<heif_decoding_options, decltype(&heif_decoding_options_free)> m_options;
     Decoded m_layout;
     uint32_t m_timescale = 1;
+    qint64 m_pixelLimit = kMaxPixels;
     bool m_wide = false;
     int m_index = 0;
     int m_count = 0;

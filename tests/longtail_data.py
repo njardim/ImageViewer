@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Writes the test files of the long-tail formats that GraphicsMagick reads but cannot write
-(decision D-38): each one is built here from its specification, so that every format of the
-registry has a test file of known content. The others (gm.pcx, gm.dcx, gm.pict, gm.wpg,
-gm.miff, gm.ras, gm.viff, gm.vicar, gm.mat, gm.otb) were written by GraphicsMagick 1.3.48
-from a 6x4 image of sRGB (255, 128, 0), `gm convert orange.ppm gm.<ext>` (VICAR in gray, OTB
-from an 8x4 bitmap, left half black).
+"""Writes the test files that no common tool writes correctly (decision D-38): each one is
+built here from its specification, so that the registry's formats have test files of known
+content. Content: sRGB (255, 128, 0), 6x4 unless said otherwise.
+
+The other test files of the registry were written by tools from the same 6x4 orange image
+(orange.ppm):
+- GraphicsMagick 1.3.48, `gm convert orange.ppm gm.<ext>`: gm.pcx, gm.dcx, gm.pict, gm.wpg,
+  gm.miff, gm.ras, gm.viff, gm.mat, gm.cin, gm.psd, gm.xpm, gm.xbm, gm.wbmp; gm.vicar in gray;
+  gm.otb from an 8x4 bitmap, left half black.
+- oiiotool 2.4, `oiiotool orange.ppm -o orange.<ext>`: orange.dpx, .hdr, .bmp, .ico, .fits,
+  .sgi, .iff, .tga, .rla; gray.zfile from the green channel as float.
+- Pillow 12.3: orange.dds (16x16 RGBA), orange.icns (16x16).
 
 usage: python3 tests/longtail_data.py <output directory>
 """
@@ -117,5 +123,29 @@ def pix():
     write("rgb.pix", struct.pack(">HHHHH", 6, 4, 0, 0, 24) + bytes([6, 0, 128, 255]) * 4)
 
 
-for make in (xcf, dicom, tim, cut, macpaint, pix):
+# Softimage PIC: one mixed run-length packet (R, G, B), each row a single run of 6 pixels.
+# (OpenImageIO 2.4 reads uncompressed PIC packets as black; real files use run lengths.)
+def softimage():
+    header = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"imageViewer test", b"PICT", 6, 4, 1.0, 3, 0)
+    packet = bytes([0, 8, 2, 0x80 | 0x40 | 0x20])  # last packet, 8 bits, mixed run length, R G B
+    write("orange.pic", header + packet + bytes([128 + 5, 255, 128, 0]) * 4)
+
+
+# Windows cursor: 16x16, 32-bit BGRA with its AND mask (rows padded to 4 bytes), hotspot
+# (1, 1). Pillow's ICO writer leaves the mask rows unpadded, which Qt rejects.
+def cursor():
+    w = h = 16
+    xor = bytes([0, 128, 255, 255]) * (w * h)
+    mask = bytes(4) * h
+    dib = struct.pack("<IiiHHIIiiII", 40, w, 2 * h, 1, 32, 0, len(xor) + len(mask), 0, 0, 0, 0) + xor + mask
+    entry = struct.pack("<BBBBHHII", w, h, 0, 0, 1, 1, len(dib), 6 + 16)
+    write("orange.cur", struct.pack("<HHH", 0, 2, 1) + entry + dib)
+
+
+def svg():
+    write("orange.svg", b'<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4">'
+                        b'<rect width="6" height="4" fill="#ff8000"/></svg>\n')
+
+
+for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, svg):
     make()

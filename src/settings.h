@@ -73,6 +73,9 @@ struct Settings {
 
     static Settings load(); // invalid or out-of-range stored values fall back to the defaults
     void save() const;
+    // Whether the stored preferences predate this version's form: load() migrates them, and
+    // saving them once at startup makes that permanent (they are not saved at exit).
+    static bool storedIsOutdated();
 
     bool operator==(const Settings &) const = default;
 };

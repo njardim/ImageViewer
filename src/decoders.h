@@ -76,6 +76,8 @@ void shutdownOpenImageIO();
 // Shared by the back ends (decoders.cpp, codecs.cpp).
 // Refuses a decode that would need more than ~60 % of physical memory (*error says why).
 bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error);
+// That ~60 % of physical memory, in bytes (0 if unknown).
+qint64 decodeMemoryBudget();
 // "damaged, truncated or unsupported <format> file", for every back end.
 QString damaged(const char *formatName);
 // Shooting data, and the orientation when asked, from an EXIF block (TIFF header first).

@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <string_view>
 #include <vector>
 
 
@@ -193,9 +194,19 @@ CameraInfo cameraFromOiio(const OIIO::ImageSpec &spec)
     return camera;
 }
 
+// A file read into memory for OpenImageIO, which reads it through `reader`: it must outlive
+// every ImageInput opened on it. Animations are read this way, so that no file stays open
+// while they play (Windows could neither rename nor delete it).
+struct OiioMemory {
+    explicit OiioMemory(QByteArray content) : bytes(std::move(content)), reader(bytes.data(), std::size_t(bytes.size())) {}
+    QByteArray bytes;
+    OIIO::Filesystem::IOMemReader reader;
+};
+
 // Defined after OiioFrames: the frames after the first of an animated GIF.
-std::unique_ptr<FrameReader> makeOiioFrames(std::unique_ptr<OIIO::ImageInput> in, const Decoded &first,
-                                            OIIO::TypeDesc request, int loopCount);
+std::unique_ptr<FrameReader> makeOiioFrames(std::unique_ptr<OIIO::ImageInput> in, std::unique_ptr<OiioMemory> memory,
+                                            const std::string &name, const Decoded &first, OIIO::TypeDesc request,
+                                            int loopCount);
 int oiioFrameDurationMs(const OIIO::ImageSpec &spec);
 
 OIIO::ImageSpec oiioConfig()
@@ -209,10 +220,22 @@ OIIO::ImageSpec oiioConfig()
     return config;
 }
 
+// Opens a file held in memory (the name only tells OpenImageIO the format).
+std::unique_ptr<OIIO::ImageInput> openOiioMemory(OiioMemory &memory, const std::string &name)
+{
+    OIIO::Filesystem::IOProxy *proxy = &memory.reader;
+    proxy->seek(0);
+    OIIO::ImageSpec config = oiioConfig();
+    // With a configuration, OpenImageIO's readers take the proxy from it, not from the argument.
+    config.attribute("oiio:ioproxy", OIIO::TypeDesc::PTR, &proxy);
+    return OIIO::ImageInput::open(name, &config, proxy);
+}
+
 // Reads the first subimage of an opened file. With `frames`, a file of several subimages is
-// read as an animation (GIF).
+// read as an animation (GIF); `memory`, if the file was opened from memory, then goes to the
+// frame reader.
 bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *out, QString *error,
-              std::unique_ptr<FrameReader> *frames)
+              std::unique_ptr<FrameReader> *frames, std::unique_ptr<OiioMemory> *memory = nullptr)
 {
     const OIIO::ImageSpec &spec = in->spec();
     const int w = spec.width, h = spec.height, nch = spec.nchannels;
@@ -242,7 +265,11 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
                                    : out->sample == Sample::F16 ? OIIO::TypeDesc::HALF
                                                                 : OIIO::TypeDesc::FLOAT;
     // Only colour and alpha are read: an EXR with 40 AOV channels must not cost 10x the memory.
-    const int alpha = spec.alpha_channel >= 0 && spec.alpha_channel < nch ? spec.alpha_channel : -1;
+    // The GIF reader names an alpha channel "A" but gives its index as 4 of 4.
+    int alpha = spec.alpha_channel >= 0 && spec.alpha_channel < nch ? spec.alpha_channel : -1;
+    for (int c = 0; alpha < 0 && c < nch && c < int(spec.channelnames.size()); ++c)
+        if (spec.channelnames[std::size_t(c)] == "A")
+            alpha = c;
     const bool gray = nch < 3;
     const int readChannels = std::max(gray ? 1 : 3, alpha + 1);
     const qint64 pixels = qint64(w) * h;
@@ -259,19 +286,32 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
     out->channels = readChannels;
     out->sourceChannels = nch;
     out->alphaIndex = alpha;
-    out->associatedAlpha = alpha >= 0 && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0;
+    // Alpha is straight (D-21) except where the format stores colour premultiplied: OpenEXR
+    // always, TIFF when its ExtraSamples says so (straight TIFF alpha comes marked
+    // "oiio:UnassociatedAlpha", as asked in oiioConfig()). Other readers keep the file's
+    // straight values without always saying so (BMP, DDS, ICO, SGI, JPEG 2000).
+    const std::string_view format = in->format_name();
+    out->associatedAlpha = alpha >= 0
+                           && (format == "openexr"
+                               || (format == "tiff" && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0));
     out->gray = gray;
-    out->bits = spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8));
+    // Some readers give the bits of a whole pixel (DDS: 32 for 8-bit RGBA).
+    out->bits = std::min(spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8)), int(stored.size() * 8));
     out->orientation = spec.get_int_attribute("Orientation", 1);
     out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
     out->camera = cameraFromOiio(spec);
     describeOiio(spec, !out->isInteger(), in->format_name(), &out->colour);
     if (frames) {
         const int durationMs = oiioFrameDurationMs(spec);
-        const int loop = spec.get_int_attribute("gif:LoopCount", spec.get_int_attribute("oiio:LoopCount", 0));
+        // Loops as browsers play a GIF: without a NETSCAPE block once, with a count N (the
+        // repeats after the first play) N + 1 times, with 0 forever.
+        const bool counted = spec.find_attribute("gif:LoopCount") || spec.find_attribute("oiio:LoopCount");
+        const int repeats = spec.get_int_attribute("gif:LoopCount", spec.get_int_attribute("oiio:LoopCount", 0));
+        const int loop = !counted ? 1 : repeats <= 0 ? 0 : repeats + 1;
         if (in->seek_subimage(1, 0)) {
             out->durationMs = durationMs;
-            *frames = makeOiioFrames(std::move(in), *out, request, loop);
+            const std::string name = "image." + std::string(in->format_name()); // tells OpenImageIO the format
+            *frames = makeOiioFrames(std::move(in), memory ? std::move(*memory) : nullptr, name, *out, request, loop);
         } else {
             (void)in->geterror(); // a single image: no frames, and no error left behind
         }
@@ -282,6 +322,18 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
 bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString *error,
                     std::unique_ptr<FrameReader> *frames = nullptr)
 {
+    if (frames) { // an animation: read from memory, see OiioMemory
+        QByteArray bytes;
+        if (!readWholeFile(path, &bytes, error))
+            return false;
+        auto memory = std::make_unique<OiioMemory>(std::move(bytes));
+        auto in = openOiioMemory(*memory, QFile::encodeName(path).toStdString());
+        if (!in) {
+            *error = QString::fromStdString(OIIO::geterror());
+            return false;
+        }
+        return readOiio(std::move(in), maxPixels, out, error, frames, &memory);
+    }
     const OIIO::ImageSpec config = oiioConfig();
     auto in = OIIO::ImageInput::open(path.toUtf8().toStdString(), &config);
     if (!in) {
@@ -377,11 +429,13 @@ bool decodeWithQt(const QString &path, qint64 maxPixels, Decoded *out, QString *
 
 
 
-// The frames after the first of an animated GIF, composited by OpenImageIO (its subimages).
+// The frames after the first of an animated GIF, composited by OpenImageIO (its subimages),
+// read from the file's bytes in memory.
 class OiioFrames final : public FrameReader {
 public:
-    OiioFrames(std::unique_ptr<OIIO::ImageInput> in, const Decoded &first, OIIO::TypeDesc request, int loopCount)
-        : m_in(std::move(in)), m_request(request), m_loop(loopCount)
+    OiioFrames(std::unique_ptr<OIIO::ImageInput> in, std::unique_ptr<OiioMemory> memory, std::string name,
+               const Decoded &first, OIIO::TypeDesc request, int loopCount)
+        : m_memory(std::move(memory)), m_name(std::move(name)), m_in(std::move(in)), m_request(request), m_loop(loopCount)
     {
         copyLayout(first, &m_layout);
     }
@@ -409,8 +463,18 @@ public:
         return true;
     }
 
-    bool rewind(QString *) override
+    bool rewind(QString *error) override
     {
+        // Opened again rather than sought back: OpenImageIO's GIF reader would reopen the
+        // file by its name, which may have been renamed or deleted meanwhile.
+        if (m_memory) {
+            m_in.reset();
+            m_in = openOiioMemory(*m_memory, m_name);
+            if (!m_in) {
+                *error = QString::fromStdString(OIIO::geterror());
+                return false;
+            }
+        }
         m_next = 0;
         return true;
     }
@@ -419,6 +483,8 @@ public:
     int loopCount() const override { return m_loop; }
 
 private:
+    std::unique_ptr<OiioMemory> m_memory; // declared first: destroyed after m_in
+    std::string m_name;
     std::unique_ptr<OIIO::ImageInput> m_in;
     OIIO::TypeDesc m_request;
     Decoded m_layout;
@@ -427,10 +493,11 @@ private:
     int m_loop = 0;
 };
 
-std::unique_ptr<FrameReader> makeOiioFrames(std::unique_ptr<OIIO::ImageInput> in, const Decoded &first,
-                                            OIIO::TypeDesc request, int loopCount)
+std::unique_ptr<FrameReader> makeOiioFrames(std::unique_ptr<OIIO::ImageInput> in, std::unique_ptr<OiioMemory> memory,
+                                            const std::string &name, const Decoded &first, OIIO::TypeDesc request,
+                                            int loopCount)
 {
-    return std::make_unique<OiioFrames>(std::move(in), first, request, loopCount);
+    return std::make_unique<OiioFrames>(std::move(in), std::move(memory), name, first, request, loopCount);
 }
 
 // GIF delays, in hundredths of a second, as OpenImageIO reports them.
@@ -481,9 +548,15 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
 
 // Refuses images whose decode would need more than ~60 % of physical memory:
 // failing early with a message beats swapping the machine or an OOM kill.
-bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
+qint64 decodeMemoryBudget()
 {
     static const qint64 budget = physicalMemoryBytes() / 10 * 6;
+    return budget;
+}
+
+bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
+{
+    const qint64 budget = decodeMemoryBudget();
     const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
     if (budget <= 0 || needed <= budget)
         return true;

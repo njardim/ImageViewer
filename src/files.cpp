@@ -59,13 +59,23 @@ bool trashRecordNames(const QString &inTrash, const QString &original)
     return true;
 #else
     const QFileInfo item(inTrash);
-    QFile record(QDir(item.absoluteDir().absoluteFilePath(QStringLiteral("../info"))).absoluteFilePath(item.fileName() + QStringLiteral(".trashinfo")));
+    const QString trash = QFileInfo(item.absolutePath()).absolutePath(); // <trash>/files/<name>
+    QFile record(trash + QStringLiteral("/info/") + item.fileName() + QStringLiteral(".trashinfo"));
     if (!record.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
     while (!record.atEnd()) {
         const QByteArray line = record.readLine(64 * 1024).trimmed();
-        if (line.startsWith("Path="))
-            return QFile::decodeName(QByteArray::fromPercentEncoding(line.mid(5))) == original;
+        if (!line.startsWith("Path="))
+            continue;
+        const QString path = QFile::decodeName(QByteArray::fromPercentEncoding(line.mid(5)));
+        if (QDir::isAbsolutePath(path))
+            return path == original;
+        // The trash of another volume, $topdir/.Trash-$uid or $topdir/.Trash/$uid, records the
+        // path relative to $topdir.
+        QString top = QFileInfo(trash).absolutePath();
+        if (QFileInfo(top).fileName() == QLatin1String(".Trash"))
+            top = QFileInfo(top).absolutePath();
+        return QDir::cleanPath(top + QLatin1Char('/') + path) == original;
     }
     return false;
 #endif
@@ -214,8 +224,7 @@ void ViewerWindow::moveToTrash()
         if (box.clickedButton() != move)
             return;
         if (dontAsk->isChecked()) {
-            m_settings.confirmTrash = false;
-            m_settings.save();
+            savePreference([](Settings &s) { s.confirmTrash = false; });
         }
     }
     if (!currentFileIsShown() || m_image.path != path) // the folder changed while the dialog was open
@@ -372,11 +381,10 @@ void ViewerWindow::renameFile()
     if (m_textureCapPath == path)
         m_textureCapPath = target; // it still needs the reduced size it was shown at
     m_image.path = target;
-    const qsizetype recentIndex = m_recent.indexOf(path);
-    if (recentIndex >= 0) {
-        m_recent[recentIndex] = target;
-        saveRecentFiles(m_recent);
-    }
+    editRecentFiles([&path, &target](QStringList &recent) {
+        if (const qsizetype i = recent.indexOf(path); i >= 0)
+            recent[i] = target;
+    });
     m_files[m_index] = target;
     const QString shownName = displayFileName(QFileInfo(target).fileName());
     setTitle(QStringLiteral("%1 — imageViewer").arg(shownName));

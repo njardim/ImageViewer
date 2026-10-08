@@ -164,8 +164,8 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::Previous: return hasNeighbour(-1);
     case Command::Next: return hasNeighbour(+1);
     case Command::First:
-    case Command::Last:
-    case Command::Slideshow: return m_files.size() > 1;
+    case Command::Last: return m_files.size() > 1;
+    case Command::Slideshow: return m_slideshow || m_files.size() > 1; // a running one can always be stopped
     case Command::PlayPause:
     case Command::PreviousFrame:
     case Command::NextFrame: return m_animation != nullptr;
@@ -206,8 +206,7 @@ void ViewerWindow::execute(Command command)
     switch (command) {
     case Command::Open: showOpenDialog(); break;
     case Command::ClearRecent:
-        m_recent.clear();
-        saveRecentFiles(m_recent);
+        editRecentFiles([](QStringList &recent) { recent.clear(); });
         break;
     case Command::ShowInFolder: showInFolder(); break;
     case Command::CopyImage: copyImage(); break;
@@ -307,6 +306,7 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     // at the top level, view, image and colour controls in submenus, application last.
     QMenu menu;
     addCommand(&menu, Command::Open);
+    m_recent = loadRecentFiles(); // with the files other instances opened meanwhile
     QMenu *recent = menu.addMenu(tr("Open Recent"));
     recent->setToolTipsVisible(true);
     // Not checked for existence here (a network path can take seconds): openFile() reports
@@ -408,29 +408,26 @@ void ViewerWindow::toggleTopOverlay()
     // Off, and back on to the mode it had (always, or on hover at the top), separately for a
     // window and for full screen; the menu shows it checked whenever it is on.
     const bool fullScreen = visibility() == QWindow::FullScreen;
-    OverlayVisibility &mode = fullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
+    const OverlayVisibility mode = fullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
     OverlayVisibility &restore = m_overlayRestore[fullScreen ? 1 : 0];
+    OverlayVisibility next = restore;
     if (mode != OverlayVisibility::Hidden) {
         restore = mode;
-        mode = OverlayVisibility::Hidden;
-    } else {
-        mode = restore;
+        next = OverlayVisibility::Hidden;
     }
-    m_settings.save();
+    savePreference([fullScreen, next](Settings &s) { (fullScreen ? s.overlayFullScreen : s.overlayWindow) = next; });
     updateTopOverlay();
     requestUpdate();
 }
 
 void ViewerWindow::toggleCheckerboard()
 {
-    m_settings.checkerboard = !m_settings.checkerboard;
-    m_settings.save();
+    savePreference([on = !m_settings.checkerboard](Settings &s) { s.checkerboard = on; });
     requestUpdate();
 }
 
 void ViewerWindow::showSettings()
 {
-    m_settings.showInfo = m_showInfo;
     SettingsDialog dialog(m_settings);
     makeTransient(dialog, this);
     // Apply and OK both deliver the values here; Cancel keeps whatever Apply already applied.

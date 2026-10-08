@@ -188,12 +188,19 @@ while IFS='|' read -r id name decoder available caps extensions test; do
         if [ "$decoder" = GraphicsMagick ] && [ -z "${worker_diagnosed:-}" ]; then
             # Once: why the decode worker refused, from the viewer's log and from the worker itself.
             worker_diagnosed=1
-            QT_LOGGING_RULES='imageviewer.*=true' "$exe" --info "$data/$test" 2>&1 >/dev/null | sed 's/^/     log: /'
+            # (Each command may fail: this script stops at the first unchecked failure.)
+            { QT_LOGGING_RULES='imageviewer.*=true' "$exe" --info "$data/$test" 2>&1 >/dev/null || true; } | sed 's/^/     log: /'
             said="$(mktemp)"
             code=0
             "$exe" --decode-worker "$(echo "$id" | tr a-z A-Z)" 1000000 <"$data/$test" >/dev/null 2>"$said" || code=$?
             echo "     worker run directly: exit code $code"
             sed 's/^/     worker: /' "$said"
+            # The same with GraphicsMagick's own event log (configuration, coders, exceptions).
+            code=0
+            MAGICK_DEBUG=configure,coder,exception "$exe" --decode-worker "$(echo "$id" | tr a-z A-Z)" 1000000 \
+                <"$data/$test" >/dev/null 2>"$said" || code=$?
+            echo "     worker with MAGICK_DEBUG: exit code $code"
+            grep -v -e '^ *Tried: ' "$said" | head -n 80 | sed 's/^/     gm: /' || true
             rm -f "$said"
         fi
     fi

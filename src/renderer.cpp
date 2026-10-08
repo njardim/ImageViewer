@@ -4,6 +4,7 @@
 
 #include <QCoreApplication>
 #include <QFile>
+#include <QLocale>
 #include <QLoggingCategory>
 #include <QMatrix4x4>
 #include <QOffscreenSurface>
@@ -90,8 +91,9 @@ Renderer::Output Renderer::edrOutput(float headroom)
     Output out;
     out.mode = OutputMode::ScRgb;
     out.peak = std::max(1.0f, headroom);
+    //: EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. "2.50".
     out.description = out.peak > 1.0f
-                          ? QCoreApplication::translate("Renderer", "EDR · headroom %1×").arg(double(out.peak), 0, 'f', 2)
+                          ? QCoreApplication::translate("Renderer", "EDR · headroom %1×").arg(QLocale().toString(double(out.peak), 'f', 2))
                           : QCoreApplication::translate("Renderer", "Linear sRGB managed by ColorSync · no HDR headroom");
     return out;
 }
@@ -104,9 +106,9 @@ Renderer::Output Renderer::scRgbOutput(float whiteNits, float peakNits)
     out.absoluteScale = color::kSdrReferenceWhiteNits / kScRgbUnitNits;
     out.peak = std::max(out.scale, peakNits / kScRgbUnitNits);
     out.nitsPerUnit = kScRgbUnitNits;
+    //: nits: candela per square metre, the unit of luminance.
     out.description = QCoreApplication::translate("Renderer", "scRGB · SDR white %1 nits · peak %2 nits")
-                          .arg(whiteNits)
-                          .arg(peakNits);
+                          .arg(QLocale().toString(double(whiteNits), 'f', 0), QLocale().toString(double(peakNits), 'f', 0));
     return out;
 }
 
@@ -118,9 +120,9 @@ Renderer::Output Renderer::pqOutput(float whiteNits, float peakNits)
     out.absoluteScale = color::kSdrReferenceWhiteNits;
     out.peak = std::max(whiteNits, peakNits);
     out.nitsPerUnit = 1.0f;
+    //: nits: candela per square metre, the unit of luminance.
     out.description = QCoreApplication::translate("Renderer", "HDR10 (PQ) · SDR white %1 nits · peak %2 nits")
-                          .arg(whiteNits)
-                          .arg(peakNits);
+                          .arg(QLocale().toString(double(whiteNits), 'f', 0), QLocale().toString(double(peakNits), 'f', 0));
     return out;
 }
 
@@ -477,6 +479,14 @@ void Renderer::setImage(std::shared_ptr<const std::vector<qfloat16>> pixels, QSi
     m_pendingPixels = std::move(pixels);
     m_pendingSize = size;
     m_imagePending = true;
+    m_frameUpdate = false;
+}
+
+void Renderer::setFrame(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size)
+{
+    const bool replacesImage = m_imagePending && !m_frameUpdate; // a new image still waits: keep its path
+    setImage(std::move(pixels), size);
+    m_frameUpdate = !replacesImage;
 }
 
 void Renderer::clearImage()
@@ -517,8 +527,20 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         m_initialUpdates = nullptr;
     }
 
+    const std::size_t pendingValues = std::size_t(std::max(0, m_pendingSize.width())) * std::size_t(std::max(0, m_pendingSize.height())) * 4;
+    if (m_imagePending && m_frameUpdate && m_imageTexture && m_hasImage && m_imageTexture->pixelSize() == m_pendingSize
+        && m_pendingPixels && m_pendingPixels->size() == pendingValues) {
+        // Another frame of the same animation: the texture stays, only its contents change.
+        m_imagePending = m_frameUpdate = false;
+        QRhiTextureSubresourceUploadDescription level0;
+        level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels->data()),
+                                               qsizetype(m_pendingPixels->size() * sizeof(qfloat16))));
+        updates->uploadTexture(m_imageTexture, QRhiTextureUploadDescription({0, 0, level0}));
+        updates->generateMips(m_imageTexture);
+        m_uploadInFlight = true;
+    }
     if (m_imagePending) {
-        m_imagePending = false;
+        m_imagePending = m_frameUpdate = false;
         // Free the previous image before allocating the next one, so two large textures never
         // coexist; QRhi defers the native release until the GPU no longer uses it. A fresh
         // object each time: an upload still queued for an old object must never land in it.

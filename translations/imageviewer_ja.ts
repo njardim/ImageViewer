@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>画像が大きすぎて使用可能なメモリに収まりません（必要量 %1 GB、上限 %2 GB）</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG はグラフィカルインターフェイスでのみデコードされます</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>破損・不完全、または未対応の %1 ファイル</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>カスタム原色</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>デコードできません：%1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>デコードエラー：%1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC 画像には、Microsoft Store の Microsoft「HEIF Image Extensions」と「HEVC Video Extensions」が必要です。</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 画像には HEVC デコーダーが必要ですが、このシステムでは imageViewer に含まれていません（特許のため）。先に別の形式に変換してください。</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>デコーダーが %1 秒を超えたため停止しました</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · ヘッドルーム %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR 基準白 %1 nits · ピーク %2 nits</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR 基準白 %1 nits · ピーク %2 nits</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>前後の画像を先読みする</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>スライドショー（%1）、1枚あたりの時間：</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>ナビゲーション</translation>
     </message>
@@ -376,6 +406,10 @@
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -418,6 +452,10 @@
         <translation>GPU が画像を受け付けませんでした。</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>スライドショーを停止しました</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
@@ -435,11 +473,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>位置</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%2 枚中 %1 枚目</translation>
     </message>
     <message>
@@ -468,12 +506,29 @@
         <translation>形式</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>フレーム %1 / %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>フレーム %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>一時停止中</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>アニメーション</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>向き</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1、適用済み</translation>
     </message>
     <message>
@@ -482,20 +537,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>ピーク</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR 基準白（≈%2 nits）</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>デコード時間</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -764,6 +819,22 @@
         <translation>変更されたピクセルを強調表示</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>アニメーションを一時停止</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>前のフレーム</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>次のフレーム</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>スライドショー</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer について</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>アニメーションを一時停止しました</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>アニメーションを再生中</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>スライドショー：%1 秒ごとに新しい画像</translation>
     </message>
 </context>
 </TS>

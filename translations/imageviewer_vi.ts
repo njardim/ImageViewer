@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>ảnh quá lớn so với bộ nhớ khả dụng (cần %1 GB, giới hạn %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG chỉ được giải mã trong giao diện đồ họa</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>tệp %1 bị hỏng, bị cắt cụt hoặc không được hỗ trợ</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>màu cơ bản tùy chỉnh</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Không thể giải mã: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Lỗi giải mã: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Ảnh HEIC cần “HEIF Image Extensions” và “HEVC Video Extensions” của Microsoft, từ Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Ảnh HEIC cần bộ giải mã HEVC, mà imageViewer không kèm theo trên hệ thống này (bằng sáng chế); hãy chuyển đổi chúng sang định dạng khác trước.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>bộ giải mã chạy quá %1 giây và đã bị dừng</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · khoảng dư %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · trắng SDR %1 nits · đỉnh %2 nits</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · trắng SDR %1 nits · đỉnh %2 nits</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Tải trước ảnh trước và ảnh tiếp theo</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Trình chiếu (%1), thời gian mỗi ảnh:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Điều hướng</translation>
     </message>
@@ -376,6 +406,10 @@
     <message>
         <source>Cancel</source>
         <translation>Hủy</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Áp dụng</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -418,6 +452,10 @@
         <translation>GPU không chấp nhận ảnh.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Đã dừng trình chiếu</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Tệp</translation>
     </message>
@@ -435,11 +473,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Vị trí</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 trên %2</translation>
     </message>
     <message>
@@ -468,12 +506,29 @@
         <translation>Định dạng</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>khung %1 trên %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>khung %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>tạm dừng</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Hoạt ảnh</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Hướng</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, đã áp dụng</translation>
     </message>
     <message>
@@ -482,20 +537,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Đỉnh</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× trắng SDR (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Giải mã trong</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -764,6 +819,22 @@
         <translation>Làm nổi bật điểm ảnh bị thay đổi</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Tạm dừng hoạt ảnh</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Khung trước</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Khung tiếp theo</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Trình chiếu</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Giới thiệu về imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Đã tạm dừng hoạt ảnh</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Đang phát hoạt ảnh</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Trình chiếu: ảnh mới mỗi %1 giây</translation>
     </message>
 </context>
 </TS>

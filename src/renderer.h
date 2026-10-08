@@ -105,6 +105,8 @@ public:
     // Linear scRGB, premultiplied RGBA16F. The buffer is shared (preload cache, decision D-33)
     // and only read; the renderer keeps its reference until the upload has been submitted.
     void setImage(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size);
+    // Another frame of the image shown (same size): uploaded into the same texture.
+    void setFrame(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size);
     void clearImage();
     void setOverlay(int layer, const QImage &overlay); // RGBA8888_Premultiplied, device pixels; null hides
     void setOutputPreference(OutputPreference preference);
@@ -175,5 +177,6 @@ private:
     bool m_imagePending = false;
     bool m_uploadInFlight = false; // m_pendingPixels back an upload until the frame ends
     bool m_hasImage = false;
+    bool m_frameUpdate = false; // the pending pixels are a new frame for the current texture
     bool m_imageUploadFailed = false;
 };

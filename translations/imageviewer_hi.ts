@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>उपलब्ध मेमोरी के लिए छवि बहुत बड़ी है (%1 GB चाहिए, सीमा %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG केवल ग्राफ़िकल इंटरफ़ेस में डिकोड होता है</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>क्षतिग्रस्त, अधूरी या असमर्थित %1 फ़ाइल</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>कस्टम प्राइमरी</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>डिकोड नहीं किया जा सकता: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>डिकोडिंग त्रुटि: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC छवियों के लिए Microsoft Store से Microsoft के “HEIF Image Extensions” और “HEVC Video Extensions” आवश्यक हैं।</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC छवियों के लिए HEVC डिकोडर आवश्यक है, जिसे imageViewer इस सिस्टम पर शामिल नहीं करता (पेटेंट); पहले उन्हें किसी अन्य प्रारूप में बदलें।</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>डिकोडर ने %1 से. से अधिक समय लिया और उसे रोक दिया गया</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · हेडरूम %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR सफ़ेद %1 nits · शिखर %2 nits</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR सफ़ेद %1 nits · शिखर %2 nits</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>अगली और पिछली छवियाँ पहले से लोड करें</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>स्लाइड शो (%1), प्रति छवि समय:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>नेविगेशन</translation>
     </message>
@@ -376,6 +406,10 @@
     <message>
         <source>Cancel</source>
         <translation>रद्द करें</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>लागू करें</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -418,6 +452,10 @@
         <translation>GPU ने छवि स्वीकार नहीं की।</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>स्लाइड शो रुका</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>फ़ाइल</translation>
     </message>
@@ -435,11 +473,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>स्थिति</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%2 में से %1</translation>
     </message>
     <message>
@@ -468,12 +506,29 @@
         <translation>फ़ॉर्मैट</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>%2 में से फ़्रेम %1</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>फ़्रेम %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>रुका हुआ</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>एनिमेशन</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>ओरिएंटेशन</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, लागू</translation>
     </message>
     <message>
@@ -482,20 +537,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>शिखर</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR सफ़ेद (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>डिकोड करने में लगा समय</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -764,6 +819,22 @@
         <translation>बदले गए पिक्सेल हाइलाइट करें</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>एनिमेशन रोकें</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>पिछला फ़्रेम</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>अगला फ़्रेम</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>स्लाइड शो</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer के बारे में</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>ठीक है</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>एनिमेशन रुका</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>एनिमेशन चल रहा है</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>स्लाइड शो: हर %1 सेकंड में एक नई छवि</translation>
     </message>
 </context>
 </TS>

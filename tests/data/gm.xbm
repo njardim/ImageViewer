@@ -1,0 +1,4 @@
+#define gm_width 6
+#define gm_height 4
+static char gm_bits[] = {
+  0x00, 0x00, 0x00, 0x00, };

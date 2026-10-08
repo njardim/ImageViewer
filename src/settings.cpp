@@ -32,7 +32,8 @@
 namespace {
 
 // Bumped when a stored value changes meaning; load() can then migrate older files.
-constexpr int kSettingsVersion = 1;
+// 2 (0.3): the side zones' default width went from 200 to 100 px (D-36).
+constexpr int kSettingsVersion = 2;
 
 const char *outputKey(Renderer::OutputPreference preference)
 {
@@ -242,13 +243,24 @@ Settings Settings::load()
     s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
     s.sideZoneWidth = boundedInt(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
                                  kMinSideZoneWidth, kMaxSideZoneWidth);
+    // Up to 0.2 every save stored the old 200 px default like a choice; it becomes the new one.
+    if (store.value(QStringLiteral("version")).toInt() < 2 && s.sideZoneWidth == 200)
+        s.sideZoneWidth = defaults.sideZoneWidth;
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
     s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
+    s.slideshowSeconds = boundedInt(store, QStringLiteral("navigation/slideshowSeconds"), defaults.slideshowSeconds,
+                                    kMinSlideshowSeconds, kMaxSlideshowSeconds);
 
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
     return s;
+}
+
+bool Settings::storedIsOutdated()
+{
+    const QSettings store;
+    return store.value(QStringLiteral("version")).toInt() < kSettingsVersion && !store.allKeys().isEmpty();
 }
 
 void Settings::save() const
@@ -280,6 +292,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/sortBy"), QString::fromLatin1(sortKey(sortBy)));
     store.setValue(QStringLiteral("navigation/sortDescending"), sortDescending);
     store.setValue(QStringLiteral("navigation/preload"), preload);
+    store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("color/toneMap"), toneMap);
     store.setValue(QStringLiteral("color/output"), QString::fromLatin1(outputKey(output)));
 }
@@ -300,8 +313,7 @@ SessionState SessionState::load()
 
 void SessionState::save() const
 {
-    QSettings store;
-    store.setValue(QStringLiteral("version"), kSettingsVersion);
+    QSettings store; // "version" describes the preferences: only Settings::save() writes it
     if (geometry.isValid())
         store.setValue(QStringLiteral("session/geometry"), geometry);
     store.setValue(QStringLiteral("session/maximized"), maximized);
@@ -404,8 +416,17 @@ QString applyLanguage(const QString &code)
 
 SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
 {
+    buildUi();
+    setValues(settings);
+    m_applied = this->settings(); // as the dialog shows them (normalised), so nothing reads as changed
+    updateApplyButton();
+}
+
+void SettingsDialog::buildUi()
+{
     setWindowTitle(tr("Settings"));
     auto *tabs = new QTabWidget;
+    m_tabs = tabs;
 
     // General
     auto *general = new QWidget;
@@ -549,6 +570,13 @@ SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
     navigationForm->addRow(tr("Sort images by:"), sortRow);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     navigationForm->addRow(m_preload);
+    m_slideshowSeconds = new QSpinBox;
+    m_slideshowSeconds->setRange(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
+    //: Unit after a number of seconds; keep the leading space if your language separates units.
+    m_slideshowSeconds->setSuffix(tr(" s"));
+    //: %1: the key that starts and stops the slideshow, e.g. "S".
+    navigationForm->addRow(tr("Slideshow (%1), time per image:").arg(QKeySequence(Qt::Key_S).toString(QKeySequence::NativeText)),
+                           m_slideshowSeconds);
     tabs->addTab(navigation, tr("Navigation"));
 
     // Color & HDR
@@ -568,10 +596,15 @@ SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
     auto *buttons = new QDialogButtonBox;
     QPushButton *ok = buttons->addButton(tr("OK"), QDialogButtonBox::AcceptRole);
     buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
+    m_apply = buttons->addButton(tr("Apply"), QDialogButtonBox::ApplyRole);
     QPushButton *defaults = buttons->addButton(tr("Restore Defaults"), QDialogButtonBox::ResetRole);
     ok->setDefault(true);
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(buttons, &QDialogButtonBox::accepted, this, [this] {
+        apply();
+        accept();
+    });
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject); // keeps what Apply applied
+    connect(m_apply, &QPushButton::clicked, this, &SettingsDialog::apply);
     connect(defaults, &QPushButton::clicked, this, [this] {
         // setValues() only touches what the dialog shows; settings() keeps the rest from m_initial.
         Settings fresh;
@@ -582,7 +615,65 @@ SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
     auto *layout = new QVBoxLayout(this);
     layout->addWidget(tabs);
     layout->addWidget(buttons);
-    setValues(settings);
+
+    // Apply is enabled while the dialog shows anything other than what the viewer uses.
+    // (Every widget is the dialog's descendant only from here on, through the layout.)
+    for (QAbstractButton *button : findChildren<QAbstractButton *>())
+        if (button->isCheckable())
+            connect(button, &QAbstractButton::toggled, this, &SettingsDialog::updateApplyButton);
+    for (QComboBox *combo : findChildren<QComboBox *>())
+        connect(combo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updateApplyButton);
+    for (QSpinBox *spin : findChildren<QSpinBox *>())
+        connect(spin, &QSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
+    connect(m_overlayDelay, &QDoubleSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
+    connect(m_overlayFields, &QListWidget::itemChanged, this, &SettingsDialog::updateApplyButton);
+    // Reordering: by dragging (rows moved) or with Move Up/Down (taken and inserted).
+    QAbstractItemModel *fields = m_overlayFields->model();
+    connect(fields, &QAbstractItemModel::rowsMoved, this, &SettingsDialog::updateApplyButton);
+    connect(fields, &QAbstractItemModel::rowsInserted, this, &SettingsDialog::updateApplyButton);
+}
+
+void SettingsDialog::apply()
+{
+    const Settings values = settings();
+    if (values == m_applied)
+        return;
+    m_applied = values;
+    updateApplyButton();
+    Q_EMIT applied(values);
+}
+
+void SettingsDialog::updateApplyButton()
+{
+    if (m_apply)
+        m_apply->setEnabled(settings() != m_applied);
+}
+
+void SettingsDialog::changeEvent(QEvent *event)
+{
+    // Applying another language retranslates everything else at once; this dialog is rebuilt
+    // after the click that applied it has returned (its button is among what gets replaced).
+    if (event->type() == QEvent::LanguageChange && m_tabs && !m_rebuildQueued) {
+        m_rebuildQueued = true;
+        QMetaObject::invokeMethod(this, &SettingsDialog::rebuildUi, Qt::QueuedConnection);
+    }
+    QDialog::changeEvent(event);
+}
+
+void SettingsDialog::rebuildUi()
+{
+    m_rebuildQueued = false;
+    const Settings shown = settings(); // including changes not applied yet
+    const int tab = m_tabs->currentIndex();
+    m_apply = nullptr; // updateApplyButton() is called while the new widgets are filled
+    delete layout();
+    delete m_backgroundGroup; // owned by the dialog, not by a widget
+    qDeleteAll(findChildren<QWidget *>(Qt::FindDirectChildrenOnly));
+    buildUi();
+    setValues(shown);
+    m_tabs->setCurrentIndex(tab);
+    m_tabs->setFocus(); // the focused widget was replaced: keep the keyboard in the dialog
+    updateApplyButton();
 }
 
 void SettingsDialog::setValues(const Settings &settings)
@@ -624,6 +715,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_sortBy->setCurrentIndex(std::max(0, m_sortBy->findData(QString::fromLatin1(sortKey(settings.sortBy)))));
     m_sortDescending->setChecked(settings.sortDescending);
     m_preload->setChecked(settings.preload);
+    m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toneMap->setChecked(settings.toneMap);
     m_output->setCurrentIndex(std::max(0, m_output->findData(QString::fromLatin1(outputKey(settings.output)))));
 }
@@ -639,6 +731,7 @@ void SettingsDialog::setBackground(const QColor &color)
         m_customBackground->setChecked(true);
         m_customBackground->setIcon(swatchIcon(color));
     }
+    updateApplyButton(); // a new custom colour toggles no button
 }
 
 void SettingsDialog::chooseCustomBackground()
@@ -686,6 +779,7 @@ Settings SettingsDialog::settings() const
     s.sortBy = sortFromKey(m_sortBy->currentData().toString());
     s.sortDescending = m_sortDescending->isChecked();
     s.preload = m_preload->isChecked();
+    s.slideshowSeconds = m_slideshowSeconds->value();
     s.toneMap = m_toneMap->isChecked();
     s.output = outputFromKey(m_output->currentData().toString());
     return s;

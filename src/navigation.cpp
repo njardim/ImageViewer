@@ -29,8 +29,7 @@ void ViewerWindow::openFile(const QString &path)
     const QFileInfo info(path);
     if (!info.exists()) {
         m_message = tr("File not found: %1").arg(path);
-        if (m_recent.removeAll(path) > 0)
-            saveRecentFiles(m_recent);
+        editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
         updateOverlay();
         return;
     }
@@ -99,6 +98,8 @@ void ViewerWindow::step(int delta)
         target = (target % n + n) % n;
     }
     m_direction = delta > 0 ? 1 : -1;
+    if (m_slideshow) // the next image comes a full interval after this one
+        m_slideshowTimer.start();
     startLoading(target);
 }
 
@@ -211,6 +212,7 @@ void ViewerWindow::showImage(Image image, int limit)
         image.pixels.reset();
         m_image = std::move(image);
         m_renderer.clearImage();
+        stopAnimation();
     } else {
         m_message.clear();
         m_renderer.setImage(image.pixels, QSize(image.width, image.height));
@@ -223,6 +225,7 @@ void ViewerWindow::showImage(Image image, int limit)
             m_mirrored = false;
         }
         clampPan();
+        startAnimation(); // or stops the previous one
     }
     m_shownLimit = limit;
     m_imageStale = false;
@@ -281,6 +284,7 @@ void ViewerWindow::relist()
     } else if (m_files.isEmpty()) {
         // Everything was deleted or moved away.
         m_index = -1;
+        stopAnimation();
         m_image = Image();
         m_renderer.clearImage();
         m_cache.clear();
@@ -322,10 +326,10 @@ void ViewerWindow::removeCurrentFromList()
 {
     const QString path = currentPath();
     m_cache.remove(path);
-    m_recent.removeAll(path);
-    saveRecentFiles(m_recent);
+    editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
     // The next image takes the removed one's place; after the last, the previous one.
     m_files.removeAt(m_index);
+    stopAnimation();
     m_image = Image();
     m_renderer.clearImage();
     if (m_files.isEmpty()) {
@@ -344,9 +348,17 @@ void ViewerWindow::removeCurrentFromList()
 
 void ViewerWindow::addRecentFile(const QString &path)
 {
-    m_recent.removeAll(path);
-    m_recent.prepend(path);
-    while (m_recent.size() > kMaxRecentFiles)
-        m_recent.removeLast();
+    editRecentFiles([&path](QStringList &recent) {
+        recent.removeAll(path);
+        recent.prepend(path);
+        while (recent.size() > kMaxRecentFiles)
+            recent.removeLast();
+    });
+}
+
+void ViewerWindow::editRecentFiles(const std::function<void(QStringList &)> &edit)
+{
+    m_recent = loadRecentFiles();
+    edit(m_recent);
     saveRecentFiles(m_recent);
 }

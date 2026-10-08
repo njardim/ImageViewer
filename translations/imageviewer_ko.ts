@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>사용 가능한 메모리에 비해 이미지가 너무 큼(필요 %1 GB, 한도 %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG는 그래픽 인터페이스에서만 디코딩됩니다</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>손상되었거나 잘렸거나 지원되지 않는 %1 파일</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>사용자 지정 원색</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>디코딩할 수 없음: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>디코딩 오류: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC 이미지를 열려면 Microsoft Store의 Microsoft “HEIF Image Extensions”와 “HEVC Video Extensions”가 필요합니다.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 imageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>디코더가 %1초를 넘겨 중지되었습니다</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · 헤드룸 %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR 흰색 %1 cd/m² · 최대 %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR 흰색 %1 cd/m² · 최대 %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>다음 및 이전 이미지를 미리 불러오기</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>슬라이드 쇼(%1), 이미지당 시간:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>탐색</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>취소</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>기본값 복원</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU가 이미지를 받아들이지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>슬라이드 쇼 중지됨</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>위치</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%2 중 %1</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>형식</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>프레임 %1/%2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>프레임 %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>일시 정지됨</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>애니메이션</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>방향</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, 적용됨</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>최대 밝기</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>SDR 흰색의 %1배(≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>디코딩 소요 시간</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>변경된 픽셀 강조 표시</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>애니메이션 일시 정지</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>이전 프레임</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>다음 프레임</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>슬라이드 쇼</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer 정보</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>확인</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>애니메이션 일시 정지됨</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>애니메이션 재생 중</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>슬라이드 쇼: %1초마다 새 이미지</translation>
     </message>
 </context>
 </TS>

@@ -1,18 +1,12 @@
 #include "image.h"
 
-#include <OpenImageIO/imageio.h>
+#include "decoders.h"
 
 #include <QColorSpace>
 #include <QCoreApplication>
 #include <QElapsedTimer>
-#include <QHash>
 #include <QFileInfo>
-#include <QGuiApplication>
-#include <QImage>
-#include <QImageReader>
 #include <QLoggingCategory>
-#include <QRegularExpression>
-#include <QSet>
 #include <QtConcurrent/QtConcurrentMap>
 
 #include <algorithm>
@@ -36,371 +30,6 @@ namespace {
 
 using color::Descriptor;
 using color::Transfer;
-
-// Decoder output before colour conversion: interleaved samples in their native type.
-struct Decoded {
-    enum class Sample { U8, U16, F16, F32 };
-    int width = 0;
-    int height = 0;
-    Sample sample = Sample::U8;
-    int channels = 0;              // interleaved channels in `data`
-    int sourceChannels = 0;        // channels in the file (informative)
-    int alphaIndex = -1;           // channel holding alpha, -1 if none
-    bool associatedAlpha = false;  // colour already multiplied by alpha (EXR, some TIFFs)
-    bool gray = false;             // channel 0 is luminance
-    std::unique_ptr<unsigned char[]> data; // not zero-filled: every byte is written by the reader
-    int bits = 0;                  // significant bits per sample (informative)
-    int orientation = 1;
-    Descriptor colour;
-    QString codec;
-    CameraInfo camera;
-    bool overLimit = false;        // larger than the pixel limit asked for: nothing was read
-
-    int sampleBytes() const
-    {
-        switch (sample) {
-        case Sample::U8: return 1;
-        case Sample::U16:
-        case Sample::F16: return 2;
-        case Sample::F32: return 4;
-        }
-        return 4;
-    }
-    bool isInteger() const { return sample == Sample::U8 || sample == Sample::U16; }
-};
-
-constexpr qint64 kMaxPixels = qint64(1) << 30; // refuse absurd dimensions before anything else
-constexpr qint64 kWorkingBytesPerPixel = 16;    // RGBA16F result plus one orient/downscale copy
-
-// Refuses images whose decode would need more than ~60 % of physical memory:
-// failing early with a message beats swapping the machine or an OOM kill.
-bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
-{
-    static const qint64 budget = physicalMemoryBytes() / 10 * 6;
-    const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
-    if (budget <= 0 || needed <= budget)
-        return true;
-    *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
-                 .arg(double(needed) / (1 << 30), 0, 'f', 1)
-                 .arg(double(budget) / (1 << 30), 0, 'f', 1);
-    return false;
-}
-
-// Parses an OpenImageIO colour space name. OIIO 3 uses colour interop ids of the
-// form <transfer>_<primaries>_<scene|display>; OIIO 2 used ad-hoc names.
-bool parseOiioColorSpace(const QString &name, Descriptor *d)
-{
-    const QString n = name.toLower();
-    if (n.isEmpty())
-        return false;
-    const QStringList parts = n.split(QLatin1Char('_'));
-    if (parts.size() >= 2) {
-        static const QHash<QString, Transfer> transfers = {
-            {"lin", Transfer::Linear}, {"srgb", Transfer::Srgb}, {"srgbe", Transfer::Srgb},
-            {"g24", Transfer::Bt1886}, {"pq", Transfer::Pq}, {"hlg", Transfer::Hlg}};
-        static const QHash<QString, color::Chromaticities> primaries = {
-            {"rec709", color::kBt709}, {"srgb", color::kBt709}, {"p3d65", color::kDisplayP3},
-            {"rec2020", color::kBt2020}, {"adobergb", color::kAdobeRgb}, {"ap0", color::kAcesAp0},
-            {"ap1", color::kAcesAp1}};
-        static const QRegularExpression powerId(QStringLiteral("^g(\\d{2})$")); // g18, g22, g26: gamma x 10
-        const QRegularExpressionMatch power = powerId.match(parts[0]);
-        if (primaries.contains(parts[1]) && (transfers.contains(parts[0]) || power.hasMatch())) {
-            d->primaries = primaries.value(parts[1]);
-            if (transfers.contains(parts[0])) {
-                d->transfer = transfers.value(parts[0]);
-            } else {
-                d->transfer = Transfer::Power;
-                d->gamma = power.captured(1).toFloat() / 10.0f;
-            }
-            return true;
-        }
-    }
-    d->primaries = color::kBt709;
-    if (n == "linear" || n == "scene_linear" || n == "lin_srgb" || n == "lin_rec709") {
-        d->transfer = Transfer::Linear;
-        return true;
-    }
-    if (n == "srgb") {
-        d->transfer = Transfer::Srgb;
-        return true;
-    }
-    if (n == "rec709") {
-        d->transfer = Transfer::Bt1886;
-        return true;
-    }
-    if (n == "acescg") {
-        d->transfer = Transfer::Linear;
-        d->primaries = color::kAcesAp1;
-        return true;
-    }
-    if (n == "aces2065-1" || n == "aces") {
-        d->transfer = Transfer::Linear;
-        d->primaries = color::kAcesAp0;
-        return true;
-    }
-    // OIIO 2.4 reports PNG gAMA and similar as "Gamma2.2" / "GammaCorrected2.2".
-    static const QRegularExpression gammaName(QStringLiteral("^gamma(?:corrected)?(\\d+(?:\\.\\d+)?)$"));
-    if (const QRegularExpressionMatch m = gammaName.match(n); m.hasMatch()) {
-        const float g = m.captured(1).toFloat();
-        if (g > 0.5f && g < 5.0f) {
-            d->transfer = Transfer::Power;
-            d->gamma = g;
-            return true;
-        }
-    }
-    return false;
-}
-
-// Fills `d` from the metadata OpenImageIO attached to the image.
-void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format, Descriptor *d)
-{
-    // CICP first: HDR JPEG XL and PNG (3rd edition) carry it next to an ICC profile,
-    // which for PQ/HLG is only an SDR approximation; the PNG specification gives cICP
-    // precedence over iCCP.
-    if (const OIIO::ParamValue *p = spec.find_attribute("CICP");
-        p && p->type() == OIIO::TypeDesc(OIIO::TypeDesc::INT, 4)) {
-        const int *v = static_cast<const int *>(p->data());
-        Descriptor c;
-        if (color::primariesFromCicp(v[0], &c.primaries) && color::transferFromCicp(v[1], &c.transfer, &c.gamma)) {
-            d->source = Descriptor::Source::Cicp;
-            d->primaries = c.primaries;
-            d->transfer = c.transfer;
-            d->gamma = c.gamma;
-            d->fullRange = v[3] != 0;
-            d->description = QStringLiteral("CICP %1/%2/%3/%4 — %5")
-                                 .arg(v[0]).arg(v[1]).arg(v[2]).arg(v[3])
-                                 .arg(color::transferName(c.transfer, c.gamma));
-            return;
-        }
-    }
-    if (const OIIO::ParamValue *p = spec.find_attribute("ICCProfile");
-        p && p->type().basetype == OIIO::TypeDesc::UINT8 && p->type().size() > 0) {
-        d->source = Descriptor::Source::Icc;
-        d->icc = QByteArray(static_cast<const char *>(p->data()), qsizetype(p->type().size()));
-        const QString name = color::iccDescription(d->icc);
-        d->description = QStringLiteral("ICC: %1").arg(name.isEmpty() ? QCoreApplication::translate("Image", "(no description)") : name);
-        return;
-    }
-    if (const OIIO::ParamValue *p = spec.find_attribute("chromaticities");
-        p && p->type() == OIIO::TypeDesc(OIIO::TypeDesc::FLOAT, 8)) {
-        const float *c = static_cast<const float *>(p->data());
-        const color::Chromaticities chroma = {{c[0], c[1]}, {c[2], c[3]}, {c[4], c[5]}, {c[6], c[7]}};
-        if (color::isUsable(chroma)) {
-            d->source = Descriptor::Source::FormatAttributes;
-            d->primaries = chroma;
-            d->transfer = Transfer::Linear;
-            d->description = QCoreApplication::translate("Image", "linear, chromaticities from the file");
-            return;
-        }
-        d->description = QCoreApplication::translate("Image", "linear BT.709 (assumed: the file's chromaticities are invalid)");
-        d->source = Descriptor::Source::Assumed;
-        d->primaries = color::kBt709;
-        d->transfer = Transfer::Linear;
-        return;
-    }
-    // PFM carries no colour metadata and is linear by convention (HDR radiance maps), but
-    // OIIO labels every PNM variant "Rec709"; decoding that as BT.1886 turned 36.0 into 5434.
-    const bool floatPnm = isFloat && std::strcmp(format, "pnm") == 0;
-    const QString cs = floatPnm ? QString() : QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
-    if (parseOiioColorSpace(cs, d)) {
-        // OIIO also fills this in when the file carries no colour tag at all, so it
-        // is reported as the decoder's interpretation, not as file metadata (F12).
-        d->source = Descriptor::Source::FormatAttributes;
-        d->description = QCoreApplication::translate("Image", "%1 (assigned by the decoder)").arg(cs);
-        return;
-    }
-    d->source = Descriptor::Source::Assumed;
-    d->primaries = color::kBt709;
-    d->transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-    d->description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
-}
-
-// EXIF text is file content: no control characters (they would break the panel's layout),
-// one line, bounded length.
-QString cleanText(const std::string &raw)
-{
-    QString text = QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256))).simplified();
-    text.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
-    text = text.simplified(); // tabs and newlines became spaces first; removed characters may leave two
-    if (text.size() > 64) {
-        text.truncate(63);
-        if (text.back().isHighSurrogate()) // never half a character
-            text.chop(1);
-        text += QChar(0x2026);
-    }
-    return text;
-}
-
-// Shooting data as OpenImageIO names it (EXIF tags, also filled by the RAW reader).
-CameraInfo cameraFromOiio(const OIIO::ImageSpec &spec)
-{
-    CameraInfo camera;
-    camera.make = cleanText(spec.get_string_attribute("Make"));
-    camera.model = cleanText(spec.get_string_attribute("Model"));
-    camera.lens = cleanText(spec.get_string_attribute("Exif:LensModel"));
-    const QString taken = cleanText(spec.get_string_attribute("Exif:DateTimeOriginal"));
-    camera.taken = QDateTime::fromString(taken.left(19), QStringLiteral("yyyy:MM:dd HH:mm:ss"));
-    // Values outside any real camera's range are treated as absent rather than shown.
-    const auto inRange = [](float v, float lo, float hi) { return std::isfinite(v) && v >= lo && v <= hi ? v : 0.0f; };
-    camera.exposureTime = inRange(spec.get_float_attribute("ExposureTime"), 1e-6f, 1e5f);
-    camera.fNumber = inRange(spec.get_float_attribute("FNumber"), 0.5f, 1000.0f);
-    camera.focalLength = inRange(spec.get_float_attribute("Exif:FocalLength"), 0.1f, 1e5f);
-    int iso = spec.get_int_attribute("Exif:PhotographicSensitivity");
-    if (iso <= 0)
-        iso = spec.get_int_attribute("Exif:ISOSpeedRatings");
-    camera.iso = iso > 0 && iso <= 10'000'000 ? iso : 0;
-    return camera;
-}
-
-bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
-{
-    OIIO::ImageSpec config;
-    // Straight alpha where the format stores it (PNG, TIFF, WebP, HEIF...): OIIO would
-    // otherwise premultiply the encoded values, which is wrong for non-linear data.
-    config.attribute("oiio:UnassociatedAlpha", 1);
-    // PFM stores rows bottom to top; OIIO 3.1 flips them only when asked (pnminput.cpp).
-    config.attribute("pnm:pfmflip", 1);
-    auto in = OIIO::ImageInput::open(path.toUtf8().toStdString(), &config);
-    if (!in) {
-        *error = QString::fromStdString(OIIO::geterror());
-        return false;
-    }
-    const OIIO::ImageSpec &spec = in->spec();
-    const int w = spec.width, h = spec.height, nch = spec.nchannels;
-    if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels) {
-        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(nch);
-        return false;
-    }
-    if (maxPixels > 0 && qint64(w) * h > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
-
-    using Sample = Decoded::Sample;
-    const OIIO::TypeDesc stored = spec.format;
-    switch (stored.basetype) {
-    case OIIO::TypeDesc::UINT8: out->sample = Sample::U8; break;
-    case OIIO::TypeDesc::INT8:
-    case OIIO::TypeDesc::UINT16:
-    case OIIO::TypeDesc::INT16:
-    case OIIO::TypeDesc::UINT32: // integer semantics (and transfer); 16 bits are plenty for display
-    case OIIO::TypeDesc::INT32: out->sample = Sample::U16; break;
-    case OIIO::TypeDesc::HALF: out->sample = Sample::F16; break;
-    default: out->sample = Sample::F32; break;
-    }
-    const OIIO::TypeDesc request = out->sample == Sample::U8    ? OIIO::TypeDesc::UINT8
-                                   : out->sample == Sample::U16 ? OIIO::TypeDesc::UINT16
-                                   : out->sample == Sample::F16 ? OIIO::TypeDesc::HALF
-                                                                : OIIO::TypeDesc::FLOAT;
-    // Only colour and alpha are read: an EXR with 40 AOV channels must not cost 10x the memory.
-    const int alpha = spec.alpha_channel >= 0 && spec.alpha_channel < nch ? spec.alpha_channel : -1;
-    const bool gray = nch < 3;
-    const int readChannels = std::max(gray ? 1 : 3, alpha + 1);
-    const qint64 pixels = qint64(w) * h;
-    if (!fitsInMemory(pixels, readChannels * out->sampleBytes(), error))
-        return false;
-    out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
-    if (!in->read_image(0, 0, 0, readChannels, request, out->data.get())) {
-        *error = QString::fromStdString(in->geterror());
-        return false;
-    }
-
-    out->width = w;
-    out->height = h;
-    out->channels = readChannels;
-    out->sourceChannels = nch;
-    out->alphaIndex = alpha;
-    out->associatedAlpha = alpha >= 0 && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0;
-    out->gray = gray;
-    out->bits = spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8));
-    out->orientation = spec.get_int_attribute("Orientation", 1);
-    out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
-    out->camera = cameraFromOiio(spec);
-    describeOiio(spec, !out->isInteger(), in->format_name(), &out->colour);
-    return true;
-}
-
-// Describes a QColorSpace that was not built from an ICC profile (PNG gAMA/cHRM/sRGB chunks).
-bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
-{
-    switch (cs.primaries()) {
-    case QColorSpace::Primaries::SRgb: d->primaries = color::kBt709; break;
-    case QColorSpace::Primaries::AdobeRgb: d->primaries = color::kAdobeRgb; break;
-    case QColorSpace::Primaries::DciP3D65: d->primaries = color::kDisplayP3; break;
-    case QColorSpace::Primaries::Bt2020: d->primaries = color::kBt2020; break;
-    default: return false;
-    }
-    switch (cs.transferFunction()) {
-    case QColorSpace::TransferFunction::Linear: d->transfer = Transfer::Linear; break;
-    case QColorSpace::TransferFunction::SRgb: d->transfer = Transfer::Srgb; break;
-    case QColorSpace::TransferFunction::Gamma:
-        d->transfer = Transfer::Power;
-        d->gamma = cs.gamma();
-        break;
-    case QColorSpace::TransferFunction::Bt2020: d->transfer = Transfer::Bt1886; break; // decision D-12
-    case QColorSpace::TransferFunction::St2084: d->transfer = Transfer::Pq; break;
-    case QColorSpace::TransferFunction::Hlg: d->transfer = Transfer::Hlg; break;
-    default: return false;
-    }
-    d->source = Descriptor::Source::FormatAttributes;
-    d->description = QCoreApplication::translate("Image", "%1 (file metadata, via Qt)").arg(cs.description());
-    return true;
-}
-
-bool decodeWithQt(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
-{
-    QImageReader reader(path);
-    // Qt's SVG reader lays out text with QFontDatabase, which aborts without a QGuiApplication
-    // (console modes such as --info run on a QCoreApplication).
-    if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())
-        && (reader.format() == "svg" || reader.format() == "svgz")) {
-        *error = QCoreApplication::translate("Image", "SVG is only decoded in the graphical interface");
-        return false;
-    }
-    if (const QSize size = reader.size(); maxPixels > 0 && size.isValid() && qint64(size.width()) * size.height() > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
-    reader.setAutoTransform(true); // orientation is applied by Qt
-    QImage image = reader.read();
-    if (image.isNull()) {
-        *error = reader.errorString();
-        return false;
-    }
-    if (!fitsInMemory(qint64(image.width()) * image.height(), 16, error))
-        return false;
-    const QColorSpace cs = image.colorSpace();
-    // Keep the source precision: float formats stay float (values above 1 survive),
-    // anything deeper than 8 bits per channel goes through 16 bits.
-    const QPixelFormat pf = image.pixelFormat();
-    const bool isFloat = pf.typeInterpretation() == QPixelFormat::FloatingPoint;
-    const bool deep = !isFloat && (pf.redSize() > 8 || image.depth() / std::max<uint>(pf.channelCount(), 1) > 8);
-    out->width = image.width();
-    out->height = image.height();
-    out->sample = isFloat ? Decoded::Sample::F32 : deep ? Decoded::Sample::U16 : Decoded::Sample::U8;
-    out->channels = 4;
-    out->sourceChannels = int(pf.channelCount());
-    out->alphaIndex = image.hasAlphaChannel() ? 3 : -1;
-    out->gray = false;
-    out->bits = isFloat ? 32 : deep ? 16 : 8;
-    out->orientation = 1;
-    out->codec = QStringLiteral("Qt/%1").arg(QString::fromLatin1(reader.format()));
-    if (cs.isValid() && !cs.iccProfile().isEmpty()) {
-        out->colour.source = Descriptor::Source::Icc;
-        out->colour.icc = cs.iccProfile();
-        out->colour.description = QStringLiteral("ICC: %1").arg(cs.description());
-    } else if (!(cs.isValid() && describeQtColorSpace(cs, &out->colour))) {
-        out->colour.transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-        out->colour.description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
-    }
-    image.setColorSpace(QColorSpace()); // keep the encoded values untouched
-    image.convertTo(isFloat ? QImage::Format_RGBA32FPx4 : deep ? QImage::Format_RGBA64 : QImage::Format_RGBA8888);
-    const std::size_t rowBytes = std::size_t(out->width) * 4 * std::size_t(out->sampleBytes());
-    out->data.reset(new unsigned char[rowBytes * std::size_t(out->height)]);
-    for (int y = 0; y < out->height; ++y)
-        std::memcpy(out->data.get() + rowBytes * std::size_t(y), image.constScanLine(y), rowBytes);
-    return true;
-}
 
 // Runs fn(range) for consecutive ranges of [0, count) on the global thread pool.
 struct Range {
@@ -527,6 +156,69 @@ std::vector<qfloat16> downscale(const std::vector<qfloat16> &src, int &w, int &h
     return out;
 }
 
+// The display buffer of one decoded frame.
+struct Converted {
+    std::vector<qfloat16> pixels; // linear scRGB, premultiplied
+    int width = 0;
+    int height = 0;
+    float maxComponent = 0.0f;
+    float maxLuminance = 0.0f;
+};
+
+// One fused, parallel pass: native samples -> linear scRGB -> premultiplied half floats; then
+// the orientation, applied once, and the reduction by `factor` (1: none).
+Converted convertFrame(Decoded &dec, const color::Converter &converter, int factor)
+{
+    Converted out;
+    const std::size_t pixelCount = std::size_t(dec.width) * dec.height;
+    std::vector<qfloat16> pixels(pixelCount * 4);
+    std::vector<Range> ranges;
+    forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
+        const std::size_t n = range.end - range.begin;
+        std::vector<float> rgba(n * 4);
+        expand(dec, range.begin, range.end, rgba.data());
+        converter.apply(rgba.data(), n);
+        constexpr float kHalfMax = 65504.0f;
+        float maxComponent = 0.0f, maxLuminance = 0.0f;
+        for (std::size_t i = 0; i < n * 4; i += 4) {
+            float *p = rgba.data() + i;
+            const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
+            p[3] = a;
+            for (int c = 0; c < 3; ++c)
+                p[c] = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
+            if (a > 0.0f) { // invisible pixels do not drive tone mapping
+                // What can reach the screen over a background: a·c + (1 − a)·min(c, 1). The
+                // colour itself when opaque or within SDR; a nearly transparent pixel whose
+                // straight colour is large (premultiplied 0.0005 at alpha 1e-4 is 5.0) does
+                // not set the peak of the whole image.
+                const auto visible = [a](float c) { return a * c + (1.0f - a) * std::min(c, 1.0f); };
+                maxComponent = std::max({maxComponent, visible(p[0]), visible(p[1]), visible(p[2])});
+                maxLuminance = std::max(maxLuminance, visible(color::luminance(p[0], p[1], p[2])));
+            }
+            for (int c = 0; c < 3; ++c)
+                p[c] *= a;
+        }
+        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
+        range.max = maxComponent;
+        range.maxLuminance = maxLuminance;
+    }, &ranges);
+    for (const Range &r : ranges) {
+        out.maxComponent = std::max(out.maxComponent, r.max);
+        out.maxLuminance = std::max(out.maxLuminance, r.maxLuminance);
+    }
+    dec.data.reset(); // release native samples early
+
+    int w = dec.width, h = dec.height;
+    if (dec.orientation >= 2 && dec.orientation <= 8)
+        pixels = orient(pixels, w, h, dec.orientation);
+    if (factor > 1)
+        pixels = downscale(pixels, w, h, factor);
+    out.pixels = std::move(pixels);
+    out.width = w;
+    out.height = h;
+    return out;
+}
+
 Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
 {
     QElapsedTimer timer;
@@ -539,23 +231,16 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
     result.modified = info.lastModified();
 
     Decoded dec;
-    QString oiioError, qtError;
-    if (!decodeWithOiio(path, maxPixels, &dec, &oiioError)) {
+    QString error;
+    std::unique_ptr<FrameReader> frames;
+    if (!decodeFile(path, maxPixels, &dec, &error, &frames)) {
         if (dec.overLimit) {
             result.overPixelLimit = true;
             result.error = QStringLiteral("larger than the pixel limit"); // never shown
             return result;
         }
-        dec = Decoded(); // nothing from the failed attempt may leak into the fallback
-        if (!decodeWithQt(path, maxPixels, &dec, &qtError)) {
-            if (dec.overLimit) {
-                result.overPixelLimit = true;
-                result.error = QStringLiteral("larger than the pixel limit");
-                return result;
-            }
-            result.error = QCoreApplication::translate("Image", "Cannot decode: %1").arg(oiioError.isEmpty() ? qtError : oiioError);
-            return result;
-        }
+        result.error = QCoreApplication::translate("Image", "Cannot decode: %1").arg(error);
+        return result;
     }
     const qint64 readNs = timer.nsecsElapsed();
 
@@ -572,54 +257,14 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
                                           reason);
         converter = std::make_unique<color::Converter>(dec.colour, integerBits);
     }
+    const bool littleCms = converter->usesLittleCms();
 
-    // One fused, parallel pass: native samples -> linear scRGB -> premultiplied half floats.
-    const std::size_t pixelCount = std::size_t(dec.width) * dec.height;
-    std::vector<qfloat16> pixels(pixelCount * 4);
-    std::vector<Range> ranges;
-    forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
-        const std::size_t n = range.end - range.begin;
-        std::vector<float> rgba(n * 4);
-        expand(dec, range.begin, range.end, rgba.data());
-        converter->apply(rgba.data(), n);
-        constexpr float kHalfMax = 65504.0f;
-        float maxComponent = 0.0f, maxLuminance = 0.0f;
-        for (std::size_t i = 0; i < n * 4; i += 4) {
-            float *p = rgba.data() + i;
-            const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
-            p[3] = a;
-            for (int c = 0; c < 3; ++c)
-                p[c] = std::isfinite(p[c]) ? std::clamp(p[c], -kHalfMax, kHalfMax) : 0.0f;
-            if (a > 0.0f) { // invisible pixels do not drive tone mapping
-                maxComponent = std::max({maxComponent, p[0], p[1], p[2]});
-                maxLuminance = std::max(maxLuminance, color::luminance(p[0], p[1], p[2]));
-            }
-            for (int c = 0; c < 3; ++c)
-                p[c] *= a;
-        }
-        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
-        range.max = maxComponent;
-        range.maxLuminance = maxLuminance;
-    }, &ranges);
-    float maxComponent = 0.0f, maxLuminance = 0.0f;
-    for (const Range &r : ranges) {
-        maxComponent = std::max(maxComponent, r.max);
-        maxLuminance = std::max(maxLuminance, r.maxLuminance);
-    }
-    dec.data.reset(); // release native samples early
-    const qint64 convertNs = timer.nsecsElapsed();
-
-    int w = dec.width, h = dec.height;
-    if (dec.orientation >= 2 && dec.orientation <= 8)
-        pixels = orient(pixels, w, h, dec.orientation);
-    result.sourceWidth = w;
-    result.sourceHeight = h;
-    const int longest = std::max(w, h);
-    if (maxTextureSize > 0 && longest > maxTextureSize)
-        pixels = downscale(pixels, w, h, (longest + maxTextureSize - 1) / maxTextureSize);
-
-    result.width = w;
-    result.height = h;
+    // Orientation swaps the axes but keeps the longest side, so the reduction is known here.
+    const int longest = std::max(dec.width, dec.height);
+    const int factor = maxTextureSize > 0 && longest > maxTextureSize ? (longest + maxTextureSize - 1) / maxTextureSize : 1;
+    const bool swapsAxes = dec.orientation >= 5 && dec.orientation <= 8;
+    result.sourceWidth = swapsAxes ? dec.height : dec.width;
+    result.sourceHeight = swapsAxes ? dec.width : dec.height;
     result.codec = dec.codec;
     result.sourceChannels = dec.sourceChannels;
     result.sourceBits = dec.bits;
@@ -628,18 +273,129 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
     result.orientation = dec.orientation;
     result.colour = dec.colour;
     result.camera = dec.camera;
-    result.maxComponent = maxComponent;
-    result.maxLuminance = maxLuminance;
-    result.pixels = std::make_shared<const std::vector<qfloat16>>(std::move(pixels));
+    const int firstDurationMs = dec.durationMs;
+    Converted first = convertFrame(dec, *converter, factor);
+    const qint64 convertNs = timer.nsecsElapsed();
+
+    result.width = first.width;
+    result.height = first.height;
+    result.maxComponent = first.maxComponent;
+    result.maxLuminance = first.maxLuminance;
+    result.pixels = std::make_shared<const std::vector<qfloat16>>(std::move(first.pixels));
+    if (frames)
+        result.animation = std::make_shared<Animation>(std::move(frames), std::move(converter), factor, result.width,
+                                                       result.height, result.pixels, firstDurationMs);
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
     qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": read " << readNs / 1000000 << " ms, convert "
-                               << (convertNs - readNs) / 1000000 << " ms, orient/downscale "
-                               << (timer.nsecsElapsed() - convertNs) / 1000000 << " ms"
-                               << (converter->usesLittleCms() ? " (LittleCMS)" : "");
+                               << (convertNs - readNs) / 1000000 << " ms" << (littleCms ? " (LittleCMS)" : "")
+                               << (result.animation ? ", animated" : "");
     return result;
 }
 
 } // namespace
+
+Animation::Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
+                     int width, int height, PixelBuffer first, int firstDurationMs)
+    : m_reader(std::move(reader)), m_converter(std::move(converter)), m_factor(factor), m_width(width),
+      m_height(height), m_loops(m_reader->loopCount()), m_firstDurationMs(firstDurationMs),
+      // Every frame stays in memory while they fit in an eighth of the RAM (at least 128 MiB,
+      // at most 1 GiB); beyond that, each loop decodes them again.
+      m_budget(std::clamp(physicalMemoryBytes() / 8, qint64(128) << 20, qint64(1) << 30))
+{
+    m_count = m_reader->frameCount();
+    m_kept.push_back({0, std::move(first), firstDurationMs});
+    m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+}
+
+Animation::~Animation() = default;
+
+bool Animation::frame(int index, Frame *out, QString *error)
+{
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    // An exception here would be rethrown by QFuture::result() on the GUI thread and end the
+    // application, as in decodeImage().
+    try {
+        return frameLocked(index, out, error);
+    } catch (const std::bad_alloc &) {
+        *error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
+    } catch (const std::exception &e) {
+        *error = QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
+    }
+    return false;
+}
+
+void Animation::trim()
+{
+    const std::lock_guard<std::mutex> lock(m_mutex);
+    m_kept.resize(1);
+    m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+}
+
+bool Animation::frameLocked(int index, Frame *out, QString *error)
+{
+    const int known = m_count.load();
+    if (index < 0 || (known > 0 && index >= known))
+        index = 0;
+    if (index < int(m_kept.size()) && m_kept[index].pixels) {
+        *out = m_kept[index];
+        return true;
+    }
+    if (index < m_next) { // passed already and not kept: from the start again
+        if (!m_reader->rewind(error))
+            return false;
+        m_next = 0;
+    }
+    for (;;) {
+        Decoded dec;
+        int durationMs = 0;
+        QString why;
+        if (!m_reader->next(&dec, &durationMs, &why)) {
+            if (!why.isEmpty()) {
+                *error = why;
+                return false;
+            }
+            // Past the last frame: the count is known now, and playback goes on from the first.
+            m_count = std::max(1, m_next);
+            m_reader->rewind(&why);
+            m_next = 0;
+            *out = m_kept.front();
+            return true;
+        }
+        const int at = m_next++;
+        if (m_reader->frameCount() > 0)
+            m_count = m_reader->frameCount();
+        const bool kept = at < int(m_kept.size()) && m_kept[at].pixels;
+        if (kept || (at < index && !m_keepAll)) {
+            if (at == index) {
+                *out = m_kept[at];
+                return true;
+            }
+            continue; // read past without converting
+        }
+        Converted c = convertFrame(dec, *m_converter, m_factor);
+        if (c.width != m_width || c.height != m_height) {
+            *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(c.width).arg(c.height).arg(4);
+            return false;
+        }
+        Frame frame{at, std::make_shared<const std::vector<qfloat16>>(std::move(c.pixels)), durationMs, c.maxComponent,
+                    c.maxLuminance};
+        const qint64 bytes = qint64(frame.pixels->size() * sizeof(qfloat16));
+        if (m_keepAll && m_keptBytes + bytes <= m_budget) {
+            if (int(m_kept.size()) <= at)
+                m_kept.resize(std::size_t(at) + 1);
+            m_kept[std::size_t(at)] = frame;
+            m_keptBytes += bytes;
+        } else if (m_keepAll) { // too many to keep: only the first stays, for showing it at once
+            m_keepAll = false;
+            m_kept.resize(1);
+            m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+        }
+        if (at == index) {
+            *out = std::move(frame);
+            return true;
+        }
+    }
+}
 
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels)
 {
@@ -688,28 +444,9 @@ QImage decodeForClipboard(const QString &path)
     return out;
 }
 
-const QStringList &supportedSuffixes()
+void shutdownDecoders()
 {
-    static const QStringList list = [] {
-        QSet<QString> set;
-        // "fmt:ext,ext;fmt:ext" — every extension the linked OpenImageIO can read.
-        const QString oiio = QString::fromStdString(OIIO::get_string_attribute("extension_list"));
-        for (const QString &entry : oiio.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
-            const int colon = entry.indexOf(QLatin1Char(':'));
-            for (const QString &ext : entry.mid(colon + 1).split(QLatin1Char(','), Qt::SkipEmptyParts))
-                set.insert(ext.toLower());
-        }
-        for (const QByteArray &fmt : QImageReader::supportedImageFormats())
-            set.insert(QString::fromLatin1(fmt).toLower());
-        // Video containers are out of scope (decision D-P06); "null" is OIIO's test plugin.
-        for (const char *excluded : {"null", "nul", "avi", "mov", "qt", "mp4", "m4a", "m4v", "3gp", "3g2", "mj2",
-                                     "mkv", "webm", "mxf", "wmv", "flv", "ogv", "mpg", "mpeg", "ts", "term"})
-            set.remove(QString::fromLatin1(excluded));
-        QStringList sorted(set.begin(), set.end());
-        sorted.sort();
-        return sorted;
-    }();
-    return list;
+    shutdownOpenImageIO();
 }
 
 QString exposureTimeText(float seconds, const QLocale &locale)

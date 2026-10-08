@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>bilden är för stor för det tillgängliga minnet (kräver %1 GB, gräns %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG avkodas endast i det grafiska gränssnittet</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>skadad, avkortad eller ej stödd %1-fil</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>anpassade primärfärger</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Det går inte att avkoda: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Avkodningsfel: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC-bilder kräver Microsofts ”HEIF Image Extensions” och ”HEVC Video Extensions” från Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-bilder kräver en HEVC-avkodare, som imageViewer inte innehåller på det här systemet (patent); konvertera dem först till ett annat format.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>avkodaren tog längre tid än %1 s och stoppades</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · headroom %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR-vitt %1 nit · toppvärde %2 nit</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR-vitt %1 nit · toppvärde %2 nit</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Läs in nästa och föregående bild i förväg</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Bildspel (%1), tid per bild:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigering</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Avbryt</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Verkställ</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Återställ standardvärden</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU:n godtog inte bilden.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Bildspelet stoppat</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Position</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 av %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Format</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>bildruta %1 av %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>bildruta %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pausad</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animering</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orientering</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, tillämpad</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Toppvärde</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR-vitt (≈%2 nit)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Avkodad på</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Markera ändrade pixlar</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pausa animering</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Föregående bildruta</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Nästa bildruta</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Bildspel</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Om imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animeringen pausad</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animeringen spelas</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Bildspel: en ny bild var %1 s</translation>
     </message>
 </context>
 </TS>

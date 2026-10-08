@@ -1,6 +1,6 @@
 #include "folder.h"
 
-#include "image.h"
+#include "formats.h"
 
 #include <QCollator>
 #include <QDateTime>

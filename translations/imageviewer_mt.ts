@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>immaġni kbira wisq għall-memorja disponibbli (jinħtieġu %1 GB, il-limitu huwa %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>L-SVG jiġi ddekodifikat biss fl-interfaċċja grafika</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>fajl %1 bil-ħsara, maqtugħ jew mhux appoġġjat</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>kuluri primarji personalizzati</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Ma jistax jiġi ddekodifikat: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Żball fid-dekodifikazzjoni: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>L-immaġini HEIC jeħtieġu l-estensjonijiet ta’ Microsoft “HEIF Image Extensions” u “HEVC Video Extensions”, mill-Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>L-immaġini HEIC jeħtieġu dekoder HEVC, li imageViewer ma jinkludix f’din is-sistema (privattivi); l-ewwel ikkonvertihom f’format ieħor.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>id-dekoder ħa aktar minn %1 s u twaqqaf</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · marġni %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · abjad SDR %1 nit · quċċata %2 nit</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · abjad SDR %1 nit · quċċata %2 nit</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Tgħabbi minn qabel l-immaġni li jmiss u l-preċedenti</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Preżentazzjoni (%1), ħin għal kull stampa:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigazzjoni</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Ikkanċella</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Applika</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Irrestawra l-valuri predefiniti</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Il-GPU ma aċċettatx l-immaġni.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Il-preżentazzjoni twaqqfet</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Pożizzjoni</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 minn %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Format</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>qafas %1 minn %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>qafas %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>fuq pawża</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animazzjoni</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orjentazzjoni</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, applikat</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Quċċata</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× abjad SDR (≈%2 nit)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Ħin tad-dekodifikazzjoni</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Enfasizza l-pixels mibdula</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Agħmel pawża lill-animazzjoni</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Il-qafas ta&apos; qabel</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Il-qafas li jmiss</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Preżentazzjoni</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Dwar imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>L-animazzjoni fuq pawża</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>L-animazzjoni qed tindaqq</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Preżentazzjoni: stampa ġdida kull %1 s</translation>
     </message>
 </context>
 </TS>

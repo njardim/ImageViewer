@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 # Versions are X.Y with an optional suffix: 0.1, 0.2-alpha, 1.0 (decision D-19).
 # Release builds take it from the tag (CI passes -DIMAGEVIEWER_VERSION=...);
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
-set(IMAGEVIEWER_VERSION "0.2-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
+set(IMAGEVIEWER_VERSION "0.3-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
     message(FATAL_ERROR "IMAGEVIEWER_VERSION must be X.Y or X.Y-suffix, got '${IMAGEVIEWER_VERSION}'")
@@ -50,13 +50,25 @@ if(NOT TARGET lcms2::lcms2)
     add_library(lcms2::lcms2 ALIAS PkgConfig::LCMS2)
 endif()
 
+# Specialist decoders used directly (D-38): libjxl (JPEG XL; OpenImageIO's vcpkg port is built
+# without it) and libwebp (ICC profiles and animation). Both are optional in local builds.
+find_path(JXL_INCLUDE_DIR jxl/decode.h)
+find_library(JXL_LIBRARY NAMES jxl)
+find_library(JXL_THREADS_LIBRARY NAMES jxl_threads)
+find_package(WebP CONFIG QUIET)
+find_path(WEBP_INCLUDE_DIR webp/demux.h)
+find_library(WEBP_LIBRARY NAMES webp libwebp)
+find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
+
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
+    src/formats.h src/formats.cpp
+    src/decoders.h src/decoders.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
 )
@@ -87,6 +99,60 @@ target_link_libraries(imageviewer PRIVATE
     OpenImageIO::OpenImageIO
     lcms2::lcms2
 )
+if(JXL_INCLUDE_DIR AND JXL_LIBRARY AND JXL_THREADS_LIBRARY)
+    target_include_directories(imageviewer PRIVATE ${JXL_INCLUDE_DIR})
+    target_link_libraries(imageviewer PRIVATE ${JXL_LIBRARY} ${JXL_THREADS_LIBRARY})
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBJXL)
+    message(STATUS "JPEG XL: libjxl ${JXL_LIBRARY}")
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "libjxl not found (JPEG XL)")
+endif()
+if(TARGET WebP::webpdemux)
+    target_link_libraries(imageviewer PRIVATE WebP::webp WebP::webpdemux)
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBWEBP)
+elseif(WEBP_INCLUDE_DIR AND WEBP_LIBRARY AND WEBP_DEMUX_LIBRARY)
+    target_include_directories(imageviewer PRIVATE ${WEBP_INCLUDE_DIR})
+    target_link_libraries(imageviewer PRIVATE ${WEBP_LIBRARY} ${WEBP_DEMUX_LIBRARY})
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBWEBP)
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "libwebp (with libwebpdemux) not found")
+endif()
+# AVIF sequences (heif.cpp): libheif's track API, compiled in from libheif 1.23 on.
+find_package(libheif CONFIG QUIET)
+if(TARGET heif)
+    target_link_libraries(imageviewer PRIVATE heif)
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBHEIF)
+    message(STATUS "AVIF sequences: libheif ${libheif_VERSION}")
+    if(IMAGEVIEWER_REQUIRE_ALL_DECODERS AND libheif_VERSION VERSION_LESS 1.23)
+        message(FATAL_ERROR "libheif ${libheif_VERSION} has no usable track API (1.23 or later needed)")
+    endif()
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "libheif not found (AVIF sequences)")
+endif()
+# The long tail (worker.cpp, D-38): GraphicsMagick, built without delegates (overlay port).
+find_path(GRAPHICSMAGICK_INCLUDE_DIR magick/api.h PATH_SUFFIXES GraphicsMagick)
+find_library(GRAPHICSMAGICK_LIBRARY NAMES GraphicsMagick libGraphicsMagick)
+set(GRAPHICSMAGICK_VERSION "")
+if(GRAPHICSMAGICK_INCLUDE_DIR)
+    file(STRINGS "${GRAPHICSMAGICK_INCLUDE_DIR}/magick/version.h" gm_version_line REGEX "define MagickLibVersionText")
+    string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" GRAPHICSMAGICK_VERSION "${gm_version_line}")
+endif()
+# 1.3.48 or later only (the owner's condition, D-38): older releases, such as the
+# distributions' builds with loadable coder modules, are not used.
+if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERSION VERSION_GREATER_EQUAL 1.3.48)
+    target_include_directories(imageviewer PRIVATE ${GRAPHICSMAGICK_INCLUDE_DIR})
+    target_link_libraries(imageviewer PRIVATE ${GRAPHICSMAGICK_LIBRARY})
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_GRAPHICSMAGICK)
+    message(STATUS "Decode worker: GraphicsMagick ${GRAPHICSMAGICK_VERSION} ${GRAPHICSMAGICK_LIBRARY}")
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "GraphicsMagick 1.3.48 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
+endif()
+# HEIC through the system's decoders (D-39, syscodecs.cpp).
+if(APPLE)
+    target_link_libraries(imageviewer PRIVATE "-framework ImageIO" "-framework CoreGraphics" "-framework CoreFoundation")
+elseif(WIN32)
+    target_link_libraries(imageviewer PRIVATE windowscodecs ole32)
+endif()
 
 if(MSVC)
     target_compile_options(imageviewer PRIVATE /W4 /permissive- /utf-8)

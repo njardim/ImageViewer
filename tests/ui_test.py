@@ -11,9 +11,11 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      cache (log); F2 renames; Shift+Delete always asks (Return cancels) and then deletes;
      a file created, deleted or rewritten by another program shows up, goes away or is
      shown again (folder watching); Shift+I shows the top overlay without moving the image
-     by a pixel (E14); B shows the checkerboard behind a transparent image;
+     by a pixel (E14); B shows the checkerboard behind a transparent image; Apply in the
+     Settings saves a change while the dialog stays open, and Cancel keeps it;
   5. Ctrl+Q quits and the session (last file, window geometry) is in the settings file;
-  6. after a restart with settings written by 0.1, they still apply and move to [app].
+  6. after a restart with settings written by 0.1, they still apply and move to [app], and
+     the old default side-zone width (200 px) becomes the new one (100 px).
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -23,6 +25,7 @@ env:   UI_TEST_DIR  where to keep the files, the log and the last screenshot (de
 """
 import configparser
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -151,9 +154,9 @@ try:
             # 1. Side zones: the button appears on hover, a click navigates.
             xdotool("mousemove", "--sync", str(x + w - 60), str(y + h // 2))
             start = time.monotonic()
-            while True:  # the chevron is white on the dark button, in the middle of the 200 px zone
+            while True:  # the chevron is white on the dark button, in the middle of the 100 px zone
                 screen = grab()
-                cx, cy = x + w - 100, y + h // 2
+                cx, cy = x + w - 50, y + h // 2
                 if screen is not None and (screen[cy - 20:cy + 20, cx - 20:cx + 20].min(axis=2) > 220).any():
                     print(f"ok   next button shown on hover ({time.monotonic() - start:.1f} s)")
                     break
@@ -305,6 +308,33 @@ try:
             xdotool("key", "b")
             wait_until("B shows the checkerboard behind the transparent image", lambda: matches(0x21, 0x40))
 
+            # Settings: Apply takes effect while the dialog stays open, and Cancel keeps it.
+            settings_path = os.path.join(config, "Cristallumnis", "imageViewer.conf")
+
+            def trash_confirmation_off():
+                with open(settings_path, encoding="utf-8") as f:
+                    return re.search(r"(?m)^confirmTrash=false$", f.read()) is not None
+
+            def settings_open():
+                return bool(xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            xdotool("key", "ctrl+comma")
+            dialog = find_dialog("Settings")
+            if not dialog:
+                fail("Ctrl+, did not open the Settings dialog")
+            xdotool("windowfocus", "--sync", dialog)
+            xdotool("key", "Tab", "Tab", "space")  # past the language list: "Confirm before…" off
+            info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
+            xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
+                    str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
+            xdotool("click", "1")  # Apply, the rightmost button
+            wait_until("Apply saves the change while the dialog stays open", trash_confirmation_off)
+            if not settings_open():
+                fail("Apply closed the Settings dialog")
+            xdotool("key", "Escape")
+            wait_until("Cancel closes the Settings dialog", lambda: not settings_open())
+            if not trash_confirmation_off():
+                fail("Cancel undid what Apply had applied")
+
             # 5. Quit; the session is saved.
             xdotool("key", "ctrl+q")
             app.wait(15)
@@ -321,13 +351,16 @@ try:
 
             # 6. Settings of 0.1 (group "general", which Qt writes as [%General] in INI files)
             #    load after a restart and are saved again under [app]: with "do not ask again"
-            #    from 0.1, Delete moves the file to the trash at once.
+            #    from 0.1, Delete moves the file to the trash at once. The side zones' old
+            #    default width (200 px, stored by every save up to 0.2) becomes the new 100 px.
             with open(settings_file, encoding="utf-8") as f:
                 text = f.read()
             start = text.index("[app]")
             end = text.find("\n[", start + 1)
             text = text[:start] + text[end + 1 if end >= 0 else len(text):]
             text += "\n[%General]\nconfirmTrash=false\nlanguage=\nreopenLastImage=false\n"
+            text = re.sub(r"(?m)^version=\d+$", "version=1", text)
+            text = re.sub(r"(?m)^sideZoneWidth=\d+$", "sideZoneWidth=200", text)
             with open(settings_file, "w", encoding="utf-8") as f:
                 f.write(text)
             app = subprocess.Popen([exe, os.path.join(pictures, "a.png")], env=env, stdout=log, stderr=log)
@@ -343,7 +376,9 @@ try:
                 text = f.read()
             if "[%General]" in text or "confirmTrash=false" not in text.split("[app]", 1)[-1].split("\n[", 1)[0]:
                 fail(f"settings not migrated to [app] in {settings_file}")
-            print("ok   0.1 settings migrated to [app]")
+            if not re.search(r"(?m)^sideZoneWidth=100$", text) or not re.search(r"(?m)^version=2$", text):
+                fail(f"the old 200 px side zones were not migrated to 100 px in {settings_file}")
+            print("ok   0.1 settings migrated to [app]; old default side zones now 100 px")
         finally:
             if app.poll() is None:
                 app.terminate()

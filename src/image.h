@@ -1,6 +1,6 @@
-// Decoding front end: file -> linear scRGB half-float RGBA (premultiplied).
-// Backends are tried in order (OpenImageIO, then Qt's QImageReader); FFmpeg and
-// SVG backends join in Phase 2 (docs/PLAN.md §9).
+// Decoding front end: file -> linear scRGB half-float RGBA (premultiplied). The format
+// registry picks the back end (formats.h, decoders.h); the colour conversion happens here,
+// once, for every back end.
 #pragma once
 
 #include "color.h"
@@ -12,7 +12,9 @@
 #include <QString>
 #include <QStringList>
 
+#include <atomic>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 // Shooting data from the file's EXIF, when the decoder exposes it (strings already cleaned:
@@ -36,6 +38,9 @@ struct CameraInfo {
 
 using PixelBuffer = std::shared_ptr<const std::vector<qfloat16>>;
 
+class FrameReader;
+class Animation;
+
 struct Image {
     QString path;
     QString error;   // non-empty when decoding failed
@@ -58,11 +63,63 @@ struct Image {
     CameraInfo camera;
     double decodeMs = 0.0;
     // width * height * 4, linear scRGB, premultiplied alpha. Shared, never modified: the
-    // preload cache and the renderer hold the same buffer (decision D-33).
+    // preload cache and the renderer hold the same buffer (decision D-33). The first frame
+    // of an animation.
     PixelBuffer pixels;
+    // The frames after the first, for an animated image (E6); null for still images.
+    std::shared_ptr<Animation> animation;
 
     bool isValid() const { return error.isEmpty() && pixels && !pixels->empty(); }
     qint64 pixelBytes() const { return pixels ? qint64(pixels->size() * sizeof(qfloat16)) : 0; }
+};
+
+// The frames of an animated image (E6), decoded on demand and converted exactly like the
+// first (same colour conversion, orientation and size). Frames stay in memory while they fit
+// in a budget, so later loops and stepping back decode nothing. frame() may run on a worker
+// thread; one call at a time is served, the others wait.
+class Animation {
+public:
+    struct Frame {
+        int index = 0;
+        PixelBuffer pixels;  // as Image::pixels
+        int durationMs = 0;  // how long it is shown
+        float maxComponent = 0.0f; // as Image::maxComponent, for this frame
+        float maxLuminance = 0.0f;
+    };
+
+    Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
+              int width, int height, PixelBuffer first, int firstDurationMs);
+    ~Animation();
+    Animation(const Animation &) = delete;
+    Animation &operator=(const Animation &) = delete;
+
+    int frameCount() const { return m_count.load(); } // 0 while unknown
+    int loopCount() const { return m_loops; }         // 0 = forever
+    int firstDurationMs() const { return m_firstDurationMs; }
+    // Frame `index`; the first frame when `index` lies past the last one (whose number is
+    // known from then on). False with *error set when the file cannot be read any more.
+    // Runs on a worker thread and never throws (out of memory is an error like any other).
+    bool frame(int index, Frame *out, QString *error);
+    // Drops every kept frame but the first, for an animation no longer on screen: the preload
+    // cache, which may keep it, counts the first frame only. Waits for a frame() in progress.
+    void trim();
+
+private:
+    bool frameLocked(int index, Frame *out, QString *error);
+    std::mutex m_mutex;
+    std::unique_ptr<FrameReader> m_reader;
+    std::unique_ptr<color::Converter> m_converter;
+    int m_factor = 1;
+    int m_width = 0;
+    int m_height = 0;
+    int m_loops = 0;
+    int m_firstDurationMs = 0;
+    qint64 m_budget = 0;
+    std::atomic<int> m_count{0};
+    int m_next = 1;               // index of the frame the reader produces next
+    std::vector<Frame> m_kept;    // by index; the first is always there
+    qint64 m_keptBytes = 0;
+    bool m_keepAll = true;        // every frame fits in the budget so far
 };
 
 // Decodes `path`. Images larger than `maxTextureSize` on either axis are reduced
@@ -75,8 +132,10 @@ Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0)
 // formats other applications read are SDR). A null image when decoding fails.
 QImage decodeForClipboard(const QString &path);
 
-// Lower-case file suffixes (without dot) that the available backends can read.
-const QStringList &supportedSuffixes();
+// Stops the decoders' own worker threads. Called once, after the last decode has finished
+// and before the process exits: OpenImageIO requires it, and threads left to the C++
+// runtime's exit-time destructors can abort the process (seen on macOS).
+void shutdownDecoders();
 
 // An exposure time as photographers write it, without the unit: "1/250" below one second
 // (the reciprocal rounded), "2.5" from one second up.

@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>kuva on liian suuri käytettävissä olevalle muistille (tarvitaan %1 Gt, raja %2 Gt)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG puretaan vain graafisessa käyttöliittymässä</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>vioittunut, katkennut tai tukematon %1-tiedosto</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>mukautetut päävärit</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Purku ei onnistu: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Purkuvirhe: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC-kuvat vaativat Microsoftin laajennukset ”HEIF Image Extensions” ja ”HEVC Video Extensions” Microsoft Storesta.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-kuvat vaativat HEVC-dekooderin, jota imageViewer ei sisällä tässä järjestelmässä (patentit); muunna ne ensin toiseen muotoon.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekooderi kesti yli %1 s ja pysäytettiin</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · kirkkausvara %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR-valkoinen %1 cd/m² · huippu %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR-valkoinen %1 cd/m² · huippu %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Lataa seuraava ja edellinen kuva etukäteen</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diaesitys (%1), aika kuvaa kohden:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Selaus</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Peruuta</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Käytä</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Palauta oletukset</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Grafiikkasuoritin ei hyväksynyt kuvaa.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Diaesitys pysäytetty</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Sijainti</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 / %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Muoto</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>ruutu %1/%2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>ruutu %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>tauolla</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animaatio</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Suunta</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, otettu huomioon</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Huippu</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR-valkoinen (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Purkuaika</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Korosta muuttuneet pikselit</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Keskeytä animaatio</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Edellinen ruutu</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Seuraava ruutu</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Diaesitys</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Tietoja ohjelmasta imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animaatio tauolla</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animaatio toistuu</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Diaesitys: uusi kuva %1 s välein</translation>
     </message>
 </context>
 </TS>

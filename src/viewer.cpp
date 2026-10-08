@@ -70,6 +70,11 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
         requestUpdate();
     });
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::decodeFinished);
+    m_framePool.setMaxThreadCount(1);
+    connect(&m_frameWatcher, &QFutureWatcher<FrameResult>::finished, this, &ViewerWindow::frameDecoded);
+    m_frameTimer.setSingleShot(true);
+    connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
+    connect(&m_slideshowTimer, &QTimer::timeout, this, &ViewerWindow::slideshowTimeout);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
@@ -83,8 +88,13 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
 
 ViewerWindow::~ViewerWindow()
 {
+    // QWindow's own destructor still hides a window that was never closed (the macOS
+    // application menu quits that way) and emits visibilityChanged, when this object's
+    // members are already destroyed: none of the handlers below may run from here on.
+    disconnect(this, nullptr, this, nullptr);
     m_watcher.waitForFinished();
     m_copyWatcher.waitForFinished();
+    m_frameWatcher.waitForFinished();
 }
 
 void ViewerWindow::showRestored(const SessionState &session)
@@ -135,8 +145,7 @@ void ViewerWindow::saveSession() const
     session.maximized = session.fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
     session.lastFile = m_image.path;
     session.lastDirectory = m_lastDirectory;
-    session.save();
-    m_settings.save(); // includes the information panel toggled with I
+    session.save(); // preferences are saved when they change, never here (U2)
 }
 
 int ViewerWindow::textureLimit(const QString &path) const
@@ -219,6 +228,10 @@ void ViewerWindow::exposeEvent(QExposeEvent *)
         return;
     if (!m_rendererReady && !m_rendererFailed)
         initializeRenderer();
+    if (m_waitingForExpose) { // an animation waited while the window was hidden
+        m_waitingForExpose = false;
+        frameTimeout();
+    }
     requestUpdate();
 }
 
@@ -408,6 +421,7 @@ void ViewerWindow::render()
             refused.modified = m_image.modified;
             refused.error = tr("The GPU did not accept the image.");
             m_message = refused.error;
+            stopAnimation();
             m_image = std::move(refused);
             m_shownLimit = textureLimit(m_image.path); // counts as shown at the capped size too
         }
@@ -470,6 +484,14 @@ void ViewerWindow::setHoverZone(Zone zone)
     updateNavigationButtons();
 }
 
+void ViewerWindow::savePreference(const std::function<void(Settings &)> &change)
+{
+    change(m_settings);
+    Settings stored = Settings::load();
+    change(stored);
+    stored.save();
+}
+
 void ViewerWindow::applySettings(const Settings &settings)
 {
     const Settings previous = m_settings;
@@ -486,6 +508,8 @@ void ViewerWindow::applySettings(const Settings &settings)
     }
     if (settings.toneMap != previous.toneMap)
         m_toneMap = settings.toneMap;
+    if (m_slideshow && settings.slideshowSeconds != previous.slideshowSeconds)
+        m_slideshowTimer.start(settings.slideshowSeconds * 1000); // a running slideshow takes the new interval
     m_showInfo = settings.showInfo;
     m_renderer.setOutputPreference(settings.output);
     if (settings.sortBy != previous.sortBy || settings.sortDescending != previous.sortDescending)
@@ -548,14 +572,19 @@ void ViewerWindow::toggleClipWarning()
 void ViewerWindow::toggleInfo()
 {
     m_showInfo = !m_showInfo;
-    m_settings.showInfo = m_showInfo;
+    savePreference([on = m_showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
 }
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && visibility() == QWindow::FullScreen) {
-        leaveFullScreen();
+    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && (m_slideshow || visibility() == QWindow::FullScreen)) {
+        if (m_slideshow) {
+            stopSlideshow();
+            showNotice(tr("Slideshow stopped"));
+        }
+        if (visibility() == QWindow::FullScreen)
+            leaveFullScreen();
         return;
     }
     if (!executeShortcut(e))

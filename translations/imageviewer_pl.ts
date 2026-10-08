@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>obraz jest zbyt duży dla dostępnej pamięci (potrzeba %1&#xa0;GB, limit %2&#xa0;GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG jest dekodowany tylko w interfejsie graficznym</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>uszkodzony, niekompletny lub nieobsługiwany plik %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>niestandardowe barwy podstawowe</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nie można zdekodować: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Błąd dekodowania: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Obrazy HEIC wymagają rozszerzeń Microsoft „HEIF Image Extensions” i „HEVC Video Extensions” ze sklepu Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Obrazy HEIC wymagają dekodera HEVC, którego imageViewer nie zawiera w tym systemie (patenty); najpierw przekonwertuj je do innego formatu.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekoder działał dłużej niż %1 s i został zatrzymany</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · zapas jasności %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · biel SDR %1&#xa0;cd/m² · szczyt %2&#xa0;cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · biel SDR %1&#xa0;cd/m² · szczyt %2&#xa0;cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Wczytuj z wyprzedzeniem następny i poprzedni obraz</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Pokaz slajdów (%1), czas na obraz:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Nawigacja</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Anuluj</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Zastosuj</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Przywróć domyślne</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU nie przyjęło obrazu.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Pokaz slajdów zatrzymany</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Pozycja</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 z %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Format</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>klatka %1 z %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>klatka %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>wstrzymano</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animacja</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orientacja</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, zastosowano</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Jasność szczytowa</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× biel SDR (≈%2&#xa0;cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Czas dekodowania</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1&#xa0;ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Wyróżnij zmienione piksele</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Wstrzymaj animację</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Poprzednia klatka</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Następna klatka</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Pokaz slajdów</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>O programie imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animacja wstrzymana</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animacja odtwarzana</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Pokaz slajdów: nowy obraz co %1 s</translation>
     </message>
 </context>
 </TS>

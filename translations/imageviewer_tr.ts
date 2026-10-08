@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>görüntü, kullanılabilir bellek için çok büyük (%1 GB gerekli, sınır %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG yalnızca grafik arayüzünde çözülür</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>hasarlı, eksik veya desteklenmeyen %1 dosyası</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>özel ana renkler</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Çözülemiyor: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Kod çözme hatası: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC görüntüleri için Microsoft Store&apos;dan Microsoft&apos;un “HEIF Image Extensions” ve “HEVC Video Extensions” uzantıları gerekir.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC görüntüleri için bir HEVC kod çözücü gerekir; imageViewer bunu bu sistemde içermez (patentler). Önce bunları başka bir biçime dönüştürün.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>kod çözücü %1 sn&apos;den uzun sürdü ve durduruldu</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · üst pay %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR beyazı %1 cd/m² · tepe %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR beyazı %1 cd/m² · tepe %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Sonraki ve önceki görüntüleri önceden yükle</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Slayt gösterisi (%1), görüntü başına süre:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Gezinme</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>İptal</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Uygula</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Varsayılanları geri yükle</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU görüntüyü kabul etmedi.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Slayt gösterisi durduruldu</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Konum</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 / %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Biçim</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>kare %1/%2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>kare %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>duraklatıldı</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animasyon</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Yönelim</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, uygulandı</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Tepe</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>SDR beyazının %1 katı (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Çözme süresi</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Değiştirilen pikselleri vurgula</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Animasyonu duraklat</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Önceki kare</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Sonraki kare</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Slayt gösterisi</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>imageViewer Hakkında</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>Tamam</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animasyon duraklatıldı</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animasyon oynatılıyor</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Slayt gösterisi: her %1 sn&apos;de yeni bir görüntü</translation>
     </message>
 </context>
 </TS>

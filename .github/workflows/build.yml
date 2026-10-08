@@ -152,7 +152,8 @@ jobs:
           else
             version_args=("-DIMAGEVIEWER_BUILD=${GITHUB_SHA::7}")
           fi
-          cmake --preset "$PRESET" -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" "${version_args[@]}"
+          # Every decoder the registry promises must be linked: a missing one fails here (D-38).
+          cmake --preset "$PRESET" -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" -DIMAGEVIEWER_REQUIRE_ALL_DECODERS=ON "${version_args[@]}"
 
       - name: Save vcpkg binary cache
         id: vcpkg-save
@@ -206,6 +207,14 @@ jobs:
         shell: bash
         run: tests/smoke.sh "$EXE"
 
+      - name: Fuzz smoke test (corrupted test files decode or fail cleanly, D-38)
+        shell: bash
+        env:
+          FUZZ_SMOKE_DIR: ${{ runner.temp }}/fuzz-smoke
+        run: |
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          "$py" tests/fuzz_smoke.py "$EXE" 12
+
       - name: On-screen fidelity test (Linux, Xvfb + lavapipe/llvmpipe)
         if: runner.os == 'Linux'
         env:
@@ -226,6 +235,8 @@ jobs:
         run: |
           python3 tests/ui_test.py "$EXE" vulkan
           UI_TEST_DIR="$UI_TEST_DIR-opengl" python3 tests/ui_test.py "$EXE" opengl
+          ANIMATION_TEST_DIR="$UI_TEST_DIR-animation" python3 tests/animation_test.py "$EXE" vulkan
+          ANIMATION_TEST_DIR="$UI_TEST_DIR-animation-opengl" python3 tests/animation_test.py "$EXE" opengl
 
       - name: Output-stage harness (Linux, offscreen GPU readback)
         if: runner.os == 'Linux'
@@ -253,6 +264,14 @@ jobs:
           fi
           exit "$status"
 
+      # The application menu's Quit (and Cmd+Q) take AppKit's terminate path, which the Linux
+      # tests cannot reach; macOS showed its crash reporter there in 0.2.
+      - name: Quit test (macOS application menu)
+        if: runner.os == 'macOS'
+        env:
+          QUIT_TEST_DIR: ${{ runner.temp }}/quit-test
+        run: python3 tests/quit_test.py "$EXE"
+
       - name: Upload test evidence (on failure)
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -262,6 +281,8 @@ jobs:
             ${{ runner.temp }}/screen-test
             ${{ runner.temp }}/render-test
             ${{ runner.temp }}/ui-test*
+            ${{ runner.temp }}/quit-test
+            ${{ runner.temp }}/fuzz-smoke
           if-no-files-found: ignore
 
       - name: Deploy

@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>изображение слишком велико для доступной памяти (требуется %1 ГБ, ограничение %2 ГБ)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG декодируется только в графическом интерфейсе</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>повреждённый, усечённый или неподдерживаемый файл %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>пользовательские основные цвета</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Не удаётся декодировать: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Ошибка декодирования: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Для изображений HEIC нужны расширения Microsoft «HEIF Image Extensions» и «HEVC Video Extensions» из Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Для изображений HEIC нужен декодер HEVC, которого imageViewer в этой системе не содержит (патенты); сначала преобразуйте их в другой формат.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>декодер работал дольше %1 с и был остановлен</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · запас яркости %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · белый SDR %1 nits · пик %2 nits</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · белый SDR %1 nits · пик %2 nits</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Заранее загружать следующее и предыдущее изображения</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Слайд-шоу (%1), время на изображение:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Навигация</translation>
     </message>
@@ -376,6 +406,10 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -418,6 +452,10 @@
         <translation>GPU не принял изображение.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Слайд-шоу остановлено</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>Файл</translation>
     </message>
@@ -435,11 +473,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Позиция</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 из %2</translation>
     </message>
     <message>
@@ -468,12 +506,29 @@
         <translation>Формат</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>кадр %1 из %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>кадр %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>на паузе</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Анимация</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Ориентация</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, применена</translation>
     </message>
     <message>
@@ -482,20 +537,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Пик</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× белого SDR (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Декодировано за</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 мс</translation>
     </message>
     <message>
@@ -764,6 +819,22 @@
         <translation>Выделять изменённые пиксели</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Приостановить анимацию</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Предыдущий кадр</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Следующий кадр</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Слайд-шоу</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>О программе imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>ОК</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Анимация приостановлена</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Анимация воспроизводится</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Слайд-шоу: новое изображение каждые %1 с</translation>
     </message>
 </context>
 </TS>

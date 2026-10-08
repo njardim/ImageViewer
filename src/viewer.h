@@ -1,9 +1,11 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
-// swapchain (decision D-09). ViewerWindow is implemented in four files:
+// swapchain (decision D-09). ViewerWindow is implemented in six files:
 //   viewer.cpp      display, view state and input;
 //   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
 //   overlays.cpp    information panel, top overlay (D-34) and navigation buttons;
-//   commands.cpp    the command table, menus, file operations and dialogs (D-30).
+//   commands.cpp    the command table, menus and dialogs (D-30);
+//   files.cpp       file operations: show, copy, rename, trash and undo, delete (D-41);
+//   playback.cpp    animation playback and the slideshow (E6, E11, D-41).
 #pragma once
 
 #include "cache.h"
@@ -22,8 +24,16 @@
 #include <QTimer>
 #include <QWindow>
 
+#include <functional>
+#include <optional>
+
 class QMenu;
 class QVulkanInstance;
+class QWidget;
+
+// Dialogs and menus are widgets; the viewer is a QWindow. Parenting their native window
+// keeps them above it, centred on it and, on Wayland, positioned at all.
+void makeTransient(QWidget &widget, QWindow *parent);
 
 class ViewerWindow : public QWindow {
     Q_OBJECT
@@ -44,6 +54,7 @@ public:
         ZoomIn, ZoomOut, Fit, ActualSize, FullScreen, Info, InfoOverlay, Checkerboard,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
+        PlayPause, PreviousFrame, NextFrame, Slideshow,
         About, AboutQt,
     };
 
@@ -68,6 +79,10 @@ private:
     void toggleFullScreen();
     void leaveFullScreen(); // back to maximized or normal, whichever it was
     void applySettings(const Settings &settings);
+    // Sets one preference changed outside the Settings dialog (a toggle) and saves it into the
+    // stored preferences rather than saving all of this instance's: another instance may have
+    // saved others since this one started.
+    void savePreference(const std::function<void(Settings &)> &change);
     void saveSession() const;
 
     QSizeF deviceSize() const;
@@ -115,6 +130,28 @@ private:
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
     void addRecentFile(const QString &path);
+    // Every instance shares the recent files: a change is made to the stored list, which may
+    // have grown in another instance meanwhile, and m_recent follows it.
+    void editRecentFiles(const std::function<void(QStringList &)> &edit);
+
+    // playback.cpp: animation (E6) and slideshow (E11).
+    struct FrameResult {
+        int generation = 0; // m_frameGeneration when it was asked for
+        int requested = 0;  // the index asked for (the reader wraps to 0 past the end)
+        Animation::Frame frame;
+        QString error;
+    };
+    void startAnimation();
+    void stopAnimation();
+    void requestFrame(int index);
+    void frameDecoded();
+    void frameTimeout();
+    void presentFrame(const Animation::Frame &frame);
+    void togglePause();
+    void stepFrame(int delta);
+    void toggleSlideshow();
+    void stopSlideshow();
+    void slideshowTimeout();
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
@@ -142,6 +179,13 @@ private:
     void addCommand(QMenu *menu, Command command);
     void showContextMenu(const QPoint &globalPos);
     void showOpenDialog();
+    void toggleTopOverlay();
+    void toggleCheckerboard();
+    void showSettings();
+    void showAbout();
+    bool currentFileIsShown() const; // the displayed image is the current entry of the folder
+
+    // files.cpp
     void showInFolder();
     void copyImage();
     void imageCopied();
@@ -150,11 +194,6 @@ private:
     void moveToTrash();
     void deletePermanently();
     void undoTrash();
-    void toggleTopOverlay();
-    void toggleCheckerboard();
-    void showSettings();
-    void showAbout();
-    bool currentFileIsShown() const; // the displayed image is the current entry of the folder
 
     Renderer m_renderer;
     bool m_rendererReady = false;
@@ -173,6 +212,24 @@ private:
     // One decode at a time: they cannot be cancelled, and each needs a full image of memory.
     QThreadPool m_decodePool;
     QFutureWatcher<Image> m_watcher;
+    // Animation (playback.cpp): the next frame is decoded on its own thread while the shown
+    // one is on screen; a frame is shown when both its turn has come and it is ready.
+    std::shared_ptr<Animation> m_animation;
+    QThreadPool m_framePool;
+    QFutureWatcher<FrameResult> m_frameWatcher;
+    bool m_frameBusy = false;   // as m_decodeBusy, for m_frameWatcher
+    int m_frameGeneration = 0;  // changes when the animation shown changes
+    int m_frameIndex = 0;       // the frame on screen
+    int m_frameDurationMs = 0;  // ...and how long it stays
+    int m_wantedFrame = -1;     // the frame to show next; -1: none
+    std::optional<Animation::Frame> m_readyFrame; // decoded, waiting for its turn
+    bool m_frameDue = false;    // its turn has come: show it as soon as it is decoded
+    bool m_animationPaused = false;
+    int m_loopsDone = 0;
+    bool m_waitingForExpose = false; // nothing is drawn while the window is hidden
+    QTimer m_frameTimer;
+    bool m_slideshow = false;
+    QTimer m_slideshowTimer;
     // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
     // as soon as the worker ends, while the finished signal is still queued, and setting a
     // new future then would discard the result that was never delivered.

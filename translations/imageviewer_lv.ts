@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>attēls ir pārāk liels pieejamajai atmiņai (nepieciešami %1 GB, ierobežojums %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG tiek dekodēts tikai grafiskajā saskarnē</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>bojāts, saīsināts vai neatbalstīts %1 fails</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>pielāgotas pamatkrāsas</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nevar dekodēt: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Dekodēšanas kļūda: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC attēliem ir nepieciešami Microsoft paplašinājumi “HEIF Image Extensions” un “HEVC Video Extensions” no Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC attēliem ir nepieciešams HEVC dekodētājs, ko imageViewer šajā sistēmā neietver (patenti); vispirms pārveidojiet tos citā formātā.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekodētājs strādāja ilgāk par %1 s un tika apturēts</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · rezerve %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR baltais %1 cd/m² · maksimums %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR baltais %1 cd/m² · maksimums %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Iepriekš ielādēt nākamo un iepriekšējo attēlu</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Slīdrāde (%1), laiks katram attēlam:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigācija</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Atcelt</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Lietot</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Atjaunot noklusējumus</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU nepieņēma attēlu.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Slīdrāde apturēta</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Pozīcija</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 no %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Formāts</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>kadrs %1 no %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>kadrs %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pauzēts</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animācija</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orientācija</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, pielietots</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Maksimums</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR baltais (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Dekodēšanas laiks</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Iezīmēt izmainītos pikseļus</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pauzēt animāciju</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Iepriekšējais kadrs</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Nākamais kadrs</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Slīdrāde</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Par imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>Labi</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animācija pauzēta</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animācija tiek atskaņota</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Slīdrāde: jauns attēls ik pēc %1 s</translation>
     </message>
 </context>
 </TS>

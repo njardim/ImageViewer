@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>imagine prea mare pentru memoria disponibilă (necesită %1 GB, limita este de %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG este decodat numai în interfața grafică</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>fișier %1 deteriorat, trunchiat sau neacceptat</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>primare personalizate</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nu se poate decoda: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Eroare de decodare: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Imaginile HEIC necesită extensiile Microsoft „HEIF Image Extensions” și „HEVC Video Extensions” din Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Imaginile HEIC necesită un decodor HEVC, pe care imageViewer nu îl include pe acest sistem (brevete); convertiți-le mai întâi în alt format.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>decodorul a durat mai mult de %1 s și a fost oprit</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · marjă %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · alb SDR %1 nit · vârf %2 nit</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · alb SDR %1 nit · vârf %2 nit</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Încarcă din timp imaginea următoare și pe cea anterioară</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Prezentare (%1), timp pentru fiecare imagine:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigare</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Anulare</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Aplică</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Restabilire valori implicite</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU-ul nu a acceptat imaginea.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Prezentare oprită</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Poziție</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 din %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Format</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>cadrul %1 din %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>cadrul %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>în pauză</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animație</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orientare</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, aplicată</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Vârf</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× alb SDR (≈%2 nit)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Decodat în</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Evidențiere pixeli modificați</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Întrerupe animația</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Cadrul anterior</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Cadrul următor</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Prezentare</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Despre imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animație în pauză</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animație în redare</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Prezentare: o imagine nouă la fiecare %1 s</translation>
     </message>
 </context>
 </TS>

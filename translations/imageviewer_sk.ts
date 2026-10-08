@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>obrázok je príliš veľký pre dostupnú pamäť (potrebuje %1&#xa0;GB, limit %2&#xa0;GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG sa dekóduje iba v grafickom rozhraní</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>poškodený, skrátený alebo nepodporovaný súbor %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>vlastné primárne farby</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nepodarilo sa dekódovať: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Chyba dekódovania: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Obrázky HEIC vyžadujú rozšírenia Microsoftu „HEIF Image Extensions“ a „HEVC Video Extensions“ z Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Obrázky HEIC vyžadujú dekodér HEVC, ktorý imageViewer v tomto systéme neobsahuje (patenty); najprv ich skonvertujte do iného formátu.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekodér bežal dlhšie ako %1 s a bol zastavený</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · rezerva jasu %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · biela SDR %1&#xa0;cd/m² · špička %2&#xa0;cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · biela SDR %1&#xa0;cd/m² · špička %2&#xa0;cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Načítavať vopred nasledujúci a predchádzajúci obrázok</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Prezentácia (%1), čas na obrázok:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigácia</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Zrušiť</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Použiť</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Obnoviť predvolené</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU obrázok neprijalo.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Prezentácia zastavená</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Poloha</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 z %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Formát</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>snímka %1 z %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>snímka %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pozastavené</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animácia</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orientácia</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, použité</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Špičková jasnosť</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× biela SDR (≈%2&#xa0;cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Čas dekódovania</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1&#xa0;ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Zvýrazniť zmenené pixely</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pozastaviť animáciu</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Predchádzajúca snímka</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Nasledujúca snímka</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Prezentácia</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>O aplikácii imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animácia pozastavená</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animácia sa prehráva</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Prezentácia: nový obrázok každých %1 s</translation>
     </message>
 </context>
 </TS>

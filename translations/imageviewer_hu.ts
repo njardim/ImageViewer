@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>a kép túl nagy a rendelkezésre álló memóriához (%1 GB szükséges, a korlát %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>Az SVG dekódolása csak a grafikus felületen történik</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>sérült, csonka vagy nem támogatott %1-fájl</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>egyéni alapszínek</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nem dekódolható: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Dekódolási hiba: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>A HEIC-képekhez a Microsoft „HEIF Image Extensions” és „HEVC Video Extensions” bővítménye szükséges a Microsoft Store-ból.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>A HEIC-képekhez HEVC-dekóder szükséges, amelyet az imageViewer ezen a rendszeren nem tartalmaz (szabadalmak); előbb alakítsa át őket más formátumba.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>a dekóder %1 s-nál tovább futott, ezért leállt</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · fényerő-tartalék %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR-fehér %1 cd/m² · csúcs %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR-fehér %1 cd/m² · csúcs %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>A következő és az előző kép előzetes betöltése</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diavetítés (%1), idő képenként:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigáció</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Mégse</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Alkalmaz</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Alapértelmezések visszaállítása</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>A GPU nem fogadta el a képet.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Diavetítés leállítva</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Pozíció</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 / %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Formátum</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>képkocka: %1 / %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>képkocka: %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>szüneteltetve</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animáció</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Tájolás</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, alkalmazva</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Csúcs</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR-fehér (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Dekódolási idő</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Megváltozott képpontok kiemelése</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Animáció szüneteltetése</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Előző képkocka</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Következő képkocka</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Diavetítés</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Névjegy: imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animáció szüneteltetve</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animáció lejátszása</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Diavetítés: %1 másodpercenként új kép</translation>
     </message>
 </context>
 </TS>

@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>gambar terlalu besar untuk memori yang tersedia (membutuhkan %1 GB, batas %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG hanya didekode di antarmuka grafis</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>berkas %1 rusak, terpotong, atau tidak didukung</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>primer khusus</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Tidak dapat mendekode: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Kesalahan dekode: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Gambar HEIC memerlukan “HEIF Image Extensions” dan “HEVC Video Extensions” dari Microsoft, di Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Gambar HEIC memerlukan dekoder HEVC, yang tidak disertakan imageViewer pada sistem ini (paten); konversikan dulu ke format lain.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekoder berjalan lebih dari %1 dtk dan dihentikan</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · headroom %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · putih SDR %1 nits · puncak %2 nits</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · putih SDR %1 nits · puncak %2 nits</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Tayangan slide (%1), waktu per gambar:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigasi</translation>
     </message>
@@ -376,6 +406,10 @@
     <message>
         <source>Cancel</source>
         <translation>Batal</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Terapkan</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -418,6 +452,10 @@
         <translation>GPU tidak menerima gambar.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>Tayangan slide dihentikan</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>File</translation>
     </message>
@@ -435,11 +473,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Posisi</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 dari %2</translation>
     </message>
     <message>
@@ -468,12 +506,29 @@
         <translation>Format</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>bingkai %1 dari %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>bingkai %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>dijeda</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animasi</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orientasi</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, diterapkan</translation>
     </message>
     <message>
@@ -482,20 +537,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Puncak</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× putih SDR (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Didekode dalam</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -764,6 +819,22 @@
         <translation>Sorot Piksel yang Berubah</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Jeda animasi</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Bingkai sebelumnya</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Bingkai berikutnya</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Tayangan slide</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Tentang imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animasi dijeda</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animasi diputar</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Tayangan slide: gambar baru setiap %1 dtk</translation>
     </message>
 </context>
 </TS>

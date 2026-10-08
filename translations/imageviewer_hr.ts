@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>slika je prevelika za dostupnu memoriju (potrebno %1 GB, ograničenje %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG se dekodira samo u grafičkom sučelju</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>oštećena, skraćena ili nepodržana datoteka %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>prilagođene primarne boje</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Dekodiranje nije moguće: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Pogreška pri dekodiranju: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC slike trebaju Microsoftova proširenja „HEIF Image Extensions” i „HEVC Video Extensions” iz trgovine Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC slike trebaju HEVC dekoder, koji imageViewer na ovom sustavu ne uključuje (patenti); najprije ih pretvorite u drugi format.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekoder je radio dulje od %1 s i zaustavljen je</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · rezerva svjetline %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR bijela %1 cd/m² · vrh %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR bijela %1 cd/m² · vrh %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Unaprijed učitaj sljedeću i prethodnu sliku</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Dijaprojekcija (%1), vrijeme po slici:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigacija</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Odustani</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Primijeni</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Vrati zadano</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>GPU nije prihvatio sliku.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Dijaprojekcija zaustavljena</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Položaj</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 od %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Format</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>sličica %1 od %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>sličica %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>pauzirano</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animacija</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Orijentacija</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, primijenjeno</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Vrh</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR bijele (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Dekodirano za</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Istakni izmijenjene piksele</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Pauziraj animaciju</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Prethodna sličica</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Sljedeća sličica</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Dijaprojekcija</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>O programu imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>U redu</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animacija pauzirana</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animacija se reproducira</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Dijaprojekcija: nova slika svakih %1 s</translation>
     </message>
 </context>
 </TS>

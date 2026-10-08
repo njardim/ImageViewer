@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>الصورة كبيرة جداً بالنسبة إلى الذاكرة المتاحة (تحتاج إلى %1 غيغابايت، والحد الأقصى %2 غيغابايت)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>لا يتم فك ترميز SVG إلا في الواجهة الرسومية</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>ملف %1 تالف أو مقطوع أو غير مدعوم</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>ألوان أساسية مخصصة</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>تعذر فك الترميز: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>خطأ في فك الترميز: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>تحتاج صور HEIC إلى إضافتي Microsoft ‏«HEIF Image Extensions» و«HEVC Video Extensions» من Microsoft Store.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>تحتاج صور HEIC إلى مفكّك ترميز HEVC، لا يتضمّنه imageViewer على هذا النظام (براءات اختراع)؛ حوّلها أولاً إلى تنسيق آخر.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>استغرق مفكّك الترميز أكثر من %1 ث فأُوقف</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · هامش السطوع %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · أبيض SDR %1 nits · الذروة %2 nits</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · أبيض SDR %1 nits · الذروة %2 nits</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>تحميل الصورة التالية والسابقة مسبقاً</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>عرض الشرائح (%1)، الوقت لكل صورة:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>التنقل</translation>
     </message>
@@ -376,6 +406,10 @@
     <message>
         <source>Cancel</source>
         <translation>إلغاء الأمر</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>تطبيق</translation>
     </message>
     <message>
         <source>Restore Defaults</source>
@@ -418,6 +452,10 @@
         <translation>لم يقبل GPU الصورة.</translation>
     </message>
     <message>
+        <source>Slideshow stopped</source>
+        <translation>توقف عرض الشرائح</translation>
+    </message>
+    <message>
         <source>File</source>
         <translation>الملف</translation>
     </message>
@@ -435,11 +473,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>الموضع</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 من %2</translation>
     </message>
     <message>
@@ -468,12 +506,29 @@
         <translation>الصيغة</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>الإطار %1 من %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>الإطار %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>متوقف مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>الرسوم المتحركة</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>الاتجاه</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1، مطبق</translation>
     </message>
     <message>
@@ -482,20 +537,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>الذروة</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× أبيض SDR (≈%2 nits)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>تم فك الترميز خلال</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 مللي ثانية</translation>
     </message>
     <message>
@@ -764,6 +819,22 @@
         <translation>تمييز وحدات البكسل المعدلة</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>إيقاف الرسوم المتحركة مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>الإطار السابق</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>الإطار التالي</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>عرض الشرائح</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>حول imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>موافق</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>الرسوم المتحركة متوقفة مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>الرسوم المتحركة قيد التشغيل</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>عرض الشرائح: صورة جديدة كل %1 ث</translation>
     </message>
 </context>
 </TS>

@@ -1,4 +1,4 @@
-"""Xvfb on a free display for the Linux GPU tests (screen_test.py, render_test.py).
+"""Xvfb on a free display for the Linux GUI tests (screen, render, UI and animation tests).
 
 Xvfb chooses the display number itself and writes it to -displayfd once it accepts
 connections, so there is no fixed display number to collide with and no sleep.

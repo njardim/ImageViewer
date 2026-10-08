@@ -17,7 +17,9 @@ class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
 class QListWidget;
+class QPushButton;
 class QSpinBox;
+class QTabWidget;
 class QToolButton;
 
 // When the top information overlay (E14, decision D-34) is shown.
@@ -48,16 +50,19 @@ struct Settings {
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back
     bool sideZones = true;     // click the left/right edge of the window for previous/next
-    int sideZoneWidth = 200;   // logical pixels
+    int sideZoneWidth = 100;   // logical pixels (200 until 0.2, D-36)
     FolderSort sortBy = FolderSort::Name;
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
+    int slideshowSeconds = 5;  // between images in the slideshow (E11)
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping on at startup
     Renderer::OutputPreference output = Renderer::OutputPreference::Automatic;
 
     static constexpr int kMinSideZoneWidth = 80;
     static constexpr int kMaxSideZoneWidth = 400;
+    static constexpr int kMinSlideshowSeconds = 1;
+    static constexpr int kMaxSlideshowSeconds = 3600;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
     static constexpr int kMinOverlayHideDelayMs = 300;
     static constexpr int kMaxOverlayHideDelayMs = 10000;
@@ -68,6 +73,11 @@ struct Settings {
 
     static Settings load(); // invalid or out-of-range stored values fall back to the defaults
     void save() const;
+    // Whether the stored preferences predate this version's form: load() migrates them, and
+    // saving them once at startup makes that permanent (they are not saved at exit).
+    static bool storedIsOutdated();
+
+    bool operator==(const Settings &) const = default;
 };
 
 // Where the window was and what was open when the application last closed.
@@ -110,13 +120,29 @@ public:
     explicit SettingsDialog(const Settings &settings);
     Settings settings() const;
 
+Q_SIGNALS:
+    // Apply, or OK with changes not applied yet: the viewer takes the values at once.
+    void applied(const Settings &settings);
+
+protected:
+    void changeEvent(QEvent *event) override;
+
 private:
+    void buildUi();
+    void rebuildUi(); // in the new language, keeping what the dialog shows
+    void apply();
+    void updateApplyButton();
     void setValues(const Settings &settings);
     void setBackground(const QColor &color);
     void chooseCustomBackground();
     void moveOverlayField(int delta);
 
     Settings m_initial; // fields the dialog does not show are kept as they were
+    Settings m_applied; // what the viewer uses now; Apply is enabled while the dialog differs
+    bool m_rebuildQueued = false;
+
+    QTabWidget *m_tabs = nullptr;
+    QPushButton *m_apply = nullptr;
 
     QComboBox *m_language = nullptr;
     QCheckBox *m_confirmTrash = nullptr;
@@ -140,6 +166,7 @@ private:
     QComboBox *m_sortBy = nullptr;
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
+    QSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
     QComboBox *m_output = nullptr;
 };

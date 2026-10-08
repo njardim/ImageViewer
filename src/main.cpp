@@ -1,3 +1,5 @@
+#include "decoders.h"
+#include "formats.h"
 #include "image.h"
 #include "settings.h"
 #include "viewer.h"
@@ -8,6 +10,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
+#include <QScopeGuard>
+
+#include <cstring>
 #include <QTextStream>
 
 #include <algorithm>
@@ -85,6 +90,37 @@ int printInfo(const QString &path)
         if (c.taken.isValid())
             parts << c.taken.toString(Qt::ISODate);
         out << "camera:      " << parts.join(QStringLiteral(" | ")) << '\n';
+    }
+    if (const std::shared_ptr<Animation> &animation = image.animation) {
+        // Every frame once, as the viewer plays them (at most 10 000).
+        QStringList durations;
+        Animation::Frame frame;
+        QString error;
+        int frames = 0;
+        for (int i = 1; i <= 10000; ++i) {
+            if (!animation->frame(i, &frame, &error)) {
+                out << "error: frame " << i << ": " << error << Qt::endl;
+                return 1;
+            }
+            if (frame.index == 0)
+                break;
+            frames = i;
+        }
+        QStringList firstPixels; // straight colour of pixel (0,0) of each frame
+        for (int i = 0; i <= frames && i < 8; ++i) {
+            animation->frame(i, &frame, &error);
+            durations << QString::number(frame.durationMs);
+            const qfloat16 *p = frame.pixels->data();
+            const float a = p[3];
+            QStringList rgb;
+            for (int c = 0; c < 3; ++c)
+                rgb << QString::number(a > 0 ? float(p[c]) / a : 0.0f, 'f', 3);
+            firstPixels << rgb.join(QLatin1Char(' '));
+        }
+        const QString more = frames >= 8 ? QStringLiteral(" ...") : QString();
+        out << "frames:      " << frames + 1 << ", loops " << animation->loopCount() << ", ms "
+            << durations.join(QLatin1Char(' ')) << more << '\n'
+            << "frame px:    " << firstPixels.join(QStringLiteral(" | ")) << more << '\n';
     }
     // First pixel in working units, useful for colour checks on synthetic files.
     const qfloat16 *pixel = image.pixels->data();
@@ -229,7 +265,7 @@ bool isConsoleMode(int argc, char *argv[])
         const QByteArrayView arg(argv[i]);
         if (arg == "--") // everything after it is a file name
             return false;
-        if (arg == "--info" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
+        if (arg == "--info" || arg == "--formats" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
             || arg == "--version")
             return true;
     }
@@ -270,6 +306,9 @@ bool readNumber(const QCommandLineParser &parser, const QCommandLineOption &opti
 
 int main(int argc, char *argv[])
 {
+    // The decode worker (D-38): no Qt application, no settings, nothing but the decode.
+    if (argc >= 2 && std::strcmp(argv[1], "--decode-worker") == 0)
+        return runDecodeWorker(argc, argv);
     const bool console = isConsoleMode(argc, argv);
 #if defined(Q_OS_WIN)
     if (console)
@@ -281,6 +320,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    // Runs after the viewer window (declared later, destroyed first) has waited for its last
+    // decode, and before the application object goes.
+    const auto decoders = qScopeGuard(&shutdownDecoders);
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Image viewer with verifiable SDR/HDR colour fidelity."));
@@ -289,6 +331,9 @@ int main(int argc, char *argv[])
     const QCommandLineOption infoOption(QStringLiteral("info"),
                                         QStringLiteral("Decode the file, print what the colour pipeline sees, exit."));
     parser.addOption(infoOption);
+    const QCommandLineOption formatsOption(QStringLiteral("formats"),
+                                           QStringLiteral("Print the file formats each decoder of this build reads, exit."));
+    parser.addOption(formatsOption);
     const QCommandLineOption renderOption(
         QStringLiteral("render"),
         QStringLiteral("Fidelity harness: render the file offscreen 1:1, compare with the CPU reference, exit."));
@@ -313,6 +358,12 @@ int main(int argc, char *argv[])
     parser.addPositionalArgument(QStringLiteral("file"), QStringLiteral("Image or folder to open."));
     parser.process(*app);
     const QStringList files = parser.positionalArguments();
+    if (parser.isSet(formatsOption)) {
+        QTextStream out(stdout);
+        for (const QString &line : formatReport())
+            out << line << '\n';
+        return 0;
+    }
 
     const bool harness = parser.isSet(renderOption);
     if ((parser.isSet(infoOption) || harness) && files.isEmpty()) {
@@ -344,6 +395,8 @@ int main(int argc, char *argv[])
 
     // The interface only: --info and --render output stays English (tests parse it).
     const Settings settings = Settings::load();
+    if (Settings::storedIsOutdated())
+        settings.save();
     applyLanguage(settings.language);
 
     ViewerWindow window(vulkan);

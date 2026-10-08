@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>an íomhá rómhór don chuimhne atá ar fáil (teastaíonn %1 GB, teorainn %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>Ní dhéantar SVG a dhíchódú ach sa chomhéadan grafach</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>comhad %1 atá damáistithe, teasctha nó gan tacaíocht</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>príomhdhathanna saincheaptha</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Ní féidir díchódú a dhéanamh: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Earráid díchódaithe: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>Teastaíonn síntí Microsoft “HEIF Image Extensions” agus “HEVC Video Extensions” ó Microsoft Store le haghaidh íomhánna HEIC.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Teastaíonn díchódóir HEVC le haghaidh íomhánna HEIC, rud nach bhfuil san áireamh in imageViewer ar an gcóras seo (paitinní); tiontaigh go formáid eile iad ar dtús.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>thóg an díchódóir níos mó ná %1 s agus stopadh é</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · slí bhreise %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · bán SDR %1 cd/m² · buaic %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · bán SDR %1 cd/m² · buaic %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Luchtaigh an chéad íomhá eile agus an íomhá roimhe seo roimh ré</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Taispeántas sleamhnán (%1), am in aghaidh na híomhá:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Nascleanúint</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Cealaigh</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Cuir i bhfeidhm</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Athchóirigh na réamhshocruithe</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Níor ghlac an GPU leis an íomhá.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Stopadh an taispeántas sleamhnán</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Ionad</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 as %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Formáid</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>fráma %1 as %2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>fráma %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>ar sos</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Beochan</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Treoshuíomh</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, curtha i bhfeidhm</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Buaic</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× bán SDR (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Díchódaithe i</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Aibhsigh na picteilíní athraithe</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Cuir an bheochan ar sos</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>An fráma roimhe seo</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>An chéad fhráma eile</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Taispeántas sleamhnán</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Maidir le imageViewer</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Beochan ar sos</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Beochan á seinm</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Taispeántas sleamhnán: íomhá nua gach %1 s</translation>
     </message>
 </context>
 </TS>

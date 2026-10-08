@@ -20,6 +20,7 @@
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
+        <extracomment>GB: gigabytes.</extracomment>
         <translation>pilt on saadaoleva mälu jaoks liiga suur (vaja %1 GB, piir %2 GB)</translation>
     </message>
     <message>
@@ -59,6 +60,14 @@
         <translation>SVG dekodeeritakse ainult graafilises kasutajaliideses</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>kahjustatud, kärbitud või toetamata %1-fail</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>kohandatud põhivärvid</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Dekodeerimine ebaõnnestus: %1</translation>
     </message>
@@ -73,6 +82,19 @@
     <message>
         <source>Decoding error: %1</source>
         <translation>Dekodeerimisviga: %1</translation>
+    </message>
+    <message>
+        <source>HEIC images need Microsoft&apos;s “HEIF Image Extensions” and “HEVC Video Extensions”, from the Microsoft Store.</source>
+        <translation>HEIC-pildid vajavad Microsofti laiendusi „HEIF Image Extensions” ja „HEVC Video Extensions” Microsoft Store’ist.</translation>
+    </message>
+    <message>
+        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-pildid vajavad HEVC-dekoodrit, mida imageViewer selles süsteemis ei sisalda (patendid); teisendage need esmalt teise vormingusse.</translation>
+    </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>dekooder töötas kauem kui %1 s ja peatati</translation>
     </message>
 </context>
 <context>
@@ -118,6 +140,7 @@
     </message>
     <message>
         <source>EDR · headroom %1×</source>
+        <extracomment>EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. &quot;2.50&quot;.</extracomment>
         <translation>EDR · heleduse varu %1×</translation>
     </message>
     <message>
@@ -126,10 +149,12 @@
     </message>
     <message>
         <source>scRGB · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>scRGB · SDR-valge %1 cd/m² · tipp %2 cd/m²</translation>
     </message>
     <message>
         <source>HDR10 (PQ) · SDR white %1 nits · peak %2 nits</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>HDR10 (PQ) · SDR-valge %1 cd/m² · tipp %2 cd/m²</translation>
     </message>
     <message>
@@ -341,6 +366,11 @@
         <translation>Laadi järgmine ja eelmine pilt ette</translation>
     </message>
     <message>
+        <source>Slideshow (%1), time per image:</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Slaidiseanss (%1), aeg pildi kohta:</translation>
+    </message>
+    <message>
         <source>Navigation</source>
         <translation>Navigeerimine</translation>
     </message>
@@ -378,6 +408,10 @@
         <translation>Tühista</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Rakenda</translation>
+    </message>
+    <message>
         <source>Restore Defaults</source>
         <translation>Taasta vaikeväärtused</translation>
     </message>
@@ -396,6 +430,10 @@
     <message>
         <source>The GPU did not accept the image.</source>
         <translation>Graafikaprotsessor ei võtnud pilti vastu.</translation>
+    </message>
+    <message>
+        <source>Slideshow stopped</source>
+        <translation>Slaidiseanss peatatud</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -439,11 +477,11 @@
     </message>
     <message>
         <source>Position</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>Asukoht</translation>
     </message>
     <message>
         <source>%1 of %2</source>
+        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
         <translation>%1 / %2</translation>
     </message>
     <message>
@@ -477,12 +515,29 @@
         <translation>Vorming</translation>
     </message>
     <message>
+        <source>frame %1 of %2</source>
+        <extracomment>The frame of an animation on screen, e.g. &quot;frame 3 of 24&quot;.</extracomment>
+        <translation>kaader %1/%2</translation>
+    </message>
+    <message>
+        <source>frame %1</source>
+        <translation>kaader %1</translation>
+    </message>
+    <message>
+        <source>paused</source>
+        <translation>peatatud</translation>
+    </message>
+    <message>
+        <source>Animation</source>
+        <translation>Animatsioon</translation>
+    </message>
+    <message>
         <source>Orientation</source>
-        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>Suund</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
+        <extracomment>The EXIF orientation tag (2 to 8) of the file, already applied to the image.</extracomment>
         <translation>EXIF %1, rakendatud</translation>
     </message>
     <message>
@@ -491,20 +546,20 @@
     </message>
     <message>
         <source>Peak</source>
-        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>Tipp</translation>
     </message>
     <message>
         <source>%1× SDR white (≈%2 nits)</source>
+        <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1× SDR-valge (≈%2 cd/m²)</translation>
     </message>
     <message>
         <source>Decoded in</source>
-        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>Dekodeerimise aeg</translation>
     </message>
     <message>
         <source>%1 ms</source>
+        <extracomment>Unit after a duration in milliseconds.</extracomment>
         <translation>%1 ms</translation>
     </message>
     <message>
@@ -772,6 +827,22 @@
         <translation>Tõsta esile muutunud pikslid</translation>
     </message>
     <message>
+        <source>Pause Animation</source>
+        <translation>Peata animatsioon</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation>Eelmine kaader</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation>Järgmine kaader</translation>
+    </message>
+    <message>
+        <source>Slideshow</source>
+        <translation>Slaidiseanss</translation>
+    </message>
+    <message>
         <source>About imageViewer</source>
         <translation>Teave rakenduse imageViewer kohta</translation>
     </message>
@@ -928,6 +999,19 @@
     <message>
         <source>OK</source>
         <translation>OK</translation>
+    </message>
+    <message>
+        <source>Animation paused</source>
+        <translation>Animatsioon peatatud</translation>
+    </message>
+    <message>
+        <source>Animation playing</source>
+        <translation>Animatsioon mängib</translation>
+    </message>
+    <message>
+        <source>Slideshow: a new image every %1 s</source>
+        <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
+        <translation>Slaidiseanss: uus pilt iga %1 s järel</translation>
     </message>
 </context>
 </TS>

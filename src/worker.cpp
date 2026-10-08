@@ -131,20 +131,28 @@ int fail(const char *what, const ExceptionInfo &exception)
 }
 
 // Unregisters every coder that is not in the allow-list, so that no file, and no image
-// embedded in one (WPG, PICT), reaches another coder or an external program.
-bool keepOnlyAllowedCoders()
+// embedded in one (WPG, PICT), reaches another coder or an external program. Null when that
+// worked; otherwise why the worker must not decode.
+const char *keepOnlyAllowedCoders()
 {
     ExceptionInfo exception;
     GetExceptionInfo(&exception);
     MagickInfo **all = GetMagickInfoArray(&exception);
     DestroyExceptionInfo(&exception);
     if (!all)
-        return false;
+        return "no coder list";
     std::vector<std::string> unwanted;
-    for (MagickInfo **info = all; *info; ++info)
+    int allowed = 0;
+    for (MagickInfo **info = all; *info; ++info) {
         if ((*info)->name && !isAllowedCoder((*info)->name))
             unwanted.emplace_back((*info)->name);
+        else if ((*info)->name)
+            ++allowed;
+    }
     MagickFree(all);
+    // A build that registers its coders only as loadable modules has none here.
+    if (allowed != int(kCoders.size()))
+        return "the allowed coders are not all built in";
     for (const std::string &name : unwanted)
         UnregisterMagickInfo(name.c_str());
     // No delegates (external programs) either: an allowed coder can hand an embedded image
@@ -158,7 +166,7 @@ bool keepOnlyAllowedCoders()
         delegates = delegates || (delegate->commands && *delegate->commands);
     DestroyExceptionInfo(&exception);
     if (delegates)
-        return false;
+        return "a delegate (external program) is configured";
     // A build with loadable coder modules would load an unregistered coder again when asked
     // for it: check that the dangerous ones are really gone, or decode nothing.
     for (const char *name : {"PS", "EPS", "PDF", "MSL", "MVG", "TXT", "URL", "HTTP", "SVG", "MPC"}) {
@@ -166,9 +174,9 @@ bool keepOnlyAllowedCoders()
         const bool present = GetMagickInfo(name, &exception) != nullptr;
         DestroyExceptionInfo(&exception);
         if (present)
-            return false;
+            return "a removed coder can still be loaded";
     }
-    return true;
+    return nullptr;
 }
 #endif
 
@@ -223,8 +231,8 @@ int runDecodeWorker(int argc, char **argv)
     // the viewer made for this decode (decodeInWorker()), so it finds none.
     const std::string client = (std::filesystem::current_path() / "bin" / "imageViewer").string();
     InitializeMagick(std::filesystem::exists(client) ? client.c_str() : argv[0]);
-    if (!keepOnlyAllowedCoders()) {
-        std::fprintf(stderr, "cannot restrict the coders and delegates\n");
+    if (const char *why = keepOnlyAllowedCoders()) {
+        std::fprintf(stderr, "cannot restrict the coders and delegates: %s\n", why);
         return kExitFailed;
     }
     // Pixels as asked, 16-bit RGBA in memory at most, nothing on disk.

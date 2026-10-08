@@ -10,6 +10,13 @@ vcpkg_extract_source_archive(SOURCE_PATH ARCHIVE "${ARCHIVE}")
 set(options "")
 if(VCPKG_TARGET_IS_WINDOWS)
     set(options ac_cv_header_dirent_dirent_h=no)
+    # With MSVC, studio.h turns module loading on whenever the C runtime is a DLL (_DLL, which
+    # /MD defines), whatever configure was told; static.c then registers none of the coders
+    # built into the library and the decode worker finds no coder at all. Modules only when
+    # configure builds them.
+    vcpkg_replace_string("${SOURCE_PATH}/magick/studio.h"
+        "#  if defined(MSWINDOWS) && defined(_DLL)"
+        "#  if defined(MSWINDOWS) && defined(_DLL) && defined(BuildMagickModules)")
 endif()
 
 vcpkg_make_configure(

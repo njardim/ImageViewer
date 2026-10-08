@@ -59,6 +59,14 @@
         <translation>SVG hanya didekode di antarmuka grafis</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>berkas %1 rusak, terpotong, atau tidak didukung</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>primer khusus</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Tidak dapat mendekode: %1</translation>
     </message>

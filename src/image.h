@@ -1,6 +1,6 @@
-// Decoding front end: file -> linear scRGB half-float RGBA (premultiplied).
-// Backends are tried in order (OpenImageIO, then Qt's QImageReader); FFmpeg and
-// SVG backends join in Phase 2 (docs/PLAN.md §9).
+// Decoding front end: file -> linear scRGB half-float RGBA (premultiplied). The format
+// registry picks the back end (formats.h, decoders.h); the colour conversion happens here,
+// once, for every back end.
 #pragma once
 
 #include "color.h"
@@ -74,12 +74,6 @@ Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0)
 // HDR values above SDR white and colours outside sRGB are clipped (the clipboard
 // formats other applications read are SDR). A null image when decoding fails.
 QImage decodeForClipboard(const QString &path);
-
-// Lower-case file suffixes (without dot) that the available backends can read.
-const QStringList &supportedSuffixes();
-
-// One line per decoder and format family with the suffixes it claims, for `--formats`.
-QStringList formatReport();
 
 // Stops the decoders' own worker threads. Called once, after the last decode has finished
 // and before the process exits: OpenImageIO requires it, and threads left to the C++

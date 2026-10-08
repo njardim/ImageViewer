@@ -59,6 +59,14 @@
         <translation>SVG dekodeeritakse ainult graafilises kasutajaliideses</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>kahjustatud, kärbitud või toetamata %1-fail</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>kohandatud põhivärvid</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Dekodeerimine ebaõnnestus: %1</translation>
     </message>

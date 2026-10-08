@@ -59,6 +59,14 @@
         <translation>Το SVG αποκωδικοποιείται μόνο στη γραφική διεπαφή</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>κατεστραμμένο, περικομμένο ή μη υποστηριζόμενο αρχείο %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>προσαρμοσμένα βασικά χρώματα</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Αδυναμία αποκωδικοποίησης: %1</translation>
     </message>

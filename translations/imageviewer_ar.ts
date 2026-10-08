@@ -59,6 +59,14 @@
         <translation>لا يتم فك ترميز SVG إلا في الواجهة الرسومية</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>ملف %1 تالف أو مقطوع أو غير مدعوم</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>ألوان أساسية مخصصة</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>تعذر فك الترميز: %1</translation>
     </message>

@@ -57,6 +57,33 @@ check flat.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF pixel 
 check rgb16.tif 'source: +3 ch, 16 bits' "TIFF read at 16 bits"
 check rgb16.tif 'pixel\[0,0\]: +1 0\.217[5-8][0-9]* 0 a=1' "TIFF 16-bit value not quantised to 8 bits"
 
+# Decoders used directly (D-38). JPEG XL made with cjxl 0.7 from 16-bit PNGs: pixel (0,0) is
+# sRGB (16384, 32768, 49152)/65535, a value only a 16-bit decode reproduces; pq.jxl is
+# BT.2020/PQ at code 0.7518 everywhere, i.e. 1000 nits. The WebP carries the Display P3 ICC
+# profile of p3red16.png (cwebp -metadata icc), which OpenImageIO's reader ignored.
+check gradient.jxl 'codec: +libjxl' "JPEG XL read by libjxl"
+check gradient.jxl 'source: +3 ch, 16 bits' "JPEG XL at 16 bits"
+check gradient.jxl 'pixel\[0,0\]: +0\.0508[0-9]* 0\.21398[0-9]* 0\.52246[0-9]* a=1' "JPEG XL 16-bit sRGB value exact"
+check pq.jxl 'colour: +JPEG XL: BT\.2020, PQ.*\[HDR\]' "JPEG XL colour encoding (BT.2020, PQ)"
+check pq.jxl 'max: +4\.92[0-9]*x SDR white \(99[89]\.[0-9]* nits\)' "JPEG XL PQ 1000 nits"
+check p3red.webp 'colour: +ICC: Display P3' "WebP ICC profile read"
+check p3red.webp 'pixel\[0,0\]: +1\.22[0-9]* -0\.04[0-9]* -0\.019' "WebP P3 red -> scRGB"
+
+# The registry (D-38): every format that names a test file is in this build and decodes it.
+while IFS='|' read -r id name decoder available caps extensions test; do
+    id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
+    [ -z "$test" ] && continue
+    if [ "$available" != yes ]; then
+        echo "FAIL $id: has a test file ($test) but is not available in this build"
+        failures=$((failures + 1))
+    elif "$exe" --info "$data/$test" >/dev/null 2>&1; then
+        echo "ok   $id: $test decodes"
+    else
+        echo "FAIL $id: $test does not decode"
+        failures=$((failures + 1))
+    fi
+done < <("$exe" --formats 2>/dev/null)
+
 if [ "$failures" -ne 0 ]; then
     echo "$failures check(s) failed"
     exit 1

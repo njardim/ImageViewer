@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "imageviewer",
-  "version": "0.1.0",
+  "version": "0.3",
   "description": "Image viewer with verifiable SDR/HDR color fidelity. License rules: docs/PLAN.md §5.",
   "builtin-baseline": "434307da09bc05b2c86996dccc8b2351fc0d5d37",
   "dependencies": [
@@ -12,7 +12,7 @@
       "features": ["gif", "libheif", "libraw", "openjpeg", "webp"]
     },
     {
-      "$comment": "AVIF only. The overlay port (packaging/vcpkg/ports/libheif) drops the default 'hevc' feature (x265 encoder, GPL-2.0) and libde265 (HEVC decoding, D-P03).",
+      "$comment": "AVIF only. The overlay port (packaging/vcpkg/ports/libheif) drops the default 'hevc' feature (x265 encoder, GPL-2.0) and libde265 (HEVC decoding; HEIC goes through the operating system, D-39).",
       "name": "libheif",
       "default-features": false,
       "features": ["aom"]
@@ -21,6 +21,14 @@
       "$comment": "Never enable 'fastfloat' or 'threaded': both plugins are GPL-3.0.",
       "name": "lcms",
       "default-features": false
+    },
+    {
+      "$comment": "JPEG XL read directly (D-38): the openimageio port cannot find libjxl, and its reader keeps only an animation's last frame.",
+      "name": "libjxl"
+    },
+    {
+      "$comment": "Read directly for ICC profiles and animation (WebPAnimDecoder in libwebpdemux); OpenImageIO's reader assumes sRGB.",
+      "name": "libwebp"
     }
   ],
   "vcpkg-configuration": {

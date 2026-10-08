@@ -59,6 +59,14 @@
         <translation>SVG గ్రాఫికల్ ఇంటర్‌ఫేస్‌లో మాత్రమే డీకోడ్ అవుతుంది</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>పాడైన, అసంపూర్ణమైన లేదా మద్దతు లేని %1 ఫైల్</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>అనుకూల ప్రాథమిక రంగులు</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>డీకోడ్ చేయడం సాధ్యం కాదు: %1</translation>
     </message>

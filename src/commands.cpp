@@ -3,6 +3,7 @@
 #include "viewer.h"
 
 #include "folder.h"
+#include "formats.h"
 
 #include <QApplication>
 #include <QCheckBox>

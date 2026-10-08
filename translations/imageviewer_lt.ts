@@ -59,6 +59,14 @@
         <translation>SVG dekoduojamas tik grafinėje sąsajoje</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>sugadintas, nepilnas arba nepalaikomas %1 failas</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>pasirinktinės pagrindinės spalvos</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nepavyksta dekoduoti: %1</translation>
     </message>

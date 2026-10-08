@@ -59,6 +59,14 @@
         <translation>SVG tiek dekodēts tikai grafiskajā saskarnē</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>bojāts, saīsināts vai neatbalstīts %1 fails</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>pielāgotas pamatkrāsas</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nevar dekodēt: %1</translation>
     </message>

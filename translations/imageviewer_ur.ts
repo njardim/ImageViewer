@@ -59,6 +59,14 @@
         <translation>SVG صرف گرافیکل انٹرفیس میں ڈی کوڈ ہوتا ہے</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>خراب، نامکمل یا غیر معاون %1 فائل</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>حسب ضرورت بنیادی رنگ</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>ڈی کوڈ نہیں کیا جا سکا: %1</translation>
     </message>

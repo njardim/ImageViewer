@@ -59,6 +59,14 @@
         <translation>SVG este decodat numai în interfața grafică</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>fișier %1 deteriorat, trunchiat sau neacceptat</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>primare personalizate</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nu se poate decoda: %1</translation>
     </message>

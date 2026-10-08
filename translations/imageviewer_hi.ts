@@ -59,6 +59,14 @@
         <translation>SVG केवल ग्राफ़िकल इंटरफ़ेस में डिकोड होता है</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>क्षतिग्रस्त, अधूरी या असमर्थित %1 फ़ाइल</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>कस्टम प्राइमरी</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>डिकोड नहीं किया जा सकता: %1</translation>
     </message>

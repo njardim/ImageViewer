@@ -59,6 +59,14 @@
         <translation>Az SVG dekódolása csak a grafikus felületen történik</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>sérült, csonka vagy nem támogatott %1-fájl</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>egyéni alapszínek</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nem dekódolható: %1</translation>
     </message>

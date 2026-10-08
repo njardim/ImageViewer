@@ -59,6 +59,14 @@
         <translation>SVG avkodas endast i det grafiska gränssnittet</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>skadad, avkortad eller ej stödd %1-fil</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>anpassade primärfärger</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Det går inte att avkoda: %1</translation>
     </message>

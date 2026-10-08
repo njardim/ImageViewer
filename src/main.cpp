@@ -1,3 +1,4 @@
+#include "formats.h"
 #include "image.h"
 #include "settings.h"
 #include "viewer.h"

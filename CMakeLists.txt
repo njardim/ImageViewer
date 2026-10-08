@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 # Versions are X.Y with an optional suffix: 0.1, 0.2-alpha, 1.0 (decision D-19).
 # Release builds take it from the tag (CI passes -DIMAGEVIEWER_VERSION=...);
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
-set(IMAGEVIEWER_VERSION "0.2-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
+set(IMAGEVIEWER_VERSION "0.3-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
     message(FATAL_ERROR "IMAGEVIEWER_VERSION must be X.Y or X.Y-suffix, got '${IMAGEVIEWER_VERSION}'")
@@ -50,6 +50,16 @@ if(NOT TARGET lcms2::lcms2)
     add_library(lcms2::lcms2 ALIAS PkgConfig::LCMS2)
 endif()
 
+# Specialist decoders used directly (D-38): libjxl (JPEG XL; OpenImageIO's vcpkg port is built
+# without it) and libwebp (ICC profiles and animation). Both are optional in local builds.
+find_path(JXL_INCLUDE_DIR jxl/decode.h)
+find_library(JXL_LIBRARY NAMES jxl)
+find_library(JXL_THREADS_LIBRARY NAMES jxl_threads)
+find_package(WebP CONFIG QUIET)
+find_path(WEBP_INCLUDE_DIR webp/demux.h)
+find_library(WEBP_LIBRARY NAMES webp libwebp)
+find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
+
 qt_add_executable(imageviewer
     src/main.cpp
     src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp
@@ -57,6 +67,8 @@ qt_add_executable(imageviewer
     src/settings.h src/settings.cpp
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
+    src/formats.h src/formats.cpp
+    src/decoders.h src/decoders.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
 )
@@ -87,6 +99,24 @@ target_link_libraries(imageviewer PRIVATE
     OpenImageIO::OpenImageIO
     lcms2::lcms2
 )
+if(JXL_INCLUDE_DIR AND JXL_LIBRARY AND JXL_THREADS_LIBRARY)
+    target_include_directories(imageviewer PRIVATE ${JXL_INCLUDE_DIR})
+    target_link_libraries(imageviewer PRIVATE ${JXL_LIBRARY} ${JXL_THREADS_LIBRARY})
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBJXL)
+    message(STATUS "JPEG XL: libjxl ${JXL_LIBRARY}")
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "libjxl not found (JPEG XL)")
+endif()
+if(TARGET WebP::webpdemux)
+    target_link_libraries(imageviewer PRIVATE WebP::webp WebP::webpdemux)
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBWEBP)
+elseif(WEBP_INCLUDE_DIR AND WEBP_LIBRARY AND WEBP_DEMUX_LIBRARY)
+    target_include_directories(imageviewer PRIVATE ${WEBP_INCLUDE_DIR})
+    target_link_libraries(imageviewer PRIVATE ${WEBP_LIBRARY} ${WEBP_DEMUX_LIBRARY})
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_LIBWEBP)
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "libwebp (with libwebpdemux) not found")
+endif()
 
 if(MSVC)
     target_compile_options(imageviewer PRIVATE /W4 /permissive- /utf-8)

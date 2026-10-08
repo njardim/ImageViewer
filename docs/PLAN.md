@@ -292,7 +292,9 @@ src/
   cache.h/.cpp        preload cache of decoded images (D-33)
   settings.h/.cpp     Settings + session (QSettings), Settings dialog, UI languages (D-27, D-29)
   renderer.h/.cpp     QRhi: SDR/HDR swapchain, textures, pipeline, output modes
-  image.h/.cpp        Image + decodeFile(): OIIO -> FFmpeg -> SVG -> Qt; conversion to linear scRGB
+  image.h/.cpp        Image + decodeImage(): the single conversion to linear scRGB, orientation, downscale
+  formats.h/.cpp      format registry (D-38): signatures, decoders, capabilities, test files, --formats
+  decoders.h/.cpp     back ends (D-38): OpenImageIO, Qt, libjxl, libwebp; detection and fallbacks
   color.h/.cpp        ICC (lcms2), CICP (PQ/HLG/sRGB/...), matrices, display 3D LUT
   folder.h/.cpp       listing and sorting (natural name order, date, size)
   platform.h          per-OS services (display ICC profile, HDR state, show in folder)
@@ -577,8 +579,8 @@ Moved to 0.3: window matching the image size, zoom modes, title bar modes, slide
 ### Release 0.3 (October 2026, in progress, D-40: formats first)
 - [x] Quitting from the macOS application menu no longer crashes (the window's own signals reached a half-destroyed `ViewerWindow`; reproduced in CI with lldb and on Linux with gdb); OpenImageIO shut down before exit; quit test on macOS in CI `[test: runs 49–51]`
 - [x] Side zones 100 px by default and Apply in the Settings (D-36); `--formats` prints what each decoder of the build reads
-- [ ] Format registry and detection by content (D-38)
-- [ ] JPEG XL through libjxl: native depth, CICP/ICC, HDR
+- [x] Format registry and detection by content (D-38): 32 formats, `--formats` table, CI decodes every format's test file on the 3 systems; CI configures with `IMAGEVIEWER_REQUIRE_ALL_DECODERS`
+- [x] JPEG XL through libjxl: native depth (16-bit sRGB exact), enumerated colour encoding or ICC, HDR (BT.2020 PQ at 1000 nits), EXIF camera data `[test: smoke]`; WebP through libwebp now honours its ICC profile (Display P3 red 1.225 instead of 1.0) `[test: smoke]`
 - [ ] Animation: GIF, WebP, APNG, JPEG XL, AVIF sequences; K pauses, `,` `.` step frames (E6); slideshow (E11)
 - [ ] HEIC through ImageIO and WIC, with the note on HEVC support (D-39)
 - [ ] Decode worker process with GraphicsMagick 1.3.48 (D-38); fuzz smoke test in CI

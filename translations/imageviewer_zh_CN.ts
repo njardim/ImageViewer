@@ -59,6 +59,14 @@
         <translation>SVG 仅在图形界面中解码</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>已损坏、不完整或不受支持的 %1 文件</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>自定义原色</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>无法解码：%1</translation>
     </message>

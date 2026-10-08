@@ -59,6 +59,14 @@
         <translation>les fichiers SVG ne sont décodés que dans l’interface graphique</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>fichier %1 endommagé, tronqué ou non pris en charge</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>primaires personnalisées</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Impossible de décoder&#xa0;: %1</translation>
     </message>

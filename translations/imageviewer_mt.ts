@@ -59,6 +59,14 @@
         <translation>L-SVG jiġi ddekodifikat biss fl-interfaċċja grafika</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>fajl %1 bil-ħsara, maqtugħ jew mhux appoġġjat</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>kuluri primarji personalizzati</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Ma jistax jiġi ddekodifikat: %1</translation>
     </message>

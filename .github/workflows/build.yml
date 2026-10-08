@@ -152,7 +152,8 @@ jobs:
           else
             version_args=("-DIMAGEVIEWER_BUILD=${GITHUB_SHA::7}")
           fi
-          cmake --preset "$PRESET" -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" "${version_args[@]}"
+          # Every decoder the registry promises must be linked: a missing one fails here (D-38).
+          cmake --preset "$PRESET" -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" -DIMAGEVIEWER_REQUIRE_ALL_DECODERS=ON "${version_args[@]}"
 
       - name: Save vcpkg binary cache
         id: vcpkg-save

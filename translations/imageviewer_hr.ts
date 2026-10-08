@@ -59,6 +59,14 @@
         <translation>SVG se dekodira samo u grafičkom sučelju</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>oštećena, skraćena ili nepodržana datoteka %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>prilagođene primarne boje</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Dekodiranje nije moguće: %1</translation>
     </message>

@@ -59,6 +59,14 @@
         <translation>SVG는 그래픽 인터페이스에서만 디코딩됩니다</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>손상되었거나 잘렸거나 지원되지 않는 %1 파일</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>사용자 지정 원색</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>디코딩할 수 없음: %1</translation>
     </message>

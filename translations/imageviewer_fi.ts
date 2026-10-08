@@ -59,6 +59,14 @@
         <translation>SVG puretaan vain graafisessa käyttöliittymässä</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>vioittunut, katkennut tai tukematon %1-tiedosto</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>mukautetut päävärit</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Purku ei onnistu: %1</translation>
     </message>

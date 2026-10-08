@@ -1,0 +1,276 @@
+#include "formats.h"
+
+#include <OpenImageIO/imageio.h>
+
+#include <QImageReader>
+#include <QSet>
+
+#include <algorithm>
+#include <cstring>
+
+namespace {
+
+bool startsWith(QByteArrayView head, const char *magic, qsizetype at = 0)
+{
+    const qsizetype n = qsizetype(std::strlen(magic));
+    return head.size() >= at + n && std::memcmp(head.data() + at, magic, std::size_t(n)) == 0;
+}
+
+bool startsWithBytes(QByteArrayView head, std::initializer_list<unsigned char> magic, qsizetype at = 0)
+{
+    if (head.size() < at + qsizetype(magic.size()))
+        return false;
+    return std::equal(magic.begin(), magic.end(), reinterpret_cast<const unsigned char *>(head.data()) + at);
+}
+
+quint32 bigEndian32(QByteArrayView head, qsizetype at)
+{
+    const auto *p = reinterpret_cast<const unsigned char *>(head.data()) + at;
+    return quint32(p[0]) << 24 | quint32(p[1]) << 16 | quint32(p[2]) << 8 | quint32(p[3]);
+}
+
+// ISO base media file (HEIF, AVIF): the "ftyp" box lists a major brand and compatible ones.
+bool hasBrand(QByteArrayView head, std::initializer_list<const char *> brands)
+{
+    if (head.size() < 16 || !startsWith(head, "ftyp", 4))
+        return false;
+    const qsizetype boxEnd = std::min<qsizetype>(head.size(), bigEndian32(head, 0));
+    for (qsizetype at = 8; at + 4 <= boxEnd; at += at == 8 ? 8 : 4) // skip the minor version after the major brand
+        for (const char *brand : brands)
+            if (startsWith(head, brand, at))
+                return true;
+    return false;
+}
+
+bool isJpegXl(QByteArrayView h)
+{
+    return startsWithBytes(h, {0xFF, 0x0A})
+           || startsWithBytes(h, {0x00, 0x00, 0x00, 0x0C, 'J', 'X', 'L', ' ', 0x0D, 0x0A, 0x87, 0x0A});
+}
+bool isWebP(QByteArrayView h) { return startsWith(h, "RIFF") && startsWith(h, "WEBP", 8); }
+bool isAvif(QByteArrayView h) { return hasBrand(h, {"avif", "avis"}); }
+bool isHeic(QByteArrayView h) { return hasBrand(h, {"heic", "heix", "heim", "heis", "hevc", "hevx", "hevm", "hevs"}); }
+bool isPng(QByteArrayView h) { return startsWithBytes(h, {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}); }
+bool isJpeg(QByteArrayView h) { return startsWithBytes(h, {0xFF, 0xD8, 0xFF}); }
+bool isGif(QByteArrayView h) { return startsWith(h, "GIF87a") || startsWith(h, "GIF89a"); }
+bool isExr(QByteArrayView h) { return startsWithBytes(h, {0x76, 0x2F, 0x31, 0x01}); }
+bool isJpeg2000(QByteArrayView h)
+{
+    return startsWithBytes(h, {0x00, 0x00, 0x00, 0x0C, 'j', 'P', ' ', ' ', 0x0D, 0x0A, 0x87, 0x0A})
+           || startsWithBytes(h, {0xFF, 0x4F, 0xFF, 0x51});
+}
+bool isDpx(QByteArrayView h) { return startsWith(h, "SDPX") || startsWith(h, "XPDS"); }
+bool isCineon(QByteArrayView h)
+{
+    return startsWithBytes(h, {0x80, 0x2A, 0x5F, 0xD7}) || startsWithBytes(h, {0xD7, 0x5F, 0x2A, 0x80});
+}
+bool isRadiance(QByteArrayView h) { return startsWith(h, "#?RADIANCE") || startsWith(h, "#?RGBE"); }
+bool isPsd(QByteArrayView h) { return startsWith(h, "8BPS"); }
+bool isDds(QByteArrayView h) { return startsWith(h, "DDS "); }
+bool isBmp(QByteArrayView h) { return startsWith(h, "BM") && h.size() >= 26; }
+bool isIco(QByteArrayView h) { return startsWithBytes(h, {0x00, 0x00, 0x01, 0x00}); }
+bool isCur(QByteArrayView h) { return startsWithBytes(h, {0x00, 0x00, 0x02, 0x00}); }
+bool isFits(QByteArrayView h) { return startsWith(h, "SIMPLE  ="); }
+bool isPnm(QByteArrayView h)
+{
+    if (h.size() < 3 || h[0] != 'P')
+        return false;
+    const char kind = h[1], next = h[2];
+    const bool space = next == ' ' || next == '\n' || next == '\r' || next == '\t';
+    return space && ((kind >= '1' && kind <= '6') || kind == 'F' || kind == 'f');
+}
+bool isSgi(QByteArrayView h) { return startsWithBytes(h, {0x01, 0xDA}); }
+bool isSoftimage(QByteArrayView h) { return startsWithBytes(h, {0x53, 0x80, 0xF6, 0x34}); }
+bool isMayaIff(QByteArrayView h) { return startsWith(h, "FOR4") && startsWith(h, "CIMG", 8); }
+bool isZfile(QByteArrayView h)
+{
+    return startsWithBytes(h, {0x2F, 0x08, 0x67, 0xAB}) || startsWithBytes(h, {0xAB, 0x67, 0x08, 0x2F});
+}
+bool isTiff(QByteArrayView h)
+{
+    return startsWith(h, "II*") || startsWithBytes(h, {'M', 'M', 0x00, '*'}) || startsWith(h, "II+")
+           || startsWithBytes(h, {'M', 'M', 0x00, '+'});
+}
+bool isSvg(QByteArrayView h)
+{
+    const QByteArrayView start = h.first(std::min<qsizetype>(h.size(), 1024));
+    return start.indexOf("<svg") >= 0 || startsWithBytes(h, {0x1F, 0x8B}); // svgz is gzip
+}
+bool isIcns(QByteArrayView h) { return startsWith(h, "icns"); }
+bool isXpm(QByteArrayView h) { return startsWith(h, "/* XPM */"); }
+
+using D = Decoder;
+
+// Detection order: specific signatures first; TIFF last among the signatures because camera
+// RAW files share it.
+const QList<Format> kFormats = {
+    {"jpegxl", "JPEG XL", "jxl", D::Jxl, CanHdr | CanAlpha | CanAnimate, isJpegXl, false, "gradient.jxl"},
+    {"webp", "WebP", "webp", D::WebP, CanAlpha | CanAnimate, isWebP, false, "lossless.webp"},
+    {"avif", "AVIF", "avif avifs", D::OpenImageIO, CanHdr | CanAlpha, isAvif, false, "flat.avif"},
+    // Read through Qt where Qt has a HEIF plugin (macOS: the system's ImageIO); D-39 replaces it.
+    {"heic", "HEIC/HEIF", "heic heif hif heics", D::Qt, 0, isHeic, false, nullptr},
+    {"png", "PNG", "png", D::OpenImageIO, CanHdr | CanAlpha, isPng, false, "alpha8.png"},
+    {"jpeg", "JPEG", "jpg jpeg jpe jfif jfi jif", D::OpenImageIO, 0, isJpeg, false, "orient6.jpg"},
+    {"gif", "GIF", "gif", D::OpenImageIO, CanAlpha | CanAnimate, isGif, false, "palette.gif"},
+    {"openexr", "OpenEXR", "exr sxr mxr", D::OpenImageIO, CanHdr | CanAlpha | CanHavePages, isExr, false, "hdr4.exr"},
+    {"jpeg2000", "JPEG 2000 / HTJ2K", "jp2 j2k j2c jph", D::OpenImageIO, CanAlpha, isJpeg2000, false, "lossless.jp2"},
+    {"dpx", "DPX", "dpx", D::OpenImageIO, CanHdr | CanAlpha, isDpx, false, nullptr},
+    {"cineon", "Cineon", "cin", D::OpenImageIO, 0, isCineon, false, nullptr},
+    {"hdr", "Radiance HDR", "hdr rgbe", D::OpenImageIO, CanHdr, isRadiance, false, nullptr},
+    {"psd", "Photoshop (composite)", "psd psb pdd", D::OpenImageIO, CanAlpha, isPsd, false, nullptr},
+    {"dds", "DirectDraw Surface", "dds", D::OpenImageIO, CanAlpha, isDds, false, nullptr},
+    {"bmp", "BMP", "bmp dib", D::OpenImageIO, CanAlpha, isBmp, false, nullptr},
+    {"ico", "Windows icon", "ico", D::OpenImageIO, CanAlpha | CanHavePages, isIco, false, nullptr},
+    {"cur", "Windows cursor", "cur", D::Qt, CanAlpha, isCur, false, nullptr},
+    {"fits", "FITS", "fits", D::OpenImageIO, CanHdr, isFits, false, nullptr},
+    {"pnm", "Netpbm (PBM, PGM, PPM, PFM)", "ppm pgm pbm pnm pfm", D::OpenImageIO, CanHdr, isPnm, false, "rows2.pfm"},
+    {"sgi", "SGI", "sgi rgb rgba bw int inta", D::OpenImageIO, CanAlpha, isSgi, false, nullptr},
+    {"softimage", "Softimage PIC", "pic", D::OpenImageIO, CanAlpha, isSoftimage, false, nullptr},
+    {"iff", "Maya IFF", "iff z", D::OpenImageIO, CanAlpha, isMayaIff, false, nullptr},
+    {"zfile", "Pixar zfile", "zfile", D::OpenImageIO, CanHdr, isZfile, false, nullptr},
+    {"icns", "Apple icon", "icns", D::Qt, CanAlpha, isIcns, false, nullptr},
+    {"xpm", "XPM", "xpm", D::Qt, CanAlpha, isXpm, false, nullptr},
+    {"svg", "SVG", "svg svgz", D::Qt, CanAlpha, isSvg, false, nullptr},
+    {"tiff", "TIFF", "tif tiff tx env sm vsm", D::OpenImageIO, CanHdr | CanAlpha | CanHavePages, isTiff, true, "rgb16.tif"},
+    // Without a signature of their own: known by their extension.
+    {"raw", "Camera RAW (LibRaw)",
+     "dng cr2 cr3 crw nef nrw arw srf sr2 raf orf rw2 rwl pef srw x3f 3fr fff iiq cap eip mef mos mrw "
+     "kdc dcr k25 erf bay bmq cs1 dc2 drf dsc ia kc2 mdc ptx pxn qtk raw rdc rwz sti cine",
+     D::OpenImageIO, 0, nullptr, false, nullptr},
+    {"targa", "Targa", "tga tpic", D::OpenImageIO, CanAlpha, nullptr, false, nullptr},
+    {"rla", "Wavefront RLA", "rla", D::OpenImageIO, CanAlpha, nullptr, false, nullptr},
+    {"xbm", "XBM", "xbm", D::Qt, 0, nullptr, false, nullptr},
+    {"wbmp", "Wireless bitmap", "wbmp", D::Qt, 0, nullptr, false, nullptr},
+};
+
+const char *decoderName(Decoder d)
+{
+    switch (d) {
+    case Decoder::OpenImageIO: return "OpenImageIO";
+    case Decoder::Jxl: return "libjxl";
+    case Decoder::WebP: return "libwebp";
+    case Decoder::Qt: return "Qt";
+    }
+    return "?";
+}
+
+// The suffixes the linked OpenImageIO and Qt plugins claim.
+const QSet<QString> &oiioSuffixes()
+{
+    static const QSet<QString> set = [] {
+        QSet<QString> s;
+        // "fmt:ext,ext;fmt:ext", one entry per plugin built into this binary.
+        const QString list = QString::fromStdString(OIIO::get_string_attribute("extension_list"));
+        for (const QString &entry : list.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+            for (const QString &ext : entry.mid(entry.indexOf(QLatin1Char(':')) + 1).split(QLatin1Char(','), Qt::SkipEmptyParts))
+                s.insert(ext.toLower());
+        return s;
+    }();
+    return set;
+}
+
+const QSet<QString> &qtFormats()
+{
+    static const QSet<QString> set = [] {
+        QSet<QString> s;
+        for (const QByteArray &format : QImageReader::supportedImageFormats())
+            s.insert(QString::fromLatin1(format).toLower());
+        return s;
+    }();
+    return set;
+}
+
+} // namespace
+
+QStringList Format::suffixes() const
+{
+    return QString::fromLatin1(extensions).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+}
+
+const QList<Format> &formats()
+{
+    return kFormats;
+}
+
+bool isAvailable(const Format &format)
+{
+    const QString first = format.suffixes().constFirst();
+    switch (format.decoder) {
+    case Decoder::Jxl:
+#ifdef IMAGEVIEWER_HAVE_LIBJXL
+        return true;
+#else
+        return oiioSuffixes().contains(first);
+#endif
+    case Decoder::WebP:
+#ifdef IMAGEVIEWER_HAVE_LIBWEBP
+        return true;
+#else
+        return oiioSuffixes().contains(first);
+#endif
+    case Decoder::OpenImageIO: return oiioSuffixes().contains(first);
+    case Decoder::Qt: return qtFormats().contains(first);
+    }
+    return false;
+}
+
+const Format *detectFormat(QByteArrayView head, const QString &suffix)
+{
+    const QString lower = suffix.toLower();
+    const Format *bySuffix = nullptr;
+    for (const Format &f : kFormats)
+        if (!bySuffix && f.suffixes().contains(lower))
+            bySuffix = &f;
+    if (bySuffix && bySuffix->signature && bySuffix->signature(head))
+        return bySuffix; // content and name agree
+    const Format *byContent = nullptr;
+    for (const Format &f : kFormats) {
+        if (f.signature && f.signature(head)) {
+            byContent = &f;
+            break;
+        }
+    }
+    if (!byContent)
+        return bySuffix; // unrecognised content: the name is all there is (TGA, RAW) or nothing
+    if (byContent->container && bySuffix && !bySuffix->signature)
+        return bySuffix; // a TIFF-based camera RAW file
+    return byContent;    // the content wins over a misleading name
+}
+
+const QStringList &supportedSuffixes()
+{
+    static const QStringList list = [] {
+        QSet<QString> set;
+        for (const Format &f : kFormats)
+            if (isAvailable(f))
+                for (const QString &s : f.suffixes())
+                    set.insert(s);
+        QStringList sorted(set.begin(), set.end());
+        sorted.sort();
+        return sorted;
+    }();
+    return list;
+}
+
+QStringList formatReport()
+{
+    // id | name | decoder | available | capabilities | extensions | test file (tests/smoke.sh reads it)
+    QStringList lines;
+    for (const Format &f : kFormats) {
+        QStringList caps;
+        if (f.capabilities & CanHdr)
+            caps << QStringLiteral("hdr");
+        if (f.capabilities & CanAlpha)
+            caps << QStringLiteral("alpha");
+        if (f.capabilities & CanAnimate)
+            caps << QStringLiteral("animation");
+        if (f.capabilities & CanHavePages)
+            caps << QStringLiteral("pages");
+        lines << QStringList{QString::fromLatin1(f.id), QString::fromLatin1(f.name),
+                             QString::fromLatin1(decoderName(f.decoder)),
+                             isAvailable(f) ? QStringLiteral("yes") : QStringLiteral("no"), caps.join(QLatin1Char(',')),
+                             f.suffixes().join(QLatin1Char(' ')), QString::fromLatin1(f.testFile ? f.testFile : "")}
+                     .join(QStringLiteral(" | "));
+    }
+    return lines;
+}

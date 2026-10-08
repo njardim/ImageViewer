@@ -59,6 +59,14 @@
         <translation>SVG chỉ được giải mã trong giao diện đồ họa</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>tệp %1 bị hỏng, bị cắt cụt hoặc không được hỗ trợ</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>màu cơ bản tùy chỉnh</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Không thể giải mã: %1</translation>
     </message>

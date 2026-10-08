@@ -59,6 +59,14 @@
         <translation>SVG yalnızca grafik arayüzünde çözülür</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>hasarlı, eksik veya desteklenmeyen %1 dosyası</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>özel ana renkler</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Çözülemiyor: %1</translation>
     </message>

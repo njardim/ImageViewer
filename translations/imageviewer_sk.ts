@@ -59,6 +59,14 @@
         <translation>SVG sa dekóduje iba v grafickom rozhraní</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>poškodený, skrátený alebo nepodporovaný súbor %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>vlastné primárne farby</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Nepodarilo sa dekódovať: %1</translation>
     </message>

@@ -59,6 +59,14 @@
         <translation>SVG শুধু গ্রাফিক্যাল ইন্টারফেসে ডিকোড করা হয়</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>ক্ষতিগ্রস্ত, অসম্পূর্ণ বা অসমর্থিত %1 ফাইল</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>কাস্টম প্রাইমারি</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>ডিকোড করা যাচ্ছে না: %1</translation>
     </message>

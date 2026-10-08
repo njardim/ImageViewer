@@ -59,6 +59,14 @@
         <translation>SVG се декодира само в графичния интерфейс</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>повреден, непълен или неподдържан файл %1</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>персонализирани основни цветове</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Не може да се декодира: %1</translation>
     </message>

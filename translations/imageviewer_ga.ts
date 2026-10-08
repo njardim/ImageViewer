@@ -59,6 +59,14 @@
         <translation>Ní dhéantar SVG a dhíchódú ach sa chomhéadan grafach</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported %1 file</source>
+        <translation>comhad %1 atá damáistithe, teasctha nó gan tacaíocht</translation>
+    </message>
+    <message>
+        <source>custom primaries</source>
+        <translation>príomhdhathanna saincheaptha</translation>
+    </message>
+    <message>
         <source>Cannot decode: %1</source>
         <translation>Ní féidir díchódú a dhéanamh: %1</translation>
     </message>

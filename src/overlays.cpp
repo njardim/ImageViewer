@@ -105,9 +105,12 @@ void ViewerWindow::updateOverlay()
             rows.append({tr("Size"), fileSizeText(m_image.fileSize, locale)});
         if (m_image.modified.isValid())
             rows.append({tr("Modified"), locale.toString(m_image.modified, QLocale::ShortFormat)});
-        if (m_index >= 0 && m_files.value(m_index) == m_image.path)
+        if (m_index >= 0 && m_files.value(m_index) == m_image.path) {
+            // Each value is written before its row: a //: comment describes the next tr().
             //: Position of the image in its folder, e.g. "3 of 120".
-            rows.append({tr("Position"), tr("%1 of %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()))});
+            const QString position = tr("%1 of %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
+            rows.append({tr("Position"), position});
+        }
     }
     if (m_showInfo && m_image.width > 0) {
         //: Megapixels, e.g. "24.0 MP".
@@ -136,17 +139,20 @@ void ViewerWindow::updateOverlay()
                 frames += dot + tr("paused");
             rows.append({tr("Animation"), frames});
         }
-        if (m_image.orientation > 1)
+        if (m_image.orientation > 1) {
             //: The EXIF orientation tag (2 to 8) of the file, already applied to the image.
-            rows.append({tr("Orientation"), tr("EXIF %1, applied").arg(locale.toString(m_image.orientation))});
+            const QString orientation = tr("EXIF %1, applied").arg(locale.toString(m_image.orientation));
+            rows.append({tr("Orientation"), orientation});
+        }
         rows.append({tr("Color"), m_image.colour.description});
         //: nits: candela per square metre, the unit of luminance.
-        rows.append({tr("Peak"), tr("%1× SDR white (≈%2 nits)")
-                                     .arg(locale.toString(double(m_image.maxComponent), 'f', 2),
-                                          locale.toString(double(m_image.maxComponent * color::kSdrReferenceWhiteNits),
-                                                          'f', 0))});
+        const QString peak = tr("%1× SDR white (≈%2 nits)")
+                                 .arg(locale.toString(double(m_image.maxComponent), 'f', 2),
+                                      locale.toString(double(m_image.maxComponent * color::kSdrReferenceWhiteNits), 'f', 0));
+        rows.append({tr("Peak"), peak});
         //: Unit after a duration in milliseconds.
-        rows.append({tr("Decoded in"), tr("%1 ms").arg(locale.toString(m_image.decodeMs, 'f', 0))});
+        const QString decoded = tr("%1 ms").arg(locale.toString(m_image.decodeMs, 'f', 0));
+        rows.append({tr("Decoded in"), decoded});
 
         if (const CameraInfo &camera = m_image.camera; !camera.isEmpty()) {
             // "Canon" and "Canon EOS R5": the model often repeats the make.

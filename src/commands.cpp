@@ -2,22 +2,15 @@
 // the context menu, and the dialogs. See viewer.h for the other parts.
 #include "viewer.h"
 
-#include "folder.h"
 #include "formats.h"
 
-#include <QApplication>
 #include <QDir>
-#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QKeyEvent>
-#include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
-#include <QPalette>
-#include <QPushButton>
 #include <QStandardPaths>
-#include <QUrl>
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
 
 #include <algorithm>

@@ -10,7 +10,10 @@ The other test files of the registry were written by tools from the same 6x4 ora
   gm.otb from an 8x4 bitmap, left half black.
 - oiiotool 2.4, `oiiotool orange.ppm -o orange.<ext>`: orange.dpx, .hdr, .bmp, .ico, .fits,
   .sgi, .iff, .tga, .rla; gray.zfile from the green channel as float.
-- Pillow 12.3: orange.dds (16x16 RGBA), orange.icns (16x16).
+- Pillow 12.3: orange.dds (16x16 RGBA), orange.icns (16x16); alpha8.bmp and alpha8.sgi from
+  alpha8.png (straight alpha, which oiiotool would premultiply); transparent.gif, noloop.gif and
+  loop2.gif (no loop count, and a count of 2).
+- cjxl 0.7, `cjxl camera.jpg camera.jxl` (lossless recompression, EXIF in a Brotli box).
 
 usage: python3 tests/longtail_data.py <output directory>
 """

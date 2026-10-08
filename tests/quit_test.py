@@ -7,7 +7,11 @@ bar, then Cmd+Q, then a "quit" Apple event, whichever this machine lets a script
 test fails when the process ends with a signal or a non-zero code, or when macOS wrote a
 crash report for it. Two rounds: right after the image appears (a preload is usually still
 decoding) and after the application has gone idle. A failing round is run again under lldb,
-which prints every thread's backtrace at the crash.
+which prints every thread's backtrace at the crash. A viewer still running after a quit
+that was sent fails too; only a machine that refuses every route skips the test.
+
+Meant for CI machines: macOS keeps preferences in cfprefsd, which no environment variable
+redirects, so the viewer runs with the user's own preferences and saves its session there.
 
 usage: python3 tests/quit_test.py <imageViewer.app/Contents/MacOS/imageViewer>
 env:   QUIT_TEST_DIR  where to keep the images and the logs (default: a temp dir)
@@ -88,11 +92,13 @@ def run_round(label, settle_s, debugger=False):
             return f"{label}: the image was not shown within {DEADLINE_S} s (exit code {app.returncode})"
         time.sleep(settle_s)
         used = None
+        sent = []
         for route, script in quit_routes(pid):
             ok, output = osascript(script)
             print(f"{label}: {route}: {'sent' if ok else 'refused: ' + output}")
             if not ok:
                 continue
+            sent.append(route)
             try:
                 app.wait(EXIT_S * (3 if debugger else 1))
                 used = route
@@ -102,6 +108,9 @@ def run_round(label, settle_s, debugger=False):
         if used is None:
             app.kill()
             app.wait()
+            if sent:
+                print(open(log_path, encoding="utf-8", errors="replace").read())
+                return f"{label}: still running after the {', '.join(sent)}"
             return None  # nothing could quit it here: reported by the caller as skipped
     # ReportCrash writes the report a moment after the process ends.
     new_reports = []

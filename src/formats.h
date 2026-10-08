@@ -14,6 +14,7 @@ enum class Decoder {
     Jxl,         // libjxl
     WebP,        // libwebp: ICC profiles and animation
     Apng,        // animated PNG: frames rebuilt as PNGs for OpenImageIO, composited here
+    Softimage,   // our own Softimage PIC reader (D-45): OpenImageIO's crashes on damaged files
     Heif,        // libheif's track API: AVIF image sequences (stills go through OpenImageIO)
     Qt,          // QImageReader plugins (ICNS, XPM, SVG...)
     GraphicsMagick, // the long tail, in the decode worker process (worker.cpp); coder = id in upper case
@@ -50,6 +51,10 @@ const QList<Format> &formats();
 // Whether this build can read the format: its library is linked and, for OpenImageIO and
 // Qt, the plugin is present at run time; for the System decoder, the system has the codec.
 bool isAvailable(const Format &format);
+
+// False for a format whose OpenImageIO reader in this build crashes on damaged files (D-45):
+// such a file never reaches OpenImageIO, not even as a fallback.
+bool oiioMayRead(const Format &format);
 
 // How many bytes detectFormat() wants from the start of the file.
 inline constexpr qsizetype kFormatHeadBytes = 64 * 1024;

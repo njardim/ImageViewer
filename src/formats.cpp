@@ -168,7 +168,8 @@ const QList<Format> kFormats = {
     {"webp", "WebP", "webp", D::WebP, CanAlpha | CanAnimate, isWebP, false, "lossless.webp"},
     {"avifs", "AVIF sequence", "avif avifs", D::Heif, CanHdr | CanAlpha | CanAnimate, isAvifSequence, false, "anim.avif"},
     {"avif", "AVIF", "avif avifs", D::OpenImageIO, CanHdr | CanAlpha, isAvif, false, "flat.avif"},
-    // Read through Qt where Qt has a HEIF plugin (macOS: the system's ImageIO); D-39 replaces it.
+    // The operating system's decoders (D-39): ImageIO on macOS, WIC with the HEVC extension on
+    // Windows; elsewhere OpenImageIO when the distribution's libheif can decode HEVC.
     {"heic", "HEIC/HEIF", "heic heif hif heics", D::System, CanAlpha, isHeic, false, "orange.heic"},
     {"apng", "Animated PNG", "png apng", D::Apng, CanHdr | CanAlpha | CanAnimate, isApng, false, "anim.png"},
     {"png", "PNG", "png", D::OpenImageIO, CanHdr | CanAlpha, isPng, false, "alpha8.png"},
@@ -187,7 +188,7 @@ const QList<Format> kFormats = {
     {"fits", "FITS", "fits", D::OpenImageIO, CanHdr, isFits, false, "orange.fits"},
     {"pnm", "Netpbm (PBM, PGM, PPM, PFM)", "ppm pgm pbm pnm pfm", D::OpenImageIO, CanHdr, isPnm, false, "rows2.pfm"},
     {"sgi", "SGI", "sgi rgb rgba bw int inta", D::OpenImageIO, CanAlpha, isSgi, false, "orange.sgi"},
-    {"softimage", "Softimage PIC", "pic", D::OpenImageIO, CanAlpha, isSoftimage, false, "orange.pic"},
+    {"softimage", "Softimage PIC", "pic", D::Softimage, CanAlpha, isSoftimage, false, "orange.pic"},
     {"iff", "Maya IFF", "iff z", D::OpenImageIO, CanAlpha, isMayaIff, false, "orange.iff"},
     {"zfile", "Pixar zfile", "zfile", D::OpenImageIO, CanHdr, isZfile, false, "gray.zfile"},
     {"icns", "Apple icon", "icns", D::Qt, CanAlpha, isIcns, false, "orange.icns"},
@@ -230,6 +231,7 @@ const char *decoderName(Decoder d)
     case Decoder::Jxl: return "libjxl";
     case Decoder::WebP: return "libwebp";
     case Decoder::Apng: return "APNG";
+    case Decoder::Softimage: return "imageViewer";
     case Decoder::Heif: return "libheif";
     case Decoder::Qt: return "Qt";
     case Decoder::System: return "system";
@@ -276,6 +278,17 @@ const QList<Format> &formats()
     return kFormats;
 }
 
+bool oiioMayRead(const Format &format)
+{
+    if (std::strcmp(format.id, "softimage") == 0)
+        return false; // a truncated file makes it read through a closed file, in 2.4 and 3.1
+#if OIIO_VERSION < OIIO_MAKE_VERSION(3, 0, 0)
+    if (std::strcmp(format.id, "iff") == 0)
+        return false; // writes past its tile buffers on damaged tiles; 3.0 rewrote it with checked spans
+#endif
+    return true;
+}
+
 bool isAvailable(const Format &format)
 {
     const QString first = format.suffixes().constFirst();
@@ -294,7 +307,8 @@ bool isAvailable(const Format &format)
 #endif
     case Decoder::Apng: return oiioSuffixes().contains(QStringLiteral("png")); // frames go through its PNG reader
     case Decoder::Heif: return heifSequencesAvailable(); // without it, the "avif" row reads the still image
-    case Decoder::OpenImageIO: return oiioSuffixes().contains(first);
+    case Decoder::Softimage: return true;
+    case Decoder::OpenImageIO: return oiioMayRead(format) && oiioSuffixes().contains(first);
     case Decoder::Qt: return qtFormats().contains(first);
     case Decoder::System: return systemHeicAvailable(); // HEIC is the only one so far
     case Decoder::GraphicsMagick: return graphicsMagickAvailable();

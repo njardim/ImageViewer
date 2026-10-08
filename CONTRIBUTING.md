@@ -27,10 +27,11 @@ This adds a `Signed-off-by: Your Name <you@example.com>` line. There is no separ
 See [Building from source](README.md#building-from-source). Before opening a pull request, run the tests that apply to your change:
 
 - `tests/smoke.sh <executable>`: decoding and color, no display needed;
-- `tests/render_test.py`, `tests/screen_test.py` and `tests/ui_test.py <executable> [vulkan|opengl]`: GPU output, on-screen pixels and interaction (Linux, under Xvfb);
+- `tests/fuzz_smoke.py <executable>`: every test file, corrupted in many ways, must decode or fail cleanly;
+- `tests/render_test.py`, `tests/screen_test.py`, `tests/ui_test.py` and `tests/animation_test.py <executable> [vulkan|opengl]`: GPU output, on-screen pixels, interaction, animation and slideshow (Linux, under Xvfb);
 - `tests/check_translations.py`: translations.
 
-CI runs the smoke tests and the output harness on Windows, macOS and Linux, and the on-screen, interaction and translation checks on Linux.
+CI runs the smoke tests, the fuzz smoke test and the output harness on Windows, macOS and Linux, the on-screen, interaction, animation and translation checks on Linux, and a quit test (`tests/quit_test.py`) on macOS.
 
 ## Translations
 

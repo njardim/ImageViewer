@@ -4,6 +4,7 @@
 
 #include <QCoreApplication>
 #include <QFile>
+#include <QLocale>
 #include <QLoggingCategory>
 #include <QMatrix4x4>
 #include <QOffscreenSurface>
@@ -90,8 +91,9 @@ Renderer::Output Renderer::edrOutput(float headroom)
     Output out;
     out.mode = OutputMode::ScRgb;
     out.peak = std::max(1.0f, headroom);
+    //: EDR: Extended Dynamic Range (macOS); %1: how many times SDR white the display can show, e.g. "2.50".
     out.description = out.peak > 1.0f
-                          ? QCoreApplication::translate("Renderer", "EDR · headroom %1×").arg(double(out.peak), 0, 'f', 2)
+                          ? QCoreApplication::translate("Renderer", "EDR · headroom %1×").arg(QLocale().toString(double(out.peak), 'f', 2))
                           : QCoreApplication::translate("Renderer", "Linear sRGB managed by ColorSync · no HDR headroom");
     return out;
 }
@@ -104,9 +106,9 @@ Renderer::Output Renderer::scRgbOutput(float whiteNits, float peakNits)
     out.absoluteScale = color::kSdrReferenceWhiteNits / kScRgbUnitNits;
     out.peak = std::max(out.scale, peakNits / kScRgbUnitNits);
     out.nitsPerUnit = kScRgbUnitNits;
+    //: nits: candela per square metre, the unit of luminance.
     out.description = QCoreApplication::translate("Renderer", "scRGB · SDR white %1 nits · peak %2 nits")
-                          .arg(whiteNits)
-                          .arg(peakNits);
+                          .arg(QLocale().toString(double(whiteNits), 'f', 0), QLocale().toString(double(peakNits), 'f', 0));
     return out;
 }
 
@@ -118,9 +120,9 @@ Renderer::Output Renderer::pqOutput(float whiteNits, float peakNits)
     out.absoluteScale = color::kSdrReferenceWhiteNits;
     out.peak = std::max(whiteNits, peakNits);
     out.nitsPerUnit = 1.0f;
+    //: nits: candela per square metre, the unit of luminance.
     out.description = QCoreApplication::translate("Renderer", "HDR10 (PQ) · SDR white %1 nits · peak %2 nits")
-                          .arg(whiteNits)
-                          .arg(peakNits);
+                          .arg(QLocale().toString(double(whiteNits), 'f', 0), QLocale().toString(double(peakNits), 'f', 0));
     return out;
 }
 

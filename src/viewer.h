@@ -124,6 +124,15 @@ private:
     void startDecode(const QString &path, int limit, qint64 maxPixels);
     void decodeFinished();
     void showImage(Image image, int limit);
+    void reloadCurrent();               // decode the shown file again, keeping the view
+    void setFolder(const QString &folder);
+    void relist();                      // folder sorted per the settings, keeping the current file
+    void refreshFolder();               // after a change on disk
+    void removeCurrentFromList();       // the file is gone: the next one takes its place
+    void addRecentFile(const QString &path);
+    // Every instance shares the recent files: a change is made to the stored list, which may
+    // have grown in another instance meanwhile, and m_recent follows it.
+    void editRecentFiles(const std::function<void(QStringList &)> &edit);
 
     // playback.cpp: animation (E6) and slideshow (E11).
     struct FrameResult {
@@ -143,15 +152,6 @@ private:
     void toggleSlideshow();
     void stopSlideshow();
     void slideshowTimeout();
-    void reloadCurrent();               // decode the shown file again, keeping the view
-    void setFolder(const QString &folder);
-    void relist();                      // folder sorted per the settings, keeping the current file
-    void refreshFolder();               // after a change on disk
-    void removeCurrentFromList();       // the file is gone: the next one takes its place
-    void addRecentFile(const QString &path);
-    // Every instance shares the recent files: a change is made to the stored list, which may
-    // have grown in another instance meanwhile, and m_recent follows it.
-    void editRecentFiles(const std::function<void(QStringList &)> &edit);
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
@@ -179,6 +179,13 @@ private:
     void addCommand(QMenu *menu, Command command);
     void showContextMenu(const QPoint &globalPos);
     void showOpenDialog();
+    void toggleTopOverlay();
+    void toggleCheckerboard();
+    void showSettings();
+    void showAbout();
+    bool currentFileIsShown() const; // the displayed image is the current entry of the folder
+
+    // files.cpp
     void showInFolder();
     void copyImage();
     void imageCopied();
@@ -187,11 +194,6 @@ private:
     void moveToTrash();
     void deletePermanently();
     void undoTrash();
-    void toggleTopOverlay();
-    void toggleCheckerboard();
-    void showSettings();
-    void showAbout();
-    bool currentFileIsShown() const; // the displayed image is the current entry of the folder
 
     Renderer m_renderer;
     bool m_rendererReady = false;

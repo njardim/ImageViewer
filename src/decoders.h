@@ -113,7 +113,12 @@ bool heifSequencesAvailable();
 bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                         std::unique_ptr<FrameReader> *frames);
 
-// codecs.cpp: libjxl, libwebp and APNG, which parse the file from memory.
+// codecs.cpp: libjxl, libwebp and Softimage PIC (D-45), which parse the file from memory; APNG
+// is handed to apng.cpp.
 bool codecAvailable(Decoder decoder);
 bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                  std::unique_ptr<FrameReader> *frames);
+
+// apng.cpp: animated PNG; a PNG without animation control is read as a plain PNG.
+bool decodeApng(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
+                std::unique_ptr<FrameReader> *frames);

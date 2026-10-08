@@ -12,6 +12,7 @@
 #include <QHash>
 #include <QImage>
 #include <QImageReader>
+#include <QLocale>
 #include <QRegularExpression>
 
 #include <algorithm>
@@ -517,7 +518,8 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     switch (decoder) {
     case Decoder::Jxl:
     case Decoder::WebP:
-    case Decoder::Apng: {
+    case Decoder::Apng:
+    case Decoder::Softimage: {
         if (!codecAvailable(decoder))
             break;
         QByteArray bytes;
@@ -560,9 +562,9 @@ bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
     const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
     if (budget <= 0 || needed <= budget)
         return true;
+    //: GB: gigabytes.
     *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
-                 .arg(double(needed) / (1 << 30), 0, 'f', 1)
-                 .arg(double(budget) / (1 << 30), 0, 'f', 1);
+                 .arg(QLocale().toString(double(needed) / (1 << 30), 'f', 1), QLocale().toString(double(budget) / (1 << 30), 'f', 1));
     return false;
 }
 
@@ -642,9 +644,9 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error)
         return false;
     }
     if (file.size() > (qint64(1) << 31)) {
+        //: GB: gigabytes.
         *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
-                     .arg(double(file.size()) / (1 << 30), 0, 'f', 1)
-                     .arg(2.0, 0, 'f', 1);
+                     .arg(QLocale().toString(double(file.size()) / (1 << 30), 'f', 1), QLocale().toString(2.0, 'f', 1));
         return false;
     }
     *bytes = file.readAll();
@@ -684,8 +686,10 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     QList<Decoder> order;
     if (format && isAvailable(*format))
         order << format->decoder;
+    // A format whose OpenImageIO reader crashes on damaged files never reaches it (D-45).
+    const bool notOiio = format && !oiioMayRead(*format);
     for (Decoder general : {Decoder::OpenImageIO, Decoder::Qt})
-        if (!order.contains(general))
+        if (!order.contains(general) && !(notOiio && general == Decoder::OpenImageIO))
             order << general;
     QString firstError;
     for (Decoder decoder : std::as_const(order)) {

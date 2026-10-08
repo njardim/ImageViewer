@@ -49,6 +49,8 @@ check orient6.jpg 'size: +200x300' "EXIF orientation 6 applied once"
 # EXIF shooting data for the information panel (D-34); the model holds a tab and a BEL
 # character, which must not reach the panel. Made with Pillow 12.3.
 check camera.jpg 'camera: +Cristallumnis \| Cristallumnis Test Camera X1 \| 50mm F1\.8 \| 1/250 s \| f/2\.8 \| ISO 400 \| 50 mm \| 2026-10-07T12:34:56$' "EXIF camera data read and cleaned"
+# camera.jpg recompressed losslessly by cjxl 0.7: the EXIF is a Brotli-compressed box (brob).
+check camera.jxl 'camera: +Cristallumnis \| Cristallumnis Test Camera X1 \| 50mm F1\.8 \| 1/250 s \| f/2\.8 \| ISO 400 \| 50 mm \| 2026-10-07T12:34:56$' "JPEG XL EXIF box (compressed)"
 
 check rows2.pfm 'colour: +linear' "PFM read as linear (OIIO labels it Rec709)"
 check rows2.pfm 'pixel\[0,0\]: +0\.25 0\.5 1 a=1' "PFM rows stored bottom to top are flipped"
@@ -134,8 +136,11 @@ fi
 # 4:2:0, from sRGB (255,128,0) -> linear (1, 0.2158, 0), within 0.02 (lossy).
 heic_out="$("$exe" --info "$data/orange.heic" 2>&1 || true)"
 heic_available="$("$exe" --formats 2>/dev/null | awk -F' *[|] *' '$1 == "heic" { print $4 }')"
-if grep -q 'HEVC' <<<"$heic_out" && { [ "$heic_available" = system-missing ] || [ "$(uname -s | cut -c1-5)" = MINGW ] || [ "$(uname -s | cut -c1-4)" = MSYS ]; }; then
-    echo "ok   orange.heic: no HEVC decoder on this system ($heic_available), the note says how to get one"
+if grep -q 'HEVC' <<<"$heic_out" && [ "$heic_available" = system-missing ]; then
+    echo "ok   orange.heic: no HEVC decoder on this system, the note says how to get one"
+elif grep -q 'HEVC' <<<"$heic_out" && { [ "$(uname -s | cut -c1-5)" = MINGW ] || [ "$(uname -s | cut -c1-4)" = MSYS ]; }; then
+    # WIC lists the HEIF extension, which decodes nothing without the HEVC one.
+    echo "skip orange.heic: Windows has the HEIF extension but no HEVC decoder; the note says how to get one"
 elif ! awk '/^pixel\[0,0\]:/ { d = ($2 - 1)^2 + ($3 - 0.2158)^2 + $4^2; found = 1 } END { exit !(found && d <= 0.0004) }' <<<"$heic_out"; then
     echo "FAIL orange.heic: expected pixel (1, 0.2158, 0) within 0.02, or the HEVC note"
     echo "$heic_out" | sed 's/^/     /'
@@ -152,7 +157,7 @@ fi
 # Pillow or built by tests/longtail_data.py: sRGB (255, 128, 0) -> linear (1, 0.2158, 0).
 for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orange.iff orange.rla orange.pic \
          orange.fits gm.xpm; do
-    if "$exe" --formats 2>/dev/null | grep -q " | $f\$"; then
+    if "$exe" --formats 2>/dev/null | grep -q " | yes | .* | $f\$"; then # the registry check below reports the others
         check "$f" 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "colour exact"
     fi
 done
@@ -164,7 +169,7 @@ check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]*
 # (IMAGEVIEWER_REQUIRE_ALL_DECODERS), so a missing one fails there; a local build with fewer
 # libraries (no libheif 1.23, no GraphicsMagick, Qt without some plugins) skips it.
 while IFS='|' read -r id name decoder available caps extensions test; do
-    id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
+    id="$(echo "$id" | xargs)"; decoder="$(echo "$decoder" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
     if [ "$id" = svg ]; then
         echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
@@ -180,6 +185,17 @@ while IFS='|' read -r id name decoder available caps extensions test; do
     else
         echo "FAIL $id: $test does not decode"
         failures=$((failures + 1))
+        if [ "$decoder" = GraphicsMagick ] && [ -z "${worker_diagnosed:-}" ]; then
+            # Once: why the decode worker refused, from the viewer's log and from the worker itself.
+            worker_diagnosed=1
+            QT_LOGGING_RULES='imageviewer.*=true' "$exe" --info "$data/$test" 2>&1 >/dev/null | sed 's/^/     log: /'
+            said="$(mktemp)"
+            code=0
+            "$exe" --decode-worker "$(echo "$id" | tr a-z A-Z)" 1000000 <"$data/$test" >/dev/null 2>"$said" || code=$?
+            echo "     worker run directly: exit code $code"
+            sed 's/^/     worker: /' "$said"
+            rm -f "$said"
+        fi
     fi
 done < <("$exe" --formats 2>/dev/null)
 

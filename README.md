@@ -6,7 +6,7 @@ imageViewer shows images the way they were made. Every image is converted once, 
 
 The interface stays out of the way: the image fills the window, everything else is a right-click or a key away, and it speaks 37 languages.
 
-> Status: **0.2** — early releases. The color pipeline, HDR output and the essential viewer functions are in place; see the [plan](docs/PLAN.md) for what comes next.
+> Status: **0.3** — early releases. The color pipeline, HDR output and the essential viewer functions are in place; see the [plan](docs/PLAN.md) for what comes next.
 
 ## Download
 
@@ -24,12 +24,12 @@ The packages are **not signed yet**:
 - **Windows:** SmartScreen asks for confirmation. Choose *More info → Run anyway*.
 - **macOS:** Gatekeeper blocks the first launch. Open *System Settings → Privacy & Security* and choose *Open Anyway*.
 
-## Features (0.3, in development)
+## Features (0.3)
 
 - **Color-managed decoding:** ICC v2/v4 profiles, CICP (PQ, HLG, BT.709/BT.2020, linear), EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images. Wide-gamut colors are kept, not clipped to sRGB.
 - **HDR output:** scRGB (Windows), EDR (macOS) and HDR10/PQ, with absolute luminance for PQ content. BT.2390 tone mapping only when an image exceeds the display; exposure control; an option to highlight clipped or tone-mapped pixels.
-- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, camera RAW (LibRaw) and more; animated GIF, WebP, APNG, JPEG XL and AVIF. The long tail — GIMP XCF, PCX/DCX, Apple PICT, WordPerfect WPG, MIFF, Sun raster, Khoros VIFF, DICOM, VICAR, MATLAB, PlayStation TIM, Dr. Halo CUT, MacPaint, Alias PIX, Nokia OTB — is read by GraphicsMagick 1.3.48 in a separate process with a list of allowed decoders, limits and a time-out, so a damaged file there cannot take the viewer down. `imageViewer --formats` lists what a build reads, and with which library. Files are recognised by their content, not their extension. HEIC is decoded by the operating system: macOS always; Windows with Microsoft's “HEIF Image Extensions” and “HEVC Video Extensions” from the Microsoft Store; Linux when the distribution's libheif has an HEVC decoder (e.g. `libheif-plugin-libde265`). imageViewer ships no HEVC decoder (patents).
-- **Animation:** GIF, WebP, APNG and JPEG XL play with their own timing and loop count; pause and step frame by frame.
+- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, camera RAW (LibRaw) and more; animated GIF, WebP, APNG, JPEG XL and AVIF. The long tail — GIMP XCF, PCX/DCX, Apple PICT, WordPerfect WPG, MIFF, Sun raster, Khoros VIFF, DICOM, VICAR, MATLAB, PlayStation TIM, Dr. Halo CUT, MacPaint, Alias PIX, Nokia OTB — is read by GraphicsMagick 1.3.48 in a separate process with a list of allowed decoders, limits and a time-out, so a damaged file there cannot take the viewer down. `imageViewer --formats` lists what a build reads, and with which library. Files are recognised by their content, not their extension. HEIC is decoded by the operating system: macOS always; Windows with Microsoft's “HEIF Image Extensions” and “HEVC Video Extensions” from the Microsoft Store; on Linux, the package reads no HEIC (its libheif has no HEVC decoder), while a build from source against the distribution's libheif reads it when that libheif has an HEVC decoder (e.g. `libheif-plugin-libde265`). imageViewer ships no HEVC decoder (patents).
+- **Animation:** GIF, WebP, APNG, JPEG XL and AVIF sequences play with their own timing and loop count, as browsers play them; pause and step frame by frame.
 - **Viewing:**
   - zoom at the cursor, exact 100 % (one image pixel per screen pixel), fit to window, pan;
   - rotate and flip horizontally or vertically;
@@ -76,7 +76,8 @@ On macOS, Ctrl is ⌘.
 ## How fidelity is verified
 
 On every change, CI builds and tests on Windows, macOS and Linux (the on-screen and interaction tests need a display server, so they run on Linux, under Xvfb):
-- **Decode and color tests:** a Display P3 red keeps its out-of-sRGB value (also in WebP), an EXR keeps values above SDR white, a 16-bit JPEG XL keeps all 16 bits and a PQ JPEG XL its 1,000 nits, alpha is handled correctly, every format in the registry decodes its test file, and every frame of the test animations has the right color and duration. The same tests run again on the packaged application.
+- **Decode and color tests:** a Display P3 red keeps its out-of-sRGB value (also in WebP), an EXR keeps values above SDR white, a 16-bit JPEG XL keeps all 16 bits and a PQ JPEG XL its 1,000 nits, alpha is handled correctly, every format in the registry that has a test file decodes it (camera RAW has none yet), and every frame of the test animations has the right color and duration. The same tests run again on the packaged application.
+- **Damaged files:** every test file, corrupted in a dozen ways, must decode or fail cleanly within a time limit, without crashing or hanging the viewer.
 - **Output tests:** the GPU output is read back for SDR, EDR, scRGB and HDR10, with and without tone mapping, and compared with:
   - a CPU reference implementation;
   - the BT.2390 specification, computed independently: identity below the knee, the peak landing on the display peak, monotonic output, hues preserved.
@@ -87,7 +88,7 @@ On every change, CI builds and tests on Windows, macOS and Linux (the on-screen 
 
 ## Building from source
 
-The dependencies are Qt 6.11 (official binaries) and OpenImageIO, LittleCMS and their codecs (from vcpkg, using the manifest `vcpkg.json`).
+The dependencies are Qt 6.11 (official binaries) and OpenImageIO, LittleCMS, libjxl, libwebp, libheif, GraphicsMagick and their codecs (from vcpkg, using the manifest `vcpkg.json`).
 
 ```
 cmake --preset <windows|macos|linux> -DCMAKE_PREFIX_PATH=<Qt 6.11 directory>   # needs VCPKG_ROOT

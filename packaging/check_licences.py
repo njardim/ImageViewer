@@ -20,7 +20,7 @@ from pathlib import Path
 
 FORBIDDEN = {
     "x265": "HEVC encoder, GPL-2.0-or-later",
-    "libde265": "HEVC decoder, held back until the patent question is cleared (D-P03)",
+    "libde265": "HEVC decoder: not shipped, HEIC comes from the operating system (D-39)",
 }
 # GPL-2.0-only, GPL-3.0-or-later, legacy GPL-2.0+, AGPL-3.0-only...; LGPL-* does not match.
 STRONG_COPYLEFT = re.compile(r"^A?GPL-", re.IGNORECASE)

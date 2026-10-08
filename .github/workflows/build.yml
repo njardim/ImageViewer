@@ -207,6 +207,14 @@ jobs:
         shell: bash
         run: tests/smoke.sh "$EXE"
 
+      - name: Fuzz smoke test (corrupted test files decode or fail cleanly, D-38)
+        shell: bash
+        env:
+          FUZZ_SMOKE_DIR: ${{ runner.temp }}/fuzz-smoke
+        run: |
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          "$py" tests/fuzz_smoke.py "$EXE" 12
+
       - name: On-screen fidelity test (Linux, Xvfb + lavapipe/llvmpipe)
         if: runner.os == 'Linux'
         env:
@@ -274,6 +282,7 @@ jobs:
             ${{ runner.temp }}/render-test
             ${{ runner.temp }}/ui-test*
             ${{ runner.temp }}/quit-test
+            ${{ runner.temp }}/fuzz-smoke
           if-no-files-found: ignore
 
       - name: Deploy

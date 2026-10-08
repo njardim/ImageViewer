@@ -466,6 +466,10 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     }
     case Decoder::Qt: return decodeWithQt(path, maxPixels, out, error);
     case Decoder::System: return decodeSystemHeic(path, maxPixels, out, error);
+    case Decoder::GraphicsMagick:
+        if (!format)
+            break;
+        return decodeInWorker(*format, path, maxPixels, out, error);
     case Decoder::OpenImageIO: break;
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.

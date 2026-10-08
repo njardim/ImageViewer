@@ -90,6 +90,11 @@
         <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
         <translation>HEIC प्रतिमांसाठी HEVC डिकोडर आवश्यक आहे, जो imageViewer या सिस्टमवर समाविष्ट करत नाही (पेटंट); आधी त्या दुसऱ्या फॉरमॅटमध्ये रूपांतरित करा.</translation>
     </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>डिकोडरला %1 से. पेक्षा जास्त वेळ लागला आणि तो थांबवला गेला</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

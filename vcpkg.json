@@ -29,6 +29,10 @@
     {
       "$comment": "Read directly for ICC profiles and animation (WebPAnimDecoder in libwebpdemux); OpenImageIO's reader assumes sRGB.",
       "name": "libwebp"
+    },
+    {
+      "$comment": "The long tail in the decode worker (D-38). Overlay port (packaging/vcpkg/ports/graphicsmagick): 1.3.48, no delegate libraries.",
+      "name": "graphicsmagick"
     }
   ],
   "vcpkg-configuration": {

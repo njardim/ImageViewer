@@ -806,6 +806,7 @@ bool codecAvailable(Decoder decoder)
     case Decoder::OpenImageIO:
     case Decoder::Heif:
     case Decoder::Qt:
+    case Decoder::GraphicsMagick:
     case Decoder::System: break;
     }
     return false;

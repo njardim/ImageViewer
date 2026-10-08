@@ -93,6 +93,28 @@ check narrow.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF narr
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
 check blend.png 'frame px: +1\.000 0\.000 0\.000 \| 0\.212 0\.216 0\.000 \| 0\.000 0\.000 1\.000$' "APNG blend over the previous frame"
 
+# The decode worker (D-38): GraphicsMagick in its own process, for the long tail. CI requires
+# it; local builds without GraphicsMagick skip these. Test files: tests/longtail_data.py.
+# sRGB (255, 128, 0) -> linear (1, 0.2158, 0); gray 128 -> 0.2158; layers.xcf composites a
+# blue layer at 50 % over orange: sRGB (127, 63, 128) -> (0.212, 0.0497, 0.2158).
+if "$exe" --formats 2>/dev/null | grep -Eq '^pcx \| .* \| GraphicsMagick \| yes \|'; then
+    for f in gm.pcx gm.dcx gm.pict gm.miff gm.ras gm.viff gm.mat rgb.tim rgb.pix; do
+        check "$f" 'codec: +GraphicsMagick [A-Z]+ \(worker\)' "read by GraphicsMagick in the decode worker"
+        check "$f" 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "colour exact"
+    done
+    check layers.xcf 'pixel\[0,0\]: +0\.212[0-9]* 0\.049[0-9]* 0\.215[89][0-9]* a=1' "GIMP layers composited (50 % blue over orange)"
+    check gray16.dcm 'source: +3 ch, 16 bits' "DICOM read at 16 bits"
+    check gray16.dcm 'pixel\[0,0\]: +0\.214[0-9]* 0\.214[0-9]* 0\.214[0-9]* a=1' "DICOM 16-bit value 32768"
+    check gray.cut 'pixel\[0,0\]: +0\.215[89][0-9]* 0\.215[89][0-9]* 0\.215[89][0-9]* a=1' "CUT gray level (no palette file)"
+    check gm.vicar 'pixel\[0,0\]: +0\.309[0-9]* 0\.309[0-9]* 0\.309[0-9]* a=1' "VICAR gray level"
+    check bw.mac 'size: +576x720' "MacPaint page size"
+    check bw.mac 'pixel\[0,0\]: +0 0 0 a=1' "MacPaint black pixel"
+    check gm.otb 'pixel\[0,0\]: +0 0 0 a=1' "OTA bitmap black pixel"
+    check gm.wpg 'size: +6x4' "WordPerfect graphic dimensions"
+else
+    echo "skip decode worker: this build has no GraphicsMagick"
+fi
+
 # HEIC (D-39): the system's decoder where there is one (ImageIO on macOS; WIC on Windows with
 # Microsoft's HEIF and HEVC extensions), else OpenImageIO if its libheif has an HEVC decoder
 # (a distribution's), else a note on how to get one. orange.heic: heif-enc 1.17, quality 95,
@@ -117,8 +139,10 @@ fi
 # (HEIC, which depends on the system, above).
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
+    decoder="$(echo "$decoder" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
     [ "$id" = avifs ] && [ "$available" = no ] && continue # see the AVIF sequence checks above
+    [ "$decoder" = GraphicsMagick ] && [ "$available" = no ] && continue # see the decode worker checks above
     if [ "$available" != yes ]; then
         echo "FAIL $id: has a test file ($test) but is not available in this build"
         failures=$((failures + 1))

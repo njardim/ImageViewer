@@ -90,6 +90,11 @@
         <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
         <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 imageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
     </message>
+    <message>
+        <source>the decoder took longer than %1 s and was stopped</source>
+        <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
+        <translation>디코더가 %1초를 넘겨 중지되었습니다</translation>
+    </message>
 </context>
 <context>
     <name>Overlay</name>

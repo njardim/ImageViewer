@@ -93,6 +93,13 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error);
 // OpenImageIO on a file in memory; `name` only tells it the format (e.g. "frame.png").
 bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error);
 
+// worker.cpp: GraphicsMagick in the decode worker process (D-38).
+bool graphicsMagickAvailable();
+// The `--decode-worker` mode of the executable (main.cpp starts it before anything else).
+int runDecodeWorker(int argc, char **argv);
+// Decodes `path` in a worker process with the format's coder; never crashes the caller.
+bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error);
+
 // syscodecs.cpp: the operating system's HEIC decoder (D-39).
 // What to do when the system has no HEVC decoder (Windows: the Microsoft Store extensions).
 QString missingHevcMessage();

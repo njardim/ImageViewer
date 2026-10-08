@@ -68,7 +68,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/codecs.cpp src/heif.cpp src/syscodecs.cpp
+    src/decoders.h src/decoders.cpp src/codecs.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
 )
@@ -128,6 +128,24 @@ if(TARGET heif)
     endif()
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
     message(FATAL_ERROR "libheif not found (AVIF sequences)")
+endif()
+# The long tail (worker.cpp, D-38): GraphicsMagick, built without delegates (overlay port).
+find_path(GRAPHICSMAGICK_INCLUDE_DIR magick/api.h PATH_SUFFIXES GraphicsMagick)
+find_library(GRAPHICSMAGICK_LIBRARY NAMES GraphicsMagick libGraphicsMagick)
+set(GRAPHICSMAGICK_VERSION "")
+if(GRAPHICSMAGICK_INCLUDE_DIR)
+    file(STRINGS "${GRAPHICSMAGICK_INCLUDE_DIR}/magick/version.h" gm_version_line REGEX "define MagickLibVersionText")
+    string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" GRAPHICSMAGICK_VERSION "${gm_version_line}")
+endif()
+# 1.3.48 or later only (the owner's condition, D-38): older releases, such as the
+# distributions' builds with loadable coder modules, are not used.
+if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERSION VERSION_GREATER_EQUAL 1.3.48)
+    target_include_directories(imageviewer PRIVATE ${GRAPHICSMAGICK_INCLUDE_DIR})
+    target_link_libraries(imageviewer PRIVATE ${GRAPHICSMAGICK_LIBRARY})
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_GRAPHICSMAGICK)
+    message(STATUS "Decode worker: GraphicsMagick ${GRAPHICSMAGICK_VERSION} ${GRAPHICSMAGICK_LIBRARY}")
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "GraphicsMagick 1.3.48 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
 endif()
 # HEIC through the system's decoders (D-39, syscodecs.cpp).
 if(APPLE)

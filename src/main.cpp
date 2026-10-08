@@ -1,3 +1,4 @@
+#include "decoders.h"
 #include "formats.h"
 #include "image.h"
 #include "settings.h"
@@ -10,6 +11,8 @@
 #include <QFileInfo>
 #include <QFileOpenEvent>
 #include <QScopeGuard>
+
+#include <cstring>
 #include <QTextStream>
 
 #include <algorithm>
@@ -303,6 +306,9 @@ bool readNumber(const QCommandLineParser &parser, const QCommandLineOption &opti
 
 int main(int argc, char *argv[])
 {
+    // The decode worker (D-38): no Qt application, no settings, nothing but the decode.
+    if (argc >= 2 && std::strcmp(argv[1], "--decode-worker") == 0)
+        return runDecodeWorker(argc, argv);
     const bool console = isConsoleMode(argc, argv);
 #if defined(Q_OS_WIN)
     if (console)

@@ -16,6 +16,7 @@ enum class Decoder {
     Apng,        // animated PNG: frames rebuilt as PNGs for OpenImageIO, composited here
     Heif,        // libheif's track API: AVIF image sequences (stills go through OpenImageIO)
     Qt,          // QImageReader plugins (ICNS, XPM, SVG...)
+    GraphicsMagick, // the long tail, in the decode worker process (worker.cpp); coder = id in upper case
     System,      // the operating system's decoders (D-39): HEIC through ImageIO (macOS) or WIC (Windows)
 };
 

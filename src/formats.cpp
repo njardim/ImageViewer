@@ -53,6 +53,33 @@ bool isWebP(QByteArrayView h) { return startsWith(h, "RIFF") && startsWith(h, "W
 bool isAvif(QByteArrayView h) { return hasBrand(h, {"avif", "avis"}); }
 bool isAvifSequence(QByteArrayView h) { return hasBrand(h, {"avis"}); }
 bool isHeic(QByteArrayView h) { return hasBrand(h, {"heic", "heix", "heim", "heis", "hevc", "hevx", "hevm", "hevs"}); }
+// The long tail, read by GraphicsMagick in the decode worker (D-38).
+bool isPcx(QByteArrayView h)
+{
+    if (h.size() < 4)
+        return false;
+    const auto *p = reinterpret_cast<const unsigned char *>(h.data());
+    return p[0] == 0x0A && (p[1] == 0 || (p[1] >= 2 && p[1] <= 5)) && p[2] <= 1
+           && (p[3] == 1 || p[3] == 2 || p[3] == 4 || p[3] == 8);
+}
+bool isDcx(QByteArrayView h) { return startsWithBytes(h, {0xB1, 0x68, 0xDE, 0x3A}); }
+// After the 512-byte header: the version opcode of PICT 2 or PICT 1.
+bool isPict(QByteArrayView h) { return startsWithBytes(h, {0x00, 0x11, 0x02, 0xFF}, 522) || startsWithBytes(h, {0x11, 0x01}, 522); }
+bool isXcf(QByteArrayView h) { return startsWith(h, "gimp xcf "); }
+bool isSunRaster(QByteArrayView h) { return startsWithBytes(h, {0x59, 0xA6, 0x6A, 0x95}); }
+bool isViff(QByteArrayView h) { return startsWithBytes(h, {0xAB, 0x01}); }
+bool isMiff(QByteArrayView h) { return startsWith(h, "id=ImageMagick"); }
+bool isDicom(QByteArrayView h) { return startsWith(h, "DICM", 128); }
+bool isTim(QByteArrayView h)
+{
+    if (!startsWithBytes(h, {0x10, 0x00, 0x00, 0x00}) || h.size() < 8)
+        return false;
+    const auto *p = reinterpret_cast<const unsigned char *>(h.data());
+    return (p[4] <= 3 || p[4] == 8 || p[4] == 9) && p[5] == 0 && p[6] == 0 && p[7] == 0;
+}
+bool isVicar(QByteArrayView h) { return startsWith(h, "LBLSIZE="); }
+bool isMatlab(QByteArrayView h) { return startsWith(h, "MATLAB 5.0 MAT-file"); }
+bool isWpg(QByteArrayView h) { return startsWithBytes(h, {0xFF, 'W', 'P', 'C'}); }
 bool isPng(QByteArrayView h) { return startsWithBytes(h, {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}); }
 // A PNG whose animation control chunk comes before its image data.
 bool isApng(QByteArrayView h)
@@ -162,6 +189,24 @@ const QList<Format> kFormats = {
     {"targa", "Targa", "tga tpic", D::OpenImageIO, CanAlpha, nullptr, false, nullptr},
     {"rla", "Wavefront RLA", "rla", D::OpenImageIO, CanAlpha, nullptr, false, nullptr},
     {"xbm", "XBM", "xbm", D::Qt, 0, nullptr, false, nullptr},
+    // The long tail (D-38): GraphicsMagick in the decode worker; the coder is the id in upper
+    // case and must be in worker.cpp's allow-list.
+    {"xcf", "GIMP XCF", "xcf", D::GraphicsMagick, CanAlpha, isXcf, false, "layers.xcf"},
+    {"pcx", "PCX (ZSoft Paintbrush)", "pcx", D::GraphicsMagick, 0, isPcx, false, "gm.pcx"},
+    {"dcx", "DCX (multi-page PCX)", "dcx", D::GraphicsMagick, CanHavePages, isDcx, false, "gm.dcx"},
+    {"pict", "PICT (Apple QuickDraw)", "pict pct", D::GraphicsMagick, 0, isPict, false, "gm.pict"},
+    {"wpg", "WordPerfect Graphics", "wpg", D::GraphicsMagick, 0, isWpg, false, "gm.wpg"},
+    {"miff", "MIFF (Magick)", "miff mif", D::GraphicsMagick, CanAlpha | CanHavePages, isMiff, false, "gm.miff"},
+    {"sun", "Sun raster", "ras sun", D::GraphicsMagick, CanAlpha, isSunRaster, false, "gm.ras"},
+    {"viff", "Khoros VIFF", "viff xv", D::GraphicsMagick, CanAlpha, isViff, false, "gm.viff"},
+    {"dcm", "DICOM", "dcm dicom", D::GraphicsMagick, CanHavePages, isDicom, false, "gray16.dcm"},
+    {"vicar", "VICAR", "vicar vic", D::GraphicsMagick, 0, isVicar, false, "gm.vicar"},
+    {"mat", "MATLAB", "mat", D::GraphicsMagick, 0, isMatlab, false, "gm.mat"},
+    {"tim", "PlayStation TIM", "tim", D::GraphicsMagick, CanAlpha, isTim, false, "rgb.tim"},
+    {"cut", "Dr. Halo CUT", "cut", D::GraphicsMagick, 0, nullptr, false, "gray.cut"},
+    {"mac", "MacPaint", "mac", D::GraphicsMagick, 0, nullptr, false, "bw.mac"},
+    {"pix", "Alias PIX", "pix", D::GraphicsMagick, 0, nullptr, false, "rgb.pix"},
+    {"otb", "Nokia OTA bitmap", "otb", D::GraphicsMagick, 0, nullptr, false, "gm.otb"},
     {"wbmp", "Wireless bitmap", "wbmp", D::Qt, 0, nullptr, false, nullptr},
 };
 
@@ -175,6 +220,7 @@ const char *decoderName(Decoder d)
     case Decoder::Heif: return "libheif";
     case Decoder::Qt: return "Qt";
     case Decoder::System: return "system";
+    case Decoder::GraphicsMagick: return "GraphicsMagick";
     }
     return "?";
 }
@@ -238,6 +284,7 @@ bool isAvailable(const Format &format)
     case Decoder::OpenImageIO: return oiioSuffixes().contains(first);
     case Decoder::Qt: return qtFormats().contains(first);
     case Decoder::System: return systemHeicAvailable(); // HEIC is the only one so far
+    case Decoder::GraphicsMagick: return graphicsMagickAvailable();
     }
     return false;
 }

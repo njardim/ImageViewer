@@ -274,16 +274,39 @@ Settings Settings::load()
         const QString text = stored.typeId() == QMetaType::QStringList ? stored.toStringList().join(QLatin1Char(','))
                                                                         : stored.toString();
         QList<QKeySequence> list;
-        for (const QString &part : text.split(QStringLiteral("; "), Qt::SkipEmptyParts)) {
+        const QStringList parts = text.split(QStringLiteral("; "), Qt::SkipEmptyParts);
+        for (const QString &part : parts) {
             const QKeySequence sequence = QKeySequence::fromString(part.trimmed(), QKeySequence::PortableText);
-            if (sequence.count() == 1 && !list.contains(sequence)) // single keys only (the viewer matches those)
+            // Single keys only (the viewer matches those); an unknown name parses as Key_unknown.
+            const Qt::Key k = sequence.count() == 1 ? sequence[0].key() : Qt::Key_unknown;
+            const bool modifierOnly = k == Qt::Key_Shift || k == Qt::Key_Control || k == Qt::Key_Meta
+                                      || k == Qt::Key_Alt || k == Qt::Key_AltGr;
+            if (k != Qt::Key_unknown && !modifierOnly
+                && std::none_of(list.cbegin(), list.cend(), [&sequence](const QKeySequence &other) { return sameShortcut(other, sequence); }))
                 list.append(sequence);
         }
+        if (list.isEmpty() && !parts.isEmpty())
+            continue; // nothing usable in a hand-edited value: the defaults stay
         s.shortcuts.insert(key, list); // empty: the user removed every shortcut of the command
     }
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
     return s;
+}
+
+QKeyCombination comparableKey(QKeyCombination combination)
+{
+    Qt::KeyboardModifiers modifiers = combination.keyboardModifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
+    const int key = combination.key();
+    const bool character = key > Qt::Key_Space && key < Qt::Key_Escape; // Key_Escape starts the function keys
+    if (character && !QChar::isLetter(char32_t(key)))
+        modifiers &= ~Qt::ShiftModifier;
+    return QKeyCombination(modifiers, combination.key());
+}
+
+bool sameShortcut(const QKeySequence &a, const QKeySequence &b)
+{
+    return a.count() == 1 && b.count() == 1 && comparableKey(a[0]) == comparableKey(b[0]);
 }
 
 QColor Settings::panelBackground() const

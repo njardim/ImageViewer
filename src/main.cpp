@@ -372,6 +372,10 @@ bool isConsoleMode(int argc, char *argv[])
         if (arg == "--info" || arg == "--formats" || arg == "--open-with" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
             || arg == "--version")
             return true;
+#if defined(Q_OS_WIN)
+        if (arg == "-?") // QCommandLineParser's help option on Windows
+            return true;
+#endif
     }
     return false;
 }

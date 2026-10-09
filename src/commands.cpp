@@ -298,38 +298,26 @@ QList<QKeySequence> ViewerWindow::shortcutsFor(Command command) const
     return it != table.cend() ? it->shortcuts : QList<QKeySequence>();
 }
 
-namespace {
-// "+", "-" and the digits need Shift on many layouts: they match with or without it, whether
-// pressed or recorded in the Settings (Shift++ on a US keyboard is "+").
-QKeyCombination matchable(QKeyCombination combination)
-{
-    Qt::KeyboardModifiers modifiers = combination.keyboardModifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
-    const Qt::Key key = combination.key();
-    if (key == Qt::Key_Plus || key == Qt::Key_Minus || key == Qt::Key_Equal || (key >= Qt::Key_0 && key <= Qt::Key_9))
-        modifiers &= ~Qt::ShiftModifier;
-    return QKeyCombination(modifiers, key);
-}
-} // namespace
-
 bool ViewerWindow::executeShortcut(QKeyEvent *e)
 {
     // Every combination this press stands for on the current keyboard layout, as Qt's own
     // shortcuts see it (on AZERTY the "1" key types "&" and gives 1 with Shift).
+    // The key as pressed is tried first: Shift+1 on a US keyboard is "!" before it is "1".
     QList<QKeyCombination> candidates = QKeyMapper::possibleKeys(e);
     candidates.prepend(e->keyCombination());
-    QList<QKeyCombination> pressed;
-    for (const QKeyCombination candidate : std::as_const(candidates))
-        pressed << matchable(candidate);
-    for (const CommandInfo &info : commands()) {
-        for (const QKeySequence &shortcut : shortcutsFor(info.command)) {
-            if (shortcut.count() != 1 || !pressed.contains(matchable(shortcut[0])))
-                continue;
-            // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
-            if (!e->isAutoRepeat() || info.repeats) {
-                if (isCommandEnabled(info.command))
-                    execute(info.command);
+    for (const QKeyCombination candidate : std::as_const(candidates)) {
+        const QKeyCombination pressed = comparableKey(candidate);
+        for (const CommandInfo &info : commands()) {
+            for (const QKeySequence &shortcut : shortcutsFor(info.command)) {
+                if (shortcut.count() != 1 || comparableKey(shortcut[0]) != pressed)
+                    continue;
+                // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
+                if (!e->isAutoRepeat() || info.repeats) {
+                    if (isCommandEnabled(info.command))
+                        execute(info.command);
+                }
+                return true;
             }
-            return true;
         }
     }
     return false;
@@ -365,7 +353,8 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
         QString label = QFileInfo(file).fileName();
         label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
         QAction *action = recent->addAction(label);
-        action->setToolTip(QDir::toNativeSeparators(file));
+        // A file name is never markup: Qt would render "<font size=7>…" in a plain tooltip.
+        action->setToolTip(QStringLiteral("<p style='white-space:pre'>%1</p>").arg(QDir::toNativeSeparators(file).toHtmlEscaped()));
         connect(action, &QAction::triggered, this, [this, file] { openFile(file); });
     }
     if (!recent->isEmpty())
@@ -513,8 +502,15 @@ void ViewerWindow::showSettings()
 {
     SettingsDialog dialog(m_settings, [this] {
         QList<ShortcutCommand> list;
-        for (const CommandInfo &info : commands())
-            list.append({commandKey(info.command), commandText(info.command), info.shortcuts});
+        for (const CommandInfo &info : commands()) {
+            QString name = commandText(info.command);
+            // Outside their submenu, "Clear Menu" and "Other Application…" need its title.
+            if (info.command == Command::ClearRecent)
+                name = tr("Open Recent") + QStringLiteral(" › ") + name;
+            else if (info.command == Command::OpenWithOther)
+                name = tr("Open With") + QStringLiteral(" › ") + name;
+            list.append({commandKey(info.command), name, info.shortcuts});
+        }
         return list;
     });
     makeTransient(dialog, this);

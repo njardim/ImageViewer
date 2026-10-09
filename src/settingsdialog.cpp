@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QTabWidget>
+#include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -148,14 +149,10 @@ void SettingsDialog::buildUi()
     // Information (D-34): the detailed panel and the compact overlay at the top.
     auto *information = new QWidget;
     auto *informationLayout = new QVBoxLayout(information);
-    // Key names as the platform writes them (⇧I on macOS).
-    const auto keyName = [](QKeyCombination key) { return QKeySequence(key).toString(QKeySequence::NativeText); };
-    //: %1: the keyboard shortcut, e.g. "I".
-    m_showInfo = new QCheckBox(tr("Show the information panel (%1)").arg(keyName(Qt::Key_I)));
+    m_showInfo = new QCheckBox; // its text names the command's shortcut (updateShortcutLabels)
     informationLayout->addWidget(m_showInfo);
-    //: %1: the keyboard shortcut, e.g. "Shift+I".
-    auto *overlayBox = new QGroupBox(tr("Overlay at the top (%1)").arg(keyName(Qt::SHIFT | Qt::Key_I)));
-    auto *overlayForm = new QFormLayout(overlayBox);
+    m_overlayBox = new QGroupBox;
+    auto *overlayForm = new QFormLayout(m_overlayBox);
     const auto fillVisibility = [](QComboBox *combo) {
         combo->addItem(tr("Always"), int(OverlayVisibility::Always));
         combo->addItem(tr("When the pointer is at the top"), int(OverlayVisibility::Hover));
@@ -191,7 +188,7 @@ void SettingsDialog::buildUi()
     //: Unit after a number of seconds; keep the leading space if your language separates units.
     m_overlayDelay->setSuffix(tr(" s"));
     overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
-    informationLayout->addWidget(overlayBox);
+    informationLayout->addWidget(m_overlayBox);
     // One look for both panels (D-49).
     auto *styleBox = new QGroupBox(tr("Appearance of the panel and the overlay"));
     auto *styleForm = new QFormLayout(styleBox);
@@ -242,9 +239,8 @@ void SettingsDialog::buildUi()
     m_slideshowSeconds->setRange(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     //: Unit after a number of seconds; keep the leading space if your language separates units.
     m_slideshowSeconds->setSuffix(tr(" s"));
-    //: %1: the key that starts and stops the slideshow, e.g. "S".
-    navigationForm->addRow(tr("Slideshow (%1), time per image:").arg(QKeySequence(Qt::Key_S).toString(QKeySequence::NativeText)),
-                           m_slideshowSeconds);
+    m_slideshowLabel = new QLabel;
+    navigationForm->addRow(m_slideshowLabel, m_slideshowSeconds);
     tabs->addTab(navigation, tr("Navigation"));
 
     // Color & HDR
@@ -298,24 +294,32 @@ void SettingsDialog::buildUi()
     tabs->addTab(shortcuts, tr("Shortcuts"));
     connect(m_shortcutTable, &QTreeWidget::currentItemChanged, this,
             [this] { showShortcutsOf(m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem())); });
+    m_shortcutEdit->installEventFilter(this);
+    m_alternativeEdit->installEventFilter(this);
     const auto edited = [this] {
         const int row = m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem());
+        if (row < 0 || row >= m_commands.size())
+            return;
+        const QList<QKeySequence> current = m_shortcuts.value(m_commands.at(row).key);
         QList<QKeySequence> list;
-        for (const QKeySequence &sequence : {m_shortcutEdit->keySequence(), m_alternativeEdit->keySequence()})
-            if (!sequence.isEmpty() && !list.contains(sequence))
+        // The third and later shortcuts (Previous Image has three) have no field: they stay.
+        for (const QKeySequence &sequence : QList<QKeySequence>{m_shortcutEdit->keySequence(), m_alternativeEdit->keySequence()} + current.mid(2))
+            if (!sequence.isEmpty()
+                && std::none_of(list.cbegin(), list.cend(), [&sequence](const QKeySequence &s) { return sameShortcut(s, sequence); }))
                 list.append(sequence);
-        setShortcuts(row, list);
+        if (list != current) // leaving a field changes nothing
+            setShortcuts(row, list);
     };
-    connect(m_shortcutEdit, &QKeySequenceEdit::editingFinished, this, edited);
-    connect(m_alternativeEdit, &QKeySequenceEdit::editingFinished, this, edited);
-    connect(m_shortcutEdit, &QKeySequenceEdit::keySequenceChanged, this, [this, edited](const QKeySequence &s) {
-        if (s.isEmpty()) // the clear button: no editingFinished follows
-            edited();
-    });
-    connect(m_alternativeEdit, &QKeySequenceEdit::keySequenceChanged, this, [this, edited](const QKeySequence &s) {
-        if (s.isEmpty())
-            edited();
-    });
+    // The clear button empties a field without editingFinished. A recording starts by emptying
+    // it too, from the key press (eventFilter): that one waits for editingFinished, as showing
+    // the shortcuts again in the field would fill it and drop the key being pressed.
+    for (QKeySequenceEdit *edit : {m_shortcutEdit, m_alternativeEdit}) {
+        connect(edit, &QKeySequenceEdit::editingFinished, this, edited);
+        connect(edit, &QKeySequenceEdit::keySequenceChanged, this, [this, edited](const QKeySequence &s) {
+            if (s.isEmpty() && !m_keyInField)
+                edited();
+        });
+    }
     connect(m_shortcutDefault, &QPushButton::clicked, this, [this] {
         const int row = m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem());
         if (row >= 0)
@@ -467,21 +471,57 @@ void SettingsDialog::setValues(const Settings &settings)
     fillShortcutTable();
 }
 
+bool SettingsDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress && (watched == m_shortcutEdit || watched == m_alternativeEdit)) {
+        m_keyInField = true;
+        QTimer::singleShot(0, this, [this] { m_keyInField = false; }); // once the press is handled
+    }
+    return QDialog::eventFilter(watched, event);
+}
+
+namespace {
+// A key sequence in a line of text: left to right even in Arabic or Urdu ("Ctrl+," not ",Ctrl+").
+QString isolatedShortcut(const QKeySequence &sequence)
+{
+    return QChar(0x2066) + sequence.toString(QKeySequence::NativeText) + QChar(0x2069); // LRI … PDI
+}
+} // namespace
+
 void SettingsDialog::fillShortcutTable()
 {
     const int row = std::max(0, m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem()));
     m_shortcutTable->clear();
     for (const ShortcutCommand &command : std::as_const(m_commands)) {
-        QStringList shown;
-        for (const QKeySequence &sequence : m_shortcuts.value(command.key))
-            shown << sequence.toString(QKeySequence::NativeText);
         QString name = command.name;
         name.remove(QLatin1Char('&')); // menu mnemonics; "&&" is not used in command names
-        new QTreeWidgetItem(m_shortcutTable, {name, shown.join(QStringLiteral(", "))});
+        new QTreeWidgetItem(m_shortcutTable, {name, QString()});
     }
+    refreshShortcutTexts();
     if (row < m_shortcutTable->topLevelItemCount())
         m_shortcutTable->setCurrentItem(m_shortcutTable->topLevelItem(row));
     showShortcutsOf(row);
+}
+
+void SettingsDialog::refreshShortcutTexts()
+{
+    for (int i = 0; i < m_commands.size() && i < m_shortcutTable->topLevelItemCount(); ++i) {
+        QStringList shown;
+        for (const QKeySequence &sequence : m_shortcuts.value(m_commands.at(i).key))
+            shown << isolatedShortcut(sequence);
+        m_shortcutTable->topLevelItem(i)->setText(1, shown.join(QStringLiteral(", ")));
+    }
+    // The labels that name a command's key name its first shortcut now, or none.
+    const auto keyName = [this](const char *command) {
+        const QList<QKeySequence> list = m_shortcuts.value(QString::fromLatin1(command));
+        return list.isEmpty() ? QStringLiteral("—") : isolatedShortcut(list.first());
+    };
+    //: %1: the keyboard shortcut, e.g. "I".
+    m_showInfo->setText(tr("Show the information panel (%1)").arg(keyName("Info")));
+    //: %1: the keyboard shortcut, e.g. "Shift+I".
+    m_overlayBox->setTitle(tr("Overlay at the top (%1)").arg(keyName("InfoOverlay")));
+    //: %1: the key that starts and stops the slideshow, e.g. "S".
+    m_slideshowLabel->setText(tr("Slideshow (%1), time per image:").arg(keyName("Slideshow")));
 }
 
 void SettingsDialog::showShortcutsOf(int row)
@@ -500,20 +540,27 @@ void SettingsDialog::setShortcuts(int row, QList<QKeySequence> shortcuts)
 {
     if (row < 0 || row >= m_commands.size())
         return;
-    // A shortcut does one thing: assigned here, it is taken from the command that had it.
+    // A shortcut does one thing: assigned here, it is taken from the command that had it, by the
+    // rule the viewer matches keys with ("Ctrl+Shift+=" is "Ctrl+=").
     QStringList takenFrom;
     for (int i = 0; i < m_commands.size(); ++i) {
         if (i == row)
             continue;
         QList<QKeySequence> &other = m_shortcuts[m_commands.at(i).key];
-        if (other.removeIf([&shortcuts](const QKeySequence &s) { return shortcuts.contains(s); }) > 0)
-            takenFrom << m_commands.at(i).name;
+        const auto assigned = [&shortcuts](const QKeySequence &s) {
+            return std::any_of(shortcuts.cbegin(), shortcuts.cend(), [&s](const QKeySequence &t) { return sameShortcut(s, t); });
+        };
+        if (other.removeIf(assigned) > 0) {
+            QString name = m_commands.at(i).name;
+            takenFrom << name.remove(QLatin1Char('&'));
+        }
     }
     m_shortcuts.insert(m_commands.at(row).key, shortcuts);
     //: %1: names of commands, e.g. "Zoom In"; their shortcut now belongs to the selected command.
     m_shortcutNote->setText(takenFrom.isEmpty() ? QString()
                                                 : tr("Taken from: %1").arg(takenFrom.join(QStringLiteral(", "))));
-    fillShortcutTable();
+    refreshShortcutTexts();
+    showShortcutsOf(row); // the fields follow the list (a cleared shortcut gives its place to the next)
     updateApplyButton();
 }
 
@@ -584,7 +631,10 @@ Settings SettingsDialog::settings() const
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.toneMap = m_toneMap->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());
-    s.shortcuts.clear();
+    // Kept: the shortcuts of commands this version does not have (another version wrote them).
+    s.shortcuts.removeIf([this](const auto &entry) {
+        return std::any_of(m_commands.cbegin(), m_commands.cend(), [&entry](const ShortcutCommand &c) { return c.key == entry.key(); });
+    });
     for (const ShortcutCommand &command : std::as_const(m_commands)) {
         const QList<QKeySequence> list = m_shortcuts.value(command.key, command.defaults);
         if (list != command.defaults)

@@ -19,7 +19,10 @@ opened from a folder; every step waits until the expected pixels are on screen, 
   7. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
      detail on: fit to the window, X (a user shortcut for Fit to Width, D-52) fits the width,
      1 is 100 %, L keeps it for the next image and L again lets it fit; the window takes
-     an image's size within 50 % of the screen.
+     an image's size within 50 % of the screen;
+  8. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
+     the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
+     tab replaces the first shortcut while the others stay.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -454,6 +457,47 @@ try:
             # 2400 × 1800 within 50 % of 1600 × 1000: 800 × 500 at most, so 667 × 500.
             wait_until("a large image's window stays within 50 % of the screen, with its aspect ratio",
                        lambda: (lambda t, w, h: t == "big1.png — imageViewer" and abs(w - 667) <= 1 and h == 500)(*viewer()))
+            xdotool("key", "ctrl+q")
+            app.wait(15)
+
+            # 8. Shortcuts (D-52): a hand-written unknown key leaves the defaults; a shifted symbol
+            # ("!", Shift+1 on a US keyboard) is matched before the digit (Actual Size); the
+            # Shortcuts tab records a key in place of the first shortcut and keeps the others.
+            edit_settings(("window", "matchImage", "never"), ("shortcuts", "Next", "Foo"), ("shortcuts", "AboutQt", "!"))
+            app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)
+            wait_until("small.png shown", lambda: viewer()[0] == "small.png — imageViewer")
+            xdotool("key", "Right")
+            wait_until("Right still goes to the next image when the settings name an unknown key (Next=Foo)",
+                       lambda: viewer()[0] == "big1.png — imageViewer")
+            xdotool("key", "shift+1")
+            about = find_dialog("About Qt")
+            if not about:
+                fail("Shift+1 did not run the command bound to \"!\" (About Qt)")
+            print("ok   Shift+1 runs the command bound to \"!\", not Actual Size")
+            xdotool("windowfocus", "--sync", about)
+            xdotool("key", "Escape")
+            wait_until("About Qt closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^About Qt$").stdout.split())
+
+            def stored_previous():
+                with open(settings_file, encoding="utf-8") as f:
+                    return re.search(r'(?m)^Previous="N; PgUp; Backspace"$', f.read()) is not None
+            xdotool("key", "ctrl+comma")
+            dialog = find_dialog("Settings")
+            if not dialog:
+                fail("Ctrl+, did not open the Settings dialog")
+            xdotool("windowfocus", "--sync", dialog)
+            xdotool("key", "ctrl+shift+Tab", "Tab")  # the last tab, Shortcuts; then its list
+            xdotool("type", "--delay", "50", "Previous")  # Previous Image: Left, PgUp, Backspace
+            xdotool("key", "Tab")
+            xdotool("key", "n")  # recorded in the Shortcut field in place of Left
+            time.sleep(0.5)
+            xdotool("key", "Tab", "Tab")  # through the Alternative field, unchanged
+            info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
+            xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
+                    str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
+            xdotool("click", "1")  # Apply
+            wait_until("a key recorded in the Shortcuts tab replaces the first shortcut, the others stay", stored_previous)
+            xdotool("key", "Escape")
             xdotool("key", "ctrl+q")
             app.wait(15)
         finally:

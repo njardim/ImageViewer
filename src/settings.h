@@ -20,6 +20,7 @@ class QButtonGroup;
 class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
+class QGroupBox;
 class QKeySequenceEdit;
 class QLabel;
 class QListWidget;
@@ -145,6 +146,12 @@ QString applyLanguage(const QString &code);
 // The translated name of an overlay field (also used by the viewer's tooltips).
 QString overlayFieldName(OverlayField field);
 
+// A key as shortcuts compare it, pressed or recorded: Shift is part of a printed symbol ("!" is
+// Shift+1 and "+" Shift+= on a US keyboard), so it is ignored for every character key but
+// letters and Space. The viewer's matching and the Settings' conflicts use the same rule.
+QKeyCombination comparableKey(QKeyCombination combination);
+bool sameShortcut(const QKeySequence &a, const QKeySequence &b);
+
 // A command as the Shortcuts tab lists it: its stored key, its name in the interface language
 // and its default shortcuts (the viewer's command table, D-30).
 struct ShortcutCommand {
@@ -167,6 +174,7 @@ Q_SIGNALS:
 
 protected:
     void changeEvent(QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     void buildUi();
@@ -178,6 +186,7 @@ private:
     void chooseCustomBackground();
     void moveOverlayField(int delta);
     void fillShortcutTable();
+    void refreshShortcutTexts();     // the table's shortcuts and the labels that name keys
     void showShortcutsOf(int row);   // in the two edit fields
     void setShortcuts(int row, QList<QKeySequence> shortcuts); // taken away from any other command
 
@@ -193,6 +202,9 @@ private:
     QKeySequenceEdit *m_alternativeEdit = nullptr;
     QPushButton *m_shortcutDefault = nullptr;
     QLabel *m_shortcutNote = nullptr;
+    bool m_keyInField = false; // a key press in a shortcut field is being handled
+    QGroupBox *m_overlayBox = nullptr;  // its title names the command's key
+    QLabel *m_slideshowLabel = nullptr; // likewise
 
     QTabWidget *m_tabs = nullptr;
     QPushButton *m_apply = nullptr;

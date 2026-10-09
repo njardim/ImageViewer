@@ -88,8 +88,8 @@
         <translation>HEIC छवियों के लिए Microsoft Store से Microsoft के “HEIF Image Extensions” और “HEVC Video Extensions” आवश्यक हैं।</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC छवियों के लिए HEVC डिकोडर आवश्यक है, जिसे imageViewer इस सिस्टम पर शामिल नहीं करता (पेटेंट); पहले उन्हें किसी अन्य प्रारूप में बदलें।</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC छवियों के लिए HEVC डिकोडर आवश्यक है, जिसे ImageViewer इस सिस्टम पर शामिल नहीं करता (पेटेंट); पहले उन्हें किसी अन्य प्रारूप में बदलें।</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>कभी नहीं</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>टाइटल बार:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>स्थिर पॉइंटर इसके बाद छिपाएँ:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>इसके बाद छिपाएँ:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>अगली और पिछली छवियाँ पहले से लोड करें</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>स्लाइड शो</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer के बारे में</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer के बारे में</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>ज़ूम अनलॉक किया गया</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>हर छवि को वैसे ही दिखाता है जैसा उसकी फ़ाइल परिभाषित करती है, ऐसे रंगों के साथ जिन्हें आप सत्यापित कर सकते हैं, SDR और HDR दोनों में।</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>तेज़ और न्यूनतम, यह Windows, macOS और Linux पर 50 से अधिक फ़ॉर्मैट खोलता है।</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>इस फ़ोल्डर में कोई छवि शेष नहीं है।</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>सत्यापन योग्य SDR और HDR रंग सटीकता वाला छवि व्यूअर।</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

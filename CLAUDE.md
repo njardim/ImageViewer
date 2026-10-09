@@ -1,4 +1,4 @@
-# CLAUDE.md — imageViewer
+# CLAUDE.md — ImageViewer
 
 **Read `docs/PLAN.md` first.** It is the single source of truth: current status (§1), decision log (§2), architecture (§6), fidelity criteria (§7), phases with checkboxes (§9), and pending decisions (§13). Do not re-derive decisions recorded there; do not re-open them without new evidence.
 
@@ -16,7 +16,7 @@ Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.12**, mini
 - **Licences:** only LGPL (dynamically linked) or permissive dependencies (GPL is incompatible with shipping under Apache-2.0). Excluded: exiv2, FFmpeg `gpl`/`nonfree`, x265, LibRaw GPL packs, Ghostscript, PyQt.
 - **Colour pipeline invariant:** decoders output native depth + colour descriptor + **straight alpha** (D-21); conversion to **linear scRGB (RGBA16F, premultiplied)** happens once on the CPU; the shader only does exposure, tone mapping, compositing over the background in linear light and output encoding (ScRGB / PQ / SdrIcc). Never quantize below FP16 before output. Descriptor priority: CICP > ICC > format attributes > assumed (D-22).
 - **Releases** (D-19, D-26): versions are X.Y[-suffix], never X.Y.Z; the version comes from the tag. Publishing a GitHub release `vX.Y[-suffix]` (or pushing the tag) builds, verifies and attaches the packages; nobody builds release binaries by hand.
-- **Dependencies (D-46):** every library at its latest stable release; check versions against upstream at the start of each release and before its PR (vcpkg's baseline lags upstream). GraphicsMagick has a prepared path to ImageMagick 7 (D-47).
+- **Dependencies (D-46):** every library at its latest stable release; check versions against upstream at the start of each release and before its PR (vcpkg's baseline lags upstream). GraphicsMagick has a prepared path to ImageMagick 7 (D-47). Our patches to a dependency (D-57) are temporary: at every update, check whether upstream fixed the defect and remove the patch at once.
 - **Licences in practice:** a dependency that pulls default features can silently override `"default-features": false` in our manifest (that is how x265 got in, D-25); the CI licence gate must stay green.
 - **Viewer is a `QWindow` with its own QRhi swapchain** (D-09) — Widgets cannot do HDR. Dialogs/menus may use Widgets.
 - **Evidence:** when adding claims to the plan, tag them `[code]`, `[doc]`, `[test]`, `[knowledge]` or `[inference]`.

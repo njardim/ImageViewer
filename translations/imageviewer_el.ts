@@ -88,8 +88,8 @@
         <translation>Οι εικόνες HEIC χρειάζονται τις επεκτάσεις της Microsoft «HEIF Image Extensions» και «HEVC Video Extensions» από το Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Οι εικόνες HEIC χρειάζονται αποκωδικοποιητή HEVC, τον οποίο το imageViewer δεν περιλαμβάνει σε αυτό το σύστημα (διπλώματα ευρεσιτεχνίας)· μετατρέψτε τες πρώτα σε άλλη μορφή.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Οι εικόνες HEIC χρειάζονται αποκωδικοποιητή HEVC, τον οποίο το ImageViewer δεν περιλαμβάνει σε αυτό το σύστημα (διπλώματα ευρεσιτεχνίας)· μετατρέψτε τες πρώτα σε άλλη μορφή.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Γραμμή τίτλου:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Απόκρυψη ακίνητου δείκτη μετά από:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Παράθυρο</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Επισήμανση pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (ματζέντα)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Ποτέ</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Παρουσίαση</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Σχετικά με το imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Σχετικά με το ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Η μεγέθυνση ξεκλειδώθηκε</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Εμφανίζει κάθε εικόνα όπως την ορίζει το αρχείο της, με επαληθεύσιμα χρώματα, σε SDR και HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Γρήγορο και μινιμαλιστικό, ανοίγει περισσότερες από 50 μορφές σε Windows, macOS και Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Το αρχείο μετονομάστηκε σε «%1»</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Πρόγραμμα προβολής εικόνων με επαληθεύσιμη πιστότητα χρωμάτων SDR και HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

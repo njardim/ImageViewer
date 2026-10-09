@@ -88,8 +88,8 @@
         <translation>HEIC చిత్రాలకు Microsoft Store నుండి Microsoft యొక్క “HEIF Image Extensions” మరియు “HEVC Video Extensions” అవసరం.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC చిత్రాలకు HEVC డీకోడర్ అవసరం, దీన్ని imageViewer ఈ సిస్టమ్‌లో చేర్చదు (పేటెంట్లు); ముందుగా వాటిని మరొక ఫార్మాట్‌కు మార్చండి.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC చిత్రాలకు HEVC డీకోడర్ అవసరం, దీన్ని ImageViewer ఈ సిస్టమ్‌లో చేర్చదు (పేటెంట్లు); ముందుగా వాటిని మరొక ఫార్మాట్‌కు మార్చండి.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>ఎప్పుడూ కాదు</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>టైటిల్ బార్:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>కదలని పాయింటర్ ఇంత సమయం తర్వాత దాచు:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>తర్వాత దాచు:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>తదుపరి మరియు మునుపటి చిత్రాలను ముందుగానే లోడ్ చేయి</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>స్లైడ్‌షో</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer గురించి</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer గురించి</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>జూమ్ అన్‌లాక్ చేయబడింది</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>ప్రతి చిత్రాన్ని దాని ఫైల్ నిర్వచించినట్లుగానే, ధృవీకరించగల రంగులతో, SDR మరియు HDR లో చూపిస్తుంది.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>వేగంగా మరియు కనిష్టంగా, ఇది Windows, macOS మరియు Linux లో 50 కంటే ఎక్కువ ఫార్మాట్‌లను తెరుస్తుంది.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>ఈ ఫోల్డర్‌లో చిత్రాలు ఏవీ మిగల్లేదు.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>ధృవీకరించదగిన SDR మరియు HDR రంగు ఖచ్చితత్వంతో కూడిన ఇమేజ్ వ్యూయర్.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

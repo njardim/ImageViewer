@@ -88,8 +88,8 @@
         <translation>L-immaġini HEIC jeħtieġu l-estensjonijiet ta’ Microsoft “HEIF Image Extensions” u “HEVC Video Extensions”, mill-Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>L-immaġini HEIC jeħtieġu dekoder HEVC, li imageViewer ma jinkludix f’din is-sistema (privattivi); l-ewwel ikkonvertihom f’format ieħor.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>L-immaġini HEIC jeħtieġu dekoder HEVC, li ImageViewer ma jinkludix f’din is-sistema (privattivi); l-ewwel ikkonvertihom f’format ieħor.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Bar tat-titlu:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Aħbi l-kursur li ma jiċċaqlaqx wara:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Tieqa</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Enfasizza l-pixels mibdula bil-clipping jew bit-tone mapping (manġenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Qatt</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Preżentazzjoni</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Dwar imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Dwar ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Iż-zoom ġie żblokkjat</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Juri kull immaġni kif tiddefinixxiha l-fajl tagħha, b&apos;kuluri li tista&apos; tivverifika, f&apos;SDR u HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Veloċi u minimali, jiftaħ aktar minn 50 format fuq Windows, macOS u Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Imsemmi mill-ġdid bħala “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Viewer tal-immaġni b&apos;fedeltà tal-kulur SDR u HDR li tista&apos; tiġi vverifikata.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

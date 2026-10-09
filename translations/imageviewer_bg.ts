@@ -88,8 +88,8 @@
         <translation>HEIC изображенията изискват разширенията на Microsoft „HEIF Image Extensions“ и „HEVC Video Extensions“ от Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC изображенията изискват HEVC декодер, който imageViewer не включва в тази система (патенти); първо ги преобразувайте в друг формат.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC изображенията изискват HEVC декодер, който ImageViewer не включва в тази система (патенти); първо ги преобразувайте в друг формат.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Заглавна лента:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Скриване на неподвижния показалец след:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Прозорец</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Открояване на пикселите, променени при отсичане или тоново картографиране (магента)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Никога</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Слайдшоу</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Относно imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Относно ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Мащабът е отключен</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Показва всяко изображение така, както го определя файлът му, с проверими цветове, в SDR и HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Бърз и минималистичен, отваря над 50 формата във Windows, macOS и Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Преименувано на „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Програма за преглед на изображения с проверима цветова вярност в SDR и HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

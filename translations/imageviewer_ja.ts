@@ -88,8 +88,8 @@
         <translation>HEIC 画像には、Microsoft Store の Microsoft「HEIF Image Extensions」と「HEVC Video Extensions」が必要です。</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC 画像には HEVC デコーダーが必要ですが、このシステムでは imageViewer に含まれていません（特許のため）。先に別の形式に変換してください。</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 画像には HEVC デコーダーが必要ですが、このシステムでは ImageViewer に含まれていません（特許のため）。先に別の形式に変換してください。</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>表示しない</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>タイトルバー：</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>動かないポインターを非表示にするまでの時間：</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>非表示にするまでの時間：</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>前後の画像を先読みする</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>スライドショー</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer について</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer について</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>ズームの固定を解除しました</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>すべての画像をファイルの定義どおりに、検証可能な色で、SDR と HDR の両方で表示します。</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>高速でミニマル。Windows、macOS、Linux で 50 種類以上の形式を開けます。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>このフォルダーには画像が残っていません。</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>SDR と HDR の色忠実度を検証できる画像ビューアー。</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

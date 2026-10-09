@@ -2,6 +2,7 @@
 // and input. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include <QApplication>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeyEvent>
@@ -45,10 +46,8 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     Q_UNUSED(vulkan);
     setSurfaceType(QSurface::OpenGLSurface);
 #endif
-    setTitle(QStringLiteral("imageViewer"));
+    setTitle(QStringLiteral("ImageViewer"));
     setMinimumSize(kMinWindowSize);
-    m_toneMap = m_settings.toneMap;
-    m_showInfo = m_settings.showInfo;
     m_renderer.setOutputPreference(m_settings.output);
     m_decodePool.setMaxThreadCount(1);
     m_recent = loadRecentFiles();
@@ -61,6 +60,13 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     connect(&m_topOverlayTimer, &QTimer::timeout, this, [this] {
         m_pointerAtTop = false;
         requestUpdate();
+    });
+    m_pointerTimer.setSingleShot(true);
+    connect(&m_pointerTimer, &QTimer::timeout, this, [this] {
+        if (m_dragging || QApplication::activePopupWidget() || QGuiApplication::modalWindow())
+            return; // never under a press, a menu or a dialog
+        m_pointerHidden = true;
+        updateCursor();
     });
     m_folderTimer.setSingleShot(true);
     m_folderTimer.setInterval(kFolderSettleMs);
@@ -172,7 +178,16 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Close:
         saveSession();
         break;
+    case QEvent::Enter:
+        pointerActive();
+        break;
+    case QEvent::WindowBlocked: // a modal dialog takes the mouse events that would show the pointer
+        m_pointerTimer.stop();
+        if (std::exchange(m_pointerHidden, false))
+            updateCursor();
+        break;
     case QEvent::Leave:
+        m_pointerTimer.stop();
         setHoverZone(Zone::None);
         setPointerAtTop(false);
         break;
@@ -245,7 +260,7 @@ void ViewerWindow::initializeRenderer()
         // Not from inside expose/paint (a nested event loop in the platform's paint callback):
         // report once control is back in the event loop, then exit with an error status.
         QMetaObject::invokeMethod(this, [error] {
-            QMessageBox::critical(nullptr, QStringLiteral("imageViewer"), error);
+            QMessageBox::critical(nullptr, QStringLiteral("ImageViewer"), error);
             QCoreApplication::exit(1);
         }, Qt::QueuedConnection);
         return;
@@ -431,8 +446,8 @@ Renderer::Frame ViewerWindow::imageFrame() const
 {
     Renderer::Frame frame;
     frame.exposure = std::exp2(m_exposureEv);
-    frame.toneMap = m_toneMap;
-    frame.clipWarning = m_clipWarning;
+    frame.toneMap = m_settings.toneMap;
+    frame.clipWarning = m_settings.clipWarning;
     frame.contentPeak = m_image.maxComponent;
     frame.contentLuminancePeak = m_image.maxLuminance;
     frame.absoluteLuminance = m_image.colour.isAbsolute();
@@ -511,7 +526,7 @@ void ViewerWindow::recoverFromDeviceLoss()
 {
     // Driver reset, update or GPU switch (D3D11 TDR): every GPU object is gone, including
     // the image, whose pixels only lived on the GPU. Rebuild and decode it again.
-    qWarning("imageViewer: graphics device lost; reinitialising the renderer");
+    qWarning("ImageViewer: graphics device lost; reinitialising the renderer");
     m_renderer.releaseResources();
     m_rendererReady = false;
     initializeRenderer();
@@ -555,8 +570,25 @@ void ViewerWindow::setHoverZone(Zone zone)
     if (zone == m_hoverZone)
         return;
     m_hoverZone = zone;
-    setCursor(zone == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    updateCursor();
     updateNavigationButtons();
+}
+
+void ViewerWindow::pointerActive()
+{
+    if (m_pointerHidden) {
+        m_pointerHidden = false;
+        updateCursor();
+    }
+    if (m_settings.pointerHideMs > 0)
+        m_pointerTimer.start(m_settings.pointerHideMs);
+    else
+        m_pointerTimer.stop();
+}
+
+void ViewerWindow::updateCursor()
+{
+    setCursor(m_pointerHidden ? Qt::BlankCursor : m_hoverZone == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
 }
 
 void ViewerWindow::savePreference(const std::function<void(Settings &)> &change)
@@ -581,11 +613,10 @@ void ViewerWindow::applySettings(const Settings &settings)
         if (!m_image.path.isEmpty())
             m_imageStale = true;
     }
-    if (settings.toneMap != previous.toneMap)
-        m_toneMap = settings.toneMap;
+    if (settings.pointerHideMs != previous.pointerHideMs)
+        pointerActive();
     if (m_slideshow && settings.slideshowSeconds != previous.slideshowSeconds)
-        m_slideshowTimer.start(settings.slideshowSeconds * 1000); // a running slideshow takes the new interval
-    m_showInfo = settings.showInfo;
+        m_slideshowTimer.start(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes the new interval
     m_renderer.setOutputPreference(settings.output);
     // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
     if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)
@@ -641,20 +672,19 @@ void ViewerWindow::resetExposure()
 
 void ViewerWindow::toggleToneMap()
 {
-    m_toneMap = !m_toneMap;
+    savePreference([on = !m_settings.toneMap](Settings &s) { s.toneMap = on; });
     updateOverlay();
 }
 
 void ViewerWindow::toggleClipWarning()
 {
-    m_clipWarning = !m_clipWarning;
+    savePreference([on = !m_settings.clipWarning](Settings &s) { s.clipWarning = on; });
     updateOverlay();
 }
 
 void ViewerWindow::toggleInfo()
 {
-    m_showInfo = !m_showInfo;
-    savePreference([on = m_showInfo](Settings &s) { s.showInfo = on; });
+    savePreference([on = !m_settings.showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
 }
 
@@ -675,6 +705,7 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
 
 void ViewerWindow::mousePressEvent(QMouseEvent *e)
 {
+    pointerActive();
     switch (e->button()) {
     case Qt::RightButton:
         showContextMenu(e->globalPosition().toPoint());
@@ -701,6 +732,7 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
 
 void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
 {
+    pointerActive();
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         m_dragging = false;
@@ -734,7 +766,7 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
         step(pressed == Zone::Next ? +1 : -1);
     // Refresh unconditionally: the button loses its pressed look even when the zone is unchanged.
     m_hoverZone = released;
-    setCursor(released == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    updateCursor();
     updateNavigationButtons();
 }
 
@@ -757,6 +789,7 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
 {
     // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
+    pointerActive();
     const QPointingDevice *device = e->pointingDevice();
     const bool gesture = e->phase() != Qt::NoScrollPhase
                          || (device && device->type() == QInputDevice::DeviceType::TouchPad);

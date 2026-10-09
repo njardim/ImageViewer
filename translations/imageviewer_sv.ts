@@ -88,8 +88,8 @@
         <translation>HEIC-bilder kräver Microsofts ”HEIF Image Extensions” och ”HEVC Video Extensions” från Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-bilder kräver en HEVC-avkodare, som imageViewer inte innehåller på det här systemet (patent); konvertera dem först till ett annat format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-bilder kräver en HEVC-avkodare, som ImageViewer inte innehåller på det här systemet (patent); konvertera dem först till ett annat format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Namnlist:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Dölj stillastående pekare efter:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fönster</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Markera pixlar som ändrats genom klippning eller tonmappning (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Aldrig</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Bildspel</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Om imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Om ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Zoomen är upplåst</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Visar varje bild så som dess fil definierar den, med färger du kan verifiera, i SDR och HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Snabbt och minimalistiskt öppnar det fler än 50 format i Windows, macOS och Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Namnet ändrades till ”%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Bildvisare med verifierbar SDR- och HDR-färgtrohet.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

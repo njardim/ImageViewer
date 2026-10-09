@@ -88,8 +88,8 @@
         <translation>HEIC-pildid vajavad Microsofti laiendusi „HEIF Image Extensions” ja „HEVC Video Extensions” Microsoft Store’ist.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-pildid vajavad HEVC-dekoodrit, mida imageViewer selles süsteemis ei sisalda (patendid); teisendage need esmalt teise vormingusse.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-pildid vajavad HEVC-dekoodrit, mida ImageViewer selles süsteemis ei sisalda (patendid); teisendage need esmalt teise vormingusse.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Tiitliriba:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Peida liikumatu kursor pärast:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Aken</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Tõsta esile pikslid, mida on muutnud kärpimine või toonivastendus (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Mitte kunagi</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Slaidiseanss</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Teave rakenduse imageViewer kohta</translation>
+        <source>About ImageViewer</source>
+        <translation>Teave rakenduse ImageViewer kohta</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Suumi lukustus eemaldatud</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Kuvab iga pildi nii, nagu selle fail seda määratleb, kontrollitavate värvidega, SDR- ja HDR-režiimis.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Kiire ja minimalistlik, avab üle 50 vormingu süsteemides Windows, macOS ja Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Ümber nimetatud: „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Pildivaatur, mille värvitäpsus on kontrollitav nii SDR- kui ka HDR-režiimis.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -2,7 +2,7 @@ if (VCPKG_TARGET_IS_WINDOWS)
     vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 endif()
 
-# imageViewer overlay (D-46): minizip-ng 4.2.2 ahead of vcpkg's 4.1.0, built only with what
+# ImageViewer overlay (D-46): minizip-ng 4.2.2 ahead of vcpkg's 4.1.0, built only with what
 # OpenColorIO uses (zlib and PKWARE decryption): no bzip2, LZMA, PPMd, Zstandard, OpenSSL, WinZip AES,
 # libbsd or Apple compression, so vcpkg's dependency patch for those libraries is not needed.
 vcpkg_from_git(

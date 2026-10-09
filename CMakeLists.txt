@@ -103,6 +103,12 @@ target_link_libraries(imageviewer PRIVATE
     OpenImageIO::OpenImageIO
     lcms2::lcms2
 )
+if(APPLE)
+    # SVG is read by Qt's image plugin; macdeployqt copies that plugin only into bundles
+    # whose executable links QtSvg (the 0.4 macOS package had no SVG support without this).
+    find_package(Qt6 6.12 REQUIRED COMPONENTS Svg)
+    target_link_libraries(imageviewer PRIVATE Qt6::Svg)
+endif()
 if(JXL_INCLUDE_DIR AND JXL_LIBRARY AND JXL_THREADS_LIBRARY)
     target_include_directories(imageviewer PRIVATE ${JXL_INCLUDE_DIR})
     target_link_libraries(imageviewer PRIVATE ${JXL_LIBRARY} ${JXL_THREADS_LIBRARY})
@@ -171,10 +177,10 @@ else()
 endif()
 
 set_target_properties(imageviewer PROPERTIES
-    OUTPUT_NAME imageViewer
+    OUTPUT_NAME ImageViewer
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON
-    MACOSX_BUNDLE_BUNDLE_NAME imageViewer
+    MACOSX_BUNDLE_BUNDLE_NAME ImageViewer
     MACOSX_BUNDLE_GUI_IDENTIFIER com.cristallumnis.imageviewer
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
@@ -190,7 +196,7 @@ install(TARGETS imageviewer
 # plus the licence texts of the third-party libraries it ships (third-party/).
 # Installed before the deploy script so that macdeployqt's signature covers them.
 if(APPLE)
-    set(doc_dir imageViewer.app/Contents/Resources)
+    set(doc_dir ImageViewer.app/Contents/Resources)
 else()
     set(doc_dir .)
 endif()
@@ -225,7 +231,7 @@ if(APPLE AND DEFINED VCPKG_INSTALLED_DIR)
         INSTALL_RPATH "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 endif()
 if(WIN32)
-    # MSVC runtime DLLs go next to imageViewer.exe (app-local) instead of the
+    # MSVC runtime DLLs go next to ImageViewer.exe (app-local) instead of the
     # vc_redist installer that windeployqt would add.
     list(APPEND deploy_options NO_COMPILER_RUNTIME)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})

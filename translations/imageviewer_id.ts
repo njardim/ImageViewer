@@ -88,8 +88,8 @@
         <translation>Gambar HEIC memerlukan “HEIF Image Extensions” dan “HEVC Video Extensions” dari Microsoft, di Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Gambar HEIC memerlukan dekoder HEVC, yang tidak disertakan imageViewer pada sistem ini (paten); konversikan dulu ke format lain.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Gambar HEIC memerlukan dekoder HEVC, yang tidak disertakan ImageViewer pada sistem ini (paten); konversikan dulu ke format lain.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Tidak pernah</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>Bilah judul:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Sembunyikan penunjuk yang diam setelah:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Sembunyikan setelah:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>Tayangan slide</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Tentang imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Tentang ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Kunci zoom dibuka</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Menampilkan setiap gambar sebagaimana ditentukan oleh filenya, dengan warna yang dapat Anda verifikasi, dalam SDR dan HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Cepat dan minimalis, aplikasi ini membuka lebih dari 50 format di Windows, macOS, dan Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>Tidak ada gambar tersisa di folder ini.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Penampil gambar dengan fidelitas warna SDR dan HDR yang dapat diverifikasi.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

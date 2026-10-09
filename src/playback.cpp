@@ -11,6 +11,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include <algorithm>
+#include <cmath>
 
 namespace {
 constexpr qint64 kPlayingPanelMs = 250;
@@ -135,7 +136,7 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
     }
     // The panel shows the frame number. While playing it follows four times a second: drawing
     // the panel (each text nine times with its outline) takes milliseconds, every frame.
-    if (m_showInfo && (m_animationPaused || !m_panelRefreshed.isValid() || m_panelRefreshed.hasExpired(kPlayingPanelMs))) {
+    if (m_settings.showInfo && (m_animationPaused || !m_panelRefreshed.isValid() || m_panelRefreshed.hasExpired(kPlayingPanelMs))) {
         m_panelRefreshed.start();
         updateOverlay();
     }
@@ -212,7 +213,7 @@ void ViewerWindow::toggleSlideshow()
     if (m_files.size() < 2)
         return;
     m_slideshow = true;
-    m_slideshowTimer.start(m_settings.slideshowSeconds * 1000);
+    m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
     //: %1: seconds between images, e.g. "5".
     showNotice(tr("Slideshow: a new image every %1 s").arg(QLocale().toString(m_settings.slideshowSeconds)));
 }
@@ -227,7 +228,7 @@ void ViewerWindow::slideshowTimeout()
 {
     // Not behind a dialog or a menu: the image they act on must stay the one on screen.
     if (QGuiApplication::modalWindow() || QApplication::activePopupWidget()) {
-        m_slideshowTimer.start(m_settings.slideshowSeconds * 1000);
+        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
         return;
     }
     if (!hasNeighbour(+1)) { // the end of a folder that does not loop

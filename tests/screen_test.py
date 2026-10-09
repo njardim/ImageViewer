@@ -1,6 +1,6 @@
 """On-screen fidelity test (Linux, Xvfb): F8 at 100 % in SDR.
 
-Opens a synthetic 8-bit sRGB ramp in imageViewer on a virtual X display, grabs
+Opens a synthetic 8-bit sRGB ramp in ImageViewer on a virtual X display, grabs
 the screen and requires the image region to match the file exactly. This
 exercises the whole chain: decode -> linear scRGB FP16 -> GPU -> sRGB encode.
 
@@ -11,7 +11,7 @@ take several seconds (run 4 failed a fixed 6 s wait).
 The viewer's log must show that it rendered with the requested backend (a silent
 fallback from Vulkan to OpenGL would otherwise pass unnoticed).
 
-usage: python3 tests/screen_test.py <imageViewer> [vulkan|opengl]
+usage: python3 tests/screen_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
 env:   SCREEN_TEST_DIR  where to keep the log and the last screenshot (default: a temp dir)
 """
@@ -105,7 +105,7 @@ finally:
 log_text = open(log_path, encoding="utf-8", errors="replace").read()
 print(log_text)
 if app.returncode not in (None, -15, 0) and best is None:
-    print(f"FAIL: {rhi}: imageViewer exited with code {app.returncode}")
+    print(f"FAIL: {rhi}: ImageViewer exited with code {app.returncode}")
     sys.exit(1)
 backend = re.search(r"imageviewer\.render: backend \"?(\w+)", log_text)
 if not backend or backend.group(1) != expected_backend:

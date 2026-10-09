@@ -88,8 +88,8 @@
         <translation>HEIC 图像需要 Microsoft Store 中 Microsoft 的“HEIF Image Extensions”和“HEVC Video Extensions”。</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC 图像需要 HEVC 解码器，而 imageViewer 在此系统上不包含该解码器（专利原因）；请先将其转换为其他格式。</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 图像需要 HEVC 解码器，而 ImageViewer 在此系统上不包含该解码器（专利原因）；请先将其转换为其他格式。</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>从不</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>标题栏：</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>静止指针隐藏延迟：</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>隐藏延迟：</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>提前加载上一张和下一张图像</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>幻灯片放映</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>关于 imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>关于 ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>缩放已解锁</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>按文件自身的定义显示每一张图像，色彩可验证，支持 SDR 和 HDR。</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>快速而简约，可在 Windows、macOS 和 Linux 上打开 50 多种格式。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>此文件夹中已没有图像。</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>具有可验证的 SDR 与 HDR 色彩保真度的图像查看器。</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -88,8 +88,8 @@
         <translation>تحتاج صور HEIC إلى إضافتي Microsoft ‏«HEIF Image Extensions» و«HEVC Video Extensions» من Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>تحتاج صور HEIC إلى مفكّك ترميز HEVC، لا يتضمّنه imageViewer على هذا النظام (براءات اختراع)؛ حوّلها أولاً إلى تنسيق آخر.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>تحتاج صور HEIC إلى مفكّك ترميز HEVC، لا يتضمّنه ImageViewer على هذا النظام (براءات اختراع)؛ حوّلها أولاً إلى تنسيق آخر.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>أبداً</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>شريط العنوان:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>إخفاء المؤشر الساكن بعد:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>الإخفاء بعد:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>تحميل الصورة التالية والسابقة مسبقاً</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>عرض الشرائح</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>حول imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>حول ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>تم إلغاء قفل التكبير</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>يعرض كل صورة كما يحددها ملفها، بألوان يمكنك التحقق منها، في SDR وHDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>سريع وبسيط، يفتح أكثر من 50 تنسيقًا على Windows وmacOS وLinux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>لم تعد هناك صور في هذا المجلد.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>عارض صور بدقة ألوان SDR وHDR قابلة للتحقق.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

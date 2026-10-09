@@ -6,13 +6,18 @@
 
 #include "formats.h"
 
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QGridLayout>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QPushButton>
 #include <QStandardPaths>
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
 
@@ -59,7 +64,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::DeletePermanently, either(mac, K(Qt::CTRL | Qt::SHIFT | Qt::Key_Backspace), K(Qt::SHIFT | Qt::Key_Delete)), false},
         {C::UndoTrash, {K(Qt::CTRL | Qt::Key_Z)}, false},
         {C::Settings, {K(Qt::CTRL | Qt::Key_Comma)}, false},
-        {C::Quit, {K(Qt::CTRL | Qt::Key_Q)}, false},
+        {C::Quit, {K(Qt::Key_Q), K(Qt::CTRL | Qt::Key_Q)}, false}, // Ctrl/⌘+Q: the platforms' own
         {C::Previous, {K(Qt::Key_Left), K(Qt::Key_PageUp), K(Qt::Key_Backspace)}, true},
         {C::Next, {K(Qt::Key_Right), K(Qt::Key_PageDown), K(Qt::Key_Space)}, true},
         {C::First, {K(Qt::SHIFT | Qt::Key_Left), K(Qt::Key_Home)}, false},
@@ -153,7 +158,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::PreviousFrame: return tr("Previous Frame");
     case Command::NextFrame: return tr("Next Frame");
     case Command::Slideshow: return tr("Slideshow");
-    case Command::About: return tr("About imageViewer");
+    case Command::About: return tr("About ImageViewer");
     case Command::AboutQt: return tr("About Qt");
     }
     return {};
@@ -214,11 +219,11 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::Fill: return m_fit == FitMode::Fill;
     case Command::LockZoom: return m_settings.lockZoom;
     case Command::FullScreen: return visibility() == QWindow::FullScreen;
-    case Command::Info: return m_showInfo;
+    case Command::Info: return m_settings.showInfo;
     case Command::InfoOverlay: return topOverlayMode() != OverlayVisibility::Hidden;
     case Command::Checkerboard: return m_settings.checkerboard;
-    case Command::ToneMap: return m_toneMap;
-    case Command::ClipWarning: return m_clipWarning;
+    case Command::ToneMap: return m_settings.toneMap;
+    case Command::ClipWarning: return m_settings.clipWarning;
     case Command::PlayPause: return m_animationPaused;
     case Command::Slideshow: return m_slideshow;
     default: *checkable = false; return false;
@@ -522,18 +527,31 @@ void ViewerWindow::showSettings()
 
 void ViewerWindow::showAbout()
 {
-    QMessageBox box;
-    box.setWindowTitle(tr("About imageViewer"));
-    box.setTextFormat(Qt::RichText);
-    box.setTextInteractionFlags(Qt::TextBrowserInteraction);
-    box.setText(QStringLiteral("<h3>imageViewer %1</h3><p>%2</p><p>© 2026 Cristallumnis, Lda.<br>%3</p><p>%4</p>"
-                               "<p><a href=\"https://github.com/njardim/ImageViewer\">github.com/njardim/ImageViewer</a></p>")
-                    .arg(QCoreApplication::applicationVersion().toHtmlEscaped(),
-                         tr("Image viewer with verifiable SDR and HDR color fidelity."),
-                         tr("Licensed under the Apache License, Version 2.0."),
-                         tr("The licenses of the third-party components are in the <i>third-party</i> folder "
-                            "installed with the application.")));
-    box.addButton(tr("OK"), QMessageBox::AcceptRole);
-    makeTransient(box, this);
-    box.exec();
+    QDialog dialog;
+    dialog.setWindowTitle(tr("About ImageViewer"));
+    auto *layout = new QGridLayout(&dialog);
+    // The application's logo goes here, 256 × 256 logical pixels.
+    auto *logo = new QLabel;
+    logo->setFixedSize(256, 256);
+    layout->addWidget(logo, 0, 0, Qt::AlignTop);
+    auto *text = new QLabel(
+        QStringLiteral("<h3>ImageViewer %1</h3><p>%2<br>%3</p><p>© 2026 Cristallumnis, Lda.<br>%4</p><p>%5</p>"
+                       "<p><a href=\"https://github.com/njardim/ImageViewer\">github.com/njardim/ImageViewer</a></p>")
+            .arg(QCoreApplication::applicationVersion().toHtmlEscaped(),
+                 tr("Shows every image as its file defines it, with colors you can verify, in SDR and HDR."),
+                 tr("Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux."),
+                 tr("Licensed under the Apache License, Version 2.0."),
+                 tr("The licenses of the third-party components are in the <i>third-party</i> folder "
+                    "installed with the application.")));
+    text->setTextFormat(Qt::RichText);
+    text->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    text->setOpenExternalLinks(true);
+    text->setWordWrap(true);
+    text->setMinimumWidth(500);
+    layout->addWidget(text, 0, 1, Qt::AlignTop);
+    auto *buttons = new QDialogButtonBox;
+    connect(buttons->addButton(tr("OK"), QDialogButtonBox::AcceptRole), &QPushButton::clicked, &dialog, &QDialog::accept);
+    layout->addWidget(buttons, 1, 0, 1, 2);
+    makeTransient(dialog, this);
+    dialog.exec();
 }

@@ -54,7 +54,7 @@ vcpkg_cmake_configure(
         -DCMAKE_COMPILE_WARNING_AS_ERROR=OFF
         "-DCMAKE_PROJECT_INCLUDE=${CURRENT_PORT_DIR}/cmake-project-include.cmake"
         -DPLUGIN_DIRECTORY=  # empty
-        # imageViewer overlay: no HEVC decoder (libde265), see vcpkg.json "$comment".
+        # ImageViewer overlay: no HEVC decoder (libde265), see vcpkg.json "$comment".
         -DWITH_LIBDE265=OFF
         -DWITH_DAV1D=OFF
         -DWITH_EXAMPLES=OFF

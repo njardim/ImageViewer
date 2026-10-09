@@ -88,8 +88,8 @@
         <translation>Obrázky HEIC vyžadujú rozšírenia Microsoftu „HEIF Image Extensions“ a „HEVC Video Extensions“ z Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Obrázky HEIC vyžadujú dekodér HEVC, ktorý imageViewer v tomto systéme neobsahuje (patenty); najprv ich skonvertujte do iného formátu.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Obrázky HEIC vyžadujú dekodér HEVC, ktorý ImageViewer v tomto systéme neobsahuje (patenty); najprv ich skonvertujte do iného formátu.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Záhlavie okna:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Skryť nehybný ukazovateľ myši po:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Zvýrazniť pixely zmenené orezaním alebo mapovaním tónov (purpurová)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nikdy</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Prezentácia</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>O aplikácii imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>O aplikácii ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Priblíženie odomknuté</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Zobrazuje každý obrázok tak, ako ho definuje jeho súbor, s overiteľnými farbami, v SDR aj HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Rýchly a minimalistický, otvorí viac ako 50 formátov v systémoch Windows, macOS a Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Premenované na „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Prehliadač obrázkov s overiteľnou vernosťou farieb v SDR aj HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

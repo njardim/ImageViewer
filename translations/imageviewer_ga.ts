@@ -88,8 +88,8 @@
         <translation>Teastaíonn síntí Microsoft “HEIF Image Extensions” agus “HEVC Video Extensions” ó Microsoft Store le haghaidh íomhánna HEIC.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Teastaíonn díchódóir HEVC le haghaidh íomhánna HEIC, rud nach bhfuil san áireamh in imageViewer ar an gcóras seo (paitinní); tiontaigh go formáid eile iad ar dtús.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Teastaíonn díchódóir HEVC le haghaidh íomhánna HEIC, rud nach bhfuil san áireamh in ImageViewer ar an gcóras seo (paitinní); tiontaigh go formáid eile iad ar dtús.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Barra teidil:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Folaigh pointeoir gan bogadh tar éis:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fuinneog</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Aibhsigh picteilíní a athraíodh trí ghearradh nó mapáil toin (maigeanta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Riamh</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Taispeántas sleamhnán</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Maidir le imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Maidir le ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Zúmáil díghlasáilte</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Taispeánann gach íomhá mar a shainmhíníonn a comhad í, le dathanna is féidir leat a fhíorú, in SDR agus HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Tapa agus íostach, osclaíonn sé níos mó ná 50 formáid ar Windows, macOS agus Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Athainmníodh mar “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Amharcán íomhánna le dílseacht datha infhíoraithe i SDR agus i HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

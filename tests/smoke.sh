@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Headless smoke test of the decode + colour pipeline: `imageViewer --info`.
+# Headless smoke test of the decode + colour pipeline: `ImageViewer --info`.
 # `--info` runs on a QCoreApplication (no platform plugin), so this also works on
 # packaged binaries on machines without a display.
-# Usage: tests/smoke.sh <path-to-imageViewer-executable>
+# Usage: tests/smoke.sh <path-to-ImageViewer-executable>
 set -euo pipefail
 # Windows: a GUI program without a console sends its log to the debugger, not to stderr.
 export QT_FORCE_STDERR_LOGGING=1
@@ -181,7 +181,7 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *fits | .* | yes | "; then
 fi
 # Softimage PIC content under the name of another format: our PIC reader, never OpenImageIO's,
 # which crashed on the truncated ones (D-45, 0.4 review).
-check pic-named.svg 'codec: +imageViewer \(Softimage PIC\)' "PIC content named .svg read by our PIC reader"
+check pic-named.svg 'codec: +ImageViewer \(Softimage PIC\)' "PIC content named .svg read by our PIC reader"
 for f in pic-truncated.svg pic-truncated.dcm; do
     code=0
     "$exe" --info "$data/$f" >/dev/null 2>&1 || code=$?

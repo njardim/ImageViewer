@@ -395,7 +395,7 @@ bool isConsoleMode(int argc, char *argv[])
 }
 
 #if defined(Q_OS_WIN)
-// imageViewer.exe is a GUI-subsystem program: from a terminal its output would vanish.
+// ImageViewer.exe is a GUI-subsystem program: from a terminal its output would vanish.
 // Console modes attach to the parent console when stdout is not already redirected.
 void attachParentConsole()
 {
@@ -438,10 +438,11 @@ int main(int argc, char *argv[])
 #endif
     const std::unique_ptr<QCoreApplication> app = console ? std::make_unique<QCoreApplication>(argc, argv)
                                                           : std::make_unique<QApplication>(argc, argv);
-    QCoreApplication::setApplicationName(QStringLiteral("imageViewer"));
+    QCoreApplication::setApplicationName(QStringLiteral("ImageViewer"));
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    adoptEarlierSettingsFile(); // before anything reads the settings
     // Runs after the viewer window (declared later, destroyed first) has waited for its last
     // decode, and before the application object goes.
     const auto decoders = qScopeGuard(&shutdownDecoders);

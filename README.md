@@ -1,8 +1,8 @@
-# imageViewer
+# ImageViewer
 
 **An image viewer for Windows, macOS and Linux whose colors you can verify — in SDR and in HDR.**
 
-imageViewer shows images the way they were made. Every image is converted once, from its own color description (ICC profile or CICP code points), into a linear wide-gamut working space at 16-bit floating point. It is then sent to the display through a real HDR output where the system offers one: scRGB on Windows, EDR on macOS, HDR10 where available. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which. Fidelity is tested automatically on every build, not just claimed (see [How fidelity is verified](#how-fidelity-is-verified)).
+ImageViewer shows images the way they were made. Every image is converted once, from its own color description (ICC profile or CICP code points), into a linear wide-gamut working space at 16-bit floating point. It is then sent to the display through a real HDR output where the system offers one: scRGB on Windows, EDR on macOS, HDR10 where available. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which. Fidelity is tested automatically on every build, not just claimed (see [How fidelity is verified](#how-fidelity-is-verified)).
 
 The interface stays out of the way: the image fills the window, everything else is a right-click or a key away, and it speaks 37 languages.
 
@@ -14,9 +14,9 @@ Get the latest version from [Releases](https://github.com/njardim/ImageViewer/re
 
 | System | Package | Requirements |
 |---|---|---|
-| Windows x64 | `imageViewer-<version>-windows-x64.zip` — unzip and run `bin/imageViewer.exe` | Windows 10 (22H2) or 11 |
-| macOS (Apple silicon) | `imageViewer-<version>-macos-arm64.dmg` — drag `imageViewer.app` to Applications | macOS 14.4 or later |
-| Linux x64 | `imageViewer-<version>-linux-x64.tar.gz` — extract and run `bin/imageViewer` | glibc 2.39 (Ubuntu 24.04 or newer distributions), X11 or XWayland, `libopengl0`, `libegl1`, `libxcb-cursor0` |
+| Windows x64 | `ImageViewer-<version>-windows-x64.zip` — unzip and run `bin/ImageViewer.exe` | Windows 10 (22H2) or 11 |
+| macOS (Apple silicon) | `ImageViewer-<version>-macos-arm64.dmg` — drag `ImageViewer.app` to Applications | macOS 14.4 or later |
+| Linux x64 | `ImageViewer-<version>-linux-x64.tar.gz` — extract and run `bin/ImageViewer` | glibc 2.39 (Ubuntu 24.04 or newer distributions), X11 or XWayland, `libopengl0`, `libegl1`, `libxcb-cursor0` |
 
 `SHA256SUMS` lists the checksums of the packages. Each package is built and tested by CI on a clean machine, and on public releases it carries a GitHub build provenance attestation (`gh attestation verify <file> --repo njardim/ImageViewer`).
 
@@ -28,7 +28,7 @@ The packages are **not signed yet**:
 
 - **Color-managed decoding:** ICC v2/v4 profiles, CICP (PQ, HLG, BT.709/BT.2020, linear), EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images. Wide-gamut colors are kept, not clipped to sRGB.
 - **HDR output:** scRGB (Windows), EDR (macOS) and HDR10/PQ, with absolute luminance for PQ content. BT.2390 tone mapping only when an image exceeds the display; exposure control; an option to highlight clipped or tone-mapped pixels.
-- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, camera RAW (LibRaw) and more; animated GIF, WebP, APNG, JPEG XL and AVIF. The long tail — GIMP XCF, PCX/DCX, Apple PICT, WordPerfect WPG, MIFF, Sun raster, Khoros VIFF, DICOM, VICAR, MATLAB, PlayStation TIM, Dr. Halo CUT, MacPaint, Alias PIX, Nokia OTB — is read by GraphicsMagick 1.3.49 in a separate process with a list of allowed decoders, limits and a time-out, so a damaged file there cannot take the viewer down. `imageViewer --formats` lists what a build reads, and with which library. Files are recognised by their content, not their extension. HEIC is decoded by the operating system: macOS always; Windows with Microsoft's “HEIF Image Extensions” and “HEVC Video Extensions” from the Microsoft Store; on Linux, the package reads no HEIC (its libheif has no HEVC decoder), while a build from source against the distribution's libheif reads it when that libheif has an HEVC decoder (e.g. `libheif-plugin-libde265`). imageViewer ships no HEVC decoder (patents).
+- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, camera RAW (LibRaw) and more; animated GIF, WebP, APNG, JPEG XL and AVIF. The long tail — GIMP XCF, PCX/DCX, Apple PICT, WordPerfect WPG, MIFF, Sun raster, Khoros VIFF, DICOM, VICAR, MATLAB, PlayStation TIM, Dr. Halo CUT, MacPaint, Alias PIX, Nokia OTB — is read by GraphicsMagick 1.3.49 in a separate process with a list of allowed decoders, limits and a time-out, so a damaged file there cannot take the viewer down. `ImageViewer --formats` lists what a build reads, and with which library. Files are recognised by their content, not their extension. HEIC is decoded by the operating system: macOS always; Windows with Microsoft's “HEIF Image Extensions” and “HEVC Video Extensions” from the Microsoft Store; on Linux, the package reads no HEIC (its libheif has no HEVC decoder), while a build from source against the distribution's libheif reads it when that libheif has an HEVC decoder (e.g. `libheif-plugin-libde265`). ImageViewer ships no HEVC decoder (patents).
 - **Animation:** GIF, WebP, APNG, JPEG XL and AVIF sequences play with their own timing and loop count, as browsers play them; pause and step frame by frame.
 - **Viewing:**
   - zoom at the cursor, exact 100 % (one image pixel per screen pixel), pan;
@@ -37,7 +37,7 @@ The packages are **not signed yet**:
   - rotate and mirror horizontally or vertically;
   - full screen; an optional checkerboard behind transparent areas;
   - a slideshow through the folder.
-- **Information:** one panel (I) with everything about the image: file, dimensions, format, color description, peak, camera data (EXIF), view and output, including whether highlights are tone mapped or clipped. A compact line at the top (Shift+I) shows the file name, dimensions, file size, zoom, color space and date, configurable and shown on hover in full screen; it never moves the image. Both share one look (background opacity, text opacity, outline) and stay legible over any image, in SDR and HDR.
+- **Information:** one panel (I) with everything about the image: file, dimensions, format, color description, peak, camera data (EXIF), view and output, including whether highlights are tone mapped or clipped. A compact line at the top (Shift+I) shows the file name, dimensions, file size, zoom, color space and date, configurable and always shown in full screen; it never moves the image. A still pointer hides after 2 s. Both share one look (background opacity, text opacity, outline) and stay legible over any image, in SDR and HDR.
 - **Navigation:** folders sorted by name (natural order), date or size, ascending or descending; previous/next by keyboard, mouse side buttons or the clickable sides of the window; first and last image; optional looping. The next and previous images are loaded in advance, so stepping either way is immediate. The folder is watched: files added, removed or changed by other programs show up at once.
 - **File actions:**
   - copy the image (16-bit sRGB bitmap plus the file) or its path;
@@ -49,7 +49,7 @@ The packages are **not signed yet**:
 
 ## Using it
 
-`imageViewer [file or folder]`, drag and drop, or *Open* from the right-click menu.
+`ImageViewer [file or folder]`, drag and drop, or *Open* from the right-click menu.
 
 | Key | Action |
 |---|---|
@@ -74,6 +74,7 @@ The packages are **not signed yet**:
 | Delete (⌘⌫ on macOS) / Ctrl+Z | Move to the trash / undo |
 | Shift+Delete (⌘⇧⌫ on macOS) | Delete permanently |
 | Ctrl+, | Settings |
+| Q (or Ctrl+Q) | Quit |
 | Right-click | Menu with every command |
 
 On macOS, Ctrl is ⌘. Every shortcut can be changed in *Settings → Shortcuts*. The defaults follow one rule: single keys view and navigate, Shift + a key does that key's other command, ⌘/Ctrl does the application's own commands; none needs the fn key of a MacBook.
@@ -104,8 +105,8 @@ tests/smoke.sh <executable>
 To develop on Linux without vcpkg, run `scripts/build-qt-linux.sh` (builds Qt from source) and use the `linux-system` preset. `CLAUDE.md` describes the full test set and the rules for working on the code.
 
 Command-line tools for diagnosis:
-- `imageViewer --info <file>` prints what the color pipeline sees.
-- `imageViewer --render <file> --output sdr|edr|scrgb|pq` draws the image off screen and compares the GPU with the CPU reference.
+- `ImageViewer --info <file>` prints what the color pipeline sees.
+- `ImageViewer --render <file> --output sdr|edr|scrgb|pq` draws the image off screen and compares the GPU with the CPU reference.
 
 ## Releases
 

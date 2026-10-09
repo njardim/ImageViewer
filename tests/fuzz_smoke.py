@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fuzz smoke test (decision D-38, point 5): every test file, corrupted in many ways, must
-decode or fail cleanly within a time limit. `imageViewer --info` exits 0 (decoded) or 1 (not
+decode or fail cleanly within a time limit. `ImageViewer --info` exits 0 (decoded) or 1 (not
 decoded); a crash, an abort, a hang or any other exit code fails the test. Mutations are
 deterministic (seeded per file), so a failure reproduces from its name.
 
@@ -9,7 +9,7 @@ reaches easily, in our code and in the libraries. A crash or a hang of the decod
 (GraphicsMagick) does not reach the viewer, which reports the file as damaged: the viewer's
 log line for it counts as a failure here too.
 
-usage: python3 tests/fuzz_smoke.py <imageViewer> [mutations per file, default 12]
+usage: python3 tests/fuzz_smoke.py <ImageViewer> [mutations per file, default 12]
 env:   FUZZ_SMOKE_DIR  where the mutated files are kept (default: a temporary directory);
        a failing case stays there, named <file>.<mutation>.<ext>
 """

@@ -589,7 +589,7 @@ bool decodeSoftimage(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QS
     out->sourceChannels = channels;
     out->alphaIndex = alpha ? 3 : -1;
     out->bits = 8;
-    out->codec = QStringLiteral("imageViewer (Softimage PIC)");
+    out->codec = QStringLiteral("ImageViewer (Softimage PIC)");
     assumeDefault(false, &out->colour);
     return true;
 }

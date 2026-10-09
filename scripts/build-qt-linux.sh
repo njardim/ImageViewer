@@ -8,7 +8,7 @@
 # than production (vcpkg, see vcpkg.json) but sufficient to compile and test.
 #
 # Afterwards:  cmake --preset linux-system && cmake --build --preset linux-system
-#              tests/smoke.sh build/linux-system/imageViewer
+#              tests/smoke.sh build/linux-system/ImageViewer
 set -euo pipefail
 
 QT_TAG="${QT_TAG:-v6.12.0}"

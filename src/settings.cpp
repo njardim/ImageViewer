@@ -3,6 +3,8 @@
 #include "settings.h"
 
 #include <QApplication>
+#include <QFile>
+#include <QFileInfo>
 #include <QKeySequence>
 #include <QLibraryInfo>
 #include <QLocale>
@@ -218,6 +220,7 @@ Settings Settings::load()
     s.windowFitPercent = boundedInt(store, QStringLiteral("window/matchImagePercent"), defaults.windowFitPercent,
                                     kMinWindowFitPercent, kMaxWindowFitPercent);
     s.titleMode = fromKey(kTitleModes, store.value(QStringLiteral("window/title")).toString(), defaults.titleMode);
+    s.pointerHideMs = boundedInt(store, QStringLiteral("window/pointerHideMs"), defaults.pointerHideMs, 0, kMaxPointerHideMs);
     s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
 
     s.overlayFullScreen = visibilityFromKey(store.value(QStringLiteral("overlay/fullScreen")).toString(),
@@ -243,10 +246,13 @@ Settings Settings::load()
     s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
     // Up to 0.3 these styled the top overlay only, and every save stored their defaults like a
     // choice; from 0.4 they style both panels, with the new defaults (D-49).
+    // Likewise the overlay in full screen, on hover at the top up to 0.3, always from 0.4.
     if (store.value(QStringLiteral("version")).toInt() < 3) {
         if (s.overlayBackgroundOpacity == 60)
             s.overlayBackgroundOpacity = defaults.overlayBackgroundOpacity;
         s.overlayOutline = defaults.overlayOutline;
+        if (s.overlayFullScreen == OverlayVisibility::Hover)
+            s.overlayFullScreen = defaults.overlayFullScreen;
     }
     s.overlayHideDelayMs = boundedInt(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
                                       kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
@@ -261,8 +267,10 @@ Settings Settings::load()
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
     s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
-    s.slideshowSeconds = boundedInt(store, QStringLiteral("navigation/slideshowSeconds"), defaults.slideshowSeconds,
-                                    kMinSlideshowSeconds, kMaxSlideshowSeconds);
+    bool numeric = false;
+    const double seconds = store.value(QStringLiteral("navigation/slideshowSeconds")).toDouble(&numeric);
+    s.slideshowSeconds = numeric && seconds >= kMinSlideshowSeconds && seconds <= kMaxSlideshowSeconds
+                             ? seconds : defaults.slideshowSeconds;
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -290,6 +298,7 @@ Settings Settings::load()
         s.shortcuts.insert(key, list); // empty: the user removed every shortcut of the command
     }
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
+    s.clipWarning = boolValue(store, QStringLiteral("color/clipWarning"), defaults.clipWarning);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
     return s;
 }
@@ -343,6 +352,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("window/matchImage"), QString::fromLatin1(keyOf(kWindowFits, windowFit)));
     store.setValue(QStringLiteral("window/matchImagePercent"), windowFitPercent);
     store.setValue(QStringLiteral("window/title"), QString::fromLatin1(keyOf(kTitleModes, titleMode)));
+    store.setValue(QStringLiteral("window/pointerHideMs"), pointerHideMs);
     store.setValue(QStringLiteral("window/showInfo"), showInfo);
     store.setValue(QStringLiteral("overlay/fullScreen"), QString::fromLatin1(visibilityKey(overlayFullScreen)));
     store.setValue(QStringLiteral("overlay/window"), QString::fromLatin1(visibilityKey(overlayWindow)));
@@ -369,6 +379,7 @@ void Settings::save() const
         store.setValue(QStringLiteral("shortcuts/") + it.key(), parts.join(QStringLiteral("; ")));
     }
     store.setValue(QStringLiteral("color/toneMap"), toneMap);
+    store.setValue(QStringLiteral("color/clipWarning"), clipWarning);
     store.setValue(QStringLiteral("color/output"), QString::fromLatin1(outputKey(output)));
 }
 
@@ -395,6 +406,16 @@ void SessionState::save() const
     store.setValue(QStringLiteral("session/fullScreen"), fullScreen);
     store.setValue(QStringLiteral("session/lastFile"), lastFile);
     store.setValue(QStringLiteral("session/lastDirectory"), lastDirectory);
+}
+
+void adoptEarlierSettingsFile()
+{
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+    const QString current = QSettings().fileName();
+    const QString earlier = QFileInfo(current).absolutePath() + QStringLiteral("/imageViewer.conf");
+    if (!QFileInfo::exists(current) && QFileInfo::exists(earlier))
+        QFile::rename(earlier, current);
+#endif
 }
 
 QStringList loadRecentFiles()

@@ -60,9 +60,10 @@ struct Settings {
     WindowFit windowFit = WindowFit::Never;
     int windowFitPercent = 80;       // largest share of the screen the window takes for an image
     TitleMode titleMode = TitleMode::Name;
+    int pointerHideMs = 2000;        // the pointer hides when it stays still this long; 0: never
     // Information
     bool showInfo = true;      // the information panel (I)
-    OverlayVisibility overlayFullScreen = OverlayVisibility::Hover;
+    OverlayVisibility overlayFullScreen = OverlayVisibility::Always;
     OverlayVisibility overlayWindow = OverlayVisibility::Hidden;
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
     // The look of both information panels (D-49).
@@ -77,9 +78,10 @@ struct Settings {
     FolderSort sortBy = FolderSort::Name;
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
-    int slideshowSeconds = 5;  // between images in the slideshow (E11)
+    double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     // Color & HDR
-    bool toneMap = true;       // BT.2390 tone mapping on at startup
+    bool toneMap = true;       // BT.2390 tone mapping (a toggle, T)
+    bool clipWarning = false;  // clipped or tone-mapped pixels shown in magenta (a toggle, C)
     Renderer::OutputPreference output = Renderer::OutputPreference::Automatic;
     // Shortcuts (D-52): the user's own, per command key; a command not listed has its defaults.
     QMap<QString, QList<QKeySequence>> shortcuts;
@@ -88,8 +90,10 @@ struct Settings {
     static constexpr int kMaxWindowFitPercent = 100;
     static constexpr int kMinSideZoneWidth = 80;
     static constexpr int kMaxSideZoneWidth = 400;
-    static constexpr int kMinSlideshowSeconds = 1;
-    static constexpr int kMaxSlideshowSeconds = 3600;
+    // Every time in the Settings moves in half seconds.
+    static constexpr double kMinSlideshowSeconds = 0.5;
+    static constexpr double kMaxSlideshowSeconds = 3600.0;
+    static constexpr int kMaxPointerHideMs = 60000;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
     // Both information panels (D-49): values and labels in these greys over black at
     // overlayBackgroundOpacity; at the default 70 % the labels keep 4.5:1 over a white image.
@@ -97,7 +101,7 @@ struct Settings {
     static constexpr int kPanelLabelGrey = 190;
     QColor panelBackground() const;
     QColor panelText(int grey) const;
-    static constexpr int kMinOverlayHideDelayMs = 300;
+    static constexpr int kMinOverlayHideDelayMs = 500;
     static constexpr int kMaxOverlayHideDelayMs = 10000;
 
     // The six fields of ImageGlass issue #2475 (E14).
@@ -124,6 +128,11 @@ struct SessionState {
     static SessionState load();
     void save() const;
 };
+
+// Up to 0.3 the application was called "imageViewer": on Linux its settings file, named after
+// it, is taken over once. Windows' registry ignores the case, and so does the default
+// (case-insensitive) macOS file system that holds the preferences file.
+void adoptEarlierSettingsFile();
 
 // Recently opened files, most recent first (Open Recent menu). Saved at once, not at exit.
 constexpr int kMaxRecentFiles = 10;
@@ -231,13 +240,15 @@ private:
     QSpinBox *m_overlayText = nullptr;
     QCheckBox *m_overlayOutline = nullptr;
     QDoubleSpinBox *m_overlayDelay = nullptr;
+    QDoubleSpinBox *m_pointerHide = nullptr;
     QCheckBox *m_loop = nullptr;
     QCheckBox *m_sideZones = nullptr;
     QSpinBox *m_sideZoneWidth = nullptr;
     QComboBox *m_sortBy = nullptr;
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
-    QSpinBox *m_slideshowSeconds = nullptr;
+    QDoubleSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
+    QCheckBox *m_clipWarning = nullptr;
     QComboBox *m_output = nullptr;
 };

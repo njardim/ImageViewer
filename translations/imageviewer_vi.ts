@@ -88,8 +88,8 @@
         <translation>Ảnh HEIC cần “HEIF Image Extensions” và “HEVC Video Extensions” của Microsoft, từ Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Ảnh HEIC cần bộ giải mã HEVC, mà imageViewer không kèm theo trên hệ thống này (bằng sáng chế); hãy chuyển đổi chúng sang định dạng khác trước.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Ảnh HEIC cần bộ giải mã HEVC, mà ImageViewer không kèm theo trên hệ thống này (bằng sáng chế); hãy chuyển đổi chúng sang định dạng khác trước.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Không bao giờ</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>Thanh tiêu đề:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Ẩn con trỏ đứng yên sau:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Ẩn sau:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>Tải trước ảnh trước và ảnh tiếp theo</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>Trình chiếu</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Giới thiệu về imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Giới thiệu về ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Đã mở khóa thu phóng</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Hiển thị mọi ảnh đúng như tệp của nó định nghĩa, với màu sắc có thể kiểm chứng, ở cả SDR và HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Nhanh và tối giản, ứng dụng mở hơn 50 định dạng trên Windows, macOS và Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>Thư mục này không còn ảnh nào.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Trình xem ảnh với độ trung thực màu SDR và HDR có thể kiểm chứng.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

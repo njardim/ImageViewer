@@ -47,6 +47,18 @@ QIcon swatchIcon(const QColor &color)
     return QIcon(pixmap);
 }
 
+// A time in seconds: every one in the Settings moves in half seconds.
+QDoubleSpinBox *secondsBox(double minimum, double maximum)
+{
+    auto *box = new QDoubleSpinBox;
+    box->setRange(minimum, maximum);
+    box->setDecimals(1);
+    box->setSingleStep(0.5);
+    //: Unit after a number of seconds; keep the leading space if your language separates units.
+    box->setSuffix(QCoreApplication::translate("SettingsDialog", " s"));
+    return box;
+}
+
 } // namespace
 
 SettingsDialog::SettingsDialog(const Settings &settings, std::function<QList<ShortcutCommand>()> commands)
@@ -56,6 +68,7 @@ SettingsDialog::SettingsDialog(const Settings &settings, std::function<QList<Sho
     setValues(settings);
     m_applied = this->settings(); // as the dialog shows them (normalised), so nothing reads as changed
     updateApplyButton();
+    resize(sizeHint() + QSize(100, 0)); // room for the longer labels of some languages
 }
 
 void SettingsDialog::buildUi()
@@ -146,6 +159,10 @@ void SettingsDialog::buildUi()
     m_titleMode->addItem(tr("Name, position and dimensions"), int(TitleMode::Details));
     m_titleMode->addItem(tr("Name, position, dimensions, file size and zoom"), int(TitleMode::Everything));
     windowForm->addRow(tr("Title bar:"), m_titleMode);
+    m_pointerHide = secondsBox(0.0, Settings::kMaxPointerHideMs / 1000.0);
+    //: Shown instead of 0 s: the pointer never hides by itself.
+    m_pointerHide->setSpecialValueText(tr("Never"));
+    windowForm->addRow(tr("Hide a still pointer after:"), m_pointerHide);
     tabs->addTab(window, tr("Window"));
 
     // Information (D-34): the detailed panel and the compact overlay at the top.
@@ -183,12 +200,7 @@ void SettingsDialog::buildUi()
     fieldsRow->addWidget(m_overlayFields, 1);
     fieldsRow->addLayout(moveButtons);
     overlayForm->addRow(tr("Fields:"), fieldsRow);
-    m_overlayDelay = new QDoubleSpinBox;
-    m_overlayDelay->setRange(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
-    m_overlayDelay->setDecimals(1);
-    m_overlayDelay->setSingleStep(0.5);
-    //: Unit after a number of seconds; keep the leading space if your language separates units.
-    m_overlayDelay->setSuffix(tr(" s"));
+    m_overlayDelay = secondsBox(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
     overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
     informationLayout->addWidget(m_overlayBox);
     // One look for both panels (D-49).
@@ -237,10 +249,7 @@ void SettingsDialog::buildUi()
     navigationForm->addRow(tr("Sort images by:"), sortRow);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     navigationForm->addRow(m_preload);
-    m_slideshowSeconds = new QSpinBox;
-    m_slideshowSeconds->setRange(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
-    //: Unit after a number of seconds; keep the leading space if your language separates units.
-    m_slideshowSeconds->setSuffix(tr(" s"));
+    m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     m_slideshowLabel = new QLabel;
     navigationForm->addRow(m_slideshowLabel, m_slideshowSeconds);
     tabs->addTab(navigation, tr("Navigation"));
@@ -256,6 +265,8 @@ void SettingsDialog::buildUi()
     colorForm->addRow(tr("Display output:"), m_output);
     m_toneMap = new QCheckBox(tr("Tone map HDR images that exceed the display (ITU-R BT.2390)"));
     colorForm->addRow(m_toneMap);
+    m_clipWarning = new QCheckBox(tr("Highlight pixels altered by clipping or tone mapping (magenta)"));
+    colorForm->addRow(m_clipWarning);
     //: "&&" is shown as a single "&".
     tabs->addTab(color, tr("Color && HDR"));
 
@@ -367,7 +378,8 @@ void SettingsDialog::buildUi()
         connect(combo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updateApplyButton);
     for (QSpinBox *spin : findChildren<QSpinBox *>())
         connect(spin, &QSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
-    connect(m_overlayDelay, &QDoubleSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
+    for (QDoubleSpinBox *spin : findChildren<QDoubleSpinBox *>())
+        connect(spin, &QDoubleSpinBox::valueChanged, this, &SettingsDialog::updateApplyButton);
     connect(m_overlayFields, &QListWidget::itemChanged, this, &SettingsDialog::updateApplyButton);
     // Reordering: by dragging (rows moved) or with Move Up/Down (taken and inserted).
     QAbstractItemModel *fields = m_overlayFields->model();
@@ -457,6 +469,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_overlayText->setValue(settings.overlayTextOpacity);
     m_overlayOutline->setChecked(settings.overlayOutline);
     m_overlayDelay->setValue(settings.overlayHideDelayMs / 1000.0);
+    m_pointerHide->setValue(settings.pointerHideMs / 1000.0);
     m_loop->setChecked(settings.loop);
     m_sideZones->setChecked(settings.sideZones);
     m_sideZoneWidth->setValue(settings.sideZoneWidth);
@@ -466,6 +479,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_preload->setChecked(settings.preload);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toneMap->setChecked(settings.toneMap);
+    m_clipWarning->setChecked(settings.clipWarning);
     m_output->setCurrentIndex(std::max(0, m_output->findData(int(settings.output))));
     m_shortcuts.clear();
     for (const ShortcutCommand &command : std::as_const(m_commands))
@@ -615,6 +629,7 @@ Settings SettingsDialog::settings() const
     s.windowFit = WindowFit(m_windowFit->currentData().toInt());
     s.windowFitPercent = m_windowFitPercent->value();
     s.titleMode = TitleMode(m_titleMode->currentData().toInt());
+    s.pointerHideMs = int(std::lround(m_pointerHide->value() * 1000.0));
     s.showInfo = m_showInfo->isChecked();
     s.overlayFullScreen = OverlayVisibility(m_overlayFullScreen->currentData().toInt());
     s.overlayWindow = OverlayVisibility(m_overlayWindow->currentData().toInt());
@@ -636,6 +651,7 @@ Settings SettingsDialog::settings() const
     s.preload = m_preload->isChecked();
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.toneMap = m_toneMap->isChecked();
+    s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());
     // Kept: the shortcuts of commands this version does not have (another version wrote them).
     s.shortcuts.removeIf([this](const auto &entry) {

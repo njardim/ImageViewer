@@ -88,8 +88,8 @@
         <translation>As imagens HEIC precisam das extensões da Microsoft «HEIF Image Extensions» e «HEVC Video Extensions», disponíveis na Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>As imagens HEIC precisam de um descodificador HEVC, que o imageViewer não inclui neste sistema (patentes); converta-as primeiro para outro formato.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>As imagens HEIC precisam de um descodificador HEVC, que o ImageViewer não inclui neste sistema (patentes); converta-as primeiro para outro formato.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nunca</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>Barra de título:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Ocultar o ponteiro parado após:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Ocultar após:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>Carregar antecipadamente a imagem seguinte e a anterior</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>Apresentação de diapositivos</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Acerca do imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Acerca do ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Zoom desbloqueado</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Mostra cada imagem tal como o ficheiro a define, com cores verificáveis, em SDR e HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Rápido e minimalista, abre mais de 50 formatos em Windows, macOS e Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>Não restam imagens nesta pasta.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Visualizador de imagens com fidelidade de cor verificável em SDR e HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

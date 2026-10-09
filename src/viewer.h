@@ -109,6 +109,8 @@ private:
     Zone zoneAt(const QPointF &position) const;  // logical pixels
     QRectF zoneButtonRect(Zone zone) const;      // device pixels
     void setHoverZone(Zone zone);
+    void pointerActive(); // shows the pointer again and restarts its hiding timer
+    void updateCursor();
 
     // View actions.
     void rotate(int quarterTurns);
@@ -286,9 +288,6 @@ private:
     int m_quarterTurns = 0;
     bool m_mirrored = false;
     float m_exposureEv = 0.0f;
-    bool m_clipWarning = false;
-    bool m_toneMap = true;
-    bool m_showInfo = true;
     QSize m_overlaySize; // device pixels; empty when no overlay is shown
     QString m_overlayOutput; // output description the overlay was built with
     QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
@@ -305,6 +304,8 @@ private:
     QPointF m_dragOrigin;
     QPointF m_panOrigin;
     Zone m_hoverZone = Zone::None;
+    QTimer m_pointerTimer;       // hides a still pointer (Settings::pointerHideMs)
+    bool m_pointerHidden = false;
     Zone m_pressZone = Zone::None; // a press that may become a click on a side zone
     bool m_pressMoved = false;     // the press turned into a drag
 };

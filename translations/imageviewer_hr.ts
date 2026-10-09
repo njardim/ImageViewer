@@ -88,8 +88,8 @@
         <translation>HEIC slike trebaju Microsoftova proširenja „HEIF Image Extensions” i „HEVC Video Extensions” iz trgovine Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC slike trebaju HEVC dekoder, koji imageViewer na ovom sustavu ne uključuje (patenti); najprije ih pretvorite u drugi format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC slike trebaju HEVC dekoder, koji ImageViewer na ovom sustavu ne uključuje (patenti); najprije ih pretvorite u drugi format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Naslovna traka:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Sakrij nepomičan pokazivač nakon:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Prozor</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Istakni piksele izmijenjene odrezivanjem ili mapiranjem tonova (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nikad</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Dijaprojekcija</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>O programu imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>O programu ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Zumiranje je otključano</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Prikazuje svaku sliku onako kako je definira njezina datoteka, s bojama koje možete provjeriti, u SDR-u i HDR-u.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Brz i minimalistički, otvara više od 50 formata na sustavima Windows, macOS i Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Preimenovano u „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Preglednik slika s provjerljivom vjernošću boja u SDR-u i HDR-u.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

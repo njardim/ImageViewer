@@ -215,7 +215,7 @@ void ViewerWindow::moveToTrash()
         QMessageBox box;
         box.setTextFormat(Qt::PlainText); // a file name is never markup
         box.setIcon(QMessageBox::Question);
-        box.setWindowTitle(QStringLiteral("imageViewer"));
+        box.setWindowTitle(QStringLiteral("ImageViewer"));
 #if defined(Q_OS_WIN)
         box.setText(tr("Move “%1” to the Recycle Bin?").arg(name));
         QPushButton *move = box.addButton(tr("Move to Recycle Bin"), QMessageBox::AcceptRole);
@@ -272,7 +272,7 @@ void ViewerWindow::deletePermanently()
     QMessageBox box;
     box.setTextFormat(Qt::PlainText); // a file name is never markup
     box.setIcon(QMessageBox::Warning);
-    box.setWindowTitle(QStringLiteral("imageViewer"));
+    box.setWindowTitle(QStringLiteral("ImageViewer"));
     box.setText(tr("Delete “%1” permanently?").arg(name));
     box.setInformativeText(tr("The file does not go to the trash and cannot be restored."));
     QPushButton *remove = box.addButton(tr("Delete"), QMessageBox::DestructiveRole);

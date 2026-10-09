@@ -1,4 +1,4 @@
-// The format registry (decision D-38): every format imageViewer reads, how it is recognised
+// The format registry (decision D-38): every format ImageViewer reads, how it is recognised
 // from the file's first bytes, which decoder reads it and what it can hold. Detection, the
 // Open dialog filter, folder listing, `--formats` and the CI format check all come from it.
 #pragma once

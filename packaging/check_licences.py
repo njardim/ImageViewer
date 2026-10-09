@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Licence gate for the vcpkg packages that end up in imageViewer's packages.
+"""Licence gate for the vcpkg packages that end up in ImageViewer's packages.
 
 usage: python3 packaging/check_licences.py <vcpkg_installed>/<triplet>
 

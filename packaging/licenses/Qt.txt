@@ -1,7 +1,7 @@
 Qt 6.12.0
 =========
 
-imageViewer uses the Qt 6.12.0 libraries and plugins (The Qt Company Ltd. and
+ImageViewer uses the Qt 6.12.0 libraries and plugins (The Qt Company Ltd. and
 other contributors) under the GNU Lesser General Public License version 3
 (LGPL-3.0-only). The LGPL-3.0 is a set of additional permissions on top of the
 GNU General Public License version 3; both texts are in this folder:
@@ -9,7 +9,7 @@ LGPL-3.0.txt and GPL-3.0.txt.
 
 Qt is linked dynamically and ships as separate, unmodified files next to the
 application (Windows: the Qt6*.dll files and plugin folders; macOS: the
-frameworks in imageViewer.app/Contents/Frameworks and the plugins in
+frameworks in ImageViewer.app/Contents/Frameworks and the plugins in
 Contents/PlugIns; Linux: lib/ and plugins/). You may replace them with your own
 build of a compatible Qt 6.12 release.
 

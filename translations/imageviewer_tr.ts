@@ -88,8 +88,8 @@
         <translation>HEIC görüntüleri için Microsoft Store&apos;dan Microsoft&apos;un “HEIF Image Extensions” ve “HEVC Video Extensions” uzantıları gerekir.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC görüntüleri için bir HEVC kod çözücü gerekir; imageViewer bunu bu sistemde içermez (patentler). Önce bunları başka bir biçime dönüştürün.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC görüntüleri için bir HEVC kod çözücü gerekir; ImageViewer bunu bu sistemde içermez (patentler). Önce bunları başka bir biçime dönüştürün.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Başlık çubuğu:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Hareketsiz işaretçiyi şu süreden sonra gizle:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Pencere</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Kırpma veya ton eşleme nedeniyle değişen pikselleri vurgula (macenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Hiçbir zaman</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Slayt gösterisi</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer Hakkında</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer Hakkında</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Yakınlaştırmanın kilidi açıldı</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Her görüntüyü dosyasının tanımladığı şekilde, doğrulayabileceğiniz renklerle, SDR ve HDR olarak gösterir.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Hızlı ve minimal olan uygulama, Windows, macOS ve Linux üzerinde 50&apos;den fazla biçimi açar.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Yeni ad: “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Doğrulanabilir SDR ve HDR renk aslına uygunluğu sunan görüntü izleyici.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

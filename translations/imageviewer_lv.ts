@@ -88,8 +88,8 @@
         <translation>HEIC attēliem ir nepieciešami Microsoft paplašinājumi “HEIF Image Extensions” un “HEVC Video Extensions” no Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC attēliem ir nepieciešams HEVC dekodētājs, ko imageViewer šajā sistēmā neietver (patenti); vispirms pārveidojiet tos citā formātā.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC attēliem ir nepieciešams HEVC dekodētājs, ko ImageViewer šajā sistēmā neietver (patenti); vispirms pārveidojiet tos citā formātā.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Virsraksta josla:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Paslēpt nekustīgu rādītāju pēc:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Logs</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Iezīmēt pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nekad</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Slīdrāde</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Par imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Par ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Tālummaiņa atbloķēta</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Attēlo katru attēlu tā, kā to nosaka tā fails, ar pārbaudāmām krāsām, SDR un HDR režīmā.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Ātrs un minimālistisks, atver vairāk nekā 50 formātu sistēmās Windows, macOS un Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Pārdēvēts par “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Attēlu skatītājs ar pārbaudāmu SDR un HDR krāsu precizitāti.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

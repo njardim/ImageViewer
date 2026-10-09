@@ -119,7 +119,7 @@ void ViewerWindow::updateTitle()
                 parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
         }
     }
-    parts << QStringLiteral("imageViewer");
+    parts << QStringLiteral("ImageViewer");
     const QString text = parts.join(QStringLiteral(" — "));
     if (text != title())
         setTitle(text);
@@ -139,7 +139,7 @@ void ViewerWindow::updateOverlay()
     if (!m_message.isEmpty())
         rows.append({QString(), m_message});
 
-    if (m_showInfo && !m_image.path.isEmpty()) {
+    if (m_settings.showInfo && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
         // Names are shown without bidi and other format characters, as in the title: a file
         // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
@@ -156,7 +156,7 @@ void ViewerWindow::updateOverlay()
             rows.append({tr("Position"), position});
         }
     }
-    if (m_showInfo && m_image.width > 0) {
+    if (m_settings.showInfo && m_image.width > 0) {
         //: Megapixels, e.g. "24.0 MP".
         QString dimensions = QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
                                                           locale.toString(m_image.sourceHeight))
@@ -229,7 +229,7 @@ void ViewerWindow::updateOverlay()
                 add(tr("Taken"), locale.toString(camera.taken, QLocale::ShortFormat));
         }
     }
-    if (m_showInfo) {
+    if (m_settings.showInfo) {
         QStringList view;
         if (m_image.width > 0) {
             //: A zoom percentage, e.g. "100 %"; write the percent sign as your language does.
@@ -245,7 +245,7 @@ void ViewerWindow::updateOverlay()
             view << tr("exposure %1 EV")
                         .arg((m_exposureEv > 0 ? locale.positiveSign() : QString())
                              + locale.toString(double(m_exposureEv), 'f', 1));
-        if (m_clipWarning)
+        if (m_settings.clipWarning)
             view << tr("altered pixels highlighted");
         if (!view.isEmpty())
             rows.append({tr("View"), view.join(dot), true});
@@ -271,7 +271,7 @@ void ViewerWindow::updateOverlay()
             } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
                 rows.append({tr("Highlights"),
                              //: nits: candela per square metre, the unit of luminance.
-                             (m_toneMap ? tr("clipped above %1 nits (colors outside the output gamut)")
+                             (m_settings.toneMap ? tr("clipped above %1 nits (colors outside the output gamut)")
                                         //: nits: candela per square metre, the unit of luminance.
                                         : tr("clipped above %1 nits (tone mapping off)"))
                                  .arg(locale.toString(peakNits, 'f', 0))});

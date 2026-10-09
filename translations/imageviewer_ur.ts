@@ -88,8 +88,8 @@
         <translation>HEIC تصاویر کے لیے Microsoft Store سے Microsoft کی “HEIF Image Extensions” اور “HEVC Video Extensions” درکار ہیں۔</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC تصاویر کے لیے HEVC ڈی کوڈر درکار ہے، جو imageViewer اس سسٹم پر شامل نہیں کرتا (پیٹنٹس)؛ پہلے انہیں کسی دوسرے فارمیٹ میں تبدیل کریں۔</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC تصاویر کے لیے HEVC ڈی کوڈر درکار ہے، جو ImageViewer اس سسٹم پر شامل نہیں کرتا (پیٹنٹس)؛ پہلے انہیں کسی دوسرے فارمیٹ میں تبدیل کریں۔</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -279,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>کبھی نہیں</translation>
     </message>
     <message>
@@ -397,6 +398,10 @@
         <translation>ٹائٹل بار:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>ساکن پوائنٹر اتنی دیر بعد چھپائیں:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>اتنی دیر بعد چھپائیں:</translation>
     </message>
@@ -448,6 +453,10 @@
     <message>
         <source>Load the next and previous images in advance</source>
         <translation>اگلی اور پچھلی تصاویر پہلے سے لوڈ کریں</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -973,8 +982,8 @@
         <translation>سلائیڈ شو</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer کے بارے میں</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer کے بارے میں</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1003,6 +1012,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>زوم ان لاک ہو گیا</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>ہر تصویر کو ویسا ہی دکھاتا ہے جیسا اس کی فائل بیان کرتی ہے، ایسے رنگوں کے ساتھ جنہیں آپ تصدیق کر سکتے ہیں، SDR اور HDR دونوں میں۔</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>تیز اور سادہ، یہ Windows، macOS اور Linux پر 50 سے زیادہ فارمیٹس کھولتا ہے۔</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>اس فولڈر میں کوئی تصویر باقی نہیں رہی۔</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>SDR اور HDR میں قابلِ تصدیق رنگی درستگی کے ساتھ تصاویر دیکھنے کا پروگرام۔</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

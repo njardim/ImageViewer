@@ -130,7 +130,7 @@ def pix():
 # Softimage PIC: one mixed run-length packet (R, G, B), each row a single run of 6 pixels.
 # (OpenImageIO 2.4 reads uncompressed PIC packets as black; real files use run lengths.)
 def softimage():
-    header = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"imageViewer test", b"PICT", 6, 4, 1.0, 3, 0)
+    header = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"ImageViewer test", b"PICT", 6, 4, 1.0, 3, 0)
     packet = bytes([0, 8, 2, 0x80 | 0x40 | 0x20])  # last packet, 8 bits, mixed run length, R G B
     write("orange.pic", header + packet + bytes([128 + 5, 255, 128, 0]) * 4)
     # Under the names of formats whose signatures they also match ("<svg" in the comment, "DICM"

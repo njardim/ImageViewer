@@ -1,4 +1,4 @@
-# imageViewer overlay (D-46): expat 2.9.0 (security fixes CVE-2026-102633, CVE-2026-77214) ahead of
+# ImageViewer overlay (D-46): expat 2.9.0 (security fixes CVE-2026-102633, CVE-2026-77214) ahead of
 # vcpkg's 2.8.5; fetched by git at the tag's commit, which pins the source.
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH

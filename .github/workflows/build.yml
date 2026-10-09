@@ -37,19 +37,19 @@ jobs:
             os: windows-2025
             preset: windows
             triplet: x64-windows
-            exe: build/windows/imageViewer.exe
+            exe: build/windows/ImageViewer.exe
             package: windows-x64.zip
           - name: macOS arm64
             os: macos-15
             preset: macos
             triplet: arm64-osx-dynamic
-            exe: build/macos/imageViewer.app/Contents/MacOS/imageViewer
+            exe: build/macos/ImageViewer.app/Contents/MacOS/ImageViewer
             package: macos-arm64.dmg
           - name: Linux x64
             os: ubuntu-24.04
             preset: linux
             triplet: x64-linux-dynamic
-            exe: build/linux/imageViewer
+            exe: build/linux/ImageViewer
             package: linux-x64.tar.gz
     env:
       PRESET: ${{ matrix.preset }}
@@ -223,7 +223,7 @@ jobs:
         run: |
           sudo apt-get install -y xvfb x11-apps xdotool imagemagick mesa-vulkan-drivers \
             libgl1-mesa-dri libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 \
-            libxcb-image0 libxkbcommon-x11-0
+            libxcb-image0 libxkbcommon-x11-0 libxfixes3
           # python3 here is the setup-python interpreter, which does not see apt's python3-* packages.
           python3 -m pip install --quiet --only-binary=:all: numpy==2.5.3 pillow==12.3.0
           python3 tests/screen_test.py "$EXE" vulkan
@@ -299,10 +299,10 @@ jobs:
           else
             version="dev-${GITHUB_SHA::7}"
           fi
-          file="imageViewer-${version}-${PACKAGE}"
+          file="ImageViewer-${version}-${PACKAGE}"
           dist="$RUNNER_TEMP/dist"
           docs="$dist"
-          [ "$RUNNER_OS" = macOS ] && docs="$dist/imageViewer.app/Contents/Resources"
+          [ "$RUNNER_OS" = macOS ] && docs="$dist/ImageViewer.app/Contents/Resources"
           # Apache-2.0 section 4 and the third-party licences travel with the binaries.
           for f in LICENSE NOTICE; do
             [ -f "$docs/$f" ] || { echo "::error::$f missing from the package"; exit 1; }
@@ -316,12 +316,12 @@ jobs:
           # MSVC runtime is deployed app-locally (no vc_redist installer).
           if [ "$RUNNER_OS" = Windows ]; then
             for f in vcruntime140.dll vcruntime140_1.dll msvcp140.dll; do
-              [ -f "$dist/bin/$f" ] || { echo "::error::$f missing next to imageViewer.exe"; exit 1; }
+              [ -f "$dist/bin/$f" ] || { echo "::error::$f missing next to ImageViewer.exe"; exit 1; }
             done
           fi
           case "$RUNNER_OS" in
             Windows) (cd "$dist" && 7z a -tzip "$GITHUB_WORKSPACE/$file" . > /dev/null) ;;
-            macOS)   hdiutil create -volname imageViewer -srcfolder "$dist/imageViewer.app" \
+            macOS)   hdiutil create -volname ImageViewer -srcfolder "$dist/ImageViewer.app" \
                        -ov -format UDZO "$file" ;;
             Linux)   tar -C "$dist" -czf "$file" . ;;
           esac
@@ -330,7 +330,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: imageViewer-${{ matrix.preset }}
+          name: ImageViewer-${{ matrix.preset }}
           path: ${{ steps.package.outputs.file }}
           if-no-files-found: error
 
@@ -361,7 +361,7 @@ jobs:
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: imageViewer-${{ matrix.preset }}
+          name: ImageViewer-${{ matrix.preset }}
           path: package
 
       - name: Smoke test of the packaged executable
@@ -370,7 +370,7 @@ jobs:
           QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES: "1" # --version on Windows: stdout, no dialog
         run: |
           shopt -s nullglob
-          packages=(package/imageViewer-*)
+          packages=(package/ImageViewer-*)
           [ "${#packages[@]}" -eq 1 ] || { echo "::error::expected one package, got: ${packages[*]}"; exit 1; }
           pkg="${packages[0]}"
           app="$RUNNER_TEMP/app"
@@ -378,11 +378,11 @@ jobs:
           mkdir -p "$app"
           case "$RUNNER_OS" in
             Windows) 7z x -y "-o$(cygpath -w "$app")" "$pkg" > /dev/null
-                     exe="$app/bin/imageViewer.exe" ;;
+                     exe="$app/bin/ImageViewer.exe" ;;
             macOS)   hdiutil attach -nobrowse -readonly -mountpoint "$app" "$pkg"
-                     exe="$app/imageViewer.app/Contents/MacOS/imageViewer" ;;
+                     exe="$app/ImageViewer.app/Contents/MacOS/ImageViewer" ;;
             Linux)   tar -C "$app" -xzf "$pkg"
-                     exe="$app/bin/imageViewer"
+                     exe="$app/bin/ImageViewer"
                      # System GL dispatch (libglvnd) that Qt links: present on every desktop,
                      # driver-specific, so never bundled. Documented in the README; anything
                      # else ldd cannot find is a library the deploy step missed.
@@ -395,7 +395,7 @@ jobs:
           version="$("$exe" --version | tr -d '\r')"
           echo "$version"
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            expected="imageViewer ${GITHUB_REF_NAME#v}"
+            expected="ImageViewer ${GITHUB_REF_NAME#v}"
           else
             expected="+${GITHUB_SHA::7}"
           fi
@@ -419,7 +419,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: imageViewer-*
+          pattern: ImageViewer-*
           path: packages
           merge-multiple: true
 
@@ -431,14 +431,14 @@ jobs:
           shopt -s nullglob
           files=(packages/*)
           [ "${#files[@]}" -eq 3 ] || { echo "::error::expected 3 packages, got: ${files[*]}"; exit 1; }
-          (cd packages && sha256sum imageViewer-* > SHA256SUMS && cat SHA256SUMS)
+          (cd packages && sha256sum ImageViewer-* > SHA256SUMS && cat SHA256SUMS)
 
       # Artifact attestations need a public repository (or GitHub Enterprise Cloud).
       - name: Build provenance attestation
         if: ${{ !github.event.repository.private }}
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-path: packages/imageViewer-*
+          subject-path: packages/ImageViewer-*
 
       - name: Attach to the release
         env:

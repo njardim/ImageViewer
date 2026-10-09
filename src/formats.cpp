@@ -231,7 +231,7 @@ const char *decoderName(Decoder d)
     case Decoder::Jxl: return "libjxl";
     case Decoder::WebP: return "libwebp";
     case Decoder::Apng: return "APNG";
-    case Decoder::Softimage: return "imageViewer";
+    case Decoder::Softimage: return "ImageViewer";
     case Decoder::Heif: return "libheif";
     case Decoder::Qt: return "Qt";
     case Decoder::System: return "system";

@@ -1,6 +1,6 @@
 {
   "name": "graphicsmagick",
-  "$comment": "imageViewer overlay (docs/PLAN.md D-38): GraphicsMagick 1.3.49 (the vcpkg baseline has 1.3.45, 2024), built without any delegate library. It runs only in imageViewer's decode worker, for the long-tail formats it reads by itself (src/worker.cpp keeps only those coders). Release tarball from SourceForge, SHA-512 pinned. No 'gm' tool, no configuration files (delegates.mgk) installed, no install paths compiled in (--disable-installed).",
+  "$comment": "ImageViewer overlay (docs/PLAN.md D-38): GraphicsMagick 1.3.49 (the vcpkg baseline has 1.3.45, 2024), built without any delegate library. It runs only in ImageViewer's decode worker, for the long-tail formats it reads by itself (src/worker.cpp keeps only those coders). Release tarball from SourceForge, SHA-512 pinned. No 'gm' tool, no configuration files (delegates.mgk) installed, no install paths compiled in (--disable-installed).",
   "version": "1.3.49",
   "description": "Image processing library",
   "homepage": "http://www.graphicsmagick.org/",

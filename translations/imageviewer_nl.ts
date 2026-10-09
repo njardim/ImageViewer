@@ -88,8 +88,8 @@
         <translation>HEIC-afbeeldingen hebben de Microsoft-extensies ‘HEIF Image Extensions’ en ‘HEVC Video Extensions’ uit de Microsoft Store nodig.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-afbeeldingen hebben een HEVC-decoder nodig, die imageViewer op dit systeem niet meelevert (octrooien); converteer ze eerst naar een ander formaat.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-afbeeldingen hebben een HEVC-decoder nodig, die ImageViewer op dit systeem niet meelevert (octrooien); converteer ze eerst naar een ander formaat.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>Titelbalk:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Stilstaande aanwijzer verbergen na:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Venster</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nooit</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>Diavoorstelling</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Over imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Over ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>Zoom ontgrendeld</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Toont elke afbeelding zoals het bestand die definieert, met controleerbare kleuren, in SDR en HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Snel en minimalistisch opent het meer dan 50 formaten op Windows, macOS en Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Hernoemd naar “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Afbeeldingsviewer met verifieerbare SDR- en HDR-kleurnauwkeurigheid.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

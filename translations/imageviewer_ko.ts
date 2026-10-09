@@ -88,8 +88,8 @@
         <translation>HEIC 이미지를 열려면 Microsoft Store의 Microsoft “HEIF Image Extensions”와 “HEVC Video Extensions”가 필요합니다.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 imageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 ImageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
@@ -325,8 +325,16 @@
         <translation>제목 표시줄:</translation>
     </message>
     <message>
+        <source>Hide a still pointer after:</source>
+        <translation>움직이지 않는 포인터를 다음 시간 후 숨기기:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>창</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -348,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>표시 안 함</translation>
     </message>
     <message>
@@ -981,8 +990,8 @@
         <translation>슬라이드 쇼</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer 정보</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer 정보</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -1037,6 +1046,14 @@
     <message>
         <source>Zoom unlocked</source>
         <translation>배율 고정 해제됨</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>모든 이미지를 파일에 정의된 그대로, 검증할 수 있는 색상으로 SDR과 HDR에서 표시합니다.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>빠르고 미니멀하며, Windows, macOS, Linux에서 50개가 넘는 형식을 열 수 있습니다.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -1141,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>이름을 바꿨습니다: “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>SDR 및 HDR 색상 충실도를 검증할 수 있는 이미지 뷰어입니다.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

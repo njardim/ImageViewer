@@ -431,7 +431,7 @@ private:
         }
         if ((flags & EXIF_FLAG) && WebPDemuxGetChunk(demux.get(), "EXIF", 1, &chunk)) {
             QByteArrayView exif(chunk.chunk.bytes, qsizetype(chunk.chunk.size));
-            if (exif.startsWith("Exif\0\0"))
+            if (exif.startsWith(QByteArrayView("Exif\0\0", 6))) // a literal's view stops at the first NUL
                 exif = exif.sliced(6);
             first->camera = cameraFromExif(exif, &first->orientation);
             WebPDemuxReleaseChunkIterator(&chunk);
@@ -519,6 +519,10 @@ bool decodeSoftimage(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QS
         }
         alpha = alpha || (q[3] & 0x10);
         packets.push_back(packet);
+    }
+    if (qint64(w) * h > kMaxPixels) { // the limit of every decoder (D-38)
+        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(alpha ? 4 : 3);
+        return false;
     }
     if (maxPixels > 0 && qint64(w) * h > maxPixels) {
         out->overLimit = true;

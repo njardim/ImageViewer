@@ -110,6 +110,10 @@ bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QStri
 
 // heif.cpp: AVIF image sequences through libheif (1.23 or later at build time).
 bool heifSequencesAvailable();
+// The colour of a HEIF/AVIF still image (CICP, then ICC) from libheif; false when it has neither
+// or libheif is not linked. OpenImageIO reads no ICC profile from these files, and no nclx box
+// when an ICC profile is also there.
+bool describeHeifStill(QByteArrayView bytes, color::Descriptor *d);
 bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                         std::unique_ptr<FrameReader> *frames);
 

@@ -144,11 +144,24 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
         d->transfer = Transfer::Linear;
         return;
     }
-    // PFM carries no colour metadata and is linear by convention (HDR radiance maps), but
-    // OIIO labels every PNM variant "Rec709"; decoding that as BT.1886 turned 36.0 into 5434.
-    const bool floatPnm = isFloat && std::strcmp(format, "pnm") == 0;
-    const QString cs = floatPnm ? QString() : QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
-    if (parseOiioColorSpace(cs, d)) {
+    // Netpbm files carry no colour metadata, but OIIO labels every variant "Rec709". PFM is
+    // linear by convention (HDR radiance maps; as BT.1886, 36.0 became 5434, D-17), and the
+    // integer variants hold sRGB values in practice, as other viewers read them (D-54).
+    const bool pnm = std::strcmp(format, "pnm") == 0;
+    const QString cs = pnm ? QString() : QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
+    bool known = parseOiioColorSpace(cs, d);
+    // A gamma name ("g22_rec709", "Gamma2.2") is rounded, and odd exponents (PNG gAMA of γ 0.5 or
+    // 12.5) give names it cannot parse: the exact exponent is in "oiio:Gamma".
+    static const QRegularExpression gammaName(QStringLiteral("^(g\\d|gamma)"), QRegularExpression::CaseInsensitiveOption);
+    const float gamma = spec.get_float_attribute("oiio:Gamma", 0.0f);
+    if (gamma >= 0.1f && gamma <= 20.0f && ((known && d->transfer == Transfer::Power) || (!known && gammaName.match(cs).hasMatch()))) {
+        if (!known)
+            d->primaries = color::kBt709;
+        d->transfer = Transfer::Power;
+        d->gamma = gamma;
+        known = true;
+    }
+    if (known) {
         // OIIO also fills this in when the file carries no colour tag at all, so it
         // is reported as the decoder's interpretation, not as file metadata (F12).
         d->source = Descriptor::Source::FormatAttributes;
@@ -549,7 +562,15 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
     const bool animatable = frames && format && format->decoder == Decoder::OpenImageIO && (format->capabilities & CanAnimate);
-    return decodeWithOiio(path, maxPixels, out, error, animatable ? frames : nullptr);
+    if (!decodeWithOiio(path, maxPixels, out, error, animatable ? frames : nullptr))
+        return false;
+    if (out->codec == QLatin1String("OpenImageIO/heif")) {
+        QByteArray bytes;
+        QString ignored;
+        if (readWholeFile(path, &bytes, &ignored))
+            describeHeifStill(bytes, &out->colour);
+    }
+    return true;
 }
 
 } // namespace

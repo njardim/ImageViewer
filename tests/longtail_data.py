@@ -20,6 +20,7 @@ usage: python3 tests/longtail_data.py <output directory>
 import os
 import struct
 import sys
+import zlib
 
 out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "data")
 
@@ -182,10 +183,26 @@ def fits():
     write("rows.fits", header + data + bytes(-len(data) % 2880))
 
 
+# Netpbm PPM, 8 bits: sRGB values in practice, though OpenImageIO labels it "Rec709" (D-54).
+def ppm():
+    write("orange.ppm", b"P6\n6 4\n255\n" + bytes([255, 128, 0]) * 24)
+
+
+# PNG with a gAMA chunk and no sRGB chunk, one gray pixel of 128. OpenImageIO names the gamma
+# rounded ("g22", "Gamma2.2") or in a form not parsed (γ 0.5); the exact exponent is used.
+def png_gamma():
+    def chunk(kind, body):
+        return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body))
+    for name, gama in (("gamma-2.22.png", 45000), ("gamma-0.5.png", 200000)):
+        write(name, b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 0, 0, 0, 0))
+              + chunk(b"gAMA", struct.pack(">I", gama)) + chunk(b"IDAT", zlib.compress(b"\x00\x80"))
+              + chunk(b"IEND", b""))
+
+
 def svg():
     write("orange.svg", b'<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4">'
                         b'<rect width="6" height="4" fill="#ff8000"/></svg>\n')
 
 
-for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, fits, svg):
+for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, fits, ppm, png_gamma, svg):
     make()

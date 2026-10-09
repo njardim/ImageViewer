@@ -56,6 +56,10 @@ check camera.jxl 'camera: +Cristallumnis \| Cristallumnis Test Camera X1 \| 50mm
 
 check rows2.pfm 'colour: +linear' "PFM read as linear (OIIO labels it Rec709)"
 check rows2.pfm 'pixel\[0,0\]: +0\.25 0\.5 1 a=1' "PFM rows stored bottom to top are flipped"
+# PNG gAMA without sRGB: the exact exponent, (128/255)^(1/0.45) and (128/255)^0.5.
+check gamma-2.22.png 'pixel\[0,0\]: +0\.216[0-9]* 0\.216[0-9]* 0\.216[0-9]* a=1' "PNG gAMA 45000: exact exponent 2.222"
+check gamma-0.5.png 'pixel\[0,0\]: +0\.708[0-9]* 0\.708[0-9]* 0\.708[0-9]* a=1' "PNG gAMA 200000: exponent 0.5"
+check orange.ppm 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "8-bit PPM read as sRGB, not Rec709 (D-54)"
 
 # Codecs enabled in the vcpkg build (vcpkg.json). Pixel (0,0) is sRGB (255,128,0) -> linear (1, 0.2158, 0).
 # Made with Pillow 12.3 (WebP, GIF, JPEG 2000, AVIF) and oiiotool 2.4 (TIFF).
@@ -105,6 +109,11 @@ fi
 # not be expanded a second time (OpenImageIO 3 passes the flag on as CICP).
 # Colour stored premultiplied, (128, 64, 0) at alpha 128 (libheif, lossless): shown once divided.
 check premultiplied.avif 'pixel\[0,0\]: +1 0\.21[0-9]* 0 a=0\.50' "AVIF premultiplied alpha divided once"
+# The colour of AVIF stills comes from libheif: OpenImageIO reads no ICC profile from them, and
+# no nclx box when an ICC profile is there too (both written by libavif).
+check p3icc.avif 'colour: +ICC: Display P3' "AVIF ICC profile read"
+check p3icc.avif 'pixel\[0,0\]: +1\.22[0-9]* -0\.04[0-9]* -0\.019' "AVIF P3 red -> scRGB (1.225, -0.042, -0.019)"
+check pq-icc.avif 'colour: +CICP 9/16/6/1 ' "AVIF with nclx and ICC: CICP first (D-22)"
 check narrow.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF narrow range expanded once"
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
 # GIF loops as browsers play them: no NETSCAPE block once, a count N (repeats) N + 1 times.

@@ -1,6 +1,5 @@
 set(PATCHES
     fix-dependencies.patch
-    fix-static-ffmpeg.patch
     imath-version-guard.patch
     fix-openimageio_include_dir.patch
     fix-openexr-target-missing.patch
@@ -21,7 +20,9 @@ if(VCPKG_TARGET_IS_OSX)
 endif()
 
 # Overlay (D-46): OpenImageIO 3.2.1.1 ahead of vcpkg's 3.1.14.0. Fetched by git at the tag's
-# commit, so the commit hash pins the source. fix-dependencies.patch is vcpkg's, rebased on 3.2.
+# commit, so the commit hash pins the source. vcpkg's patches rebased on 3.2 (fix-dependencies,
+# fix-openexr-target-missing); its fix-static-ffmpeg patch is for the Python bindings, rewritten in
+# 3.2 and not built here.
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/AcademySoftwareFoundation/OpenImageIO

@@ -70,7 +70,7 @@ The packages are **not signed yet**:
 | T | Tone mapping on/off (off: clip at the display's peak) |
 | C | Highlight altered (clipped or tone-mapped) pixels |
 | Ctrl+C / Ctrl+Shift+C | Copy image / copy file path |
-| F2 (Return on macOS) | Rename |
+| F2 or Return | Rename |
 | Delete (⌘⌫ on macOS) / Ctrl+Z | Move to the trash / undo |
 | Shift+Delete (⌘⇧⌫ on macOS) | Delete permanently |
 | Ctrl+, | Settings |

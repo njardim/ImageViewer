@@ -4,6 +4,8 @@
 # packaged binaries on machines without a display.
 # Usage: tests/smoke.sh <path-to-imageViewer-executable>
 set -euo pipefail
+# Windows: a GUI program without a console sends its log to the debugger, not to stderr.
+export QT_FORCE_STDERR_LOGGING=1
 
 exe="$1"
 data="$(cd "$(dirname "$0")/data" && pwd)"
@@ -164,6 +166,7 @@ done
 # A FITS volume: every slice is read (a one-slice buffer overflowed), the first one shown.
 if "$exe" --formats 2>/dev/null | grep -q "^ *fits | .* | yes | "; then
     check volume.fits 'size: +6x4' "FITS volume (5 slices) read whole, one slice shown"
+    check rows.fits 'pixel\[0,0\]: +0\.215[89][0-9]* 0\.215[89][0-9]* 0\.215[89][0-9]* a=1' "FITS rows bottom first, none shifted"
 fi
 check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
 check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
@@ -176,7 +179,12 @@ while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; decoder="$(echo "$decoder" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
     if [ "$id" = svg ]; then
-        echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
+        if [ "$available" != yes ] && [ -n "${CI:-}" ]; then
+            echo "FAIL svg: not in this build (Qt's SVG image plugin missing)"
+            failures=$((failures + 1))
+        else
+            echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
+        fi
         continue
     fi
     if [ "$available" != yes ] && [ -z "${CI:-}" ]; then

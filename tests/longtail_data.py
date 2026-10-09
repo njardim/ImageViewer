@@ -162,6 +162,14 @@ def fits():
     header += b" " * (-len(header) % 2880)
     data = b"".join(bytes([200 - 40 * k]) * 24 for k in range(5))
     write("volume.fits", header + data + bytes(-len(data) % 2880))
+    # Rows differ: FITS stores the bottom row first, so the top-left pixel is the last row's (128).
+    # OpenImageIO 3.2.1.1 read every row one off (0.4 review, our fits-row-offset patch).
+    cards = cards[:5] + ["END"]
+    cards[2] = "NAXIS   =                    2"
+    header = "".join(card.ljust(80) for card in cards).encode("ascii")
+    header += b" " * (-len(header) % 2880)
+    data = b"".join(bytes([value]) * 6 for value in (32, 64, 96, 128))
+    write("rows.fits", header + data + bytes(-len(data) % 2880))
 
 
 def svg():

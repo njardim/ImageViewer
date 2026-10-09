@@ -261,7 +261,7 @@ Basis: d2phap/ImageGlass, commit `2cf91de`, 2026-09-27 `[code]`. Stack: .NET 10 
 
 | Component | In use | Upstream latest | License | Role |
 |---|---|---|---|---|
-| C++20, CMake ≥ 3.24, Ninja | — | — | — | Build |
+| C++20, CMake ≥ 3.25 (presets schema 6, Qt 6.12), Ninja | — | — | — | Build |
 | **Qt** (Core, Gui/QRhi, Widgets, ShaderTools) | 6.12.0 (D-50) | 6.12.0 | LGPLv3 (dynamic linking) | UI, GPU rendering (D3D11/12, Metal, Vulkan, OpenGL) |
 | **OpenImageIO** (overlay; vcpkg has 3.1.14.0) | 3.2.1.1 | 3.2.1.1 (2026-10-02; 3.1 branch at 3.1.18.1) | Apache-2.0 | Main decoder (features in `vcpkg.json`: gif, libheif, libraw, openjpeg, webp) |
 | ↳ OpenColorIO (required by OpenImageIO; our own use comes in Phase 5) | 2.6.0 | 2.6.0 | BSD-3 | Named colour spaces |

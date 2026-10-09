@@ -3,6 +3,7 @@ set(PATCHES
     imath-version-guard.patch
     fix-openimageio_include_dir.patch
     fix-openexr-target-missing.patch
+    fits-row-offset.patch # ours: FITS rows are stored bottom first, row y is height - 1 - y (0.4 review)
 )
 
 if(VCPKG_TARGET_IS_OSX)

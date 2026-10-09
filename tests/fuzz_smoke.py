@@ -27,7 +27,9 @@ data = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 work = os.environ.get("FUZZ_SMOKE_DIR") or tempfile.mkdtemp(prefix="imageviewer-fuzz-")
 os.makedirs(work, exist_ok=True)
 TIMEOUT_S = 60  # the decode worker stops itself at 30 s
-env = dict(os.environ, LC_ALL="C.UTF-8", QT_QPA_PLATFORM="offscreen")
+# QT_FORCE_STDERR_LOGGING: on Windows a GUI program without a console logs to the debugger, and
+# the worker failures below would never be seen.
+env = dict(os.environ, LC_ALL="C.UTF-8", QT_QPA_PLATFORM="offscreen", QT_FORCE_STDERR_LOGGING="1")
 
 
 def mutations(content, rng):

@@ -100,9 +100,10 @@ jobs:
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
           aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
-          # Only what we use (qttools: lupdate/lrelease for the UI translations). Run 2: py7zr
-          # rejected a path in the qtsvg archive; run 3: parallel external 7-Zip extractions raced.
-          archives: qtbase qttools d3dcompiler_47 opengl32sw
+          # Only what we use (qttools: lupdate/lrelease for the UI translations; qtsvg: the SVG
+          # image plugin). Run 2: py7zr rejected a path in the qtsvg archive of Qt 6.11; run 3:
+          # parallel external 7-Zip extractions raced.
+          archives: qtbase qttools qtsvg d3dcompiler_47 opengl32sw
           cache: true
 
       - name: vcpkg

@@ -3,7 +3,7 @@
 **Read `docs/PLAN.md` first.** It is the single source of truth: current status (§1), decision log (§2), architecture (§6), fidelity criteria (§7), phases with checkboxes (§9), and pending decisions (§13). Do not re-derive decisions recorded there; do not re-open them without new evidence.
 
 ## What this is
-Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.11**, minimalist UI, **verifiable colour fidelity in SDR and HDR**, format coverage ≥ qView ∪ ImageGlass ∪ FFmpeg image2. Owner: Nuno Jardim (Cristallumnis). **Open source under Apache-2.0** (decision D-18): `LICENSE` + `NOTICE` ship in every package; the Cristallumnis trademark is not licensed; future Cristallumnis AI modules are separate proprietary plugins (open core); contributions need a DCO sign-off.
+Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.12**, minimalist UI, **verifiable colour fidelity in SDR and HDR**, format coverage ≥ qView ∪ ImageGlass ∪ FFmpeg image2. Owner: Nuno Jardim (Cristallumnis). **Open source under Apache-2.0** (decision D-18): `LICENSE` + `NOTICE` ship in every package; the Cristallumnis trademark is not licensed; future Cristallumnis AI modules are separate proprietary plugins (open core); contributions need a DCO sign-off.
 
 ## Rules
 - **Language (D-27): everything in the repository is 100 % English** — code, identifiers, comments, UI source strings, docs, commit messages, PR texts. Nothing in Portuguese is committed (the Portuguese UI lives only in `translations/imageviewer_pt.ts`). Talk to the user in the language they write in (Nuno: European Portuguese).

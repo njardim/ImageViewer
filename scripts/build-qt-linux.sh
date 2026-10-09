@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Development setup for Linux and Claude Code cloud sessions (Ubuntu 24.04).
 #
-# The cloud proxy blocks download.qt.io and GitHub release assets, so Qt 6.11 is
+# The cloud proxy blocks download.qt.io and GitHub release assets, so Qt 6.12 is
 # built from the GitHub source mirror into /opt/qt6 (qtbase + qtshadertools,
 # ~15 min on 4 cores). Imaging libraries come from apt; their versions are older
 # than production (vcpkg, see vcpkg.json) but sufficient to compile and test.
@@ -10,7 +10,7 @@
 #              tests/smoke.sh build/linux-system/imageViewer
 set -euo pipefail
 
-QT_TAG="${QT_TAG:-v6.11.2}"
+QT_TAG="${QT_TAG:-v6.12.0}"
 PREFIX="${PREFIX:-/opt/qt6}"
 WORK="${WORK:-$HOME/qt-src}"
 

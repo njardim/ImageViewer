@@ -21,12 +21,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Qt 6.11: QRhi (HDR swapchains) is reached through Qt6::GuiPrivate; its API is
+# Qt 6.12: QRhi (HDR swapchains) is reached through Qt6::GuiPrivate; its API is
 # stable enough for us but carries no compatibility promise (pin Qt minor versions).
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
-find_package(Qt6 6.11 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools LinguistTools)
-if(Qt6_VERSION VERSION_GREATER_EQUAL 6.12)
-    message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.11 only; "
+find_package(Qt6 6.12 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools LinguistTools)
+if(Qt6_VERSION VERSION_GREATER_EQUAL 6.13)
+    message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.12 only; "
                         "moving to a new Qt minor version is a deliberate port (docs/PLAN.md).")
 endif()
 # User-interface languages (decisions D-27, D-32): English is the source; the 16 most spoken

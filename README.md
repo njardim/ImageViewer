@@ -15,7 +15,7 @@ Get the latest version from [Releases](https://github.com/njardim/ImageViewer/re
 | System | Package | Requirements |
 |---|---|---|
 | Windows x64 | `imageViewer-<version>-windows-x64.zip` — unzip and run `bin/imageViewer.exe` | Windows 10 (22H2) or 11 |
-| macOS (Apple silicon) | `imageViewer-<version>-macos-arm64.dmg` — drag `imageViewer.app` to Applications | macOS 13 or later |
+| macOS (Apple silicon) | `imageViewer-<version>-macos-arm64.dmg` — drag `imageViewer.app` to Applications | macOS 14.4 or later |
 | Linux x64 | `imageViewer-<version>-linux-x64.tar.gz` — extract and run `bin/imageViewer` | glibc 2.39 (Ubuntu 24.04 or newer distributions), X11 or XWayland, `libopengl0`, `libegl1`, `libxcb-cursor0` |
 
 `SHA256SUMS` lists the checksums of the packages. Each package is built and tested by CI on a clean machine, and on public releases it carries a GitHub build provenance attestation (`gh attestation verify <file> --repo njardim/ImageViewer`).
@@ -88,10 +88,10 @@ On every change, CI builds and tests on Windows, macOS and Linux (the on-screen 
 
 ## Building from source
 
-The dependencies are Qt 6.11 (official binaries) and OpenImageIO, LittleCMS, libjxl, libwebp, libheif, GraphicsMagick and their codecs (from vcpkg, using the manifest `vcpkg.json`).
+The dependencies are Qt 6.12 (official binaries) and OpenImageIO, LittleCMS, libjxl, libwebp, libheif, GraphicsMagick and their codecs (from vcpkg, using the manifest `vcpkg.json`).
 
 ```
-cmake --preset <windows|macos|linux> -DCMAKE_PREFIX_PATH=<Qt 6.11 directory>   # needs VCPKG_ROOT
+cmake --preset <windows|macos|linux> -DCMAKE_PREFIX_PATH=<Qt 6.12 directory>   # needs VCPKG_ROOT
 cmake --build --preset <windows|macos|linux>
 tests/smoke.sh <executable>
 ```

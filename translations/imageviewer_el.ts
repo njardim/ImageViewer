@@ -245,6 +245,75 @@
         <translation>Απομνημόνευση του μεγέθους και της θέσης του παραθύρου</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Προσαρμογή στο παράθυρο</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Προσαρμογή στο πλάτος</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Προσαρμογή στο ύψος</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Γέμισμα του παραθύρου</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Μεγέθυνση νέας εικόνας:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Μεγέθυνση των εικόνων που είναι μικρότερες από το παράθυρο</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Διατήρηση του μεγέθους</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Προσαρμογή στην πρώτη εικόνα</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Προσαρμογή σε κάθε εικόνα</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Μέγεθος παραθύρου:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% της οθόνης</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Το πολύ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Το όνομα της εφαρμογής</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Το όνομα του αρχείου</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Όνομα, θέση και διαστάσεις</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Όνομα, θέση, διαστάσεις, μέγεθος αρχείου και μεγέθυνση</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Γραμμή τίτλου:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Παράθυρο</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Χρώμα &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Εντολή</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Συντομεύσεις</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Συντόμευση:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Εναλλακτική:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Προεπιλογή για αυτήν την εντολή</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Προεπιλογές για όλες τις εντολές</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Επαναφορά προεπιλογών</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Πάρθηκε από: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Προσαρμογή στο παράθυρο</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Προσαρμογή στο πλάτος</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Προσαρμογή στο ύψος</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Γέμισμα του παραθύρου</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Κλείδωμα μεγέθυνσης</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Πραγματικό μέγεθος (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Άνοιγμα εικόνας</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Η μεγέθυνση κλειδώθηκε: οι επόμενες εικόνες τη διατηρούν</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Η μεγέθυνση ξεκλειδώθηκε</translation>
     </message>
     <message>
         <source>Copying the image…</source>

@@ -317,6 +317,75 @@
         <translation> с</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>По размеру окна</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>По ширине окна</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>По высоте окна</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Заполнить окно</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Масштаб нового изображения:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Увеличивать изображения, которые меньше окна</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Сохранять размер</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>По первому изображению</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>По каждому изображению</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Размер окна:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % от экрана</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Не более:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Название приложения</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Имя файла</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Имя, позиция и размеры</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Имя, позиция, размеры, размер файла и масштаб</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Заголовок окна:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Скрывать через:</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Цвет &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Команда</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Горячие клавиши</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Сочетание клавиш:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Альтернативное:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>По умолчанию для этой команды</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>По умолчанию для всех команд</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Восстановить значения по умолчанию</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Взято у: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>По размеру окна</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>По ширине окна</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>По высоте окна</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Заполнить окно</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Зафиксировать масштаб</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Фактический размер (100 %)</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>Открыть недавние</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Масштаб зафиксирован: следующие изображения сохранят его</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Фиксация масштаба снята</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

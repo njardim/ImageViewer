@@ -245,6 +245,75 @@
         <translation>Pencere boyutunu ve konumunu hatırla</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Pencereye sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Genişliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Yüksekliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Pencereyi doldur</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Yeni görüntünün yakınlaştırması:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Pencereden küçük görüntüleri büyüt</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Boyutunu koru</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>İlk görüntüye sığdır</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Her görüntüye sığdır</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Pencere boyutu:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% ekran</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>En fazla:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Uygulamanın adı</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Dosya adı</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Ad, konum ve boyutlar</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Ad, konum, boyutlar, dosya boyutu ve yakınlaştırma</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Başlık çubuğu:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Pencere</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Renk &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komut</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Kısayollar</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Kısayol:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatif:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Bu komutun varsayılanları</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Tüm komutların varsayılanları</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Tamam</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Varsayılanları geri yükle</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Şunlardan alındı: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Pencereye sığdır</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Genişliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Yüksekliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Pencereyi doldur</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Yakınlaştırmayı kilitle</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Gerçek boyut (%100)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Görüntü aç</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Yakınlaştırma kilitlendi: sonraki görüntüler bunu korur</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Yakınlaştırmanın kilidi açıldı</translation>
     </message>
     <message>
         <source>Copying the image…</source>

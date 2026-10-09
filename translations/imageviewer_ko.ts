@@ -245,6 +245,75 @@
         <translation>창 크기와 위치 기억</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>창에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>너비에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>높이에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>창 채우기</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>새 이미지 배율:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>창보다 작은 이미지 확대</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>크기 유지</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>첫 이미지에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>모든 이미지에 맞추기</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>창 크기:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% (화면 대비)</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>최대:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>애플리케이션 이름</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>파일 이름</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>이름, 위치, 이미지 크기</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>이름, 위치, 이미지 크기, 파일 크기, 배율</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>제목 표시줄:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>창</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>색상 &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>명령</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>단축키</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>단축키:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>대체:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>이 명령의 기본값</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>모든 명령의 기본값</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>확인</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>기본값 복원</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>가져온 위치: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>창에 맞추기</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>너비에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>높이에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>창 채우기</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>배율 고정</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>실제 크기(100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>이미지 열기</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>배율 고정됨: 다음 이미지에도 유지됩니다</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>배율 고정 해제됨</translation>
     </message>
     <message>
         <source>Copying the image…</source>

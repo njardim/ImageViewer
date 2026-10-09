@@ -245,6 +245,75 @@
         <translation>Prisiminti lango dydį ir padėtį</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Priderinti prie lango</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Priderinti prie pločio</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Priderinti prie aukščio</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Užpildyti langą</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Naujo vaizdo mastelis:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Padidinti vaizdus, mažesnius už langą</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Išlaikyti dydį</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Priderinti prie pirmojo vaizdo</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Priderinti prie kiekvieno vaizdo</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Lango dydis:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % ekrano</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Daugiausia:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Programos pavadinimas</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Failo pavadinimas</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Pavadinimas, padėtis ir matmenys</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Pavadinimas, padėtis, matmenys, failo dydis ir mastelis</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Antraštės juosta:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Langas</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Spalvos &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komanda</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Spartieji klavišai</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Spartusis klavišas:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatyvus:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Šios komandos numatytieji</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Visų komandų numatytieji</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Gerai</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Atkurti numatytuosius</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Paimta iš: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Priderinti prie lango</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Priderinti prie pločio</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Priderinti prie aukščio</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Užpildyti langą</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Užrakinti mastelį</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Tikrasis dydis (100 %)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Atidaryti vaizdą</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Mastelis užrakintas: kiti vaizdai jį išlaikys</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Mastelis atrakintas</translation>
     </message>
     <message>
         <source>Copying the image…</source>

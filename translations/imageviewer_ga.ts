@@ -245,6 +245,75 @@
         <translation>Cuimhnigh ar mhéid agus ar shuíomh na fuinneoige</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Oiriúnaigh don fhuinneog</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Oiriúnaigh don leithead</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Oiriúnaigh don airde</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Líon an fhuinneog</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zúmáil íomhá nua:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Méadaigh íomhánna atá níos lú ná an fhuinneog</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Coinnigh a méid</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Oiriúnaigh í don chéad íomhá</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Oiriúnaigh í do gach íomhá</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Méid na fuinneoige:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% den scáileán</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Ar a mhéad:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Ainm an iarratais</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Ainm an chomhaid</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Ainm, suíomh agus toisí</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Ainm, suíomh, toisí, méid an chomhaid agus zúmáil</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Barra teidil:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fuinneog</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Dath &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Ordú</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Aicearraí</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Aicearra:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Malartach:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Réamhshocrú don ordú seo</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Réamhshocruithe do gach ordú</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Athchóirigh na réamhshocruithe</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Tógtha ó: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Oiriúnaigh don fhuinneog</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Oiriúnaigh don leithead</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Oiriúnaigh don airde</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Líon an fhuinneog</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Glasáil an zúmáil</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Fíormhéid (100 %)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Oscail íomhá</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zúmáil glasáilte: coinneoidh na híomhánna ina dhiaidh seo í</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zúmáil díghlasáilte</translation>
     </message>
     <message>
         <source>Copying the image…</source>

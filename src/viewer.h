@@ -58,6 +58,7 @@ public:
         PlayPause, PreviousFrame, NextFrame, Slideshow,
         About, AboutQt,
     };
+    Q_ENUM(Command) // its names are the keys of the user's shortcuts (D-52)
 
 protected:
     bool event(QEvent *e) override;
@@ -180,6 +181,8 @@ private:
         bool repeats; // acts again while the key is held (navigation, zoom); toggles and file actions do not
     };
     static const QList<CommandInfo> &commands();
+    static QString commandKey(Command command);
+    QList<QKeySequence> shortcutsFor(Command command) const; // the user's, else the defaults
     QString commandText(Command command) const;
     bool isCommandEnabled(Command command) const;
     bool isCommandChecked(Command command, bool *checkable) const;

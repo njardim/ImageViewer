@@ -245,6 +245,75 @@
         <translation>Ricorda dimensioni e posizione della finestra</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Adatta alla finestra</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Adatta alla larghezza</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Adatta all’altezza</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Riempi la finestra</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom di una nuova immagine:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Ingrandisci le immagini più piccole della finestra</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Mantieni le dimensioni</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Adattala alla prima immagine</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Adattala a ogni immagine</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Dimensioni della finestra:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% dello schermo</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Al massimo:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Il nome dell’applicazione</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Il nome del file</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nome, posizione e dimensioni</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nome, posizione, dimensioni, dimensione del file e zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Barra del titolo:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Finestra</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Colore &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Comando</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Scorciatoie</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Scorciatoia:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativa:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Predefinite per questo comando</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Predefinite per tutti i comandi</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Ripristina predefiniti</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Tolta a: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Adatta alla finestra</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Adatta alla larghezza</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Adatta all’altezza</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Riempi la finestra</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Blocca lo zoom</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Dimensione reale (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Apri immagine</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom bloccato: le immagini successive lo mantengono</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom sbloccato</translation>
     </message>
     <message>
         <source>Copying the image…</source>

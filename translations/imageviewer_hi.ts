@@ -317,6 +317,75 @@
         <translation> सेकंड</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>विंडो में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>चौड़ाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>ऊँचाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>विंडो भरें</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>नई छवि का ज़ूम:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>विंडो से छोटी छवियाँ बड़ी करें</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>आकार वही रखें</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>पहली छवि के अनुसार फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>हर छवि के अनुसार फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>विंडो का आकार:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % स्क्रीन का</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>अधिकतम:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>एप्लिकेशन का नाम</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>फ़ाइल का नाम</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>नाम, स्थिति और आयाम</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>नाम, स्थिति, आयाम, फ़ाइल का आकार और ज़ूम</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>टाइटल बार:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>इसके बाद छिपाएँ:</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>रंग &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>कमांड</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>शॉर्टकट</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>शॉर्टकट:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>वैकल्पिक:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>इस कमांड के डिफ़ॉल्ट</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>सभी कमांड के डिफ़ॉल्ट</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ठीक है</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>डिफ़ॉल्ट पुनर्स्थापित करें</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>इनसे लिया गया: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>विंडो में फ़िट करें</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>चौड़ाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>ऊँचाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>विंडो भरें</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>ज़ूम लॉक करें</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>वास्तविक आकार (100 %)</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>हाल की फ़ाइलें खोलें</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>ज़ूम लॉक किया गया: अगली छवियाँ इसे बनाए रखेंगी</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>ज़ूम अनलॉक किया गया</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

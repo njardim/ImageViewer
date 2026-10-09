@@ -317,6 +317,75 @@
         <translation> giây</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Vừa với cửa sổ</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Vừa với chiều rộng</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Vừa với chiều cao</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Lấp đầy cửa sổ</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Thu phóng ảnh mới:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Phóng to ảnh nhỏ hơn cửa sổ</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Giữ nguyên kích thước</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Vừa với ảnh đầu tiên</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Vừa với từng ảnh</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Kích thước cửa sổ:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% màn hình</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Tối đa:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Tên ứng dụng</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Tên tệp</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Tên, vị trí và kích thước</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Tên, vị trí, kích thước, dung lượng tệp và mức thu phóng</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Thanh tiêu đề:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Ẩn sau:</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Màu sắc &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Lệnh</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Phím tắt</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Phím tắt:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Thay thế:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Mặc định cho lệnh này</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Mặc định cho mọi lệnh</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Khôi phục mặc định</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Lấy từ: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>Vừa với cửa sổ</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Vừa với chiều rộng</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Vừa với chiều cao</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Lấp đầy cửa sổ</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Khóa thu phóng</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Kích thước thực (100%)</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>Mở gần đây</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Đã khóa thu phóng: các ảnh tiếp theo giữ nguyên mức này</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Đã mở khóa thu phóng</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

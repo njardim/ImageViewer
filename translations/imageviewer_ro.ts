@@ -245,6 +245,75 @@
         <translation>Reține dimensiunea și poziția ferestrei</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Potrivire în fereastră</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Potrivire pe lățime</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Potrivire pe înălțime</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Umplerea ferestrei</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom pentru o imagine nouă:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Mărește imaginile mai mici decât fereastra</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Păstrarea dimensiunii</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Potrivire la prima imagine</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Potrivire la fiecare imagine</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Dimensiunea ferestrei:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% din ecran</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Cel mult:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Numele aplicației</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Numele fișierului</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nume, poziție și dimensiuni</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nume, poziție, dimensiuni, dimensiunea fișierului și zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Bara de titlu:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fereastră</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Culoare &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Comandă</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Scurtături</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Scurtătură:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativă:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Valori implicite pentru această comandă</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Valori implicite pentru toate comenzile</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Restabilire valori implicite</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Preluată de la: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Potrivire în fereastră</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Potrivire pe lățime</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Potrivire pe înălțime</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Umplerea ferestrei</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Blocarea zoomului</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Dimensiune reală (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Deschidere imagine</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom blocat: imaginile următoare îl păstrează</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom deblocat</translation>
     </message>
     <message>
         <source>Copying the image…</source>

@@ -245,6 +245,75 @@
         <translation>Jäta meelde akna suurus ja asukoht</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Mahuta aknasse</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Mahuta laiusele</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Mahuta kõrgusele</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Täida aken</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Uue pildi suum:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Suurenda aknast väiksemaid pilte</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Säilita suurus</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Sobita esimese pildiga</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Sobita iga pildiga</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Akna suurus:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % ekraanist</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Kuni:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Rakenduse nimi</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Faili nimi</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nimi, asukoht ja mõõtmed</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nimi, asukoht, mõõtmed, faili suurus ja suum</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Tiitliriba:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Aken</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Värv &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Käsk</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Kiirklahvid</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Kiirklahv:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatiiv:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Selle käsu vaikeväärtused</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Kõigi käskude vaikeväärtused</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Taasta vaikeväärtused</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Võetud käskudelt: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Mahuta aknasse</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Mahuta laiusele</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Mahuta kõrgusele</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Täida aken</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Lukusta suum</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Tegelik suurus (100 %)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Ava pilt</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Suum lukustatud: järgmised pildid säilitavad selle</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Suumi lukustus eemaldatud</translation>
     </message>
     <message>
         <source>Copying the image…</source>

@@ -17,9 +17,9 @@ opened from a folder; every step waits until the expected pixels are on screen, 
   6. after a restart with settings written by 0.1, they still apply and move to [app], and
      the old default side-zone width (200 px) becomes the new one (100 px);
   7. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
-     detail on: fit to the window, W fits the width, 1 is 100 %, L keeps it for the next
-     image and L again lets it fit; the window takes an image's size within 50 % of the
-     screen.
+     detail on: fit to the window, X (a user shortcut for Fit to Width, D-52) fits the width,
+     1 is 100 %, L keeps it for the next image and L again lets it fit; the window takes
+     an image's size within 50 % of the screen.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -428,12 +428,12 @@ try:
                     return m is not None and abs(float(m.group(1)) - want) <= 0.06
                 return check
 
-            edit_settings(("window", "title", "everything"))
+            edit_settings(("window", "title", "everything"), ("shortcuts", "FitWidth", "X"))  # D-52
             app = subprocess.Popen([exe, os.path.join(zoom_dir, "big1.png")], env=env, stdout=log, stderr=log)
             fit = lambda w, h: round(min(w / 2400, h / 1800, 1.0) * 100, 1)
             wait_until("the title shows the name, position, size, file size and fitted zoom", title_zoom("big1.png", fit))
-            xdotool("key", "w")
-            wait_until("W fits the width", title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
+            xdotool("key", "x")
+            wait_until("X, the user's shortcut for Fit to Width (D-52), fits the width", title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
             xdotool("key", "1")
             wait_until("1 shows 100 %", title_zoom("big1.png", lambda w, h: 100.0))
             xdotool("key", "l")

@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMetaEnum>
 #include <QStandardPaths>
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
 
@@ -276,6 +277,34 @@ void ViewerWindow::execute(Command command)
     }
 }
 
+QString ViewerWindow::commandKey(Command command)
+{
+    return QString::fromLatin1(QMetaEnum::fromType<Command>().valueToKey(int(command)));
+}
+
+QList<QKeySequence> ViewerWindow::shortcutsFor(Command command) const
+{
+    const auto user = m_settings.shortcuts.constFind(commandKey(command));
+    if (user != m_settings.shortcuts.cend())
+        return *user;
+    const auto &table = commands();
+    const auto it = std::find_if(table.cbegin(), table.cend(), [command](const CommandInfo &i) { return i.command == command; });
+    return it != table.cend() ? it->shortcuts : QList<QKeySequence>();
+}
+
+namespace {
+// "+", "-" and the digits need Shift on many layouts: they match with or without it, whether
+// pressed or recorded in the Settings (Shift++ on a US keyboard is "+").
+QKeyCombination matchable(QKeyCombination combination)
+{
+    Qt::KeyboardModifiers modifiers = combination.keyboardModifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
+    const Qt::Key key = combination.key();
+    if (key == Qt::Key_Plus || key == Qt::Key_Minus || key == Qt::Key_Equal || (key >= Qt::Key_0 && key <= Qt::Key_9))
+        modifiers &= ~Qt::ShiftModifier;
+    return QKeyCombination(modifiers, key);
+}
+} // namespace
+
 bool ViewerWindow::executeShortcut(QKeyEvent *e)
 {
     // Every combination this press stands for on the current keyboard layout, as Qt's own
@@ -283,17 +312,11 @@ bool ViewerWindow::executeShortcut(QKeyEvent *e)
     QList<QKeyCombination> candidates = QKeyMapper::possibleKeys(e);
     candidates.prepend(e->keyCombination());
     QList<QKeyCombination> pressed;
-    for (const QKeyCombination candidate : std::as_const(candidates)) {
-        Qt::KeyboardModifiers modifiers = candidate.keyboardModifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
-        const Qt::Key key = candidate.key();
-        // "+", "-" and the digits need Shift on many layouts: they match with or without it.
-        if (key == Qt::Key_Plus || key == Qt::Key_Minus || key == Qt::Key_Equal || (key >= Qt::Key_0 && key <= Qt::Key_9))
-            modifiers &= ~Qt::ShiftModifier;
-        pressed << QKeyCombination(modifiers, key);
-    }
+    for (const QKeyCombination candidate : std::as_const(candidates))
+        pressed << matchable(candidate);
     for (const CommandInfo &info : commands()) {
-        for (const QKeySequence &shortcut : info.shortcuts) {
-            if (shortcut.count() != 1 || !pressed.contains(shortcut[0]))
+        for (const QKeySequence &shortcut : shortcutsFor(info.command)) {
+            if (shortcut.count() != 1 || !pressed.contains(matchable(shortcut[0])))
                 continue;
             // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
             if (!e->isAutoRepeat() || info.repeats) {
@@ -309,10 +332,8 @@ bool ViewerWindow::executeShortcut(QKeyEvent *e)
 void ViewerWindow::addCommand(QMenu *menu, Command command)
 {
     QAction *action = menu->addAction(commandText(command));
-    const auto &table = commands();
-    const auto it = std::find_if(table.cbegin(), table.cend(), [command](const CommandInfo &i) { return i.command == command; });
-    if (it != table.cend() && !it->shortcuts.isEmpty()) {
-        action->setShortcuts(it->shortcuts);
+    if (const QList<QKeySequence> shortcuts = shortcutsFor(command); !shortcuts.isEmpty()) {
+        action->setShortcuts(shortcuts);
         action->setShortcutVisibleInContextMenu(true);
     }
     bool checkable = false;
@@ -463,7 +484,12 @@ void ViewerWindow::toggleLockZoom()
 
 void ViewerWindow::showSettings()
 {
-    SettingsDialog dialog(m_settings);
+    SettingsDialog dialog(m_settings, [this] {
+        QList<ShortcutCommand> list;
+        for (const CommandInfo &info : commands())
+            list.append({commandKey(info.command), commandText(info.command), info.shortcuts});
+        return list;
+    });
     makeTransient(dialog, this);
     // Apply and OK both deliver the values here; Cancel keeps whatever Apply already applied.
     connect(&dialog, &SettingsDialog::applied, this, &ViewerWindow::applySettings);

@@ -317,6 +317,75 @@
         <translation> سیکنڈ</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>ونڈو میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>چوڑائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>اونچائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>ونڈو کو بھریں</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>نئی تصویر کا زوم:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>ونڈو سے چھوٹی تصاویر کو بڑا کریں</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>سائز برقرار رکھیں</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>پہلی تصویر کے مطابق فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>ہر تصویر کے مطابق فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>ونڈو کا سائز:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % اسکرین کا</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>زیادہ سے زیادہ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>ایپلیکیشن کا نام</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>فائل کا نام</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>نام، مقام اور ابعاد</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>نام، مقام، ابعاد، فائل کا سائز اور زوم</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>ٹائٹل بار:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>اتنی دیر بعد چھپائیں:</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>رنگ &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>کمانڈ</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>شارٹ کٹس</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>شارٹ کٹ:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>متبادل:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>اس کمانڈ کے ڈیفالٹس</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>تمام کمانڈز کے ڈیفالٹس</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ٹھیک ہے</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ڈیفالٹس بحال کریں</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>ان سے لیا گیا: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>ونڈو میں فٹ کریں</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>چوڑائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>اونچائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>ونڈو کو بھریں</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>زوم لاک کریں</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>اصل سائز (100 %)</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>حالیہ کھولیں</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>زوم لاک ہو گیا: اگلی تصاویر اسے برقرار رکھیں گی</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>زوم ان لاک ہو گیا</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

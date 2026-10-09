@@ -245,6 +245,75 @@
         <translation>Запомняне на размера и позицията на прозореца</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Побиране в прозореца</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Побиране по ширина</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Побиране по височина</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Запълване на прозореца</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Мащаб на новото изображение:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Увеличаване на изображенията, по-малки от прозореца</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Запазване на размера</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Напасване към първото изображение</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Напасване към всяко изображение</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Размер на прозореца:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% от екрана</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Най-много:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Името на приложението</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Името на файла</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Име, позиция и размери</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Име, позиция, размери, размер на файла и мащаб</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Заглавна лента:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Прозорец</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Цвят &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Команда</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Клавишни комбинации</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Клавишна комбинация:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Алтернативна:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Стандартни за тази команда</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Стандартни за всички команди</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Възстановяване на стандартните</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Взето от: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Побиране в прозореца</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Побиране по ширина</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Побиране по височина</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Запълване на прозореца</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Заключване на мащаба</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Действителен размер (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Отваряне на изображение</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Мащабът е заключен: следващите изображения го запазват</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Мащабът е отключен</translation>
     </message>
     <message>
         <source>Copying the image…</source>

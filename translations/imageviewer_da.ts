@@ -245,6 +245,75 @@
         <translation>Husk vinduets størrelse og placering</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Tilpas til vinduet</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Tilpas til bredden</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Tilpas til højden</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Udfyld vinduet</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom for nyt billede:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Forstør billeder, der er mindre end vinduet</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Behold størrelsen</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Tilpas til det første billede</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Tilpas til hvert billede</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Vinduets størrelse:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % af skærmen</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Højst:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Programmets navn</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Filnavnet</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Navn, placering og dimensioner</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Navn, placering, dimensioner, filstørrelse og zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Titellinje:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Vindue</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Farve &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Kommando</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Genvejstaster</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Genvej:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativ:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Standard for denne kommando</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Standarder for alle kommandoer</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Gendan standarder</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Taget fra: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Tilpas til vindue</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Tilpas til bredde</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Tilpas til højde</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Udfyld vindue</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Lås zoom</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Faktisk størrelse (100 %)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Åbn billede</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom låst: de næste billeder beholder den</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom låst op</translation>
     </message>
     <message>
         <source>Copying the image…</source>

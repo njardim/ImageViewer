@@ -3,6 +3,7 @@
 #include "settings.h"
 
 #include <QApplication>
+#include <QKeySequence>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QSettings>
@@ -263,6 +264,23 @@ Settings Settings::load()
     s.slideshowSeconds = boundedInt(store, QStringLiteral("navigation/slideshowSeconds"), defaults.slideshowSeconds,
                                     kMinSlideshowSeconds, kMaxSlideshowSeconds);
 
+    // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
+    const QString group = QStringLiteral("shortcuts/");
+    for (const QString &name : store.allKeys()) {
+        if (!name.startsWith(group))
+            continue;
+        const QString key = name.mid(group.size());
+        const QVariant stored = store.value(name);
+        const QString text = stored.typeId() == QMetaType::QStringList ? stored.toStringList().join(QLatin1Char(','))
+                                                                        : stored.toString();
+        QList<QKeySequence> list;
+        for (const QString &part : text.split(QStringLiteral("; "), Qt::SkipEmptyParts)) {
+            const QKeySequence sequence = QKeySequence::fromString(part.trimmed(), QKeySequence::PortableText);
+            if (sequence.count() == 1 && !list.contains(sequence)) // single keys only (the viewer matches those)
+                list.append(sequence);
+        }
+        s.shortcuts.insert(key, list); // empty: the user removed every shortcut of the command
+    }
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
     return s;
@@ -320,6 +338,13 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/sortDescending"), sortDescending);
     store.setValue(QStringLiteral("navigation/preload"), preload);
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
+    store.remove(QStringLiteral("shortcuts"));
+    for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
+        QStringList parts;
+        for (const QKeySequence &sequence : it.value())
+            parts << sequence.toString(QKeySequence::PortableText);
+        store.setValue(QStringLiteral("shortcuts/") + it.key(), parts.join(QStringLiteral("; ")));
+    }
     store.setValue(QStringLiteral("color/toneMap"), toneMap);
     store.setValue(QStringLiteral("color/output"), QString::fromLatin1(outputKey(output)));
 }

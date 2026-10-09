@@ -245,6 +245,75 @@
         <translation>Pamätať si veľkosť a polohu okna</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Prispôsobiť oknu</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Prispôsobiť šírke</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Prispôsobiť výške</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Vyplniť okno</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Priblíženie nového obrázka:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Zväčšiť obrázky menšie než okno</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Ponechať veľkosť</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Prispôsobiť prvému obrázku</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Prispôsobiť každému obrázku</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Veľkosť okna:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>&#xa0;% obrazovky</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Najviac:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Názov aplikácie</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Názov súboru</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Názov, poloha a rozmery</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Názov, poloha, rozmery, veľkosť súboru a priblíženie</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Záhlavie okna:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Farby &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Príkaz</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Skratky</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Skratka:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatívna:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Predvolené pre tento príkaz</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Predvolené pre všetky príkazy</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Obnoviť predvolené</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Prevzaté z: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Prispôsobiť oknu</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Prispôsobiť šírke</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Prispôsobiť výške</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Vyplniť okno</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zamknúť priblíženie</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Skutočná veľkosť (100&#xa0;%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Otvoriť obrázok</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Priblíženie zamknuté: ďalšie obrázky si ho ponechajú</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Priblíženie odomknuté</translation>
     </message>
     <message>
         <source>Copying the image…</source>

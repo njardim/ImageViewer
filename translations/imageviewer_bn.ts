@@ -317,6 +317,75 @@
         <translation> সেকেন্ড</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>উইন্ডোর মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>প্রস্থের মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>উচ্চতার মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>উইন্ডো ভরে দিন</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>নতুন ছবির জুম:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>উইন্ডোর চেয়ে ছোট ছবি বড় করুন</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>আকার অপরিবর্তিত রাখুন</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>প্রথম ছবির মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>প্রতিটি ছবির মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>উইন্ডোর আকার:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % পর্দার</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>সর্বোচ্চ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>অ্যাপ্লিকেশনের নাম</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>ফাইলের নাম</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>নাম, অবস্থান ও মাত্রা</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>নাম, অবস্থান, মাত্রা, ফাইলের আকার ও জুম</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>টাইটেল বার:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>এর পরে লুকান:</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>রং &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>কমান্ড</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>শর্টকাট</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>শর্টকাট:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>বিকল্প:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>এই কমান্ডের ডিফল্ট</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>সব কমান্ডের ডিফল্ট</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ঠিক আছে</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ডিফল্ট পুনরুদ্ধার করুন</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>এগুলো থেকে নেওয়া হয়েছে: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>উইন্ডোর মাপে ফিট করুন</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>প্রস্থের মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>উচ্চতার মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>উইন্ডো ভরে দিন</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>জুম লক করুন</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>প্রকৃত আকার (100 %)</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>সাম্প্রতিক খুলুন</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>জুম লক করা হয়েছে: পরের ছবিগুলোতেও থাকবে</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>জুম আনলক করা হয়েছে</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

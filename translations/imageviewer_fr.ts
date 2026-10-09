@@ -317,6 +317,75 @@
         <translation>&#xa0;s</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Ajuster à la fenêtre</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Ajuster à la largeur</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Ajuster à la hauteur</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Remplir la fenêtre</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom d’une nouvelle image&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Agrandir les images plus petites que la fenêtre</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Conserver sa taille</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>L’ajuster à la première image</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>L’ajuster à chaque image</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Taille de la fenêtre&#xa0;:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>&#xa0;% de l’écran</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Au maximum&#xa0;:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Le nom de l’application</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Le nom du fichier</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nom, position et dimensions</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nom, position, dimensions, taille du fichier et zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Barre de titre&#xa0;:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Masquer après&#xa0;:</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Couleur &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Commande</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Raccourcis</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Raccourci&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatif&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Valeurs par défaut de cette commande</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Valeurs par défaut de toutes les commandes</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Rétablir les valeurs par défaut</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Repris de&#xa0;: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>Ajuster à la fenêtre</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Ajuster à la largeur</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Ajuster à la hauteur</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Remplir la fenêtre</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Verrouiller le zoom</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Taille réelle (100 %)</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>Ouvrir récent</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom verrouillé&#xa0;: les images suivantes le conservent</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom déverrouillé</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

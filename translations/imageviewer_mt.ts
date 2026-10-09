@@ -245,6 +245,75 @@
         <translation>Ftakar id-daqs u l-pożizzjoni tat-tieqa</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Adatta għat-tieqa</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Adatta għall-wisa&apos;</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Adatta għall-għoli</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Imla t-tieqa</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom ta&apos; immaġni ġdida:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Kabbar l-immaġini li huma iżgħar mit-tieqa</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Żomm id-daqs</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Adattaha għall-ewwel immaġni</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Adattaha għal kull immaġni</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Daqs tat-tieqa:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% tal-iskrin</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Massimu:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>L-isem tal-applikazzjoni</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>L-isem tal-fajl</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Isem, pożizzjoni u dimensjonijiet</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Isem, pożizzjoni, dimensjonijiet, daqs tal-fajl u zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Bar tat-titlu:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Tieqa</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Kulur &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Kmand</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Shortcuts</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Shortcut:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternattiv:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Valur predefinit għal dan il-kmand</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Valuri predefiniti għall-kmandi kollha</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Irrestawra l-valuri predefiniti</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Meħud minn: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Adatta għat-tieqa</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Adatta għall-wisa&apos;</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Adatta għall-għoli</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Imla t-tieqa</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Ibblokkja ż-zoom</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Daqs attwali (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Iftaħ immaġni</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Iż-zoom ġie bblokkjat: l-immaġini li jmiss iżommuh</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Iż-zoom ġie żblokkjat</translation>
     </message>
     <message>
         <source>Copying the image…</source>

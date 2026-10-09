@@ -245,6 +245,75 @@
         <translation>Zapomni si velikost in položaj okna</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Prilagodi oknu</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Prilagodi širini</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Prilagodi višini</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Zapolni okno</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Povečava nove slike:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Povečaj slike, ki so manjše od okna</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Ohrani velikost</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Prilagodi prvi sliki</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Prilagodi vsaki sliki</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Velikost okna:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % zaslona</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Največ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Ime aplikacije</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Ime datoteke</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Ime, položaj in dimenzije</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Ime, položaj, dimenzije, velikost datoteke in povečava</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Naslovna vrstica:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Barve &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Ukaz</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Bližnjice</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Bližnjica:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativna:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Privzeto za ta ukaz</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Privzeto za vse ukaze</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>V redu</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Obnovi privzeto</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Vzeto od: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Prilagodi oknu</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Prilagodi širini</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Prilagodi višini</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Zapolni okno</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zakleni povečavo</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Dejanska velikost (100 %)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Odpri sliko</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Povečava je zaklenjena: naslednje slike jo ohranijo</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Povečava je odklenjena</translation>
     </message>
     <message>
         <source>Copying the image…</source>

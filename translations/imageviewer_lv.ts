@@ -245,6 +245,75 @@
         <translation>Atcerēties loga izmēru un pozīciju</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Ietilpināt logā</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Pielāgot platumam</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Pielāgot augstumam</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Aizpildīt logu</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Jaunā attēla tālummaiņa:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Palielināt attēlus, kas ir mazāki par logu</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Saglabāt izmēru</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Pielāgot pirmajam attēlam</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Pielāgot katram attēlam</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Loga izmērs:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % no ekrāna</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Ne vairāk kā:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Lietojumprogrammas nosaukums</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Faila nosaukums</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nosaukums, pozīcija un izmēri</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nosaukums, pozīcija, izmēri, faila izmērs un tālummaiņa</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Virsraksta josla:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Logs</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Krāsas &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komanda</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Īsinājumtaustiņi</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Īsinājumtaustiņš:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatīvs:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Šīs komandas noklusējumi</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Visu komandu noklusējumi</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Labi</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Atjaunot noklusējumus</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Ņemts no: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Ietilpināt logā</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Pielāgot platumam</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Pielāgot augstumam</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Aizpildīt logu</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Bloķēt tālummaiņu</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Faktiskais izmērs (100 %)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Atvērt attēlu</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Tālummaiņa bloķēta: nākamie attēli to saglabā</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Tālummaiņa atbloķēta</translation>
     </message>
     <message>
         <source>Copying the image…</source>

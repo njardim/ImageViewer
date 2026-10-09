@@ -317,6 +317,75 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>适合窗口</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>适合宽度</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>适合高度</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>填满窗口</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>新图像的缩放：</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>放大小于窗口的图像</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>保持大小</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>适合第一张图像</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>适合每张图像</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>窗口大小：</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>%的屏幕</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>最大：</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>应用程序名称</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>文件名</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>名称、位置和尺寸</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>名称、位置、尺寸、文件大小和缩放</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>标题栏：</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>隐藏延迟：</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>色彩 &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>命令</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>快捷键</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>快捷键：</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>备选：</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>此命令的默认值</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>所有命令的默认值</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>确定</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>取自：%1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>适合窗口</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>适合宽度</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>适合高度</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>填满窗口</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>锁定缩放</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>实际大小（100%）</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>打开最近使用的文件</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>缩放已锁定：后续图像保持此缩放</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>缩放已解锁</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

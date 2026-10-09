@@ -5,9 +5,13 @@
 #include "folder.h"
 #include "renderer.h"
 
+#include <functional>
+
 #include <QColor>
 #include <QDialog>
+#include <QKeySequence>
 #include <QList>
+#include <QMap>
 #include <QRect>
 #include <QString>
 #include <QStringList>
@@ -16,11 +20,14 @@ class QButtonGroup;
 class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
+class QKeySequenceEdit;
+class QLabel;
 class QListWidget;
 class QPushButton;
 class QSpinBox;
 class QTabWidget;
 class QToolButton;
+class QTreeWidget;
 
 // When the top information overlay (E14, decision D-34) is shown.
 enum class OverlayVisibility { Always, Hover, Hidden };
@@ -73,6 +80,8 @@ struct Settings {
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping on at startup
     Renderer::OutputPreference output = Renderer::OutputPreference::Automatic;
+    // Shortcuts (D-52): the user's own, per command key; a command not listed has its defaults.
+    QMap<QString, QList<QKeySequence>> shortcuts;
 
     static constexpr int kMinWindowFitPercent = 20;
     static constexpr int kMaxWindowFitPercent = 100;
@@ -136,11 +145,20 @@ QString applyLanguage(const QString &code);
 // The translated name of an overlay field (also used by the viewer's tooltips).
 QString overlayFieldName(OverlayField field);
 
+// A command as the Shortcuts tab lists it: its stored key, its name in the interface language
+// and its default shortcuts (the viewer's command table, D-30).
+struct ShortcutCommand {
+    QString key;
+    QString name;
+    QList<QKeySequence> defaults;
+};
+
 class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(const Settings &settings);
+    // `commands` lists the commands in the current language (asked again after a language change).
+    SettingsDialog(const Settings &settings, std::function<QList<ShortcutCommand>()> commands);
     Settings settings() const;
 
 Q_SIGNALS:
@@ -159,10 +177,22 @@ private:
     void setBackground(const QColor &color);
     void chooseCustomBackground();
     void moveOverlayField(int delta);
+    void fillShortcutTable();
+    void showShortcutsOf(int row);   // in the two edit fields
+    void setShortcuts(int row, QList<QKeySequence> shortcuts); // taken away from any other command
 
     Settings m_initial; // fields the dialog does not show are kept as they were
     Settings m_applied; // what the viewer uses now; Apply is enabled while the dialog differs
     bool m_rebuildQueued = false;
+
+    std::function<QList<ShortcutCommand>()> m_commandsSource;
+    QList<ShortcutCommand> m_commands;
+    QMap<QString, QList<QKeySequence>> m_shortcuts; // what the Shortcuts tab shows, for every command
+    QTreeWidget *m_shortcutTable = nullptr;
+    QKeySequenceEdit *m_shortcutEdit = nullptr;
+    QKeySequenceEdit *m_alternativeEdit = nullptr;
+    QPushButton *m_shortcutDefault = nullptr;
+    QLabel *m_shortcutNote = nullptr;
 
     QTabWidget *m_tabs = nullptr;
     QPushButton *m_apply = nullptr;

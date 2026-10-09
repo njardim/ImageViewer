@@ -245,6 +245,75 @@
         <translation>Zapamiętaj rozmiar i położenie okna</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Dopasuj do okna</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Dopasuj do szerokości</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Dopasuj do wysokości</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Wypełnij okno</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Powiększenie nowego obrazu:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Powiększ obrazy mniejsze niż okno</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Zachowaj rozmiar</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Dopasuj do pierwszego obrazu</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Dopasuj do każdego obrazu</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Rozmiar okna:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% ekranu</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Maksymalnie:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Nazwa aplikacji</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Nazwa pliku</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nazwa, pozycja i wymiary</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nazwa, pozycja, wymiary, rozmiar pliku i powiększenie</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Pasek tytułu:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Kolory &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Polecenie</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Skróty klawiszowe</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Skrót:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatywny:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Domyślne dla tego polecenia</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Domyślne dla wszystkich poleceń</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Przywróć domyślne</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Przejęte od: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Dopasuj do okna</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Dopasuj do szerokości</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Dopasuj do wysokości</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Wypełnij okno</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zablokuj powiększenie</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Rozmiar rzeczywisty (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Otwórz obraz</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Powiększenie zablokowane: kolejne obrazy je zachowają</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Powiększenie odblokowane</translation>
     </message>
     <message>
         <source>Copying the image…</source>

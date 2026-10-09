@@ -12,7 +12,9 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QKeySequence>
+#include <QKeySequenceEdit>
 #include <QLabel>
 #include <QListWidget>
 #include <QPainter>
@@ -20,6 +22,7 @@
 #include <QSpinBox>
 #include <QTabWidget>
 #include <QToolButton>
+#include <QTreeWidget>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -45,7 +48,8 @@ QIcon swatchIcon(const QColor &color)
 
 } // namespace
 
-SettingsDialog::SettingsDialog(const Settings &settings) : m_initial(settings)
+SettingsDialog::SettingsDialog(const Settings &settings, std::function<QList<ShortcutCommand>()> commands)
+    : m_initial(settings), m_commandsSource(std::move(commands))
 {
     buildUi();
     setValues(settings);
@@ -57,6 +61,7 @@ void SettingsDialog::buildUi()
 {
     setWindowTitle(tr("Settings"));
     auto *tabs = new QTabWidget;
+    tabs->setUsesScrollButtons(false); // every tab in sight: the dialog widens to fit them
     m_tabs = tabs;
 
     // General
@@ -256,6 +261,74 @@ void SettingsDialog::buildUi()
     //: "&&" is shown as a single "&".
     tabs->addTab(color, tr("Color && HDR"));
 
+    // Shortcuts (D-52): every command, with a shortcut and an alternative.
+    m_commands = m_commandsSource();
+    auto *shortcuts = new QWidget;
+    auto *shortcutsLayout = new QVBoxLayout(shortcuts);
+    m_shortcutTable = new QTreeWidget;
+    m_shortcutTable->setColumnCount(2);
+    m_shortcutTable->setHeaderLabels({tr("Command"), tr("Shortcuts")});
+    m_shortcutTable->setRootIsDecorated(false);
+    m_shortcutTable->setUniformRowHeights(true);
+    m_shortcutTable->setAllColumnsShowFocus(true);
+    m_shortcutTable->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    shortcutsLayout->addWidget(m_shortcutTable, 1);
+    auto *editForm = new QFormLayout;
+    const auto sequenceEdit = [] {
+        auto *edit = new QKeySequenceEdit;
+        edit->setMaximumSequenceLength(1); // one key with its modifiers, as the viewer matches them
+        edit->setClearButtonEnabled(true);
+        return edit;
+    };
+    m_shortcutEdit = sequenceEdit();
+    m_alternativeEdit = sequenceEdit();
+    editForm->addRow(tr("Shortcut:"), m_shortcutEdit);
+    editForm->addRow(tr("Alternative:"), m_alternativeEdit);
+    shortcutsLayout->addLayout(editForm);
+    m_shortcutNote = new QLabel;
+    m_shortcutNote->setWordWrap(true);
+    shortcutsLayout->addWidget(m_shortcutNote);
+    auto *shortcutButtons = new QHBoxLayout;
+    m_shortcutDefault = new QPushButton(tr("Default for This Command"));
+    auto *allDefaults = new QPushButton(tr("Defaults for All Commands"));
+    shortcutButtons->addWidget(m_shortcutDefault);
+    shortcutButtons->addWidget(allDefaults);
+    shortcutButtons->addStretch();
+    shortcutsLayout->addLayout(shortcutButtons);
+    tabs->addTab(shortcuts, tr("Shortcuts"));
+    connect(m_shortcutTable, &QTreeWidget::currentItemChanged, this,
+            [this] { showShortcutsOf(m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem())); });
+    const auto edited = [this] {
+        const int row = m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem());
+        QList<QKeySequence> list;
+        for (const QKeySequence &sequence : {m_shortcutEdit->keySequence(), m_alternativeEdit->keySequence()})
+            if (!sequence.isEmpty() && !list.contains(sequence))
+                list.append(sequence);
+        setShortcuts(row, list);
+    };
+    connect(m_shortcutEdit, &QKeySequenceEdit::editingFinished, this, edited);
+    connect(m_alternativeEdit, &QKeySequenceEdit::editingFinished, this, edited);
+    connect(m_shortcutEdit, &QKeySequenceEdit::keySequenceChanged, this, [this, edited](const QKeySequence &s) {
+        if (s.isEmpty()) // the clear button: no editingFinished follows
+            edited();
+    });
+    connect(m_alternativeEdit, &QKeySequenceEdit::keySequenceChanged, this, [this, edited](const QKeySequence &s) {
+        if (s.isEmpty())
+            edited();
+    });
+    connect(m_shortcutDefault, &QPushButton::clicked, this, [this] {
+        const int row = m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem());
+        if (row >= 0)
+            setShortcuts(row, m_commands.at(row).defaults);
+    });
+    connect(allDefaults, &QPushButton::clicked, this, [this] {
+        for (const ShortcutCommand &command : std::as_const(m_commands))
+            m_shortcuts.insert(command.key, command.defaults);
+        m_shortcutNote->clear();
+        fillShortcutTable();
+        updateApplyButton();
+    });
+
     auto *buttons = new QDialogButtonBox;
     QPushButton *ok = buttons->addButton(tr("OK"), QDialogButtonBox::AcceptRole);
     buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
@@ -387,6 +460,61 @@ void SettingsDialog::setValues(const Settings &settings)
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toneMap->setChecked(settings.toneMap);
     m_output->setCurrentIndex(std::max(0, m_output->findData(int(settings.output))));
+    m_shortcuts.clear();
+    for (const ShortcutCommand &command : std::as_const(m_commands))
+        m_shortcuts.insert(command.key, settings.shortcuts.value(command.key, command.defaults));
+    m_shortcutNote->clear();
+    fillShortcutTable();
+}
+
+void SettingsDialog::fillShortcutTable()
+{
+    const int row = std::max(0, m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem()));
+    m_shortcutTable->clear();
+    for (const ShortcutCommand &command : std::as_const(m_commands)) {
+        QStringList shown;
+        for (const QKeySequence &sequence : m_shortcuts.value(command.key))
+            shown << sequence.toString(QKeySequence::NativeText);
+        QString name = command.name;
+        name.remove(QLatin1Char('&')); // menu mnemonics; "&&" is not used in command names
+        new QTreeWidgetItem(m_shortcutTable, {name, shown.join(QStringLiteral(", "))});
+    }
+    if (row < m_shortcutTable->topLevelItemCount())
+        m_shortcutTable->setCurrentItem(m_shortcutTable->topLevelItem(row));
+    showShortcutsOf(row);
+}
+
+void SettingsDialog::showShortcutsOf(int row)
+{
+    const bool valid = row >= 0 && row < m_commands.size();
+    const QList<QKeySequence> list = valid ? m_shortcuts.value(m_commands.at(row).key) : QList<QKeySequence>();
+    for (QKeySequenceEdit *edit : {m_shortcutEdit, m_alternativeEdit}) {
+        const QSignalBlocker block(edit);
+        edit->setEnabled(valid);
+        edit->setKeySequence(list.value(edit == m_shortcutEdit ? 0 : 1));
+    }
+    m_shortcutDefault->setEnabled(valid);
+}
+
+void SettingsDialog::setShortcuts(int row, QList<QKeySequence> shortcuts)
+{
+    if (row < 0 || row >= m_commands.size())
+        return;
+    // A shortcut does one thing: assigned here, it is taken from the command that had it.
+    QStringList takenFrom;
+    for (int i = 0; i < m_commands.size(); ++i) {
+        if (i == row)
+            continue;
+        QList<QKeySequence> &other = m_shortcuts[m_commands.at(i).key];
+        if (other.removeIf([&shortcuts](const QKeySequence &s) { return shortcuts.contains(s); }) > 0)
+            takenFrom << m_commands.at(i).name;
+    }
+    m_shortcuts.insert(m_commands.at(row).key, shortcuts);
+    //: %1: names of commands, e.g. "Zoom In"; their shortcut now belongs to the selected command.
+    m_shortcutNote->setText(takenFrom.isEmpty() ? QString()
+                                                : tr("Taken from: %1").arg(takenFrom.join(QStringLiteral(", "))));
+    fillShortcutTable();
+    updateApplyButton();
 }
 
 void SettingsDialog::setBackground(const QColor &color)
@@ -456,5 +584,11 @@ Settings SettingsDialog::settings() const
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.toneMap = m_toneMap->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());
+    s.shortcuts.clear();
+    for (const ShortcutCommand &command : std::as_const(m_commands)) {
+        const QList<QKeySequence> list = m_shortcuts.value(command.key, command.defaults);
+        if (list != command.defaults)
+            s.shortcuts.insert(command.key, list);
+    }
     return s;
 }

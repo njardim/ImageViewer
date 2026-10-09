@@ -317,6 +317,75 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>ウィンドウに合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>幅に合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>高さに合わせる</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>ウィンドウいっぱいに表示</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>新しい画像のズーム：</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>ウィンドウより小さい画像を拡大する</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>サイズを維持</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>最初の画像に合わせる</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>画像ごとに合わせる</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>ウィンドウサイズ：</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>%（画面比）</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>最大：</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>アプリケーション名</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>ファイル名</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>名前、位置、画像サイズ</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>名前、位置、画像サイズ、ファイルサイズ、ズーム</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>タイトルバー：</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>非表示にするまでの時間：</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>カラー &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>コマンド</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>ショートカット</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>ショートカット：</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>代替：</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>このコマンドの既定値</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>すべてのコマンドの既定値</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>既定値に戻す</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>割り当て元：%1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -764,6 +862,22 @@
         <translation>ウィンドウに合わせる</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>幅に合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>高さに合わせる</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>ウィンドウいっぱいに表示</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>ズームを固定</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>実際のサイズ（100%）</translation>
@@ -849,6 +963,14 @@
     <message>
         <source>Open Recent</source>
         <translation>最近開いたファイル</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>ズームを固定しました：次の画像にも適用されます</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>ズームの固定を解除しました</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

@@ -245,6 +245,75 @@
         <translation>De venstergrootte en -positie onthouden</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Aanpassen aan venster</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Aanpassen aan breedte</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Aanpassen aan hoogte</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Venster vullen</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom van een nieuwe afbeelding:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Afbeeldingen die kleiner zijn dan het venster vergroten</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Grootte behouden</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Aanpassen aan de eerste afbeelding</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Aanpassen aan elke afbeelding</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Venstergrootte:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% van het scherm</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Maximaal:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>De naam van de toepassing</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>De bestandsnaam</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Naam, positie en afmetingen</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Naam, positie, afmetingen, bestandsgrootte en zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Titelbalk:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Venster</translation>
     </message>
@@ -404,6 +473,30 @@
         <translation>Kleur &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Opdracht</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Sneltoetsen</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Sneltoets:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatief:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Standaard voor deze opdracht</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Standaardwaarden voor alle opdrachten</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -418,6 +511,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Standaardwaarden herstellen</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Overgenomen van: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -772,6 +870,22 @@
         <translation>Aanpassen aan venster</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Aanpassen aan breedte</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Aanpassen aan hoogte</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Venster vullen</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zoom vergrendelen</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Werkelijke grootte (100%)</translation>
@@ -883,6 +997,14 @@
     <message>
         <source>Open Image</source>
         <translation>Afbeelding openen</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom vergrendeld: de volgende afbeeldingen behouden deze</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom ontgrendeld</translation>
     </message>
     <message>
         <source>Copying the image…</source>

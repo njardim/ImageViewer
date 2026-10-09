@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Uygulama seç</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Uygulamalar (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Dosya yöneticisinde göster</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Başka uygulama…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Yeniden adlandır…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Son kullanılanları aç</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Birlikte aç</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” başlatılamadı.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Uygulama bulunamadı</translation>
     </message>
     <message>
         <source>Image</source>

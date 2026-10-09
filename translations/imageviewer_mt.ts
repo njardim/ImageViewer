@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Agħżel applikazzjoni</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Applikazzjonijiet (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Uri fil-maniġer tal-fajls</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Applikazzjoni oħra…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Semmi mill-ġdid…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Iftaħ riċenti</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Iftaħ permezz ta&apos;</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Ma setax jinbeda “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Ma nstabet l-ebda applikazzjoni</translation>
     </message>
     <message>
         <source>Image</source>

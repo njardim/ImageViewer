@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Vælg et program</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Programmer (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Vis i filhåndtering</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Andet program…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Omdøb…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Åbn seneste</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Åbn med</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Kan ikke starte »%1«.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Ingen programmer fundet</translation>
     </message>
     <message>
         <source>Image</source>

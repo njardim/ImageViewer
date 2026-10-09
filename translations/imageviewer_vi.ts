@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Chọn ứng dụng</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Ứng dụng (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>Hiển thị trong trình quản lý tệp</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Ứng dụng khác…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Đổi tên…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Mở gần đây</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Mở bằng</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Không thể khởi chạy “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Không tìm thấy ứng dụng nào</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

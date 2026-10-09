@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>アプリケーションを選択</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>アプリケーション (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>ファイルマネージャーで表示</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>他のアプリケーション…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>名前を変更…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>最近開いたファイル</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>アプリケーションで開く</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>「%1」を起動できません。</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>アプリケーションが見つかりません</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

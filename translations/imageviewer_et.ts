@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Vali rakendus</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Rakendused (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Kuva failihalduris</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Muu rakendus…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Nimeta ümber…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Ava hiljutised</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Ava rakendusega</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Rakendust „%1“ ei saa käivitada.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Rakendusi ei leitud</translation>
     </message>
     <message>
         <source>Image</source>

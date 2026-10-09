@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>ॲप्लिकेशन निवडा</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>ॲप्लिकेशन्स (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>फाइल व्यवस्थापकात दाखवा</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>दुसरे ॲप्लिकेशन…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>नाव बदला…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>अलीकडील उघडा</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>यामध्ये उघडा</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” सुरू करता आले नाही.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>कोणतेही ॲप्लिकेशन आढळले नाही</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

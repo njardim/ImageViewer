@@ -2,6 +2,8 @@
 // copy, rename, move to the trash and back, delete. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "openwith.h"
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
@@ -157,6 +159,13 @@ void ViewerWindow::showInFolder()
                  QStringLiteral("/org/freedesktop/FileManager1"), QStringLiteral("org.freedesktop.FileManager1.ShowItems"),
                  QStringLiteral("array:string:") + url, QStringLiteral("string:")});
 #endif
+}
+
+void ViewerWindow::openWithOtherApplication()
+{
+    const QString path = m_image.path;
+    if (!path.isEmpty() && QFileInfo::exists(path))
+        openWithOther(this, path); // cancelled or started: nothing to say
 }
 
 void ViewerWindow::copyImage()

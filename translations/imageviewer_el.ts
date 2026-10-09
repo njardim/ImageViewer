@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Επιλογή εφαρμογής</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Εφαρμογές (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Εμφάνιση στη διαχείριση αρχείων</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Άλλη εφαρμογή…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Μετονομασία…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Άνοιγμα πρόσφατων</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Άνοιγμα με</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Αδυναμία εκκίνησης της εφαρμογής «%1».</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Δεν βρέθηκαν εφαρμογές</translation>
     </message>
     <message>
         <source>Image</source>

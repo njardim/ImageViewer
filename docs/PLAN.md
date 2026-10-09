@@ -130,6 +130,9 @@
 | D-48 | 2026-10-09 | **Keyboard convention.** Single keys for viewing and navigating; **Shift** + a key for that key's second command, its reverse or its alternative (Shift+R, Shift+E, Shift+I, Shift+← and Shift+→ for the first and last image, Shift+Delete); **Cmd** on macOS, Ctrl elsewhere, for the platforms' application commands (open, copy, undo, settings, quit, move to trash on macOS, zoom) and for resets (Cmd+E exposure, Cmd+0 fit); never Alt/Option. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the F keys, forward Delete) is never a command's only shortcut, and menus show macOS's own shortcut first. So: first/last image Shift+←/→ (Home/End kept); Rename also Return (Finder's key); Delete Permanently also Cmd+Shift+Backspace; Move to Trash shows ⌘⌫ on macOS. | Owner's rule (2026-10-09): few kinds of key combinations, Shift for alternatives, Cmd for copy, undo and the like. On a MacBook, Home and End need fn, and macOS menus show them as ↖ and ↘, which read as a key combination. |
 | D-49 | 2026-10-09 | **Information panels: one look, legible over any image.** The panel (I) and the top overlay (Shift+I) share background opacity (default 70 %), text opacity and the text outline (default on): values grey 240, labels 190 (`Settings::panelBackground()`, `panelText()`). UI overlays blend as in SDR in every output: in linear outputs (scRGB, EDR) the shader turns the weight of what lies underneath into (1 − a)^2.2, and in PQ into the weight that darkens SDR white as much, so the same setting looks the same in SDR, EDR/scRGB and HDR10. Labels keep 4.5:1 (WCAG AA) over SDR white, and against their outline over the brightest content the output shows; `imageViewer --panel-check` measures it, run by `render_test.py` in every output. Settings saved by 0.3 move from 60 % without outline to the new defaults. | Owner's report (2026-10-08, screenshot on a MacBook in EDR): the labels vanished over a light image. Reproduced with the previous shader: label contrast 1.08:1 in EDR, 2.2:1 in SDR and 5.9:1 in PQ, and the background over white at 0.41, 0.14 and 0.02 of SDR white: one opacity looked different in every output `[test: --panel-check]`. Now 4.6 to 4.7:1 in all four outputs, 11:1 against the outline over HDR highlights `[test]`. |
 | D-50 | 2026-10-09 | **Qt 6.12; macOS 14.4 or later** (resolves D-P07 for macOS). The build and every vcpkg dependency target macOS 14.4. | Qt 6.12.0 is the latest stable release (D-46), and its minimum macOS is 14.4 (Qt 6.11: 13) `[code: qtbase .cmake.conf, QT_SUPPORTED_MIN_MACOS_VERSION]`. The private QRhi API builds unchanged, and every local test passes on 6.12 `[test]`. macOS 13 no longer receives Apple's security updates `[knowledge]`. Reversible: staying on Qt 6.11 keeps macOS 13 at the cost of D-46. |
+| D-51 | 2026-10-09 | **How an image fills the window** (0.4, D-40). A new image fits the window, its width or its height, or fills the window (Settings > Window); images smaller than that stay at 100 % unless "Enlarge images smaller than the window" is on, in every mode. Commands Fit to Width (W), Fit to Height (Shift+W, D-48), Fill Window; Lock Zoom (L) keeps the zoom mode or factor for the next images. The window can take the first image's or every image's size, within a share of the screen (default 80 %). The title bar shows the application name, the file name (default), name with position and dimensions, or also file size and zoom. | qView and ImageGlass parity (§8.1). Never enlarging by default keeps small images (icons, pixel art) at their true size, the fidelity default of this viewer; a single switch, not one per mode, keeps the rule predictable. |
+| D-52 | 2026-10-09 | **Shortcut editor.** Settings > Shortcuts: every command with a shortcut and an alternative; a shortcut assigned to one command is taken from the one that had it; per-command and global defaults. Only the user's differences are stored, keyed by the command's enum name, so later defaults reach everyone else. | qView and ImageGlass parity (§8.1); D-48 gives the defaults, the editor the freedom. Storing differences instead of the whole table keeps new commands and changed defaults working after an update. |
+| D-53 | 2026-10-09 | **Open With** (`openwith.{h,cpp}`): a submenu with the applications the operating system registers for the file, its default first, and "Other Application…". Windows: the shell's recommended handlers (`SHAssocEnumHandlers`), started through the handler itself, and the system's own Open With dialog; macOS: LaunchServices, started with `open -a`; Linux: the XDG desktop entries and `mimeapps.list` (defaults, added and removed associations), started from the entry's Exec line with its field codes expanded, without a shell. "Edit with" is the same list: editors register for the image types too. | Owner's request (D-40). Each system's own registry keeps the list the user knows from the file manager; parsing Exec ourselves (no `sh -c`) keeps file names from ever being interpreted. `--open-with <file>` prints the list (and the Linux commands) for tests. |
 
 ---
 
@@ -308,7 +311,9 @@ src/
   files.cpp           ViewerWindow: file operations — show, copy, rename, trash and undo, delete (D-41)
   playback.cpp        ViewerWindow: animation playback and slideshow (E6, E11, D-41)
   cache.h/.cpp        preload cache of decoded images (D-33)
-  settings.h/.cpp     Settings + session (QSettings), Settings dialog, UI languages (D-27, D-29)
+  settings.h/.cpp     Settings + session (QSettings), UI languages (D-27, D-29)
+  settingsdialog.cpp  the Settings dialog, its Shortcuts tab (D-52); split from settings.cpp at ~800 lines (D-08)
+  openwith.h/.cpp     Open With: the system's applications for a file, per platform (D-53)
   renderer.h/.cpp     QRhi: SDR/HDR swapchain, textures, pipeline, output modes
   image.h/.cpp        Image + decodeImage(): the single conversion to linear scRGB, orientation, downscale
   formats.h/.cpp      format registry (D-38): signatures, decoders, capabilities, test files, --formats
@@ -627,12 +632,10 @@ Corrections from Nuno's review of 0.3 (2026-10-08):
 - [~] Dependency audit (D-46), 2026-10-09 (§5): OpenImageIO 3.2.1.1, GraphicsMagick 1.3.49, libheif 1.23.6, expat 2.9.0 and minizip-ng 4.2.2 as overlays, vcpkg baseline 0699a19d, Qt 6.12.0 (D-50). *Missing:* green CI on the new dependencies
 
 From D-40 and §14:
-- [ ] Window matching the image size
-- [ ] Zoom modes: fit width, fit height, fill, lock zoom
-- [ ] Title bar text modes
-- [ ] Shortcut editor
-- [ ] Open With and edit with
-- [ ] Folder listing off the GUI thread
+- [x] Window matching the image size, zoom modes (fit window, width, height, fill; enlarge small images), Lock Zoom, title bar modes (D-51) `[test: ui_test.py]`
+- [x] Shortcut editor (D-52) `[test: ui_test.py, a user shortcut]`
+- [x] Open With (D-53); "edit with" is the same list `[test: smoke.sh on Linux (desktop entries) and macOS (Preview)]`
+- [x] Folder listing off the GUI thread: the first image of a 50,000-file folder decoded at 0.027 s instead of 0.17 s `[test: local, before and after]`
 - [ ] Full review (D-35), green CI, PR
 
 ### Phase 0 — Foundation (M)
@@ -874,7 +877,7 @@ None of them blocks Phase 0. The stated proposal is the one adopted by default.
 - Undoing a move to the trash (0.2) restores the file by renaming it back and removes the trash's record of it (freedesktop `info/*.trashinfo`; the `$I…` file next to `$R…` in the Windows Recycle Bin). Check on Windows and macOS that the Recycle Bin and the Trash show no stale entry afterwards.
 - Folder watching (0.2) on Windows: whether watching a folder stops the user from renaming or deleting that folder in Explorer while imageViewer shows it; and how network shares report changes.
 - Known limits left after the 0.2 review (D-35), each with its reason:
-  - Folder listing runs on the GUI thread: about 0.35 s by name and 0.5 s by date for 50,000 files `[test: review, Linux]`; ordinary folders are unaffected. Moving it to a worker (or skipping re-lists when nothing changed) moved to 0.4 with the formats-first 0.3 (D-40).
+  - ~~Folder listing runs on the GUI thread~~: fixed in 0.4 (listing on a worker thread, `listFolder()`).
   - Closing the window waits for a decode that is running (seconds for a very large image).
   - The cache budget uses physical memory, not a container's (cgroup) limit.
   - A file replaced by another of the same size and modification time is not noticed by the cache.

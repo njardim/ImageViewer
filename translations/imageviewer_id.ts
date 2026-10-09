@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Pilih Aplikasi</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikasi (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>Tampilkan di Pengelola File</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Aplikasi Lain…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Ganti Nama…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Buka Terbaru</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Buka Dengan</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Tidak dapat memulai “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Aplikasi tidak ditemukan</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

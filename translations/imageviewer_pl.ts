@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Wybierz aplikację</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikacje (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Pokaż w menedżerze plików</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Inna aplikacja…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Zmień nazwę…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Otwórz ostatnie</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Otwórz za pomocą</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nie można uruchomić „%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nie znaleziono aplikacji</translation>
     </message>
     <message>
         <source>Image</source>

@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Valitse sovellus</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Sovellukset (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Näytä tiedostonhallinnassa</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Muu sovellus…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Nimeä uudelleen…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Avaa viimeisimmät</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Avaa sovelluksella</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Sovellusta ”%1” ei voi käynnistää.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Sovelluksia ei löytynyt</translation>
     </message>
     <message>
         <source>Image</source>

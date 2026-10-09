@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Roghnaigh feidhmchlár</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Feidhmchláir (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -295,7 +306,7 @@
     </message>
     <message>
         <source>The application&apos;s name</source>
-        <translation>Ainm an iarratais</translation>
+        <translation>Ainm an fheidhmchláir</translation>
     </message>
     <message>
         <source>The file name</source>
@@ -818,6 +829,10 @@
         <translation>Taispeáin sa bhainisteoir comhad</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Feidhmchlár eile…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Athainmnigh…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Oscail le déanaí</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Oscail le</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Ní féidir “%1” a thosú.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Níor aimsíodh aon fheidhmchlár</translation>
     </message>
     <message>
         <source>Image</source>

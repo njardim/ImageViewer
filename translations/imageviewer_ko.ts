@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>애플리케이션 선택</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>애플리케이션(*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>파일 관리자에서 보기</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>다른 애플리케이션…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>이름 바꾸기…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>최근 사용 항목 열기</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>다음 애플리케이션으로 열기</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” 애플리케이션을 시작할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>애플리케이션을 찾을 수 없습니다</translation>
     </message>
     <message>
         <source>Image</source>

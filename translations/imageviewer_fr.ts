@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Choisir une application</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Applications (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>Afficher dans le gestionnaire de fichiers</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Autre application…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Renommer…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Ouvrir récent</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Ouvrir avec</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Impossible de démarrer «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Aucune application trouvée</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

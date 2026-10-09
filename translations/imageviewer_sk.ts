@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Vybrať aplikáciu</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikácie (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Zobraziť v správcovi súborov</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Iná aplikácia…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Premenovať…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Otvoriť nedávne</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Otvoriť pomocou</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>„%1“ sa nepodarilo spustiť.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nenašli sa žiadne aplikácie</translation>
     </message>
     <message>
         <source>Image</source>

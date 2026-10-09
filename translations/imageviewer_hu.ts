@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Alkalmazás kiválasztása</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Alkalmazások (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Megjelenítés a fájlkezelőben</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Másik alkalmazás…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Átnevezés…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Legutóbbi megnyitása</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Megnyitás ezzel</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>A(z) „%1” nem indítható el.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nem található alkalmazás</translation>
     </message>
     <message>
         <source>Image</source>

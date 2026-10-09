@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Izberi aplikacijo</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikacije (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Prikaži v upravljalniku datotek</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Druga aplikacija…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Preimenuj…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Odpri nedavne</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Odpri z</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>„%1“ ni mogoče zagnati.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Aplikacij ni mogoče najti</translation>
     </message>
     <message>
         <source>Image</source>

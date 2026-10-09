@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Välj ett program</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Program (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Visa i filhanteraren</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Annat program…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Byt namn…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Öppna senaste</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Öppna med</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Det går inte att starta ”%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Inga program hittades</translation>
     </message>
     <message>
         <source>Image</source>

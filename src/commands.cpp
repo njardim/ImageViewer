@@ -2,6 +2,8 @@
 // the context menu, and the dialogs. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "openwith.h"
+
 #include "formats.h"
 
 #include <QDir>
@@ -49,6 +51,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::Open, {K(Qt::CTRL | Qt::Key_O)}, false},
         {C::ClearRecent, {}, false},
         {C::ShowInFolder, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_E)}, false},
+        {C::OpenWithOther, {}, false},
         {C::CopyImage, {K(Qt::CTRL | Qt::Key_C)}, false},
         {C::CopyPath, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_C)}, false},
         {C::Rename, either(mac, K(Qt::Key_Return), K(Qt::Key_F2)), false},
@@ -111,6 +114,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::MoveToTrash: return m_settings.confirmTrash ? tr("Move to Trash…") : tr("Move to Trash");
     case Command::UndoTrash: return tr("Undo Move to Trash");
 #endif
+    case Command::OpenWithOther: return tr("Other Application…");
     case Command::Rename: return tr("Rename…");
     case Command::DeletePermanently: return tr("Delete Permanently…");
     case Command::CopyImage: return tr("Copy Image");
@@ -166,6 +170,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     const bool hasImage = m_image.width > 0;
     switch (command) {
     case Command::ShowInFolder:
+    case Command::OpenWithOther:
     case Command::CopyPath: return !m_image.path.isEmpty();
     case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyBusy;
     case Command::Rename:
@@ -229,6 +234,7 @@ void ViewerWindow::execute(Command command)
         editRecentFiles([](QStringList &recent) { recent.clear(); });
         break;
     case Command::ShowInFolder: showInFolder(); break;
+    case Command::OpenWithOther: openWithOtherApplication(); break;
     case Command::CopyImage: copyImage(); break;
     case Command::CopyPath: copyPath(); break;
     case Command::Rename: renameFile(); break;
@@ -366,6 +372,27 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
         recent->addSeparator();
     addCommand(recent, Command::ClearRecent);
     addCommand(&menu, Command::ShowInFolder);
+    // The applications are looked up when the submenu opens (a scan of the system's registry).
+    QMenu *openWithMenu = menu.addMenu(tr("Open With"));
+    openWithMenu->setEnabled(isCommandEnabled(Command::OpenWithOther));
+    connect(openWithMenu, &QMenu::aboutToShow, this, [this, openWithMenu] {
+        if (!openWithMenu->isEmpty())
+            return;
+        const QString file = m_image.path;
+        const QList<OpenWithApp> apps = openWithApps(file);
+        for (const OpenWithApp &app : apps) {
+            QString label = app.name;
+            label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
+            connect(openWithMenu->addAction(label), &QAction::triggered, this, [this, app, file] {
+                if (!openWith(app, file))
+                    showNotice(tr("Cannot start “%1”.").arg(app.name));
+            });
+        }
+        if (apps.isEmpty())
+            openWithMenu->addAction(tr("No applications found"))->setEnabled(false);
+        openWithMenu->addSeparator();
+        addCommand(openWithMenu, Command::OpenWithOther);
+    });
     menu.addSeparator();
     addCommand(&menu, Command::CopyImage);
     addCommand(&menu, Command::CopyPath);

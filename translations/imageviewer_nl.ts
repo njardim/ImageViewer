@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Kies een toepassing</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Toepassingen (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Weergeven in bestandsbeheer</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Andere toepassing…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Hernoemen…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Recent geopend</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Openen met</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Kan “%1” niet starten.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Geen toepassingen gevonden</translation>
     </message>
     <message>
         <source>Image</source>

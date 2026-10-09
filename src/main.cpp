@@ -1,6 +1,7 @@
 #include "decoders.h"
 #include "formats.h"
 #include "image.h"
+#include "openwith.h"
 #include "settings.h"
 #include "viewer.h"
 
@@ -368,7 +369,7 @@ bool isConsoleMode(int argc, char *argv[])
         const QByteArrayView arg(argv[i]);
         if (arg == "--") // everything after it is a file name
             return false;
-        if (arg == "--info" || arg == "--formats" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
+        if (arg == "--info" || arg == "--formats" || arg == "--open-with" || arg == "-h" || arg == "--help" || arg == "--help-all" || arg == "-v"
             || arg == "--version")
             return true;
     }
@@ -437,6 +438,11 @@ int main(int argc, char *argv[])
     const QCommandLineOption formatsOption(QStringLiteral("formats"),
                                            QStringLiteral("Print the file formats each decoder of this build reads, exit."));
     parser.addOption(formatsOption);
+    const QCommandLineOption openWithOption(
+        QStringLiteral("open-with"),
+        QStringLiteral("Print the applications the system offers for the file (default first) and, on Linux, "
+                       "the command each would run, exit."));
+    parser.addOption(openWithOption);
     const QCommandLineOption renderOption(
         QStringLiteral("render"),
         QStringLiteral("Fidelity harness: render the file offscreen 1:1, compare with the CPU reference, exit."));
@@ -468,6 +474,18 @@ int main(int argc, char *argv[])
         QTextStream out(stdout);
         for (const QString &line : formatReport())
             out << line << '\n';
+        return 0;
+    }
+
+    if (parser.isSet(openWithOption)) {
+        if (files.isEmpty()) {
+            QTextStream(stderr) << "error: --open-with needs a file\n";
+            return 2;
+        }
+        QTextStream out(stdout);
+        const QString file = QFileInfo(files.first()).absoluteFilePath();
+        for (const OpenWithApp &app : openWithApps(file))
+            out << app.name << '\t' << app.id << '\t' << openWithCommand(app, file).join(QLatin1Char('|')) << '\n';
         return 0;
     }
 

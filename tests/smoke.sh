@@ -206,6 +206,54 @@ while IFS='|' read -r id name decoder available caps extensions test; do
     fi
 done < <("$exe" --formats 2>/dev/null)
 
+# Open With (D-53). Linux: the desktop entries of a private XDG tree, so the result is exact:
+# the default from mimeapps.list first, a hidden entry, a missing TryExec, another MIME type and a
+# removed association left out, the Exec line's quoting and field codes expanded. macOS: Preview
+# is among the applications for a PNG. Elsewhere it runs and lists without failing.
+case "$(uname -s)" in
+Linux)
+    xdg="$(mktemp -d)"
+    apps="$xdg/data/applications"
+    mkdir -p "$apps/sub" "$xdg/config" "$xdg/dirs"
+    printf '[Desktop Entry]\nType=Application\nName=Alpha Viewer\nExec=/usr/bin/alpha --open %%f\nMimeType=image/png;\n' >"$apps/alpha.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Beta\nName[pt]=Beta PT\nExec="/opt/beta app/beta" --title=%%c %%U\nMimeType=image/jpeg;image/png;\n' >"$apps/beta.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Gone\nHidden=true\nExec=gone %%f\nMimeType=image/png;\n' >"$apps/gone.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Missing\nTryExec=/nonexistent/missing\nExec=missing %%f\nMimeType=image/png;\n' >"$apps/missing.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Jpeg Only\nExec=jpeg %%f\nMimeType=image/jpeg;\n' >"$apps/jpeg.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Removed\nExec=/bin/echo\nMimeType=image/png;\n' >"$apps/sub/removed.desktop"
+    printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
+    png="$data/alpha8.png"
+    url="file://$(cd "$data" && pwd)/alpha8.png"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|%s' "$url" "$(cd "$data" && pwd)/alpha8.png")"
+    listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
+              LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
+    rm -rf "$xdg"
+    if [ "$listed" = "$expected" ]; then
+        echo "ok   Open With: desktop entries, default first, Exec field codes expanded"
+    else
+        echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
+        echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'
+        failures=$((failures + 1))
+    fi
+    ;;
+Darwin)
+    if "$exe" --open-with "$data/alpha8.png" 2>/dev/null | grep -q '^Preview	'; then
+        echo "ok   Open With: Preview listed for a PNG"
+    else
+        echo "FAIL Open With: Preview not listed for a PNG"
+        failures=$((failures + 1))
+    fi
+    ;;
+*)
+    if "$exe" --open-with "$data/alpha8.png" >/dev/null 2>&1; then
+        echo "ok   Open With: the applications for a PNG are listed"
+    else
+        echo "FAIL Open With: --open-with failed"
+        failures=$((failures + 1))
+    fi
+    ;;
+esac
+
 if [ "$failures" -ne 0 ]; then
     echo "$failures check(s) failed"
     exit 1

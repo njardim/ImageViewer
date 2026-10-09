@@ -71,6 +71,7 @@ qt_add_executable(imageviewer
     src/decoders.h src/decoders.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
+    src/openwith.h src/openwith.cpp
 )
 
 qt_add_shaders(imageviewer "shaders"
@@ -152,6 +153,12 @@ if(APPLE)
     target_link_libraries(imageviewer PRIVATE "-framework ImageIO" "-framework CoreGraphics" "-framework CoreFoundation")
 elseif(WIN32)
     target_link_libraries(imageviewer PRIVATE windowscodecs ole32)
+endif()
+# Open With (D-53, openwith.cpp): LaunchServices on macOS, the shell's handlers on Windows.
+if(APPLE)
+    target_link_libraries(imageviewer PRIVATE "-framework CoreServices")
+elseif(WIN32)
+    target_link_libraries(imageviewer PRIVATE shell32 shlwapi)
 endif()
 
 if(MSVC)

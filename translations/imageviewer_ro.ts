@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Alegere aplicație</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplicații (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Afișare în managerul de fișiere</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Altă aplicație…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Redenumire…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Deschidere recentă</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Deschidere cu</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nu se poate porni „%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nu s-a găsit nicio aplicație</translation>
     </message>
     <message>
         <source>Image</source>

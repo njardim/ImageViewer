@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>اختيار تطبيق</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>التطبيقات (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>إظهار في مدير الملفات</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>تطبيق آخر…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>إعادة تسمية…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>فتح الأخيرة</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>فتح باستخدام</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>تعذر تشغيل «%1».</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>لم يتم العثور على تطبيقات</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

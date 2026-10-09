@@ -48,7 +48,7 @@ public:
 
     // Every user command: one table drives the keyboard, the context menu and its submenus.
     enum class Command {
-        Open, ClearRecent, ShowInFolder, CopyImage, CopyPath,
+        Open, ClearRecent, ShowInFolder, OpenWithOther, CopyImage, CopyPath,
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
         ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
@@ -200,6 +200,7 @@ private:
 
     // files.cpp
     void showInFolder();
+    void openWithOtherApplication();
     void copyImage();
     void imageCopied();
     void copyPath();

@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Pasirinkti programą</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Programos (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Rodyti failų tvarkytuvėje</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Kita programa…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Pervardyti…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Atidaryti naujausius</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Atidaryti naudojant</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nepavyksta paleisti „%1“.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Programų nerasta</translation>
     </message>
     <message>
         <source>Image</source>

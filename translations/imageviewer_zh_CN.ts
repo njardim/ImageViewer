@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>选择应用程序</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>应用程序 (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>在文件管理器中显示</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>其他应用程序…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>重命名…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>打开最近使用的文件</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>打开方式</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>无法启动“%1”。</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>未找到应用程序</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

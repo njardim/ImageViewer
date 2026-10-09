@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Избор на приложение</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Приложения (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -818,6 +829,10 @@
         <translation>Показване във файловия мениджър</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Друго приложение…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Преименуване…</translation>
     </message>
@@ -971,6 +986,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Отваряне на скорошни</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Отваряне с</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>„%1“ не може да се стартира.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Не са намерени приложения</translation>
     </message>
     <message>
         <source>Image</source>

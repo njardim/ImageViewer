@@ -98,6 +98,17 @@
     </message>
 </context>
 <context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>ایپلیکیشن منتخب کریں</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>ایپلیکیشنز (*.app)</translation>
+    </message>
+</context>
+<context>
     <name>Overlay</name>
     <message>
         <source>File name</source>
@@ -810,6 +821,10 @@
         <translation>فائل مینیجر میں دکھائیں</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>دوسری ایپلیکیشن…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>نام تبدیل کریں…</translation>
     </message>
@@ -963,6 +978,18 @@
     <message>
         <source>Open Recent</source>
         <translation>حالیہ کھولیں</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>اس کے ساتھ کھولیں</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” شروع نہیں کیا جا سکا۔</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>کوئی ایپلیکیشن نہیں ملی</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>

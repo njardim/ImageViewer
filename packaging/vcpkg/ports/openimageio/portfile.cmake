@@ -86,8 +86,7 @@ vcpkg_cmake_configure(
         -DBUILD_MISSING_ROBINMAP=OFF
         -DBUILD_MISSING_DEPS=OFF
         -DSTOP_ON_WARNING=OFF
-        -DCMAKE_DISABLE_FIND_PACKAGE_libuhdr=ON
-        -DCMAKE_DISABLE_FIND_PACKAGE_openjph=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_libuhdr=ON # not a dependency here; OpenJPH comes with OpenEXR
         -DVERBOSE=ON
         -DBUILD_DOCS=OFF
         -DINSTALL_DOCS=OFF

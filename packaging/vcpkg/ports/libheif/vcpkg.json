@@ -1,7 +1,7 @@
 {
   "name": "libheif",
   "$comment": "imageViewer overlay of the vcpkg baseline port (434307da): no default features ('hevc' pulls the x265 encoder, GPL-2.0-or-later) and no libde265 (HEVC decoding is not shipped: HEIC comes from the operating system's decoders, docs/PLAN.md D-39). portfile.cmake passes -DWITH_LIBDE265=OFF. Keep the rest identical to the baseline port when it is updated.",
-  "version": "1.23.5",
+  "version": "1.23.6",
   "description": "libheif is an HEIF and AVIF file format decoder and encoder.",
   "homepage": "http://www.libheif.org/",
   "license": "LGPL-3.0-only AND MIT",

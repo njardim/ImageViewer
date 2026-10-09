@@ -126,7 +126,7 @@
 | D-44 | 2026-10-08 | **Several instances share the preferences.** A preference changed outside the Settings dialog (information panel, top overlay, checkerboard, "do not ask again") is written into the stored preferences when it changes, not by saving the instance's whole copy; preferences are no longer saved at exit (the session still is, D-29); the recent files are edited on the stored list, so the Open Recent menu shows every instance's files; a settings file of an older version is migrated and written back at startup. The Settings dialog still applies everything it shows. | A second window overwrote the first one's changes when it closed: a checkerboard switched on in one was off again, and a file opened in one vanished from the recent files when the other trashed an image `[test]`. |
 | D-45 | 2026-10-08 | **OpenImageIO readers that crash on damaged files are kept away from them.** Softimage PIC is read by our own reader (`codecs.cpp`: the 104-byte header, chained channel packets, raw, run-length and mixed run-length scanlines, every read checked); Maya IFF is read through OpenImageIO only from 3.0, whose reader checks its spans. Such a format never reaches OpenImageIO, not even as the fallback of a failed decode (`oiioMayRead()`); with an older OpenImageIO, IFF is listed as unavailable. | The fuzz smoke test's first CI run (58) crashed the viewer on a truncated PIC on Linux and macOS: OpenImageIO 2.4.17 and 3.1.14 read on through the file they had closed (`fgetpos` on a null `FILE*`, gdb) `[test]`. OpenImageIO 2.4 also reads raw PIC packets as black and aborts on pure run-length ones; our reader shows all three encodings exactly on screen, and agrees with OpenImageIO on the mixed one `[test]`. The 2.4.17 IFF reader writes past its tile buffers after one flipped bit (valgrind); 3.1.14 rewrote it with checked spans and passes the same files `[code: OIIO v3.1.14.0 iffinput.cpp]`, `[test]`. |
 | D-46 | 2026-10-08 | **Dependencies at the state of the art.** Every library we build or ship (vcpkg ports and our overlays, Qt and the Qt version CI installs) is at its latest stable release. The check runs at the start of each release's development and again before its PR (§11): a table of each dependency's version against upstream's latest, with the date. A release that fixes a security issue, or a bug we can reach, is adopted at once, between releases if needed. Staying behind needs a recorded reason (a regression or incompatibility in the new release, with its reference), revisited at the next check; pre-releases are not adopted. | Owner's rule (2026-10-08): no shipped code with bugs already fixed upstream. vcpkg's baseline lags upstream (GraphicsMagick 1.3.45 there, 1.3.48 upstream, D-38), so the baseline alone is not the check; the overlays (libheif, GraphicsMagick) are checked by hand. |
-| D-47 | 2026-10-08 | **GraphicsMagick stays; ImageMagick 7 is the prepared replacement.** The library stays behind one file (`worker.cpp`) and a library-independent protocol (the file's bytes in; pixels, ICC profile and orientation out), so replacing it changes neither the viewer nor the tests. Migration starts when any of these holds: no GraphicsMagick release for 12 months; a published security issue in one of our 16 coders left unfixed upstream for 90 days; a format we need that only ImageMagick reads. A migration keeps the D-43 hardening: the same allow-list of coders, no delegates, resource limits, the fuzz test. | Owner's concern (2026-10-08): the team has contributed to ImageMagick, and GraphicsMagick (forked from ImageMagick 5.5.2 in 2002) has essentially one maintainer `[knowledge]`. It is maintained today: 1.3.47 in May 2026 and 1.3.48 on 2026-07-23 `[doc: Wikipedia]`, `[test: NEWS.txt of the release tarball]`. The D-38 reasons hold for now. |
+| D-47 | 2026-10-08 | **GraphicsMagick stays; ImageMagick 7 is the prepared replacement.** The library stays behind one file (`worker.cpp`) and a library-independent protocol (the file's bytes in; pixels, ICC profile and orientation out), so replacing it changes neither the viewer nor the tests. Migration starts when any of these holds: no GraphicsMagick release for 12 months; a published security issue in one of our 16 coders left unfixed upstream for 90 days; a format we need that only ImageMagick reads. A migration keeps the D-43 hardening: the same allow-list of coders, no delegates, resource limits, the fuzz test. | Owner's concern (2026-10-08): the team has contributed to ImageMagick, and GraphicsMagick (forked from ImageMagick 5.5.2 in 2002) has essentially one maintainer `[knowledge]`. It is maintained today: 1.3.47 in May 2026, 1.3.48 on 2026-07-23 and 1.3.49 on 2026-10-08 `[doc: Wikipedia]`, `[test: NEWS.txt of the release tarballs]`; the 1.3.49 notes ask for volunteers because "the burden has entirely been on me" `[doc: NEWS.txt]`. The D-38 reasons hold for now. |
 
 ---
 
@@ -251,23 +251,27 @@ Basis: d2phap/ImageGlass, commit `2cf91de`, 2026-09-27 `[code]`. Stack: .NET 10 
 
 ## 5. Stack and dependencies
 
-Versions checked in the vcpkg *ports* on 2026-10-06 `[test: microsoft/vcpkg master]`.
+**Version audit (D-46), 2026-10-09:** every dependency against its upstream's latest stable release `[test: git ls-remote of each upstream repository, SourceForge file lists, vcpkg master 0699a19d]`. vcpkg's baseline lags upstream, so newer releases come in as overlay ports (`packaging/vcpkg/ports`), fetched by git at the release tag's commit. An overlay is dropped once vcpkg's port reaches the same version.
 
-| Component | Version | License | Role |
-|---|---|---|---|
-| C++20, CMake ≥ 3.24, Ninja | — | — | Build |
-| **Qt** (Core, Gui/QRhi, Widgets, Network, ShaderTools) | 6.11.2 | LGPLv3 (dynamic linking) | UI, GPU rendering (D3D11/12, Metal, Vulkan, OpenGL), `QLocalServer` |
-| **OpenImageIO** | 3.1.14 | Apache-2.0 | Main decoder (features in `vcpkg.json`: gif, libheif, libraw, openjpeg, webp; JPEG XL and WebP are read directly, OpenColorIO comes in Phase 5) |
-| ↳ libheif / aom | 1.23.5 / 3.x | LGPL-3 / BSD | AVIF (HEIC goes through the operating system, D-39) |
-| **libjxl** (used directly since 0.3: OIIO's port is built without it and keeps only the last frame of an animation) | 0.12.0 | BSD-3 | JPEG XL, stills and animation |
-| **libwebp** (used directly since 0.3: OIIO's reader assumes sRGB) | vcpkg baseline | BSD-3 | WebP with its ICC profile, animation |
-| ↳ LibRaw | 0.22.2 | LGPL-2.1 or CDDL | RAW |
-| ↳ OpenEXR | 3.5.2 | BSD-3 | EXR |
-| **FFmpeg** (avcodec, avformat, swscale, avutil only; **without** `gpl` or `nonfree`); planned, not in `vcpkg.json` yet | 9.0.2 | LGPL-2.1+ | Long-tail image2 formats, gifv/mjpeg (APNG has its own reader since 0.3) |
-| **Little CMS** | 2.19.1 | MIT | ICC → linear scRGB; display 3D LUT |
-| **OpenColorIO** (planned) | 2.6.0 | BSD | Named spaces (ACES, camera log) for EXR, DPX and Cineon (Phase 5) |
-| **lunasvg** (planned; SVG is read by Qt meanwhile) | 3.5.0 | MIT | SVG/SVGZ |
-| **GraphicsMagick** (D-38, overlay port) | 1.3.48 | MIT | Long tail (PCX, PICT, XCF, WPG, MIFF, SUN, VIFF, CUT, FAX…), only in the decode worker process |
+| Component | In use | Upstream latest | License | Role |
+|---|---|---|---|---|
+| C++20, CMake ≥ 3.24, Ninja | — | — | — | Build |
+| **Qt** (Core, Gui/QRhi, Widgets, ShaderTools) | 6.11.2, moving to 6.12.0 (0.4) | 6.12.0 | LGPLv3 (dynamic linking) | UI, GPU rendering (D3D11/12, Metal, Vulkan, OpenGL) |
+| **OpenImageIO** (overlay; vcpkg has 3.1.14.0) | 3.2.1.1 | 3.2.1.1 (2026-10-02; 3.1 branch at 3.1.18.1) | Apache-2.0 | Main decoder (features in `vcpkg.json`: gif, libheif, libraw, openjpeg, webp) |
+| ↳ OpenColorIO (required by OpenImageIO; our own use comes in Phase 5) | 2.6.0 | 2.6.0 | BSD-3 | Named colour spaces |
+| ↳ expat (overlay; vcpkg has 2.8.5) | 2.9.0 | 2.9.0 (2026-10-05, CVE-2026-102633, CVE-2026-77214) | MIT | XML for OpenColorIO |
+| ↳ minizip-ng (overlay; vcpkg has 4.1.0) | 4.2.2 | 4.2.2 | Zlib | Config archives for OpenColorIO |
+| ↳ libheif (overlay) / aom | 1.23.6 / 3.15.1 | 1.23.6 / not checked (aomedia.googlesource.com is blocked from the cloud session) | LGPL-3 / BSD-2 | AVIF (HEIC goes through the operating system, D-39) |
+| ↳ LibRaw | 0.22.2 | 0.22.2 | LGPL-2.1 or CDDL | RAW |
+| ↳ OpenEXR / Imath | 3.5.2 / 3.2.3 | 3.5.2 / 3.2.3 | BSD-3 | EXR |
+| ↳ libtiff, libpng, libjpeg-turbo, OpenJPEG, giflib | 4.7.2, 1.6.59, 3.2.0, 2.5.4, 6.1.3 | the same | permissive | TIFF, PNG, JPEG, JPEG 2000, GIF |
+| ↳ highway, brotli, zlib, libdeflate, zstd, liblzma, fmt, pugixml, yaml-cpp, pystring | vcpkg baseline | the same | permissive | Support libraries |
+| **libjxl** (used directly since 0.3) | 0.12.0 | 0.12.0 | BSD-3 | JPEG XL, stills and animation |
+| **libwebp** (used directly since 0.3) | 1.6.0 | 1.6.0 | BSD-3 | WebP with its ICC profile, animation |
+| **Little CMS** | 2.19.1 | 2.19.1 | MIT | ICC → linear scRGB; display 3D LUT |
+| **GraphicsMagick** (D-38, overlay) | 1.3.49 | 1.3.49 (2026-10-08: MAT, PICT and WPG security fixes) | MIT | Long tail, only in the decode worker process |
+| **FFmpeg** (planned; avcodec, avformat, swscale, avutil, **without** `gpl` or `nonfree`) | — | — | LGPL-2.1+ | Long-tail image2 formats, gifv/mjpeg |
+| **lunasvg** (planned; SVG is read by Qt meanwhile) | — | — | MIT | SVG/SVGZ |
 
 **Excluded licenses:**
 - exiv2 (GPL-2): metadata comes from OIIO.

@@ -3,7 +3,7 @@
 vcpkg_download_distfile(ARCHIVE
     URLS "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/${VERSION}/GraphicsMagick-${VERSION}.tar.xz"
     FILENAME "GraphicsMagick-${VERSION}.tar.xz"
-    SHA512 baf4f82794628a116b568c2932bb1bf7c36ba89d0cb51fdd0209ad655f05883ae711319e5cc43cce09642aa3fc4b711731be00393f757eeb038440e15cc4437d
+    SHA512 ad721c9b57fe94a1d46a6d051156c5072d24742d974650c9200877b813d3a36d2154a8c25c40af3d06fb8f91c0fa4688905b52f49f49ea2c87d627bedb101d3a
 )
 vcpkg_extract_source_archive(SOURCE_PATH ARCHIVE "${ARCHIVE}")
 

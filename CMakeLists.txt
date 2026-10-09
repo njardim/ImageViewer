@@ -137,15 +137,15 @@ if(GRAPHICSMAGICK_INCLUDE_DIR)
     file(STRINGS "${GRAPHICSMAGICK_INCLUDE_DIR}/magick/version.h" gm_version_line REGEX "define MagickLibVersionText")
     string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" GRAPHICSMAGICK_VERSION "${gm_version_line}")
 endif()
-# 1.3.48 or later only (the owner's condition, D-38): older releases, such as the
+# 1.3.49 or later only (D-38, D-46: MAT, PICT and WPG security fixes): older releases, such as the
 # distributions' builds with loadable coder modules, are not used.
-if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERSION VERSION_GREATER_EQUAL 1.3.48)
+if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERSION VERSION_GREATER_EQUAL 1.3.49)
     target_include_directories(imageviewer PRIVATE ${GRAPHICSMAGICK_INCLUDE_DIR})
     target_link_libraries(imageviewer PRIVATE ${GRAPHICSMAGICK_LIBRARY})
     target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_GRAPHICSMAGICK)
     message(STATUS "Decode worker: GraphicsMagick ${GRAPHICSMAGICK_VERSION} ${GRAPHICSMAGICK_LIBRARY}")
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
-    message(FATAL_ERROR "GraphicsMagick 1.3.48 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
+    message(FATAL_ERROR "GraphicsMagick 1.3.49 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
 endif()
 # HEIC through the system's decoders (D-39, syscodecs.cpp).
 if(APPLE)

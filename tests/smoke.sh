@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Headless smoke test of the decode + colour pipeline: `imageViewer --info`.
+# Headless smoke test of the decode + colour pipeline: `ImageViewer --info`.
 # `--info` runs on a QCoreApplication (no platform plugin), so this also works on
 # packaged binaries on machines without a display.
-# Usage: tests/smoke.sh <path-to-imageViewer-executable>
+# Usage: tests/smoke.sh <path-to-ImageViewer-executable>
 set -euo pipefail
+# Windows: a GUI program without a console sends its log to the debugger, not to stderr.
+export QT_FORCE_STDERR_LOGGING=1
 
 exe="$1"
 data="$(cd "$(dirname "$0")/data" && pwd)"
@@ -54,6 +56,10 @@ check camera.jxl 'camera: +Cristallumnis \| Cristallumnis Test Camera X1 \| 50mm
 
 check rows2.pfm 'colour: +linear' "PFM read as linear (OIIO labels it Rec709)"
 check rows2.pfm 'pixel\[0,0\]: +0\.25 0\.5 1 a=1' "PFM rows stored bottom to top are flipped"
+# PNG gAMA without sRGB: the exact exponent, (128/255)^(1/0.45) and (128/255)^0.5.
+check gamma-2.22.png 'pixel\[0,0\]: +0\.216[0-9]* 0\.216[0-9]* 0\.216[0-9]* a=1' "PNG gAMA 45000: exact exponent 2.222"
+check gamma-0.5.png 'pixel\[0,0\]: +0\.708[0-9]* 0\.708[0-9]* 0\.708[0-9]* a=1' "PNG gAMA 200000: exponent 0.5"
+check orange.ppm 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "8-bit PPM read as sRGB, not Rec709 (D-54)"
 
 # Codecs enabled in the vcpkg build (vcpkg.json). Pixel (0,0) is sRGB (255,128,0) -> linear (1, 0.2158, 0).
 # Made with Pillow 12.3 (WebP, GIF, JPEG 2000, AVIF) and oiiotool 2.4 (TIFF).
@@ -101,6 +107,13 @@ else
 fi
 # Narrow-range AVIF (nclx full_range_flag 0): libheif hands over full-range RGB, which must
 # not be expanded a second time (OpenImageIO 3 passes the flag on as CICP).
+# Colour stored premultiplied, (128, 64, 0) at alpha 128 (libheif, lossless): shown once divided.
+check premultiplied.avif 'pixel\[0,0\]: +1 0\.21[0-9]* 0 a=0\.50' "AVIF premultiplied alpha divided once"
+# The colour of AVIF stills comes from libheif: OpenImageIO reads no ICC profile from them, and
+# no nclx box when an ICC profile is there too (both written by libavif).
+check p3icc.avif 'colour: +ICC: Display P3' "AVIF ICC profile read"
+check p3icc.avif 'pixel\[0,0\]: +1\.22[0-9]* -0\.04[0-9]* -0\.019' "AVIF P3 red -> scRGB (1.225, -0.042, -0.019)"
+check pq-icc.avif 'colour: +CICP 9/16/6/1 ' "AVIF with nclx and ICC: CICP first (D-22)"
 check narrow.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF narrow range expanded once"
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
 # GIF loops as browsers play them: no NETSCAPE block once, a count N (repeats) N + 1 times.
@@ -161,6 +174,24 @@ for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orang
         check "$f" 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "colour exact"
     fi
 done
+# A FITS volume: every slice is read (a one-slice buffer overflowed), the first one shown.
+if "$exe" --formats 2>/dev/null | grep -q "^ *fits | .* | yes | "; then
+    check volume.fits 'size: +6x4' "FITS volume (5 slices) read whole, one slice shown"
+    check rows.fits 'pixel\[0,0\]: +0\.215[89][0-9]* 0\.215[89][0-9]* 0\.215[89][0-9]* a=1' "FITS rows bottom first, none shifted"
+fi
+# Softimage PIC content under the name of another format: our PIC reader, never OpenImageIO's,
+# which crashed on the truncated ones (D-45, 0.4 review).
+check pic-named.svg 'codec: +ImageViewer \(Softimage PIC\)' "PIC content named .svg read by our PIC reader"
+for f in pic-truncated.svg pic-truncated.dcm; do
+    code=0
+    "$exe" --info "$data/$f" >/dev/null 2>&1 || code=$?
+    if [ "$code" = 1 ]; then
+        echo "ok   $f: a truncated PIC under another name fails cleanly"
+    else
+        echo "FAIL $f: exit $code, expected 1 (OpenImageIO's PIC reader crashes on it)"
+        failures=$((failures + 1))
+    fi
+done
 check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
 check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
 
@@ -172,7 +203,12 @@ while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; decoder="$(echo "$decoder" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
     if [ "$id" = svg ]; then
-        echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
+        if [ "$available" != yes ] && [ -n "${CI:-}" ]; then
+            echo "FAIL svg: not in this build (Qt's SVG image plugin missing)"
+            failures=$((failures + 1))
+        else
+            echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
+        fi
         continue
     fi
     if [ "$available" != yes ] && [ -z "${CI:-}" ]; then
@@ -205,6 +241,61 @@ while IFS='|' read -r id name decoder available caps extensions test; do
         fi
     fi
 done < <("$exe" --formats 2>/dev/null)
+
+# Open With (D-53). Linux: the desktop entries of a private XDG tree, so the result is exact:
+# the default from mimeapps.list first, a hidden entry, a missing TryExec, another MIME type and a
+# removed association left out, the Exec line's escapes, quoting and field codes undone and expanded.
+# macOS: Preview is among the applications for a PNG. Elsewhere it runs and lists without failing.
+case "$(uname -s)" in
+Linux)
+    xdg="$(mktemp -d)"
+    apps="$xdg/data/applications"
+    mkdir -p "$apps/sub" "$xdg/config" "$xdg/dirs"
+    # The string escapes (\s, \\) are undone before the quoting: "\\\\" in quotes is one backslash.
+    cat >"$apps/alpha.desktop" <<'ENTRY'
+[Desktop Entry]
+Type=Application
+Name=Alpha Viewer
+Exec=/usr/bin/alpha --open "a\\\\b \\$1" x\sy %f
+MimeType=image/png;
+ENTRY
+    printf '[Desktop Entry]\nType=Application\nName=Beta\nName[pt]=Beta PT\nExec="/opt/beta app/beta" --title=%%c %%U\nMimeType=image/jpeg;image/png;\n' >"$apps/beta.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Gone\nHidden=true\nExec=gone %%f\nMimeType=image/png;\n' >"$apps/gone.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Missing\nTryExec=/nonexistent/missing\nExec=missing %%f\nMimeType=image/png;\n' >"$apps/missing.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Jpeg Only\nExec=jpeg %%f\nMimeType=image/jpeg;\n' >"$apps/jpeg.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Removed\nExec=/bin/echo\nMimeType=image/png;\n' >"$apps/sub/removed.desktop"
+    printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
+    png="$data/alpha8.png"
+    url="file://$(cd "$data" && pwd)/alpha8.png"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s' "$url" "$(cd "$data" && pwd)/alpha8.png")"
+    listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
+              LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
+    rm -rf "$xdg"
+    if [ "$listed" = "$expected" ]; then
+        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes"
+    else
+        echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
+        echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'
+        failures=$((failures + 1))
+    fi
+    ;;
+Darwin)
+    if "$exe" --open-with "$data/alpha8.png" 2>/dev/null | grep -q '^Preview	'; then
+        echo "ok   Open With: Preview listed for a PNG"
+    else
+        echo "FAIL Open With: Preview not listed for a PNG"
+        failures=$((failures + 1))
+    fi
+    ;;
+*)
+    if "$exe" --open-with "$data/alpha8.png" >/dev/null 2>&1; then
+        echo "ok   Open With: the applications for a PNG are listed"
+    else
+        echo "FAIL Open With: --open-with failed"
+        failures=$((failures + 1))
+    fi
+    ;;
+esac
 
 if [ "$failures" -ne 0 ]; then
     echo "$failures check(s) failed"

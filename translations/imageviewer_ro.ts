@@ -88,13 +88,24 @@
         <translation>Imaginile HEIC necesită extensiile Microsoft „HEIF Image Extensions” și „HEVC Video Extensions” din Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Imaginile HEIC necesită un decodor HEVC, pe care imageViewer nu îl include pe acest sistem (brevete); convertiți-le mai întâi în alt format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Imaginile HEIC necesită un decodor HEVC, pe care ImageViewer nu îl include pe acest sistem (brevete); convertiți-le mai întâi în alt format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>decodorul a durat mai mult de %1 s și a fost oprit</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Alegere aplicație</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplicații (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Reține dimensiunea și poziția ferestrei</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Potrivire în fereastră</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Potrivire pe lățime</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Potrivire pe înălțime</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Umplerea ferestrei</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom pentru o imagine nouă:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Mărește imaginile mai mici decât fereastra</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Păstrarea dimensiunii</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Potrivire la prima imagine</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Potrivire la fiecare imagine</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Dimensiunea ferestrei:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% din ecran</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Cel mult:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Numele aplicației</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Numele fișierului</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nume, poziție și dimensiuni</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nume, poziție, dimensiuni, dimensiunea fișierului și zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Bara de titlu:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Ascunde cursorul staționar după:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fereastră</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Evidențiere pixeli modificați prin tăiere sau mapare tonală (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Niciodată</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Câmpuri:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Aspectul panoului și al suprapunerii</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Culoare &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Comandă</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Scurtături</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Scurtătură:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativă:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Valori implicite pentru această comandă</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Valori implicite pentru toate comenzile</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Restabilire valori implicite</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Păstrează zoomul pentru imaginile următoare (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Preluată de la: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Afișare în managerul de fișiere</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Altă aplicație…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Redenumire…</translation>
     </message>
@@ -768,6 +899,22 @@
         <translation>Potrivire în fereastră</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Potrivire pe lățime</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Potrivire pe înălțime</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Umplerea ferestrei</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Blocarea zoomului</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Dimensiune reală (100%)</translation>
@@ -798,11 +945,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Răsturnare orizontală</translation>
+        <translation>Oglindire orizontală</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Răsturnare verticală</translation>
+        <translation>Oglindire verticală</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -843,8 +990,8 @@
         <translation>Prezentare</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Despre imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Despre ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Deschidere recentă</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Deschidere cu</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nu se poate porni „%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nu s-a găsit nicio aplicație</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Deschidere imagine</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom blocat: imaginile următoare îl păstrează</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom deblocat</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Afișează fiecare imagine așa cum o definește fișierul ei, cu culori verificabile, în SDR și HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Rapid și minimalist, deschide peste 50 de formate pe Windows, macOS și Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Redenumit în „%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Vizualizator de imagini cu fidelitate verificabilă a culorilor SDR și HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

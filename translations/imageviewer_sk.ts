@@ -88,13 +88,24 @@
         <translation>Obrázky HEIC vyžadujú rozšírenia Microsoftu „HEIF Image Extensions“ a „HEVC Video Extensions“ z Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Obrázky HEIC vyžadujú dekodér HEVC, ktorý imageViewer v tomto systéme neobsahuje (patenty); najprv ich skonvertujte do iného formátu.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Obrázky HEIC vyžadujú dekodér HEVC, ktorý ImageViewer v tomto systéme neobsahuje (patenty); najprv ich skonvertujte do iného formátu.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekodér bežal dlhšie ako %1 s a bol zastavený</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Vybrať aplikáciu</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikácie (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Pamätať si veľkosť a polohu okna</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Prispôsobiť oknu</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Prispôsobiť šírke</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Prispôsobiť výške</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Vyplniť okno</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Priblíženie nového obrázka:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Zväčšiť obrázky menšie než okno</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Ponechať veľkosť</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Prispôsobiť prvému obrázku</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Prispôsobiť každému obrázku</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Veľkosť okna:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>&#xa0;% obrazovky</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Najviac:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Názov aplikácie</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Názov súboru</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Názov, poloha a rozmery</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Názov, poloha, rozmery, veľkosť súboru a priblíženie</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Záhlavie okna:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Skryť nehybný ukazovateľ myši po:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Zvýrazniť pixely zmenené orezaním alebo mapovaním tónov (purpurová)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nikdy</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Polia:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Vzhľad panelu a prekrytia</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Farby &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Príkaz</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Skratky</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Skratka:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatívna:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Predvolené pre tento príkaz</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Predvolené pre všetky príkazy</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Obnoviť predvolené</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Ponechať priblíženie pre ďalšie obrázky (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Prevzaté z: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Zobraziť v správcovi súborov</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Iná aplikácia…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Premenovať…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Prispôsobiť oknu</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Prispôsobiť šírke</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Prispôsobiť výške</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Vyplniť okno</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zamknúť priblíženie</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Prezentácia</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>O aplikácii imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>O aplikácii ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Otvoriť nedávne</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Otvoriť pomocou</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>„%1“ sa nepodarilo spustiť.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nenašli sa žiadne aplikácie</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Otvoriť obrázok</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Priblíženie zamknuté: ďalšie obrázky si ho ponechajú</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Priblíženie odomknuté</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Zobrazuje každý obrázok tak, ako ho definuje jeho súbor, s overiteľnými farbami, v SDR aj HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Rýchly a minimalistický, otvorí viac ako 50 formátov v systémoch Windows, macOS a Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Premenované na „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Prehliadač obrázkov s overiteľnou vernosťou farieb v SDR aj HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

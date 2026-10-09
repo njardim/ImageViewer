@@ -88,13 +88,24 @@
         <translation>HEIC vaizdams reikia „Microsoft“ plėtinių „HEIF Image Extensions“ ir „HEVC Video Extensions“ iš „Microsoft Store“.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC vaizdams reikia HEVC dekoderio, kurio imageViewer šioje sistemoje neturi (patentai); pirmiausia konvertuokite juos į kitą formatą.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC vaizdams reikia HEVC dekoderio, kurio ImageViewer šioje sistemoje neturi (patentai); pirmiausia konvertuokite juos į kitą formatą.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekoderis užtruko ilgiau nei %1 s ir buvo sustabdytas</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Pasirinkti programą</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Programos (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Prisiminti lango dydį ir padėtį</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Priderinti prie lango</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Priderinti prie pločio</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Priderinti prie aukščio</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Užpildyti langą</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Naujo vaizdo mastelis:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Padidinti vaizdus, mažesnius už langą</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Išlaikyti dydį</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Priderinti prie pirmojo vaizdo</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Priderinti prie kiekvieno vaizdo</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Lango dydis:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % ekrano</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Daugiausia:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Programos pavadinimas</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Failo pavadinimas</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Pavadinimas, padėtis ir matmenys</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Pavadinimas, padėtis, matmenys, failo dydis ir mastelis</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Antraštės juosta:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Slėpti nejudantį žymiklį po:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Langas</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Paryškinti pikselius, kuriuos pakeitė apkirpimas arba tonų atvaizdavimas (purpurinė)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Niekada</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Laukai:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Skydelio ir užkloto išvaizda</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Spalvos &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komanda</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Spartieji klavišai</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Spartusis klavišas:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatyvus:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Šios komandos numatytieji</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Visų komandų numatytieji</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Gerai</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Atkurti numatytuosius</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Išlaikyti mastelį kitiems vaizdams (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Paimta iš: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Rodyti failų tvarkytuvėje</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Kita programa…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Pervardyti…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Priderinti prie lango</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Priderinti prie pločio</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Priderinti prie aukščio</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Užpildyti langą</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Užrakinti mastelį</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Skaidrių peržiūra</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Apie imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Apie ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Atidaryti naujausius</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Atidaryti naudojant</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nepavyksta paleisti „%1“.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Programų nerasta</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Atidaryti vaizdą</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Mastelis užrakintas: kiti vaizdai jį išlaikys</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Mastelis atrakintas</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Rodo kiekvieną vaizdą taip, kaip jį apibrėžia failas, su patikrinamomis spalvomis, SDR ir HDR režimais.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Greita ir minimalistinė programa atidaro daugiau nei 50 formatų sistemose Windows, macOS ir Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Failas pervardytas į „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Vaizdų peržiūros programa su patikrinamu SDR ir HDR spalvų tikslumu.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

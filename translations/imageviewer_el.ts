@@ -88,13 +88,24 @@
         <translation>Οι εικόνες HEIC χρειάζονται τις επεκτάσεις της Microsoft «HEIF Image Extensions» και «HEVC Video Extensions» από το Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Οι εικόνες HEIC χρειάζονται αποκωδικοποιητή HEVC, τον οποίο το imageViewer δεν περιλαμβάνει σε αυτό το σύστημα (διπλώματα ευρεσιτεχνίας)· μετατρέψτε τες πρώτα σε άλλη μορφή.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Οι εικόνες HEIC χρειάζονται αποκωδικοποιητή HEVC, τον οποίο το ImageViewer δεν περιλαμβάνει σε αυτό το σύστημα (διπλώματα ευρεσιτεχνίας)· μετατρέψτε τες πρώτα σε άλλη μορφή.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>ο αποκωδικοποιητής χρειάστηκε περισσότερο από %1 s και διακόπηκε</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Επιλογή εφαρμογής</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Εφαρμογές (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Απομνημόνευση του μεγέθους και της θέσης του παραθύρου</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Προσαρμογή στο παράθυρο</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Προσαρμογή στο πλάτος</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Προσαρμογή στο ύψος</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Γέμισμα του παραθύρου</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Μεγέθυνση νέας εικόνας:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Μεγέθυνση των εικόνων που είναι μικρότερες από το παράθυρο</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Διατήρηση του μεγέθους</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Προσαρμογή στην πρώτη εικόνα</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Προσαρμογή σε κάθε εικόνα</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Μέγεθος παραθύρου:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% της οθόνης</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Το πολύ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Το όνομα της εφαρμογής</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Το όνομα του αρχείου</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Όνομα, θέση και διαστάσεις</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Όνομα, θέση, διαστάσεις, μέγεθος αρχείου και μεγέθυνση</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Γραμμή τίτλου:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Απόκρυψη ακίνητου δείκτη μετά από:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Παράθυρο</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Επισήμανση pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (ματζέντα)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Ποτέ</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Πεδία:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Εμφάνιση πίνακα και επικάλυψης</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Χρώμα &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Εντολή</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Συντομεύσεις</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Συντόμευση:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Εναλλακτική:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Προεπιλογή για αυτήν την εντολή</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Προεπιλογές για όλες τις εντολές</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Επαναφορά προεπιλογών</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Διατήρηση της μεγέθυνσης για τις επόμενες εικόνες (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Πάρθηκε από: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Εμφάνιση στη διαχείριση αρχείων</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Άλλη εφαρμογή…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Μετονομασία…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Προσαρμογή στο παράθυρο</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Προσαρμογή στο πλάτος</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Προσαρμογή στο ύψος</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Γέμισμα του παραθύρου</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Κλείδωμα μεγέθυνσης</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Παρουσίαση</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Σχετικά με το imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Σχετικά με το ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Άνοιγμα πρόσφατων</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Άνοιγμα με</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Αδυναμία εκκίνησης της εφαρμογής «%1».</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Δεν βρέθηκαν εφαρμογές</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Άνοιγμα εικόνας</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Η μεγέθυνση κλειδώθηκε: οι επόμενες εικόνες τη διατηρούν</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Η μεγέθυνση ξεκλειδώθηκε</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Εμφανίζει κάθε εικόνα όπως την ορίζει το αρχείο της, με επαληθεύσιμα χρώματα, σε SDR και HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Γρήγορο και μινιμαλιστικό, ανοίγει περισσότερες από 50 μορφές σε Windows, macOS και Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Το αρχείο μετονομάστηκε σε «%1»</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Πρόγραμμα προβολής εικόνων με επαληθεύσιμη πιστότητα χρωμάτων SDR και HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

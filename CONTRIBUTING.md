@@ -1,6 +1,6 @@
-# Contributing to imageViewer
+# Contributing to ImageViewer
 
-Thank you for helping. imageViewer is licensed under the [Apache License 2.0](LICENSE); by contributing you agree that your contribution is licensed under it too.
+Thank you for helping. ImageViewer is licensed under the [Apache License 2.0](LICENSE); by contributing you agree that your contribution is licensed under it too.
 
 ## Developer Certificate of Origin
 
@@ -49,6 +49,6 @@ When you change interface text in the code, regenerate the files with `cmake --b
 ## Reporting problems
 
 Open an issue with:
-- the version (`imageViewer --version`) and your system;
-- for color problems, the output of `imageViewer --info <file>` and, if possible, the file;
+- the version (`ImageViewer --version`) and your system;
+- for color problems, the output of `ImageViewer --info <file>` and, if possible, the file;
 - for HDR problems, the "Output" and "Highlights" rows of the information panel (press I).

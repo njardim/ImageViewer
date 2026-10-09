@@ -2,6 +2,8 @@
 // copy, rename, move to the trash and back, delete. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "openwith.h"
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QClipboard>
@@ -159,6 +161,13 @@ void ViewerWindow::showInFolder()
 #endif
 }
 
+void ViewerWindow::openWithOtherApplication()
+{
+    const QString path = m_image.path;
+    if (!path.isEmpty() && QFileInfo::exists(path))
+        openWithOther(this, path); // cancelled or started: nothing to say
+}
+
 void ViewerWindow::copyImage()
 {
     if (m_copyBusy || !currentFileIsShown())
@@ -206,7 +215,7 @@ void ViewerWindow::moveToTrash()
         QMessageBox box;
         box.setTextFormat(Qt::PlainText); // a file name is never markup
         box.setIcon(QMessageBox::Question);
-        box.setWindowTitle(QStringLiteral("imageViewer"));
+        box.setWindowTitle(QStringLiteral("ImageViewer"));
 #if defined(Q_OS_WIN)
         box.setText(tr("Move “%1” to the Recycle Bin?").arg(name));
         QPushButton *move = box.addButton(tr("Move to Recycle Bin"), QMessageBox::AcceptRole);
@@ -263,7 +272,7 @@ void ViewerWindow::deletePermanently()
     QMessageBox box;
     box.setTextFormat(Qt::PlainText); // a file name is never markup
     box.setIcon(QMessageBox::Warning);
-    box.setWindowTitle(QStringLiteral("imageViewer"));
+    box.setWindowTitle(QStringLiteral("ImageViewer"));
     box.setText(tr("Delete “%1” permanently?").arg(name));
     box.setInformativeText(tr("The file does not go to the trash and cannot be restored."));
     QPushButton *remove = box.addButton(tr("Delete"), QMessageBox::DestructiveRole);
@@ -387,7 +396,7 @@ void ViewerWindow::renameFile()
     });
     m_files[m_index] = target;
     const QString shownName = displayFileName(QFileInfo(target).fileName());
-    setTitle(QStringLiteral("%1 — imageViewer").arg(shownName));
+    updateTitle();
     showNotice(tr("Renamed to “%1”").arg(shownName));
     relist(); // its place in the sort order may have changed
     if (kept) {

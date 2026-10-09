@@ -88,13 +88,24 @@
         <translation>L-immaġini HEIC jeħtieġu l-estensjonijiet ta’ Microsoft “HEIF Image Extensions” u “HEVC Video Extensions”, mill-Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>L-immaġini HEIC jeħtieġu dekoder HEVC, li imageViewer ma jinkludix f’din is-sistema (privattivi); l-ewwel ikkonvertihom f’format ieħor.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>L-immaġini HEIC jeħtieġu dekoder HEVC, li ImageViewer ma jinkludix f’din is-sistema (privattivi); l-ewwel ikkonvertihom f’format ieħor.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>id-dekoder ħa aktar minn %1 s u twaqqaf</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Agħżel applikazzjoni</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Applikazzjonijiet (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Ftakar id-daqs u l-pożizzjoni tat-tieqa</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Adatta għat-tieqa</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Adatta għall-wisa&apos;</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Adatta għall-għoli</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Imla t-tieqa</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom ta&apos; immaġni ġdida:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Kabbar l-immaġini li huma iżgħar mit-tieqa</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Żomm id-daqs</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Adattaha għall-ewwel immaġni</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Adattaha għal kull immaġni</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Daqs tat-tieqa:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% tal-iskrin</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Massimu:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>L-isem tal-applikazzjoni</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>L-isem tal-fajl</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Isem, pożizzjoni u dimensjonijiet</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Isem, pożizzjoni, dimensjonijiet, daqs tal-fajl u zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Bar tat-titlu:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Aħbi l-kursur li ma jiċċaqlaqx wara:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Tieqa</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Enfasizza l-pixels mibdula bil-clipping jew bit-tone mapping (manġenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Qatt</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Oqsma:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Id-dehra tal-pannell u tal-overlay</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Kulur &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Kmand</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Shortcuts</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Shortcut:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternattiv:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Valur predefinit għal dan il-kmand</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Valuri predefiniti għall-kmandi kollha</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Irrestawra l-valuri predefiniti</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Żomm iż-zoom għall-immaġini li jmiss (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Meħud minn: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Uri fil-maniġer tal-fajls</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Applikazzjoni oħra…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Semmi mill-ġdid…</translation>
     </message>
@@ -768,6 +899,22 @@
         <translation>Adatta għat-tieqa</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Adatta għall-wisa&apos;</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Adatta għall-għoli</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Imla t-tieqa</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Ibblokkja ż-zoom</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Daqs attwali (100%)</translation>
@@ -798,11 +945,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Aqleb orizzontalment</translation>
+        <translation>Irrifletti orizzontalment</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Aqleb vertikalment</translation>
+        <translation>Irrifletti vertikalment</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -843,8 +990,8 @@
         <translation>Preżentazzjoni</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Dwar imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Dwar ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Iftaħ riċenti</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Iftaħ permezz ta&apos;</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Ma setax jinbeda “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Ma nstabet l-ebda applikazzjoni</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Iftaħ immaġni</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Iż-zoom ġie bblokkjat: l-immaġini li jmiss iżommuh</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Iż-zoom ġie żblokkjat</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Juri kull immaġni kif tiddefinixxiha l-fajl tagħha, b&apos;kuluri li tista&apos; tivverifika, f&apos;SDR u HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Veloċi u minimali, jiftaħ aktar minn 50 format fuq Windows, macOS u Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Imsemmi mill-ġdid bħala “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Viewer tal-immaġni b&apos;fedeltà tal-kulur SDR u HDR li tista&apos; tiġi vverifikata.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

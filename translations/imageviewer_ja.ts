@@ -88,13 +88,24 @@
         <translation>HEIC 画像には、Microsoft Store の Microsoft「HEIF Image Extensions」と「HEVC Video Extensions」が必要です。</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC 画像には HEVC デコーダーが必要ですが、このシステムでは imageViewer に含まれていません（特許のため）。先に別の形式に変換してください。</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 画像には HEVC デコーダーが必要ですが、このシステムでは ImageViewer に含まれていません（特許のため）。先に別の形式に変換してください。</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>デコーダーが %1 秒を超えたため停止しました</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>アプリケーションを選択</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>アプリケーション (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>表示しない</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>ウィンドウに合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>幅に合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>高さに合わせる</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>ウィンドウいっぱいに表示</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>新しい画像のズーム：</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>ウィンドウより小さい画像を拡大する</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>サイズを維持</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>最初の画像に合わせる</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>画像ごとに合わせる</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>ウィンドウサイズ：</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>%（画面比）</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>最大：</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>アプリケーション名</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>ファイル名</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>名前、位置、画像サイズ</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>名前、位置、画像サイズ、ファイルサイズ、ズーム</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>タイトルバー：</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>動かないポインターを非表示にするまでの時間：</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>非表示にするまでの時間：</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>パネルとオーバーレイの外観</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>前後の画像を先読みする</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>スライドショー（%1）、1枚あたりの時間：</translation>
@@ -400,6 +493,30 @@
         <translation>カラー &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>コマンド</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>ショートカット</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>ショートカット：</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>代替：</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>このコマンドの既定値</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>すべてのコマンドの既定値</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>既定値に戻す</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>次の画像でもズームを維持する (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>割り当て元：%1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>ファイルマネージャーで表示</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>他のアプリケーション…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>名前を変更…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>ウィンドウに合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>幅に合わせる</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>高さに合わせる</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>ウィンドウいっぱいに表示</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>ズームを固定</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>スライドショー</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer について</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer について</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>最近開いたファイル</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>アプリケーションで開く</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>「%1」を起動できません。</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>アプリケーションが見つかりません</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>ズームを固定しました：次の画像にも適用されます</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>ズームの固定を解除しました</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>すべての画像をファイルの定義どおりに、検証可能な色で、SDR と HDR の両方で表示します。</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>高速でミニマル。Windows、macOS、Linux で 50 種類以上の形式を開けます。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>このフォルダーには画像が残っていません。</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>SDR と HDR の色忠実度を検証できる画像ビューアー。</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -5,9 +5,13 @@
 #include "folder.h"
 #include "renderer.h"
 
+#include <functional>
+
 #include <QColor>
 #include <QDialog>
+#include <QKeySequence>
 #include <QList>
+#include <QMap>
 #include <QRect>
 #include <QString>
 #include <QStringList>
@@ -16,17 +20,29 @@ class QButtonGroup;
 class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
+class QGroupBox;
+class QKeySequenceEdit;
+class QLabel;
 class QListWidget;
 class QPushButton;
 class QSpinBox;
 class QTabWidget;
 class QToolButton;
+class QTreeWidget;
 
 // When the top information overlay (E14, decision D-34) is shown.
 enum class OverlayVisibility { Always, Hover, Hidden };
 
 // The facts the top overlay can show, in the order the user chose.
 enum class OverlayField { Name, Dimensions, FileSize, Zoom, ColorSpace, Modified, Position, Output };
+
+// How a newly shown image is zoomed (D-51): to fit the window, its width or its height, or to
+// fill it. Images smaller than that stay at 100 % unless Settings::enlargeSmallImages.
+enum class FitMode { Window, Width, Height, Fill };
+// When the window takes the size of the image (D-51).
+enum class WindowFit { Never, FirstImage, EveryImage };
+// What the title bar shows (D-51), from the least to the most.
+enum class TitleMode { Application, Name, Details, Everything };
 
 // Preferences the user sets (Settings dialog and a few toggles that persist).
 struct Settings {
@@ -38,14 +54,22 @@ struct Settings {
     QColor background = QColor(0x21, 0x21, 0x21); // sRGB; shown at SDR white
     bool checkerboard = false; // checks behind transparent pixels instead of the plain background
     bool rememberGeometry = true;
+    FitMode fitMode = FitMode::Window;
+    bool enlargeSmallImages = false;
+    bool lockZoom = false;           // new images keep the zoom (a toggle, L)
+    WindowFit windowFit = WindowFit::Never;
+    int windowFitPercent = 80;       // largest share of the screen the window takes for an image
+    TitleMode titleMode = TitleMode::Name;
+    int pointerHideMs = 2000;        // the pointer hides when it stays still this long; 0: never
     // Information
     bool showInfo = true;      // the information panel (I)
-    OverlayVisibility overlayFullScreen = OverlayVisibility::Hover;
+    OverlayVisibility overlayFullScreen = OverlayVisibility::Always;
     OverlayVisibility overlayWindow = OverlayVisibility::Hidden;
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
-    int overlayBackgroundOpacity = 60; // percent
+    // The look of both information panels (D-49).
+    int overlayBackgroundOpacity = 70; // percent
     int overlayTextOpacity = 100;      // percent
-    bool overlayOutline = false;       // dark outline around the text
+    bool overlayOutline = true;        // dark outline around the text
     int overlayHideDelayMs = 1500;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back
@@ -54,17 +78,30 @@ struct Settings {
     FolderSort sortBy = FolderSort::Name;
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
-    int slideshowSeconds = 5;  // between images in the slideshow (E11)
+    double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     // Color & HDR
-    bool toneMap = true;       // BT.2390 tone mapping on at startup
+    bool toneMap = true;       // BT.2390 tone mapping (a toggle, T)
+    bool clipWarning = false;  // clipped or tone-mapped pixels shown in magenta (a toggle, C)
     Renderer::OutputPreference output = Renderer::OutputPreference::Automatic;
+    // Shortcuts (D-52): the user's own, per command key; a command not listed has its defaults.
+    QMap<QString, QList<QKeySequence>> shortcuts;
 
+    static constexpr int kMinWindowFitPercent = 20;
+    static constexpr int kMaxWindowFitPercent = 100;
     static constexpr int kMinSideZoneWidth = 80;
     static constexpr int kMaxSideZoneWidth = 400;
-    static constexpr int kMinSlideshowSeconds = 1;
-    static constexpr int kMaxSlideshowSeconds = 3600;
+    // Every time in the Settings moves in half seconds.
+    static constexpr double kMinSlideshowSeconds = 0.5;
+    static constexpr double kMaxSlideshowSeconds = 3600.0;
+    static constexpr int kMaxPointerHideMs = 60000;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
-    static constexpr int kMinOverlayHideDelayMs = 300;
+    // Both information panels (D-49): values and labels in these greys over black at
+    // overlayBackgroundOpacity; at the default 70 % the labels keep 4.5:1 over a white image.
+    static constexpr int kPanelValueGrey = 240;
+    static constexpr int kPanelLabelGrey = 190;
+    QColor panelBackground() const;
+    QColor panelText(int grey) const;
+    static constexpr int kMinOverlayHideDelayMs = 500;
     static constexpr int kMaxOverlayHideDelayMs = 10000;
 
     // The six fields of ImageGlass issue #2475 (E14).
@@ -92,6 +129,11 @@ struct SessionState {
     void save() const;
 };
 
+// Up to 0.3 the application was called "imageViewer": on Linux its settings file, named after
+// it, is taken over once. Windows' registry ignores the case, and so does the default
+// (case-insensitive) macOS file system that holds the preferences file.
+void adoptEarlierSettingsFile();
+
 // Recently opened files, most recent first (Open Recent menu). Saved at once, not at exit.
 constexpr int kMaxRecentFiles = 10;
 QStringList loadRecentFiles();
@@ -113,11 +155,26 @@ QString applyLanguage(const QString &code);
 // The translated name of an overlay field (also used by the viewer's tooltips).
 QString overlayFieldName(OverlayField field);
 
+// A key as shortcuts compare it, pressed or recorded: Shift is part of a printed symbol ("!" is
+// Shift+1 and "+" Shift+= on a US keyboard), so it is ignored for every character key but
+// letters and Space. The viewer's matching and the Settings' conflicts use the same rule.
+QKeyCombination comparableKey(QKeyCombination combination);
+bool sameShortcut(const QKeySequence &a, const QKeySequence &b);
+
+// A command as the Shortcuts tab lists it: its stored key, its name in the interface language
+// and its default shortcuts (the viewer's command table, D-30).
+struct ShortcutCommand {
+    QString key;
+    QString name;
+    QList<QKeySequence> defaults;
+};
+
 class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(const Settings &settings);
+    // `commands` lists the commands in the current language (asked again after a language change).
+    SettingsDialog(const Settings &settings, std::function<QList<ShortcutCommand>()> commands);
     Settings settings() const;
 
 Q_SIGNALS:
@@ -126,6 +183,7 @@ Q_SIGNALS:
 
 protected:
     void changeEvent(QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     void buildUi();
@@ -136,10 +194,26 @@ private:
     void setBackground(const QColor &color);
     void chooseCustomBackground();
     void moveOverlayField(int delta);
+    void fillShortcutTable();
+    void refreshShortcutTexts();     // the table's shortcuts and the labels that name keys
+    void showShortcutsOf(int row);   // in the two edit fields
+    void setShortcuts(int row, QList<QKeySequence> shortcuts); // taken away from any other command
 
     Settings m_initial; // fields the dialog does not show are kept as they were
     Settings m_applied; // what the viewer uses now; Apply is enabled while the dialog differs
     bool m_rebuildQueued = false;
+
+    std::function<QList<ShortcutCommand>()> m_commandsSource;
+    QList<ShortcutCommand> m_commands;
+    QMap<QString, QList<QKeySequence>> m_shortcuts; // what the Shortcuts tab shows, for every command
+    QTreeWidget *m_shortcutTable = nullptr;
+    QKeySequenceEdit *m_shortcutEdit = nullptr;
+    QKeySequenceEdit *m_alternativeEdit = nullptr;
+    QPushButton *m_shortcutDefault = nullptr;
+    QLabel *m_shortcutNote = nullptr;
+    bool m_keyInField = false; // a key press in a shortcut field is being handled
+    QGroupBox *m_overlayBox = nullptr;  // its title names the command's key
+    QLabel *m_slideshowLabel = nullptr; // likewise
 
     QTabWidget *m_tabs = nullptr;
     QPushButton *m_apply = nullptr;
@@ -152,6 +226,12 @@ private:
     QColor m_background;
     QCheckBox *m_checkerboard = nullptr;
     QCheckBox *m_rememberGeometry = nullptr;
+    QComboBox *m_fitMode = nullptr;
+    QCheckBox *m_enlargeSmall = nullptr;
+    QCheckBox *m_lockZoom = nullptr;
+    QComboBox *m_windowFit = nullptr;
+    QSpinBox *m_windowFitPercent = nullptr;
+    QComboBox *m_titleMode = nullptr;
     QCheckBox *m_showInfo = nullptr;
     QComboBox *m_overlayFullScreen = nullptr;
     QComboBox *m_overlayWindow = nullptr;
@@ -160,13 +240,15 @@ private:
     QSpinBox *m_overlayText = nullptr;
     QCheckBox *m_overlayOutline = nullptr;
     QDoubleSpinBox *m_overlayDelay = nullptr;
+    QDoubleSpinBox *m_pointerHide = nullptr;
     QCheckBox *m_loop = nullptr;
     QCheckBox *m_sideZones = nullptr;
     QSpinBox *m_sideZoneWidth = nullptr;
     QComboBox *m_sortBy = nullptr;
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
-    QSpinBox *m_slideshowSeconds = nullptr;
+    QDoubleSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
+    QCheckBox *m_clipWarning = nullptr;
     QComboBox *m_output = nullptr;
 };

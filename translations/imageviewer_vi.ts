@@ -88,13 +88,24 @@
         <translation>Ảnh HEIC cần “HEIF Image Extensions” và “HEVC Video Extensions” của Microsoft, từ Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Ảnh HEIC cần bộ giải mã HEVC, mà imageViewer không kèm theo trên hệ thống này (bằng sáng chế); hãy chuyển đổi chúng sang định dạng khác trước.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Ảnh HEIC cần bộ giải mã HEVC, mà ImageViewer không kèm theo trên hệ thống này (bằng sáng chế); hãy chuyển đổi chúng sang định dạng khác trước.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>bộ giải mã chạy quá %1 giây và đã bị dừng</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Chọn ứng dụng</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Ứng dụng (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Không bao giờ</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> giây</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Vừa với cửa sổ</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Vừa với chiều rộng</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Vừa với chiều cao</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Lấp đầy cửa sổ</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Thu phóng ảnh mới:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Phóng to ảnh nhỏ hơn cửa sổ</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Giữ nguyên kích thước</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Vừa với ảnh đầu tiên</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Vừa với từng ảnh</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Kích thước cửa sổ:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% màn hình</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Tối đa:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Tên ứng dụng</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Tên tệp</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Tên, vị trí và kích thước</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Tên, vị trí, kích thước, dung lượng tệp và mức thu phóng</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Thanh tiêu đề:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Ẩn con trỏ đứng yên sau:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Ẩn sau:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Giao diện bảng và lớp phủ</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>Tải trước ảnh trước và ảnh tiếp theo</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Trình chiếu (%1), thời gian mỗi ảnh:</translation>
@@ -400,6 +493,30 @@
         <translation>Màu sắc &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Lệnh</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Phím tắt</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Phím tắt:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Thay thế:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Mặc định cho lệnh này</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Mặc định cho mọi lệnh</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Khôi phục mặc định</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Giữ nguyên thu phóng cho các ảnh tiếp theo (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Lấy từ: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>Hiển thị trong trình quản lý tệp</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Ứng dụng khác…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Đổi tên…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Vừa với cửa sổ</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Vừa với chiều rộng</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Vừa với chiều cao</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Lấp đầy cửa sổ</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Khóa thu phóng</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>Trình chiếu</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Giới thiệu về imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Giới thiệu về ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>Mở gần đây</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Mở bằng</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Không thể khởi chạy “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Không tìm thấy ứng dụng nào</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Đã khóa thu phóng: các ảnh tiếp theo giữ nguyên mức này</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Đã mở khóa thu phóng</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Hiển thị mọi ảnh đúng như tệp của nó định nghĩa, với màu sắc có thể kiểm chứng, ở cả SDR và HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Nhanh và tối giản, ứng dụng mở hơn 50 định dạng trên Windows, macOS và Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>Thư mục này không còn ảnh nào.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Trình xem ảnh với độ trung thực màu SDR và HDR có thể kiểm chứng.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

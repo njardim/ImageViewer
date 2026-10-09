@@ -88,13 +88,24 @@
         <translation>HEIC görüntüleri için Microsoft Store&apos;dan Microsoft&apos;un “HEIF Image Extensions” ve “HEVC Video Extensions” uzantıları gerekir.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC görüntüleri için bir HEVC kod çözücü gerekir; imageViewer bunu bu sistemde içermez (patentler). Önce bunları başka bir biçime dönüştürün.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC görüntüleri için bir HEVC kod çözücü gerekir; ImageViewer bunu bu sistemde içermez (patentler). Önce bunları başka bir biçime dönüştürün.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>kod çözücü %1 sn&apos;den uzun sürdü ve durduruldu</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Uygulama seç</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Uygulamalar (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Pencere boyutunu ve konumunu hatırla</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Pencereye sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Genişliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Yüksekliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Pencereyi doldur</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Yeni görüntünün yakınlaştırması:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Pencereden küçük görüntüleri büyüt</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Boyutunu koru</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>İlk görüntüye sığdır</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Her görüntüye sığdır</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Pencere boyutu:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% ekran</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>En fazla:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Uygulamanın adı</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Dosya adı</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Ad, konum ve boyutlar</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Ad, konum, boyutlar, dosya boyutu ve yakınlaştırma</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Başlık çubuğu:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Hareketsiz işaretçiyi şu süreden sonra gizle:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Pencere</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Kırpma veya ton eşleme nedeniyle değişen pikselleri vurgula (macenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Hiçbir zaman</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Alanlar:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Panel ve bindirme görünümü</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Renk &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komut</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Kısayollar</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Kısayol:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatif:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Bu komutun varsayılanları</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Tüm komutların varsayılanları</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Tamam</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Varsayılanları geri yükle</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Sonraki görüntüler için yakınlaştırmayı koru (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Şunlardan alındı: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Dosya yöneticisinde göster</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Başka uygulama…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Yeniden adlandır…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Pencereye sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Genişliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Yüksekliğe sığdır</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Pencereyi doldur</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Yakınlaştırmayı kilitle</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Slayt gösterisi</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer Hakkında</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer Hakkında</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Son kullanılanları aç</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Birlikte aç</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” başlatılamadı.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Uygulama bulunamadı</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Görüntü aç</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Yakınlaştırma kilitlendi: sonraki görüntüler bunu korur</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Yakınlaştırmanın kilidi açıldı</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Her görüntüyü dosyasının tanımladığı şekilde, doğrulayabileceğiniz renklerle, SDR ve HDR olarak gösterir.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Hızlı ve minimal olan uygulama, Windows, macOS ve Linux üzerinde 50&apos;den fazla biçimi açar.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Yeni ad: “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Doğrulanabilir SDR ve HDR renk aslına uygunluğu sunan görüntü izleyici.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

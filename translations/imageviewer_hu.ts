@@ -88,13 +88,24 @@
         <translation>A HEIC-képekhez a Microsoft „HEIF Image Extensions” és „HEVC Video Extensions” bővítménye szükséges a Microsoft Store-ból.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>A HEIC-képekhez HEVC-dekóder szükséges, amelyet az imageViewer ezen a rendszeren nem tartalmaz (szabadalmak); előbb alakítsa át őket más formátumba.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>A HEIC-képekhez HEVC-dekóder szükséges, amelyet az ImageViewer ezen a rendszeren nem tartalmaz (szabadalmak); előbb alakítsa át őket más formátumba.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>a dekóder %1 s-nál tovább futott, ezért leállt</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Alkalmazás kiválasztása</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Alkalmazások (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Ablakméret és -pozíció megjegyzése</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Ablakhoz igazítás</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Szélességhez igazítás</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Magassághoz igazítás</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Ablak kitöltése</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Új kép nagyítása:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Az ablaknál kisebb képek felnagyítása</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Méret megtartása</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Igazítás az első képhez</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Igazítás minden képhez</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Ablakméret:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% a képernyőből</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Legfeljebb:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Az alkalmazás neve</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>A fájl neve</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Név, pozíció és méretek</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Név, pozíció, méretek, fájlméret és nagyítás</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Címsor:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Mozdulatlan mutató elrejtése ennyi idő után:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Ablak</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Soha</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Mezők:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>A panel és a fedőréteg megjelenése</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Szín &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Parancs</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Gyorsbillentyűk</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Gyorsbillentyű:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatív:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Alapértelmezés ehhez a parancshoz</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Alapértelmezések minden parancshoz</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Alapértelmezések visszaállítása</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Nagyítás megtartása a következő képeknél (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Átvéve innen: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Megjelenítés a fájlkezelőben</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Másik alkalmazás…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Átnevezés…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Ablakhoz igazítás</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Szélességhez igazítás</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Magassághoz igazítás</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Ablak kitöltése</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Nagyítás zárolása</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Diavetítés</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Névjegy: imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Névjegy: ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Legutóbbi megnyitása</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Megnyitás ezzel</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>A(z) „%1” nem indítható el.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nem található alkalmazás</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Kép megnyitása</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Nagyítás zárolva: a következő képek is megtartják</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Nagyítás feloldva</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Minden képet úgy jelenít meg, ahogyan a fájlja meghatározza, ellenőrizhető színekkel, SDR és HDR módban is.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Gyors és minimalista, több mint 50 formátumot nyit meg Windows, macOS és Linux rendszeren.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Átnevezve: „%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Képmegjelenítő ellenőrizhető SDR- és HDR-színhűséggel.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

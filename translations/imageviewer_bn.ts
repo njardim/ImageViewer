@@ -88,13 +88,24 @@
         <translation>HEIC ছবির জন্য Microsoft Store থেকে Microsoft-এর “HEIF Image Extensions” ও “HEVC Video Extensions” প্রয়োজন।</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC ছবির জন্য একটি HEVC ডিকোডার প্রয়োজন, যা imageViewer এই সিস্টেমে অন্তর্ভুক্ত করে না (পেটেন্ট); আগে সেগুলিকে অন্য ফরম্যাটে রূপান্তর করুন।</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC ছবির জন্য একটি HEVC ডিকোডার প্রয়োজন, যা ImageViewer এই সিস্টেমে অন্তর্ভুক্ত করে না (পেটেন্ট); আগে সেগুলিকে অন্য ফরম্যাটে রূপান্তর করুন।</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>ডিকোডার %1 সেকেন্ডের বেশি সময় নিয়েছে এবং থামানো হয়েছে</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>একটি অ্যাপ্লিকেশন বেছে নিন</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>অ্যাপ্লিকেশন (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>কখনোই নয়</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> সেকেন্ড</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>উইন্ডোর মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>প্রস্থের মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>উচ্চতার মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>উইন্ডো ভরে দিন</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>নতুন ছবির জুম:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>উইন্ডোর চেয়ে ছোট ছবি বড় করুন</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>আকার অপরিবর্তিত রাখুন</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>প্রথম ছবির মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>প্রতিটি ছবির মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>উইন্ডোর আকার:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % পর্দার</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>সর্বোচ্চ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>অ্যাপ্লিকেশনের নাম</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>ফাইলের নাম</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>নাম, অবস্থান ও মাত্রা</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>নাম, অবস্থান, মাত্রা, ফাইলের আকার ও জুম</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>টাইটেল বার:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>স্থির পয়েন্টার এই সময়ের পরে লুকান:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>এর পরে লুকান:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>প্যানেল ও ওভারলের চেহারা</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>পরের ও আগের ছবি আগে থেকে লোড করুন</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>স্লাইডশো (%1), প্রতি ছবির সময়:</translation>
@@ -400,6 +493,30 @@
         <translation>রং &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>কমান্ড</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>শর্টকাট</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>শর্টকাট:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>বিকল্প:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>এই কমান্ডের ডিফল্ট</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>সব কমান্ডের ডিফল্ট</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ঠিক আছে</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ডিফল্ট পুনরুদ্ধার করুন</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>পরের ছবিগুলোর জন্য জুম ধরে রাখুন (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>এগুলো থেকে নেওয়া হয়েছে: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>ফাইল ম্যানেজারে দেখান</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>অন্য অ্যাপ্লিকেশন…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>নাম পরিবর্তন করুন…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>উইন্ডোর মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>প্রস্থের মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>উচ্চতার মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>উইন্ডো ভরে দিন</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>জুম লক করুন</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>স্লাইডশো</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer সম্পর্কে</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer সম্পর্কে</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>সাম্প্রতিক খুলুন</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>এর মাধ্যমে খুলুন</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” চালু করা যায়নি।</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>কোনো অ্যাপ্লিকেশন পাওয়া যায়নি</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>জুম লক করা হয়েছে: পরের ছবিগুলোতেও থাকবে</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>জুম আনলক করা হয়েছে</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>প্রতিটি ছবি ঠিক সেভাবেই দেখায় যেভাবে তার ফাইল সংজ্ঞায়িত করে, যাচাই করা যায় এমন রঙে, SDR ও HDR-এ।</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>দ্রুত ও সহজ, এটি Windows, macOS ও Linux-এ 50টির বেশি ফরম্যাট খোলে।</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>এই ফোল্ডারে আর কোনো ছবি নেই।</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>যাচাইযোগ্য SDR ও HDR রঙের নির্ভুলতাসহ ইমেজ ভিউয়ার।</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

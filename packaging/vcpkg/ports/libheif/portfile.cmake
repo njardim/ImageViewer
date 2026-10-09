@@ -1,8 +1,9 @@
-vcpkg_from_github(
+# Fetched by git at the tag's commit (D-46): the commit hash pins the source.
+vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO  strukturag/libheif
-    REF "v${VERSION}"
-    SHA512 a7b4a7ecc093f6b453939e093abef391f88bb371303183a91e431cba8f4b590131c05cc80a28733ac4822cce4a69ca1475251b2d4679890330a603de04c6c77c
+    URL https://github.com/strukturag/libheif
+    REF f81f28ac014b1c28dee483ac45b72c6b05bc421a # v1.23.6
+    FETCH_REF v${VERSION}
     HEAD_REF master
     PATCHES
         cxx-linkage-pkgconfig.diff
@@ -53,7 +54,7 @@ vcpkg_cmake_configure(
         -DCMAKE_COMPILE_WARNING_AS_ERROR=OFF
         "-DCMAKE_PROJECT_INCLUDE=${CURRENT_PORT_DIR}/cmake-project-include.cmake"
         -DPLUGIN_DIRECTORY=  # empty
-        # imageViewer overlay: no HEVC decoder (libde265), see vcpkg.json "$comment".
+        # ImageViewer overlay: no HEVC decoder (libde265), see vcpkg.json "$comment".
         -DWITH_LIBDE265=OFF
         -DWITH_DAV1D=OFF
         -DWITH_EXAMPLES=OFF

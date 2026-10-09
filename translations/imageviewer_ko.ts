@@ -88,13 +88,24 @@
         <translation>HEIC 이미지를 열려면 Microsoft Store의 Microsoft “HEIF Image Extensions”와 “HEVC Video Extensions”가 필요합니다.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 imageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 이미지를 열려면 HEVC 디코더가 필요하지만 ImageViewer는 이 시스템에서 이를 포함하지 않습니다(특허). 먼저 다른 형식으로 변환하세요.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>디코더가 %1초를 넘겨 중지되었습니다</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>애플리케이션 선택</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>애플리케이션(*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>창 크기와 위치 기억</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>창에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>너비에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>높이에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>창 채우기</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>새 이미지 배율:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>창보다 작은 이미지 확대</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>크기 유지</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>첫 이미지에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>모든 이미지에 맞추기</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>창 크기:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% (화면 대비)</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>최대:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>애플리케이션 이름</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>파일 이름</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>이름, 위치, 이미지 크기</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>이름, 위치, 이미지 크기, 파일 크기, 배율</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>제목 표시줄:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>움직이지 않는 포인터를 다음 시간 후 숨기기:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>창</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>표시 안 함</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>항목:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>패널 및 오버레이 모양</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>색상 &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>명령</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>단축키</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>단축키:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>대체:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>이 명령의 기본값</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>모든 명령의 기본값</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>확인</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>기본값 복원</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>다음 이미지에도 배율 유지 (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>가져온 위치: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>파일 관리자에서 보기</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>다른 애플리케이션…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>이름 바꾸기…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>창에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>너비에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>높이에 맞추기</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>창 채우기</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>배율 고정</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>슬라이드 쇼</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer 정보</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer 정보</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>최근 사용 항목 열기</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>다음 애플리케이션으로 열기</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” 애플리케이션을 시작할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>애플리케이션을 찾을 수 없습니다</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>이미지 열기</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>배율 고정됨: 다음 이미지에도 유지됩니다</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>배율 고정 해제됨</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>모든 이미지를 파일에 정의된 그대로, 검증할 수 있는 색상으로 SDR과 HDR에서 표시합니다.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>빠르고 미니멀하며, Windows, macOS, Linux에서 50개가 넘는 형식을 열 수 있습니다.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>이름을 바꿨습니다: “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>SDR 및 HDR 색상 충실도를 검증할 수 있는 이미지 뷰어입니다.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

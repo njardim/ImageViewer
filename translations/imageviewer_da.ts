@@ -88,13 +88,24 @@
         <translation>HEIC-billeder kræver Microsofts »HEIF Image Extensions« og »HEVC Video Extensions« fra Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-billeder kræver en HEVC-dekoder, som imageViewer ikke indeholder på dette system (patenter); konvertér dem først til et andet format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-billeder kræver en HEVC-dekoder, som ImageViewer ikke indeholder på dette system (patenter); konvertér dem først til et andet format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekoderen brugte mere end %1 s og blev stoppet</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Vælg et program</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Programmer (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Husk vinduets størrelse og placering</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Tilpas til vinduet</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Tilpas til bredden</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Tilpas til højden</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Udfyld vinduet</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom for nyt billede:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Forstør billeder, der er mindre end vinduet</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Behold størrelsen</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Tilpas til det første billede</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Tilpas til hvert billede</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Vinduets størrelse:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % af skærmen</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Højst:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Programmets navn</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Filnavnet</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Navn, placering og dimensioner</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Navn, placering, dimensioner, filstørrelse og zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Titellinje:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Skjul ubevægelig markør efter:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Vindue</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Fremhæv pixels ændret af klipning eller tonemapping (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Aldrig</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Felter:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Udseende for panelet og overlayet</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Farve &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Kommando</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Genvejstaster</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Genvej:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativ:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Standard for denne kommando</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Standarder for alle kommandoer</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Gendan standarder</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Behold zoom for de næste billeder (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Taget fra: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Vis i filhåndtering</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Andet program…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Omdøb…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Tilpas til vindue</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Tilpas til bredde</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Tilpas til højde</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Udfyld vindue</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Lås zoom</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Diasshow</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Om imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Om ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Åbn seneste</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Åbn med</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Kan ikke starte »%1«.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Ingen programmer fundet</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Åbn billede</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom låst: de næste billeder beholder den</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom låst op</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Viser hvert billede, som dets fil definerer det, med farver, du kan kontrollere, i SDR og HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Hurtigt og minimalistisk åbner det mere end 50 formater på Windows, macOS og Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Omdøbt til »%1«</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Billedfremviser med verificerbar SDR- og HDR-farvetrohed.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -69,6 +69,21 @@ QString isolated(const QString &text)
     return QGuiApplication::layoutDirection() == Qt::RightToLeft ? QChar(0x2068) + text + QChar(0x2069) : text;
 }
 
+// Both information panels share one look (D-49, Settings::panelBackground()): the optional dark
+// ring around the glyphs keeps the text readable over anything, HDR highlights included.
+void drawPanelText(QPainter &painter, const QRectF &rect, int flags, const QString &text, const QColor &colour,
+                   bool outline)
+{
+    if (outline) {
+        painter.setPen(QColor(0, 0, 0, colour.alpha()));
+        for (const QPointF offset : {QPointF(-1, -1), QPointF(0, -1), QPointF(1, -1), QPointF(-1, 0), QPointF(1, 0),
+                                     QPointF(-1, 1), QPointF(0, 1), QPointF(1, 1)})
+            painter.drawText(rect.translated(offset), flags, text);
+    }
+    painter.setPen(colour);
+    painter.drawText(rect, flags, text);
+}
+
 struct Row {
     QString label; // empty: the value spans both columns (messages)
     QString value;
@@ -84,8 +99,35 @@ void ViewerWindow::showNotice(const QString &text)
     updateOverlay();
 }
 
+void ViewerWindow::updateTitle()
+{
+    // Facts joined like the top overlay's, most important first; the application last.
+    QStringList parts;
+    if (m_settings.titleMode != TitleMode::Application && !m_image.path.isEmpty()) {
+        const QLocale locale;
+        parts << displayFileName(QFileInfo(m_image.path).fileName());
+        if (m_settings.titleMode >= TitleMode::Details) {
+            if (m_index >= 0 && m_files.value(m_index) == m_image.path)
+                parts << QStringLiteral("%1 / %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
+            if (m_image.width > 0) // the file's size, as the panels show it, not the GPU texture's
+                parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth), locale.toString(m_image.sourceHeight));
+        }
+        if (m_settings.titleMode == TitleMode::Everything) {
+            if (m_image.fileSize >= 0)
+                parts << fileSizeText(m_image.fileSize, locale);
+            if (m_image.width > 0)
+                parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
+        }
+    }
+    parts << QStringLiteral("ImageViewer");
+    const QString text = parts.join(QStringLiteral(" — "));
+    if (text != title())
+        setTitle(text);
+}
+
 void ViewerWindow::updateOverlay()
 {
+    updateTitle();
     if (!m_rendererReady)
         return;
     m_overlayOutput = m_renderer.output().description;
@@ -97,10 +139,12 @@ void ViewerWindow::updateOverlay()
     if (!m_message.isEmpty())
         rows.append({QString(), m_message});
 
-    if (m_showInfo && !m_image.path.isEmpty()) {
+    if (m_settings.showInfo && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
-        rows.append({tr("File"), file.fileName(), !rows.isEmpty()});
-        rows.append({tr("Folder"), QDir::toNativeSeparators(file.absolutePath())});
+        // Names are shown without bidi and other format characters, as in the title: a file
+        // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
+        rows.append({tr("File"), displayFileName(file.fileName()), !rows.isEmpty()});
+        rows.append({tr("Folder"), displayFileName(QDir::toNativeSeparators(file.absolutePath()))});
         if (m_image.fileSize >= 0)
             rows.append({tr("Size"), fileSizeText(m_image.fileSize, locale)});
         if (m_image.modified.isValid())
@@ -112,7 +156,7 @@ void ViewerWindow::updateOverlay()
             rows.append({tr("Position"), position});
         }
     }
-    if (m_showInfo && m_image.width > 0) {
+    if (m_settings.showInfo && m_image.width > 0) {
         //: Megapixels, e.g. "24.0 MP".
         QString dimensions = QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
                                                           locale.toString(m_image.sourceHeight))
@@ -185,11 +229,11 @@ void ViewerWindow::updateOverlay()
                 add(tr("Taken"), locale.toString(camera.taken, QLocale::ShortFormat));
         }
     }
-    if (m_showInfo) {
+    if (m_settings.showInfo) {
         QStringList view;
         if (m_image.width > 0) {
             //: A zoom percentage, e.g. "100 %"; write the percent sign as your language does.
-            view << tr("%1 %").arg(zoomNumber(currentZoom(), locale));
+            view << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
             if (m_quarterTurns != 0)
                 //: The view is rotated clockwise by this many degrees.
                 view << tr("rotated %1°").arg(locale.toString(m_quarterTurns * 90));
@@ -201,7 +245,7 @@ void ViewerWindow::updateOverlay()
             view << tr("exposure %1 EV")
                         .arg((m_exposureEv > 0 ? locale.positiveSign() : QString())
                              + locale.toString(double(m_exposureEv), 'f', 1));
-        if (m_clipWarning)
+        if (m_settings.clipWarning)
             view << tr("altered pixels highlighted");
         if (!view.isEmpty())
             rows.append({tr("View"), view.join(dot), true});
@@ -227,13 +271,35 @@ void ViewerWindow::updateOverlay()
             } else if (m_image.maxComponent * stage.exposure * stage.scale > stage.peak) {
                 rows.append({tr("Highlights"),
                              //: nits: candela per square metre, the unit of luminance.
-                             (m_toneMap ? tr("clipped above %1 nits (colors outside the output gamut)")
+                             (m_settings.toneMap ? tr("clipped above %1 nits (colors outside the output gamut)")
                                         //: nits: candela per square metre, the unit of luminance.
                                         : tr("clipped above %1 nits (tone mapping off)"))
                                  .arg(locale.toString(peakNits, 'f', 0))});
             }
         }
     }
+
+    const qreal dpr = devicePixelRatio();
+    const QFont font = QGuiApplication::font();
+    // The panel is drawn again only when what it shows changes, not on every animation frame,
+    // wheel step or resize event (each text is drawn nine times with the outline).
+    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
+                      .arg(m_settings.overlayBackgroundOpacity)
+                      .arg(m_settings.overlayTextOpacity)
+                      .arg(m_settings.overlayOutline)
+                      .arg(width())
+                      .arg(height())
+                      .arg(dpr)
+                      .arg(int(QGuiApplication::layoutDirection()))
+                      .arg(font.key());
+    for (const Row &row : std::as_const(rows))
+        key += QChar(0x1e) + row.label + QChar(0x1f) + row.value + (row.gapBefore ? u'+' : u'-');
+    if (key == m_panelKey) {
+        updateTopOverlay();
+        requestUpdate();
+        return;
+    }
+    m_panelKey = key;
 
     if (rows.isEmpty()) {
         m_overlaySize = {};
@@ -243,8 +309,6 @@ void ViewerWindow::updateOverlay()
         return;
     }
 
-    const qreal dpr = devicePixelRatio();
-    const QFont font = QGuiApplication::font();
     const QFontMetricsF metrics(font);
     const qreal padding = 10.0, columnGap = 14.0, sectionGap = 6.0, lineHeight = metrics.height() + 2.0;
     qreal labelWidth = 0, valueWidth = 0, spanWidth = 0, height = 2 * padding - 2.0;
@@ -271,9 +335,12 @@ void ViewerWindow::updateOverlay()
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, 150));
+    painter.setBrush(m_settings.panelBackground());
     painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), 8, 8);
     painter.setFont(font);
+    const QColor valueColour = m_settings.panelText(Settings::kPanelValueGrey);
+    const QColor labelColour = m_settings.panelText(Settings::kPanelLabelGrey);
+    const bool outline = m_settings.overlayOutline;
     // Columns are laid out left to right and mirrored for right-to-left languages; within a
     // cell, AlignLeft is the start of the line (Qt mirrors it in right-to-left layouts).
     const bool rtl = QGuiApplication::layoutDirection() == Qt::RightToLeft;
@@ -288,18 +355,15 @@ void ViewerWindow::updateOverlay()
         if (y + lineHeight > logical.height() - padding + 2.0)
             break;
         if (row.label.isEmpty()) {
-            painter.setPen(QColor(235, 235, 235));
-            painter.drawText(cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
-                             isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)));
+            drawPanelText(painter, cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
+                          isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)), valueColour, outline);
         } else {
             const qreal valueX = labelColumn + columnGap;
-            painter.setPen(QColor(165, 165, 165));
-            painter.drawText(cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
-                             metrics.elidedText(row.label, Qt::ElideRight, labelColumn));
-            painter.setPen(QColor(235, 235, 235));
+            drawPanelText(painter, cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
+                          metrics.elidedText(row.label, Qt::ElideRight, labelColumn), labelColour, outline);
             const qreal w = std::max<qreal>(0.0, inner - valueX);
-            painter.drawText(cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
-                             isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)));
+            drawPanelText(painter, cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
+                          isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)), valueColour, outline);
         }
         y += lineHeight;
     }
@@ -361,7 +425,7 @@ void ViewerWindow::updateTopOverlay()
             switch (field) {
             case OverlayField::Name:
                 nameIndex = int(parts.size());
-                parts << QFileInfo(m_image.path).fileName();
+                parts << displayFileName(QFileInfo(m_image.path).fileName());
                 break;
             case OverlayField::Dimensions:
                 if (hasImage)
@@ -374,7 +438,7 @@ void ViewerWindow::updateTopOverlay()
                 break;
             case OverlayField::Zoom:
                 if (hasImage)
-                    parts << tr("%1 %").arg(zoomNumber(currentZoom(), locale));
+                    parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
                 break;
             case OverlayField::ColorSpace:
                 if (hasImage)
@@ -435,23 +499,13 @@ void ViewerWindow::updateTopOverlay()
     QPainter painter(&overlay);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
-    if (m_settings.overlayBackgroundOpacity > 0) {
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor(0, 0, 0, std::lround(m_settings.overlayBackgroundOpacity * 2.55)));
-        painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), logical.height() / 2.0, logical.height() / 2.0);
-    }
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(m_settings.panelBackground());
+    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), logical.height() / 2.0, logical.height() / 2.0);
     painter.setFont(font);
-    const int textAlpha = int(std::lround(m_settings.overlayTextOpacity * 2.55));
     const QRectF textRect(paddingX, paddingY, logical.width() - 2 * paddingX, metrics.height());
-    if (m_settings.overlayOutline) {
-        // A dark ring around the glyphs keeps the text readable over any image.
-        painter.setPen(QColor(0, 0, 0, textAlpha));
-        for (const QPointF offset : {QPointF(-1, -1), QPointF(0, -1), QPointF(1, -1), QPointF(-1, 0), QPointF(1, 0),
-                                     QPointF(-1, 1), QPointF(0, 1), QPointF(1, 1)})
-            painter.drawText(textRect.translated(offset), Qt::AlignCenter, text);
-    }
-    painter.setPen(QColor(240, 240, 240, textAlpha));
-    painter.drawText(textRect, Qt::AlignCenter, text);
+    drawPanelText(painter, textRect, Qt::AlignCenter, text, m_settings.panelText(Settings::kPanelValueGrey),
+                  m_settings.overlayOutline);
     painter.end();
 
     m_topOverlaySize = overlay.size();

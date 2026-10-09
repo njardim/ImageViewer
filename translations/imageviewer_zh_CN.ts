@@ -88,13 +88,24 @@
         <translation>HEIC 图像需要 Microsoft Store 中 Microsoft 的“HEIF Image Extensions”和“HEVC Video Extensions”。</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC 图像需要 HEVC 解码器，而 imageViewer 在此系统上不包含该解码器（专利原因）；请先将其转换为其他格式。</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC 图像需要 HEVC 解码器，而 ImageViewer 在此系统上不包含该解码器（专利原因）；请先将其转换为其他格式。</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>解码器耗时超过 %1 秒，已被停止</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>选择应用程序</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>应用程序 (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>从不</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>适合窗口</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>适合宽度</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>适合高度</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>填满窗口</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>新图像的缩放：</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>放大小于窗口的图像</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>保持大小</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>适合第一张图像</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>适合每张图像</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>窗口大小：</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>%的屏幕</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>最大：</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>应用程序名称</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>文件名</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>名称、位置和尺寸</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>名称、位置、尺寸、文件大小和缩放</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>标题栏：</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>静止指针隐藏延迟：</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>隐藏延迟：</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>面板和叠加层的外观</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>提前加载上一张和下一张图像</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>幻灯片放映（%1），每张图像时间：</translation>
@@ -400,6 +493,30 @@
         <translation>色彩 &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>命令</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>快捷键</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>快捷键：</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>备选：</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>此命令的默认值</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>所有命令的默认值</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>确定</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>后续图像保持当前缩放 (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>取自：%1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>在文件管理器中显示</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>其他应用程序…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>重命名…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>适合窗口</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>适合宽度</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>适合高度</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>填满窗口</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>锁定缩放</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>幻灯片放映</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>关于 imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>关于 ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>打开最近使用的文件</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>打开方式</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>无法启动“%1”。</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>未找到应用程序</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>缩放已锁定：后续图像保持此缩放</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>缩放已解锁</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>按文件自身的定义显示每一张图像，色彩可验证，支持 SDR 和 HDR。</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>快速而简约，可在 Windows、macOS 和 Linux 上打开 50 多种格式。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>此文件夹中已没有图像。</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>具有可验证的 SDR 与 HDR 色彩保真度的图像查看器。</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

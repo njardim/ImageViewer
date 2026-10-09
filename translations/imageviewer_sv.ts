@@ -88,13 +88,24 @@
         <translation>HEIC-bilder kräver Microsofts ”HEIF Image Extensions” och ”HEVC Video Extensions” från Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-bilder kräver en HEVC-avkodare, som imageViewer inte innehåller på det här systemet (patent); konvertera dem först till ett annat format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-bilder kräver en HEVC-avkodare, som ImageViewer inte innehåller på det här systemet (patent); konvertera dem först till ett annat format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>avkodaren tog längre tid än %1 s och stoppades</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Välj ett program</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Program (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Kom ihåg fönstrets storlek och position</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Anpassa till fönstret</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Anpassa till bredden</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Anpassa till höjden</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Fyll fönstret</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom för en ny bild:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Förstora bilder som är mindre än fönstret</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Behåll storleken</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Anpassa till den första bilden</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Anpassa till varje bild</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Fönsterstorlek:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % av skärmen</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Högst:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Programmets namn</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Filnamnet</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Namn, position och dimensioner</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Namn, position, dimensioner, filstorlek och zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Namnlist:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Dölj stillastående pekare efter:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fönster</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Markera pixlar som ändrats genom klippning eller tonmappning (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Aldrig</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Fält:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Utseende för panelen och överlagringen</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Färg &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Kommando</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Kortkommandon</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Kortkommando:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativ:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Standardvärden för detta kommando</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Standardvärden för alla kommandon</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Återställ standardvärden</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Behåll zoomen för nästa bilder (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Hämtat från: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Visa i filhanteraren</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Annat program…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Byt namn…</translation>
     </message>
@@ -768,6 +899,22 @@
         <translation>Anpassa till fönstret</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Anpassa till bredden</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Anpassa till höjden</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Fyll fönstret</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Lås zoomen</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Verklig storlek (100 %)</translation>
@@ -798,11 +945,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Vänd horisontellt</translation>
+        <translation>Spegelvänd horisontellt</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Vänd vertikalt</translation>
+        <translation>Spegelvänd vertikalt</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -843,8 +990,8 @@
         <translation>Bildspel</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Om imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Om ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Öppna senaste</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Öppna med</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Det går inte att starta ”%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Inga program hittades</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Öppna bild</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoomen är låst: nästa bilder behåller den</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoomen är upplåst</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Visar varje bild så som dess fil definierar den, med färger du kan verifiera, i SDR och HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Snabbt och minimalistiskt öppnar det fler än 50 format i Windows, macOS och Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Namnet ändrades till ”%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Bildvisare med verifierbar SDR- och HDR-färgtrohet.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

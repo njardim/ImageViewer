@@ -8,7 +8,7 @@ The other test files of the registry were written by tools from the same 6x4 ora
 - GraphicsMagick 1.3.48, `gm convert orange.ppm gm.<ext>`: gm.pcx, gm.dcx, gm.pict, gm.wpg,
   gm.miff, gm.ras, gm.viff, gm.mat, gm.cin, gm.psd, gm.xpm, gm.xbm, gm.wbmp; gm.vicar in gray;
   gm.otb from an 8x4 bitmap, left half black.
-- oiiotool 2.4, `oiiotool orange.ppm -o orange.<ext>`: orange.dpx, .hdr, .bmp, .ico, .fits,
+- oiiotool 2.4, `oiiotool orange.ppm -o orange.<ext>`: orange.dpx, .hdr, .bmp, .ico,
   .sgi, .iff, .tga, .rla; gray.zfile from the green channel as float.
 - Pillow 12.3: orange.dds (16x16 RGBA), orange.icns (16x16); alpha8.bmp and alpha8.sgi from
   alpha8.png (straight alpha, which oiiotool would premultiply); transparent.gif, noloop.gif and
@@ -20,6 +20,7 @@ usage: python3 tests/longtail_data.py <output directory>
 import os
 import struct
 import sys
+import zlib
 
 out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "data")
 
@@ -129,9 +130,19 @@ def pix():
 # Softimage PIC: one mixed run-length packet (R, G, B), each row a single run of 6 pixels.
 # (OpenImageIO 2.4 reads uncompressed PIC packets as black; real files use run lengths.)
 def softimage():
-    header = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"imageViewer test", b"PICT", 6, 4, 1.0, 3, 0)
+    header = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"ImageViewer test", b"PICT", 6, 4, 1.0, 3, 0)
     packet = bytes([0, 8, 2, 0x80 | 0x40 | 0x20])  # last packet, 8 bits, mixed run length, R G B
     write("orange.pic", header + packet + bytes([128 + 5, 255, 128, 0]) * 4)
+    # Under the names of formats whose signatures they also match ("<svg" in the comment, "DICM"
+    # at byte 128): OpenImageIO, tried after the SVG or DICOM decoder, picked its PIC reader by
+    # content and crashed on the truncated ones (0.4 review). Our own reader decodes the whole one.
+    disguised = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"<svg>", b"PICT", 6, 4, 1.0, 3, 0) + packet
+    write("pic-named.svg", disguised + bytes([128 + 5, 255, 128, 0]) * 4)
+    write("pic-truncated.svg", disguised + bytes([128 + 5, 255, 128, 0]))
+    dicom = bytearray(header + packet + bytes([128 + 5, 255, 128, 0]))
+    dicom += bytes(132 - len(dicom))
+    dicom[128:132] = b"DICM"
+    write("pic-truncated.dcm", bytes(dicom))
 
 
 # Windows cursor: 16x16, 32-bit BGRA with its AND mask (rows padded to 4 bytes), hotspot
@@ -145,10 +156,53 @@ def cursor():
     write("orange.cur", struct.pack("<HHH", 0, 2, 1) + entry + dib)
 
 
+# FITS (NOST 100-2.0), BITPIX 8: NAXIS1 is the width, NAXIS2 the height and NAXIS3 the colour
+# planes, R then G then B, each 6x4; header and data padded to 2880-byte blocks. (oiiotool 2.4
+# wrote the channels along NAXIS1, which OpenImageIO 3.2 reads, as the standard says, as width.)
+def fits():
+    cards = ["SIMPLE  =                    T", "BITPIX  =                    8", "NAXIS   =                    3",
+             "NAXIS1  =                    6", "NAXIS2  =                    4", "NAXIS3  =                    3", "END"]
+    header = "".join(card.ljust(80) for card in cards).encode("ascii")
+    header += b" " * (-len(header) % 2880)
+    data = bytes([255]) * 24 + bytes([128]) * 24 + bytes(24)
+    write("orange.fits", header + data + bytes(-len(data) % 2880))
+    # A volume (NAXIS3 = 5 > 4): 5 slices of 6x4, slice k of gray 200 - 40k. OpenImageIO reads
+    # every slice into the buffer; a buffer sized for one slice overflowed (0.4 review).
+    cards[5] = "NAXIS3  =                    5"
+    header = "".join(card.ljust(80) for card in cards).encode("ascii")
+    header += b" " * (-len(header) % 2880)
+    data = b"".join(bytes([200 - 40 * k]) * 24 for k in range(5))
+    write("volume.fits", header + data + bytes(-len(data) % 2880))
+    # Rows differ: FITS stores the bottom row first, so the top-left pixel is the last row's (128).
+    # OpenImageIO 3.2.1.1 read every row one off (0.4 review, our fits-row-offset patch).
+    cards = cards[:5] + ["END"]
+    cards[2] = "NAXIS   =                    2"
+    header = "".join(card.ljust(80) for card in cards).encode("ascii")
+    header += b" " * (-len(header) % 2880)
+    data = b"".join(bytes([value]) * 6 for value in (32, 64, 96, 128))
+    write("rows.fits", header + data + bytes(-len(data) % 2880))
+
+
+# Netpbm PPM, 8 bits: sRGB values in practice, though OpenImageIO labels it "Rec709" (D-54).
+def ppm():
+    write("orange.ppm", b"P6\n6 4\n255\n" + bytes([255, 128, 0]) * 24)
+
+
+# PNG with a gAMA chunk and no sRGB chunk, one gray pixel of 128. OpenImageIO names the gamma
+# rounded ("g22", "Gamma2.2") or in a form not parsed (γ 0.5); the exact exponent is used.
+def png_gamma():
+    def chunk(kind, body):
+        return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body))
+    for name, gama in (("gamma-2.22.png", 45000), ("gamma-0.5.png", 200000)):
+        write(name, b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 0, 0, 0, 0))
+              + chunk(b"gAMA", struct.pack(">I", gama)) + chunk(b"IDAT", zlib.compress(b"\x00\x80"))
+              + chunk(b"IEND", b""))
+
+
 def svg():
     write("orange.svg", b'<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4">'
                         b'<rect width="6" height="4" fill="#ff8000"/></svg>\n')
 
 
-for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, svg):
+for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, fits, ppm, png_gamma, svg):
     make()

@@ -35,32 +35,28 @@ void ViewerWindow::openFile(const QString &path)
     }
     m_direction = 1;
     if (info.isDir()) {
-        QStringList files = listImages(info.absoluteFilePath(), m_settings.sortBy, m_settings.sortDescending);
-        if (files.isEmpty()) { // keep the current list and image
-            m_message = tr("The folder contains no supported images.");
-            updateOverlay();
-            return;
-        }
-        m_files = std::move(files);
-        m_lastDirectory = info.absoluteFilePath();
-        setFolder(m_lastDirectory);
-        startLoading(0);
+        const QString folder = info.absoluteFilePath();
+        listFolder(folder, [this, folder](QStringList files) {
+            if (files.isEmpty()) { // keep the current list and image
+                m_message = tr("The folder contains no supported images.");
+                updateOverlay();
+                return;
+            }
+            m_files = std::move(files);
+            m_lastDirectory = folder;
+            setFolder(folder);
+            startLoading(0);
+        });
         return;
     }
-    m_files = listImages(info.absolutePath(), m_settings.sortBy, m_settings.sortDescending);
+    // The image first; the rest of its folder follows from the background listing.
+    m_files = {info.absoluteFilePath()};
+    m_index = -1;
     m_lastDirectory = info.absolutePath();
     setFolder(m_lastDirectory);
     addRecentFile(info.absoluteFilePath());
-    const QString name = info.fileName();
-    const auto it = std::find_if(m_files.cbegin(), m_files.cend(), [&name](const QString &f) {
-        return QStringView(f).mid(f.lastIndexOf(QLatin1Char('/')) + 1).compare(name, kFileNameCase) == 0;
-    });
-    if (it == m_files.cend()) {
-        m_files.prepend(info.absoluteFilePath()); // unknown suffix: still try to decode it
-        startLoading(0);
-    } else {
-        startLoading(int(it - m_files.cbegin()));
-    }
+    startLoading(0);
+    relist();
 }
 
 QString ViewerWindow::currentPath() const
@@ -203,7 +199,6 @@ void ViewerWindow::decodeFinished()
 
 void ViewerWindow::showImage(Image image, int limit)
 {
-    setTitle(QStringLiteral("%1 — imageViewer").arg(displayFileName(QFileInfo(image.path).fileName())));
     // The same file again (smaller texture, device loss, language, changed on disk) keeps
     // the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
@@ -219,10 +214,15 @@ void ViewerWindow::showImage(Image image, int limit)
         image.pixels.reset(); // the cache keeps them when preloading is on; the GPU has its copy
         m_image = std::move(image);
         if (!sameFile) {
-            m_fit = true;
-            m_pan = {};
+            if (!m_settings.lockZoom) // a locked zoom (L) carries over to the new image
+                m_fit = m_settings.fitMode;
             m_quarterTurns = 0;
             m_mirrored = false;
+            resetPan();
+            if (m_settings.windowFit == WindowFit::EveryImage
+                || (m_settings.windowFit == WindowFit::FirstImage && !m_windowMatched))
+                matchWindowToImage();
+            m_windowMatched = true;
         }
         clampPan();
         startAnimation(); // or stops the previous one
@@ -265,17 +265,43 @@ void ViewerWindow::setFolder(const QString &folder)
         m_folderWatcher.addPath(m_folder);
 }
 
+void ViewerWindow::listFolder(const QString &folder, std::function<void(QStringList)> done)
+{
+    const quint64 generation = ++m_listing;
+    QtConcurrent::run(&listImages, folder, m_settings.sortBy, m_settings.sortDescending)
+        .then(this, [this, generation, done = std::move(done)](QStringList files) {
+            if (generation == m_listing) // another folder or another order was asked for meanwhile
+                done(std::move(files));
+        });
+}
+
 void ViewerWindow::relist()
 {
     if (m_folder.isEmpty())
         return;
+    const QString folder = m_folder;
+    listFolder(folder, [this, folder](QStringList files) {
+        if (folder == m_folder)
+            applyListing(std::move(files));
+    });
+}
+
+void ViewerWindow::applyListing(QStringList files)
+{
     const QString current = currentPath();
     const int previousIndex = m_index;
-    QStringList files = listImages(m_folder, m_settings.sortBy, m_settings.sortDescending);
-    // A file opened despite an unknown suffix stays in the list while it exists.
-    if (!current.isEmpty() && !files.contains(current) && QFileInfo::exists(current)
-        && QFileInfo(current).absolutePath() == m_folder)
-        files.prepend(current);
+    if (!current.isEmpty() && !files.contains(current)) {
+        // The name as it was opened may differ in case from the directory entry (Windows, macOS).
+        const QString name = QFileInfo(current).fileName();
+        const auto same = std::find_if(files.begin(), files.end(), [&name](const QString &f) {
+            return QStringView(f).mid(f.lastIndexOf(QLatin1Char('/')) + 1).compare(name, kFileNameCase) == 0;
+        });
+        if (same != files.end())
+            *same = current;
+        // A file opened despite an unknown suffix stays in the list while it exists.
+        else if (QFileInfo::exists(current) && QFileInfo(current).absolutePath() == m_folder)
+            files.prepend(current);
+    }
     m_files = std::move(files);
     const int index = current.isEmpty() ? -1 : int(m_files.indexOf(current));
     if (index >= 0) {
@@ -288,7 +314,6 @@ void ViewerWindow::relist()
         m_image = Image();
         m_renderer.clearImage();
         m_cache.clear();
-        setTitle(QStringLiteral("imageViewer"));
         m_message = tr("No images left in this folder.");
         setHoverZone(Zone::None);
         requestUpdate();
@@ -329,12 +354,12 @@ void ViewerWindow::removeCurrentFromList()
     editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
     // The next image takes the removed one's place; after the last, the previous one.
     m_files.removeAt(m_index);
+    relist(); // a listing still running was taken before the removal: it must not bring the file back
     stopAnimation();
     m_image = Image();
     m_renderer.clearImage();
     if (m_files.isEmpty()) {
         m_index = -1;
-        setTitle(QStringLiteral("imageViewer"));
         m_message = tr("No images left in this folder.");
         setHoverZone(Zone::None);
         updateOverlay();

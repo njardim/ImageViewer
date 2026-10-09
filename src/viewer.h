@@ -13,6 +13,7 @@
 #include "renderer.h"
 #include "settings.h"
 
+#include <QElapsedTimer>
 #include <QFileSystemWatcher>
 #include <QFutureWatcher>
 #include <QImage>
@@ -48,15 +49,17 @@ public:
 
     // Every user command: one table drives the keyboard, the context menu and its submenus.
     enum class Command {
-        Open, ClearRecent, ShowInFolder, CopyImage, CopyPath,
+        Open, ClearRecent, ShowInFolder, OpenWithOther, CopyImage, CopyPath,
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
-        ZoomIn, ZoomOut, Fit, ActualSize, FullScreen, Info, InfoOverlay, Checkerboard,
+        ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
+        FullScreen, Info, InfoOverlay, Checkerboard,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,
         About, AboutQt,
     };
+    Q_ENUM(Command) // its names are the keys of the user's shortcuts (D-52)
 
 protected:
     bool event(QEvent *e) override;
@@ -87,13 +90,17 @@ private:
 
     QSizeF deviceSize() const;
     QSizeF displayedImageSize() const; // after view rotation
-    double fitZoom() const;
+    double fitZoom(FitMode mode, QSizeF view = {}) const; // in `view` (default: the window's device size)
     double currentZoom() const;
+    double shownZoom() const; // of the file's own pixels: a texture reduced for the GPU has fewer
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
     void setActualSize();
-    void setFit();
+    void setFit(FitMode mode);
+    void resetPan();      // centred; a width-fitted image from its top, a height-fitted one from its start
+    bool canPan() const;  // the image is larger than the window
     void clampPan();
+    void matchWindowToImage(); // the window at the image's size, within Settings::windowFitPercent of the screen
     Renderer::Frame imageFrame() const; // colour-related fields of the current frame
     int textureLimit(const QString &path) const; // longest side the GPU texture may have
     void recoverFromDeviceLoss();
@@ -102,6 +109,8 @@ private:
     Zone zoneAt(const QPointF &position) const;  // logical pixels
     QRectF zoneButtonRect(Zone zone) const;      // device pixels
     void setHoverZone(Zone zone);
+    void pointerActive(); // shows the pointer again and restarts its hiding timer
+    void updateCursor();
 
     // View actions.
     void rotate(int quarterTurns);
@@ -127,6 +136,10 @@ private:
     void reloadCurrent();               // decode the shown file again, keeping the view
     void setFolder(const QString &folder);
     void relist();                      // folder sorted per the settings, keeping the current file
+    // Lists `folder` on a worker thread (a large folder took half a second) and hands the
+    // sorted files to `done` on this thread, unless a newer listing was started meanwhile.
+    void listFolder(const QString &folder, std::function<void(QStringList)> done);
+    void applyListing(QStringList files);
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
     void addRecentFile(const QString &path);
@@ -156,6 +169,7 @@ private:
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
     void updateTopOverlay();
+    void updateTitle(); // per Settings::titleMode
     OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
     bool topOverlayVisible() const;
     void setPointerAtTop(bool atTop);
@@ -171,6 +185,8 @@ private:
         bool repeats; // acts again while the key is held (navigation, zoom); toggles and file actions do not
     };
     static const QList<CommandInfo> &commands();
+    static QString commandKey(Command command);
+    QList<QKeySequence> shortcutsFor(Command command) const; // the user's, else the defaults
     QString commandText(Command command) const;
     bool isCommandEnabled(Command command) const;
     bool isCommandChecked(Command command, bool *checkable) const;
@@ -181,12 +197,14 @@ private:
     void showOpenDialog();
     void toggleTopOverlay();
     void toggleCheckerboard();
+    void toggleLockZoom();
     void showSettings();
     void showAbout();
     bool currentFileIsShown() const; // the displayed image is the current entry of the folder
 
     // files.cpp
     void showInFolder();
+    void openWithOtherApplication();
     void copyImage();
     void imageCopied();
     void copyPath();
@@ -221,6 +239,7 @@ private:
     int m_frameGeneration = 0;  // changes when the animation shown changes
     int m_frameIndex = 0;       // the frame on screen
     int m_frameDurationMs = 0;  // ...and how long it stays
+    QElapsedTimer m_panelRefreshed; // while playing, the panel's frame number follows at intervals
     int m_wantedFrame = -1;     // the frame to show next; -1: none
     std::optional<Animation::Frame> m_readyFrame; // decoded, waiting for its turn
     bool m_frameDue = false;    // its turn has come: show it as soon as it is decoded
@@ -247,6 +266,7 @@ private:
     QString m_folder;
     QFileSystemWatcher m_folderWatcher; // the folder and the shown file
     QTimer m_folderTimer;               // changes come in bursts: re-list once they settle
+    quint64 m_listing = 0;              // generation of the latest folder listing
     struct TrashedFile {
         QString original;
         QString inTrash;
@@ -259,19 +279,20 @@ private:
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
 
-    bool m_fit = true;
+    // The zoom follows the window in this mode (D-51); without one, it is m_zoom.
+    std::optional<FitMode> m_fit = m_settings.fitMode; // the first image follows the setting, locked or not
     double m_zoom = 1.0; // device pixels per image pixel when not fitting
+    bool m_windowMatched = false; // the window took the first image's size (WindowFit::FirstImage)
     QPointF m_pan;       // offset of the image centre from the window centre, device pixels
+    QSizeF m_laidOutIn;  // the device size m_pan was last laid out in (resizeEvent)
     int m_quarterTurns = 0;
     bool m_mirrored = false;
     float m_exposureEv = 0.0f;
-    bool m_clipWarning = false;
-    bool m_toneMap = true;
-    bool m_showInfo = true;
     QSize m_overlaySize; // device pixels; empty when no overlay is shown
     QString m_overlayOutput; // output description the overlay was built with
     QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
     QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads
+    QString m_panelKey;      // likewise for the information panel
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
     // What Shift+I turns the overlay back on to, in a window and in full screen.
     OverlayVisibility m_overlayRestore[2] = {OverlayVisibility::Always, OverlayVisibility::Hover};
@@ -283,6 +304,8 @@ private:
     QPointF m_dragOrigin;
     QPointF m_panOrigin;
     Zone m_hoverZone = Zone::None;
+    QTimer m_pointerTimer;       // hides a still pointer (Settings::pointerHideMs)
+    bool m_pointerHidden = false;
     Zone m_pressZone = Zone::None; // a press that may become a click on a side zone
     bool m_pressMoved = false;     // the press turned into a drag
 };

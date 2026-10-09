@@ -2,7 +2,7 @@
 """Quit test on macOS: the application menu's Quit must end the process cleanly.
 
 The viewer opens an image in a folder of test images (so the neighbours are being preloaded)
-and is quit the way users quit a Mac application: imageViewer > Quit imageViewer in the menu
+and is quit the way users quit a Mac application: ImageViewer > Quit ImageViewer in the menu
 bar, then Cmd+Q, then a "quit" Apple event, whichever this machine lets a script send. The
 test fails when the process ends with a signal or a non-zero code, or when macOS wrote a
 crash report for it. Two rounds: right after the image appears (a preload is usually still
@@ -13,7 +13,7 @@ that was sent fails too; only a machine that refuses every route skips the test.
 Meant for CI machines: macOS keeps preferences in cfprefsd, which no environment variable
 redirects, so the viewer runs with the user's own preferences and saves its session there.
 
-usage: python3 tests/quit_test.py <imageViewer.app/Contents/MacOS/imageViewer>
+usage: python3 tests/quit_test.py <ImageViewer.app/Contents/MacOS/ImageViewer>
 env:   QUIT_TEST_DIR  where to keep the images and the logs (default: a temp dir)
 """
 import glob
@@ -39,7 +39,7 @@ reports = os.path.expanduser("~/Library/Logs/DiagnosticReports")
 
 
 def crash_reports():
-    return set(glob.glob(os.path.join(reports, "imageViewer*"))) | set(glob.glob("/Library/Logs/DiagnosticReports/imageViewer*"))
+    return set(glob.glob(os.path.join(reports, "ImageViewer*"))) | set(glob.glob("/Library/Logs/DiagnosticReports/ImageViewer*"))
 
 
 def osascript(script):
@@ -82,7 +82,7 @@ def run_round(label, settle_s, debugger=False):
                 break
         pid = app.pid
         if debugger and shown:
-            found = subprocess.run(["pgrep", "-n", "-x", "imageViewer"], capture_output=True, text=True).stdout.split()
+            found = subprocess.run(["pgrep", "-n", "-x", "ImageViewer"], capture_output=True, text=True).stdout.split()
             shown = bool(found)
             pid = int(found[0]) if found else 0
         if not shown:

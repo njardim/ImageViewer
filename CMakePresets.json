@@ -1,6 +1,6 @@
 {
   "version": 6,
-  "cmakeMinimumRequired": { "major": 3, "minor": 24, "patch": 0 },
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
   "configurePresets": [
     {
       "name": "base",
@@ -30,7 +30,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "arm64-osx-dynamic",
         "CMAKE_OSX_ARCHITECTURES": "arm64",
-        "CMAKE_OSX_DEPLOYMENT_TARGET": "13.0"
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "14.4"
       },
       "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
     },

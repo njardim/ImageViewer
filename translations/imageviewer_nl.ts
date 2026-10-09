@@ -88,13 +88,24 @@
         <translation>HEIC-afbeeldingen hebben de Microsoft-extensies ‘HEIF Image Extensions’ en ‘HEVC Video Extensions’ uit de Microsoft Store nodig.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-afbeeldingen hebben een HEVC-decoder nodig, die imageViewer op dit systeem niet meelevert (octrooien); converteer ze eerst naar een ander formaat.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-afbeeldingen hebben een HEVC-decoder nodig, die ImageViewer op dit systeem niet meelevert (octrooien); converteer ze eerst naar een ander formaat.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>de decoder had meer dan %1 s nodig en is gestopt</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Kies een toepassing</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Toepassingen (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>De venstergrootte en -positie onthouden</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Aanpassen aan venster</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Aanpassen aan breedte</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Aanpassen aan hoogte</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Venster vullen</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom van een nieuwe afbeelding:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Afbeeldingen die kleiner zijn dan het venster vergroten</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Grootte behouden</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Aanpassen aan de eerste afbeelding</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Aanpassen aan elke afbeelding</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Venstergrootte:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% van het scherm</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Maximaal:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>De naam van de toepassing</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>De bestandsnaam</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Naam, positie en afmetingen</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Naam, positie, afmetingen, bestandsgrootte en zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Titelbalk:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Stilstaande aanwijzer verbergen na:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Venster</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nooit</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Velden:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Uiterlijk van paneel en overlay</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Kleur &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Opdracht</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Sneltoetsen</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Sneltoets:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatief:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Standaard voor deze opdracht</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Standaardwaarden voor alle opdrachten</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Standaardwaarden herstellen</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Zoom behouden voor de volgende afbeeldingen (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Overgenomen van: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Weergeven in bestandsbeheer</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Andere toepassing…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Hernoemen…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Aanpassen aan venster</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Aanpassen aan breedte</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Aanpassen aan hoogte</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Venster vullen</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zoom vergrendelen</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Diavoorstelling</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Over imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Over ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Recent geopend</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Openen met</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Kan “%1” niet starten.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Geen toepassingen gevonden</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Afbeelding openen</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom vergrendeld: de volgende afbeeldingen behouden deze</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom ontgrendeld</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Toont elke afbeelding zoals het bestand die definieert, met controleerbare kleuren, in SDR en HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Snel en minimalistisch opent het meer dan 50 formaten op Windows, macOS en Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Hernoemd naar “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Afbeeldingsviewer met verifieerbare SDR- en HDR-kleurnauwkeurigheid.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -9,7 +9,7 @@ still image. The colour in the middle of the window shows what is on screen:
   3. S starts the slideshow (1 s per image, from the settings): the yellow image follows
      by itself; Esc stops it and the image stays.
 
-usage: python3 tests/animation_test.py <imageViewer> [vulkan|opengl]
+usage: python3 tests/animation_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
 env:   ANIMATION_TEST_DIR  where to keep the files, the log and the last screenshot
 """
@@ -43,7 +43,7 @@ COLOURS = {"red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255), "yello
 frames = [Image.new("RGB", (160, 120), COLOURS[c]) for c in ("red", "green", "blue")]
 frames[0].save(os.path.join(pictures, "a-anim.gif"), save_all=True, append_images=frames[1:], duration=400, loop=0)
 Image.new("RGB", (160, 120), COLOURS["yellow"]).save(os.path.join(pictures, "b-still.png"))
-with open(os.path.join(config, "Cristallumnis", "imageViewer.conf"), "w") as f:
+with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "w") as f:
     f.write("[General]\nversion=2\n\n[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\n")
 
 
@@ -76,7 +76,7 @@ def wait_for(what, names):
     start = time.monotonic()
     while time.monotonic() - start < DEADLINE_S:
         if app.poll() is not None:
-            fail(f"{what}: imageViewer exited with code {app.returncode}")
+            fail(f"{what}: ImageViewer exited with code {app.returncode}")
         seen = colour()
         if seen in names:
             print(f"ok   {what}: {seen} ({time.monotonic() - start:.1f} s)")
@@ -110,7 +110,7 @@ try:
             found = []
             start = time.monotonic()
             while not found and time.monotonic() - start < DEADLINE_S:
-                found = xdotool("search", "--onlyvisible", "--name", "imageViewer$").stdout.split()
+                found = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()
                 time.sleep(POLL_S)
             if not found:
                 fail("viewer window not found")
@@ -146,7 +146,7 @@ try:
             xdotool("key", "Escape")
             stays("Esc stops the slideshow", "yellow", 2.5)
 
-            xdotool("key", "ctrl+q")
+            xdotool("key", "q")
             app.wait(15)
         finally:
             if app.poll() is None:
@@ -156,5 +156,5 @@ finally:
     xvfb.stop(server)
 
 if app.returncode != 0:
-    fail(f"imageViewer exited with code {app.returncode}")
+    fail(f"ImageViewer exited with code {app.returncode}")
 print(f"{rhi}: all animation checks passed")

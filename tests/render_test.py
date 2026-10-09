@@ -1,6 +1,6 @@
 """Output-stage fidelity test (criteria H2, H4, H6): offscreen GPU render vs. specification.
 
-Writes a synthetic linear HDR corpus, renders it with `imageViewer --render` for
+Writes a synthetic linear HDR corpus, renders it with `ImageViewer --render` for
 several outputs (SDR, EDR, scRGB, PQ; tone mapping on and off; exposure), and
 checks two things:
   1. the harness itself: GPU result == color::applyOutputStage() (exit code 0);
@@ -8,9 +8,10 @@ checks two things:
      BT.2390 knee (computed here from the ITU-R formula), never above the
      output peak, monotonic, content peak lands on the output peak, hue kept
      by the tone mapping (D-15), and plain clipping when tone mapping is off.
-The backend that actually rendered must be the one requested.
+The backend that actually rendered must be the one requested. It also runs
+`ImageViewer --panel-check` in each output: the information panels' contrast (D-49).
 
-usage: python3 tests/render_test.py <imageViewer> [vulkan|opengl]
+usage: python3 tests/render_test.py <ImageViewer> [vulkan|opengl]
   Linux:          Xvfb + xcb; Vulkan (default) or OpenGL.
   Windows, macOS: offscreen platform; the native backend (D3D11, Metal), no argument.
 exit:  0 pass, 1 fail, 4 no usable GPU/QRhi on this machine (the harness's own code)
@@ -29,7 +30,7 @@ import numpy as np
 SYSTEM = platform.system()
 NATIVE = {"Windows": "d3d11", "Darwin": "metal"}
 BACKEND_NAMES = {"vulkan": "Vulkan", "opengl": "OpenGL", "d3d11": "D3D11", "metal": "Metal"}
-GPU_UNAVAILABLE = 4  # imageViewer --render: the GPU/QRhi could not be initialised
+GPU_UNAVAILABLE = 4  # ImageViewer --render: the GPU/QRhi could not be initialised
 PQ_NEUTRAL_TOLERANCE = 5e-5  # PQ code value: 1/20 of a 10-bit step (1/1023), far below a visible error
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -37,7 +38,7 @@ exe = os.path.abspath(sys.argv[1])
 rhi = sys.argv[2] if len(sys.argv) > 2 else NATIVE.get(SYSTEM, "vulkan")
 allowed = ("vulkan", "opengl") if SYSTEM == "Linux" else (NATIVE.get(SYSTEM),)
 if rhi not in allowed:
-    sys.exit(f"usage: render_test.py <imageViewer> [{'|'.join(filter(None, allowed))}] (on {SYSTEM})")
+    sys.exit(f"usage: render_test.py <ImageViewer> [{'|'.join(filter(None, allowed))}] (on {SYSTEM})")
 work = os.environ.get("RENDER_TEST_DIR") or tempfile.mkdtemp(prefix="imageviewer-render-")
 os.makedirs(work, exist_ok=True)
 
@@ -211,6 +212,17 @@ try:
         failures.append(f"wide gamut: harness exit {run.returncode} {run.stderr.strip()[-300:]}")
     elif abs(float(pixel.group(1)) - 1.2246) > 2e-3:
         failures.append(f"wide gamut: P3 red R = {pixel.group(1)} at an SDR peak, expected 1.2246 (not clipped)")
+
+    # The information panels (D-49): their background darkens SDR white as in SDR in every
+    # output, their labels keep 4.5:1 against it, and against their outline over the brightest
+    # content the output shows (the harness measures and judges; exit 3 is a failed check).
+    for name, args in (("sdr", []), ("edr", ["--peak", "4"]), ("scrgb", ["--white", "240", "--peak", "600"]),
+                       ("pq", ["--white", "203", "--peak", "1000"])):
+        run = subprocess.run([exe, "--panel-check", "--output", name, *args], env=env, capture_output=True,
+                             text=True, encoding="utf-8", errors="replace", timeout=120)
+        print(f"--- {rhi} panels {name}\n{run.stdout.strip()}")
+        if run.returncode != 0:
+            failures.append(f"panels {name}: exit {run.returncode} {run.stdout.strip()[-300:]} {run.stderr.strip()[-300:]}")
 finally:
     if server:
         xvfb.stop(server)

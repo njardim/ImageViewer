@@ -88,13 +88,24 @@
         <translation>HEIC-Bilder benötigen die Microsoft-Erweiterungen „HEIF Image Extensions“ und „HEVC Video Extensions“ aus dem Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-Bilder benötigen einen HEVC-Decoder, den imageViewer auf diesem System nicht enthält (Patente); konvertieren Sie sie zuerst in ein anderes Format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-Bilder benötigen einen HEVC-Decoder, den ImageViewer auf diesem System nicht enthält (Patente); konvertieren Sie sie zuerst in ein anderes Format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>der Decoder brauchte länger als %1 s und wurde beendet</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Anwendung auswählen</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Anwendungen (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nie</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> s</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>An Fenster anpassen</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>An Breite anpassen</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>An Höhe anpassen</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Fenster ausfüllen</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom für neue Bilder:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Bilder, die kleiner als das Fenster sind, vergrößern</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Größe beibehalten</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>An das erste Bild anpassen</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>An jedes Bild anpassen</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Fenstergröße:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % des Bildschirms</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Höchstens:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Name der Anwendung</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Dateiname</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Name, Position und Abmessungen</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Name, Position, Abmessungen, Dateigröße und Zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Titelleiste:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Ruhenden Mauszeiger ausblenden nach:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Ausblenden nach:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Aussehen von Bereich und Einblendung</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>Nächstes und vorheriges Bild im Voraus laden</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Pixel hervorheben, die durch Clipping oder Tone-Mapping verändert wurden (Magenta)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Diashow (%1), Zeit pro Bild:</translation>
@@ -400,6 +493,30 @@
         <translation>Farbe &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Befehl</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Tastenkürzel</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Tastenkürzel:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternative:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Standard für diesen Befehl</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Standardwerte für alle Befehle</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Standardwerte wiederherstellen</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Zoom für die nächsten Bilder beibehalten (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Übernommen von: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>Im Dateimanager anzeigen</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Andere Anwendung…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Umbenennen…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>An Fenster anpassen</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>An Breite anpassen</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>An Höhe anpassen</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Fenster ausfüllen</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zoom fixieren</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>Diashow</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Über imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Über ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>Zuletzt geöffnet</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Öffnen mit</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>„%1“ kann nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Keine Anwendungen gefunden</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom fixiert: Die nächsten Bilder behalten ihn bei</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoom-Fixierung aufgehoben</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Zeigt jedes Bild so, wie seine Datei es definiert, mit überprüfbaren Farben, in SDR und HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Schnell und minimalistisch öffnet es mehr als 50 Formate unter Windows, macOS und Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>In diesem Ordner sind keine Bilder mehr vorhanden.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Bildbetrachter mit überprüfbarer Farbtreue in SDR und HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -144,11 +144,24 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
         d->transfer = Transfer::Linear;
         return;
     }
-    // PFM carries no colour metadata and is linear by convention (HDR radiance maps), but
-    // OIIO labels every PNM variant "Rec709"; decoding that as BT.1886 turned 36.0 into 5434.
-    const bool floatPnm = isFloat && std::strcmp(format, "pnm") == 0;
-    const QString cs = floatPnm ? QString() : QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
-    if (parseOiioColorSpace(cs, d)) {
+    // Netpbm files carry no colour metadata, but OIIO labels every variant "Rec709". PFM is
+    // linear by convention (HDR radiance maps; as BT.1886, 36.0 became 5434, D-17), and the
+    // integer variants hold sRGB values in practice, as other viewers read them (D-54).
+    const bool pnm = std::strcmp(format, "pnm") == 0;
+    const QString cs = pnm ? QString() : QString::fromStdString(spec.get_string_attribute("oiio:ColorSpace"));
+    bool known = parseOiioColorSpace(cs, d);
+    // A gamma name ("g22_rec709", "Gamma2.2") is rounded, and odd exponents (PNG gAMA of γ 0.5 or
+    // 12.5) give names it cannot parse: the exact exponent is in "oiio:Gamma".
+    static const QRegularExpression gammaName(QStringLiteral("^(g\\d|gamma)"), QRegularExpression::CaseInsensitiveOption);
+    const float gamma = spec.get_float_attribute("oiio:Gamma", 0.0f);
+    if (gamma >= 0.1f && gamma <= 20.0f && ((known && d->transfer == Transfer::Power) || (!known && gammaName.match(cs).hasMatch()))) {
+        if (!known)
+            d->primaries = color::kBt709;
+        d->transfer = Transfer::Power;
+        d->gamma = gamma;
+        known = true;
+    }
+    if (known) {
         // OIIO also fills this in when the file carries no colour tag at all, so it
         // is reported as the decoder's interpretation, not as file metadata (F12).
         d->source = Descriptor::Source::FormatAttributes;
@@ -240,7 +253,10 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
 {
     const OIIO::ImageSpec &spec = in->spec();
     const int w = spec.width, h = spec.height, nch = spec.nchannels;
-    if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels) {
+    // A volume (FITS cube, TIFF ImageDepth, 3D DDS texture) is read whole by read_image(): the
+    // buffer holds every slice, and its first slice is shown.
+    const int depth = std::max(spec.depth, 1);
+    if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels || qint64(w) * h * depth > kMaxPixels) {
         *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(nch);
         return false;
     }
@@ -273,7 +289,7 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
             alpha = c;
     const bool gray = nch < 3;
     const int readChannels = std::max(gray ? 1 : 3, alpha + 1);
-    const qint64 pixels = qint64(w) * h;
+    const qint64 pixels = qint64(w) * h * depth;
     if (!fitsInMemory(pixels, readChannels * out->sampleBytes(), error))
         return false;
     out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
@@ -288,13 +304,15 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
     out->sourceChannels = nch;
     out->alphaIndex = alpha;
     // Alpha is straight (D-21) except where the format stores colour premultiplied: OpenEXR
-    // always, TIFF when its ExtraSamples says so (straight TIFF alpha comes marked
-    // "oiio:UnassociatedAlpha", as asked in oiioConfig()). Other readers keep the file's
-    // straight values without always saying so (BMP, DDS, ICO, SGI, JPEG 2000).
+    // always, TIFF when its ExtraSamples says so and HEIF/AVIF when the file says so (straight
+    // alpha of those comes marked "oiio:UnassociatedAlpha", as asked in oiioConfig()). Other
+    // readers keep the file's straight values without always saying so (BMP, DDS, ICO, SGI,
+    // JPEG 2000).
     const std::string_view format = in->format_name();
     out->associatedAlpha = alpha >= 0
                            && (format == "openexr"
-                               || (format == "tiff" && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0));
+                               || ((format == "tiff" || format == "heif")
+                                   && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0));
     out->gray = gray;
     // Some readers give the bits of a whole pixel (DDS: 32 for 8-bit RGBA).
     out->bits = std::min(spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8)), int(stored.size() * 8));
@@ -449,7 +467,8 @@ public:
             return false;
         }
         const OIIO::ImageSpec &spec = m_in->spec();
-        if (spec.width != m_layout.width || spec.height != m_layout.height || spec.nchannels < m_layout.channels) {
+        if (spec.width != m_layout.width || spec.height != m_layout.height || spec.nchannels < m_layout.channels
+            || spec.depth > 1) { // a volume would not fit the frame buffer
             *error = damaged(m_in->format_name());
             return false;
         }
@@ -543,7 +562,15 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
     const bool animatable = frames && format && format->decoder == Decoder::OpenImageIO && (format->capabilities & CanAnimate);
-    return decodeWithOiio(path, maxPixels, out, error, animatable ? frames : nullptr);
+    if (!decodeWithOiio(path, maxPixels, out, error, animatable ? frames : nullptr))
+        return false;
+    if (out->codec == QLatin1String("OpenImageIO/heif")) {
+        QByteArray bytes;
+        QString ignored;
+        if (readWholeFile(path, &bytes, &ignored))
+            describeHeifStill(bytes, &out->colour);
+    }
+    return true;
 }
 
 } // namespace
@@ -686,8 +713,13 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     QList<Decoder> order;
     if (format && isAvailable(*format))
         order << format->decoder;
-    // A format whose OpenImageIO reader crashes on damaged files never reaches it (D-45).
-    const bool notOiio = format && !oiioMayRead(*format);
+    // Softimage PIC content under another format's name: our reader, as OpenImageIO's must not see it (D-45).
+    for (const Format &f : formats())
+        if (f.decoder == Decoder::Softimage && f.signature && f.signature(head) && !order.contains(f.decoder))
+            order << f.decoder;
+    // A format whose OpenImageIO reader crashes on damaged files never reaches it (D-45), not even
+    // under the name of another format.
+    const bool notOiio = (format && !oiioMayRead(*format)) || !oiioMayReadContent(head);
     for (Decoder general : {Decoder::OpenImageIO, Decoder::Qt})
         if (!order.contains(general) && !(notOiio && general == Decoder::OpenImageIO))
             order << general;

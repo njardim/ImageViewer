@@ -88,13 +88,24 @@
         <translation>HEIC slike trebaju Microsoftova proširenja „HEIF Image Extensions” i „HEVC Video Extensions” iz trgovine Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC slike trebaju HEVC dekoder, koji imageViewer na ovom sustavu ne uključuje (patenti); najprije ih pretvorite u drugi format.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC slike trebaju HEVC dekoder, koji ImageViewer na ovom sustavu ne uključuje (patenti); najprije ih pretvorite u drugi format.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekoder je radio dulje od %1 s i zaustavljen je</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Odaberi aplikaciju</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikacije (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Zapamti veličinu i položaj prozora</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Prilagodi prozoru</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Prilagodi širini</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Prilagodi visini</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Ispuni prozor</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zumiranje nove slike:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Povećaj slike manje od prozora</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Zadrži veličinu</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Prilagodi prvoj slici</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Prilagodi svakoj slici</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Veličina prozora:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % zaslona</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Najviše:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Naziv aplikacije</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Naziv datoteke</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Naziv, položaj i dimenzije</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Naziv, položaj, dimenzije, veličina datoteke i zumiranje</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Naslovna traka:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Sakrij nepomičan pokazivač nakon:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Prozor</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Istakni piksele izmijenjene odrezivanjem ili mapiranjem tonova (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nikad</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Polja:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Izgled ploče i prekrivanja</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Boje &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Naredba</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Prečaci</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Prečac:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternativni:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Zadano za ovu naredbu</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Zadano za sve naredbe</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>U redu</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Vrati zadano</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Zadrži zumiranje za sljedeće slike (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Preuzeto od: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Prikaži u upravitelju datoteka</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Druga aplikacija…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Preimenuj…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Prilagodi prozoru</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Prilagodi širini</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Prilagodi visini</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Ispuni prozor</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Zaključaj zumiranje</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Dijaprojekcija</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>O programu imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>O programu ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Otvori nedavne</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Otvori pomoću</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nije moguće pokrenuti „%1“.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Nema pronađenih aplikacija</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Otvori sliku</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zumiranje je zaključano: sljedeće slike ga zadržavaju</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zumiranje je otključano</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Prikazuje svaku sliku onako kako je definira njezina datoteka, s bojama koje možete provjeriti, u SDR-u i HDR-u.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Brz i minimalistički, otvara više od 50 formata na sustavima Windows, macOS i Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Preimenovano u „%1“</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Preglednik slika s provjerljivom vjernošću boja u SDR-u i HDR-u.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

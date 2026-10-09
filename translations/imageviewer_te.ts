@@ -88,13 +88,24 @@
         <translation>HEIC చిత్రాలకు Microsoft Store నుండి Microsoft యొక్క “HEIF Image Extensions” మరియు “HEVC Video Extensions” అవసరం.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC చిత్రాలకు HEVC డీకోడర్ అవసరం, దీన్ని imageViewer ఈ సిస్టమ్‌లో చేర్చదు (పేటెంట్లు); ముందుగా వాటిని మరొక ఫార్మాట్‌కు మార్చండి.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC చిత్రాలకు HEVC డీకోడర్ అవసరం, దీన్ని ImageViewer ఈ సిస్టమ్‌లో చేర్చదు (పేటెంట్లు); ముందుగా వాటిని మరొక ఫార్మాట్‌కు మార్చండి.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>డీకోడర్ %1 సె. కంటే ఎక్కువ సమయం తీసుకుంది, కాబట్టి ఆపివేయబడింది</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>అప్లికేషన్‌ను ఎంచుకో</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>అప్లికేషన్‌లు (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>ఎప్పుడూ కాదు</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> సెకన్లు</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>విండోకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>వెడల్పుకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>ఎత్తుకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>విండోను నింపు</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>కొత్త చిత్రం జూమ్:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>విండో కంటే చిన్న చిత్రాలను పెద్దవి చేయి</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>పరిమాణాన్ని అలాగే ఉంచు</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>మొదటి చిత్రానికి సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>ప్రతి చిత్రానికి సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>విండో పరిమాణం:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % స్క్రీన్ పరిమాణం</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>గరిష్టంగా:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>అప్లికేషన్ పేరు</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>ఫైల్ పేరు</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>పేరు, స్థానం మరియు కొలతలు</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>పేరు, స్థానం, కొలతలు, ఫైల్ పరిమాణం మరియు జూమ్</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>టైటిల్ బార్:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>కదలని పాయింటర్ ఇంత సమయం తర్వాత దాచు:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>తర్వాత దాచు:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>ప్యానెల్ మరియు ఓవర్‌లే రూపం</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>తదుపరి మరియు మునుపటి చిత్రాలను ముందుగానే లోడ్ చేయి</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>స్లైడ్‌షో (%1), ఒక్కో చిత్రానికి సమయం:</translation>
@@ -400,6 +493,30 @@
         <translation>రంగు &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>కమాండ్</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>షార్ట్‌కట్‌లు</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>షార్ట్‌కట్:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>ప్రత్యామ్నాయం:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>ఈ కమాండ్ డిఫాల్ట్‌లు</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>అన్ని కమాండ్‌ల డిఫాల్ట్‌లు</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>సరే</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>డిఫాల్ట్‌లను పునరుద్ధరించు</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>తదుపరి చిత్రాలకు జూమ్ కొనసాగించు (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>వీటి నుండి తీసుకున్నది: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>ఫైల్ మేనేజర్‌లో చూపు</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>మరొక అప్లికేషన్…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>పేరు మార్చు…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>విండోకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>వెడల్పుకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>ఎత్తుకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>విండోను నింపు</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>జూమ్ లాక్ చేయి</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>స్లైడ్‌షో</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer గురించి</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer గురించి</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>ఇటీవలివి తెరువు</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>దీనితో తెరువు</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” ప్రారంభించడం సాధ్యం కాలేదు.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>అప్లికేషన్‌లు ఏవీ కనుగొనబడలేదు</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>జూమ్ లాక్ చేయబడింది: తదుపరి చిత్రాలు దీన్ని కొనసాగిస్తాయి</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>జూమ్ అన్‌లాక్ చేయబడింది</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>ప్రతి చిత్రాన్ని దాని ఫైల్ నిర్వచించినట్లుగానే, ధృవీకరించగల రంగులతో, SDR మరియు HDR లో చూపిస్తుంది.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>వేగంగా మరియు కనిష్టంగా, ఇది Windows, macOS మరియు Linux లో 50 కంటే ఎక్కువ ఫార్మాట్‌లను తెరుస్తుంది.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>ఈ ఫోల్డర్‌లో చిత్రాలు ఏవీ మిగల్లేదు.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>ధృవీకరించదగిన SDR మరియు HDR రంగు ఖచ్చితత్వంతో కూడిన ఇమేజ్ వ్యూయర్.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

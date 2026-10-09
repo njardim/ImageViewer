@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.25)
 
 # Versions are X.Y with an optional suffix: 0.1, 0.2-alpha, 1.0 (decision D-19).
 # Release builds take it from the tag (CI passes -DIMAGEVIEWER_VERSION=...);
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
-set(IMAGEVIEWER_VERSION "0.3-dev" CACHE STRING "Version: X.Y or X.Y-suffix")
+# Not a cache default, so a build tree configured earlier follows the version in development.
+if(NOT IMAGEVIEWER_VERSION)
+    set(IMAGEVIEWER_VERSION "0.4-dev")
+endif()
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
     message(FATAL_ERROR "IMAGEVIEWER_VERSION must be X.Y or X.Y-suffix, got '${IMAGEVIEWER_VERSION}'")
@@ -21,12 +24,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Qt 6.11: QRhi (HDR swapchains) is reached through Qt6::GuiPrivate; its API is
+# Qt 6.12: QRhi (HDR swapchains) is reached through Qt6::GuiPrivate; its API is
 # stable enough for us but carries no compatibility promise (pin Qt minor versions).
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
-find_package(Qt6 6.11 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools LinguistTools)
-if(Qt6_VERSION VERSION_GREATER_EQUAL 6.12)
-    message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.11 only; "
+find_package(Qt6 6.12 REQUIRED COMPONENTS Core Gui GuiPrivate Widgets Concurrent ShaderTools LinguistTools)
+if(Qt6_VERSION VERSION_GREATER_EQUAL 6.13)
+    message(FATAL_ERROR "Qt ${Qt6_VERSION}: the private QRhi API used here is validated on Qt 6.12 only; "
                         "moving to a new Qt minor version is a deliberate port (docs/PLAN.md).")
 endif()
 # User-interface languages (decisions D-27, D-32): English is the source; the 16 most spoken
@@ -64,13 +67,14 @@ qt_add_executable(imageviewer
     src/main.cpp
     src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp
     src/cache.h src/cache.cpp
-    src/settings.h src/settings.cpp
+    src/settings.h src/settings.cpp src/settingsdialog.cpp
     src/renderer.h src/renderer.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
     src/decoders.h src/decoders.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
+    src/openwith.h src/openwith.cpp
 )
 
 qt_add_shaders(imageviewer "shaders"
@@ -99,6 +103,12 @@ target_link_libraries(imageviewer PRIVATE
     OpenImageIO::OpenImageIO
     lcms2::lcms2
 )
+if(APPLE)
+    # SVG is read by Qt's image plugin; macdeployqt copies that plugin only into bundles
+    # whose executable links QtSvg (the 0.4 macOS package had no SVG support without this).
+    find_package(Qt6 6.12 REQUIRED COMPONENTS Svg)
+    target_link_libraries(imageviewer PRIVATE Qt6::Svg)
+endif()
 if(JXL_INCLUDE_DIR AND JXL_LIBRARY AND JXL_THREADS_LIBRARY)
     target_include_directories(imageviewer PRIVATE ${JXL_INCLUDE_DIR})
     target_link_libraries(imageviewer PRIVATE ${JXL_LIBRARY} ${JXL_THREADS_LIBRARY})
@@ -137,21 +147,27 @@ if(GRAPHICSMAGICK_INCLUDE_DIR)
     file(STRINGS "${GRAPHICSMAGICK_INCLUDE_DIR}/magick/version.h" gm_version_line REGEX "define MagickLibVersionText")
     string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" GRAPHICSMAGICK_VERSION "${gm_version_line}")
 endif()
-# 1.3.48 or later only (the owner's condition, D-38): older releases, such as the
+# 1.3.49 or later only (D-38, D-46: MAT, PICT and WPG security fixes): older releases, such as the
 # distributions' builds with loadable coder modules, are not used.
-if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERSION VERSION_GREATER_EQUAL 1.3.48)
+if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERSION VERSION_GREATER_EQUAL 1.3.49)
     target_include_directories(imageviewer PRIVATE ${GRAPHICSMAGICK_INCLUDE_DIR})
     target_link_libraries(imageviewer PRIVATE ${GRAPHICSMAGICK_LIBRARY})
     target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_GRAPHICSMAGICK)
     message(STATUS "Decode worker: GraphicsMagick ${GRAPHICSMAGICK_VERSION} ${GRAPHICSMAGICK_LIBRARY}")
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
-    message(FATAL_ERROR "GraphicsMagick 1.3.48 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
+    message(FATAL_ERROR "GraphicsMagick 1.3.49 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
 endif()
 # HEIC through the system's decoders (D-39, syscodecs.cpp).
 if(APPLE)
     target_link_libraries(imageviewer PRIVATE "-framework ImageIO" "-framework CoreGraphics" "-framework CoreFoundation")
 elseif(WIN32)
     target_link_libraries(imageviewer PRIVATE windowscodecs ole32)
+endif()
+# Open With (D-53, openwith.cpp): LaunchServices on macOS, the shell's handlers on Windows.
+if(APPLE)
+    target_link_libraries(imageviewer PRIVATE "-framework CoreServices")
+elseif(WIN32)
+    target_link_libraries(imageviewer PRIVATE shell32 shlwapi)
 endif()
 
 if(MSVC)
@@ -161,10 +177,10 @@ else()
 endif()
 
 set_target_properties(imageviewer PROPERTIES
-    OUTPUT_NAME imageViewer
+    OUTPUT_NAME ImageViewer
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON
-    MACOSX_BUNDLE_BUNDLE_NAME imageViewer
+    MACOSX_BUNDLE_BUNDLE_NAME ImageViewer
     MACOSX_BUNDLE_GUI_IDENTIFIER com.cristallumnis.imageviewer
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
@@ -180,7 +196,7 @@ install(TARGETS imageviewer
 # plus the licence texts of the third-party libraries it ships (third-party/).
 # Installed before the deploy script so that macdeployqt's signature covers them.
 if(APPLE)
-    set(doc_dir imageViewer.app/Contents/Resources)
+    set(doc_dir ImageViewer.app/Contents/Resources)
 else()
     set(doc_dir .)
 endif()
@@ -215,7 +231,7 @@ if(APPLE AND DEFINED VCPKG_INSTALLED_DIR)
         INSTALL_RPATH "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 endif()
 if(WIN32)
-    # MSVC runtime DLLs go next to imageViewer.exe (app-local) instead of the
+    # MSVC runtime DLLs go next to ImageViewer.exe (app-local) instead of the
     # vc_redist installer that windeployqt would add.
     list(APPEND deploy_options NO_COMPILER_RUNTIME)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})

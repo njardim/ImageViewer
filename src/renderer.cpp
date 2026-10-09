@@ -26,9 +26,14 @@ struct Uniforms {
     float background[4];
     float checker[4];       // x, y: cells across the texture; z: 1 = on
     float checkerColour[4]; // linear, output units
-    qint32 modes[4];
+    qint32 modes[4];        // w: 1 = framebuffer rows count from the bottom
+    float outside[4];       // linear, output units: where there is no image
+    float imageRect[4];     // device pixels; width 0: no image
+    float uvMap[4];         // texture coordinates at imageRect's top-left, their change per pixel along x
+    float uvMapY[4];        // their change per pixel along y; z: target height
+    float layers[Renderer::OverlayLayerCount][4]; // overlay rectangles; width 0: absent
 };
-static_assert(sizeof(Uniforms) == 160, "uniform block must match the shaders");
+static_assert(sizeof(Uniforms) == 288, "uniform block must match the shaders");
 
 constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
 constexpr int kQuadBytes = 4 * kVertexStride;
@@ -166,8 +171,8 @@ void Renderer::releaseResources()
     drop(m_imageBindingsNearest);
     drop(m_imageTexture);
     drop(m_placeholderTexture);
+    m_boundImage = nullptr;
     for (OverlaySlot &slot : m_overlays) {
-        drop(slot.bindings);
         drop(slot.texture);
         slot.pending = QImage();
         slot.isPending = slot.present = false;
@@ -177,7 +182,6 @@ void Renderer::releaseResources()
     drop(m_overlaySampler);
     drop(m_vertices);
     drop(m_imageUniforms);
-    drop(m_overlayUniforms);
     drop(m_rhi);
     m_fallbackSurface.reset();
     m_pendingPixels = {};
@@ -255,15 +259,14 @@ bool Renderer::initialize(QString *error)
 
     m_vertices = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, (1 + OverlayLayerCount) * kQuadBytes);
     m_imageUniforms = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(Uniforms));
-    m_overlayUniforms = m_rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(Uniforms));
     m_linearSampler = m_rhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::Linear,
                                         QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     m_nearestSampler = m_rhi->newSampler(QRhiSampler::Nearest, QRhiSampler::Nearest, QRhiSampler::None,
                                          QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     m_overlaySampler = m_rhi->newSampler(QRhiSampler::Nearest, QRhiSampler::Nearest, QRhiSampler::None,
                                          QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
-    const bool created = m_vertices->create() && m_imageUniforms->create() && m_overlayUniforms->create()
-                         && m_linearSampler->create() && m_nearestSampler->create() && m_overlaySampler->create();
+    const bool created = m_vertices->create() && m_imageUniforms->create() && m_linearSampler->create()
+                         && m_nearestSampler->create() && m_overlaySampler->create();
     if (!created) {
         *error = QCoreApplication::translate("Renderer", "Cannot create GPU resources.");
         return false;
@@ -271,21 +274,11 @@ bool Renderer::initialize(QString *error)
 
     QRhiResourceUpdateBatch *updates = m_rhi->nextResourceUpdateBatch();
     m_placeholderTexture = createPlaceholder(m_rhi, QRhiTexture::RGBA16F, updates);
-    const auto stages = QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage;
-    auto makeBindings = [&](QRhiBuffer *ubuf, QRhiTexture *texture, QRhiSampler *sampler) {
-        QRhiShaderResourceBindings *srb = m_rhi->newShaderResourceBindings();
-        srb->setBindings({QRhiShaderResourceBinding::uniformBuffer(0, stages, ubuf),
-                          QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage,
-                                                                    texture, sampler)});
-        srb->create();
-        return srb;
-    };
-    m_imageBindingsLinear = makeBindings(m_imageUniforms, m_placeholderTexture, m_linearSampler);
-    m_imageBindingsNearest = makeBindings(m_imageUniforms, m_placeholderTexture, m_nearestSampler);
-    for (OverlaySlot &slot : m_overlays) {
+    for (OverlaySlot &slot : m_overlays)
         slot.texture = createPlaceholder(m_rhi, QRhiTexture::RGBA8, updates);
-        slot.bindings = makeBindings(m_overlayUniforms, slot.texture, m_overlaySampler);
-    }
+    m_imageBindingsLinear = m_rhi->newShaderResourceBindings();
+    m_imageBindingsNearest = m_rhi->newShaderResourceBindings();
+    bindImageTexture(m_placeholderTexture);
     m_initialUpdates = updates; // placeholder uploads ride along with the first frame
 
     if (m_window && !createSwapChainResources()) {
@@ -293,6 +286,11 @@ bool Renderer::initialize(QString *error)
         return false;
     }
     return true;
+}
+
+QSize Renderer::surfaceSize() const
+{
+    return m_swapChain ? m_swapChain->surfacePixelSize() : QSize();
 }
 
 QString Renderer::backendName() const
@@ -359,21 +357,15 @@ void Renderer::destroySwapChainResources()
     m_swapChainReady = false;
 }
 
-QRhiGraphicsPipeline *Renderer::createPipeline(QRhiRenderPassDescriptor *renderPass, bool blend)
+QRhiGraphicsPipeline *Renderer::createPipeline(QRhiRenderPassDescriptor *renderPass)
 {
     const QShader vs = loadShader(QStringLiteral(":/shaders/image.vert.qsb"));
     const QShader fs = loadShader(QStringLiteral(":/shaders/image.frag.qsb"));
     if (!vs.isValid() || !fs.isValid())
         return nullptr;
 
+    // No blending: overlay quads composite in the shader, over the image worked out again (D-49).
     QRhiGraphicsPipeline *pipeline = m_rhi->newGraphicsPipeline();
-    QRhiGraphicsPipeline::TargetBlend over; // premultiplied alpha "over"
-    over.enable = blend;
-    over.srcColor = QRhiGraphicsPipeline::One;
-    over.dstColor = QRhiGraphicsPipeline::OneMinusSrcAlpha;
-    over.srcAlpha = QRhiGraphicsPipeline::One;
-    over.dstAlpha = QRhiGraphicsPipeline::OneMinusSrcAlpha;
-    pipeline->setTargetBlends({over});
     pipeline->setTopology(QRhiGraphicsPipeline::TriangleStrip);
     pipeline->setShaderStages({{QRhiShaderStage::Vertex, vs}, {QRhiShaderStage::Fragment, fs}});
     QRhiVertexInputLayout layout;
@@ -575,6 +567,7 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         }
     }
 
+    bool newOverlayTexture = false;
     for (OverlaySlot &slot : m_overlays) {
         if (!slot.isPending)
             continue;
@@ -585,29 +578,32 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
                 slot.texture->deleteLater();
                 slot.texture = m_rhi->newTexture(QRhiTexture::RGBA8, slot.pending.size());
                 slot.texture->create();
-                slot.bindings->setBindings(
-                    {QRhiShaderResourceBinding::uniformBuffer(
-                         0, QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage,
-                         m_overlayUniforms),
-                     QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage,
-                                                               slot.texture, m_overlaySampler)});
-                slot.bindings->create();
+                newOverlayTexture = true;
             }
             updates->uploadTexture(slot.texture, slot.pending);
         }
         slot.pending = QImage();
     }
+    if (newOverlayTexture)
+        bindImageTexture(m_boundImage);
     return updates;
 }
 
 void Renderer::bindImageTexture(QRhiTexture *texture)
 {
+    // One set for the image and the overlay quads: these read the image too (image.frag).
+    m_boundImage = texture;
     const auto stages = QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage;
+    const auto fragment = QRhiShaderResourceBinding::FragmentStage;
     for (QRhiShaderResourceBindings *srb : {m_imageBindingsLinear, m_imageBindingsNearest}) {
-        srb->setBindings({QRhiShaderResourceBinding::uniformBuffer(0, stages, m_imageUniforms),
-                          QRhiShaderResourceBinding::sampledTexture(
-                              1, QRhiShaderResourceBinding::FragmentStage, texture,
-                              srb == m_imageBindingsLinear ? m_linearSampler : m_nearestSampler)});
+        QList<QRhiShaderResourceBinding> bindings = {
+            QRhiShaderResourceBinding::uniformBuffer(0, stages, m_imageUniforms),
+            QRhiShaderResourceBinding::sampledTexture(1, fragment, texture,
+                                                      srb == m_imageBindingsLinear ? m_linearSampler : m_nearestSampler)};
+        for (int layer = 0; layer < OverlayLayerCount; ++layer)
+            bindings.append(QRhiShaderResourceBinding::sampledTexture(2 + layer, fragment, m_overlays[layer].texture,
+                                                                      m_overlaySampler));
+        srb->setBindings(bindings.cbegin(), bindings.cend());
         srb->create();
     }
 }
@@ -641,7 +637,7 @@ Renderer::RenderResult Renderer::render(const Frame &frame)
     float clear[4] = {stage.background[0], stage.background[1], stage.background[2], 1.0f};
     color::encodeOutput(m_output.mode, clear);
     recordFrame(m_swapChain->currentFrameCommandBuffer(), m_swapChain->currentFrameRenderTarget(), m_pipeline,
-                takeUpdates(), frame, m_output, clear, nullptr);
+                takeUpdates(), frame, m_output, clear, stage.background, nullptr);
     result = m_rhi->endFrame(m_swapChain);
     if (m_uploadInFlight) { // the upload has been submitted; the pixels are no longer needed
         m_pendingPixels = {};
@@ -652,7 +648,7 @@ Renderer::RenderResult Renderer::render(const Frame &frame)
 
 void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhiGraphicsPipeline *pipeline,
                            QRhiResourceUpdateBatch *updates, const Frame &frame, const Output &output,
-                           const float clearColour[4], QRhiResourceUpdateBatch *afterPass)
+                           const float clearColour[4], const float outside[3], QRhiResourceUpdateBatch *afterPass)
 {
     const QSize outputSize = target->pixelSize();
     QMatrix4x4 projection = m_rhi->clipSpaceCorrMatrix();
@@ -679,12 +675,15 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
     vertex(vertices[1], 3); // BL
     vertex(vertices[2], 1); // TR
     vertex(vertices[3], 2); // BR
+    // Overlay quads: their texture coordinates carry -1 - layer (image.frag finds its pixels
+    // from the screen position).
     for (int layer = 0; layer < OverlayLayerCount; ++layer) {
         const QRectF o = frame.overlayRects[layer];
-        const float quad[4][4] = {{float(o.left()), float(o.top()), 0, 0},
-                                  {float(o.left()), float(o.bottom()), 0, 1},
-                                  {float(o.right()), float(o.top()), 1, 0},
-                                  {float(o.right()), float(o.bottom()), 1, 1}};
+        const float tag = -1.0f - float(layer);
+        const float quad[4][4] = {{float(o.left()), float(o.top()), tag, 0},
+                                  {float(o.left()), float(o.bottom()), tag, 0},
+                                  {float(o.right()), float(o.top()), tag, 0},
+                                  {float(o.right()), float(o.bottom()), tag, 0}};
         std::memcpy(vertices[4 * (1 + layer)], quad, sizeof quad);
     }
     updates->updateDynamicBuffer(m_vertices, 0, sizeof vertices, vertices);
@@ -692,7 +691,6 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
     Uniforms u{};
     std::memcpy(u.clipCorrection, projection.constData(), sizeof u.clipCorrection);
     setStage(&u, stageFor(output, frame));
-    u.modes[1] = 0;
     if (frame.checkerboard && frame.checkerCells[0] > 0.0f && frame.checkerCells[1] > 0.0f) {
         u.checker[0] = frame.checkerCells[0];
         u.checker[1] = frame.checkerCells[1];
@@ -700,16 +698,31 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
         for (int c = 0; c < 3; ++c) // like the background: UI colour at SDR white
             u.checkerColour[c] = color::srgbToLinear(frame.checkerColour[c]) * output.scale;
     }
+    u.modes[3] = m_rhi->isYUpInFramebuffer() ? 1 : 0;
+    std::copy(outside, outside + 3, u.outside);
+    // The image quad's texture coordinates as a function of the screen position, for the
+    // overlay quads that work out the image underneath.
+    if (m_hasImage && !r.isEmpty()) {
+        const float topLeft[2] = {vertices[0][2], vertices[0][3]}, topRight[2] = {vertices[2][2], vertices[2][3]},
+                    bottomLeft[2] = {vertices[1][2], vertices[1][3]};
+        const float rect[4] = {float(r.left()), float(r.top()), float(r.width()), float(r.height())};
+        std::copy(rect, rect + 4, u.imageRect);
+        u.uvMap[0] = topLeft[0];
+        u.uvMap[1] = topLeft[1];
+        u.uvMap[2] = (topRight[0] - topLeft[0]) / rect[2];
+        u.uvMap[3] = (topRight[1] - topLeft[1]) / rect[2];
+        u.uvMapY[0] = (bottomLeft[0] - topLeft[0]) / rect[3];
+        u.uvMapY[1] = (bottomLeft[1] - topLeft[1]) / rect[3];
+    }
+    u.uvMapY[2] = float(outputSize.height());
+    for (int layer = 0; layer < OverlayLayerCount; ++layer) {
+        const QRectF o = frame.overlayRects[layer];
+        if (m_overlays[layer].present && !o.isEmpty()) {
+            const float rect[4] = {float(o.left()), float(o.top()), float(o.width()), float(o.height())};
+            std::copy(rect, rect + 4, u.layers[layer]);
+        }
+    }
     updates->updateDynamicBuffer(m_imageUniforms, 0, sizeof u, &u);
-    u.checker[2] = 0.0f;
-    color::OutputStage ui; // the overlay sits at SDR white, never tone mapped
-    ui.encoding = output.mode;
-    ui.scale = output.scale;
-    ui.peak = output.peak;
-    ui.nitsPerUnit = output.nitsPerUnit;
-    setStage(&u, ui);
-    u.modes[1] = 1;
-    updates->updateDynamicBuffer(m_overlayUniforms, 0, sizeof u, &u);
 
     cb->beginPass(target, QColor::fromRgbF(clearColour[0], clearColour[1], clearColour[2], clearColour[3]),
                   {1.0f, 0}, updates);
@@ -724,7 +737,7 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
     for (int layer = 0; layer < OverlayLayerCount; ++layer) {
         if (!m_overlays[layer].present || frame.overlayRects[layer].isEmpty())
             continue;
-        cb->setShaderResources(m_overlays[layer].bindings);
+        cb->setShaderResources(frame.nearest ? m_imageBindingsNearest : m_imageBindingsLinear);
         const QRhiCommandBuffer::VertexInput input(m_vertices, quint32((1 + layer) * kQuadBytes));
         cb->setVertexInput(0, 1, &input);
         cb->draw(4);
@@ -739,7 +752,7 @@ bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize si
         *error = QStringLiteral("renderer not initialised");
         return false;
     }
-    // Float32 keeps the readback free of quantisation; half float is the fallback.
+    // Float32 keeps the readback free of quantisation (nothing blends); half float is the fallback.
     const bool full = m_rhi->isTextureFormatSupported(QRhiTexture::RGBA32F);
     std::unique_ptr<QRhiTexture> texture(
         m_rhi->newTexture(full ? QRhiTexture::RGBA32F : QRhiTexture::RGBA16F, size, 1,
@@ -755,8 +768,7 @@ bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize si
         *error = QStringLiteral("cannot create the offscreen render target");
         return false;
     }
-    // No blending: the target starts transparent, and float32 blending is not universal.
-    std::unique_ptr<QRhiGraphicsPipeline> pipeline(createPipeline(renderPass.get(), false));
+    std::unique_ptr<QRhiGraphicsPipeline> pipeline(createPipeline(renderPass.get()));
     if (!pipeline) {
         *error = QStringLiteral("cannot create the pipeline");
         return false;
@@ -771,7 +783,7 @@ bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize si
     QRhiResourceUpdateBatch *after = m_rhi->nextResourceUpdateBatch();
     after->readBackTexture(QRhiReadbackDescription(texture.get()), &readback);
     const float transparent[4] = {0, 0, 0, 0};
-    recordFrame(cb, target.get(), pipeline.get(), takeUpdates(), frame, output, transparent, after);
+    recordFrame(cb, target.get(), pipeline.get(), takeUpdates(), frame, output, transparent, transparent, after);
     m_rhi->endOffscreenFrame(); // waits for the GPU; the readback is complete afterwards
     m_pendingPixels = {};
     m_uploadInFlight = false;

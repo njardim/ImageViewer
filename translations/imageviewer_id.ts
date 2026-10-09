@@ -88,13 +88,24 @@
         <translation>Gambar HEIC memerlukan “HEIF Image Extensions” dan “HEVC Video Extensions” dari Microsoft, di Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Gambar HEIC memerlukan dekoder HEVC, yang tidak disertakan imageViewer pada sistem ini (paten); konversikan dulu ke format lain.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Gambar HEIC memerlukan dekoder HEVC, yang tidak disertakan ImageViewer pada sistem ini (paten); konversikan dulu ke format lain.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekoder berjalan lebih dari %1 dtk dan dihentikan</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Pilih Aplikasi</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Aplikasi (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Tidak pernah</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> detik</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Sesuaikan dengan jendela</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Sesuaikan dengan lebar</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Sesuaikan dengan tinggi</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Isi jendela</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zoom gambar baru:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Perbesar gambar yang lebih kecil dari jendela</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Pertahankan ukurannya</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Sesuaikan dengan gambar pertama</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Sesuaikan dengan setiap gambar</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Ukuran jendela:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % dari layar</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Maksimum:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Nama aplikasi</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Nama file</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nama, posisi, dan dimensi</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nama, posisi, dimensi, ukuran file, dan zoom</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Bilah judul:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Sembunyikan penunjuk yang diam setelah:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Sembunyikan setelah:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Tampilan panel dan overlay</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Tayangan slide (%1), waktu per gambar:</translation>
@@ -400,6 +493,30 @@
         <translation>Warna &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Perintah</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Pintasan</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Pintasan:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatif:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Bawaan untuk Perintah Ini</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Bawaan untuk Semua Perintah</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Pulihkan Bawaan</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Pertahankan zoom untuk gambar berikutnya (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Diambil dari: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>Tampilkan di Pengelola File</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Aplikasi Lain…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Ganti Nama…</translation>
     </message>
@@ -760,6 +891,22 @@
         <translation>Sesuaikan dengan Jendela</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Sesuaikan dengan Lebar</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Sesuaikan dengan Tinggi</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Isi Jendela</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Kunci Zoom</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Ukuran Sebenarnya (100 %)</translation>
@@ -790,11 +937,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Balik Horizontal</translation>
+        <translation>Cerminkan Horizontal</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Balik Vertikal</translation>
+        <translation>Cerminkan Vertikal</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -835,8 +982,8 @@
         <translation>Tayangan slide</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Tentang imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Tentang ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>Buka Terbaru</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Buka Dengan</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Tidak dapat memulai “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Aplikasi tidak ditemukan</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoom dikunci: gambar berikutnya mempertahankannya</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Kunci zoom dibuka</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Menampilkan setiap gambar sebagaimana ditentukan oleh filenya, dengan warna yang dapat Anda verifikasi, dalam SDR dan HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Cepat dan minimalis, aplikasi ini membuka lebih dari 50 format di Windows, macOS, dan Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>Tidak ada gambar tersisa di folder ini.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Penampil gambar dengan fidelitas warna SDR dan HDR yang dapat diverifikasi.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

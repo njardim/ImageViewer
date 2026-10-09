@@ -88,13 +88,24 @@
         <translation>HEIC-kuvat vaativat Microsoftin laajennukset ”HEIF Image Extensions” ja ”HEVC Video Extensions” Microsoft Storesta.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC-kuvat vaativat HEVC-dekooderin, jota imageViewer ei sisällä tässä järjestelmässä (patentit); muunna ne ensin toiseen muotoon.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC-kuvat vaativat HEVC-dekooderin, jota ImageViewer ei sisällä tässä järjestelmässä (patentit); muunna ne ensin toiseen muotoon.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekooderi kesti yli %1 s ja pysäytettiin</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Valitse sovellus</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Sovellukset (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Muista ikkunan koko ja sijainti</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Sovita ikkunaan</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Sovita leveyteen</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Sovita korkeuteen</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Täytä ikkuna</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Uuden kuvan zoomaus:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Suurenna ikkunaa pienemmät kuvat</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Säilytä koko</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Sovita ensimmäiseen kuvaan</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Sovita jokaiseen kuvaan</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Ikkunan koko:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % näytöstä</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Enintään:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Sovelluksen nimi</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Tiedostonimi</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nimi, sijainti ja mitat</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nimi, sijainti, mitat, tiedostokoko ja zoomaus</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Otsikkopalkki:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Paikallaan olevan osoittimen piilotusviive:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Ikkuna</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Korosta pikselit, joita leikkaus tai sävykartoitus on muuttanut (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Ei koskaan</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Kentät:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Paneelin ja peittokerroksen ulkoasu</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Väri &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komento</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Pikanäppäimet</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Pikanäppäin:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Vaihtoehtoinen:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Tämän komennon oletukset</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Kaikkien komentojen oletukset</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Palauta oletukset</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Säilytä zoomaus seuraavissa kuvissa (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Otettu komennoilta: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Näytä tiedostonhallinnassa</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Muu sovellus…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Nimeä uudelleen…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Sovita ikkunaan</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Sovita leveyteen</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Sovita korkeuteen</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Täytä ikkuna</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Lukitse zoomaus</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Diaesitys</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Tietoja ohjelmasta imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Tietoja ohjelmasta ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Avaa viimeisimmät</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Avaa sovelluksella</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Sovellusta ”%1” ei voi käynnistää.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Sovelluksia ei löytynyt</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Avaa kuva</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zoomaus lukittu: seuraavat kuvat säilyttävät sen</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zoomauksen lukitus poistettu</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Näyttää jokaisen kuvan sellaisena kuin sen tiedosto sen määrittelee, tarkistettavilla väreillä, SDR- ja HDR-tilassa.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Nopea ja minimalistinen, avaa yli 50 tiedostomuotoa järjestelmissä Windows, macOS ja Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Nimetty uudelleen: ”%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Kuvankatselin, jonka värintoiston tarkkuus on todennettavissa sekä SDR- että HDR-tilassa.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

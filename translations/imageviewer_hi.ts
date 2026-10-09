@@ -88,13 +88,24 @@
         <translation>HEIC छवियों के लिए Microsoft Store से Microsoft के “HEIF Image Extensions” और “HEVC Video Extensions” आवश्यक हैं।</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC छवियों के लिए HEVC डिकोडर आवश्यक है, जिसे imageViewer इस सिस्टम पर शामिल नहीं करता (पेटेंट); पहले उन्हें किसी अन्य प्रारूप में बदलें।</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC छवियों के लिए HEVC डिकोडर आवश्यक है, जिसे ImageViewer इस सिस्टम पर शामिल नहीं करता (पेटेंट); पहले उन्हें किसी अन्य प्रारूप में बदलें।</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>डिकोडर ने %1 से. से अधिक समय लिया और उसे रोक दिया गया</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>एप्लिकेशन चुनें</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>एप्लिकेशन (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>कभी नहीं</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> सेकंड</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>विंडो में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>चौड़ाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>ऊँचाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>विंडो भरें</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>नई छवि का ज़ूम:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>विंडो से छोटी छवियाँ बड़ी करें</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>आकार वही रखें</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>पहली छवि के अनुसार फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>हर छवि के अनुसार फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>विंडो का आकार:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % स्क्रीन का</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>अधिकतम:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>एप्लिकेशन का नाम</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>फ़ाइल का नाम</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>नाम, स्थिति और आयाम</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>नाम, स्थिति, आयाम, फ़ाइल का आकार और ज़ूम</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>टाइटल बार:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>स्थिर पॉइंटर इसके बाद छिपाएँ:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>इसके बाद छिपाएँ:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>पैनल और ओवरले का रूप</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>अगली और पिछली छवियाँ पहले से लोड करें</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>स्लाइड शो (%1), प्रति छवि समय:</translation>
@@ -400,6 +493,30 @@
         <translation>रंग &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>कमांड</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>शॉर्टकट</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>शॉर्टकट:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>वैकल्पिक:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>इस कमांड के डिफ़ॉल्ट</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>सभी कमांड के डिफ़ॉल्ट</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ठीक है</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>डिफ़ॉल्ट पुनर्स्थापित करें</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>अगली छवियों के लिए ज़ूम बनाए रखें (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>इनसे लिया गया: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>फ़ाइल प्रबंधक में दिखाएँ</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>अन्य एप्लिकेशन…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>नाम बदलें…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>विंडो में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>चौड़ाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>ऊँचाई में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>विंडो भरें</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>ज़ूम लॉक करें</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>स्लाइड शो</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer के बारे में</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer के बारे में</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>हाल की फ़ाइलें खोलें</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>इसके साथ खोलें</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” शुरू नहीं किया जा सका।</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>कोई एप्लिकेशन नहीं मिला</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>ज़ूम लॉक किया गया: अगली छवियाँ इसे बनाए रखेंगी</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>ज़ूम अनलॉक किया गया</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>हर छवि को वैसे ही दिखाता है जैसा उसकी फ़ाइल परिभाषित करती है, ऐसे रंगों के साथ जिन्हें आप सत्यापित कर सकते हैं, SDR और HDR दोनों में।</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>तेज़ और न्यूनतम, यह Windows, macOS और Linux पर 50 से अधिक फ़ॉर्मैट खोलता है।</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>इस फ़ोल्डर में कोई छवि शेष नहीं है।</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>सत्यापन योग्य SDR और HDR रंग सटीकता वाला छवि व्यूअर।</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

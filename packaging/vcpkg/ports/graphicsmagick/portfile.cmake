@@ -1,9 +1,9 @@
-# imageViewer overlay (D-38): see vcpkg.json. Derived from the vcpkg baseline port
+# ImageViewer overlay (D-38): see vcpkg.json. Derived from the vcpkg baseline port
 # (434307da, 1.3.45); without delegate libraries its dependencies patch is not needed.
 vcpkg_download_distfile(ARCHIVE
     URLS "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/${VERSION}/GraphicsMagick-${VERSION}.tar.xz"
     FILENAME "GraphicsMagick-${VERSION}.tar.xz"
-    SHA512 baf4f82794628a116b568c2932bb1bf7c36ba89d0cb51fdd0209ad655f05883ae711319e5cc43cce09642aa3fc4b711731be00393f757eeb038440e15cc4437d
+    SHA512 ad721c9b57fe94a1d46a6d051156c5072d24742d974650c9200877b813d3a36d2154a8c25c40af3d06fb8f91c0fa4688905b52f49f49ea2c87d627bedb101d3a
 )
 vcpkg_extract_source_archive(SOURCE_PATH ARCHIVE "${ARCHIVE}")
 
@@ -27,7 +27,7 @@ vcpkg_make_configure(
         # No absolute paths compiled in: an installed build looks for its configuration
         # (delegates.mgk names external programs to run) in the build machine's prefix,
         # a path that may exist, and be writable by others, on a user's computer. Not
-        # installed, it looks only around the client path imageViewer's worker gives it.
+        # installed, it looks only around the client path ImageViewer's worker gives it.
         --disable-installed
         # 16 bits per sample: DICOM, MIFF, VIFF and others keep their depth.
         --with-quantum-depth=16
@@ -35,7 +35,7 @@ vcpkg_make_configure(
         --without-modules
         --without-magick-plus-plus
         --without-perl
-        # No delegate library at all: the formats they cover are decoded by imageViewer's
+        # No delegate library at all: the formats they cover are decoded by ImageViewer's
         # own back ends, and the decode worker allows none of their coders.
         --without-bzlib
         --without-fpx

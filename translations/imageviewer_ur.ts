@@ -88,13 +88,24 @@
         <translation>HEIC تصاویر کے لیے Microsoft Store سے Microsoft کی “HEIF Image Extensions” اور “HEVC Video Extensions” درکار ہیں۔</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC تصاویر کے لیے HEVC ڈی کوڈر درکار ہے، جو imageViewer اس سسٹم پر شامل نہیں کرتا (پیٹنٹس)؛ پہلے انہیں کسی دوسرے فارمیٹ میں تبدیل کریں۔</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC تصاویر کے لیے HEVC ڈی کوڈر درکار ہے، جو ImageViewer اس سسٹم پر شامل نہیں کرتا (پیٹنٹس)؛ پہلے انہیں کسی دوسرے فارمیٹ میں تبدیل کریں۔</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>ڈی کوڈر نے %1 سیکنڈ سے زیادہ وقت لیا اور اسے روک دیا گیا</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>ایپلیکیشن منتخب کریں</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>ایپلیکیشنز (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>کبھی نہیں</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> سیکنڈ</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>ونڈو میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>چوڑائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>اونچائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>ونڈو کو بھریں</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>نئی تصویر کا زوم:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>ونڈو سے چھوٹی تصاویر کو بڑا کریں</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>سائز برقرار رکھیں</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>پہلی تصویر کے مطابق فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>ہر تصویر کے مطابق فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>ونڈو کا سائز:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % اسکرین کا</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>زیادہ سے زیادہ:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>ایپلیکیشن کا نام</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>فائل کا نام</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>نام، مقام اور ابعاد</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>نام، مقام، ابعاد، فائل کا سائز اور زوم</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>ٹائٹل بار:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>ساکن پوائنٹر اتنی دیر بعد چھپائیں:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>اتنی دیر بعد چھپائیں:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>پینل اور اوورلے کی شکل</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>اگلی اور پچھلی تصاویر پہلے سے لوڈ کریں</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>سلائیڈ شو (%1)، فی تصویر وقت:</translation>
@@ -400,6 +493,30 @@
         <translation>رنگ &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>کمانڈ</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>شارٹ کٹس</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>شارٹ کٹ:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>متبادل:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>اس کمانڈ کے ڈیفالٹس</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>تمام کمانڈز کے ڈیفالٹس</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ٹھیک ہے</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ڈیفالٹس بحال کریں</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>اگلی تصاویر کے لیے زوم برقرار رکھیں (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>ان سے لیا گیا: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>فائل مینیجر میں دکھائیں</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>دوسری ایپلیکیشن…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>نام تبدیل کریں…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>ونڈو میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>چوڑائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>اونچائی میں فٹ کریں</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>ونڈو کو بھریں</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>زوم لاک کریں</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>سلائیڈ شو</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>imageViewer کے بارے میں</translation>
+        <source>About ImageViewer</source>
+        <translation>ImageViewer کے بارے میں</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>حالیہ کھولیں</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>اس کے ساتھ کھولیں</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>“%1” شروع نہیں کیا جا سکا۔</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>کوئی ایپلیکیشن نہیں ملی</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>زوم لاک ہو گیا: اگلی تصاویر اسے برقرار رکھیں گی</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>زوم ان لاک ہو گیا</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>ہر تصویر کو ویسا ہی دکھاتا ہے جیسا اس کی فائل بیان کرتی ہے، ایسے رنگوں کے ساتھ جنہیں آپ تصدیق کر سکتے ہیں، SDR اور HDR دونوں میں۔</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>تیز اور سادہ، یہ Windows، macOS اور Linux پر 50 سے زیادہ فارمیٹس کھولتا ہے۔</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>اس فولڈر میں کوئی تصویر باقی نہیں رہی۔</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>SDR اور HDR میں قابلِ تصدیق رنگی درستگی کے ساتھ تصاویر دیکھنے کا پروگرام۔</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

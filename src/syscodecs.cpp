@@ -1,5 +1,5 @@
 // The operating system's decoders (decision D-39): HEIC/HEIF through ImageIO on macOS and WIC
-// on Windows, whose HEVC decoders are licensed with the system. imageViewer ships no HEVC
+// on Windows, whose HEVC decoders are licensed with the system. ImageViewer ships no HEVC
 // decoder; where the system has none, the message says how to add one.
 #include "decoders.h"
 
@@ -108,7 +108,7 @@ QString missingHevcMessage()
     return QCoreApplication::translate("Image", "HEIC images need Microsoft's “HEIF Image Extensions” and “HEVC Video "
                                                 "Extensions”, from the Microsoft Store.");
 #else
-    return QCoreApplication::translate("Image", "HEIC images need an HEVC decoder, which imageViewer does not include on "
+    return QCoreApplication::translate("Image", "HEIC images need an HEVC decoder, which ImageViewer does not include on "
                                                 "this system (patents); convert them to another format first.");
 #endif
 }

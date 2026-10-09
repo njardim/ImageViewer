@@ -88,13 +88,24 @@
         <translation>تحتاج صور HEIC إلى إضافتي Microsoft ‏«HEIF Image Extensions» و«HEVC Video Extensions» من Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>تحتاج صور HEIC إلى مفكّك ترميز HEVC، لا يتضمّنه imageViewer على هذا النظام (براءات اختراع)؛ حوّلها أولاً إلى تنسيق آخر.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>تحتاج صور HEIC إلى مفكّك ترميز HEVC، لا يتضمّنه ImageViewer على هذا النظام (براءات اختراع)؛ حوّلها أولاً إلى تنسيق آخر.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>استغرق مفكّك الترميز أكثر من %1 ث فأُوقف</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>اختيار تطبيق</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>التطبيقات (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>أبداً</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> ث</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>ملاءمة النافذة</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>ملاءمة العرض</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>ملاءمة الارتفاع</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>ملء النافذة</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>التكبير عند فتح صورة جديدة:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>تكبير الصور الأصغر من النافذة</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>الإبقاء على حجمها</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>ملاءمتها للصورة الأولى</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>ملاءمتها لكل صورة</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>حجم النافذة:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % من الشاشة</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>الحد الأقصى:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>اسم التطبيق</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>اسم الملف</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>الاسم والموضع والأبعاد</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>الاسم والموضع والأبعاد وحجم الملف والتكبير</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>شريط العنوان:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>إخفاء المؤشر الساكن بعد:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>الإخفاء بعد:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>مظهر اللوحة والتراكب</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>تحميل الصورة التالية والسابقة مسبقاً</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>عرض الشرائح (%1)، الوقت لكل صورة:</translation>
@@ -400,6 +493,30 @@
         <translation>الألوان &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>الأمر</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>الاختصارات</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>الاختصار:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>اختصار بديل:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>الافتراضي لهذا الأمر</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>الافتراضي لجميع الأوامر</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>موافق</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>استعادة الإعدادات الافتراضية</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>الاحتفاظ بالتكبير للصور التالية (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>أُخذ من: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>إظهار في مدير الملفات</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>تطبيق آخر…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>إعادة تسمية…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>ملاءمة النافذة</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>ملاءمة العرض</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>ملاءمة الارتفاع</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>ملء النافذة</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>قفل التكبير</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>عرض الشرائح</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>حول imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>حول ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>فتح الأخيرة</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>فتح باستخدام</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>تعذر تشغيل «%1».</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>لم يتم العثور على تطبيقات</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>تم قفل التكبير: ستحتفظ به الصور التالية</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>تم إلغاء قفل التكبير</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>يعرض كل صورة كما يحددها ملفها، بألوان يمكنك التحقق منها، في SDR وHDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>سريع وبسيط، يفتح أكثر من 50 تنسيقًا على Windows وmacOS وLinux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>لم تعد هناك صور في هذا المجلد.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>عارض صور بدقة ألوان SDR وHDR قابلة للتحقق.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

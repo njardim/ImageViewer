@@ -2,14 +2,22 @@
 // the context menu, and the dialogs. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "openwith.h"
+
 #include "formats.h"
 
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QGridLayout>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMetaEnum>
+#include <QPushButton>
 #include <QStandardPaths>
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
 
@@ -32,27 +40,42 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
 {
     using C = Command;
     using K = QKeySequence;
-    // Ctrl is Command on macOS. Single keys follow the viewer conventions; the shortcuts with
-    // modifiers follow the platforms' (copy, quit, settings, trash).
+    // The convention of D-48 (Ctrl is Command on macOS): single keys for viewing and navigating;
+    // Shift + a key for that key's second command (its reverse or its alternative); Ctrl for the
+    // platforms' application commands (files, clipboard, undo, settings, quit, zoom) and resets;
+    // never Alt. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the
+    // F keys, forward Delete) is never a command's only shortcut. The first shortcut is the one
+    // menus show, so macOS lists its own first.
+#ifdef Q_OS_MACOS
+    constexpr bool mac = true;
+#else
+    constexpr bool mac = false;
+#endif
+    const auto either = [](bool first, const K &a, const K &b) { return first ? QList<K>{a, b} : QList<K>{b, a}; };
     static const QList<CommandInfo> table = {
         {C::Open, {K(Qt::CTRL | Qt::Key_O)}, false},
         {C::ClearRecent, {}, false},
         {C::ShowInFolder, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_E)}, false},
+        {C::OpenWithOther, {}, false},
         {C::CopyImage, {K(Qt::CTRL | Qt::Key_C)}, false},
         {C::CopyPath, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_C)}, false},
-        {C::Rename, {K(Qt::Key_F2)}, false},
-        {C::MoveToTrash, {K(Qt::Key_Delete), K(Qt::CTRL | Qt::Key_Backspace)}, false},
-        {C::DeletePermanently, {K(Qt::SHIFT | Qt::Key_Delete)}, false},
+        {C::Rename, either(mac, K(Qt::Key_Return), K(Qt::Key_F2)), false},
+        {C::MoveToTrash, either(mac, K(Qt::CTRL | Qt::Key_Backspace), K(Qt::Key_Delete)), false},
+        {C::DeletePermanently, either(mac, K(Qt::CTRL | Qt::SHIFT | Qt::Key_Backspace), K(Qt::SHIFT | Qt::Key_Delete)), false},
         {C::UndoTrash, {K(Qt::CTRL | Qt::Key_Z)}, false},
         {C::Settings, {K(Qt::CTRL | Qt::Key_Comma)}, false},
-        {C::Quit, {K(Qt::CTRL | Qt::Key_Q)}, false},
+        {C::Quit, {K(Qt::Key_Q), K(Qt::CTRL | Qt::Key_Q)}, false}, // Ctrl/⌘+Q: the platforms' own
         {C::Previous, {K(Qt::Key_Left), K(Qt::Key_PageUp), K(Qt::Key_Backspace)}, true},
         {C::Next, {K(Qt::Key_Right), K(Qt::Key_PageDown), K(Qt::Key_Space)}, true},
-        {C::First, {K(Qt::Key_Home)}, false},
-        {C::Last, {K(Qt::Key_End)}, false},
+        {C::First, {K(Qt::SHIFT | Qt::Key_Left), K(Qt::Key_Home)}, false},
+        {C::Last, {K(Qt::SHIFT | Qt::Key_Right), K(Qt::Key_End)}, false},
         {C::ZoomIn, {K(Qt::Key_Plus), K(Qt::Key_Equal), K(Qt::CTRL | Qt::Key_Plus), K(Qt::CTRL | Qt::Key_Equal)}, true},
         {C::ZoomOut, {K(Qt::Key_Minus), K(Qt::CTRL | Qt::Key_Minus)}, true},
         {C::Fit, {K(Qt::Key_0), K(Qt::CTRL | Qt::Key_0)}, false},
+        {C::FitWidth, {K(Qt::Key_W)}, false},
+        {C::FitHeight, {K(Qt::SHIFT | Qt::Key_W)}, false},
+        {C::Fill, {}, false},
+        {C::LockZoom, {K(Qt::Key_L)}, false},
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
         {C::Info, {K(Qt::Key_I)}, false},
@@ -96,6 +119,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::MoveToTrash: return m_settings.confirmTrash ? tr("Move to Trash…") : tr("Move to Trash");
     case Command::UndoTrash: return tr("Undo Move to Trash");
 #endif
+    case Command::OpenWithOther: return tr("Other Application…");
     case Command::Rename: return tr("Rename…");
     case Command::DeletePermanently: return tr("Delete Permanently…");
     case Command::CopyImage: return tr("Copy Image");
@@ -109,6 +133,10 @@ QString ViewerWindow::commandText(Command command) const
     case Command::ZoomIn: return tr("Zoom In");
     case Command::ZoomOut: return tr("Zoom Out");
     case Command::Fit: return tr("Fit to Window");
+    case Command::FitWidth: return tr("Fit to Width");
+    case Command::FitHeight: return tr("Fit to Height");
+    case Command::Fill: return tr("Fill Window");
+    case Command::LockZoom: return tr("Lock Zoom");
     //: "100 %" is a zoom percentage; write the percent sign as your language does.
     case Command::ActualSize: return tr("Actual Size (100 %)");
     case Command::FullScreen: return tr("Full Screen");
@@ -130,7 +158,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::PreviousFrame: return tr("Previous Frame");
     case Command::NextFrame: return tr("Next Frame");
     case Command::Slideshow: return tr("Slideshow");
-    case Command::About: return tr("About imageViewer");
+    case Command::About: return tr("About ImageViewer");
     case Command::AboutQt: return tr("About Qt");
     }
     return {};
@@ -147,6 +175,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     const bool hasImage = m_image.width > 0;
     switch (command) {
     case Command::ShowInFolder:
+    case Command::OpenWithOther:
     case Command::CopyPath: return !m_image.path.isEmpty();
     case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyBusy;
     case Command::Rename:
@@ -165,6 +194,9 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::ZoomIn:
     case Command::ZoomOut:
     case Command::Fit:
+    case Command::FitWidth:
+    case Command::FitHeight:
+    case Command::Fill:
     case Command::ActualSize:
     case Command::RotateClockwise:
     case Command::RotateCounterclockwise:
@@ -181,12 +213,17 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
 {
     *checkable = true;
     switch (command) {
+    case Command::Fit: return m_fit == FitMode::Window;
+    case Command::FitWidth: return m_fit == FitMode::Width;
+    case Command::FitHeight: return m_fit == FitMode::Height;
+    case Command::Fill: return m_fit == FitMode::Fill;
+    case Command::LockZoom: return m_settings.lockZoom;
     case Command::FullScreen: return visibility() == QWindow::FullScreen;
-    case Command::Info: return m_showInfo;
+    case Command::Info: return m_settings.showInfo;
     case Command::InfoOverlay: return topOverlayMode() != OverlayVisibility::Hidden;
     case Command::Checkerboard: return m_settings.checkerboard;
-    case Command::ToneMap: return m_toneMap;
-    case Command::ClipWarning: return m_clipWarning;
+    case Command::ToneMap: return m_settings.toneMap;
+    case Command::ClipWarning: return m_settings.clipWarning;
     case Command::PlayPause: return m_animationPaused;
     case Command::Slideshow: return m_slideshow;
     default: *checkable = false; return false;
@@ -202,6 +239,7 @@ void ViewerWindow::execute(Command command)
         editRecentFiles([](QStringList &recent) { recent.clear(); });
         break;
     case Command::ShowInFolder: showInFolder(); break;
+    case Command::OpenWithOther: openWithOtherApplication(); break;
     case Command::CopyImage: copyImage(); break;
     case Command::CopyPath: copyPath(); break;
     case Command::Rename: renameFile(); break;
@@ -222,7 +260,11 @@ void ViewerWindow::execute(Command command)
         break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
     case Command::ZoomOut: zoomAt(1.0 / kZoomStep, centre); break;
-    case Command::Fit: setFit(); break;
+    case Command::Fit: setFit(FitMode::Window); break;
+    case Command::FitWidth: setFit(FitMode::Width); break;
+    case Command::FitHeight: setFit(FitMode::Height); break;
+    case Command::Fill: setFit(FitMode::Fill); break;
+    case Command::LockZoom: toggleLockZoom(); break;
     case Command::ActualSize: setActualSize(); break;
     case Command::FullScreen: toggleFullScreen(); break;
     case Command::Info: toggleInfo(); break;
@@ -246,31 +288,41 @@ void ViewerWindow::execute(Command command)
     }
 }
 
+QString ViewerWindow::commandKey(Command command)
+{
+    return QString::fromLatin1(QMetaEnum::fromType<Command>().valueToKey(int(command)));
+}
+
+QList<QKeySequence> ViewerWindow::shortcutsFor(Command command) const
+{
+    const auto user = m_settings.shortcuts.constFind(commandKey(command));
+    if (user != m_settings.shortcuts.cend())
+        return *user;
+    const auto &table = commands();
+    const auto it = std::find_if(table.cbegin(), table.cend(), [command](const CommandInfo &i) { return i.command == command; });
+    return it != table.cend() ? it->shortcuts : QList<QKeySequence>();
+}
+
 bool ViewerWindow::executeShortcut(QKeyEvent *e)
 {
     // Every combination this press stands for on the current keyboard layout, as Qt's own
     // shortcuts see it (on AZERTY the "1" key types "&" and gives 1 with Shift).
+    // The key as pressed is tried first: Shift+1 on a US keyboard is "!" before it is "1".
     QList<QKeyCombination> candidates = QKeyMapper::possibleKeys(e);
     candidates.prepend(e->keyCombination());
-    QList<QKeyCombination> pressed;
     for (const QKeyCombination candidate : std::as_const(candidates)) {
-        Qt::KeyboardModifiers modifiers = candidate.keyboardModifiers() & ~(Qt::KeypadModifier | Qt::GroupSwitchModifier);
-        const Qt::Key key = candidate.key();
-        // "+", "-" and the digits need Shift on many layouts: they match with or without it.
-        if (key == Qt::Key_Plus || key == Qt::Key_Minus || key == Qt::Key_Equal || (key >= Qt::Key_0 && key <= Qt::Key_9))
-            modifiers &= ~Qt::ShiftModifier;
-        pressed << QKeyCombination(modifiers, key);
-    }
-    for (const CommandInfo &info : commands()) {
-        for (const QKeySequence &shortcut : info.shortcuts) {
-            if (shortcut.count() != 1 || !pressed.contains(shortcut[0]))
-                continue;
-            // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
-            if (!e->isAutoRepeat() || info.repeats) {
-                if (isCommandEnabled(info.command))
-                    execute(info.command);
+        const QKeyCombination pressed = comparableKey(candidate);
+        for (const CommandInfo &info : commands()) {
+            for (const QKeySequence &shortcut : shortcutsFor(info.command)) {
+                if (shortcut.count() != 1 || comparableKey(shortcut[0]) != pressed)
+                    continue;
+                // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
+                if (!e->isAutoRepeat() || info.repeats) {
+                    if (isCommandEnabled(info.command))
+                        execute(info.command);
+                }
+                return true;
             }
-            return true;
         }
     }
     return false;
@@ -279,10 +331,8 @@ bool ViewerWindow::executeShortcut(QKeyEvent *e)
 void ViewerWindow::addCommand(QMenu *menu, Command command)
 {
     QAction *action = menu->addAction(commandText(command));
-    const auto &table = commands();
-    const auto it = std::find_if(table.cbegin(), table.cend(), [command](const CommandInfo &i) { return i.command == command; });
-    if (it != table.cend() && !it->shortcuts.isEmpty()) {
-        action->setShortcuts(it->shortcuts);
+    if (const QList<QKeySequence> shortcuts = shortcutsFor(command); !shortcuts.isEmpty()) {
+        action->setShortcuts(shortcuts);
         action->setShortcutVisibleInContextMenu(true);
     }
     bool checkable = false;
@@ -305,16 +355,39 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     // Not checked for existence here (a network path can take seconds): openFile() reports
     // a missing file and drops it from the list.
     for (const QString &file : std::as_const(m_recent)) {
-        QString label = QFileInfo(file).fileName();
+        QString label = displayFileName(QFileInfo(file).fileName());
         label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
         QAction *action = recent->addAction(label);
-        action->setToolTip(QDir::toNativeSeparators(file));
+        // A file name is never markup: Qt would render "<font size=7>…" in a plain tooltip.
+        action->setToolTip(QStringLiteral("<p style='white-space:pre'>%1</p>")
+                               .arg(displayFileName(QDir::toNativeSeparators(file)).toHtmlEscaped()));
         connect(action, &QAction::triggered, this, [this, file] { openFile(file); });
     }
     if (!recent->isEmpty())
         recent->addSeparator();
     addCommand(recent, Command::ClearRecent);
     addCommand(&menu, Command::ShowInFolder);
+    // The applications are looked up when the submenu opens (a scan of the system's registry).
+    QMenu *openWithMenu = menu.addMenu(tr("Open With"));
+    openWithMenu->setEnabled(isCommandEnabled(Command::OpenWithOther));
+    connect(openWithMenu, &QMenu::aboutToShow, this, [this, openWithMenu] {
+        if (!openWithMenu->isEmpty())
+            return;
+        const QString file = m_image.path;
+        const QList<OpenWithApp> apps = openWithApps(file);
+        for (const OpenWithApp &app : apps) {
+            QString label = app.name;
+            label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
+            connect(openWithMenu->addAction(label), &QAction::triggered, this, [this, app, file] {
+                if (!openWith(app, file))
+                    showNotice(tr("Cannot start “%1”.").arg(app.name));
+            });
+        }
+        if (apps.isEmpty())
+            openWithMenu->addAction(tr("No applications found"))->setEnabled(false);
+        openWithMenu->addSeparator();
+        addCommand(openWithMenu, Command::OpenWithOther);
+    });
     menu.addSeparator();
     addCommand(&menu, Command::CopyImage);
     addCommand(&menu, Command::CopyPath);
@@ -328,10 +401,17 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     QMenu *view = menu.addMenu(tr("View"));
     addCommand(view, Command::ZoomIn);
     addCommand(view, Command::ZoomOut);
+    view->addSeparator();
     addCommand(view, Command::Fit);
+    addCommand(view, Command::FitWidth);
+    addCommand(view, Command::FitHeight);
+    addCommand(view, Command::Fill);
     addCommand(view, Command::ActualSize);
+    addCommand(view, Command::LockZoom);
     view->addSeparator();
     addCommand(view, Command::FullScreen);
+    addCommand(view, Command::Slideshow);
+    view->addSeparator();
     addCommand(view, Command::Info);
     addCommand(view, Command::InfoOverlay);
     addCommand(view, Command::Checkerboard);
@@ -358,8 +438,6 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     go->addSeparator();
     addCommand(go, Command::First);
     addCommand(go, Command::Last);
-    go->addSeparator();
-    addCommand(go, Command::Slideshow);
     go->addSeparator();
     addCommand(go, Command::PlayPause);
     addCommand(go, Command::PreviousFrame);
@@ -419,9 +497,28 @@ void ViewerWindow::toggleCheckerboard()
     requestUpdate();
 }
 
+void ViewerWindow::toggleLockZoom()
+{
+    const bool on = !m_settings.lockZoom;
+    savePreference([on](Settings &s) { s.lockZoom = on; });
+    showNotice(on ? tr("Zoom locked: the next images keep it") : tr("Zoom unlocked"));
+}
+
 void ViewerWindow::showSettings()
 {
-    SettingsDialog dialog(m_settings);
+    SettingsDialog dialog(m_settings, [this] {
+        QList<ShortcutCommand> list;
+        for (const CommandInfo &info : commands()) {
+            QString name = commandText(info.command);
+            // Outside their submenu, "Clear Menu" and "Other Application…" need its title.
+            if (info.command == Command::ClearRecent)
+                name = tr("Open Recent") + QStringLiteral(" › ") + name;
+            else if (info.command == Command::OpenWithOther)
+                name = tr("Open With") + QStringLiteral(" › ") + name;
+            list.append({commandKey(info.command), name, info.shortcuts});
+        }
+        return list;
+    });
     makeTransient(dialog, this);
     // Apply and OK both deliver the values here; Cancel keeps whatever Apply already applied.
     connect(&dialog, &SettingsDialog::applied, this, &ViewerWindow::applySettings);
@@ -430,18 +527,31 @@ void ViewerWindow::showSettings()
 
 void ViewerWindow::showAbout()
 {
-    QMessageBox box;
-    box.setWindowTitle(tr("About imageViewer"));
-    box.setTextFormat(Qt::RichText);
-    box.setTextInteractionFlags(Qt::TextBrowserInteraction);
-    box.setText(QStringLiteral("<h3>imageViewer %1</h3><p>%2</p><p>© 2026 Cristallumnis, Lda.<br>%3</p><p>%4</p>"
-                               "<p><a href=\"https://github.com/njardim/ImageViewer\">github.com/njardim/ImageViewer</a></p>")
-                    .arg(QCoreApplication::applicationVersion().toHtmlEscaped(),
-                         tr("Image viewer with verifiable SDR and HDR color fidelity."),
-                         tr("Licensed under the Apache License, Version 2.0."),
-                         tr("The licenses of the third-party components are in the <i>third-party</i> folder "
-                            "installed with the application.")));
-    box.addButton(tr("OK"), QMessageBox::AcceptRole);
-    makeTransient(box, this);
-    box.exec();
+    QDialog dialog;
+    dialog.setWindowTitle(tr("About ImageViewer"));
+    auto *layout = new QGridLayout(&dialog);
+    // The application's logo goes here, 256 × 256 logical pixels.
+    auto *logo = new QLabel;
+    logo->setFixedSize(256, 256);
+    layout->addWidget(logo, 0, 0, Qt::AlignTop);
+    auto *text = new QLabel(
+        QStringLiteral("<h3>ImageViewer %1</h3><p>%2<br>%3</p><p>© 2026 Cristallumnis, Lda.<br>%4</p><p>%5</p>"
+                       "<p><a href=\"https://github.com/njardim/ImageViewer\">github.com/njardim/ImageViewer</a></p>")
+            .arg(QCoreApplication::applicationVersion().toHtmlEscaped(),
+                 tr("Shows every image as its file defines it, with colors you can verify, in SDR and HDR."),
+                 tr("Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux."),
+                 tr("Licensed under the Apache License, Version 2.0."),
+                 tr("The licenses of the third-party components are in the <i>third-party</i> folder "
+                    "installed with the application.")));
+    text->setTextFormat(Qt::RichText);
+    text->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    text->setOpenExternalLinks(true);
+    text->setWordWrap(true);
+    text->setMinimumWidth(500);
+    layout->addWidget(text, 0, 1, Qt::AlignTop);
+    auto *buttons = new QDialogButtonBox;
+    connect(buttons->addButton(tr("OK"), QDialogButtonBox::AcceptRole), &QPushButton::clicked, &dialog, &QDialog::accept);
+    layout->addWidget(buttons, 1, 0, 1, 2);
+    makeTransient(dialog, this);
+    dialog.exec();
 }

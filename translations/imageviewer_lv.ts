@@ -88,13 +88,24 @@
         <translation>HEIC attēliem ir nepieciešami Microsoft paplašinājumi “HEIF Image Extensions” un “HEVC Video Extensions” no Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>HEIC attēliem ir nepieciešams HEVC dekodētājs, ko imageViewer šajā sistēmā neietver (patenti); vispirms pārveidojiet tos citā formātā.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>HEIC attēliem ir nepieciešams HEVC dekodētājs, ko ImageViewer šajā sistēmā neietver (patenti); vispirms pārveidojiet tos citā formātā.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>dekodētājs strādāja ilgāk par %1 s un tika apturēts</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Izvēlēties lietojumprogrammu</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Lietojumprogrammas (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Atcerēties loga izmēru un pozīciju</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Ietilpināt logā</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Pielāgot platumam</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Pielāgot augstumam</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Aizpildīt logu</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Jaunā attēla tālummaiņa:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Palielināt attēlus, kas ir mazāki par logu</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Saglabāt izmēru</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Pielāgot pirmajam attēlam</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Pielāgot katram attēlam</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Loga izmērs:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % no ekrāna</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Ne vairāk kā:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Lietojumprogrammas nosaukums</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Faila nosaukums</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Nosaukums, pozīcija un izmēri</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Nosaukums, pozīcija, izmēri, faila izmērs un tālummaiņa</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Virsraksta josla:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Paslēpt nekustīgu rādītāju pēc:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Logs</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Iezīmēt pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (magenta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Nekad</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Lauki:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Paneļa un pārklājuma izskats</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Krāsas &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Komanda</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Īsinājumtaustiņi</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Īsinājumtaustiņš:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Alternatīvs:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Šīs komandas noklusējumi</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Visu komandu noklusējumi</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Labi</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Atjaunot noklusējumus</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Saglabāt tālummaiņu nākamajiem attēliem (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Ņemts no: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Rādīt failu pārvaldniekā</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Cita lietojumprogramma…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Pārdēvēt…</translation>
     </message>
@@ -766,6 +897,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>Ietilpināt logā</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>Pielāgot platumam</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Pielāgot augstumam</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Aizpildīt logu</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Bloķēt tālummaiņu</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -843,8 +990,8 @@
         <translation>Slīdrāde</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Par imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Par ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Atvērt nesenos</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Atvērt ar</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Nevar palaist “%1”.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Lietojumprogrammas nav atrastas</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Atvērt attēlu</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Tālummaiņa bloķēta: nākamie attēli to saglabā</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Tālummaiņa atbloķēta</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Attēlo katru attēlu tā, kā to nosaka tā fails, ar pārbaudāmām krāsām, SDR un HDR režīmā.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Ātrs un minimālistisks, atver vairāk nekā 50 formātu sistēmās Windows, macOS un Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Pārdēvēts par “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Attēlu skatītājs ar pārbaudāmu SDR un HDR krāsu precizitāti.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

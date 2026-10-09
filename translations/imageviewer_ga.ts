@@ -88,13 +88,24 @@
         <translation>Teastaíonn síntí Microsoft “HEIF Image Extensions” agus “HEVC Video Extensions” ó Microsoft Store le haghaidh íomhánna HEIC.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Teastaíonn díchódóir HEVC le haghaidh íomhánna HEIC, rud nach bhfuil san áireamh in imageViewer ar an gcóras seo (paitinní); tiontaigh go formáid eile iad ar dtús.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Teastaíonn díchódóir HEVC le haghaidh íomhánna HEIC, rud nach bhfuil san áireamh in ImageViewer ar an gcóras seo (paitinní); tiontaigh go formáid eile iad ar dtús.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>thóg an díchódóir níos mó ná %1 s agus stopadh é</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Roghnaigh feidhmchlár</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Feidhmchláir (*.app)</translation>
     </message>
 </context>
 <context>
@@ -245,8 +256,85 @@
         <translation>Cuimhnigh ar mhéid agus ar shuíomh na fuinneoige</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>Oiriúnaigh don fhuinneog</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>Oiriúnaigh don leithead</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>Oiriúnaigh don airde</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Líon an fhuinneog</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Zúmáil íomhá nua:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Méadaigh íomhánna atá níos lú ná an fhuinneog</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Coinnigh a méid</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>Oiriúnaigh í don chéad íomhá</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>Oiriúnaigh í do gach íomhá</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Méid na fuinneoige:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation>% den scáileán</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Ar a mhéad:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Ainm an fheidhmchláir</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Ainm an chomhaid</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Ainm, suíomh agus toisí</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Ainm, suíomh, toisí, méid an chomhaid agus zúmáil</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Barra teidil:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Folaigh pointeoir gan bogadh tar éis:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fuinneog</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Aibhsigh picteilíní a athraíodh trí ghearradh nó mapáil toin (maigeanta)</translation>
     </message>
     <message>
         <source>Show the information panel (%1)</source>
@@ -268,6 +356,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Riamh</translation>
     </message>
     <message>
@@ -293,6 +382,10 @@
     <message>
         <source>Fields:</source>
         <translation>Réimsí:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Cuma an phainéil agus an fhorleagain</translation>
     </message>
     <message>
         <source> %</source>
@@ -400,6 +493,30 @@
         <translation>Dath &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Ordú</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Aicearraí</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Aicearra:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Malartach:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>Réamhshocrú don ordú seo</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>Réamhshocruithe do gach ordú</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Athchóirigh na réamhshocruithe</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Coinnigh an zúmáil do na híomhánna ina dhiaidh seo (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Tógtha ó: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -716,6 +843,10 @@
         <translation>Taispeáin sa bhainisteoir comhad</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Feidhmchlár eile…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Athainmnigh…</translation>
     </message>
@@ -768,6 +899,22 @@
         <translation>Oiriúnaigh don fhuinneog</translation>
     </message>
     <message>
+        <source>Fit to Width</source>
+        <translation>Oiriúnaigh don leithead</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>Oiriúnaigh don airde</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Líon an fhuinneog</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Glasáil an zúmáil</translation>
+    </message>
+    <message>
         <source>Actual Size (100 %)</source>
         <extracomment>&quot;100 %&quot; is a zoom percentage; write the percent sign as your language does.</extracomment>
         <translation>Fíormhéid (100 %)</translation>
@@ -798,11 +945,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Smeach go cothrománach</translation>
+        <translation>Scáthánaigh go cothrománach</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Smeach go hingearach</translation>
+        <translation>Scáthánaigh go hingearach</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -843,8 +990,8 @@
         <translation>Taispeántas sleamhnán</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>Maidir le imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>Maidir le ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -853,6 +1000,18 @@
     <message>
         <source>Open Recent</source>
         <translation>Oscail le déanaí</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Oscail le</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Ní féidir “%1” a thosú.</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Níor aimsíodh aon fheidhmchlár</translation>
     </message>
     <message>
         <source>Image</source>
@@ -879,6 +1038,22 @@
     <message>
         <source>Open Image</source>
         <translation>Oscail íomhá</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Zúmáil glasáilte: coinneoidh na híomhánna ina dhiaidh seo í</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Zúmáil díghlasáilte</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Taispeánann gach íomhá mar a shainmhíníonn a comhad í, le dathanna is féidir leat a fhíorú, in SDR agus HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Tapa agus íostach, osclaíonn sé níos mó ná 50 formáid ar Windows, macOS agus Linux.</translation>
     </message>
     <message>
         <source>Copying the image…</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>Renamed to “%1”</source>
         <translation>Athainmníodh mar “%1”</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Amharcán íomhánna le dílseacht datha infhíoraithe i SDR agus i HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

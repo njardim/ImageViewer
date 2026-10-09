@@ -231,7 +231,7 @@ const char *decoderName(Decoder d)
     case Decoder::Jxl: return "libjxl";
     case Decoder::WebP: return "libwebp";
     case Decoder::Apng: return "APNG";
-    case Decoder::Softimage: return "imageViewer";
+    case Decoder::Softimage: return "ImageViewer";
     case Decoder::Heif: return "libheif";
     case Decoder::Qt: return "Qt";
     case Decoder::System: return "system";
@@ -286,7 +286,17 @@ bool oiioMayRead(const Format &format)
     if (std::strcmp(format.id, "iff") == 0)
         return false; // writes past its tile buffers on damaged tiles; 3.0 rewrote it with checked spans
 #endif
+#if OIIO_VERSION < OIIO_MAKE_VERSION(3, 2, 0)
+    if (std::strcmp(format.id, "fits") == 0)
+        return false; // reads a colour FITS (one plane per channel, NAXIS3) as a volume; 3.2 reads the planes
+#endif
     return true;
+}
+
+bool oiioMayReadContent(QByteArrayView head)
+{
+    return std::none_of(kFormats.begin(), kFormats.end(),
+                        [head](const Format &f) { return f.signature && !oiioMayRead(f) && f.signature(head); });
 }
 
 bool isAvailable(const Format &format)

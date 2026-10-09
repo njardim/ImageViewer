@@ -88,13 +88,24 @@
         <translation>Для изображений HEIC нужны расширения Microsoft «HEIF Image Extensions» и «HEVC Video Extensions» из Microsoft Store.</translation>
     </message>
     <message>
-        <source>HEIC images need an HEVC decoder, which imageViewer does not include on this system (patents); convert them to another format first.</source>
-        <translation>Для изображений HEIC нужен декодер HEVC, которого imageViewer в этой системе не содержит (патенты); сначала преобразуйте их в другой формат.</translation>
+        <source>HEIC images need an HEVC decoder, which ImageViewer does not include on this system (patents); convert them to another format first.</source>
+        <translation>Для изображений HEIC нужен декодер HEVC, которого ImageViewer в этой системе не содержит (патенты); сначала преобразуйте их в другой формат.</translation>
     </message>
     <message>
         <source>the decoder took longer than %1 s and was stopped</source>
         <extracomment>%1: seconds, e.g. &quot;30&quot;.</extracomment>
         <translation>декодер работал дольше %1 с и был остановлен</translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith</name>
+    <message>
+        <source>Choose an Application</source>
+        <translation>Выбор приложения</translation>
+    </message>
+    <message>
+        <source>Applications (*.app)</source>
+        <translation>Приложения (*.app)</translation>
     </message>
 </context>
 <context>
@@ -268,6 +279,7 @@
     </message>
     <message>
         <source>Never</source>
+        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
         <translation>Никогда</translation>
     </message>
     <message>
@@ -317,8 +329,85 @@
         <translation> с</translation>
     </message>
     <message>
+        <source>Fit to the window</source>
+        <translation>По размеру окна</translation>
+    </message>
+    <message>
+        <source>Fit to the width</source>
+        <translation>По ширине окна</translation>
+    </message>
+    <message>
+        <source>Fit to the height</source>
+        <translation>По высоте окна</translation>
+    </message>
+    <message>
+        <source>Fill the window</source>
+        <translation>Заполнить окно</translation>
+    </message>
+    <message>
+        <source>Zoom of a new image:</source>
+        <translation>Масштаб нового изображения:</translation>
+    </message>
+    <message>
+        <source>Enlarge images smaller than the window</source>
+        <translation>Увеличивать изображения, которые меньше окна</translation>
+    </message>
+    <message>
+        <source>Keep its size</source>
+        <translation>Сохранять размер</translation>
+    </message>
+    <message>
+        <source>Fit it to the first image</source>
+        <translation>По первому изображению</translation>
+    </message>
+    <message>
+        <source>Fit it to every image</source>
+        <translation>По каждому изображению</translation>
+    </message>
+    <message>
+        <source>Window size:</source>
+        <translation>Размер окна:</translation>
+    </message>
+    <message>
+        <source> % of the screen</source>
+        <extracomment>Unit after a percentage of the screen&apos;s size; keep the leading space if your language separates it.</extracomment>
+        <translation> % от экрана</translation>
+    </message>
+    <message>
+        <source>At most:</source>
+        <translation>Не более:</translation>
+    </message>
+    <message>
+        <source>The application&apos;s name</source>
+        <translation>Название приложения</translation>
+    </message>
+    <message>
+        <source>The file name</source>
+        <translation>Имя файла</translation>
+    </message>
+    <message>
+        <source>Name, position and dimensions</source>
+        <translation>Имя, позиция и размеры</translation>
+    </message>
+    <message>
+        <source>Name, position, dimensions, file size and zoom</source>
+        <translation>Имя, позиция, размеры, размер файла и масштаб</translation>
+    </message>
+    <message>
+        <source>Title bar:</source>
+        <translation>Заголовок окна:</translation>
+    </message>
+    <message>
+        <source>Hide a still pointer after:</source>
+        <translation>Скрывать неподвижный указатель через:</translation>
+    </message>
+    <message>
         <source>Hide after:</source>
         <translation>Скрывать через:</translation>
+    </message>
+    <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Оформление панели и оверлея</translation>
     </message>
     <message>
         <source>Information</source>
@@ -366,6 +455,10 @@
         <translation>Заранее загружать следующее и предыдущее изображения</translation>
     </message>
     <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Выделять пиксели, изменённые отсечением или тональной компрессией (пурпурный)</translation>
+    </message>
+    <message>
         <source>Slideshow (%1), time per image:</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Слайд-шоу (%1), время на изображение:</translation>
@@ -400,6 +493,30 @@
         <translation>Цвет &amp;&amp; HDR</translation>
     </message>
     <message>
+        <source>Command</source>
+        <translation>Команда</translation>
+    </message>
+    <message>
+        <source>Shortcuts</source>
+        <translation>Горячие клавиши</translation>
+    </message>
+    <message>
+        <source>Shortcut:</source>
+        <translation>Сочетание клавиш:</translation>
+    </message>
+    <message>
+        <source>Alternative:</source>
+        <translation>Альтернативное:</translation>
+    </message>
+    <message>
+        <source>Default for This Command</source>
+        <translation>По умолчанию для этой команды</translation>
+    </message>
+    <message>
+        <source>Defaults for All Commands</source>
+        <translation>По умолчанию для всех команд</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
@@ -414,6 +531,16 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Восстановить значения по умолчанию</translation>
+    </message>
+    <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Сохранять масштаб для следующих изображений (%1)</translation>
+    </message>
+    <message>
+        <source>Taken from: %1</source>
+        <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
+        <translation>Взято у: %1</translation>
     </message>
     <message>
         <source>Background Color</source>
@@ -708,6 +835,10 @@
         <translation>Показать в файловом менеджере</translation>
     </message>
     <message>
+        <source>Other Application…</source>
+        <translation>Другое приложение…</translation>
+    </message>
+    <message>
         <source>Rename…</source>
         <translation>Переименовать…</translation>
     </message>
@@ -758,6 +889,22 @@
     <message>
         <source>Fit to Window</source>
         <translation>По размеру окна</translation>
+    </message>
+    <message>
+        <source>Fit to Width</source>
+        <translation>По ширине окна</translation>
+    </message>
+    <message>
+        <source>Fit to Height</source>
+        <translation>По высоте окна</translation>
+    </message>
+    <message>
+        <source>Fill Window</source>
+        <translation>Заполнить окно</translation>
+    </message>
+    <message>
+        <source>Lock Zoom</source>
+        <translation>Зафиксировать масштаб</translation>
     </message>
     <message>
         <source>Actual Size (100 %)</source>
@@ -835,8 +982,8 @@
         <translation>Слайд-шоу</translation>
     </message>
     <message>
-        <source>About imageViewer</source>
-        <translation>О программе imageViewer</translation>
+        <source>About ImageViewer</source>
+        <translation>О программе ImageViewer</translation>
     </message>
     <message>
         <source>About Qt</source>
@@ -845,6 +992,34 @@
     <message>
         <source>Open Recent</source>
         <translation>Открыть недавние</translation>
+    </message>
+    <message>
+        <source>Open With</source>
+        <translation>Открыть с помощью</translation>
+    </message>
+    <message>
+        <source>Cannot start “%1”.</source>
+        <translation>Не удалось запустить «%1».</translation>
+    </message>
+    <message>
+        <source>No applications found</source>
+        <translation>Приложения не найдены</translation>
+    </message>
+    <message>
+        <source>Zoom locked: the next images keep it</source>
+        <translation>Масштаб зафиксирован: следующие изображения сохранят его</translation>
+    </message>
+    <message>
+        <source>Zoom unlocked</source>
+        <translation>Фиксация масштаба снята</translation>
+    </message>
+    <message>
+        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
+        <translation>Показывает каждое изображение так, как его определяет файл, с проверяемыми цветами, в SDR и HDR.</translation>
+    </message>
+    <message>
+        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
+        <translation>Быстрый и минималистичный, открывает более 50 форматов в Windows, macOS и Linux.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>
@@ -983,10 +1158,6 @@
     <message>
         <source>No images left in this folder.</source>
         <translation>В этой папке не осталось изображений.</translation>
-    </message>
-    <message>
-        <source>Image viewer with verifiable SDR and HDR color fidelity.</source>
-        <translation>Программа просмотра изображений с проверяемой точностью цветопередачи в SDR и HDR.</translation>
     </message>
     <message>
         <source>Licensed under the Apache License, Version 2.0.</source>

@@ -1,6 +1,7 @@
 // AVIF image sequences through libheif's track API (libheif 1.23 or later; decision D-38).
 // Still AVIF images go through OpenImageIO; this reader plays the files whose "ftyp" box
-// names an image sequence ("avis"), as browsers do when a file has both.
+// names an image sequence ("avis"), as browsers do when a file has both. The colour of a
+// still image comes from libheif too: OpenImageIO reads no ICC profile from HEIF files.
 #include "decoders.h"
 
 #include <QCoreApplication>
@@ -21,7 +22,7 @@
 
 namespace {
 
-#ifdef IMAGEVIEWER_HEIF_SEQUENCES
+#ifdef IMAGEVIEWER_HAVE_LIBHEIF
 using color::Descriptor;
 
 // The colour of decoded RGB samples from an nclx box or AV1 colour description (D-22).
@@ -45,29 +46,8 @@ bool describeNclx(const heif_color_profile_nclx &nclx, Descriptor *d)
     return true;
 }
 
-// CICP first, then an ICC profile; false when the image carries neither.
-bool describeImage(const heif_image *image, Descriptor *d)
-{
-    heif_color_profile_nclx *nclx = nullptr;
-    if (heif_image_get_color_profile_type(image) == heif_color_profile_type_nclx
-        && heif_image_get_nclx_color_profile(image, &nclx).code == heif_error_Ok && nclx) {
-        const bool known = describeNclx(*nclx, d);
-        heif_nclx_color_profile_free(nclx);
-        if (known)
-            return true;
-    }
-    const std::size_t size = heif_image_get_raw_color_profile_size(image);
-    if (size > 0 && size < (std::size_t(1) << 26)) {
-        QByteArray icc(qsizetype(size), Qt::Uninitialized);
-        if (heif_image_get_raw_color_profile(image, icc.data()).code == heif_error_Ok) {
-            describeIcc(icc, d);
-            return true;
-        }
-    }
-    return false;
-}
-
-// The same from the file's still image, which encoders write next to the sequence.
+// CICP first, then an ICC profile, from the file's primary image (D-22); false when it carries
+// neither. libheif keeps both colour boxes of an item, which encoders write together.
 bool describeHandle(heif_context *context, Descriptor *d)
 {
     heif_image_handle *handle = nullptr;
@@ -89,6 +69,30 @@ bool describeHandle(heif_context *context, Descriptor *d)
     }
     heif_image_handle_release(handle);
     return known;
+}
+#endif // IMAGEVIEWER_HAVE_LIBHEIF
+
+#ifdef IMAGEVIEWER_HEIF_SEQUENCES
+// CICP first, then an ICC profile; false when the image carries neither.
+bool describeImage(const heif_image *image, Descriptor *d)
+{
+    heif_color_profile_nclx *nclx = nullptr;
+    if (heif_image_get_color_profile_type(image) == heif_color_profile_type_nclx
+        && heif_image_get_nclx_color_profile(image, &nclx).code == heif_error_Ok && nclx) {
+        const bool known = describeNclx(*nclx, d);
+        heif_nclx_color_profile_free(nclx);
+        if (known)
+            return true;
+    }
+    const std::size_t size = heif_image_get_raw_color_profile_size(image);
+    if (size > 0 && size < (std::size_t(1) << 26)) {
+        QByteArray icc(qsizetype(size), Qt::Uninitialized);
+        if (heif_image_get_raw_color_profile(image, icc.data()).code == heif_error_Ok) {
+            describeIcc(icc, d);
+            return true;
+        }
+    }
+    return false;
 }
 
 using ImagePtr = std::unique_ptr<heif_image, decltype(&heif_image_release)>;
@@ -292,6 +296,22 @@ private:
 #endif // IMAGEVIEWER_HEIF_SEQUENCES
 
 } // namespace
+
+bool describeHeifStill(QByteArrayView bytes, color::Descriptor *d)
+{
+#ifdef IMAGEVIEWER_HAVE_LIBHEIF
+    // Only the boxes are parsed: nothing is decoded.
+    const std::unique_ptr<heif_context, decltype(&heif_context_free)> context(heif_context_alloc(), &heif_context_free);
+    return context
+           && heif_context_read_from_memory_without_copy(context.get(), bytes.data(), std::size_t(bytes.size()), nullptr).code
+                  == heif_error_Ok
+           && describeHandle(context.get(), d);
+#else
+    Q_UNUSED(bytes);
+    Q_UNUSED(d);
+    return false;
+#endif
+}
 
 bool heifSequencesAvailable()
 {

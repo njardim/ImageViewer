@@ -1,0 +1,23 @@
+diff --git a/src/heif.imageio/heifinput.cpp b/src/heif.imageio/heifinput.cpp
+index 8f18db4..d631e12 100644
+--- a/src/heif.imageio/heifinput.cpp
++++ b/src/heif.imageio/heifinput.cpp
+@@ -287,8 +287,16 @@ bool
+ HeifInput::read_subimage_spec(int subimage)
+ {
+     // m_item_ids[0] is the primary image; the rest follow in file order.
+-    auto id   = m_item_ids[subimage];
+-    m_ihandle = m_ctx->get_image_handle(id);
++    auto id = m_item_ids[subimage];
++    try {
++        m_ihandle = m_ctx->get_image_handle(id);
++    } catch (const heif::Error& err) {
++        // A damaged file (e.g. an item without properties): an error, not
++        // an exception escaping open() and terminating the program.
++        std::string e = err.get_message();
++        errorfmt("{}", e.empty() ? "unknown exception" : e.c_str());
++        return false;
++    }
+ 
+     m_bitdepth = m_ihandle.get_luma_bits_per_pixel();
+     if (m_bitdepth < 0) {

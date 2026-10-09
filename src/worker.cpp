@@ -1,5 +1,5 @@
 // The decode worker (decision D-38): the long tail of formats goes to GraphicsMagick, which
-// runs only in a separate process, `imageViewer --decode-worker <CODER> <max pixels>`. The
+// runs only in a separate process, `ImageViewer --decode-worker <CODER> <max pixels>`. The
 // viewer sends the file's bytes on standard input; the worker answers with the pixels on
 // standard output. The worker keeps only the coders of the registry (no delegates, no
 // external programs, no pseudo-formats), has pixel, memory and read limits, and is killed
@@ -203,7 +203,7 @@ int runDecodeWorker(int argc, char **argv)
     setrlimit(RLIMIT_CORE, &noCore);
 #endif
     if (argc != 4 || !isAllowedCoder(argv[2])) {
-        std::fprintf(stderr, "usage: imageViewer --decode-worker <coder> <max pixels>\n");
+        std::fprintf(stderr, "usage: ImageViewer --decode-worker <coder> <max pixels>\n");
         return kExitUsage;
     }
     const char *coder = argv[2];
@@ -229,7 +229,7 @@ int runDecodeWorker(int argc, char **argv)
     // GraphicsMagick looks for its configuration files (delegates.mgk, log.mgk) around the
     // directory of the "client" it is given: an empty file in the private working directory
     // the viewer made for this decode (decodeInWorker()), so it finds none.
-    const std::string client = (std::filesystem::current_path() / "bin" / "imageViewer").string();
+    const std::string client = (std::filesystem::current_path() / "bin" / "ImageViewer").string();
     InitializeMagick(std::filesystem::exists(client) ? client.c_str() : argv[0]);
     if (const char *why = keepOnlyAllowedCoders()) {
         std::fprintf(stderr, "cannot restrict the coders and delegates: %s\n", why);
@@ -339,10 +339,10 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     // - coders that look for companion files by a relative name (CUT's palette) find nothing;
     // - GraphicsMagick's temporary files (MAT and DICOM copy data to disk) land here and
     //   go, even when the worker crashes or is stopped;
-    // - "bin/imageViewer", an empty file, is the client path GraphicsMagick searches for
+    // - "bin/ImageViewer", an empty file, is the client path GraphicsMagick searches for
     //   its configuration (delegates.mgk names external programs), as is HOME (~/.magick).
     const QTemporaryDir sandbox;
-    QFile client(sandbox.path() + QStringLiteral("/bin/imageViewer"));
+    QFile client(sandbox.path() + QStringLiteral("/bin/ImageViewer"));
     if (!sandbox.isValid() || !QDir(sandbox.path()).mkdir(QStringLiteral("bin")) || !client.open(QIODevice::WriteOnly)) {
         *error = damaged(format.name);
         return false;

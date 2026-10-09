@@ -2,6 +2,7 @@
 // and input. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include <QApplication>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeyEvent>
@@ -14,12 +15,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <utility>
 
 namespace {
 constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
+constexpr QSize kMinWindowSize(320, 240); // logical pixels; also when the window takes an image's size
 constexpr float kMaxExposureEv = 16.0f;
 constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
@@ -43,10 +46,8 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     Q_UNUSED(vulkan);
     setSurfaceType(QSurface::OpenGLSurface);
 #endif
-    setTitle(QStringLiteral("imageViewer"));
-    setMinimumSize(QSize(320, 240));
-    m_toneMap = m_settings.toneMap;
-    m_showInfo = m_settings.showInfo;
+    setTitle(QStringLiteral("ImageViewer"));
+    setMinimumSize(kMinWindowSize);
     m_renderer.setOutputPreference(m_settings.output);
     m_decodePool.setMaxThreadCount(1);
     m_recent = loadRecentFiles();
@@ -59,6 +60,13 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     connect(&m_topOverlayTimer, &QTimer::timeout, this, [this] {
         m_pointerAtTop = false;
         requestUpdate();
+    });
+    m_pointerTimer.setSingleShot(true);
+    connect(&m_pointerTimer, &QTimer::timeout, this, [this] {
+        if (m_dragging || QApplication::activePopupWidget() || QGuiApplication::modalWindow())
+            return; // never under a press, a menu or a dialog
+        m_pointerHidden = true;
+        updateCursor();
     });
     m_folderTimer.setSingleShot(true);
     m_folderTimer.setInterval(kFolderSettleMs);
@@ -170,7 +178,16 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Close:
         saveSession();
         break;
+    case QEvent::Enter:
+        pointerActive();
+        break;
+    case QEvent::WindowBlocked: // a modal dialog takes the mouse events that would show the pointer
+        m_pointerTimer.stop();
+        if (std::exchange(m_pointerHidden, false))
+            updateCursor();
+        break;
     case QEvent::Leave:
+        m_pointerTimer.stop();
         setHoverZone(Zone::None);
         setPointerAtTop(false);
         break;
@@ -243,7 +260,7 @@ void ViewerWindow::initializeRenderer()
         // Not from inside expose/paint (a nested event loop in the platform's paint callback):
         // report once control is back in the event loop, then exit with an error status.
         QMetaObject::invokeMethod(this, [error] {
-            QMessageBox::critical(nullptr, QStringLiteral("imageViewer"), error);
+            QMessageBox::critical(nullptr, QStringLiteral("ImageViewer"), error);
             QCoreApplication::exit(1);
         }, Qt::QueuedConnection);
         return;
@@ -257,6 +274,15 @@ void ViewerWindow::resizeEvent(QResizeEvent *)
 {
     if (windowStates() == Qt::WindowNoState)
         m_normalGeometry = geometry();
+    // A fitting zoom follows the window: the image point at the centre stays there (a long page
+    // read in Fit to Width keeps its place), then the pan is kept within the image.
+    const QSizeF view = deviceSize();
+    if (m_fit && !m_laidOutIn.isEmpty() && view != m_laidOutIn) {
+        const double before = fitZoom(*m_fit, m_laidOutIn);
+        if (before > 0.0)
+            m_pan *= currentZoom() / before;
+    }
+    m_laidOutIn = view;
     clampPan();
     updateOverlay(); // the fit zoom shown in the overlay may have changed
     updateNavigationButtons();
@@ -271,7 +297,10 @@ void ViewerWindow::moveEvent(QMoveEvent *)
 
 QSizeF ViewerWindow::deviceSize() const
 {
-    return QSizeF(size()) * devicePixelRatio();
+    // What the image is drawn into: at a fractional device pixel ratio the window's size times
+    // the ratio is off by a fraction of a pixel, enough to turn 100 % into 99.9 %.
+    const QSize surface = m_renderer.surfaceSize();
+    return surface.isEmpty() ? QSizeF(size()) * devicePixelRatio() : QSizeF(surface);
 }
 
 QSizeF ViewerWindow::displayedImageSize() const
@@ -280,17 +309,34 @@ QSizeF ViewerWindow::displayedImageSize() const
     return (m_quarterTurns % 2) ? s.transposed() : s;
 }
 
-double ViewerWindow::fitZoom() const
+double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
 {
-    const QSizeF image = displayedImageSize(), view = deviceSize();
+    if (view.isEmpty())
+        view = deviceSize();
+    const QSizeF image = displayedImageSize();
     if (image.isEmpty() || view.isEmpty())
         return 1.0;
-    return std::min({view.width() / image.width(), view.height() / image.height(), 1.0});
+    const double width = view.width() / image.width(), height = view.height() / image.height();
+    double zoom = 1.0;
+    switch (mode) {
+    case FitMode::Window: zoom = std::min(width, height); break;
+    case FitMode::Width: zoom = width; break;
+    case FitMode::Height: zoom = height; break;
+    case FitMode::Fill: zoom = std::max(width, height); break;
+    }
+    if (!m_settings.enlargeSmallImages)
+        zoom = std::min(zoom, 1.0);
+    return std::clamp(zoom, kMinZoom, kMaxZoom);
 }
 
 double ViewerWindow::currentZoom() const
 {
-    return m_fit ? fitZoom() : m_zoom;
+    return m_fit ? fitZoom(*m_fit) : m_zoom;
+}
+
+double ViewerWindow::shownZoom() const
+{
+    return m_image.sourceWidth > 0 ? currentZoom() * m_image.width / m_image.sourceWidth : currentZoom();
 }
 
 QRectF ViewerWindow::imageRect() const
@@ -313,7 +359,7 @@ void ViewerWindow::zoomAt(double factor, const QPointF &devicePos)
     const QPointF newCentre = devicePos - (devicePos - centre) * (to / from);
     m_pan = newCentre - QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
     m_zoom = std::abs(to - 1.0) < 1e-3 ? 1.0 : to; // snap to exact 100 %
-    m_fit = false;
+    m_fit.reset();
     clampPan();
     updateOverlay();
     requestUpdate();
@@ -327,17 +373,60 @@ void ViewerWindow::setActualSize()
     // 100 % when the window shrinks, and become pannable).
     m_pan /= currentZoom();
     m_zoom = 1.0;
-    m_fit = false;
+    m_fit.reset();
     clampPan();
     updateOverlay();
 }
 
-void ViewerWindow::setFit()
+void ViewerWindow::setFit(FitMode mode)
 {
-    m_fit = true;
-    m_pan = {};
+    m_fit = mode;
+    resetPan();
     updateOverlay();
     requestUpdate();
+}
+
+void ViewerWindow::resetPan()
+{
+    // Pushed past the edge and clamped back: the image's top, or its start in reading order.
+    m_pan = {};
+    if (m_fit == FitMode::Width)
+        m_pan.setY(std::numeric_limits<double>::max());
+    else if (m_fit == FitMode::Height)
+        m_pan.setX(QGuiApplication::layoutDirection() == Qt::RightToLeft ? std::numeric_limits<double>::lowest()
+                                                                          : std::numeric_limits<double>::max());
+    clampPan();
+}
+
+bool ViewerWindow::canPan() const
+{
+    const QSizeF image = displayedImageSize() * currentZoom(), view = deviceSize();
+    return image.width() > view.width() + 0.5 || image.height() > view.height() + 0.5;
+}
+
+void ViewerWindow::matchWindowToImage()
+{
+    QScreen *display = screen();
+    if (!display || m_image.width == 0 || (windowStates() & (Qt::WindowMaximized | Qt::WindowFullScreen)))
+        return;
+    // The image at 100 %, within the chosen share of the screen's free area (frame included).
+    const QRect available = display->availableGeometry();
+    const QMargins frame = frameMargins();
+    const QSizeF room = QSizeF(available.width() - frame.left() - frame.right(),
+                               available.height() - frame.top() - frame.bottom())
+                        * (m_settings.windowFitPercent / 100.0);
+    QSizeF size = displayedImageSize() / devicePixelRatio();
+    size *= std::min({1.0, room.width() / size.width(), room.height() / size.height()});
+    // Rounded up: at a fractional device pixel ratio the window must hold every image pixel.
+    const QSize logical(int(std::ceil(size.width() - 1e-6)), int(std::ceil(size.height() - 1e-6)));
+    QRect target(QPoint(), logical.expandedTo(kMinWindowSize).boundedTo(available.size()));
+    // Around the window's centre, moved back onto the screen where it would leave it.
+    target.moveCenter(geometry().center());
+    target.moveLeft(std::clamp(target.left(), available.left() + frame.left(),
+                               std::max(available.left() + frame.left(), available.right() - frame.right() - target.width() + 1)));
+    target.moveTop(std::clamp(target.top(), available.top() + frame.top(),
+                              std::max(available.top() + frame.top(), available.bottom() - frame.bottom() - target.height() + 1)));
+    setGeometry(target);
 }
 
 void ViewerWindow::clampPan()
@@ -357,8 +446,8 @@ Renderer::Frame ViewerWindow::imageFrame() const
 {
     Renderer::Frame frame;
     frame.exposure = std::exp2(m_exposureEv);
-    frame.toneMap = m_toneMap;
-    frame.clipWarning = m_clipWarning;
+    frame.toneMap = m_settings.toneMap;
+    frame.clipWarning = m_settings.clipWarning;
     frame.contentPeak = m_image.maxComponent;
     frame.contentLuminancePeak = m_image.maxLuminance;
     frame.absoluteLuminance = m_image.colour.isAbsolute();
@@ -437,12 +526,13 @@ void ViewerWindow::recoverFromDeviceLoss()
 {
     // Driver reset, update or GPU switch (D3D11 TDR): every GPU object is gone, including
     // the image, whose pixels only lived on the GPU. Rebuild and decode it again.
-    qWarning("imageViewer: graphics device lost; reinitialising the renderer");
+    qWarning("ImageViewer: graphics device lost; reinitialising the renderer");
     m_renderer.releaseResources();
     m_rendererReady = false;
     initializeRenderer();
     if (m_rendererReady) {
         m_topOverlayKey.clear(); // every overlay texture is gone too
+        m_panelKey.clear();
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again
@@ -480,8 +570,25 @@ void ViewerWindow::setHoverZone(Zone zone)
     if (zone == m_hoverZone)
         return;
     m_hoverZone = zone;
-    setCursor(zone == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    updateCursor();
     updateNavigationButtons();
+}
+
+void ViewerWindow::pointerActive()
+{
+    if (m_pointerHidden) {
+        m_pointerHidden = false;
+        updateCursor();
+    }
+    if (m_settings.pointerHideMs > 0)
+        m_pointerTimer.start(m_settings.pointerHideMs);
+    else
+        m_pointerTimer.stop();
+}
+
+void ViewerWindow::updateCursor()
+{
+    setCursor(m_pointerHidden ? Qt::BlankCursor : m_hoverZone == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
 }
 
 void ViewerWindow::savePreference(const std::function<void(Settings &)> &change)
@@ -506,12 +613,18 @@ void ViewerWindow::applySettings(const Settings &settings)
         if (!m_image.path.isEmpty())
             m_imageStale = true;
     }
-    if (settings.toneMap != previous.toneMap)
-        m_toneMap = settings.toneMap;
+    if (settings.pointerHideMs != previous.pointerHideMs)
+        pointerActive();
     if (m_slideshow && settings.slideshowSeconds != previous.slideshowSeconds)
-        m_slideshowTimer.start(settings.slideshowSeconds * 1000); // a running slideshow takes the new interval
-    m_showInfo = settings.showInfo;
+        m_slideshowTimer.start(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes the new interval
     m_renderer.setOutputPreference(settings.output);
+    // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
+    if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)
+        setFit(settings.fitMode);
+    if (settings.windowFit != WindowFit::Never
+        && (settings.windowFit != previous.windowFit || settings.windowFitPercent != previous.windowFitPercent))
+        matchWindowToImage();
+    clampPan(); // "Enlarge small images" can change the fitting zoom
     if (settings.sortBy != previous.sortBy || settings.sortDescending != previous.sortDescending)
         relist();
     else
@@ -535,7 +648,7 @@ void ViewerWindow::flipHorizontal()
     m_mirrored = !m_mirrored;
     if (m_quarterTurns % 2)
         m_quarterTurns = (m_quarterTurns + 2) % 4;
-    requestUpdate();
+    updateOverlay(); // the panel's View row names the transform
 }
 
 void ViewerWindow::flipVertical()
@@ -559,20 +672,19 @@ void ViewerWindow::resetExposure()
 
 void ViewerWindow::toggleToneMap()
 {
-    m_toneMap = !m_toneMap;
+    savePreference([on = !m_settings.toneMap](Settings &s) { s.toneMap = on; });
     updateOverlay();
 }
 
 void ViewerWindow::toggleClipWarning()
 {
-    m_clipWarning = !m_clipWarning;
+    savePreference([on = !m_settings.clipWarning](Settings &s) { s.clipWarning = on; });
     updateOverlay();
 }
 
 void ViewerWindow::toggleInfo()
 {
-    m_showInfo = !m_showInfo;
-    savePreference([on = m_showInfo](Settings &s) { s.showInfo = on; });
+    savePreference([on = !m_settings.showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
 }
 
@@ -593,6 +705,7 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
 
 void ViewerWindow::mousePressEvent(QMouseEvent *e)
 {
+    pointerActive();
     switch (e->button()) {
     case Qt::RightButton:
         showContextMenu(e->globalPosition().toPoint());
@@ -612,13 +725,14 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     m_pressMoved = false;
     m_dragOrigin = e->position();
     m_panOrigin = m_pan;
-    m_dragging = !m_fit;
+    m_dragging = canPan();
     if (m_pressZone != Zone::None)
         updateNavigationButtons(); // pressed look
 }
 
 void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
 {
+    pointerActive();
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         m_dragging = false;
@@ -652,7 +766,7 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
         step(pressed == Zone::Next ? +1 : -1);
     // Refresh unconditionally: the button loses its pressed look even when the zone is unchanged.
     m_hoverZone = released;
-    setCursor(released == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    updateCursor();
     updateNavigationButtons();
 }
 
@@ -675,11 +789,12 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
 {
     // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
+    pointerActive();
     const QPointingDevice *device = e->pointingDevice();
     const bool gesture = e->phase() != Qt::NoScrollPhase
                          || (device && device->type() == QInputDevice::DeviceType::TouchPad);
     if (gesture && !(e->modifiers() & Qt::ControlModifier)) {
-        if (!m_fit) {
+        if (canPan()) {
             const QPointF delta = !e->pixelDelta().isNull() ? QPointF(e->pixelDelta())
                                                             : QPointF(e->angleDelta()) / 8.0; // degrees ~ pixels
             m_pan += delta * devicePixelRatio();

@@ -127,6 +127,10 @@ private:
     void reloadCurrent();               // decode the shown file again, keeping the view
     void setFolder(const QString &folder);
     void relist();                      // folder sorted per the settings, keeping the current file
+    // Lists `folder` on a worker thread (a large folder took half a second) and hands the
+    // sorted files to `done` on this thread, unless a newer listing was started meanwhile.
+    void listFolder(const QString &folder, std::function<void(QStringList)> done);
+    void applyListing(QStringList files);
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
     void addRecentFile(const QString &path);
@@ -247,6 +251,7 @@ private:
     QString m_folder;
     QFileSystemWatcher m_folderWatcher; // the folder and the shown file
     QTimer m_folderTimer;               // changes come in bursts: re-list once they settle
+    quint64 m_listing = 0;              // generation of the latest folder listing
     struct TrashedFile {
         QString original;
         QString inTrash;

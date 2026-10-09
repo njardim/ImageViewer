@@ -51,7 +51,8 @@ public:
         Open, ClearRecent, ShowInFolder, CopyImage, CopyPath,
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
-        ZoomIn, ZoomOut, Fit, ActualSize, FullScreen, Info, InfoOverlay, Checkerboard,
+        ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
+        FullScreen, Info, InfoOverlay, Checkerboard,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,
@@ -87,13 +88,16 @@ private:
 
     QSizeF deviceSize() const;
     QSizeF displayedImageSize() const; // after view rotation
-    double fitZoom() const;
+    double fitZoom(FitMode mode) const;
     double currentZoom() const;
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
     void setActualSize();
-    void setFit();
+    void setFit(FitMode mode);
+    void resetPan();      // centred; a width-fitted image from its top, a height-fitted one from its start
+    bool canPan() const;  // the image is larger than the window
     void clampPan();
+    void matchWindowToImage(); // the window at the image's size, within Settings::windowFitPercent of the screen
     Renderer::Frame imageFrame() const; // colour-related fields of the current frame
     int textureLimit(const QString &path) const; // longest side the GPU texture may have
     void recoverFromDeviceLoss();
@@ -160,6 +164,7 @@ private:
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
     void updateTopOverlay();
+    void updateTitle(); // per Settings::titleMode
     OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
     bool topOverlayVisible() const;
     void setPointerAtTop(bool atTop);
@@ -185,6 +190,7 @@ private:
     void showOpenDialog();
     void toggleTopOverlay();
     void toggleCheckerboard();
+    void toggleLockZoom();
     void showSettings();
     void showAbout();
     bool currentFileIsShown() const; // the displayed image is the current entry of the folder
@@ -264,8 +270,10 @@ private:
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
 
-    bool m_fit = true;
+    // The zoom follows the window in this mode (D-51); without one, it is m_zoom.
+    std::optional<FitMode> m_fit = FitMode::Window;
     double m_zoom = 1.0; // device pixels per image pixel when not fitting
+    bool m_windowMatched = false; // the window took the first image's size (WindowFit::FirstImage)
     QPointF m_pan;       // offset of the image centre from the window centre, device pixels
     int m_quarterTurns = 0;
     bool m_mirrored = false;

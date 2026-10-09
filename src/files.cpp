@@ -387,7 +387,7 @@ void ViewerWindow::renameFile()
     });
     m_files[m_index] = target;
     const QString shownName = displayFileName(QFileInfo(target).fileName());
-    setTitle(QStringLiteral("%1 — imageViewer").arg(shownName));
+    updateTitle();
     showNotice(tr("Renamed to “%1”").arg(shownName));
     relist(); // its place in the sort order may have changed
     if (kept) {

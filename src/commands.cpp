@@ -63,6 +63,10 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::ZoomIn, {K(Qt::Key_Plus), K(Qt::Key_Equal), K(Qt::CTRL | Qt::Key_Plus), K(Qt::CTRL | Qt::Key_Equal)}, true},
         {C::ZoomOut, {K(Qt::Key_Minus), K(Qt::CTRL | Qt::Key_Minus)}, true},
         {C::Fit, {K(Qt::Key_0), K(Qt::CTRL | Qt::Key_0)}, false},
+        {C::FitWidth, {K(Qt::Key_W)}, false},
+        {C::FitHeight, {K(Qt::SHIFT | Qt::Key_W)}, false},
+        {C::Fill, {}, false},
+        {C::LockZoom, {K(Qt::Key_L)}, false},
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
         {C::Info, {K(Qt::Key_I)}, false},
@@ -119,6 +123,10 @@ QString ViewerWindow::commandText(Command command) const
     case Command::ZoomIn: return tr("Zoom In");
     case Command::ZoomOut: return tr("Zoom Out");
     case Command::Fit: return tr("Fit to Window");
+    case Command::FitWidth: return tr("Fit to Width");
+    case Command::FitHeight: return tr("Fit to Height");
+    case Command::Fill: return tr("Fill Window");
+    case Command::LockZoom: return tr("Lock Zoom");
     //: "100 %" is a zoom percentage; write the percent sign as your language does.
     case Command::ActualSize: return tr("Actual Size (100 %)");
     case Command::FullScreen: return tr("Full Screen");
@@ -175,6 +183,9 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::ZoomIn:
     case Command::ZoomOut:
     case Command::Fit:
+    case Command::FitWidth:
+    case Command::FitHeight:
+    case Command::Fill:
     case Command::ActualSize:
     case Command::RotateClockwise:
     case Command::RotateCounterclockwise:
@@ -191,6 +202,11 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
 {
     *checkable = true;
     switch (command) {
+    case Command::Fit: return m_fit == FitMode::Window;
+    case Command::FitWidth: return m_fit == FitMode::Width;
+    case Command::FitHeight: return m_fit == FitMode::Height;
+    case Command::Fill: return m_fit == FitMode::Fill;
+    case Command::LockZoom: return m_settings.lockZoom;
     case Command::FullScreen: return visibility() == QWindow::FullScreen;
     case Command::Info: return m_showInfo;
     case Command::InfoOverlay: return topOverlayMode() != OverlayVisibility::Hidden;
@@ -232,7 +248,11 @@ void ViewerWindow::execute(Command command)
         break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
     case Command::ZoomOut: zoomAt(1.0 / kZoomStep, centre); break;
-    case Command::Fit: setFit(); break;
+    case Command::Fit: setFit(FitMode::Window); break;
+    case Command::FitWidth: setFit(FitMode::Width); break;
+    case Command::FitHeight: setFit(FitMode::Height); break;
+    case Command::Fill: setFit(FitMode::Fill); break;
+    case Command::LockZoom: toggleLockZoom(); break;
     case Command::ActualSize: setActualSize(); break;
     case Command::FullScreen: toggleFullScreen(); break;
     case Command::Info: toggleInfo(); break;
@@ -338,8 +358,13 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     QMenu *view = menu.addMenu(tr("View"));
     addCommand(view, Command::ZoomIn);
     addCommand(view, Command::ZoomOut);
+    view->addSeparator();
     addCommand(view, Command::Fit);
+    addCommand(view, Command::FitWidth);
+    addCommand(view, Command::FitHeight);
+    addCommand(view, Command::Fill);
     addCommand(view, Command::ActualSize);
+    addCommand(view, Command::LockZoom);
     view->addSeparator();
     addCommand(view, Command::FullScreen);
     addCommand(view, Command::Slideshow);
@@ -427,6 +452,13 @@ void ViewerWindow::toggleCheckerboard()
 {
     savePreference([on = !m_settings.checkerboard](Settings &s) { s.checkerboard = on; });
     requestUpdate();
+}
+
+void ViewerWindow::toggleLockZoom()
+{
+    const bool on = !m_settings.lockZoom;
+    savePreference([on](Settings &s) { s.lockZoom = on; });
+    showNotice(on ? tr("Zoom locked: the next images keep it") : tr("Zoom unlocked"));
 }
 
 void ViewerWindow::showSettings()

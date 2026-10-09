@@ -28,6 +28,14 @@ enum class OverlayVisibility { Always, Hover, Hidden };
 // The facts the top overlay can show, in the order the user chose.
 enum class OverlayField { Name, Dimensions, FileSize, Zoom, ColorSpace, Modified, Position, Output };
 
+// How a newly shown image is zoomed (D-51): to fit the window, its width or its height, or to
+// fill it. Images smaller than that stay at 100 % unless Settings::enlargeSmallImages.
+enum class FitMode { Window, Width, Height, Fill };
+// When the window takes the size of the image (D-51).
+enum class WindowFit { Never, FirstImage, EveryImage };
+// What the title bar shows (D-51), from the least to the most.
+enum class TitleMode { Application, Name, Details, Everything };
+
 // Preferences the user sets (Settings dialog and a few toggles that persist).
 struct Settings {
     // General
@@ -38,6 +46,12 @@ struct Settings {
     QColor background = QColor(0x21, 0x21, 0x21); // sRGB; shown at SDR white
     bool checkerboard = false; // checks behind transparent pixels instead of the plain background
     bool rememberGeometry = true;
+    FitMode fitMode = FitMode::Window;
+    bool enlargeSmallImages = false;
+    bool lockZoom = false;           // new images keep the zoom (a toggle, L)
+    WindowFit windowFit = WindowFit::Never;
+    int windowFitPercent = 80;       // largest share of the screen the window takes for an image
+    TitleMode titleMode = TitleMode::Name;
     // Information
     bool showInfo = true;      // the information panel (I)
     OverlayVisibility overlayFullScreen = OverlayVisibility::Hover;
@@ -60,6 +74,8 @@ struct Settings {
     bool toneMap = true;       // BT.2390 tone mapping on at startup
     Renderer::OutputPreference output = Renderer::OutputPreference::Automatic;
 
+    static constexpr int kMinWindowFitPercent = 20;
+    static constexpr int kMaxWindowFitPercent = 100;
     static constexpr int kMinSideZoneWidth = 80;
     static constexpr int kMaxSideZoneWidth = 400;
     static constexpr int kMinSlideshowSeconds = 1;
@@ -159,6 +175,11 @@ private:
     QColor m_background;
     QCheckBox *m_checkerboard = nullptr;
     QCheckBox *m_rememberGeometry = nullptr;
+    QComboBox *m_fitMode = nullptr;
+    QCheckBox *m_enlargeSmall = nullptr;
+    QComboBox *m_windowFit = nullptr;
+    QSpinBox *m_windowFitPercent = nullptr;
+    QComboBox *m_titleMode = nullptr;
     QCheckBox *m_showInfo = nullptr;
     QComboBox *m_overlayFullScreen = nullptr;
     QComboBox *m_overlayWindow = nullptr;

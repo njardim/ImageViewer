@@ -99,8 +99,35 @@ void ViewerWindow::showNotice(const QString &text)
     updateOverlay();
 }
 
+void ViewerWindow::updateTitle()
+{
+    // Facts joined like the top overlay's, most important first; the application last.
+    QStringList parts;
+    if (m_settings.titleMode != TitleMode::Application && !m_image.path.isEmpty()) {
+        const QLocale locale;
+        parts << displayFileName(QFileInfo(m_image.path).fileName());
+        if (m_settings.titleMode >= TitleMode::Details) {
+            if (m_index >= 0 && m_files.value(m_index) == m_image.path)
+                parts << QStringLiteral("%1 / %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
+            if (m_image.width > 0)
+                parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.width), locale.toString(m_image.height));
+        }
+        if (m_settings.titleMode == TitleMode::Everything) {
+            if (m_image.fileSize >= 0)
+                parts << fileSizeText(m_image.fileSize, locale);
+            if (m_image.width > 0)
+                parts << tr("%1 %").arg(zoomNumber(currentZoom(), locale));
+        }
+    }
+    parts << QStringLiteral("imageViewer");
+    const QString text = parts.join(QStringLiteral(" — "));
+    if (text != title())
+        setTitle(text);
+}
+
 void ViewerWindow::updateOverlay()
 {
+    updateTitle();
     if (!m_rendererReady)
         return;
     m_overlayOutput = m_renderer.output().description;

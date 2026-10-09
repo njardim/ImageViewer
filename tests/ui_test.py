@@ -15,7 +15,11 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      Settings saves a change while the dialog stays open, and Cancel keeps it;
   5. Ctrl+Q quits and the session (last file, window geometry) is in the settings file;
   6. after a restart with settings written by 0.1, they still apply and move to [app], and
-     the old default side-zone width (200 px) becomes the new one (100 px).
+     the old default side-zone width (200 px) becomes the new one (100 px);
+  7. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
+     detail on: fit to the window, W fits the width, 1 is 100 %, L keeps it for the next
+     image and L again lets it fit; the window takes an image's size within 50 % of the
+     screen.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -385,6 +389,73 @@ try:
             if not re.search(r"(?m)^backgroundOpacity=70$", text) or not re.search(r"(?m)^outline=true$", text):
                 fail(f"the panels' old default style was not migrated in {settings_file}")
             print("ok   0.1 settings migrated to [app]; old default side zones now 100 px; panels 70 % and outlined")
+
+            # 7. Zoom modes, zoom lock and the title bar (D-51).
+            zoom_dir = os.path.join(work, "zoom")
+            os.makedirs(zoom_dir)
+            for name, size, colour in (("big1.png", (2400, 1800), (200, 60, 30)), ("big2.png", (2400, 1800), (30, 60, 200)),
+                                       ("small.png", (400, 300), (60, 200, 30))):
+                Image.new("RGB", size, colour).save(os.path.join(zoom_dir, name))
+
+            def set_option(text, group, key, value):
+                if re.search(rf"(?m)^\[{group}\]$", text) is None:
+                    text = text.rstrip("\n") + f"\n\n[{group}]\n"
+                section = re.search(rf"(?ms)^\[{group}\]\n.*?(?=^\[|\Z)", text)
+                body = re.sub(rf"(?m)^{key}=.*\n?", "", section.group(0))
+                return text[:section.start()] + body.replace(f"[{group}]\n", f"[{group}]\n{key}={value}\n", 1) + text[section.end():]
+
+            def edit_settings(*options):
+                with open(settings_file, encoding="utf-8") as f:
+                    text = f.read()
+                for group, key, value in options:
+                    text = set_option(text, group, key, value)
+                with open(settings_file, "w", encoding="utf-8") as f:
+                    f.write(text)
+
+            def viewer():
+                for wid in xdotool("search", "--onlyvisible", "--name", "imageViewer$").stdout.split():
+                    name = xdotool("getwindowname", wid).stdout.strip()
+                    info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
+                    return name, int(info["WIDTH"]), int(info["HEIGHT"])
+                return "", 0, 0
+
+            def title_zoom(name, expected):
+                def check():
+                    title, width, height = viewer()
+                    m = re.fullmatch(rf"{re.escape(name)} — [\d,]+ / [\d,]+ — [\d,]+ × [\d,]+ — .+ — ([\d.]+) % — imageViewer",
+                                 title)  # numbers as QLocale writes them: 1,200
+                    want = expected(width, height)
+                    return m is not None and abs(float(m.group(1)) - want) <= 0.06
+                return check
+
+            edit_settings(("window", "title", "everything"))
+            app = subprocess.Popen([exe, os.path.join(zoom_dir, "big1.png")], env=env, stdout=log, stderr=log)
+            fit = lambda w, h: round(min(w / 2400, h / 1800, 1.0) * 100, 1)
+            wait_until("the title shows the name, position, size, file size and fitted zoom", title_zoom("big1.png", fit))
+            xdotool("key", "w")
+            wait_until("W fits the width", title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
+            xdotool("key", "1")
+            wait_until("1 shows 100 %", title_zoom("big1.png", lambda w, h: 100.0))
+            xdotool("key", "l")
+            xdotool("key", "Right")
+            wait_until("with the zoom locked (L), the next image keeps 100 %", title_zoom("big2.png", lambda w, h: 100.0))
+            xdotool("key", "l")
+            xdotool("key", "Left")
+            wait_until("unlocked, an image fits again", title_zoom("big1.png", fit))
+            xdotool("key", "ctrl+q")
+            app.wait(15)
+
+            edit_settings(("window", "matchImage", "every"), ("window", "matchImagePercent", "50"),
+                          ("window", "title", "name"))
+            app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)
+            wait_until("the window takes the size of a small image (400 × 300)",
+                       lambda: viewer() == ("small.png — imageViewer", 400, 300))
+            xdotool("key", "Home")
+            # 2400 × 1800 within 50 % of 1600 × 1000: 800 × 500 at most, so 667 × 500.
+            wait_until("a large image's window stays within 50 % of the screen, with its aspect ratio",
+                       lambda: (lambda t, w, h: t == "big1.png — imageViewer" and abs(w - 667) <= 1 and h == 500)(*viewer()))
+            xdotool("key", "ctrl+q")
+            app.wait(15)
         finally:
             if app.poll() is None:
                 app.terminate()

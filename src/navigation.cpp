@@ -199,7 +199,6 @@ void ViewerWindow::decodeFinished()
 
 void ViewerWindow::showImage(Image image, int limit)
 {
-    setTitle(QStringLiteral("%1 — imageViewer").arg(displayFileName(QFileInfo(image.path).fileName())));
     // The same file again (smaller texture, device loss, language, changed on disk) keeps
     // the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
@@ -215,10 +214,15 @@ void ViewerWindow::showImage(Image image, int limit)
         image.pixels.reset(); // the cache keeps them when preloading is on; the GPU has its copy
         m_image = std::move(image);
         if (!sameFile) {
-            m_fit = true;
-            m_pan = {};
+            if (!m_settings.lockZoom) // a locked zoom (L) carries over to the new image
+                m_fit = m_settings.fitMode;
             m_quarterTurns = 0;
             m_mirrored = false;
+            resetPan();
+            if (m_settings.windowFit == WindowFit::EveryImage
+                || (m_settings.windowFit == WindowFit::FirstImage && !m_windowMatched))
+                matchWindowToImage();
+            m_windowMatched = true;
         }
         clampPan();
         startAnimation(); // or stops the previous one
@@ -310,7 +314,6 @@ void ViewerWindow::applyListing(QStringList files)
         m_image = Image();
         m_renderer.clearImage();
         m_cache.clear();
-        setTitle(QStringLiteral("imageViewer"));
         m_message = tr("No images left in this folder.");
         setHoverZone(Zone::None);
         requestUpdate();
@@ -356,7 +359,6 @@ void ViewerWindow::removeCurrentFromList()
     m_renderer.clearImage();
     if (m_files.isEmpty()) {
         m_index = -1;
-        setTitle(QStringLiteral("imageViewer"));
         m_message = tr("No images left in this folder.");
         setHoverZone(Zone::None);
         updateOverlay();

@@ -14,12 +14,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <utility>
 
 namespace {
 constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
+constexpr QSize kMinWindowSize(320, 240); // logical pixels, when the window takes an image's size
 constexpr float kMaxExposureEv = 16.0f;
 constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
@@ -280,17 +282,27 @@ QSizeF ViewerWindow::displayedImageSize() const
     return (m_quarterTurns % 2) ? s.transposed() : s;
 }
 
-double ViewerWindow::fitZoom() const
+double ViewerWindow::fitZoom(FitMode mode) const
 {
     const QSizeF image = displayedImageSize(), view = deviceSize();
     if (image.isEmpty() || view.isEmpty())
         return 1.0;
-    return std::min({view.width() / image.width(), view.height() / image.height(), 1.0});
+    const double width = view.width() / image.width(), height = view.height() / image.height();
+    double zoom = 1.0;
+    switch (mode) {
+    case FitMode::Window: zoom = std::min(width, height); break;
+    case FitMode::Width: zoom = width; break;
+    case FitMode::Height: zoom = height; break;
+    case FitMode::Fill: zoom = std::max(width, height); break;
+    }
+    if (!m_settings.enlargeSmallImages)
+        zoom = std::min(zoom, 1.0);
+    return std::clamp(zoom, kMinZoom, kMaxZoom);
 }
 
 double ViewerWindow::currentZoom() const
 {
-    return m_fit ? fitZoom() : m_zoom;
+    return m_fit ? fitZoom(*m_fit) : m_zoom;
 }
 
 QRectF ViewerWindow::imageRect() const
@@ -313,7 +325,7 @@ void ViewerWindow::zoomAt(double factor, const QPointF &devicePos)
     const QPointF newCentre = devicePos - (devicePos - centre) * (to / from);
     m_pan = newCentre - QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
     m_zoom = std::abs(to - 1.0) < 1e-3 ? 1.0 : to; // snap to exact 100 %
-    m_fit = false;
+    m_fit.reset();
     clampPan();
     updateOverlay();
     requestUpdate();
@@ -327,17 +339,58 @@ void ViewerWindow::setActualSize()
     // 100 % when the window shrinks, and become pannable).
     m_pan /= currentZoom();
     m_zoom = 1.0;
-    m_fit = false;
+    m_fit.reset();
     clampPan();
     updateOverlay();
 }
 
-void ViewerWindow::setFit()
+void ViewerWindow::setFit(FitMode mode)
 {
-    m_fit = true;
-    m_pan = {};
+    m_fit = mode;
+    resetPan();
     updateOverlay();
     requestUpdate();
+}
+
+void ViewerWindow::resetPan()
+{
+    // Pushed past the edge and clamped back: the image's top, or its start in reading order.
+    m_pan = {};
+    if (m_fit == FitMode::Width)
+        m_pan.setY(std::numeric_limits<double>::max());
+    else if (m_fit == FitMode::Height)
+        m_pan.setX(QGuiApplication::layoutDirection() == Qt::RightToLeft ? std::numeric_limits<double>::lowest()
+                                                                          : std::numeric_limits<double>::max());
+    clampPan();
+}
+
+bool ViewerWindow::canPan() const
+{
+    const QSizeF image = displayedImageSize() * currentZoom(), view = deviceSize();
+    return image.width() > view.width() + 0.5 || image.height() > view.height() + 0.5;
+}
+
+void ViewerWindow::matchWindowToImage()
+{
+    QScreen *display = screen();
+    if (!display || m_image.width == 0 || (windowStates() & (Qt::WindowMaximized | Qt::WindowFullScreen)))
+        return;
+    // The image at 100 %, within the chosen share of the screen's free area (frame included).
+    const QRect available = display->availableGeometry();
+    const QMargins frame = frameMargins();
+    const QSizeF room = QSizeF(available.width() - frame.left() - frame.right(),
+                               available.height() - frame.top() - frame.bottom())
+                        * (m_settings.windowFitPercent / 100.0);
+    QSizeF size = displayedImageSize() / devicePixelRatio();
+    size *= std::min({1.0, room.width() / size.width(), room.height() / size.height()});
+    QRect target(QPoint(), size.toSize().expandedTo(kMinWindowSize).boundedTo(available.size()));
+    // Around the window's centre, moved back onto the screen where it would leave it.
+    target.moveCenter(geometry().center());
+    target.moveLeft(std::clamp(target.left(), available.left() + frame.left(),
+                               std::max(available.left() + frame.left(), available.right() - frame.right() - target.width() + 1)));
+    target.moveTop(std::clamp(target.top(), available.top() + frame.top(),
+                              std::max(available.top() + frame.top(), available.bottom() - frame.bottom() - target.height() + 1)));
+    setGeometry(target);
 }
 
 void ViewerWindow::clampPan()
@@ -512,6 +565,11 @@ void ViewerWindow::applySettings(const Settings &settings)
         m_slideshowTimer.start(settings.slideshowSeconds * 1000); // a running slideshow takes the new interval
     m_showInfo = settings.showInfo;
     m_renderer.setOutputPreference(settings.output);
+    // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
+    if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)
+        setFit(settings.fitMode);
+    if (settings.windowFit != previous.windowFit && settings.windowFit != WindowFit::Never)
+        matchWindowToImage();
     if (settings.sortBy != previous.sortBy || settings.sortDescending != previous.sortDescending)
         relist();
     else
@@ -612,7 +670,7 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     m_pressMoved = false;
     m_dragOrigin = e->position();
     m_panOrigin = m_pan;
-    m_dragging = !m_fit;
+    m_dragging = canPan();
     if (m_pressZone != Zone::None)
         updateNavigationButtons(); // pressed look
 }
@@ -679,7 +737,7 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     const bool gesture = e->phase() != Qt::NoScrollPhase
                          || (device && device->type() == QInputDevice::DeviceType::TouchPad);
     if (gesture && !(e->modifiers() & Qt::ControlModifier)) {
-        if (!m_fit) {
+        if (canPan()) {
             const QPointF delta = !e->pixelDelta().isNull() ? QPointF(e->pixelDelta())
                                                             : QPointF(e->angleDelta()) / 8.0; // degrees ~ pixels
             m_pan += delta * devicePixelRatio();

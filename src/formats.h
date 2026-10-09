@@ -55,6 +55,9 @@ bool isAvailable(const Format &format);
 // False for a format whose OpenImageIO reader in this build crashes on damaged files (D-45):
 // such a file never reaches OpenImageIO, not even as a fallback.
 bool oiioMayRead(const Format &format);
+// False when the file's first bytes are those of such a format, whatever format was detected:
+// OpenImageIO picks its reader by content, so a Softimage PIC named .svg reached it as a fallback.
+bool oiioMayReadContent(QByteArrayView head);
 
 // How many bytes detectFormat() wants from the start of the file.
 inline constexpr qsizetype kFormatHeadBytes = 64 * 1024;

@@ -132,6 +132,16 @@ def softimage():
     header = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"imageViewer test", b"PICT", 6, 4, 1.0, 3, 0)
     packet = bytes([0, 8, 2, 0x80 | 0x40 | 0x20])  # last packet, 8 bits, mixed run length, R G B
     write("orange.pic", header + packet + bytes([128 + 5, 255, 128, 0]) * 4)
+    # Under the names of formats whose signatures they also match ("<svg" in the comment, "DICM"
+    # at byte 128): OpenImageIO, tried after the SVG or DICOM decoder, picked its PIC reader by
+    # content and crashed on the truncated ones (0.4 review). Our own reader decodes the whole one.
+    disguised = struct.pack(">If80s4sHHfHH", 0x5380F634, 3.71, b"<svg>", b"PICT", 6, 4, 1.0, 3, 0) + packet
+    write("pic-named.svg", disguised + bytes([128 + 5, 255, 128, 0]) * 4)
+    write("pic-truncated.svg", disguised + bytes([128 + 5, 255, 128, 0]))
+    dicom = bytearray(header + packet + bytes([128 + 5, 255, 128, 0]))
+    dicom += bytes(132 - len(dicom))
+    dicom[128:132] = b"DICM"
+    write("pic-truncated.dcm", bytes(dicom))
 
 
 # Windows cursor: 16x16, 32-bit BGRA with its AND mask (rows padded to 4 bytes), hotspot

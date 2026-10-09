@@ -291,13 +291,15 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
     out->sourceChannels = nch;
     out->alphaIndex = alpha;
     // Alpha is straight (D-21) except where the format stores colour premultiplied: OpenEXR
-    // always, TIFF when its ExtraSamples says so (straight TIFF alpha comes marked
-    // "oiio:UnassociatedAlpha", as asked in oiioConfig()). Other readers keep the file's
-    // straight values without always saying so (BMP, DDS, ICO, SGI, JPEG 2000).
+    // always, TIFF when its ExtraSamples says so and HEIF/AVIF when the file says so (straight
+    // alpha of those comes marked "oiio:UnassociatedAlpha", as asked in oiioConfig()). Other
+    // readers keep the file's straight values without always saying so (BMP, DDS, ICO, SGI,
+    // JPEG 2000).
     const std::string_view format = in->format_name();
     out->associatedAlpha = alpha >= 0
                            && (format == "openexr"
-                               || (format == "tiff" && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0));
+                               || ((format == "tiff" || format == "heif")
+                                   && spec.get_int_attribute("oiio:UnassociatedAlpha", 0) == 0));
     out->gray = gray;
     // Some readers give the bits of a whole pixel (DDS: 32 for 8-bit RGBA).
     out->bits = std::min(spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8)), int(stored.size() * 8));
@@ -690,8 +692,13 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     QList<Decoder> order;
     if (format && isAvailable(*format))
         order << format->decoder;
-    // A format whose OpenImageIO reader crashes on damaged files never reaches it (D-45).
-    const bool notOiio = format && !oiioMayRead(*format);
+    // Softimage PIC content under another format's name: our reader, as OpenImageIO's must not see it (D-45).
+    for (const Format &f : formats())
+        if (f.decoder == Decoder::Softimage && f.signature && f.signature(head) && !order.contains(f.decoder))
+            order << f.decoder;
+    // A format whose OpenImageIO reader crashes on damaged files never reaches it (D-45), not even
+    // under the name of another format.
+    const bool notOiio = (format && !oiioMayRead(*format)) || !oiioMayReadContent(head);
     for (Decoder general : {Decoder::OpenImageIO, Decoder::Qt})
         if (!order.contains(general) && !(notOiio && general == Decoder::OpenImageIO))
             order << general;

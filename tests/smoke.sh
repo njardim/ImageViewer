@@ -103,6 +103,8 @@ else
 fi
 # Narrow-range AVIF (nclx full_range_flag 0): libheif hands over full-range RGB, which must
 # not be expanded a second time (OpenImageIO 3 passes the flag on as CICP).
+# Colour stored premultiplied, (128, 64, 0) at alpha 128 (libheif, lossless): shown once divided.
+check premultiplied.avif 'pixel\[0,0\]: +1 0\.21[0-9]* 0 a=0\.50' "AVIF premultiplied alpha divided once"
 check narrow.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF narrow range expanded once"
 check blend.png 'frames: +3, loops 2, ms 50 60 70$' "APNG loop count"
 # GIF loops as browsers play them: no NETSCAPE block once, a count N (repeats) N + 1 times.
@@ -168,6 +170,19 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *fits | .* | yes | "; then
     check volume.fits 'size: +6x4' "FITS volume (5 slices) read whole, one slice shown"
     check rows.fits 'pixel\[0,0\]: +0\.215[89][0-9]* 0\.215[89][0-9]* 0\.215[89][0-9]* a=1' "FITS rows bottom first, none shifted"
 fi
+# Softimage PIC content under the name of another format: our PIC reader, never OpenImageIO's,
+# which crashed on the truncated ones (D-45, 0.4 review).
+check pic-named.svg 'codec: +imageViewer \(Softimage PIC\)' "PIC content named .svg read by our PIC reader"
+for f in pic-truncated.svg pic-truncated.dcm; do
+    code=0
+    "$exe" --info "$data/$f" >/dev/null 2>&1 || code=$?
+    if [ "$code" = 1 ]; then
+        echo "ok   $f: a truncated PIC under another name fails cleanly"
+    else
+        echo "FAIL $f: exit $code, expected 1 (OpenImageIO's PIC reader crashes on it)"
+        failures=$((failures + 1))
+    fi
+done
 check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
 check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
 

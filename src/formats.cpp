@@ -293,6 +293,12 @@ bool oiioMayRead(const Format &format)
     return true;
 }
 
+bool oiioMayReadContent(QByteArrayView head)
+{
+    return std::none_of(kFormats.begin(), kFormats.end(),
+                        [head](const Format &f) { return f.signature && !oiioMayRead(f) && f.signature(head); });
+}
+
 bool isAvailable(const Format &format)
 {
     const QString first = format.suffixes().constFirst();

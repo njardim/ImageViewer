@@ -524,6 +524,11 @@
         <translation>Standardwerte wiederherstellen</translation>
     </message>
     <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>Zoom für die nächsten Bilder beibehalten (%1)</translation>
+    </message>
+    <message>
         <source>Taken from: %1</source>
         <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
         <translation>Übernommen von: %1</translation>

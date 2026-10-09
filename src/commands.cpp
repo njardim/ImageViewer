@@ -350,11 +350,12 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     // Not checked for existence here (a network path can take seconds): openFile() reports
     // a missing file and drops it from the list.
     for (const QString &file : std::as_const(m_recent)) {
-        QString label = QFileInfo(file).fileName();
+        QString label = displayFileName(QFileInfo(file).fileName());
         label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
         QAction *action = recent->addAction(label);
         // A file name is never markup: Qt would render "<font size=7>…" in a plain tooltip.
-        action->setToolTip(QStringLiteral("<p style='white-space:pre'>%1</p>").arg(QDir::toNativeSeparators(file).toHtmlEscaped()));
+        action->setToolTip(QStringLiteral("<p style='white-space:pre'>%1</p>")
+                               .arg(displayFileName(QDir::toNativeSeparators(file)).toHtmlEscaped()));
         connect(action, &QAction::triggered, this, [this, file] { openFile(file); });
     }
     if (!recent->isEmpty())

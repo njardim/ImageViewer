@@ -3,7 +3,9 @@
 // Output stage of the colour pipeline (docs/PLAN.md §6.2). Image textures hold
 // linear scRGB (BT.709 primaries, 1.0 = SDR reference white), premultiplied.
 // Overlay textures hold sRGB-encoded UI pixels, premultiplied.
-// color::applyOutputStage() (src/color.cpp) is the CPU reference of this code.
+// color::applyOutputStage() (src/color.cpp) is the CPU reference of the image path.
+// Overlay quads draw without blending: they work out the image underneath again (same texture,
+// same coordinates) and lay every overlay up to their own over it as SDR does (D-49).
 
 layout(location = 0) in vec2 v_texcoord;
 layout(location = 0) out vec4 fragColor;
@@ -16,10 +18,20 @@ layout(std140, binding = 0) uniform Params {
     vec4 background; // rgb: what translucent image pixels composite over (linear, output units)
     vec4 checker;    // xy: checkerboard cells across the texture; z: 1 = on (image layer only)
     vec4 checkerColour; // rgb: colour of every other cell (linear, output units)
-    ivec4 modes; // x: 0 SDR sRGB, 1 linear scRGB/EDR, 2 PQ BT.2020; y: 0 image, 1 overlay; z: clip warning
+    ivec4 modes; // x: 0 SDR sRGB, 1 linear scRGB/EDR, 2 PQ BT.2020; y: unused; z: clip warning;
+                 // w: 1 = framebuffer rows count from the bottom (OpenGL)
+    vec4 outside;   // rgb: the window background where there is no image (linear, output units)
+    vec4 imageRect; // the image on screen, device pixels: x, y, width, height (width 0: none)
+    vec4 uvMap;     // xy: texture coordinates at imageRect's top-left; zw: their change per pixel along x
+    vec4 uvMapY;    // xy: their change per pixel along y; z: target height in pixels
+    vec4 layers[4]; // overlay rectangles, device pixels (width 0: absent), in drawing order
 };
 
-layout(binding = 1) uniform sampler2D tex;
+layout(binding = 1) uniform sampler2D tex; // the image
+layout(binding = 2) uniform sampler2D overlay0;
+layout(binding = 3) uniform sampler2D overlay1;
+layout(binding = 4) uniform sampler2D overlay2;
+layout(binding = 5) uniform sampler2D overlay3;
 
 const int MODE_SDR = 0;
 const int MODE_SCRGB = 1;
@@ -42,6 +54,19 @@ float srgbDecode(float x)
     return x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4);
 }
 
+// The sRGB curve on both sides of [0, 1] (HDR content and negative scRGB under a panel).
+vec3 srgbEncodeExtended(vec3 x)
+{
+    vec3 a = abs(x);
+    return sign(x) * mix(1.055 * pow(a, vec3(1.0 / 2.4)) - 0.055, 12.92 * a, vec3(lessThanEqual(a, vec3(0.0031308))));
+}
+
+vec3 srgbDecodeExtended(vec3 x)
+{
+    vec3 a = abs(x);
+    return sign(x) * mix(pow((a + 0.055) / 1.055, vec3(2.4)), a / 12.92, vec3(lessThanEqual(a, vec3(0.04045))));
+}
+
 vec3 pqEncode(vec3 nits)
 {
     vec3 y = pow(clamp(nits / 10000.0, 0.0, 1.0), vec3(PQ_M1));
@@ -62,31 +87,11 @@ const mat3 BT2020_TO_BT709 = mat3(1.6604910, -0.1245505, -0.0181507,
                                   -0.5876411, 1.1328999, -0.1005789,
                                   -0.0728499, -0.0083494, 1.1187296);
 
-void main()
+// What the image shows at texture coordinates `uv`: linear, output units, before the encoding.
+vec3 displayed(vec2 uv)
 {
-    vec4 texel = texture(tex, v_texcoord);
+    vec4 texel = texture(tex, uv);
     float alpha = texel.a;
-
-    if (modes.y == 1) {
-        // UI pixels sit at SDR white and look as they do in SDR in every output (D-49): blended
-        // in sRGB-encoded space, which the SDR target does by itself. The target blends what this
-        // returns over what lies underneath, weighted by 1 - alpha: in linear outputs (scRGB, EDR)
-        // that weight becomes (1 - a)^2.2, the same darkening in linear light; in PQ, the weight
-        // that darkens SDR white as much (brighter content is darkened slightly more).
-        vec3 ui = vec3(srgbDecode(texel.r), srgbDecode(texel.g), srgbDecode(texel.b)) * adjust.y; // premultiplied
-        float under = pow(1.0 - alpha, 2.2);
-        if (alpha <= 0.0)
-            fragColor = vec4(0.0);
-        else if (modes.x == MODE_SCRGB)
-            fragColor = vec4(ui, 1.0 - under);
-        else if (modes.x == MODE_PQ)
-            fragColor = vec4(pqEncode(max(BT709_TO_BT2020 * ui, vec3(0.0))),
-                             1.0 - pqEncode(vec3(adjust.y * under)).x / pqEncode(vec3(adjust.y)).x);
-        else
-            fragColor = vec4(srgbEncode(ui.r), srgbEncode(ui.g), srgbEncode(ui.b), alpha);
-        return;
-    }
-
     vec3 rgb = alpha > 0.0 ? texel.rgb / alpha : vec3(0.0);
     rgb *= adjust.x * adjust.y;
 
@@ -125,19 +130,61 @@ void main()
     // composites over the plain background, which is what the harness checks.
     vec3 under = background.rgb;
     if (checker.z > 0.5) {
-        vec2 cell = floor(v_texcoord * checker.xy); // float maths: legacy GLSL targets lack integer '&'
+        vec2 cell = floor(uv * checker.xy); // float maths: legacy GLSL targets lack integer '&'
         if (mod(cell.x + cell.y, 2.0) >= 1.0)
             under = checkerColour.rgb;
     }
-    rgb = rgb * alpha + under * (1.0 - alpha);
+    return rgb * alpha + under * (1.0 - alpha);
+}
 
-    vec3 encoded;
+vec3 encodeOutput(vec3 rgb)
+{
     if (modes.x == MODE_SCRGB)
-        encoded = rgb; // negative components keep colours outside BT.709
-    else if (modes.x == MODE_PQ)
-        encoded = pqEncode(max(BT709_TO_BT2020 * rgb, vec3(0.0)));
-    else
-        encoded = vec3(srgbEncode(rgb.r), srgbEncode(rgb.g), srgbEncode(rgb.b));
+        return rgb; // negative components keep colours outside BT.709
+    if (modes.x == MODE_PQ)
+        return pqEncode(max(BT709_TO_BT2020 * rgb, vec3(0.0)));
+    return vec3(srgbEncode(rgb.r), srgbEncode(rgb.g), srgbEncode(rgb.b));
+}
 
-    fragColor = vec4(encoded, 1.0);
+bool within(vec2 p, vec4 r)
+{
+    // Pixel centres on the top or left edge are in, on the bottom or right edge out, as the
+    // rasteriser decides for the image quad.
+    return r.z > 0.0 && p.x >= r.x && p.x < r.x + r.z && p.y >= r.y && p.y < r.y + r.w;
+}
+
+// A UI pixel over `under` as SDR shows it (D-49): blended in sRGB-encoded values relative to
+// SDR white, whatever the output; brighter content underneath follows the same curve.
+vec3 overUi(vec3 under, vec4 ui, bool present)
+{
+    if (!present)
+        return under;
+    vec3 encoded = ui.rgb + srgbEncodeExtended(under / adjust.y) * (1.0 - ui.a);
+    return srgbDecodeExtended(encoded) * adjust.y;
+}
+
+void main()
+{
+    if (v_texcoord.x > -0.5) { // the image quad: coordinates in [0, 1]
+        fragColor = vec4(encodeOutput(displayed(v_texcoord)), 1.0);
+        return;
+    }
+    // Overlay quad number `layer` (its texture coordinates carry -1 - layer).
+    int layer = int(-v_texcoord.x + 0.5) - 1;
+    vec2 p = vec2(gl_FragCoord.x, modes.w != 0 ? uvMapY.z - gl_FragCoord.y : gl_FragCoord.y);
+    // Every texture is read on every pixel of the quad (the same branch for all of them, so the
+    // image's mipmaps get well-defined derivatives); the rectangles choose what counts.
+    vec2 d = p - imageRect.xy;
+    vec3 rgb = displayed(uvMap.xy + d.x * uvMap.zw + d.y * uvMapY.xy);
+    if (!within(p, imageRect))
+        rgb = outside.rgb;
+    vec4 ui0 = texture(overlay0, (p - layers[0].xy) / max(layers[0].zw, vec2(1.0)));
+    vec4 ui1 = texture(overlay1, (p - layers[1].xy) / max(layers[1].zw, vec2(1.0)));
+    vec4 ui2 = texture(overlay2, (p - layers[2].xy) / max(layers[2].zw, vec2(1.0)));
+    vec4 ui3 = texture(overlay3, (p - layers[3].xy) / max(layers[3].zw, vec2(1.0)));
+    rgb = overUi(rgb, ui0, layer >= 0 && within(p, layers[0]));
+    rgb = overUi(rgb, ui1, layer >= 1 && within(p, layers[1]));
+    rgb = overUi(rgb, ui2, layer >= 2 && within(p, layers[2]));
+    rgb = overUi(rgb, ui3, layer >= 3 && within(p, layers[3]));
+    fragColor = vec4(encodeOutput(rgb), 1.0);
 }

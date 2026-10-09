@@ -524,6 +524,11 @@
         <translation>డిఫాల్ట్‌లను పునరుద్ధరించు</translation>
     </message>
     <message>
+        <source>Keep the zoom for the next images (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <translation>తదుపరి చిత్రాలకు జూమ్ కొనసాగించు (%1)</translation>
+    </message>
+    <message>
         <source>Taken from: %1</source>
         <extracomment>%1: names of commands, e.g. &quot;Zoom In&quot;; their shortcut now belongs to the selected command.</extracomment>
         <translation>వీటి నుండి తీసుకున్నది: %1</translation>

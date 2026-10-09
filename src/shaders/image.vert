@@ -13,7 +13,12 @@ layout(std140, binding = 0) uniform Params {
     vec4 background;     // see image.frag
     vec4 checker;        // see image.frag
     vec4 checkerColour;  // see image.frag
-    ivec4 modes;         // x: output mode, y: layer, z: clip warning, w: unused
+    ivec4 modes;         // see image.frag
+    vec4 outside;        // see image.frag
+    vec4 imageRect;
+    vec4 uvMap;
+    vec4 uvMapY;
+    vec4 layers[4];
 };
 
 out gl_PerVertex { vec4 gl_Position; };

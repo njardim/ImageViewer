@@ -125,6 +125,8 @@ void SettingsDialog::buildUi()
     windowForm->addRow(tr("Zoom of a new image:"), m_fitMode);
     m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
     windowForm->addRow(m_enlargeSmall);
+    m_lockZoom = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
+    windowForm->addRow(m_lockZoom);
     m_windowFit = new QComboBox;
     m_windowFit->addItem(tr("Keep its size"), int(WindowFit::Never));
     m_windowFit->addItem(tr("Fit it to the first image"), int(WindowFit::FirstImage));
@@ -426,6 +428,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_rememberGeometry->setChecked(settings.rememberGeometry);
     m_fitMode->setCurrentIndex(std::max(0, m_fitMode->findData(int(settings.fitMode))));
     m_enlargeSmall->setChecked(settings.enlargeSmallImages);
+    m_lockZoom->setChecked(settings.lockZoom);
     m_windowFit->setCurrentIndex(std::max(0, m_windowFit->findData(int(settings.windowFit))));
     m_windowFitPercent->setValue(settings.windowFitPercent);
     m_windowFitPercent->setEnabled(settings.windowFit != WindowFit::Never);
@@ -522,6 +525,8 @@ void SettingsDialog::refreshShortcutTexts()
     m_overlayBox->setTitle(tr("Overlay at the top (%1)").arg(keyName("InfoOverlay")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
     m_slideshowLabel->setText(tr("Slideshow (%1), time per image:").arg(keyName("Slideshow")));
+    //: %1: the keyboard shortcut, e.g. "L". The zoom of the image shown stays for the next ones.
+    m_lockZoom->setText(tr("Keep the zoom for the next images (%1)").arg(keyName("LockZoom")));
 }
 
 void SettingsDialog::showShortcutsOf(int row)
@@ -606,6 +611,7 @@ Settings SettingsDialog::settings() const
     s.rememberGeometry = m_rememberGeometry->isChecked();
     s.fitMode = FitMode(m_fitMode->currentData().toInt());
     s.enlargeSmallImages = m_enlargeSmall->isChecked();
+    s.lockZoom = m_lockZoom->isChecked();
     s.windowFit = WindowFit(m_windowFit->currentData().toInt());
     s.windowFitPercent = m_windowFitPercent->value();
     s.titleMode = TitleMode(m_titleMode->currentData().toInt());

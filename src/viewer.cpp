@@ -21,7 +21,7 @@ namespace {
 constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
-constexpr QSize kMinWindowSize(320, 240); // logical pixels, when the window takes an image's size
+constexpr QSize kMinWindowSize(320, 240); // logical pixels; also when the window takes an image's size
 constexpr float kMaxExposureEv = 16.0f;
 constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
@@ -46,7 +46,7 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     setSurfaceType(QSurface::OpenGLSurface);
 #endif
     setTitle(QStringLiteral("imageViewer"));
-    setMinimumSize(QSize(320, 240));
+    setMinimumSize(kMinWindowSize);
     m_toneMap = m_settings.toneMap;
     m_showInfo = m_settings.showInfo;
     m_renderer.setOutputPreference(m_settings.output);
@@ -259,6 +259,15 @@ void ViewerWindow::resizeEvent(QResizeEvent *)
 {
     if (windowStates() == Qt::WindowNoState)
         m_normalGeometry = geometry();
+    // A fitting zoom follows the window: the image point at the centre stays there (a long page
+    // read in Fit to Width keeps its place), then the pan is kept within the image.
+    const QSizeF view = deviceSize();
+    if (m_fit && !m_laidOutIn.isEmpty() && view != m_laidOutIn) {
+        const double before = fitZoom(*m_fit, m_laidOutIn);
+        if (before > 0.0)
+            m_pan *= currentZoom() / before;
+    }
+    m_laidOutIn = view;
     clampPan();
     updateOverlay(); // the fit zoom shown in the overlay may have changed
     updateNavigationButtons();
@@ -273,7 +282,10 @@ void ViewerWindow::moveEvent(QMoveEvent *)
 
 QSizeF ViewerWindow::deviceSize() const
 {
-    return QSizeF(size()) * devicePixelRatio();
+    // What the image is drawn into: at a fractional device pixel ratio the window's size times
+    // the ratio is off by a fraction of a pixel, enough to turn 100 % into 99.9 %.
+    const QSize surface = m_renderer.surfaceSize();
+    return surface.isEmpty() ? QSizeF(size()) * devicePixelRatio() : QSizeF(surface);
 }
 
 QSizeF ViewerWindow::displayedImageSize() const
@@ -282,9 +294,11 @@ QSizeF ViewerWindow::displayedImageSize() const
     return (m_quarterTurns % 2) ? s.transposed() : s;
 }
 
-double ViewerWindow::fitZoom(FitMode mode) const
+double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
 {
-    const QSizeF image = displayedImageSize(), view = deviceSize();
+    if (view.isEmpty())
+        view = deviceSize();
+    const QSizeF image = displayedImageSize();
     if (image.isEmpty() || view.isEmpty())
         return 1.0;
     const double width = view.width() / image.width(), height = view.height() / image.height();
@@ -303,6 +317,11 @@ double ViewerWindow::fitZoom(FitMode mode) const
 double ViewerWindow::currentZoom() const
 {
     return m_fit ? fitZoom(*m_fit) : m_zoom;
+}
+
+double ViewerWindow::shownZoom() const
+{
+    return m_image.sourceWidth > 0 ? currentZoom() * m_image.width / m_image.sourceWidth : currentZoom();
 }
 
 QRectF ViewerWindow::imageRect() const
@@ -383,7 +402,9 @@ void ViewerWindow::matchWindowToImage()
                         * (m_settings.windowFitPercent / 100.0);
     QSizeF size = displayedImageSize() / devicePixelRatio();
     size *= std::min({1.0, room.width() / size.width(), room.height() / size.height()});
-    QRect target(QPoint(), size.toSize().expandedTo(kMinWindowSize).boundedTo(available.size()));
+    // Rounded up: at a fractional device pixel ratio the window must hold every image pixel.
+    const QSize logical(int(std::ceil(size.width() - 1e-6)), int(std::ceil(size.height() - 1e-6)));
+    QRect target(QPoint(), logical.expandedTo(kMinWindowSize).boundedTo(available.size()));
     // Around the window's centre, moved back onto the screen where it would leave it.
     target.moveCenter(geometry().center());
     target.moveLeft(std::clamp(target.left(), available.left() + frame.left(),
@@ -496,6 +517,7 @@ void ViewerWindow::recoverFromDeviceLoss()
     initializeRenderer();
     if (m_rendererReady) {
         m_topOverlayKey.clear(); // every overlay texture is gone too
+        m_panelKey.clear();
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again
@@ -568,8 +590,10 @@ void ViewerWindow::applySettings(const Settings &settings)
     // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
     if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)
         setFit(settings.fitMode);
-    if (settings.windowFit != previous.windowFit && settings.windowFit != WindowFit::Never)
+    if (settings.windowFit != WindowFit::Never
+        && (settings.windowFit != previous.windowFit || settings.windowFitPercent != previous.windowFitPercent))
         matchWindowToImage();
+    clampPan(); // "Enlarge small images" can change the fitting zoom
     if (settings.sortBy != previous.sortBy || settings.sortDescending != previous.sortDescending)
         relist();
     else
@@ -593,7 +617,7 @@ void ViewerWindow::flipHorizontal()
     m_mirrored = !m_mirrored;
     if (m_quarterTurns % 2)
         m_quarterTurns = (m_quarterTurns + 2) % 4;
-    requestUpdate();
+    updateOverlay(); // the panel's View row names the transform
 }
 
 void ViewerWindow::flipVertical()

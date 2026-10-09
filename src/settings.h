@@ -219,6 +219,7 @@ private:
     QCheckBox *m_rememberGeometry = nullptr;
     QComboBox *m_fitMode = nullptr;
     QCheckBox *m_enlargeSmall = nullptr;
+    QCheckBox *m_lockZoom = nullptr;
     QComboBox *m_windowFit = nullptr;
     QSpinBox *m_windowFitPercent = nullptr;
     QComboBox *m_titleMode = nullptr;

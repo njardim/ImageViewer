@@ -109,14 +109,14 @@ void ViewerWindow::updateTitle()
         if (m_settings.titleMode >= TitleMode::Details) {
             if (m_index >= 0 && m_files.value(m_index) == m_image.path)
                 parts << QStringLiteral("%1 / %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
-            if (m_image.width > 0)
-                parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.width), locale.toString(m_image.height));
+            if (m_image.width > 0) // the file's size, as the panels show it, not the GPU texture's
+                parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth), locale.toString(m_image.sourceHeight));
         }
         if (m_settings.titleMode == TitleMode::Everything) {
             if (m_image.fileSize >= 0)
                 parts << fileSizeText(m_image.fileSize, locale);
             if (m_image.width > 0)
-                parts << tr("%1 %").arg(zoomNumber(currentZoom(), locale));
+                parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
         }
     }
     parts << QStringLiteral("imageViewer");
@@ -141,8 +141,10 @@ void ViewerWindow::updateOverlay()
 
     if (m_showInfo && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
-        rows.append({tr("File"), file.fileName(), !rows.isEmpty()});
-        rows.append({tr("Folder"), QDir::toNativeSeparators(file.absolutePath())});
+        // Names are shown without bidi and other format characters, as in the title: a file
+        // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
+        rows.append({tr("File"), displayFileName(file.fileName()), !rows.isEmpty()});
+        rows.append({tr("Folder"), displayFileName(QDir::toNativeSeparators(file.absolutePath()))});
         if (m_image.fileSize >= 0)
             rows.append({tr("Size"), fileSizeText(m_image.fileSize, locale)});
         if (m_image.modified.isValid())
@@ -231,7 +233,7 @@ void ViewerWindow::updateOverlay()
         QStringList view;
         if (m_image.width > 0) {
             //: A zoom percentage, e.g. "100 %"; write the percent sign as your language does.
-            view << tr("%1 %").arg(zoomNumber(currentZoom(), locale));
+            view << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
             if (m_quarterTurns != 0)
                 //: The view is rotated clockwise by this many degrees.
                 view << tr("rotated %1°").arg(locale.toString(m_quarterTurns * 90));
@@ -277,6 +279,28 @@ void ViewerWindow::updateOverlay()
         }
     }
 
+    const qreal dpr = devicePixelRatio();
+    const QFont font = QGuiApplication::font();
+    // The panel is drawn again only when what it shows changes, not on every animation frame,
+    // wheel step or resize event (each text is drawn nine times with the outline).
+    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
+                      .arg(m_settings.overlayBackgroundOpacity)
+                      .arg(m_settings.overlayTextOpacity)
+                      .arg(m_settings.overlayOutline)
+                      .arg(width())
+                      .arg(height())
+                      .arg(dpr)
+                      .arg(int(QGuiApplication::layoutDirection()))
+                      .arg(font.key());
+    for (const Row &row : std::as_const(rows))
+        key += QChar(0x1e) + row.label + QChar(0x1f) + row.value + (row.gapBefore ? u'+' : u'-');
+    if (key == m_panelKey) {
+        updateTopOverlay();
+        requestUpdate();
+        return;
+    }
+    m_panelKey = key;
+
     if (rows.isEmpty()) {
         m_overlaySize = {};
         m_renderer.setOverlay(Renderer::InfoLayer, QImage());
@@ -285,8 +309,6 @@ void ViewerWindow::updateOverlay()
         return;
     }
 
-    const qreal dpr = devicePixelRatio();
-    const QFont font = QGuiApplication::font();
     const QFontMetricsF metrics(font);
     const qreal padding = 10.0, columnGap = 14.0, sectionGap = 6.0, lineHeight = metrics.height() + 2.0;
     qreal labelWidth = 0, valueWidth = 0, spanWidth = 0, height = 2 * padding - 2.0;
@@ -403,7 +425,7 @@ void ViewerWindow::updateTopOverlay()
             switch (field) {
             case OverlayField::Name:
                 nameIndex = int(parts.size());
-                parts << QFileInfo(m_image.path).fileName();
+                parts << displayFileName(QFileInfo(m_image.path).fileName());
                 break;
             case OverlayField::Dimensions:
                 if (hasImage)
@@ -416,7 +438,7 @@ void ViewerWindow::updateTopOverlay()
                 break;
             case OverlayField::Zoom:
                 if (hasImage)
-                    parts << tr("%1 %").arg(zoomNumber(currentZoom(), locale));
+                    parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
                 break;
             case OverlayField::ColorSpace:
                 if (hasImage)

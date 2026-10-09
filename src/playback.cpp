@@ -12,6 +12,10 @@
 
 #include <algorithm>
 
+namespace {
+constexpr qint64 kPlayingPanelMs = 250;
+} // namespace
+
 void ViewerWindow::startAnimation()
 {
     stopAnimation();
@@ -129,8 +133,12 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
         m_wantedFrame = m_frameIndex + 1; // past the last frame the animation gives the first
         requestFrame(m_wantedFrame);
     }
-    if (m_showInfo)
-        updateOverlay(); // the panel shows the frame number
+    // The panel shows the frame number. While playing it follows four times a second: drawing
+    // the panel (each text nine times with its outline) takes milliseconds, every frame.
+    if (m_showInfo && (m_animationPaused || !m_panelRefreshed.isValid() || m_panelRefreshed.hasExpired(kPlayingPanelMs))) {
+        m_panelRefreshed.start();
+        updateOverlay();
+    }
     requestUpdate();
 }
 

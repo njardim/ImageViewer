@@ -196,18 +196,21 @@ int panelCheck(const RenderOptions &opt, QVulkanInstance *vulkan)
         return 4;
     }
 
-    // Four 16-pixel cells: the background alone, then a label, a value and an outline pixel on it.
-    constexpr int cell = 16, cells = 4;
+    // 16-pixel cells: the background alone, then a label, a value and an outline pixel on it, a
+    // glyph edge (a value half covering the background) and a value at half opacity on nothing.
+    constexpr int cell = 16, cells = 6;
     const QSize size(cell * cells, cell);
     const Settings style; // the defaults
     QImage overlay(size, QImage::Format_RGBA8888_Premultiplied);
     overlay.fill(Qt::transparent);
     {
         QPainter painter(&overlay);
-        painter.fillRect(overlay.rect(), style.panelBackground());
+        painter.fillRect(QRect(0, 0, 5 * cell, cell), style.panelBackground());
         painter.fillRect(QRect(cell, 0, cell, cell), style.panelText(Settings::kPanelLabelGrey));
         painter.fillRect(QRect(2 * cell, 0, cell, cell), style.panelText(Settings::kPanelValueGrey));
         painter.fillRect(QRect(3 * cell, 0, cell, cell), QColor(0, 0, 0, style.panelText(0).alpha()));
+        painter.setOpacity(0.5);
+        painter.fillRect(QRect(4 * cell, 0, 2 * cell, cell), style.panelText(Settings::kPanelValueGrey));
     }
     renderer.setOverlay(Renderer::InfoLayer, overlay);
 
@@ -225,12 +228,23 @@ int panelCheck(const RenderOptions &opt, QVulkanInstance *vulkan)
                     + 0.0593 * color::pqToNits(rgba[2])) / stage.scale;
         return double(color::luminance(rgba[0], rgba[1], rgba[2])) / stage.scale;
     };
+    // What SDR shows (D-49): the premultiplied sRGB-encoded UI pixel over the encoded content,
+    // with the sRGB curve extended above SDR white; relative luminance, 1 = SDR white.
+    const auto sdrLike = [&](int c, float level) {
+        const uchar *texel = overlay.constScanLine(cell / 2) + std::size_t(c * cell + cell / 2) * 4;
+        const float under = color::linearToSrgb(level), keep = 1.0f - texel[3] / 255.0f;
+        float rgb[3];
+        for (int i = 0; i < 3; ++i)
+            rgb[i] = color::srgbToLinear(texel[i] / 255.0f + under * keep);
+        return double(color::luminance(rgb[0], rgb[1], rgb[2]));
+    };
     const auto contrast = [](double a, double b) { return (std::max(a, b) + 0.05) / (std::min(a, b) + 0.05); };
 
     out << "output:    " << output.description << '\n';
     int failures = 0;
     // Over SDR white the labels must read against the panel itself (WCAG AA, 4.5:1); over the
-    // brightest content the output can show, against their outline.
+    // brightest content the output can show, against their outline. Every cell must come out
+    // as SDR would show it.
     for (const float level : {1.0f, stage.peak / stage.scale}) {
         auto pixels = std::make_shared<std::vector<qfloat16>>(std::size_t(size.width()) * size.height() * 4);
         for (std::size_t i = 0; i < pixels->size(); i += 4) {
@@ -240,7 +254,7 @@ int panelCheck(const RenderOptions &opt, QVulkanInstance *vulkan)
         renderer.setImage(pixels, size);
         frame.contentPeak = frame.contentLuminancePeak = level;
         std::vector<float> rgba;
-        if (!renderer.renderToBuffer(frame, output, size, &rgba, &error, true)) {
+        if (!renderer.renderToBuffer(frame, output, size, &rgba, &error)) {
             out << "error: " << error << Qt::endl;
             return 4;
         }
@@ -249,17 +263,17 @@ int panelCheck(const RenderOptions &opt, QVulkanInstance *vulkan)
             y[c] = relativeLuminance(&rgba[(std::size_t(cell / 2) * size.width() + c * cell + cell / 2) * 4]);
         const double labelContrast = contrast(y[1], level <= 1.0f ? y[0] : y[3]);
         out << "under " << level << ": background " << y[0] << ", label " << y[1] << ", value " << y[2]
-            << ", outline " << y[3] << ", label contrast " << labelContrast << " against the "
-            << (level <= 1.0f ? "background" : "outline") << '\n';
+            << ", outline " << y[3] << ", glyph edge " << y[4] << ", half-opaque text " << y[5]
+            << ", label contrast " << labelContrast << " against the " << (level <= 1.0f ? "background" : "outline")
+            << '\n';
         if (!(labelContrast >= 4.5)) {
             out << "FAIL: label contrast below 4.5:1" << '\n';
             ++failures;
         }
-        if (level <= 1.0f) {
-            // As in SDR, where the target blends sRGB-encoded values: black at opacity a over white.
-            const double expected = color::srgbToLinear(1.0f - style.overlayBackgroundOpacity / 100.0f);
-            if (std::abs(y[0] - expected) > 0.005) {
-                out << "FAIL: background " << y[0] << " over SDR white, " << expected << " in SDR" << '\n';
+        for (int c = 0; c < cells; ++c) {
+            const double expected = sdrLike(c, level);
+            if (!(std::abs(y[c] - expected) <= 0.005 * std::max(1.0, expected))) {
+                out << "FAIL: cell " << c << " under " << level << ": " << y[c] << ", " << expected << " as in SDR" << '\n';
                 ++failures;
             }
         }

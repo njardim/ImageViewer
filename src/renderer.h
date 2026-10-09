@@ -117,12 +117,15 @@ public:
     bool takeImageUploadFailure();
 
     // Fidelity harness: draws `frame` with `output` into a float target of `size`
-    // cleared to transparent black and reads it back (RGBA, rows top to bottom). With
-    // `overlays`, the overlay layers are blended as on screen (half-float target).
+    // cleared to transparent black and reads it back (RGBA, rows top to bottom), with the
+    // overlay layers the frame places, as on screen.
     bool renderToBuffer(const Frame &frame, const Output &output, QSize size, std::vector<float> *rgba,
-                        QString *error, bool overlays = false);
+                        QString *error);
 
     const Output &output() const { return m_output; }
+    // The window's surface in device pixels, as the swapchain renders it (not always the window's
+    // size times its device pixel ratio, rounded: fractional ratios); empty before it exists.
+    QSize surfaceSize() const;
     QString backendName() const;
     QString deviceName() const;
     int maxTextureSize() const;
@@ -135,12 +138,13 @@ private:
     bool ensureSwapChain();
     void updateOutput();
     bool outputIsMeasured() const; // hdrInfo comes from the OS, not Qt's built-in defaults
-    QRhiGraphicsPipeline *createPipeline(QRhiRenderPassDescriptor *renderPass, bool blend = true);
+    QRhiGraphicsPipeline *createPipeline(QRhiRenderPassDescriptor *renderPass);
     QRhiResourceUpdateBatch *takeUpdates(); // pending uploads for this frame
-    void bindImageTexture(QRhiTexture *texture);
+    void bindImageTexture(QRhiTexture *texture); // with the overlay textures
+    // `outside`: what the clear colour is in linear output units (overlay quads need it).
     void recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhiGraphicsPipeline *pipeline,
                      QRhiResourceUpdateBatch *updates, const Frame &frame, const Output &output,
-                     const float clearColour[4], QRhiResourceUpdateBatch *afterPass);
+                     const float clearColour[4], const float outside[3], QRhiResourceUpdateBatch *afterPass);
 
     QWindow *m_window;
     QVulkanInstance *m_vulkanInstance = nullptr;
@@ -151,17 +155,16 @@ private:
     QRhiGraphicsPipeline *m_pipeline = nullptr;
     QRhiBuffer *m_vertices = nullptr;
     QRhiBuffer *m_imageUniforms = nullptr;
-    QRhiBuffer *m_overlayUniforms = nullptr;
     QRhiSampler *m_linearSampler = nullptr;
     QRhiSampler *m_nearestSampler = nullptr;
     QRhiSampler *m_overlaySampler = nullptr;
     QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
     QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
+    QRhiTexture *m_boundImage = nullptr;         // the image texture or the placeholder
     QRhiShaderResourceBindings *m_imageBindingsLinear = nullptr;
     QRhiShaderResourceBindings *m_imageBindingsNearest = nullptr;
     struct OverlaySlot {
         QRhiTexture *texture = nullptr;
-        QRhiShaderResourceBindings *bindings = nullptr;
         QImage pending;
         bool isPending = false;
         bool present = false;

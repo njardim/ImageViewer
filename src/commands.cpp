@@ -32,24 +32,34 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
 {
     using C = Command;
     using K = QKeySequence;
-    // Ctrl is Command on macOS. Single keys follow the viewer conventions; the shortcuts with
-    // modifiers follow the platforms' (copy, quit, settings, trash).
+    // The convention of D-48 (Ctrl is Command on macOS): single keys for viewing and navigating;
+    // Shift + a key for that key's second command (its reverse or its alternative); Ctrl for the
+    // platforms' application commands (files, clipboard, undo, settings, quit, zoom) and resets;
+    // never Alt. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the
+    // F keys, forward Delete) is never a command's only shortcut. The first shortcut is the one
+    // menus show, so macOS lists its own first.
+#ifdef Q_OS_MACOS
+    constexpr bool mac = true;
+#else
+    constexpr bool mac = false;
+#endif
+    const auto either = [](bool first, const K &a, const K &b) { return first ? QList<K>{a, b} : QList<K>{b, a}; };
     static const QList<CommandInfo> table = {
         {C::Open, {K(Qt::CTRL | Qt::Key_O)}, false},
         {C::ClearRecent, {}, false},
         {C::ShowInFolder, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_E)}, false},
         {C::CopyImage, {K(Qt::CTRL | Qt::Key_C)}, false},
         {C::CopyPath, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_C)}, false},
-        {C::Rename, {K(Qt::Key_F2)}, false},
-        {C::MoveToTrash, {K(Qt::Key_Delete), K(Qt::CTRL | Qt::Key_Backspace)}, false},
-        {C::DeletePermanently, {K(Qt::SHIFT | Qt::Key_Delete)}, false},
+        {C::Rename, either(mac, K(Qt::Key_Return), K(Qt::Key_F2)), false},
+        {C::MoveToTrash, either(mac, K(Qt::CTRL | Qt::Key_Backspace), K(Qt::Key_Delete)), false},
+        {C::DeletePermanently, either(mac, K(Qt::CTRL | Qt::SHIFT | Qt::Key_Backspace), K(Qt::SHIFT | Qt::Key_Delete)), false},
         {C::UndoTrash, {K(Qt::CTRL | Qt::Key_Z)}, false},
         {C::Settings, {K(Qt::CTRL | Qt::Key_Comma)}, false},
         {C::Quit, {K(Qt::CTRL | Qt::Key_Q)}, false},
         {C::Previous, {K(Qt::Key_Left), K(Qt::Key_PageUp), K(Qt::Key_Backspace)}, true},
         {C::Next, {K(Qt::Key_Right), K(Qt::Key_PageDown), K(Qt::Key_Space)}, true},
-        {C::First, {K(Qt::Key_Home)}, false},
-        {C::Last, {K(Qt::Key_End)}, false},
+        {C::First, {K(Qt::SHIFT | Qt::Key_Left), K(Qt::Key_Home)}, false},
+        {C::Last, {K(Qt::SHIFT | Qt::Key_Right), K(Qt::Key_End)}, false},
         {C::ZoomIn, {K(Qt::Key_Plus), K(Qt::Key_Equal), K(Qt::CTRL | Qt::Key_Plus), K(Qt::CTRL | Qt::Key_Equal)}, true},
         {C::ZoomOut, {K(Qt::Key_Minus), K(Qt::CTRL | Qt::Key_Minus)}, true},
         {C::Fit, {K(Qt::Key_0), K(Qt::CTRL | Qt::Key_0)}, false},
@@ -332,6 +342,8 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(view, Command::ActualSize);
     view->addSeparator();
     addCommand(view, Command::FullScreen);
+    addCommand(view, Command::Slideshow);
+    view->addSeparator();
     addCommand(view, Command::Info);
     addCommand(view, Command::InfoOverlay);
     addCommand(view, Command::Checkerboard);
@@ -358,8 +370,6 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     go->addSeparator();
     addCommand(go, Command::First);
     addCommand(go, Command::Last);
-    go->addSeparator();
-    addCommand(go, Command::Slideshow);
     go->addSeparator();
     addCommand(go, Command::PlayPause);
     addCommand(go, Command::PreviousFrame);

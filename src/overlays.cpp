@@ -69,6 +69,21 @@ QString isolated(const QString &text)
     return QGuiApplication::layoutDirection() == Qt::RightToLeft ? QChar(0x2068) + text + QChar(0x2069) : text;
 }
 
+// Both information panels share one look (D-49, Settings::panelBackground()): the optional dark
+// ring around the glyphs keeps the text readable over anything, HDR highlights included.
+void drawPanelText(QPainter &painter, const QRectF &rect, int flags, const QString &text, const QColor &colour,
+                   bool outline)
+{
+    if (outline) {
+        painter.setPen(QColor(0, 0, 0, colour.alpha()));
+        for (const QPointF offset : {QPointF(-1, -1), QPointF(0, -1), QPointF(1, -1), QPointF(-1, 0), QPointF(1, 0),
+                                     QPointF(-1, 1), QPointF(0, 1), QPointF(1, 1)})
+            painter.drawText(rect.translated(offset), flags, text);
+    }
+    painter.setPen(colour);
+    painter.drawText(rect, flags, text);
+}
+
 struct Row {
     QString label; // empty: the value spans both columns (messages)
     QString value;
@@ -271,9 +286,12 @@ void ViewerWindow::updateOverlay()
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, 150));
+    painter.setBrush(m_settings.panelBackground());
     painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), 8, 8);
     painter.setFont(font);
+    const QColor valueColour = m_settings.panelText(Settings::kPanelValueGrey);
+    const QColor labelColour = m_settings.panelText(Settings::kPanelLabelGrey);
+    const bool outline = m_settings.overlayOutline;
     // Columns are laid out left to right and mirrored for right-to-left languages; within a
     // cell, AlignLeft is the start of the line (Qt mirrors it in right-to-left layouts).
     const bool rtl = QGuiApplication::layoutDirection() == Qt::RightToLeft;
@@ -288,18 +306,15 @@ void ViewerWindow::updateOverlay()
         if (y + lineHeight > logical.height() - padding + 2.0)
             break;
         if (row.label.isEmpty()) {
-            painter.setPen(QColor(235, 235, 235));
-            painter.drawText(cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
-                             isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)));
+            drawPanelText(painter, cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
+                          isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)), valueColour, outline);
         } else {
             const qreal valueX = labelColumn + columnGap;
-            painter.setPen(QColor(165, 165, 165));
-            painter.drawText(cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
-                             metrics.elidedText(row.label, Qt::ElideRight, labelColumn));
-            painter.setPen(QColor(235, 235, 235));
+            drawPanelText(painter, cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
+                          metrics.elidedText(row.label, Qt::ElideRight, labelColumn), labelColour, outline);
             const qreal w = std::max<qreal>(0.0, inner - valueX);
-            painter.drawText(cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
-                             isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)));
+            drawPanelText(painter, cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
+                          isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)), valueColour, outline);
         }
         y += lineHeight;
     }
@@ -435,23 +450,13 @@ void ViewerWindow::updateTopOverlay()
     QPainter painter(&overlay);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
-    if (m_settings.overlayBackgroundOpacity > 0) {
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor(0, 0, 0, std::lround(m_settings.overlayBackgroundOpacity * 2.55)));
-        painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), logical.height() / 2.0, logical.height() / 2.0);
-    }
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(m_settings.panelBackground());
+    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), logical.height() / 2.0, logical.height() / 2.0);
     painter.setFont(font);
-    const int textAlpha = int(std::lround(m_settings.overlayTextOpacity * 2.55));
     const QRectF textRect(paddingX, paddingY, logical.width() - 2 * paddingX, metrics.height());
-    if (m_settings.overlayOutline) {
-        // A dark ring around the glyphs keeps the text readable over any image.
-        painter.setPen(QColor(0, 0, 0, textAlpha));
-        for (const QPointF offset : {QPointF(-1, -1), QPointF(0, -1), QPointF(1, -1), QPointF(-1, 0), QPointF(1, 0),
-                                     QPointF(-1, 1), QPointF(0, 1), QPointF(1, 1)})
-            painter.drawText(textRect.translated(offset), Qt::AlignCenter, text);
-    }
-    painter.setPen(QColor(240, 240, 240, textAlpha));
-    painter.drawText(textRect, Qt::AlignCenter, text);
+    drawPanelText(painter, textRect, Qt::AlignCenter, text, m_settings.panelText(Settings::kPanelValueGrey),
+                  m_settings.overlayOutline);
     painter.end();
 
     m_topOverlaySize = overlay.size();

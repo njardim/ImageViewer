@@ -321,6 +321,10 @@
         <translation>এর পরে লুকান:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>প্যানেল ও ওভারলের চেহারা</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>তথ্য</translation>
     </message>

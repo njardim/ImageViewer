@@ -321,6 +321,10 @@
         <translation>非表示にするまでの時間：</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>パネルとオーバーレイの外観</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>情報</translation>
     </message>

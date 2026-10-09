@@ -117,9 +117,10 @@ public:
     bool takeImageUploadFailure();
 
     // Fidelity harness: draws `frame` with `output` into a float target of `size`
-    // cleared to transparent black and reads it back (RGBA, rows top to bottom).
+    // cleared to transparent black and reads it back (RGBA, rows top to bottom). With
+    // `overlays`, the overlay layers are blended as on screen (half-float target).
     bool renderToBuffer(const Frame &frame, const Output &output, QSize size, std::vector<float> *rgba,
-                        QString *error);
+                        QString *error, bool overlays = false);
 
     const Output &output() const { return m_output; }
     QString backendName() const;

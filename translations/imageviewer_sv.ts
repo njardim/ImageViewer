@@ -295,6 +295,10 @@
         <translation>Fält:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Utseende för panelen och överlagringen</translation>
+    </message>
+    <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
         <translation> %</translation>
@@ -798,11 +802,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Vänd horisontellt</translation>
+        <translation>Spegelvänd horisontellt</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Vänd vertikalt</translation>
+        <translation>Spegelvänd vertikalt</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>

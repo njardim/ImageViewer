@@ -295,6 +295,10 @@
         <translation>Câmpuri:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Aspectul panoului și al suprapunerii</translation>
+    </message>
+    <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
         <translation>%</translation>
@@ -798,11 +802,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Răsturnare orizontală</translation>
+        <translation>Oglindire orizontală</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Răsturnare verticală</translation>
+        <translation>Oglindire verticală</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>

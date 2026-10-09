@@ -295,6 +295,10 @@
         <translation>Réimsí:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Cuma an phainéil agus an fhorleagain</translation>
+    </message>
+    <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
         <translation>%</translation>
@@ -798,11 +802,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Smeach go cothrománach</translation>
+        <translation>Scáthánaigh go cothrománach</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Smeach go hingearach</translation>
+        <translation>Scáthánaigh go hingearach</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>

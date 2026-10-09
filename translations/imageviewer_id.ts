@@ -321,6 +321,10 @@
         <translation>Sembunyikan setelah:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Tampilan panel dan overlay</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Informasi</translation>
     </message>
@@ -790,11 +794,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Balik Horizontal</translation>
+        <translation>Cerminkan Horizontal</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Balik Vertikal</translation>
+        <translation>Cerminkan Vertikal</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>

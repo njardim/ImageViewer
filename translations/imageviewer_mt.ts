@@ -295,6 +295,10 @@
         <translation>Oqsma:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Id-dehra tal-pannell u tal-overlay</translation>
+    </message>
+    <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
         <translation>%</translation>
@@ -798,11 +802,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Aqleb orizzontalment</translation>
+        <translation>Irrifletti orizzontalment</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Aqleb vertikalment</translation>
+        <translation>Irrifletti vertikalment</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>

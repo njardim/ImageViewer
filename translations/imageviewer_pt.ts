@@ -321,6 +321,10 @@
         <translation>Ocultar após:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Aspeto do painel e da sobreposição</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Informações</translation>
     </message>
@@ -790,11 +794,11 @@
     </message>
     <message>
         <source>Flip Horizontally</source>
-        <translation>Inverter horizontalmente</translation>
+        <translation>Espelhar horizontalmente</translation>
     </message>
     <message>
         <source>Flip Vertically</source>
-        <translation>Inverter verticalmente</translation>
+        <translation>Espelhar verticalmente</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>

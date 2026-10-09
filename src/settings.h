@@ -43,9 +43,10 @@ struct Settings {
     OverlayVisibility overlayFullScreen = OverlayVisibility::Hover;
     OverlayVisibility overlayWindow = OverlayVisibility::Hidden;
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
-    int overlayBackgroundOpacity = 60; // percent
+    // The look of both information panels (D-49).
+    int overlayBackgroundOpacity = 70; // percent
     int overlayTextOpacity = 100;      // percent
-    bool overlayOutline = false;       // dark outline around the text
+    bool overlayOutline = true;        // dark outline around the text
     int overlayHideDelayMs = 1500;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back
@@ -64,6 +65,12 @@ struct Settings {
     static constexpr int kMinSlideshowSeconds = 1;
     static constexpr int kMaxSlideshowSeconds = 3600;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
+    // Both information panels (D-49): values and labels in these greys over black at
+    // overlayBackgroundOpacity; at the default 70 % the labels keep 4.5:1 over a white image.
+    static constexpr int kPanelValueGrey = 240;
+    static constexpr int kPanelLabelGrey = 190;
+    QColor panelBackground() const;
+    QColor panelText(int grey) const;
     static constexpr int kMinOverlayHideDelayMs = 300;
     static constexpr int kMaxOverlayHideDelayMs = 10000;
 

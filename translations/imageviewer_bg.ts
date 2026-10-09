@@ -295,6 +295,10 @@
         <translation>Полета:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Облик на панела и наслагването</translation>
+    </message>
+    <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
         <translation>%</translation>

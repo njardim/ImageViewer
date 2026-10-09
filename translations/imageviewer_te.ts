@@ -321,6 +321,10 @@
         <translation>తర్వాత దాచు:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>ప్యానెల్ మరియు ఓవర్‌లే రూపం</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>సమాచారం</translation>
     </message>

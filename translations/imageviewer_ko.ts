@@ -295,6 +295,10 @@
         <translation>항목:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>패널 및 오버레이 모양</translation>
+    </message>
+    <message>
         <source> %</source>
         <extracomment>Unit after a percentage; keep the leading space if your language separates it.</extracomment>
         <translation>%</translation>

@@ -8,7 +8,8 @@ checks two things:
      BT.2390 knee (computed here from the ITU-R formula), never above the
      output peak, monotonic, content peak lands on the output peak, hue kept
      by the tone mapping (D-15), and plain clipping when tone mapping is off.
-The backend that actually rendered must be the one requested.
+The backend that actually rendered must be the one requested. It also runs
+`imageViewer --panel-check` in each output: the information panels' contrast (D-49).
 
 usage: python3 tests/render_test.py <imageViewer> [vulkan|opengl]
   Linux:          Xvfb + xcb; Vulkan (default) or OpenGL.
@@ -211,6 +212,17 @@ try:
         failures.append(f"wide gamut: harness exit {run.returncode} {run.stderr.strip()[-300:]}")
     elif abs(float(pixel.group(1)) - 1.2246) > 2e-3:
         failures.append(f"wide gamut: P3 red R = {pixel.group(1)} at an SDR peak, expected 1.2246 (not clipped)")
+
+    # The information panels (D-49): their background darkens SDR white as in SDR in every
+    # output, their labels keep 4.5:1 against it, and against their outline over the brightest
+    # content the output shows (the harness measures and judges; exit 3 is a failed check).
+    for name, args in (("sdr", []), ("edr", ["--peak", "4"]), ("scrgb", ["--white", "240", "--peak", "600"]),
+                       ("pq", ["--white", "203", "--peak", "1000"])):
+        run = subprocess.run([exe, "--panel-check", "--output", name, *args], env=env, capture_output=True,
+                             text=True, encoding="utf-8", errors="replace", timeout=120)
+        print(f"--- {rhi} panels {name}\n{run.stdout.strip()}")
+        if run.returncode != 0:
+            failures.append(f"panels {name}: exit {run.returncode} {run.stdout.strip()[-300:]} {run.stderr.strip()[-300:]}")
 finally:
     if server:
         xvfb.stop(server)

@@ -321,6 +321,10 @@
         <translation>Ẩn sau:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Giao diện bảng và lớp phủ</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Thông tin</translation>
     </message>

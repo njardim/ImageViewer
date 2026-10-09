@@ -321,6 +321,10 @@
         <translation>Ausblenden nach:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Aussehen von Bereich und Einblendung</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Informationen</translation>
     </message>

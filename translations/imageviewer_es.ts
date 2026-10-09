@@ -321,6 +321,10 @@
         <translation>Ocultar después de:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Aspecto del panel y de la superposición</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Información</translation>
     </message>

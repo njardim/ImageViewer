@@ -33,7 +33,7 @@ namespace {
 
 // Bumped when a stored value changes meaning; load() can then migrate older files.
 // 2 (0.3): the side zones' default width went from 200 to 100 px (D-36).
-constexpr int kSettingsVersion = 2;
+constexpr int kSettingsVersion = 3;
 
 const char *outputKey(Renderer::OutputPreference preference)
 {
@@ -236,6 +236,13 @@ Settings Settings::load()
     s.overlayTextOpacity = boundedInt(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
                                       kMinOverlayTextOpacity, 100);
     s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
+    // Up to 0.3 these styled the top overlay only, and every save stored their defaults like a
+    // choice; from 0.4 they style both panels, with the new defaults (D-49).
+    if (store.value(QStringLiteral("version")).toInt() < 3) {
+        if (s.overlayBackgroundOpacity == 60)
+            s.overlayBackgroundOpacity = defaults.overlayBackgroundOpacity;
+        s.overlayOutline = defaults.overlayOutline;
+    }
     s.overlayHideDelayMs = boundedInt(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
                                       kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
 
@@ -255,6 +262,16 @@ Settings Settings::load()
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
     return s;
+}
+
+QColor Settings::panelBackground() const
+{
+    return QColor(0, 0, 0, int(std::lround(overlayBackgroundOpacity * 2.55)));
+}
+
+QColor Settings::panelText(int grey) const
+{
+    return QColor(grey, grey, grey, int(std::lround(overlayTextOpacity * 2.55)));
 }
 
 bool Settings::storedIsOutdated()
@@ -520,19 +537,6 @@ void SettingsDialog::buildUi()
     fieldsRow->addWidget(m_overlayFields, 1);
     fieldsRow->addLayout(moveButtons);
     overlayForm->addRow(tr("Fields:"), fieldsRow);
-    m_overlayBackground = new QSpinBox;
-    m_overlayBackground->setRange(0, 100);
-    m_overlayBackground->setSingleStep(10);
-    //: Unit after a percentage; keep the leading space if your language separates it.
-    m_overlayBackground->setSuffix(tr(" %"));
-    overlayForm->addRow(tr("Background opacity:"), m_overlayBackground);
-    m_overlayText = new QSpinBox;
-    m_overlayText->setRange(Settings::kMinOverlayTextOpacity, 100);
-    m_overlayText->setSingleStep(10);
-    m_overlayText->setSuffix(tr(" %"));
-    overlayForm->addRow(tr("Text opacity:"), m_overlayText);
-    m_overlayOutline = new QCheckBox(tr("Outline the text"));
-    overlayForm->addRow(m_overlayOutline);
     m_overlayDelay = new QDoubleSpinBox;
     m_overlayDelay->setRange(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
     m_overlayDelay->setDecimals(1);
@@ -541,6 +545,23 @@ void SettingsDialog::buildUi()
     m_overlayDelay->setSuffix(tr(" s"));
     overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
     informationLayout->addWidget(overlayBox);
+    // One look for both panels (D-49).
+    auto *styleBox = new QGroupBox(tr("Appearance of the panel and the overlay"));
+    auto *styleForm = new QFormLayout(styleBox);
+    m_overlayBackground = new QSpinBox;
+    m_overlayBackground->setRange(0, 100);
+    m_overlayBackground->setSingleStep(10);
+    //: Unit after a percentage; keep the leading space if your language separates it.
+    m_overlayBackground->setSuffix(tr(" %"));
+    styleForm->addRow(tr("Background opacity:"), m_overlayBackground);
+    m_overlayText = new QSpinBox;
+    m_overlayText->setRange(Settings::kMinOverlayTextOpacity, 100);
+    m_overlayText->setSingleStep(10);
+    m_overlayText->setSuffix(tr(" %"));
+    styleForm->addRow(tr("Text opacity:"), m_overlayText);
+    m_overlayOutline = new QCheckBox(tr("Outline the text"));
+    styleForm->addRow(m_overlayOutline);
+    informationLayout->addWidget(styleBox);
     informationLayout->addStretch();
     tabs->addTab(information, tr("Information"));
 

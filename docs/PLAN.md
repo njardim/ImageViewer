@@ -48,7 +48,7 @@
 - folder navigation sorted by name, date or size, preloading of both neighbours (D-33), folder watching; drag and drop; command table and context menu (D-30); settings and session (D-29, D-44); file actions (copy, rename, trash and undo, permanent delete, recent files); `--info`, `--formats`.
 
 **Notes for cloud sessions** (Linux container):
-- `download.qt.io` and GitHub *releases* are blocked by the proxy `[test]`. Qt 6.11 is built from GitHub with `scripts/build-qt-linux.sh` (≈15 min with 4 vCPU).
+- `download.qt.io` and GitHub *releases* are blocked by the proxy `[test]`. Qt 6.12 is built from GitHub with `scripts/build-qt-linux.sh` (≈15 min with 4 vCPU).
 - The image dependencies come from Ubuntu 24.04 apt (OIIO 2.4, lcms 2.14, libjxl 0.7, libheif 1.17). OIIO 2.4 ignores PNG `cICP` (OIIO 3.1 in CI reads it), and libheif 1.17 has no track API: AVIF sequences and the decode worker need libheif ≥ 1.23 and GraphicsMagick 1.3.48 built locally, which `tests/smoke.sh` otherwise skips.
 - Workflow: `cmake --preset linux-system && cmake --build --preset linux-system && tests/smoke.sh build/linux-system/imageViewer`.
 - The Qt `offscreen` platform does not expose the window, so it does not exercise the renderer. That requires Xvfb with the xcb plugin (the script already builds it).
@@ -127,6 +127,9 @@
 | D-45 | 2026-10-08 | **OpenImageIO readers that crash on damaged files are kept away from them.** Softimage PIC is read by our own reader (`codecs.cpp`: the 104-byte header, chained channel packets, raw, run-length and mixed run-length scanlines, every read checked); Maya IFF is read through OpenImageIO only from 3.0, whose reader checks its spans. Such a format never reaches OpenImageIO, not even as the fallback of a failed decode (`oiioMayRead()`); with an older OpenImageIO, IFF is listed as unavailable. | The fuzz smoke test's first CI run (58) crashed the viewer on a truncated PIC on Linux and macOS: OpenImageIO 2.4.17 and 3.1.14 read on through the file they had closed (`fgetpos` on a null `FILE*`, gdb) `[test]`. OpenImageIO 2.4 also reads raw PIC packets as black and aborts on pure run-length ones; our reader shows all three encodings exactly on screen, and agrees with OpenImageIO on the mixed one `[test]`. The 2.4.17 IFF reader writes past its tile buffers after one flipped bit (valgrind); 3.1.14 rewrote it with checked spans and passes the same files `[code: OIIO v3.1.14.0 iffinput.cpp]`, `[test]`. |
 | D-46 | 2026-10-08 | **Dependencies at the state of the art.** Every library we build or ship (vcpkg ports and our overlays, Qt and the Qt version CI installs) is at its latest stable release. The check runs at the start of each release's development and again before its PR (§11): a table of each dependency's version against upstream's latest, with the date. A release that fixes a security issue, or a bug we can reach, is adopted at once, between releases if needed. Staying behind needs a recorded reason (a regression or incompatibility in the new release, with its reference), revisited at the next check; pre-releases are not adopted. | Owner's rule (2026-10-08): no shipped code with bugs already fixed upstream. vcpkg's baseline lags upstream (GraphicsMagick 1.3.45 there, 1.3.48 upstream, D-38), so the baseline alone is not the check; the overlays (libheif, GraphicsMagick) are checked by hand. |
 | D-47 | 2026-10-08 | **GraphicsMagick stays; ImageMagick 7 is the prepared replacement.** The library stays behind one file (`worker.cpp`) and a library-independent protocol (the file's bytes in; pixels, ICC profile and orientation out), so replacing it changes neither the viewer nor the tests. Migration starts when any of these holds: no GraphicsMagick release for 12 months; a published security issue in one of our 16 coders left unfixed upstream for 90 days; a format we need that only ImageMagick reads. A migration keeps the D-43 hardening: the same allow-list of coders, no delegates, resource limits, the fuzz test. | Owner's concern (2026-10-08): the team has contributed to ImageMagick, and GraphicsMagick (forked from ImageMagick 5.5.2 in 2002) has essentially one maintainer `[knowledge]`. It is maintained today: 1.3.47 in May 2026, 1.3.48 on 2026-07-23 and 1.3.49 on 2026-10-08 `[doc: Wikipedia]`, `[test: NEWS.txt of the release tarballs]`; the 1.3.49 notes ask for volunteers because "the burden has entirely been on me" `[doc: NEWS.txt]`. The D-38 reasons hold for now. |
+| D-48 | 2026-10-09 | **Keyboard convention.** Single keys for viewing and navigating; **Shift** + a key for that key's second command, its reverse or its alternative (Shift+R, Shift+E, Shift+I, Shift+← and Shift+→ for the first and last image, Shift+Delete); **Cmd** on macOS, Ctrl elsewhere, for the platforms' application commands (open, copy, undo, settings, quit, move to trash on macOS, zoom) and for resets (Cmd+E exposure, Cmd+0 fit); never Alt/Option. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the F keys, forward Delete) is never a command's only shortcut, and menus show macOS's own shortcut first. So: first/last image Shift+←/→ (Home/End kept); Rename also Return (Finder's key); Delete Permanently also Cmd+Shift+Backspace; Move to Trash shows ⌘⌫ on macOS. | Owner's rule (2026-10-09): few kinds of key combinations, Shift for alternatives, Cmd for copy, undo and the like. On a MacBook, Home and End need fn, and macOS menus show them as ↖ and ↘, which read as a key combination. |
+| D-49 | 2026-10-09 | **Information panels: one look, legible over any image.** The panel (I) and the top overlay (Shift+I) share background opacity (default 70 %), text opacity and the text outline (default on): values grey 240, labels 190 (`Settings::panelBackground()`, `panelText()`). UI overlays blend as in SDR in every output: in linear outputs (scRGB, EDR) the shader turns the weight of what lies underneath into (1 − a)^2.2, and in PQ into the weight that darkens SDR white as much, so the same setting looks the same in SDR, EDR/scRGB and HDR10. Labels keep 4.5:1 (WCAG AA) over SDR white, and against their outline over the brightest content the output shows; `imageViewer --panel-check` measures it, run by `render_test.py` in every output. Settings saved by 0.3 move from 60 % without outline to the new defaults. | Owner's report (2026-10-08, screenshot on a MacBook in EDR): the labels vanished over a light image. Reproduced with the previous shader: label contrast 1.08:1 in EDR, 2.2:1 in SDR and 5.9:1 in PQ, and the background over white at 0.41, 0.14 and 0.02 of SDR white: one opacity looked different in every output `[test: --panel-check]`. Now 4.6 to 4.7:1 in all four outputs, 11:1 against the outline over HDR highlights `[test]`. |
+| D-50 | 2026-10-09 | **Qt 6.12; macOS 14.4 or later** (resolves D-P07 for macOS). The build and every vcpkg dependency target macOS 14.4. | Qt 6.12.0 is the latest stable release (D-46), and its minimum macOS is 14.4 (Qt 6.11: 13) `[code: qtbase .cmake.conf, QT_SUPPORTED_MIN_MACOS_VERSION]`. The private QRhi API builds unchanged, and every local test passes on 6.12 `[test]`. macOS 13 no longer receives Apple's security updates `[knowledge]`. Reversible: staying on Qt 6.11 keeps macOS 13 at the cost of D-46. |
 
 ---
 
@@ -256,7 +259,7 @@ Basis: d2phap/ImageGlass, commit `2cf91de`, 2026-09-27 `[code]`. Stack: .NET 10 
 | Component | In use | Upstream latest | License | Role |
 |---|---|---|---|---|
 | C++20, CMake ≥ 3.24, Ninja | — | — | — | Build |
-| **Qt** (Core, Gui/QRhi, Widgets, ShaderTools) | 6.11.2, moving to 6.12.0 (0.4) | 6.12.0 | LGPLv3 (dynamic linking) | UI, GPU rendering (D3D11/12, Metal, Vulkan, OpenGL) |
+| **Qt** (Core, Gui/QRhi, Widgets, ShaderTools) | 6.12.0 (D-50) | 6.12.0 | LGPLv3 (dynamic linking) | UI, GPU rendering (D3D11/12, Metal, Vulkan, OpenGL) |
 | **OpenImageIO** (overlay; vcpkg has 3.1.14.0) | 3.2.1.1 | 3.2.1.1 (2026-10-02; 3.1 branch at 3.1.18.1) | Apache-2.0 | Main decoder (features in `vcpkg.json`: gif, libheif, libraw, openjpeg, webp) |
 | ↳ OpenColorIO (required by OpenImageIO; our own use comes in Phase 5) | 2.6.0 | 2.6.0 | BSD-3 | Named colour spaces |
 | ↳ expat (overlay; vcpkg has 2.8.5) | 2.9.0 | 2.9.0 (2026-10-05, CVE-2026-102633, CVE-2026-77214) | MIT | XML for OpenColorIO |
@@ -617,11 +620,11 @@ Moved to 0.4 (D-40): window matching the image size, zoom modes, title bar modes
 
 ### Release 0.4 (planned)
 Corrections from Nuno's review of 0.3 (2026-10-08):
-- [ ] Flips named as mirroring: "Espelhar horizontalmente/verticalmente" in Portuguese, and the language's mirror verb wherever it is the usual term for the operation (English keeps "Flip")
-- [ ] Information panel legible over any image: over a near-white image its labels vanish. Cause: the panel (black at 59 %) is composited in linear light, which over white gives a grey of about 170/255, and the labels are grey 165, a contrast of about 1.1:1 `[inference: overlays.cpp colours, Nuno's screenshot]`. Opacity alone would need about 95 %. Plan: lighter labels, a more opaque panel and a thin dark outline on the text (as in the top overlay); target ≥ 4.5:1 over white and over black, checked by a test
-- [ ] Slideshow moves from the Go menu to the View menu
-- [ ] First and last image on Mac keyboards: Home and End show in macOS menus as ↖ and ↘ and need fn+← and fn+→ on a MacBook; add a second shortcut (proposal: ⌘↑ and ⌘↓)
-- [ ] Dependency audit (D-46): the version table, vcpkg baseline, overlays and Qt brought to the latest stable releases
+- [x] Flips named as mirroring: "Espelhar horizontalmente/verticalmente" in Portuguese; the mirror verb also in Romanian, Swedish, Irish, Maltese and Indonesian, where it is the usual term (German, Dutch, Russian, Polish, Italian, Danish, Finnish and others already used it; English keeps "Flip")
+- [x] Information panels legible over any image and alike (D-49): one style for both, blended as in SDR in every output, labels ≥ 4.5:1 checked by `--panel-check` in `render_test.py`
+- [x] Slideshow moved from the Go menu to the View menu
+- [x] Keyboard convention (D-48): first and last image Shift+← and Shift+→ (Home and End kept), Rename also Return, Delete Permanently also Cmd+Shift+Backspace; `ui_test.py` uses Shift+→
+- [~] Dependency audit (D-46), 2026-10-09 (§5): OpenImageIO 3.2.1.1, GraphicsMagick 1.3.49, libheif 1.23.6, expat 2.9.0 and minizip-ng 4.2.2 as overlays, vcpkg baseline 0699a19d, Qt 6.12.0 (D-50). *Missing:* green CI on the new dependencies
 
 From D-40 and §14:
 - [ ] Window matching the image size
@@ -801,9 +804,9 @@ The Inno Setup installer, AppImage and signing arrive in Phase 4.
 - Visual Studio 2022 or 2026 (or the Build Tools) with the "Desktop development with C++" workload (MSVC, Windows SDK, CMake and Ninja included).
 - Git.
 - vcpkg: `git clone https://github.com/microsoft/vcpkg C:\dev\vcpkg`, then `bootstrap-vcpkg.bat`, then `setx VCPKG_ROOT C:\dev\vcpkg`.
-- Qt 6.11.2 through the **Qt Online Installer** (the Qt Creator installer only ships the IDE). Components: *MSVC 2022 64-bit*, *Qt Shader Tools* and *Qt Image Formats*; Qt Creator is optional as an IDE.
+- Qt 6.12.0 through the **Qt Online Installer** (the Qt Creator installer only ships the IDE). Components: *MSVC 2022 64-bit*, *Qt Shader Tools* and *Qt Image Formats*; Qt Creator is optional as an IDE.
 - Commands, in an "x64 Native Tools Command Prompt":
-  - `cmake --preset windows -DCMAKE_PREFIX_PATH=C:\Qt\6.11.2\msvc2022_64`
+  - `cmake --preset windows -DCMAKE_PREFIX_PATH=C:\Qt\6.12.0\msvc2022_64`
   - `cmake --build --preset windows`
 
   The 1st dependency build takes about 1 h.
@@ -838,7 +841,7 @@ None of them blocks Phase 0. The stated proposal is the one adopted by default.
 | D-P04 | ~~Default tone mapping~~ | **Resolved by D-15.** |
 | D-P05 | ~~GraphicsMagick as last resort for legacy formats~~ | **Resolved by D-38:** GraphicsMagick 1.3.48 in the decode worker. |
 | D-P06 | Video | Out; only short animations via FFmpeg (gifv, mjpeg). MOV/MXF frames go under O5. |
-| D-P07 | Minimum versions | Windows 10 22H2 (best effort) and 11; macOS: Qt 6.11's minimum (to be confirmed); glibc of the Linux build baseline. |
+| D-P07 | Minimum versions | Windows 10 22H2 (best effort) and 11; macOS 14.4 (D-50, Qt 6.12's minimum); glibc of the Linux build baseline. |
 | D-P08 | Signing accounts | Apple Developer ID and Azure Trusted Signing (or an OV certificate). |
 | D-P09 | Single instance by default; nearest neighbor from 200 % up; relative colorimetric intent with BPC; no automatic updates; no telemetry | Adopted. |
 | D-P10 | EETF source peak: the image's absolute maximum (current) or a high percentile (99.9 %) / MaxCLL. | With the absolute maximum, a single specular pixel at 10,000 nits lowers the knee for the whole image (e.g. HDR 7300 nits → SDR: knee at 28 nits). A percentile preserves the midtones and clips the extremes. Decide with real HDR images in Phase 1. |
@@ -855,7 +858,7 @@ None of them blocks Phase 0. The stated proposal is the one adopted by default.
 - Actual behavior of HDR output on hardware: Windows HDR10/scRGB, macOS XDR, KDE Plasma 6 Wayland.
 - Interaction with Windows 11 ACM.
 - Drag and drop on a plain `QWindow` (no Widgets) on all 3 systems.
-- Qt 6.11's minimum macOS version; availability of macOS x64 runners on GitHub.
+- Availability of macOS x64 runners on GitHub.
 - MDCV/CLLI metadata exposed by OIIO 3.1 for HEIF/AVIF. OIIO exposes `CICP` in PNG, HEIF, JXL and FFmpeg `[code: OIIO v3.1.14.0]`; MDCV/CLLI were not found.
 - JPEG XS and JPEG-LS support in vcpkg's FFmpeg 9 with an LGPL configuration.
 - Whether OIIO 3 (vcpkg) still tags PFM as `Rec709` (D-17 handles the case either way).

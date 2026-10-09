@@ -321,6 +321,10 @@
         <translation>隐藏延迟：</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>面板和叠加层的外观</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>信息</translation>
     </message>

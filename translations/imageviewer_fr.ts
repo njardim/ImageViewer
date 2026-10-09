@@ -321,6 +321,10 @@
         <translation>Masquer après&#xa0;:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Apparence du panneau et de la surimpression</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Informations</translation>
     </message>

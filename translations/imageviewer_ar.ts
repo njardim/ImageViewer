@@ -321,6 +321,10 @@
         <translation>الإخفاء بعد:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>مظهر اللوحة والتراكب</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>المعلومات</translation>
     </message>

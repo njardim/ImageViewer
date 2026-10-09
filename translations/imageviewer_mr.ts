@@ -321,6 +321,10 @@
         <translation>नंतर लपवा:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>पॅनेल आणि ओव्हरलेचे स्वरूप</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>माहिती</translation>
     </message>

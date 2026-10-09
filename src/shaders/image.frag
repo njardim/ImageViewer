@@ -66,14 +66,29 @@ void main()
 {
     vec4 texel = texture(tex, v_texcoord);
     float alpha = texel.a;
+
+    if (modes.y == 1) {
+        // UI pixels sit at SDR white and look as they do in SDR in every output (D-49): blended
+        // in sRGB-encoded space, which the SDR target does by itself. The target blends what this
+        // returns over what lies underneath, weighted by 1 - alpha: in linear outputs (scRGB, EDR)
+        // that weight becomes (1 - a)^2.2, the same darkening in linear light; in PQ, the weight
+        // that darkens SDR white as much (brighter content is darkened slightly more).
+        vec3 ui = vec3(srgbDecode(texel.r), srgbDecode(texel.g), srgbDecode(texel.b)) * adjust.y; // premultiplied
+        float under = pow(1.0 - alpha, 2.2);
+        if (alpha <= 0.0)
+            fragColor = vec4(0.0);
+        else if (modes.x == MODE_SCRGB)
+            fragColor = vec4(ui, 1.0 - under);
+        else if (modes.x == MODE_PQ)
+            fragColor = vec4(pqEncode(max(BT709_TO_BT2020 * ui, vec3(0.0))),
+                             1.0 - pqEncode(vec3(adjust.y * under)).x / pqEncode(vec3(adjust.y)).x);
+        else
+            fragColor = vec4(srgbEncode(ui.r), srgbEncode(ui.g), srgbEncode(ui.b), alpha);
+        return;
+    }
+
     vec3 rgb = alpha > 0.0 ? texel.rgb / alpha : vec3(0.0);
-
-    if (modes.y == 1)
-        rgb = vec3(srgbDecode(rgb.r), srgbDecode(rgb.g), srgbDecode(rgb.b)); // UI sits at SDR white
-    else
-        rgb *= adjust.x;
-
-    rgb *= adjust.y;
+    rgb *= adjust.x * adjust.y;
 
     float peak = adjust.z;
     bool altered;
@@ -102,22 +117,19 @@ void main()
     rgb = min(rgb, vec3(peak));
     if (wide)
         rgb = BT2020_TO_BT709 * rgb;
-    if (modes.z != 0 && modes.y == 0 && altered)
+    if (modes.z != 0 && altered)
         rgb = vec3(peak, 0.0, peak);
 
-    if (modes.y == 0) {
-        // Composite in linear light, so alpha means the same in every output encoding (F6).
-        // The checkerboard only chooses what lies underneath; color::applyOutputStage()
-        // composites over the plain background, which is what the harness checks.
-        vec3 under = background.rgb;
-        if (checker.z > 0.5) {
-            vec2 cell = floor(v_texcoord * checker.xy); // float maths: legacy GLSL targets lack integer '&'
-            if (mod(cell.x + cell.y, 2.0) >= 1.0)
-                under = checkerColour.rgb;
-        }
-        rgb = rgb * alpha + under * (1.0 - alpha);
-        alpha = 1.0;
+    // Composite in linear light, so alpha means the same in every output encoding (F6).
+    // The checkerboard only chooses what lies underneath; color::applyOutputStage()
+    // composites over the plain background, which is what the harness checks.
+    vec3 under = background.rgb;
+    if (checker.z > 0.5) {
+        vec2 cell = floor(v_texcoord * checker.xy); // float maths: legacy GLSL targets lack integer '&'
+        if (mod(cell.x + cell.y, 2.0) >= 1.0)
+            under = checkerColour.rgb;
     }
+    rgb = rgb * alpha + under * (1.0 - alpha);
 
     vec3 encoded;
     if (modes.x == MODE_SCRGB)
@@ -127,5 +139,5 @@ void main()
     else
         encoded = vec3(srgbEncode(rgb.r), srgbEncode(rgb.g), srgbEncode(rgb.b));
 
-    fragColor = vec4(encoded * alpha, alpha);
+    fragColor = vec4(encoded, 1.0);
 }

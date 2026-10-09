@@ -321,6 +321,10 @@
         <translation>اتنی دیر بعد چھپائیں:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>پینل اور اوورلے کی شکل</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>معلومات</translation>
     </message>

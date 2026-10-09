@@ -294,7 +294,7 @@ try:
                 return area if area.shape[:2] == (64, 96) else None
 
             def matches(expect_dark, expect_light):
-                xdotool("key", "End")
+                xdotool("key", "shift+Right")  # the last image (D-48; End is its second shortcut)
                 shot = grab()
                 for dy in (-1, 0, 1):  # the centred image may sit half a pixel either way
                     for dx in (-1, 0, 1):
@@ -304,7 +304,7 @@ try:
                             return True
                 return False
             # Before B: nothing but the background where the transparent image lies.
-            wait_until("End shows the transparent image over the plain background", lambda: matches(0x21, 0x21))
+            wait_until("Shift+Right shows the transparent image over the plain background", lambda: matches(0x21, 0x21))
             xdotool("key", "b")
             wait_until("B shows the checkerboard behind the transparent image", lambda: matches(0x21, 0x40))
 
@@ -352,7 +352,9 @@ try:
             # 6. Settings of 0.1 (group "general", which Qt writes as [%General] in INI files)
             #    load after a restart and are saved again under [app]: with "do not ask again"
             #    from 0.1, Delete moves the file to the trash at once. The side zones' old
-            #    default width (200 px, stored by every save up to 0.2) becomes the new 100 px.
+            #    default width (200 px, stored by every save up to 0.2) becomes the new 100 px;
+            #    the panels' old defaults (60 %, no outline, stored up to 0.3) become 70 % and
+            #    the outline (D-49).
             with open(settings_file, encoding="utf-8") as f:
                 text = f.read()
             start = text.index("[app]")
@@ -361,6 +363,8 @@ try:
             text += "\n[%General]\nconfirmTrash=false\nlanguage=\nreopenLastImage=false\n"
             text = re.sub(r"(?m)^version=\d+$", "version=1", text)
             text = re.sub(r"(?m)^sideZoneWidth=\d+$", "sideZoneWidth=200", text)
+            text = re.sub(r"(?m)^backgroundOpacity=\d+$", "backgroundOpacity=60", text)
+            text = re.sub(r"(?m)^outline=\w+$", "outline=false", text)
             with open(settings_file, "w", encoding="utf-8") as f:
                 f.write(text)
             app = subprocess.Popen([exe, os.path.join(pictures, "a.png")], env=env, stdout=log, stderr=log)
@@ -376,9 +380,11 @@ try:
                 text = f.read()
             if "[%General]" in text or "confirmTrash=false" not in text.split("[app]", 1)[-1].split("\n[", 1)[0]:
                 fail(f"settings not migrated to [app] in {settings_file}")
-            if not re.search(r"(?m)^sideZoneWidth=100$", text) or not re.search(r"(?m)^version=2$", text):
+            if not re.search(r"(?m)^sideZoneWidth=100$", text) or not re.search(r"(?m)^version=3$", text):
                 fail(f"the old 200 px side zones were not migrated to 100 px in {settings_file}")
-            print("ok   0.1 settings migrated to [app]; old default side zones now 100 px")
+            if not re.search(r"(?m)^backgroundOpacity=70$", text) or not re.search(r"(?m)^outline=true$", text):
+                fail(f"the panels' old default style was not migrated in {settings_file}")
+            print("ok   0.1 settings migrated to [app]; old default side zones now 100 px; panels 70 % and outlined")
         finally:
             if app.poll() is None:
                 app.terminate()

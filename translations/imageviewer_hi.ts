@@ -321,6 +321,10 @@
         <translation>इसके बाद छिपाएँ:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>पैनल और ओवरले का रूप</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>जानकारी</translation>
     </message>

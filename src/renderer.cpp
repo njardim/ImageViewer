@@ -733,14 +733,15 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
 }
 
 bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize size, std::vector<float> *rgba,
-                              QString *error)
+                              QString *error, bool overlays)
 {
     if (!m_rhi) {
         *error = QStringLiteral("renderer not initialised");
         return false;
     }
-    // Float32 keeps the readback free of quantisation; half float is the fallback.
-    const bool full = m_rhi->isTextureFormatSupported(QRhiTexture::RGBA32F);
+    // Float32 keeps the readback free of quantisation; half float is the fallback, and the
+    // target when overlays blend (float32 blending is not universal).
+    const bool full = !overlays && m_rhi->isTextureFormatSupported(QRhiTexture::RGBA32F);
     std::unique_ptr<QRhiTexture> texture(
         m_rhi->newTexture(full ? QRhiTexture::RGBA32F : QRhiTexture::RGBA16F, size, 1,
                           QRhiTexture::RenderTarget | QRhiTexture::UsedAsTransferSource));
@@ -755,8 +756,8 @@ bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize si
         *error = QStringLiteral("cannot create the offscreen render target");
         return false;
     }
-    // No blending: the target starts transparent, and float32 blending is not universal.
-    std::unique_ptr<QRhiGraphicsPipeline> pipeline(createPipeline(renderPass.get(), false));
+    // The image needs no blending: the target starts transparent.
+    std::unique_ptr<QRhiGraphicsPipeline> pipeline(createPipeline(renderPass.get(), overlays));
     if (!pipeline) {
         *error = QStringLiteral("cannot create the pipeline");
         return false;

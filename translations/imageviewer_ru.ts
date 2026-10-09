@@ -321,6 +321,10 @@
         <translation>Скрывать через:</translation>
     </message>
     <message>
+        <source>Appearance of the panel and the overlay</source>
+        <translation>Оформление панели и оверлея</translation>
+    </message>
+    <message>
         <source>Information</source>
         <translation>Информация</translation>
     </message>

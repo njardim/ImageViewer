@@ -1,6 +1,13 @@
 # ImageViewer
 
-**An image viewer for Windows, macOS and Linux whose colors you can verify — in SDR and in HDR.**
+## Vision and scope
+
+ImageViewer is a cross-platform image viewer (Windows, macOS, Linux). It is minimalist and fast, and has **demonstrable image fidelity in SDR and HDR**.
+
+What sets us apart comes down to three things:
+1. a correct and verifiable color and HDR pipeline;
+2. professional-grade format coverage (EXR, DPX, RAW, PQ, HLG, etc..);
+3. a clutter-free interface.
 
 ImageViewer shows images the way they were made. Every image is converted once, from its own color description (ICC profile or CICP code points), into a linear wide-gamut working space at 16-bit floating point. It is then sent to the display through a real HDR output where the system offers one: scRGB on Windows, EDR on macOS, HDR10 where available. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which. Fidelity is tested automatically on every build, not just claimed (see [How fidelity is verified](#how-fidelity-is-verified)).
 

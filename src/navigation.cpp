@@ -354,6 +354,7 @@ void ViewerWindow::removeCurrentFromList()
     editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
     // The next image takes the removed one's place; after the last, the previous one.
     m_files.removeAt(m_index);
+    relist(); // a listing still running was taken before the removal: it must not bring the file back
     stopAnimation();
     m_image = Image();
     m_renderer.clearImage();

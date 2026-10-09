@@ -106,7 +106,7 @@ DesktopEntry readDesktopEntry(const QString &path)
         } else if (key == QStringLiteral("Name[%1]").arg(language) && !exactLocale)
             localName = unescapeValue(value);
         else if (key == QLatin1String("Exec"))
-            entry.exec = value; // its escapes are undone with its quoting (desktopEntryCommand)
+            entry.exec = unescapeValue(value); // the string escapes first, then the quoting (desktopEntryCommand)
         else if (key == QLatin1String("TryExec"))
             tryExec = unescapeValue(value);
         else if (key == QLatin1String("Icon"))
@@ -221,9 +221,10 @@ QString takeString(LPWSTR text)
 QStringList desktopEntryCommand(const QString &exec, const QString &file, const QString &name, const QString &icon,
                                 const QString &desktopFile)
 {
+    // `exec` has its string escapes undone already ("\\\\" in the file is one backslash here).
     // Arguments are separated by spaces; double quotes group one, and inside them a backslash
-    // escapes '"', '`', '$' and '\'. Then the field codes are expanded (Desktop Entry
-    // Specification, "The Exec key").
+    // escapes '"', '`', '$' and '\'; outside them it escapes any character, as in GLib. Then the
+    // field codes are expanded (Desktop Entry Specification, "The Exec key").
     QStringList arguments;
     QString current;
     bool quoted = false, started = false;
@@ -244,7 +245,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
             current.clear();
             started = false;
         } else if (c == QLatin1Char('\\') && i + 1 < exec.size()) {
-            current += exec.at(++i); // the string escapes of the value ("\\" is one backslash)
+            current += exec.at(++i);
             started = true;
         } else {
             current += c;

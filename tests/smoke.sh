@@ -212,14 +212,21 @@ done < <("$exe" --formats 2>/dev/null)
 
 # Open With (D-53). Linux: the desktop entries of a private XDG tree, so the result is exact:
 # the default from mimeapps.list first, a hidden entry, a missing TryExec, another MIME type and a
-# removed association left out, the Exec line's quoting and field codes expanded. macOS: Preview
-# is among the applications for a PNG. Elsewhere it runs and lists without failing.
+# removed association left out, the Exec line's escapes, quoting and field codes undone and expanded.
+# macOS: Preview is among the applications for a PNG. Elsewhere it runs and lists without failing.
 case "$(uname -s)" in
 Linux)
     xdg="$(mktemp -d)"
     apps="$xdg/data/applications"
     mkdir -p "$apps/sub" "$xdg/config" "$xdg/dirs"
-    printf '[Desktop Entry]\nType=Application\nName=Alpha Viewer\nExec=/usr/bin/alpha --open %%f\nMimeType=image/png;\n' >"$apps/alpha.desktop"
+    # The string escapes (\s, \\) are undone before the quoting: "\\\\" in quotes is one backslash.
+    cat >"$apps/alpha.desktop" <<'ENTRY'
+[Desktop Entry]
+Type=Application
+Name=Alpha Viewer
+Exec=/usr/bin/alpha --open "a\\\\b \\$1" x\sy %f
+MimeType=image/png;
+ENTRY
     printf '[Desktop Entry]\nType=Application\nName=Beta\nName[pt]=Beta PT\nExec="/opt/beta app/beta" --title=%%c %%U\nMimeType=image/jpeg;image/png;\n' >"$apps/beta.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Gone\nHidden=true\nExec=gone %%f\nMimeType=image/png;\n' >"$apps/gone.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Missing\nTryExec=/nonexistent/missing\nExec=missing %%f\nMimeType=image/png;\n' >"$apps/missing.desktop"
@@ -228,12 +235,12 @@ Linux)
     printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
     png="$data/alpha8.png"
     url="file://$(cd "$data" && pwd)/alpha8.png"
-    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|%s' "$url" "$(cd "$data" && pwd)/alpha8.png")"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s' "$url" "$(cd "$data" && pwd)/alpha8.png")"
     listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
               LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
     rm -rf "$xdg"
     if [ "$listed" = "$expected" ]; then
-        echo "ok   Open With: desktop entries, default first, Exec field codes expanded"
+        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes"
     else
         echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
         echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'

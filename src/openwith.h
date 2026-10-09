@@ -23,7 +23,8 @@ bool openWithOther(QWindow *parent, const QString &file);
 
 // Linux: the program and arguments openWith() starts; elsewhere empty (the system starts the app).
 QStringList openWithCommand(const OpenWithApp &app, const QString &file);
-// Linux: the program and arguments a desktop entry's Exec line gives for `file` (field codes
-// expanded as the Desktop Entry Specification says), or empty when the line is malformed.
+// Linux: the program and arguments a desktop entry's Exec value, its string escapes undone,
+// gives for `file` (quoting and field codes as the Desktop Entry Specification says), or empty
+// when the value is malformed.
 QStringList desktopEntryCommand(const QString &exec, const QString &file, const QString &name, const QString &icon,
                                 const QString &desktopFile);

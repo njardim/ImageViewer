@@ -240,7 +240,10 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
 {
     const OIIO::ImageSpec &spec = in->spec();
     const int w = spec.width, h = spec.height, nch = spec.nchannels;
-    if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels) {
+    // A volume (FITS cube, TIFF ImageDepth, 3D DDS texture) is read whole by read_image(): the
+    // buffer holds every slice, and its first slice is shown.
+    const int depth = std::max(spec.depth, 1);
+    if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels || qint64(w) * h * depth > kMaxPixels) {
         *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(nch);
         return false;
     }
@@ -273,7 +276,7 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
             alpha = c;
     const bool gray = nch < 3;
     const int readChannels = std::max(gray ? 1 : 3, alpha + 1);
-    const qint64 pixels = qint64(w) * h;
+    const qint64 pixels = qint64(w) * h * depth;
     if (!fitsInMemory(pixels, readChannels * out->sampleBytes(), error))
         return false;
     out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
@@ -449,7 +452,8 @@ public:
             return false;
         }
         const OIIO::ImageSpec &spec = m_in->spec();
-        if (spec.width != m_layout.width || spec.height != m_layout.height || spec.nchannels < m_layout.channels) {
+        if (spec.width != m_layout.width || spec.height != m_layout.height || spec.nchannels < m_layout.channels
+            || spec.depth > 1) { // a volume would not fit the frame buffer
             *error = damaged(m_in->format_name());
             return false;
         }

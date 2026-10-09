@@ -161,6 +161,10 @@ for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orang
         check "$f" 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "colour exact"
     fi
 done
+# A FITS volume: every slice is read (a one-slice buffer overflowed), the first one shown.
+if "$exe" --formats 2>/dev/null | grep -q "^ *fits | .* | yes | "; then
+    check volume.fits 'size: +6x4' "FITS volume (5 slices) read whole, one slice shown"
+fi
 check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
 check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
 

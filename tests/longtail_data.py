@@ -8,7 +8,7 @@ The other test files of the registry were written by tools from the same 6x4 ora
 - GraphicsMagick 1.3.48, `gm convert orange.ppm gm.<ext>`: gm.pcx, gm.dcx, gm.pict, gm.wpg,
   gm.miff, gm.ras, gm.viff, gm.mat, gm.cin, gm.psd, gm.xpm, gm.xbm, gm.wbmp; gm.vicar in gray;
   gm.otb from an 8x4 bitmap, left half black.
-- oiiotool 2.4, `oiiotool orange.ppm -o orange.<ext>`: orange.dpx, .hdr, .bmp, .ico, .fits,
+- oiiotool 2.4, `oiiotool orange.ppm -o orange.<ext>`: orange.dpx, .hdr, .bmp, .ico,
   .sgi, .iff, .tga, .rla; gray.zfile from the green channel as float.
 - Pillow 12.3: orange.dds (16x16 RGBA), orange.icns (16x16); alpha8.bmp and alpha8.sgi from
   alpha8.png (straight alpha, which oiiotool would premultiply); transparent.gif, noloop.gif and
@@ -145,10 +145,29 @@ def cursor():
     write("orange.cur", struct.pack("<HHH", 0, 2, 1) + entry + dib)
 
 
+# FITS (NOST 100-2.0), BITPIX 8: NAXIS1 is the width, NAXIS2 the height and NAXIS3 the colour
+# planes, R then G then B, each 6x4; header and data padded to 2880-byte blocks. (oiiotool 2.4
+# wrote the channels along NAXIS1, which OpenImageIO 3.2 reads, as the standard says, as width.)
+def fits():
+    cards = ["SIMPLE  =                    T", "BITPIX  =                    8", "NAXIS   =                    3",
+             "NAXIS1  =                    6", "NAXIS2  =                    4", "NAXIS3  =                    3", "END"]
+    header = "".join(card.ljust(80) for card in cards).encode("ascii")
+    header += b" " * (-len(header) % 2880)
+    data = bytes([255]) * 24 + bytes([128]) * 24 + bytes(24)
+    write("orange.fits", header + data + bytes(-len(data) % 2880))
+    # A volume (NAXIS3 = 5 > 4): 5 slices of 6x4, slice k of gray 200 - 40k. OpenImageIO reads
+    # every slice into the buffer; a buffer sized for one slice overflowed (0.4 review).
+    cards[5] = "NAXIS3  =                    5"
+    header = "".join(card.ljust(80) for card in cards).encode("ascii")
+    header += b" " * (-len(header) % 2880)
+    data = b"".join(bytes([200 - 40 * k]) * 24 for k in range(5))
+    write("volume.fits", header + data + bytes(-len(data) % 2880))
+
+
 def svg():
     write("orange.svg", b'<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4">'
                         b'<rect width="6" height="4" fill="#ff8000"/></svg>\n')
 
 
-for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, svg):
+for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, fits, svg):
     make()

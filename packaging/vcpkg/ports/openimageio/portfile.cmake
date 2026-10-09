@@ -4,6 +4,7 @@ set(PATCHES
     fix-openimageio_include_dir.patch
     fix-openexr-target-missing.patch
     fits-row-offset.patch # ours: FITS rows are stored bottom first, row y is height - 1 - y (0.4 review)
+    heif-image-handle-error.patch # ours: a damaged HEIF item threw out of open() and aborted (0.4, fuzz)
 )
 
 if(VCPKG_TARGET_IS_OSX)

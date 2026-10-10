@@ -65,17 +65,17 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::UndoTrash, {K(Qt::CTRL | Qt::Key_Z)}, false},
         {C::Settings, {K(Qt::CTRL | Qt::Key_Comma)}, false},
         {C::Quit, {K(Qt::Key_Q), K(Qt::CTRL | Qt::Key_Q)}, false}, // Ctrl/⌘+Q: the platforms' own
-        {C::Previous, {K(Qt::Key_Left), K(Qt::Key_PageUp), K(Qt::Key_Backspace)}, true},
-        {C::Next, {K(Qt::Key_Right), K(Qt::Key_PageDown), K(Qt::Key_Space)}, true},
+        {C::Previous, {K(Qt::Key_Left), K(Qt::Key_PageUp)}, true},
+        {C::Next, {K(Qt::Key_Right), K(Qt::Key_PageDown)}, true},
         {C::First, {K(Qt::SHIFT | Qt::Key_Left), K(Qt::Key_Home)}, false},
         {C::Last, {K(Qt::SHIFT | Qt::Key_Right), K(Qt::Key_End)}, false},
         {C::ZoomIn, {K(Qt::Key_Plus), K(Qt::Key_Equal), K(Qt::CTRL | Qt::Key_Plus), K(Qt::CTRL | Qt::Key_Equal)}, true},
         {C::ZoomOut, {K(Qt::Key_Minus), K(Qt::CTRL | Qt::Key_Minus)}, true},
         {C::Fit, {K(Qt::Key_0), K(Qt::CTRL | Qt::Key_0)}, false},
         {C::FitWidth, {K(Qt::Key_W)}, false},
-        {C::FitHeight, {K(Qt::SHIFT | Qt::Key_W)}, false},
+        {C::FitHeight, {K(Qt::Key_H)}, false},
         {C::Fill, {}, false},
-        {C::LockZoom, {K(Qt::Key_L)}, false},
+        {C::LockZoom, {K(Qt::Key_Z)}, false},
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
         {C::Info, {K(Qt::Key_I)}, false},
@@ -83,16 +83,16 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::Checkerboard, {K(Qt::Key_B)}, false},
         {C::RotateClockwise, {K(Qt::Key_R)}, false},
         {C::RotateCounterclockwise, {K(Qt::SHIFT | Qt::Key_R)}, false},
-        {C::FlipHorizontal, {K(Qt::Key_H)}, false},
-        {C::FlipVertical, {K(Qt::Key_V)}, false},
+        {C::FlipHorizontal, {K(Qt::SHIFT | Qt::Key_W)}, false},
+        {C::FlipVertical, {K(Qt::SHIFT | Qt::Key_H)}, false},
         {C::ExposureUp, {K(Qt::Key_E)}, true},
         {C::ExposureDown, {K(Qt::SHIFT | Qt::Key_E)}, true},
         {C::ExposureReset, {K(Qt::CTRL | Qt::Key_E)}, false},
         {C::ToneMap, {K(Qt::Key_T)}, false},
         {C::ClipWarning, {K(Qt::Key_C)}, false},
-        {C::PlayPause, {K(Qt::Key_K)}, false},
-        {C::PreviousFrame, {K(Qt::Key_Comma)}, true},
-        {C::NextFrame, {K(Qt::Key_Period)}, true},
+        {C::PlayPause, {K(Qt::Key_Space)}, false},
+        {C::PreviousFrame, {K(Qt::CTRL | Qt::Key_Left)}, true},
+        {C::NextFrame, {K(Qt::CTRL | Qt::Key_Right)}, true},
         {C::Slideshow, {K(Qt::Key_S)}, false},
         {C::About, {}, false},
         {C::AboutQt, {}, false},
@@ -188,7 +188,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::First:
     case Command::Last: return m_files.size() > 1;
     case Command::Slideshow: return m_slideshow || m_files.size() > 1; // a running one can always be stopped
-    case Command::PlayPause:
+    case Command::PlayPause: return m_slideshow || m_animation != nullptr; // Space also stops a slideshow
     case Command::PreviousFrame:
     case Command::NextFrame: return m_animation != nullptr;
     case Command::ZoomIn:
@@ -279,7 +279,7 @@ void ViewerWindow::execute(Command command)
     case Command::ExposureReset: resetExposure(); break;
     case Command::ToneMap: toggleToneMap(); break;
     case Command::ClipWarning: toggleClipWarning(); break;
-    case Command::PlayPause: togglePause(); break;
+    case Command::PlayPause: m_slideshow ? toggleSlideshow() : togglePause(); break;
     case Command::PreviousFrame: stepFrame(-1); break;
     case Command::NextFrame: stepFrame(+1); break;
     case Command::Slideshow: toggleSlideshow(); break;
@@ -401,20 +401,20 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     QMenu *view = menu.addMenu(tr("View"));
     addCommand(view, Command::ZoomIn);
     addCommand(view, Command::ZoomOut);
+    addCommand(view, Command::LockZoom);
     view->addSeparator();
     addCommand(view, Command::Fit);
     addCommand(view, Command::FitWidth);
     addCommand(view, Command::FitHeight);
     addCommand(view, Command::Fill);
     addCommand(view, Command::ActualSize);
-    addCommand(view, Command::LockZoom);
     view->addSeparator();
     addCommand(view, Command::FullScreen);
-    addCommand(view, Command::Slideshow);
-    view->addSeparator();
     addCommand(view, Command::Info);
     addCommand(view, Command::InfoOverlay);
     addCommand(view, Command::Checkerboard);
+    view->addSeparator();
+    addCommand(view, Command::Slideshow);
 
     QMenu *image = menu.addMenu(tr("Image"));
     addCommand(image, Command::RotateClockwise);

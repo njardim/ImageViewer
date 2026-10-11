@@ -433,12 +433,12 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(color, Command::ClipWarning);
 
     QMenu *go = menu.addMenu(tr("Go"));
-    addCommand(go, Command::Previous);
-    addCommand(go, Command::Next);
-    go->addSeparator();
     addCommand(go, Command::First);
     addCommand(go, Command::Last);
     go->addSeparator();
+    addCommand(go, Command::Previous);
+    addCommand(go, Command::Next);
+    go->addSeparator();    
     addCommand(go, Command::PlayPause);
     addCommand(go, Command::PreviousFrame);
     addCommand(go, Command::NextFrame);

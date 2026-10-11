@@ -527,14 +527,14 @@ try:
 
             def stored_previous():
                 with open(settings_file, encoding="utf-8") as f:
-                    return re.search(r'(?m)^Previous="N; PgUp; Backspace"$', f.read()) is not None
+                    return re.search(r'(?m)^Previous="N; PgUp"$', f.read()) is not None
             xdotool("key", "ctrl+comma")
             dialog = find_dialog("Settings")
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
             xdotool("key", "ctrl+shift+Tab", "Tab")  # the last tab, Shortcuts; then its list
-            xdotool("type", "--delay", "50", "Previous")  # Previous Image: Left, PgUp, Backspace
+            xdotool("type", "--delay", "50", "Previous")  # Previous Image: Left, PgUp
             xdotool("key", "Tab")
             xdotool("key", "n")  # recorded in the Shortcut field in place of Left
             time.sleep(0.5)

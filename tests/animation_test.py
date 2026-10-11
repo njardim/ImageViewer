@@ -124,18 +124,18 @@ try:
             wait_for("and the one after it", {NEXT[second]})
 
             # 2. K pauses; "." and "," step; K plays again.
-            xdotool("key", "k")
+            xdotool("key", "space")
             time.sleep(0.3)
             paused = colour()
             if paused not in NEXT:
                 fail(f"after K: {paused} on screen")
             stays("K pauses the animation", paused, 1.5)
-            xdotool("key", "period")
+            xdotool("key", "ctrl+Right")
             wait_for("'.' shows the next frame", {NEXT[paused]})
             stays("and it stays", NEXT[paused], 1.0)
-            xdotool("key", "comma")
+            xdotool("key", "ctrl+Left")
             wait_for("',' goes back a frame", {paused})
-            xdotool("key", "k")
+            xdotool("key", "space")
             wait_for("K plays again", {NEXT[paused]})
 
             # 3. S: the slideshow moves on by itself; Esc stops it.

@@ -219,8 +219,8 @@ try:
 
             # 2. View transforms (screen space: flips and quarter turns of what is shown).
             b = refs["b"]
-            for key, expected, what in (("h", b[:, ::-1], "H flips horizontally"), ("h", b, "H again restores"),
-                                        ("v", b[::-1], "V flips vertically"), ("v", b, "V again restores"),
+            for key, expected, what in (("shift+w", b[:, ::-1], "Shift+W flips horizontally"), ("shift+w", b, "Shift+W again restores"),
+                                        ("shift+h", b[::-1], "Shift+H flips vertically"), ("shift+h", b, "Shift+H again restores"),
                                         ("r", np.rot90(b, -1), "R rotates clockwise"),
                                         ("shift+r", b, "Shift+R rotates back")):
                 xdotool("key", key)
@@ -486,10 +486,10 @@ try:
             wait_until("X, the user's shortcut for Fit to Width (D-52), fits the width", title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
             xdotool("key", "1")
             wait_until("1 shows 100 %", title_zoom("big1.png", lambda w, h: 100.0))
-            xdotool("key", "l")
+            xdotool("key", "z")
             xdotool("key", "Right")
-            wait_until("with the zoom locked (L), the next image keeps 100 %", title_zoom("big2.png", lambda w, h: 100.0))
-            xdotool("key", "l")
+            wait_until("with the zoom locked (Z), the next image keeps 100 %", title_zoom("big2.png", lambda w, h: 100.0))
+            xdotool("key", "z")
             xdotool("key", "Left")
             wait_until("unlocked, an image fits again", title_zoom("big1.png", fit))
             xdotool("key", "q")
@@ -527,14 +527,14 @@ try:
 
             def stored_previous():
                 with open(settings_file, encoding="utf-8") as f:
-                    return re.search(r'(?m)^Previous="N; PgUp; Backspace"$', f.read()) is not None
+                    return re.search(r'(?m)^Previous="N; PgUp"$', f.read()) is not None
             xdotool("key", "ctrl+comma")
             dialog = find_dialog("Settings")
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
             xdotool("key", "ctrl+shift+Tab", "Tab")  # the last tab, Shortcuts; then its list
-            xdotool("type", "--delay", "50", "Previous")  # Previous Image: Left, PgUp, Backspace
+            xdotool("type", "--delay", "50", "Previous")  # Previous Image: Left, PgUp
             xdotool("key", "Tab")
             xdotool("key", "n")  # recorded in the Shortcut field in place of Left
             time.sleep(0.5)

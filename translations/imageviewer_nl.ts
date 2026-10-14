@@ -333,6 +333,27 @@
         <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Totaal ondersteunde bestandsindelingen: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Extensie</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Indeling</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Decoder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Afbeeldingsindelingen</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Het informatiepaneel tonen (%1)</translation>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Positie</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 van %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,8 +1052,8 @@
         <translation>Kleur &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Ga</translation>
+        <source>Jump to</source>
+        <translation>Springen naar</translation>
     </message>
     <message>
         <source>Help</source>

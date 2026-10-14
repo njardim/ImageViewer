@@ -74,7 +74,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::Fit, {K(Qt::Key_0), K(Qt::CTRL | Qt::Key_0)}, false},
         {C::FitWidth, {K(Qt::Key_W)}, false},
         {C::FitHeight, {K(Qt::Key_H)}, false},
-        {C::Fill, {}, false},
+        {C::Fill, {K(Qt::Key_X)}, false},
         {C::LockZoom, {K(Qt::Key_Z)}, false},
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
@@ -433,7 +433,7 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(color, Command::ToneMap);
     addCommand(color, Command::ClipWarning);
 
-    QMenu *go = menu.addMenu(tr("Go"));
+    QMenu *go = menu.addMenu(tr("Jump to"));
     addCommand(go, Command::First);
     addCommand(go, Command::Last);
     go->addSeparator();

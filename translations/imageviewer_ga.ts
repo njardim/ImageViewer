@@ -333,6 +333,27 @@
         <translation>Aibhsigh picteilíní a athraíodh trí ghearradh nó mapáil toin (maigeanta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Líon iomlán na bhformáidí comhad a dtacaítear leo: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Iarmhír</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Formáid</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Díchódóir</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Formáidí íomhá</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Taispeáin an painéal faisnéise (%1)</translation>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Ionad</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 as %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,8 +1052,8 @@
         <translation>Dath &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Téigh</translation>
+        <source>Jump to</source>
+        <translation>Léim go</translation>
     </message>
     <message>
         <source>Help</source>

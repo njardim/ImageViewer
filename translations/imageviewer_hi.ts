@@ -466,6 +466,27 @@
         <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>कुल समर्थित फ़ाइल प्रारूप: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>एक्सटेंशन</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>प्रारूप</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>डिकोडर</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>छवि प्रारूप</translation>
+    </message>
+    <message>
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>शीर्ष पर जानकारी ओवरले दिखाएँ (%1)</translation>
@@ -613,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>स्थिति</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%2 में से %1</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1019,6 +1035,10 @@
         <translation>कोई एप्लिकेशन नहीं मिला</translation>
     </message>
     <message>
+        <source>Jump to</source>
+        <translation>यहाँ जाएँ</translation>
+    </message>
+    <message>
         <source>Zoom locked: the next images keep it</source>
         <translation>ज़ूम लॉक किया गया: अगली छवियाँ इसे बनाए रखेंगी</translation>
     </message>
@@ -1102,10 +1122,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>रंग &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>जाएँ</translation>
     </message>
     <message>
         <source>Help</source>

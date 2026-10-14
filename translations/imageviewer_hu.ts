@@ -333,6 +333,27 @@
         <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Támogatott fájlformátumok összesen: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Kiterjesztés</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Formátum</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekóder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Képformátumok</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Információs panel megjelenítése (%1)</translation>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Pozíció</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,7 +1052,7 @@
         <translation>Szín &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
+        <source>Jump to</source>
         <translation>Ugrás</translation>
     </message>
     <message>

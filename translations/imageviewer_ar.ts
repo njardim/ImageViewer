@@ -466,6 +466,27 @@
         <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>إجمالي تنسيقات الملفات المدعومة: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>الامتداد</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>التنسيق</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>مفكك الترميز</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>تنسيقات الصور</translation>
+    </message>
+    <message>
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>إظهار تراكب المعلومات في الأعلى (%1)</translation>
@@ -613,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>الموضع</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 من %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1019,6 +1035,10 @@
         <translation>لم يتم العثور على تطبيقات</translation>
     </message>
     <message>
+        <source>Jump to</source>
+        <translation>انتقال إلى</translation>
+    </message>
+    <message>
         <source>Zoom locked: the next images keep it</source>
         <translation>تم قفل التكبير: ستحتفظ به الصور التالية</translation>
     </message>
@@ -1102,10 +1122,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>الألوان &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>انتقال</translation>
     </message>
     <message>
         <source>Help</source>

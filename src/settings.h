@@ -70,7 +70,7 @@ struct Settings {
     // The look of both information panels (D-49).
     int overlayBackgroundOpacity = 70; // percent
     int overlayTextOpacity = 100;      // percent
-    bool overlayOutline = true;        // dark outline around the text
+    bool overlayOutline = false;       // dark outline around the text, for HDR highlights (D-58)
     int overlayHideDelayMs = 1500;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back

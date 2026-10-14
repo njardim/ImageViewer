@@ -466,6 +466,27 @@
         <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>معاون فائل فارمیٹس کی کل تعداد: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>ایکسٹینشن</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>فارمیٹ</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>ڈیکوڈر</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>تصویری فارمیٹس</translation>
+    </message>
+    <message>
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>اوپر معلوماتی اوورلے دکھائیں (%1)</translation>
@@ -613,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>مقام</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 از %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1019,6 +1035,10 @@
         <translation>کوئی ایپلیکیشن نہیں ملی</translation>
     </message>
     <message>
+        <source>Jump to</source>
+        <translation>یہاں جائیں</translation>
+    </message>
+    <message>
         <source>Zoom locked: the next images keep it</source>
         <translation>زوم لاک ہو گیا: اگلی تصاویر اسے برقرار رکھیں گی</translation>
     </message>
@@ -1102,10 +1122,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>رنگ &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>جائیں</translation>
     </message>
     <message>
         <source>Help</source>

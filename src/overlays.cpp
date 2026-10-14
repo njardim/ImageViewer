@@ -54,6 +54,7 @@ QImage navigationButton(bool next, int pixels, bool pressed)
     const double s = kNavigationButtonSize;
     painter.drawEllipse(QRectF(0.5, 0.5, s - 1.0, s - 1.0));
     painter.setPen(QPen(QColor(240, 240, 240), 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.setBrush(Qt::NoBrush); // the circle's brush filled the open chevron as a dark triangle
     const double c = s / 2.0, half = s * 0.16, depth = s * 0.08;
     const double dir = next ? 1.0 : -1.0;
     QPainterPath chevron;
@@ -140,16 +141,12 @@ void ViewerWindow::updateOverlay()
         // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
         rows.append({tr("File"), displayFileName(file.fileName()), !rows.isEmpty()});
         rows.append({tr("Folder"), displayFileName(QDir::toNativeSeparators(file.absolutePath()))});
+        if (const QStringList position = overlayParts({OverlayField::Position}); !position.isEmpty())
+            rows.append({tr("Position"), position.constFirst()}); // as the overlay writes it (D-58)
         if (m_image.fileSize >= 0)
             rows.append({tr("Size"), fileSizeText(m_image.fileSize, locale)});
         if (m_image.modified.isValid())
             rows.append({tr("Modified"), locale.toString(m_image.modified, QLocale::ShortFormat)});
-        if (m_index >= 0 && m_files.value(m_index) == m_image.path) {
-            // Each value is written before its row: a //: comment describes the next tr().
-            //: Position of the image in its folder, e.g. "3 of 120".
-            const QString position = tr("%1 of %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
-            rows.append({tr("Position"), position});
-        }
     }
     if (m_settings.showInfo && m_image.width > 0) {
         //: Megapixels, e.g. "24.0 MP".
@@ -243,7 +240,7 @@ void ViewerWindow::updateOverlay()
         if (m_settings.clipWarning)
             view << tr("altered pixels highlighted");
         if (!view.isEmpty())
-            rows.append({tr("View"), view.join(dot), true});
+            rows.append({overlayFieldName(OverlayField::Zoom), view.join(dot), true});
         rows.append({tr("Output"), m_renderer.output().description + dot + m_renderer.backendName(), view.isEmpty()});
         if (m_image.width > 0) {
             // Whether the image is shown as is, tone mapped or clipped (criteria H4, H6).

@@ -333,6 +333,27 @@
         <translation>Tõsta esile pikslid, mida on muutnud kärpimine või toonivastendus (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Toetatud failivorminguid kokku: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Laiend</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Vorming</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekooder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Pildivormingud</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Kuva teabepaneel (%1)</translation>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Asukoht</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,8 +1052,8 @@
         <translation>Värv &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Mine</translation>
+        <source>Jump to</source>
+        <translation>Hüppa</translation>
     </message>
     <message>
         <source>Help</source>

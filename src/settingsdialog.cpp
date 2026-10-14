@@ -2,6 +2,8 @@
 // the values to the viewer, which applies them at once.
 #include "settings.h"
 
+#include "formats.h"
+
 #include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -20,6 +22,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QTableWidget>
 #include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
@@ -310,6 +313,30 @@ void SettingsDialog::buildUi()
     shortcutButtons->addWidget(allDefaults);
     shortcutButtons->addStretch();
     shortcutsLayout->addLayout(shortcutButtons);
+    // Image formats (D-58): what this build opens, straight from the format registry.
+    auto *formatsPage = new QWidget;
+    auto *formatsLayout = new QVBoxLayout(formatsPage);
+    const QList<SuffixRow> suffixRows = supportedSuffixTable();
+    //: %1: how many file name extensions the viewer opens, e.g. "134".
+    auto *formatsTotal = new QLabel(tr("Total supported file formats: %1").arg(QLocale().toString(suffixRows.size())));
+    formatsTotal->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
+    formatsLayout->addWidget(formatsTotal);
+    auto *formatsTable = new QTableWidget(int(suffixRows.size()), 3);
+    formatsTable->setHorizontalHeaderLabels({tr("Extension"), tr("Format"), tr("Decoder")});
+    formatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    formatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    formatsTable->verticalHeader()->hide();
+    formatsTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    formatsTable->horizontalHeader()->setStretchLastSection(true);
+    for (int row = 0; row < suffixRows.size(); ++row) {
+        const SuffixRow &r = suffixRows.at(row);
+        formatsTable->setItem(row, 0, new QTableWidgetItem(r.suffix));
+        formatsTable->setItem(row, 1, new QTableWidgetItem(r.formats));
+        formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoders));
+    }
+    formatsLayout->addWidget(formatsTable, 1);
+    tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));
     connect(m_shortcutTable, &QTreeWidget::currentItemChanged, this,
             [this] { showShortcutsOf(m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem())); });

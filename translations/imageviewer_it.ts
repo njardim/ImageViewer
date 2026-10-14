@@ -333,6 +333,27 @@
         <translation>Evidenzia i pixel alterati da clipping o tone mapping (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Formati di file supportati in totale: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Estensione</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Formato</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Decodificatore</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Formati immagine</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Mostra il pannello informazioni (%1)</translation>
@@ -472,7 +493,7 @@
     </message>
     <message>
         <source>After the last image, continue the slideshow with the first</source>
-        <translation>Dopo l'ultima immagine, continua la presentazione dalla prima</translation>
+        <translation>Dopo l&apos;ultima immagine, continua la presentazione dalla prima</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Posizione</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 di %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,8 +1052,8 @@
         <translation>Colore &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Vai</translation>
+        <source>Jump to</source>
+        <translation>Vai a</translation>
     </message>
     <message>
         <source>Help</source>

@@ -333,6 +333,27 @@
         <translation>Fremhæv pixels ændret af klipning eller tonemapping (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Understøttede filformater i alt: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Filtype</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekoder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Billedformater</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Vis informationspanelet (%1)</translation>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Placering</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 af %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,8 +1052,8 @@
         <translation>Farve &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Gå</translation>
+        <source>Jump to</source>
+        <translation>Gå til</translation>
     </message>
     <message>
         <source>Help</source>

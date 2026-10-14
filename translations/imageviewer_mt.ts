@@ -333,6 +333,27 @@
         <translation>Enfasizza l-pixels mibdula bil-clipping jew bit-tone mapping (manġenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total ta' formati tal-fajls appoġġjati: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Estensjoni</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekoder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Formati tal-immaġni</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Uri l-pannell tal-informazzjoni (%1)</translation>
@@ -460,11 +481,11 @@
     </message>
     <message>
         <source>The same as the overlay at the top</source>
-        <translation>L-istess bħall-overlay fin-naħa ta' fuq</translation>
+        <translation>L-istess bħall-overlay fin-naħa ta&apos; fuq</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
-        <translation>Overlay fin-naħa ta' fuq</translation>
+        <translation>Overlay fin-naħa ta&apos; fuq</translation>
     </message>
     <message>
         <source>Start the slideshow in full screen</source>
@@ -542,7 +563,7 @@
     <message>
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Uri l-overlay tal-informazzjoni fin-naħa ta' fuq (%1)</translation>
+        <translation>Uri l-overlay tal-informazzjoni fin-naħa ta&apos; fuq (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -617,11 +638,6 @@
     <message>
         <source>Position</source>
         <translation>Pożizzjoni</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 minn %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1036,8 +1052,8 @@
         <translation>Kulur &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Mur</translation>
+        <source>Jump to</source>
+        <translation>Aqbeż għal</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1199,7 +1215,7 @@
     </message>
     <message>
         <source>Slideshow paused</source>
-        <translation>Il-preżentazzjoni hija f'pawża</translation>
+        <translation>Il-preżentazzjoni hija f&apos;pawża</translation>
     </message>
 </context>
 </TS>

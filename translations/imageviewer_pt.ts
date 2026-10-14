@@ -124,7 +124,7 @@
     </message>
     <message>
         <source>Zoom</source>
-        <translation>Ampliação</translation>
+        <translation>Zoom</translation>
     </message>
     <message>
         <source>Color space</source>
@@ -466,6 +466,27 @@
         <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total de formatos de ficheiro suportados: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Extensão</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Formato</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Descodificador</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Formatos de imagem</translation>
+    </message>
+    <message>
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Mostrar a sobreposição de informação no topo (%1)</translation>
@@ -613,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Posição</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 de %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1019,6 +1035,10 @@
         <translation>Nenhuma aplicação encontrada</translation>
     </message>
     <message>
+        <source>Jump to</source>
+        <translation>Saltar para</translation>
+    </message>
+    <message>
         <source>Zoom locked: the next images keep it</source>
         <translation>Zoom bloqueado: as imagens seguintes mantêm-no</translation>
     </message>
@@ -1102,10 +1122,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Cor &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>Ir</translation>
     </message>
     <message>
         <source>Help</source>

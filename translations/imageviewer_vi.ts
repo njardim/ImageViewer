@@ -466,6 +466,27 @@
         <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Tổng số định dạng tệp được hỗ trợ: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Phần mở rộng</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Định dạng</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Bộ giải mã</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Định dạng ảnh</translation>
+    </message>
+    <message>
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Hiện lớp phủ thông tin ở trên cùng (%1)</translation>
@@ -613,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Vị trí</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 trên %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -1019,6 +1035,10 @@
         <translation>Không tìm thấy ứng dụng nào</translation>
     </message>
     <message>
+        <source>Jump to</source>
+        <translation>Chuyển đến</translation>
+    </message>
+    <message>
         <source>Zoom locked: the next images keep it</source>
         <translation>Đã khóa thu phóng: các ảnh tiếp theo giữ nguyên mức này</translation>
     </message>
@@ -1102,10 +1122,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Màu sắc &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>Đi</translation>
     </message>
     <message>
         <source>Help</source>

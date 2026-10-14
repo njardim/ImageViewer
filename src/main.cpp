@@ -243,7 +243,8 @@ int panelCheck(const RenderOptions &opt, QVulkanInstance *vulkan)
     out << "output:    " << output.description << '\n';
     int failures = 0;
     // Over SDR white the labels must read against the panel itself (WCAG AA, 4.5:1); over the
-    // brightest content the output can show, against their outline. Every cell must come out
+    // brightest content the output can show, against their outline (off by default, D-58: over HDR
+    // highlights the labels then need it, Settings > Information). Every cell must come out
     // as SDR would show it.
     for (const float level : {1.0f, stage.peak / stage.scale}) {
         auto pixels = std::make_shared<std::vector<qfloat16>>(std::size_t(size.width()) * size.height() * 4);

@@ -18,8 +18,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      the file is taken over, the settings still apply and move to [app], and
      the old default side-zone width (200 px) becomes the new one (100 px);
   7. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
-     detail on: fit to the window, X (a user shortcut for Fit to Width, D-52) fits the width,
-     1 is 100 %, L keeps it for the next image and L again lets it fit; the window takes
+     detail on: fit to the window, U (a user shortcut for Fit to Width, D-52) fits the width,
+     1 is 100 %, Z keeps it for the next image and Z again lets it fit; the window takes
      an image's size within 50 % of the screen;
   8. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
@@ -398,8 +398,8 @@ try:
             #    load after a restart and are saved again under [app]: with "do not ask again"
             #    from 0.1, Delete moves the file to the trash at once. The side zones' old
             #    default width (200 px, stored by every save up to 0.2) becomes the new 100 px;
-            #    the panels' old defaults (60 %, no outline, stored up to 0.3) become 70 % and
-            #    the outline (D-49), and the overlay's in full screen (on hover) becomes "always".
+            #    the panels' old default background (60 %, stored up to 0.3) becomes 70 %
+            #    (D-49), and the overlay's in full screen (on hover) becomes "always".
             with open(settings_file, encoding="utf-8") as f:
                 text = f.read()
             start = text.index("[app]")
@@ -431,14 +431,14 @@ try:
                 fail(f"settings not migrated to [app] in {settings_file}")
             if not re.search(r"(?m)^sideZoneWidth=100$", text) or not re.search(r"(?m)^version=3$", text):
                 fail(f"the old 200 px side zones were not migrated to 100 px in {settings_file}")
-            if not re.search(r"(?m)^backgroundOpacity=70$", text) or not re.search(r"(?m)^outline=true$", text):
+            if not re.search(r"(?m)^backgroundOpacity=70$", text) or not re.search(r"(?m)^outline=false$", text):
                 fail(f"the panels' old default style was not migrated in {settings_file}")
             if not re.search(r"(?m)^fullScreen=always$", text):
                 fail(f"the overlay's old full-screen default (on hover) was not migrated in {settings_file}")
             if os.path.exists(earlier_file):
                 fail("the settings file of the earlier name was not taken over")
             print("ok   0.3 settings file taken over; 0.1 settings migrated to [app]; old default side zones now 100 px; "
-                  "panels 70 % and outlined; overlay always shown in full screen")
+                  "panels 70 % without outline; overlay always shown in full screen")
 
             # 7. Zoom modes, zoom lock and the title bar (D-51).
             zoom_dir = os.path.join(work, "zoom")
@@ -479,12 +479,12 @@ try:
                     return m is not None and abs(float(m.group(1)) - want) <= 0.06
                 return check
 
-            edit_settings(("window", "title", "everything"), ("shortcuts", "FitWidth", "X"))  # D-52
+            edit_settings(("window", "title", "everything"), ("shortcuts", "FitWidth", "U"))  # D-52
             app = subprocess.Popen([exe, os.path.join(zoom_dir, "big1.png")], env=env, stdout=log, stderr=log)
             fit = lambda w, h: round(min(w / 2400, h / 1800, 1.0) * 100, 1)
             wait_until("the title shows the name, position, size, file size and fitted zoom", title_zoom("big1.png", fit))
-            xdotool("key", "x")
-            wait_until("X, the user's shortcut for Fit to Width (D-52), fits the width", title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
+            xdotool("key", "u")
+            wait_until("U, the user's shortcut for Fit to Width (D-52), fits the width", title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
             xdotool("key", "1")
             wait_until("1 shows 100 %", title_zoom("big1.png", lambda w, h: 100.0))
             xdotool("key", "z")

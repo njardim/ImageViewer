@@ -251,7 +251,6 @@ Settings Settings::load()
     if (store.value(QStringLiteral("version")).toInt() < 3) {
         if (s.overlayBackgroundOpacity == 60)
             s.overlayBackgroundOpacity = defaults.overlayBackgroundOpacity;
-        s.overlayOutline = defaults.overlayOutline;
         if (s.overlayFullScreen == OverlayVisibility::Hover)
             s.overlayFullScreen = defaults.overlayFullScreen;
     }

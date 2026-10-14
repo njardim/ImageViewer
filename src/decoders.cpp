@@ -684,7 +684,7 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error)
     return true;
 }
 
-bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error)
+bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error, qint64 maxPixels)
 {
     OIIO::Filesystem::IOMemReader memory(bytes.data(), std::size_t(bytes.size())); // outlives the reader below
     OIIO::Filesystem::IOProxy *proxy = &memory;
@@ -696,7 +696,7 @@ bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QStr
         *error = QString::fromStdString(OIIO::geterror());
         return false;
     }
-    return readOiio(std::move(in), 0, out, error, nullptr);
+    return readOiio(std::move(in), maxPixels, out, error, nullptr);
 }
 
 bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames)

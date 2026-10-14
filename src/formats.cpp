@@ -92,11 +92,13 @@ bool isApng(QByteArrayView h)
         if (startsWith(h, "IDAT", at + 4))
             return false;
         const quint32 length = bigEndian32(h, at);
-        if (length > quint32(h.size()))
-            return false;
+        if (quint64(length) + 12 > quint64(h.size() - at))
+            break;
         at += qsizetype(length) + 12;
     }
-    return false;
+    // Past the bytes read (a large iCCP or XMP before acTL is legal): perhaps an animation. The
+    // APNG decoder shows a plain PNG as a still image.
+    return h.size() >= kFormatHeadBytes;
 }
 bool isJpeg(QByteArrayView h) { return startsWithBytes(h, {0xFF, 0xD8, 0xFF}); }
 bool isGif(QByteArrayView h) { return startsWith(h, "GIF87a") || startsWith(h, "GIF89a"); }

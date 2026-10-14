@@ -219,14 +219,15 @@ private:
                 return false;
             }
         }
-        // The specification: the first frame covers the whole canvas.
-        if (!m_frames.empty()
+        // The specification: the first frame covers the whole canvas when it is the default image;
+        // after a default image left out of the animation it may be smaller.
+        if (m_firstFromIdat && !m_frames.empty()
             && (m_frames.front().x != 0 || m_frames.front().y != 0 || m_frames.front().width != m_width
                 || m_frames.front().height != m_height)) {
             *error = damaged("APNG");
             return false;
         }
-        // The first frame covers the canvas and cannot restore what came before it.
+        // Nothing came before the first frame to restore.
         if (!m_frames.empty() && m_frames.front().dispose == kDisposePrevious)
             m_frames.front().dispose = kDisposeBackground;
         return true;
@@ -343,5 +344,5 @@ bool decodeApng(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error
     if (!error->isEmpty() || out->overLimit)
         return false;
     *out = Decoded(); // no animation control: the default image, as any PNG
-    return decodeOiioMemory(copy, "image.png", out, error);
+    return decodeOiioMemory(copy, "image.png", out, error, maxPixels);
 }

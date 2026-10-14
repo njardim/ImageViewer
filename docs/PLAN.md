@@ -662,7 +662,12 @@ Nuno's adjustments after 0.4 (D-58):
 - [x] Shift+I a switch with its checkbox; both panels with 8 px corners; the panel's position third and its Zoom row; text outline off by default
 - [x] Slideshow: start in full screen, loop on its own, pause with Space `[test: animation_test.py]`
 - [x] Settings > Image Formats from the registry; the Go menu named Jump to; the side buttons' chevron fixed `[test: local Xvfb capture, before and after]`
-- [ ] D-35 review of the whole codebase, green CI, PR
+- [x] D-35 review of the whole codebase (2026-10-15): three same-model reviewers in parallel, one per area (decoding and colour; viewer, navigation and playback; settings, Open With and build), every finding reproduced before its fix `[test]`:
+  - **Security:** Open With put a file name unquoted into a shell when a desktop entry had a field code inside quotes (`sh -c "viewer %f"`): a file named `$(cmd).png` ran `cmd`. Such an entry now gets no command `[test: smoke.sh]`.
+  - **Decoding:** an APNG whose first frame is smaller than the canvas after a default image left out of the animation (legal) was refused, and one with a chunk over 64 KiB before acTL was read as a still PNG; the still-PNG fallback ignored the preload pixel limit `[test: smoke.sh, crafted files]`.
+  - **Interface:** a default added later (X, Fill Window) took a key the user had given another command; quitting during a slideshow that entered full screen saved full screen; a full screen the user entered again during a slideshow was left when it ended; First, Last and a removed file did not restart the slideshow's interval; the Image Formats table showed ".jxl" as "jxl." in Arabic and Urdu `[test: ui_test.py section 8; Xvfb repro]`.
+  - **Not changed:** migrations of 0.4 settings (outline, title "application"), by the owner's rule that nobody else runs 0.4; format names in the table stay the registry's technical names, untranslated, like the codec in the panel (owner to confirm).
+- [ ] Green CI, PR updated
 
 ### Phase 0 — Foundation (M)
 - [x] `CMakeLists.txt`, `CMakePresets.json`, `vcpkg.json`, `CLAUDE.md`, `scripts/build-qt-linux.sh`

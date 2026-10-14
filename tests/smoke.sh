@@ -94,6 +94,36 @@ for f in anim.gif anim.webp anim.jxl anim.png; do
     check "$f" 'frames: +3, loops 0, ms 100 200 300$' "animation: 3 frames and their durations"
     check "$f" 'frame px: +1\.000 0\.000 0\.000 \| 0\.000 1\.000 0\.000 \| 0\.000 0\.000 1\.000$' "animation: every frame's colour"
 done
+# APNG (0.5 review): a first frame smaller than the canvas after a default image left out of the
+# animation (legal), and a 70 KB XMP chunk before acTL, past the 64 KiB detection reads.
+apngs="$(mktemp -d)"
+python3 - "$data/anim.png" "$apngs" <<'PY'
+import struct, sys, zlib
+def chunk(t, d): return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+def raw(w, h, rgba): return zlib.compress(b''.join(b'\x00' + bytes(rgba) * w for _ in range(h)))
+seq = [0]
+def frame(w, h, x, y, rgba):
+    fc = chunk(b'fcTL', struct.pack('>IIIIIHHBB', seq[0], w, h, x, y, 1, 10, 0, 0))
+    fd = chunk(b'fdAT', struct.pack('>I', seq[0] + 1) + raw(w, h, rgba)); seq[0] += 2
+    return fc + fd
+png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 4, 4, 8, 6, 0, 0, 0)) + chunk(b'acTL', struct.pack('>II', 2, 0))
+png += chunk(b'IDAT', raw(4, 4, (0, 0, 255, 255))) + frame(2, 2, 1, 1, (255, 0, 0, 255)) + frame(4, 4, 0, 0, (0, 255, 0, 255))
+open(sys.argv[2] + '/subrect.png', 'wb').write(png + chunk(b'IEND', b''))
+src = open(sys.argv[1], 'rb').read()
+open(sys.argv[2] + '/xmp70k.png', 'wb').write(src[:33] + chunk(b'iTXt', b'XML:com.adobe.xmp\0\0\0\0\0' + b' ' * 70000) + src[33:])
+PY
+while read -r name count; do
+    if "$exe" --info "$apngs/$name" 2>/dev/null | grep -Eq "^frames: +$count,"; then
+        echo "ok   $name: played as an APNG ($count frames)"
+    else
+        echo "FAIL $name: not played as an APNG"
+        failures=$((failures + 1))
+    fi
+done <<'CASES'
+subrect.png 2
+xmp70k.png 3
+CASES
+rm -rf "$apngs"
 # AVIF image sequences (libheif 1.23 track API; CI requires it, local builds against an older
 # distribution libheif skip these): the same three frames, Pillow 12.3 at quality 100, which
 # is still lossy (blue comes back as 0.99).

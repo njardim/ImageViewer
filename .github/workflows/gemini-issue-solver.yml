@@ -68,15 +68,16 @@ jobs:
             }
 
           prompt: |
-            Analisa a Issue #${{ env.ISSUE_NUMBER }} que acabou de ser aberta.
+            Analisa o Issue #${{ env.ISSUE_NUMBER }} que acabou de ser aberto.
             Título: ${{ env.ISSUE_TITLE }}
             Descrição: ${{ env.ISSUE_BODY }}
 
             Instruções passo a passo:
             1. Explora a base de código para encontrar os ficheiros relevantes.
-            2. Cria uma nova branch chamada `fix/issue-${{ env.ISSUE_NUMBER }}`.
-            3. Implementa a solução pedida na Issue.
+            2. Cria um novo branch chamado `gemini/issue-${{ env.ISSUE_NUMBER }}`.
+            3. Implementa a solução pedida no Issue.
             4. Executa o código e os testes no terminal (`run_shell_command`) para validar que a solução funciona sem erros.
-            5. Faz commit das alterações e push da branch `fix/issue-${{ env.ISSUE_NUMBER }}`.
-            6. Abre um Pull Request com `gh pr create --fill --head fix/issue-${{ env.ISSUE_NUMBER }}` referenciando "Closes #${{ env.ISSUE_NUMBER }}".
-            7. Comenta na Issue #${{ env.ISSUE_NUMBER }} com o link do PR criado.
+            5. Executa uma análise adversarial ao código para garantir que não existem bugs, falhas de segurança, redundância de código, código morto, otimizações de performance por implementar ou má engenharia de software.
+            6. Faz commit das alterações e push do branch `gemini/issue-${{ env.ISSUE_NUMBER }}`.
+            7. Abre um Pull Request com `gh pr create --fill --head gemini/issue-${{ env.ISSUE_NUMBER }}` referenciando "Closes #${{ env.ISSUE_NUMBER }}".
+            8. Comenta o Issue #${{ env.ISSUE_NUMBER }} com a descrição da solução implementada e o link do PR criado.

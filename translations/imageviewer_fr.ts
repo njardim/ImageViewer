@@ -265,11 +265,6 @@
         <translation>Afficher le panneau d’informations (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Surimpression en haut (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>Toujours</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>Au maximum&#xa0;:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Le nom de l’application</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Le nom du fichier</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>Nom, position, dimensions, taille du fichier et zoom</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Identique à la surimpression en haut</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>Barre de titre&#xa0;:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>Masquer le pointeur immobile après&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Surimpression en haut</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>Charger à l’avance l’image suivante et la précédente</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Démarrer le diaporama en plein écran</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Après la dernière image, reprendre le diaporama à la première</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Mettre en évidence les pixels modifiés par l’écrêtage ou le mappage des tons (magenta)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Afficher la surimpression d’informations en haut (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>Mettre en évidence les pixels modifiés</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Mettre l&apos;animation en pause</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pause</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Diaporama : une nouvelle image toutes les %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Diaporama en pause</translation>
     </message>
 </context>
 </TS>

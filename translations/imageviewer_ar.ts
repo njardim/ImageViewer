@@ -265,11 +265,6 @@
         <translation>إظهار لوحة المعلومات (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>التراكب في الأعلى (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>دائماً</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>الحد الأقصى:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>اسم التطبيق</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>اسم الملف</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>الاسم والموضع والأبعاد وحجم الملف والتكبير</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>مثل التراكب في الأعلى</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>شريط العنوان:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>إخفاء المؤشر الساكن بعد:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>التراكب في الأعلى</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>تحميل الصورة التالية والسابقة مسبقاً</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>بدء عرض الشرائح في وضع ملء الشاشة</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>بعد الصورة الأخيرة، متابعة عرض الشرائح من الأولى</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>إظهار تراكب المعلومات في الأعلى (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>تمييز وحدات البكسل المعدلة</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>إيقاف الرسوم المتحركة مؤقتًا</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>إيقاف مؤقت</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>عرض الشرائح: صورة جديدة كل %1 ث</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>عرض الشرائح متوقف مؤقتًا</translation>
     </message>
 </context>
 </TS>

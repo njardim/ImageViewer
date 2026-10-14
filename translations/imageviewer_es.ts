@@ -265,11 +265,6 @@
         <translation>Mostrar el panel de información (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Superposición en la parte superior (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>Siempre</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>Como máximo:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>El nombre de la aplicación</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>El nombre del archivo</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>Nombre, posición, dimensiones, tamaño del archivo y zoom</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Igual que la superposición en la parte superior</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>Barra de título:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>Ocultar el puntero inmóvil después de:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Superposición en la parte superior</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>Cargar de antemano la imagen siguiente y la anterior</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Iniciar la presentación en pantalla completa</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Tras la última imagen, continuar la presentación con la primera</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Resaltar los píxeles alterados por recorte o mapeo de tonos (magenta)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Mostrar la superposición de información en la parte superior (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>Resaltar píxeles alterados</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Pausar animación</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pausar</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Presentación: una imagen nueva cada %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Presentación en pausa</translation>
     </message>
 </context>
 </TS>

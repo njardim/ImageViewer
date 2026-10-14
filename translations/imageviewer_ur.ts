@@ -265,11 +265,6 @@
         <translation>معلوماتی پینل دکھائیں (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>اوپر اوورلے (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>ہمیشہ</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>زیادہ سے زیادہ:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>ایپلیکیشن کا نام</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>فائل کا نام</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>نام، مقام، ابعاد، فائل کا سائز اور زوم</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>اوپر اوورلے جیسا</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>ٹائٹل بار:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>ساکن پوائنٹر اتنی دیر بعد چھپائیں:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>اوپر اوورلے</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>اگلی اور پچھلی تصاویر پہلے سے لوڈ کریں</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>سلائیڈ شو پوری اسکرین میں شروع کریں</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>آخری تصویر کے بعد سلائیڈ شو پہلی تصویر سے جاری رکھیں</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>اوپر معلوماتی اوورلے دکھائیں (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>تبدیل شدہ پکسلز نمایاں کریں</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>اینیمیشن موقوف کریں</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>موقوف</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>سلائیڈ شو: ہر %1 سیکنڈ میں نئی تصویر</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>سلائیڈ شو موقوف ہے</translation>
     </message>
 </context>
 </TS>

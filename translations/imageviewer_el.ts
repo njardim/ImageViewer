@@ -305,10 +305,6 @@
         <translation>Το πολύ:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Το όνομα της εφαρμογής</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Το όνομα του αρχείου</translation>
     </message>
@@ -340,11 +336,6 @@
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Εμφάνιση του πίνακα πληροφοριών (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Επικάλυψη στην κορυφή (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +459,22 @@
         <translation>Πλοήγηση</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Ίδια με την επικάλυψη στην κορυφή</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Επικάλυψη στην κορυφή</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Έναρξη της παρουσίασης σε πλήρη οθόνη</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Μετά την τελευταία εικόνα, συνέχιση της παρουσίασης με την πρώτη</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Αυτόματα (HDR όταν η οθόνη το υποστηρίζει)</translation>
     </message>
@@ -531,6 +538,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Επαναφορά προεπιλογών</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Εμφάνιση της επικάλυψης πληροφοριών στην κορυφή (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -974,8 +986,9 @@
         <translation>Επισήμανση τροποποιημένων pixel</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Παύση κίνησης</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Παύση</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Παρουσίαση: νέα εικόνα κάθε %1 δ</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Η παρουσίαση είναι σε παύση</translation>
     </message>
 </context>
 </TS>

@@ -615,7 +615,7 @@ void ViewerWindow::applySettings(const Settings &settings)
     }
     if (settings.pointerHideMs != previous.pointerHideMs)
         pointerActive();
-    if (m_slideshow && settings.slideshowSeconds != previous.slideshowSeconds)
+    if (m_slideshow && !m_slideshowPaused && settings.slideshowSeconds != previous.slideshowSeconds)
         m_slideshowTimer.start(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes the new interval
     m_renderer.setOutputPreference(settings.output);
     // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.

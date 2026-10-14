@@ -21,6 +21,8 @@ constexpr double kNavigationButtonSize = 56.0; // logical pixels
 constexpr double kMargin = 12.0;               // between the window edge and a panel, logical pixels
 constexpr double kTopMargin = 8.0;
 constexpr int kNoticeMs = 3000;
+constexpr double kPanelRadius = 8.0;                  // both information panels' corners (D-58), logical pixels
+const QString kFieldSeparator = QStringLiteral("   ·   "); // between the top overlay's facts, and the title's
 
 // "100" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
 QString zoomNumber(double zoom, const QLocale &locale)
@@ -101,26 +103,19 @@ void ViewerWindow::showNotice(const QString &text)
 
 void ViewerWindow::updateTitle()
 {
-    // Facts joined like the top overlay's, most important first; the application last.
-    QStringList parts;
-    if (m_settings.titleMode != TitleMode::Application && !m_image.path.isEmpty()) {
-        const QLocale locale;
-        parts << displayFileName(QFileInfo(m_image.path).fileName());
-        if (m_settings.titleMode >= TitleMode::Details) {
-            if (m_index >= 0 && m_files.value(m_index) == m_image.path)
-                parts << QStringLiteral("%1 / %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
-            if (m_image.width > 0) // the file's size, as the panels show it, not the GPU texture's
-                parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth), locale.toString(m_image.sourceHeight));
-        }
-        if (m_settings.titleMode == TitleMode::Everything) {
-            if (m_image.fileSize >= 0)
-                parts << fileSizeText(m_image.fileSize, locale);
-            if (m_image.width > 0)
-                parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
-        }
-    }
-    parts << QStringLiteral("ImageViewer");
-    const QString text = parts.join(QStringLiteral(" — "));
+    // The overlay's own fields, or a fixed set, always in its wording and style (D-58).
+    using F = OverlayField;
+    static const QList<OverlayField> name = {F::Name}, details = {F::Name, F::Position, F::Dimensions},
+                                     everything = {F::Name, F::Position, F::Dimensions, F::FileSize, F::Zoom};
+    const TitleMode mode = m_settings.titleMode;
+    const QList<OverlayField> &fields = mode == TitleMode::Overlay   ? m_settings.overlayFields
+                                        : mode == TitleMode::Name    ? name
+                                        : mode == TitleMode::Details ? details
+                                                                     : everything;
+    QString text = m_image.path.isEmpty() ? QString() : overlayParts(fields).join(kFieldSeparator);
+    if (!text.isEmpty())
+        text += QStringLiteral(" — ");
+    text += QStringLiteral("ImageViewer");
     if (text != title())
         setTitle(text);
 }
@@ -336,7 +331,7 @@ void ViewerWindow::updateOverlay()
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
     painter.setPen(Qt::NoPen);
     painter.setBrush(m_settings.panelBackground());
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), 8, 8);
+    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
     painter.setFont(font);
     const QColor valueColour = m_settings.panelText(Settings::kPanelValueGrey);
     const QColor labelColour = m_settings.panelText(Settings::kPanelLabelGrey);
@@ -377,6 +372,8 @@ void ViewerWindow::updateOverlay()
 
 OverlayVisibility ViewerWindow::topOverlayMode() const
 {
+    if (!m_settings.showOverlay)
+        return OverlayVisibility::Hidden;
     return visibility() == QWindow::FullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
 }
 
@@ -411,51 +408,61 @@ void ViewerWindow::setPointerAtTop(bool atTop)
     }
 }
 
+QStringList ViewerWindow::overlayParts(const QList<OverlayField> &fields, int *nameIndex) const
+{
+    const QLocale locale;
+    const bool hasImage = m_image.width > 0;
+    QStringList parts;
+    for (OverlayField field : fields) {
+        switch (field) {
+        case OverlayField::Name:
+            if (nameIndex)
+                *nameIndex = int(parts.size());
+            parts << displayFileName(QFileInfo(m_image.path).fileName());
+            break;
+        case OverlayField::Dimensions:
+            if (hasImage)
+                parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
+                                                      locale.toString(m_image.sourceHeight));
+            break;
+        case OverlayField::FileSize:
+            if (m_image.fileSize >= 0)
+                parts << fileSizeText(m_image.fileSize, locale);
+            break;
+        case OverlayField::Zoom:
+            if (hasImage)
+                parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
+            break;
+        case OverlayField::ColorSpace:
+            if (hasImage)
+                parts << m_image.colour.description;
+            break;
+        case OverlayField::Modified:
+            if (m_image.modified.isValid())
+                parts << locale.toString(m_image.modified, QLocale::ShortFormat);
+            break;
+        case OverlayField::Position:
+            if (m_index >= 0 && m_files.value(m_index) == m_image.path)
+                parts << QStringLiteral("%1 / %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
+            break;
+        case OverlayField::Output:
+            if (!m_renderer.output().description.isEmpty()) // none before the first frame
+                parts << m_renderer.output().description;
+            break;
+        }
+    }
+    return parts;
+}
+
 void ViewerWindow::updateTopOverlay()
 {
     if (!m_rendererReady)
         return;
-    const QLocale locale;
     QStringList parts;
     int nameIndex = -1; // where the file name is among the parts shown
     // Hidden (the default in a window): nothing to paint or upload on every zoom step.
-    if (!m_image.path.isEmpty() && topOverlayMode() != OverlayVisibility::Hidden) {
-        const bool hasImage = m_image.width > 0;
-        for (OverlayField field : std::as_const(m_settings.overlayFields)) {
-            switch (field) {
-            case OverlayField::Name:
-                nameIndex = int(parts.size());
-                parts << displayFileName(QFileInfo(m_image.path).fileName());
-                break;
-            case OverlayField::Dimensions:
-                if (hasImage)
-                    parts << QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
-                                                          locale.toString(m_image.sourceHeight));
-                break;
-            case OverlayField::FileSize:
-                if (m_image.fileSize >= 0)
-                    parts << fileSizeText(m_image.fileSize, locale);
-                break;
-            case OverlayField::Zoom:
-                if (hasImage)
-                    parts << tr("%1 %").arg(zoomNumber(shownZoom(), locale));
-                break;
-            case OverlayField::ColorSpace:
-                if (hasImage)
-                    parts << m_image.colour.description;
-                break;
-            case OverlayField::Modified:
-                if (m_image.modified.isValid())
-                    parts << locale.toString(m_image.modified, QLocale::ShortFormat);
-                break;
-            case OverlayField::Position:
-                if (m_index >= 0 && m_files.value(m_index) == m_image.path)
-                    parts << QStringLiteral("%1 / %2").arg(locale.toString(m_index + 1), locale.toString(m_files.size()));
-                break;
-            case OverlayField::Output: parts << m_renderer.output().description; break;
-            }
-        }
-    }
+    if (!m_image.path.isEmpty() && topOverlayMode() != OverlayVisibility::Hidden)
+        parts = overlayParts(m_settings.overlayFields, &nameIndex);
     const qreal dpr = devicePixelRatio();
     const QString key = parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6")
                                                       .arg(m_settings.overlayBackgroundOpacity)
@@ -476,20 +483,19 @@ void ViewerWindow::updateTopOverlay()
 
     const QFont font = QGuiApplication::font();
     const QFontMetricsF metrics(font);
-    const QString separator = QStringLiteral("   ·   ");
     const qreal paddingX = 14.0, paddingY = 6.0;
     const qreal maxText = std::max(60.0, width() - 2 * kMargin - 2 * paddingX);
-    QString text = parts.join(separator);
+    QString text = parts.join(kFieldSeparator);
     // Too wide: shorten the file name first (it is usually the longest part), then the line.
     if (metrics.horizontalAdvance(text) > maxText && nameIndex >= 0) {
         QStringList others = parts;
         others.removeAt(nameIndex);
-        const qreal rest = metrics.horizontalAdvance(others.join(separator) + separator);
+        const qreal rest = metrics.horizontalAdvance(others.join(kFieldSeparator) + kFieldSeparator);
         parts[nameIndex] = metrics.elidedText(parts.at(nameIndex), Qt::ElideMiddle, std::max(60.0, maxText - rest));
     }
     for (QString &part : parts)
         part = isolated(part);
-    text = metrics.elidedText(parts.join(separator), Qt::ElideRight, maxText);
+    text = metrics.elidedText(parts.join(kFieldSeparator), Qt::ElideRight, maxText);
     const QSizeF logical(std::ceil(metrics.horizontalAdvance(text) + 2 * paddingX),
                          std::ceil(metrics.height() + 2 * paddingY));
 
@@ -501,7 +507,7 @@ void ViewerWindow::updateTopOverlay()
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
     painter.setPen(Qt::NoPen);
     painter.setBrush(m_settings.panelBackground());
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), logical.height() / 2.0, logical.height() / 2.0);
+    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
     painter.setFont(font);
     const QRectF textRect(paddingX, paddingY, logical.width() - 2 * paddingX, metrics.height());
     drawPanelText(painter, textRect, Qt::AlignCenter, text, m_settings.panelText(Settings::kPanelValueGrey),

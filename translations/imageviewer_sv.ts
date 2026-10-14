@@ -305,10 +305,6 @@
         <translation>Högst:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Programmets namn</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Filnamnet</translation>
     </message>
@@ -340,11 +336,6 @@
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Visa informationspanelen (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Överlagring högst upp (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +459,22 @@
         <translation>Navigering</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Samma som överlagringen högst upp</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Överlagring högst upp</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Starta bildspelet i helskärm</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Fortsätt bildspelet med den första bilden efter den sista</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatiskt (HDR när skärmen stöder det)</translation>
     </message>
@@ -531,6 +538,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Återställ standardvärden</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Visa informationsöverlagringen högst upp (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -974,8 +986,9 @@
         <translation>Markera ändrade pixlar</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Pausa animering</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Paus</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Bildspel: en ny bild var %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Bildspelet pausat</translation>
     </message>
 </context>
 </TS>

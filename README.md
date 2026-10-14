@@ -71,7 +71,7 @@ The packages are **not signed yet**:
 | Shift+W / Shift+H | Mirror horizontally / vertically |
 | I / Shift+I | Information panel / overlay at the top |
 | B | Checkerboard behind transparent areas |
-| Space / Ctrl+← / Ctrl+→ (⌘ on macOS) | Pause an animation (or stop a slideshow) / previous frame / next frame |
+| Space / Ctrl+← / Ctrl+→ (⌘ on macOS) | Pause the running slideshow, otherwise the animation / previous frame / next frame |
 | S / Esc | Start or stop the slideshow / stop it |
 | E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
 | T | Tone mapping on/off (off: clip at the display's peak) |

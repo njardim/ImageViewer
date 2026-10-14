@@ -305,10 +305,6 @@
         <translation>Ne vairāk kā:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Lietojumprogrammas nosaukums</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Faila nosaukums</translation>
     </message>
@@ -340,11 +336,6 @@
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Rādīt informācijas paneli (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Pārklājums augšpusē (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +459,22 @@
         <translation>Navigācija</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Tāpat kā pārklājums augšpusē</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Pārklājums augšpusē</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Sākt slīdrādi pilnekrāna režīmā</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Pēc pēdējā attēla turpināt slīdrādi ar pirmo</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automātiski (HDR, ja displejs to atbalsta)</translation>
     </message>
@@ -531,6 +538,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Atjaunot noklusējumus</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Rādīt informācijas pārklājumu augšpusē (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -974,8 +986,9 @@
         <translation>Iezīmēt izmainītos pikseļus</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Pauzēt animāciju</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pauze</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Slīdrāde: jauns attēls ik pēc %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Slīdrāde pauzēta</translation>
     </message>
 </context>
 </TS>

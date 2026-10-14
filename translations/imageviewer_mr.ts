@@ -265,11 +265,6 @@
         <translation>माहिती पॅनेल दाखवा (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>वर ओव्हरले (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>नेहमी</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>जास्तीत जास्त:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>ॲप्लिकेशनचे नाव</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>फाइलचे नाव</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>नाव, स्थान, परिमाणे, फाइलचा आकार आणि झूम</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>वरच्या ओव्हरलेप्रमाणेच</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>टायटल बार:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>स्थिर पॉइंटर इतक्या वेळानंतर लपवा:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>वर ओव्हरले</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>पुढील आणि मागील प्रतिमा आधीच लोड करा</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>स्लाइडशो पूर्ण स्क्रीनमध्ये सुरू करा</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>शेवटच्या प्रतिमेनंतर स्लाइडशो पहिल्या प्रतिमेपासून सुरू ठेवा</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>क्लिपिंग किंवा टोन मॅपिंगमुळे बदललेले पिक्सेल हायलाइट करा (मॅजेंटा)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>वर माहिती ओव्हरले दाखवा (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>बदललेले पिक्सेल हायलाइट करा</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>ॲनिमेशन थांबवा</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>विराम</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>स्लाइडशो: दर %1 सेकंदांनी नवीन प्रतिमा</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>स्लाइडशोला विराम दिला</translation>
     </message>
 </context>
 </TS>

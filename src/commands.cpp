@@ -154,7 +154,8 @@ QString ViewerWindow::commandText(Command command) const
     case Command::ExposureReset: return tr("Reset Exposure");
     case Command::ToneMap: return tr("Tone Mapping (BT.2390)");
     case Command::ClipWarning: return tr("Highlight Altered Pixels");
-    case Command::PlayPause: return tr("Pause Animation");
+    //: Space: pauses the running slideshow, otherwise the animation.
+    case Command::PlayPause: return tr("Pause");
     case Command::PreviousFrame: return tr("Previous Frame");
     case Command::NextFrame: return tr("Next Frame");
     case Command::Slideshow: return tr("Slideshow");
@@ -188,7 +189,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::First:
     case Command::Last: return m_files.size() > 1;
     case Command::Slideshow: return m_slideshow || m_files.size() > 1; // a running one can always be stopped
-    case Command::PlayPause: return m_slideshow || m_animation != nullptr; // Space also stops a slideshow
+    case Command::PlayPause: return m_slideshow || m_animation != nullptr; // the slideshow first
     case Command::PreviousFrame:
     case Command::NextFrame: return m_animation != nullptr;
     case Command::ZoomIn:
@@ -224,7 +225,7 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::Checkerboard: return m_settings.checkerboard;
     case Command::ToneMap: return m_settings.toneMap;
     case Command::ClipWarning: return m_settings.clipWarning;
-    case Command::PlayPause: return m_animationPaused;
+    case Command::PlayPause: return m_slideshow ? m_slideshowPaused : m_animationPaused;
     case Command::Slideshow: return m_slideshow;
     default: *checkable = false; return false;
     }
@@ -279,7 +280,7 @@ void ViewerWindow::execute(Command command)
     case Command::ExposureReset: resetExposure(); break;
     case Command::ToneMap: toggleToneMap(); break;
     case Command::ClipWarning: toggleClipWarning(); break;
-    case Command::PlayPause: m_slideshow ? toggleSlideshow() : togglePause(); break;
+    case Command::PlayPause: m_slideshow ? toggleSlideshowPause() : togglePause(); break;
     case Command::PreviousFrame: stepFrame(-1); break;
     case Command::NextFrame: stepFrame(+1); break;
     case Command::Slideshow: toggleSlideshow(); break;
@@ -476,17 +477,16 @@ void ViewerWindow::showOpenDialog()
 
 void ViewerWindow::toggleTopOverlay()
 {
-    // Off, and back on to the mode it had (always, or on hover at the top), separately for a
-    // window and for full screen; the menu shows it checked whenever it is on.
+    // Like I for the panel, a switch (Settings::showOverlay); switched on where its mode is
+    // "never" (the default in a window), it shows there always.
     const bool fullScreen = visibility() == QWindow::FullScreen;
-    const OverlayVisibility mode = fullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
-    OverlayVisibility &restore = m_overlayRestore[fullScreen ? 1 : 0];
-    OverlayVisibility next = restore;
-    if (mode != OverlayVisibility::Hidden) {
-        restore = mode;
-        next = OverlayVisibility::Hidden;
-    }
-    savePreference([fullScreen, next](Settings &s) { (fullScreen ? s.overlayFullScreen : s.overlayWindow) = next; });
+    const bool show = topOverlayMode() == OverlayVisibility::Hidden;
+    savePreference([fullScreen, show](Settings &s) {
+        s.showOverlay = show;
+        OverlayVisibility &mode = fullScreen ? s.overlayFullScreen : s.overlayWindow;
+        if (show && mode == OverlayVisibility::Hidden)
+            mode = OverlayVisibility::Always;
+    });
     updateTopOverlay();
     requestUpdate();
 }

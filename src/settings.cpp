@@ -90,7 +90,7 @@ constexpr std::pair<FitMode, const char *> kFitModes[] = {
     {FitMode::Window, "window"}, {FitMode::Width, "width"}, {FitMode::Height, "height"}, {FitMode::Fill, "fill"}};
 constexpr std::pair<WindowFit, const char *> kWindowFits[] = {
     {WindowFit::Never, "never"}, {WindowFit::FirstImage, "first"}, {WindowFit::EveryImage, "every"}};
-constexpr std::pair<TitleMode, const char *> kTitleModes[] = {{TitleMode::Application, "application"},
+constexpr std::pair<TitleMode, const char *> kTitleModes[] = {{TitleMode::Overlay, "overlay"},
                                                               {TitleMode::Name, "name"},
                                                               {TitleMode::Details, "details"},
                                                               {TitleMode::Everything, "everything"}};
@@ -222,6 +222,7 @@ Settings Settings::load()
     s.titleMode = fromKey(kTitleModes, store.value(QStringLiteral("window/title")).toString(), defaults.titleMode);
     s.pointerHideMs = boundedInt(store, QStringLiteral("window/pointerHideMs"), defaults.pointerHideMs, 0, kMaxPointerHideMs);
     s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
+    s.showOverlay = boolValue(store, QStringLiteral("window/showOverlay"), defaults.showOverlay);
 
     s.overlayFullScreen = visibilityFromKey(store.value(QStringLiteral("overlay/fullScreen")).toString(),
                                             defaults.overlayFullScreen);
@@ -271,6 +272,8 @@ Settings Settings::load()
     const double seconds = store.value(QStringLiteral("navigation/slideshowSeconds")).toDouble(&numeric);
     s.slideshowSeconds = numeric && seconds >= kMinSlideshowSeconds && seconds <= kMaxSlideshowSeconds
                              ? seconds : defaults.slideshowSeconds;
+    s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
+    s.slideshowLoop = boolValue(store, QStringLiteral("navigation/slideshowLoop"), defaults.slideshowLoop);
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -354,6 +357,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("window/title"), QString::fromLatin1(keyOf(kTitleModes, titleMode)));
     store.setValue(QStringLiteral("window/pointerHideMs"), pointerHideMs);
     store.setValue(QStringLiteral("window/showInfo"), showInfo);
+    store.setValue(QStringLiteral("window/showOverlay"), showOverlay);
     store.setValue(QStringLiteral("overlay/fullScreen"), QString::fromLatin1(visibilityKey(overlayFullScreen)));
     store.setValue(QStringLiteral("overlay/window"), QString::fromLatin1(visibilityKey(overlayWindow)));
     QStringList ids;
@@ -371,6 +375,8 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/sortDescending"), sortDescending);
     store.setValue(QStringLiteral("navigation/preload"), preload);
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
+    store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
+    store.setValue(QStringLiteral("navigation/slideshowLoop"), slideshowLoop);
     store.remove(QStringLiteral("shortcuts"));
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QStringList parts;

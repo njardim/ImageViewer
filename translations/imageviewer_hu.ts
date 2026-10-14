@@ -305,10 +305,6 @@
         <translation>Legfeljebb:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Az alkalmazás neve</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>A fájl neve</translation>
     </message>
@@ -340,11 +336,6 @@
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Információs panel megjelenítése (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Fedőréteg felül (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +459,22 @@
         <translation>Navigáció</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Ugyanaz, mint a felső fedőréteg</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Fedőréteg felül</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>A diavetítés teljes képernyőn induljon</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Az utolsó kép után a diavetítés folytatódjon az elsővel</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatikus (HDR, ha a kijelző támogatja)</translation>
     </message>
@@ -531,6 +538,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Alapértelmezések visszaállítása</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Információs fedőréteg megjelenítése felül (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -974,8 +986,9 @@
         <translation>Megváltozott képpontok kiemelése</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Animáció szüneteltetése</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Szünet</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Diavetítés: %1 másodpercenként új kép</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Diavetítés szüneteltetve</translation>
     </message>
 </context>
 </TS>

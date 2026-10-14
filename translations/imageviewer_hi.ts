@@ -265,11 +265,6 @@
         <translation>जानकारी पैनल दिखाएँ (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>शीर्ष पर ओवरले (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>हमेशा</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>अधिकतम:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>एप्लिकेशन का नाम</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>फ़ाइल का नाम</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>नाम, स्थिति, आयाम, फ़ाइल का आकार और ज़ूम</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>शीर्ष ओवरले के समान</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>टाइटल बार:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>स्थिर पॉइंटर इसके बाद छिपाएँ:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>शीर्ष पर ओवरले</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>अगली और पिछली छवियाँ पहले से लोड करें</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>स्लाइड शो पूर्ण स्क्रीन में शुरू करें</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>अंतिम छवि के बाद स्लाइड शो पहली छवि से जारी रखें</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>शीर्ष पर जानकारी ओवरले दिखाएँ (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>बदले गए पिक्सेल हाइलाइट करें</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>एनिमेशन रोकें</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>विराम</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>स्लाइड शो: हर %1 सेकंड में एक नई छवि</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>स्लाइड शो विराम पर है</translation>
     </message>
 </context>
 </TS>

@@ -471,8 +471,9 @@ try:
 
             def title_zoom(name, expected):
                 def check():
+                    d = "   ·   "  # the top overlay's separator, which the title shares (D-58)
                     title, width, height = viewer()
-                    m = re.fullmatch(rf"{re.escape(name)} — [\d,]+ / [\d,]+ — [\d,]+ × [\d,]+ — .+ — ([\d.]+) % — ImageViewer",
+                    m = re.fullmatch(rf"{re.escape(name)}{d}[\d,]+ / [\d,]+{d}[\d,]+ × [\d,]+{d}.+{d}([\d.]+) % — ImageViewer",
                                  title)  # numbers as QLocale writes them: 1,200
                     want = expected(width, height)
                     return m is not None and abs(float(m.group(1)) - want) <= 0.06

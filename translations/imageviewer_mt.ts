@@ -305,10 +305,6 @@
         <translation>Massimu:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>L-isem tal-applikazzjoni</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>L-isem tal-fajl</translation>
     </message>
@@ -340,11 +336,6 @@
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Uri l-pannell tal-informazzjoni (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Overlay fin-naħa ta&apos; fuq (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +459,22 @@
         <translation>Navigazzjoni</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>L-istess bħall-overlay fin-naħa ta' fuq</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Overlay fin-naħa ta' fuq</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Ibda l-preżentazzjoni fuq skrin sħiħ</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Wara l-aħħar immaġni, kompli l-preżentazzjoni bl-ewwel waħda</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Awtomatiku (HDR meta l-iskrin jappoġġjah)</translation>
     </message>
@@ -531,6 +538,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Irrestawra l-valuri predefiniti</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Uri l-overlay tal-informazzjoni fin-naħa ta' fuq (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -974,8 +986,9 @@
         <translation>Enfasizza l-pixels mibdula</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Agħmel pawża lill-animazzjoni</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pawża</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Preżentazzjoni: stampa ġdida kull %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Il-preżentazzjoni hija f'pawża</translation>
     </message>
 </context>
 </TS>

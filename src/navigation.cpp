@@ -94,7 +94,7 @@ void ViewerWindow::step(int delta)
         target = (target % n + n) % n;
     }
     m_direction = delta > 0 ? 1 : -1;
-    if (m_slideshow) // the next image comes a full interval after this one
+    if (m_slideshow && !m_slideshowPaused) // the next image comes a full interval after this one
         m_slideshowTimer.start();
     startLoading(target);
 }

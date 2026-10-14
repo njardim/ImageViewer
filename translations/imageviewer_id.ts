@@ -265,11 +265,6 @@
         <translation>Tampilkan panel informasi (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Overlay di bagian atas (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>Selalu</translation>
     </message>
@@ -378,10 +373,6 @@
         <translation>Maksimum:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Nama aplikasi</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Nama file</translation>
     </message>
@@ -394,12 +385,20 @@
         <translation>Nama, posisi, dimensi, ukuran file, dan zoom</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Sama seperti overlay di bagian atas</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>Bilah judul:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>Sembunyikan penunjuk yang diam setelah:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Overlay di bagian atas</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +454,21 @@
         <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Mulai tayangan slide dalam layar penuh</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Setelah gambar terakhir, lanjutkan tayangan slide dari gambar pertama</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Tampilkan overlay informasi di bagian atas (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -966,8 +978,9 @@
         <translation>Sorot Piksel yang Berubah</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Jeda animasi</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Jeda</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1183,6 +1196,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Tayangan slide: gambar baru setiap %1 dtk</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Tayangan slide dijeda</translation>
     </message>
 </context>
 </TS>

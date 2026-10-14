@@ -123,10 +123,6 @@
         <translation>Μέγεθος αρχείου</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Μεγέθυνση</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Χρωματικός χώρος</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Το πολύ:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Το όνομα της εφαρμογής</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Το όνομα του αρχείου</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Επισήμανση pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (ματζέντα)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Σύνολο υποστηριζόμενων μορφών αρχείων: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Επέκταση</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Μορφή</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Αποκωδικοποιητής</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Μορφές εικόνας</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Εμφάνιση του πίνακα πληροφοριών (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Επικάλυψη στην κορυφή (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Πλοήγηση</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Ίδια με την επικάλυψη στην κορυφή</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Επικάλυψη στην κορυφή</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Έναρξη της παρουσίασης σε πλήρη οθόνη</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Μετά την τελευταία εικόνα, συνέχιση της παρουσίασης με την πρώτη</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Αυτόματα (HDR όταν η οθόνη το υποστηρίζει)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Επαναφορά προεπιλογών</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Εμφάνιση της επικάλυψης πληροφοριών στην κορυφή (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Θέση</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 από %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Επισήμανση τροποποιημένων pixel</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Παύση κίνησης</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Παύση</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,8 +1048,8 @@
         <translation>Χρώμα &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Μετάβαση</translation>
+        <source>Jump to</source>
+        <translation>Μετάβαση σε</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Παρουσίαση: νέα εικόνα κάθε %1 δ</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Η παρουσίαση είναι σε παύση</translation>
     </message>
 </context>
 </TS>

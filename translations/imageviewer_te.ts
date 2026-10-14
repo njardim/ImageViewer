@@ -123,10 +123,6 @@
         <translation>ఫైల్ పరిమాణం</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>జూమ్</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>కలర్ స్పేస్</translation>
     </message>
@@ -265,11 +261,6 @@
         <translation>సమాచార ప్యానెల్ చూపు (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>పైన ఓవర్‌లే (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>ఎల్లప్పుడూ</translation>
     </message>
@@ -378,10 +369,6 @@
         <translation>గరిష్టంగా:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>అప్లికేషన్ పేరు</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>ఫైల్ పేరు</translation>
     </message>
@@ -394,12 +381,20 @@
         <translation>పేరు, స్థానం, కొలతలు, ఫైల్ పరిమాణం మరియు జూమ్</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>పైన ఉన్న ఓవర్‌లే లాగే</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>టైటిల్ బార్:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>కదలని పాయింటర్ ఇంత సమయం తర్వాత దాచు:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>పైన ఓవర్‌లే</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +450,42 @@
         <translation>తదుపరి మరియు మునుపటి చిత్రాలను ముందుగానే లోడ్ చేయి</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>స్లైడ్‌షోను పూర్తి స్క్రీన్‌లో ప్రారంభించు</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>చివరి చిత్రం తర్వాత స్లైడ్‌షోను మొదటి చిత్రంతో కొనసాగించు</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
+    </message>
+    <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>మొత్తం మద్దతు ఉన్న ఫైల్ ఫార్మాట్‌లు: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>ఎక్స్‌టెన్షన్</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>ఫార్మాట్</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>డీకోడర్</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>చిత్ర ఫార్మాట్‌లు</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>పైన సమాచార ఓవర్‌లే చూపు (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -601,11 +630,6 @@
     <message>
         <source>Position</source>
         <translation>స్థానం</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%2లో %1</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -966,8 +990,9 @@
         <translation>మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>యానిమేషన్‌ను పాజ్ చేయి</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>పాజ్</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1004,6 +1029,10 @@
     <message>
         <source>No applications found</source>
         <translation>అప్లికేషన్‌లు ఏవీ కనుగొనబడలేదు</translation>
+    </message>
+    <message>
+        <source>Jump to</source>
+        <translation>ఇక్కడికి వెళ్లు</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>
@@ -1089,10 +1118,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>రంగు &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>వెళ్లు</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>స్లైడ్‌షో: ప్రతి %1 సెకన్లకు కొత్త చిత్రం</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>స్లైడ్‌షో పాజ్ చేయబడింది</translation>
     </message>
 </context>
 </TS>

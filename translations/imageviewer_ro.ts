@@ -123,10 +123,6 @@
         <translation>Dimensiune fișier</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Spațiu de culoare</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Cel mult:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Numele aplicației</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Numele fișierului</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Evidențiere pixeli modificați prin tăiere sau mapare tonală (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total formate de fișiere acceptate: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Extensie</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Decodor</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Formate de imagine</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Afișează panoul de informații (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Suprapunere în partea de sus (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Navigare</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>La fel ca suprapunerea din partea de sus</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Suprapunere în partea de sus</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Pornește prezentarea pe ecran complet</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>După ultima imagine, continuă prezentarea cu prima</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automat (HDR când afișajul îl acceptă)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Restabilire valori implicite</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Afișează suprapunerea de informații în partea de sus (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Poziție</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 din %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Evidențiere pixeli modificați</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Întrerupe animația</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pauză</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,8 +1048,8 @@
         <translation>Culoare &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Salt</translation>
+        <source>Jump to</source>
+        <translation>Salt la</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Prezentare: o imagine nouă la fiecare %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Prezentare întreruptă</translation>
     </message>
 </context>
 </TS>

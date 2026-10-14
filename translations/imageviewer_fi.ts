@@ -123,10 +123,6 @@
         <translation>Tiedoston koko</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoomaus</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Väriavaruus</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Enintään:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Sovelluksen nimi</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Tiedostonimi</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Korosta pikselit, joita leikkaus tai sävykartoitus on muuttanut (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Tuettuja tiedostomuotoja yhteensä: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Tiedostopääte</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Muoto</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekooderi</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Kuvamuodot</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Näytä tietopaneeli (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Peittokerros ylhäällä (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Selaus</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Sama kuin peittokerros ylhäällä</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Peittokerros ylhäällä</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Aloita diaesitys koko näytössä</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Jatka diaesitystä viimeisen kuvan jälkeen ensimmäisestä</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automaattinen (HDR, kun näyttö tukee sitä)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Palauta oletukset</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Näytä tietopeittokerros ylhäällä (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Sijainti</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Korosta muuttuneet pikselit</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Keskeytä animaatio</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Tauko</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,7 +1048,7 @@
         <translation>Väri &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
+        <source>Jump to</source>
         <translation>Siirry</translation>
     </message>
     <message>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Diaesitys: uusi kuva %1 s välein</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Diaesitys keskeytetty</translation>
     </message>
 </context>
 </TS>

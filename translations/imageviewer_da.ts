@@ -123,10 +123,6 @@
         <translation>Filstørrelse</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Farverum</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Højst:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Programmets navn</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Filnavnet</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Fremhæv pixels ændret af klipning eller tonemapping (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Understøttede filformater i alt: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Filtype</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekoder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Billedformater</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Vis informationspanelet (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Overlay øverst (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Navigation</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Det samme som overlayet øverst</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Overlay øverst</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Start diasshowet i fuldskærm</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Fortsæt diasshowet med det første billede efter det sidste</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatisk (HDR, når skærmen understøtter det)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Gendan standarder</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Vis informationsoverlayet øverst (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Placering</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 af %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Fremhæv ændrede pixels</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Sæt animation på pause</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pause</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,8 +1048,8 @@
         <translation>Farve &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Gå</translation>
+        <source>Jump to</source>
+        <translation>Gå til</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Diasshow: et nyt billede hvert %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Diasshow sat på pause</translation>
     </message>
 </context>
 </TS>

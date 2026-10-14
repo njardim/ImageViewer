@@ -94,6 +94,36 @@ for f in anim.gif anim.webp anim.jxl anim.png; do
     check "$f" 'frames: +3, loops 0, ms 100 200 300$' "animation: 3 frames and their durations"
     check "$f" 'frame px: +1\.000 0\.000 0\.000 \| 0\.000 1\.000 0\.000 \| 0\.000 0\.000 1\.000$' "animation: every frame's colour"
 done
+# APNG (0.5 review): a first frame smaller than the canvas after a default image left out of the
+# animation (legal), and a 70 KB XMP chunk before acTL, past the 64 KiB detection reads.
+apngs="$(mktemp -d)"
+python3 - "$data/anim.png" "$apngs" <<'PY'
+import struct, sys, zlib
+def chunk(t, d): return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+def raw(w, h, rgba): return zlib.compress(b''.join(b'\x00' + bytes(rgba) * w for _ in range(h)))
+seq = [0]
+def frame(w, h, x, y, rgba):
+    fc = chunk(b'fcTL', struct.pack('>IIIIIHHBB', seq[0], w, h, x, y, 1, 10, 0, 0))
+    fd = chunk(b'fdAT', struct.pack('>I', seq[0] + 1) + raw(w, h, rgba)); seq[0] += 2
+    return fc + fd
+png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 4, 4, 8, 6, 0, 0, 0)) + chunk(b'acTL', struct.pack('>II', 2, 0))
+png += chunk(b'IDAT', raw(4, 4, (0, 0, 255, 255))) + frame(2, 2, 1, 1, (255, 0, 0, 255)) + frame(4, 4, 0, 0, (0, 255, 0, 255))
+open(sys.argv[2] + '/subrect.png', 'wb').write(png + chunk(b'IEND', b''))
+src = open(sys.argv[1], 'rb').read()
+open(sys.argv[2] + '/xmp70k.png', 'wb').write(src[:33] + chunk(b'iTXt', b'XML:com.adobe.xmp\0\0\0\0\0' + b' ' * 70000) + src[33:])
+PY
+while read -r name count; do
+    if "$exe" --info "$apngs/$name" 2>/dev/null | grep -Eq "^frames: +$count,"; then
+        echo "ok   $name: played as an APNG ($count frames)"
+    else
+        echo "FAIL $name: not played as an APNG"
+        failures=$((failures + 1))
+    fi
+done <<'CASES'
+subrect.png 2
+xmp70k.png 3
+CASES
+rm -rf "$apngs"
 # AVIF image sequences (libheif 1.23 track API; CI requires it, local builds against an older
 # distribution libheif skip these): the same three frames, Pillow 12.3 at quality 100, which
 # is still lossy (blue comes back as 0.99).
@@ -264,15 +294,17 @@ ENTRY
     printf '[Desktop Entry]\nType=Application\nName=Missing\nTryExec=/nonexistent/missing\nExec=missing %%f\nMimeType=image/png;\n' >"$apps/missing.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Jpeg Only\nExec=jpeg %%f\nMimeType=image/jpeg;\n' >"$apps/jpeg.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Removed\nExec=/bin/echo\nMimeType=image/png;\n' >"$apps/sub/removed.desktop"
+    # A field code inside quotes (forbidden by the specification) would reach a shell unquoted: no command.
+    printf '[Desktop Entry]\nType=Application\nName=Shell\nExec=sh -c "echo %%f"\nMimeType=image/png;\n' >"$apps/shell.desktop"
     printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
     png="$data/alpha8.png"
     url="file://$(cd "$data" && pwd)/alpha8.png"
-    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s' "$url" "$(cd "$data" && pwd)/alpha8.png")"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s\nShell\tshell.desktop\t' "$url" "$(cd "$data" && pwd)/alpha8.png")"
     listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
               LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
     rm -rf "$xdg"
     if [ "$listed" = "$expected" ]; then
-        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes"
+        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes (never inside quotes)"
     else
         echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
         echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'

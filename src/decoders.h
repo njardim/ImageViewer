@@ -93,7 +93,7 @@ std::size_t frameBytes(const Decoded &d);
 // The whole file in memory (read, not mapped: see decoders.cpp).
 bool readWholeFile(const QString &path, QByteArray *bytes, QString *error);
 // OpenImageIO on a file in memory; `name` only tells it the format (e.g. "frame.png").
-bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error);
+bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error, qint64 maxPixels = 0);
 
 // worker.cpp: GraphicsMagick in the decode worker process (D-38).
 bool graphicsMagickAvailable();

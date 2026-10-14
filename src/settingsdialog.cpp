@@ -2,6 +2,8 @@
 // the values to the viewer, which applies them at once.
 #include "settings.h"
 
+#include "formats.h"
+
 #include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -20,6 +22,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QTableWidget>
 #include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
@@ -154,10 +157,10 @@ void SettingsDialog::buildUi()
     connect(m_windowFit, &QComboBox::currentIndexChanged, this,
             [this] { m_windowFitPercent->setEnabled(WindowFit(m_windowFit->currentData().toInt()) != WindowFit::Never); });
     m_titleMode = new QComboBox;
-    m_titleMode->addItem(tr("The application's name"), int(TitleMode::Application));
     m_titleMode->addItem(tr("The file name"), int(TitleMode::Name));
     m_titleMode->addItem(tr("Name, position and dimensions"), int(TitleMode::Details));
     m_titleMode->addItem(tr("Name, position, dimensions, file size and zoom"), int(TitleMode::Everything));
+    m_titleMode->addItem(tr("The same as the overlay at the top"), int(TitleMode::Overlay));
     windowForm->addRow(tr("Title bar:"), m_titleMode);
     m_pointerHide = secondsBox(0.0, Settings::kMaxPointerHideMs / 1000.0);
     //: Shown instead of 0 s: the pointer never hides by itself.
@@ -170,7 +173,9 @@ void SettingsDialog::buildUi()
     auto *informationLayout = new QVBoxLayout(information);
     m_showInfo = new QCheckBox; // its text names the command's shortcut (updateShortcutLabels)
     informationLayout->addWidget(m_showInfo);
-    m_overlayBox = new QGroupBox;
+    m_showOverlay = new QCheckBox; // likewise
+    informationLayout->addWidget(m_showOverlay);
+    m_overlayBox = new QGroupBox(tr("Overlay at the top"));
     auto *overlayForm = new QFormLayout(m_overlayBox);
     const auto fillVisibility = [](QComboBox *combo) {
         combo->addItem(tr("Always"), int(OverlayVisibility::Always));
@@ -249,6 +254,10 @@ void SettingsDialog::buildUi()
     navigationForm->addRow(tr("Sort images by:"), sortRow);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     navigationForm->addRow(m_preload);
+    m_slideshowFullScreen = new QCheckBox(tr("Start the slideshow in full screen"));
+    navigationForm->addRow(m_slideshowFullScreen);
+    m_slideshowLoop = new QCheckBox(tr("After the last image, continue the slideshow with the first"));
+    navigationForm->addRow(m_slideshowLoop);
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     m_slideshowLabel = new QLabel;
     navigationForm->addRow(m_slideshowLabel, m_slideshowSeconds);
@@ -304,6 +313,31 @@ void SettingsDialog::buildUi()
     shortcutButtons->addWidget(allDefaults);
     shortcutButtons->addStretch();
     shortcutsLayout->addLayout(shortcutButtons);
+    // Image formats (D-58): what this build opens, straight from the format registry.
+    auto *formatsPage = new QWidget;
+    auto *formatsLayout = new QVBoxLayout(formatsPage);
+    const QList<SuffixRow> suffixRows = supportedSuffixTable();
+    //: %1: how many file name extensions the viewer opens, e.g. "134".
+    auto *formatsTotal = new QLabel(tr("Total supported file formats: %1").arg(QLocale().toString(suffixRows.size())));
+    formatsTotal->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
+    formatsLayout->addWidget(formatsTotal);
+    auto *formatsTable = new QTableWidget(int(suffixRows.size()), 3);
+    formatsTable->setHorizontalHeaderLabels({tr("Extension"), tr("Format"), tr("Decoder")});
+    formatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    formatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    formatsTable->verticalHeader()->hide();
+    formatsTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    formatsTable->horizontalHeader()->setStretchLastSection(true);
+    for (int row = 0; row < suffixRows.size(); ++row) {
+        const SuffixRow &r = suffixRows.at(row);
+        // Isolated left to right: in Arabic and Urdu ".jxl" read "jxl." (as the Shortcuts tab's keys).
+        formatsTable->setItem(row, 0, new QTableWidgetItem(QChar(0x2066) + r.suffix + QChar(0x2069)));
+        formatsTable->setItem(row, 1, new QTableWidgetItem(r.formats));
+        formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoders));
+    }
+    formatsLayout->addWidget(formatsTable, 1);
+    tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));
     connect(m_shortcutTable, &QTreeWidget::currentItemChanged, this,
             [this] { showShortcutsOf(m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem())); });
@@ -446,6 +480,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_windowFitPercent->setEnabled(settings.windowFit != WindowFit::Never);
     m_titleMode->setCurrentIndex(std::max(0, m_titleMode->findData(int(settings.titleMode))));
     m_showInfo->setChecked(settings.showInfo);
+    m_showOverlay->setChecked(settings.showOverlay);
     m_overlayFullScreen->setCurrentIndex(
         std::max(0, m_overlayFullScreen->findData(int(settings.overlayFullScreen))));
     m_overlayWindow->setCurrentIndex(
@@ -477,6 +512,8 @@ void SettingsDialog::setValues(const Settings &settings)
     m_sortBy->setCurrentIndex(std::max(0, m_sortBy->findData(int(settings.sortBy))));
     m_sortDescending->setChecked(settings.sortDescending);
     m_preload->setChecked(settings.preload);
+    m_slideshowFullScreen->setChecked(settings.slideshowFullScreen);
+    m_slideshowLoop->setChecked(settings.slideshowLoop);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toneMap->setChecked(settings.toneMap);
     m_clipWarning->setChecked(settings.clipWarning);
@@ -536,7 +573,7 @@ void SettingsDialog::refreshShortcutTexts()
     //: %1: the keyboard shortcut, e.g. "I".
     m_showInfo->setText(tr("Show the information panel (%1)").arg(keyName("Info")));
     //: %1: the keyboard shortcut, e.g. "Shift+I".
-    m_overlayBox->setTitle(tr("Overlay at the top (%1)").arg(keyName("InfoOverlay")));
+    m_showOverlay->setText(tr("Show the information overlay at the top (%1)").arg(keyName("InfoOverlay")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
     m_slideshowLabel->setText(tr("Slideshow (%1), time per image:").arg(keyName("Slideshow")));
     //: %1: the keyboard shortcut, e.g. "L". The zoom of the image shown stays for the next ones.
@@ -631,6 +668,7 @@ Settings SettingsDialog::settings() const
     s.titleMode = TitleMode(m_titleMode->currentData().toInt());
     s.pointerHideMs = int(std::lround(m_pointerHide->value() * 1000.0));
     s.showInfo = m_showInfo->isChecked();
+    s.showOverlay = m_showOverlay->isChecked();
     s.overlayFullScreen = OverlayVisibility(m_overlayFullScreen->currentData().toInt());
     s.overlayWindow = OverlayVisibility(m_overlayWindow->currentData().toInt());
     s.overlayFields.clear();
@@ -650,6 +688,8 @@ Settings SettingsDialog::settings() const
     s.sortDescending = m_sortDescending->isChecked();
     s.preload = m_preload->isChecked();
     s.slideshowSeconds = m_slideshowSeconds->value();
+    s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
+    s.slideshowLoop = m_slideshowLoop->isChecked();
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());

@@ -161,6 +161,8 @@ private:
     void frameTimeout();
     void presentFrame(const Animation::Frame &frame);
     void togglePause();
+    void toggleSlideshowPause();
+    void restartSlideshowInterval(); // each new image is shown a full interval
     void stepFrame(int delta);
     void toggleSlideshow();
     void stopSlideshow();
@@ -169,6 +171,8 @@ private:
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
     void updateTopOverlay();
+    // The top overlay's facts for `fields`, in its order and wording; also the title's (D-58).
+    QStringList overlayParts(const QList<OverlayField> &fields, int *nameIndex = nullptr) const;
     void updateTitle(); // per Settings::titleMode
     OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
     bool topOverlayVisible() const;
@@ -244,6 +248,8 @@ private:
     std::optional<Animation::Frame> m_readyFrame; // decoded, waiting for its turn
     bool m_frameDue = false;    // its turn has come: show it as soon as it is decoded
     bool m_animationPaused = false;
+    bool m_slideshowPaused = false;
+    bool m_slideshowLeavesFullScreen = false; // it entered full screen (Settings::slideshowFullScreen)
     int m_loopsDone = 0;
     bool m_waitingForExpose = false; // nothing is drawn while the window is hidden
     QTimer m_frameTimer;
@@ -295,7 +301,6 @@ private:
     QString m_panelKey;      // likewise for the information panel
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
     // What Shift+I turns the overlay back on to, in a window and in full screen.
-    OverlayVisibility m_overlayRestore[2] = {OverlayVisibility::Always, OverlayVisibility::Hover};
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
     bool m_maximizedBeforeFullScreen = false;

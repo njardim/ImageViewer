@@ -123,10 +123,6 @@
         <translation>Faila izmērs</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Tālummaiņa</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Krāsu telpa</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Ne vairāk kā:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Lietojumprogrammas nosaukums</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Faila nosaukums</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Iezīmēt pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Kopā atbalstīto failu formātu: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Paplašinājums</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Formāts</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekodētājs</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Attēlu formāti</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Rādīt informācijas paneli (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Pārklājums augšpusē (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Navigācija</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Tāpat kā pārklājums augšpusē</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Pārklājums augšpusē</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Sākt slīdrādi pilnekrāna režīmā</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Pēc pēdējā attēla turpināt slīdrādi ar pirmo</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automātiski (HDR, ja displejs to atbalsta)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Atjaunot noklusējumus</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Rādīt informācijas pārklājumu augšpusē (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Pozīcija</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 no %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Iezīmēt izmainītos pikseļus</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Pauzēt animāciju</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pauze</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,8 +1048,8 @@
         <translation>Krāsas &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Pāriet</translation>
+        <source>Jump to</source>
+        <translation>Pāriet uz</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Slīdrāde: jauns attēls ik pēc %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Slīdrāde pauzēta</translation>
     </message>
 </context>
 </TS>

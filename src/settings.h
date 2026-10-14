@@ -41,8 +41,8 @@ enum class OverlayField { Name, Dimensions, FileSize, Zoom, ColorSpace, Modified
 enum class FitMode { Window, Width, Height, Fill };
 // When the window takes the size of the image (D-51).
 enum class WindowFit { Never, FirstImage, EveryImage };
-// What the title bar shows (D-51), from the least to the most.
-enum class TitleMode { Application, Name, Details, Everything };
+// What the title bar shows (D-51, D-58): the top overlay's fields, or a fixed set in its style.
+enum class TitleMode { Overlay, Name, Details, Everything };
 
 // Preferences the user sets (Settings dialog and a few toggles that persist).
 struct Settings {
@@ -63,13 +63,14 @@ struct Settings {
     int pointerHideMs = 2000;        // the pointer hides when it stays still this long; 0: never
     // Information
     bool showInfo = true;      // the information panel (I)
+    bool showOverlay = true;   // the top overlay (Shift+I), where its mode below is not "never"
     OverlayVisibility overlayFullScreen = OverlayVisibility::Always;
     OverlayVisibility overlayWindow = OverlayVisibility::Hidden;
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
     // The look of both information panels (D-49).
     int overlayBackgroundOpacity = 70; // percent
     int overlayTextOpacity = 100;      // percent
-    bool overlayOutline = true;        // dark outline around the text
+    bool overlayOutline = false;       // dark outline around the text, for HDR highlights (D-58)
     int overlayHideDelayMs = 1500;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back
@@ -79,6 +80,8 @@ struct Settings {
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
     double slideshowSeconds = 5.0; // between images in the slideshow (E11)
+    bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
+    bool slideshowLoop = true;        // after the last image the slideshow goes on with the first
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping (a toggle, T)
     bool clipWarning = false;  // clipped or tone-mapped pixels shown in magenta (a toggle, C)
@@ -233,6 +236,7 @@ private:
     QSpinBox *m_windowFitPercent = nullptr;
     QComboBox *m_titleMode = nullptr;
     QCheckBox *m_showInfo = nullptr;
+    QCheckBox *m_showOverlay = nullptr;
     QComboBox *m_overlayFullScreen = nullptr;
     QComboBox *m_overlayWindow = nullptr;
     QListWidget *m_overlayFields = nullptr;
@@ -247,6 +251,8 @@ private:
     QComboBox *m_sortBy = nullptr;
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
+    QCheckBox *m_slideshowFullScreen = nullptr;
+    QCheckBox *m_slideshowLoop = nullptr;
     QDoubleSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
     QCheckBox *m_clipWarning = nullptr;

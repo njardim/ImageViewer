@@ -123,10 +123,6 @@
         <translation>파일 크기</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>배율</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>색 공간</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>최대:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>애플리케이션 이름</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>파일 이름</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>지원되는 파일 형식 합계: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>확장자</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>형식</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>디코더</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>이미지 형식</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>정보 패널 표시(%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>상단 오버레이(%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>탐색</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>상단 오버레이와 동일</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>상단 오버레이</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>전체 화면에서 슬라이드 쇼 시작</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>마지막 이미지 다음에 첫 이미지부터 슬라이드 쇼 계속</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>자동(디스플레이가 지원하면 HDR)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>기본값 복원</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>상단에 정보 오버레이 표시(%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>위치</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%2 중 %1</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>변경된 픽셀 강조 표시</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>애니메이션 일시 정지</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>일시 정지</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,7 +1048,7 @@
         <translation>색상 &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
+        <source>Jump to</source>
         <translation>이동</translation>
     </message>
     <message>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>슬라이드 쇼: %1초마다 새 이미지</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>슬라이드 쇼 일시 정지됨</translation>
     </message>
 </context>
 </TS>

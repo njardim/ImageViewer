@@ -123,10 +123,6 @@
         <translation>ফাইলের আকার</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>জুম</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>কালার স্পেস</translation>
     </message>
@@ -265,11 +261,6 @@
         <translation>তথ্য প্যানেল দেখান (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>উপরে ওভারলে (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>সব সময়</translation>
     </message>
@@ -378,10 +369,6 @@
         <translation>সর্বোচ্চ:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>অ্যাপ্লিকেশনের নাম</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>ফাইলের নাম</translation>
     </message>
@@ -394,12 +381,20 @@
         <translation>নাম, অবস্থান, মাত্রা, ফাইলের আকার ও জুম</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>উপরের ওভারলের মতোই</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>টাইটেল বার:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>স্থির পয়েন্টার এই সময়ের পরে লুকান:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>উপরে ওভারলে</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +450,42 @@
         <translation>পরের ও আগের ছবি আগে থেকে লোড করুন</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>পূর্ণ স্ক্রিনে স্লাইডশো শুরু করুন</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>শেষ ছবির পরে প্রথম ছবি থেকে স্লাইডশো চালিয়ে যান</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
+    </message>
+    <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>মোট সমর্থিত ফাইল ফরম্যাট: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>এক্সটেনশন</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>ফরম্যাট</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>ডিকোডার</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>ছবির ফরম্যাট</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>উপরে তথ্য ওভারলে দেখান (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -601,11 +630,6 @@
     <message>
         <source>Position</source>
         <translation>অবস্থান</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%2-এর মধ্যে %1</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -966,8 +990,9 @@
         <translation>পরিবর্তিত পিক্সেল হাইলাইট করুন</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>অ্যানিমেশন বিরতি দিন</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>বিরতি</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1004,6 +1029,10 @@
     <message>
         <source>No applications found</source>
         <translation>কোনো অ্যাপ্লিকেশন পাওয়া যায়নি</translation>
+    </message>
+    <message>
+        <source>Jump to</source>
+        <translation>এতে যান</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>
@@ -1089,10 +1118,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>রং &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>যান</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>স্লাইডশো: প্রতি %1 সেকেন্ডে একটি নতুন ছবি</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>স্লাইডশো বিরতিতে আছে</translation>
     </message>
 </context>
 </TS>

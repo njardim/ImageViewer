@@ -123,10 +123,6 @@
         <translation>फ़ाइल का आकार</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>ज़ूम</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>कलर स्पेस</translation>
     </message>
@@ -265,11 +261,6 @@
         <translation>जानकारी पैनल दिखाएँ (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>शीर्ष पर ओवरले (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>हमेशा</translation>
     </message>
@@ -378,10 +369,6 @@
         <translation>अधिकतम:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>एप्लिकेशन का नाम</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>फ़ाइल का नाम</translation>
     </message>
@@ -394,12 +381,20 @@
         <translation>नाम, स्थिति, आयाम, फ़ाइल का आकार और ज़ूम</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>शीर्ष ओवरले के समान</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>टाइटल बार:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>स्थिर पॉइंटर इसके बाद छिपाएँ:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>शीर्ष पर ओवरले</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +450,42 @@
         <translation>अगली और पिछली छवियाँ पहले से लोड करें</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>स्लाइड शो पूर्ण स्क्रीन में शुरू करें</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>अंतिम छवि के बाद स्लाइड शो पहली छवि से जारी रखें</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
+    </message>
+    <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>कुल समर्थित फ़ाइल प्रारूप: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>एक्सटेंशन</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>प्रारूप</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>डिकोडर</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>छवि प्रारूप</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>शीर्ष पर जानकारी ओवरले दिखाएँ (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -601,11 +630,6 @@
     <message>
         <source>Position</source>
         <translation>स्थिति</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%2 में से %1</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -966,8 +990,9 @@
         <translation>बदले गए पिक्सेल हाइलाइट करें</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>एनिमेशन रोकें</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>विराम</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1004,6 +1029,10 @@
     <message>
         <source>No applications found</source>
         <translation>कोई एप्लिकेशन नहीं मिला</translation>
+    </message>
+    <message>
+        <source>Jump to</source>
+        <translation>यहाँ जाएँ</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>
@@ -1089,10 +1118,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>रंग &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>जाएँ</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>स्लाइड शो: हर %1 सेकंड में एक नई छवि</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>स्लाइड शो विराम पर है</translation>
     </message>
 </context>
 </TS>

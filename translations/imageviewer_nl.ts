@@ -123,10 +123,6 @@
         <translation>Bestandsgrootte</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Kleurruimte</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Maximaal:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>De naam van de toepassing</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>De bestandsnaam</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Totaal ondersteunde bestandsindelingen: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Extensie</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Indeling</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Decoder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Afbeeldingsindelingen</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Het informatiepaneel tonen (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Overlay bovenaan (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Navigatie</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Hetzelfde als de overlay bovenaan</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Overlay bovenaan</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>De diavoorstelling op volledig scherm starten</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Na de laatste afbeelding de diavoorstelling met de eerste voortzetten</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatisch (HDR als het beeldscherm dit ondersteunt)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Standaardwaarden herstellen</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>De informatie-overlay bovenaan tonen (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Positie</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 van %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Gewijzigde pixels markeren</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Animatie pauzeren</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pauzeren</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,8 +1048,8 @@
         <translation>Kleur &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Ga</translation>
+        <source>Jump to</source>
+        <translation>Springen naar</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Diavoorstelling: elke %1 s een nieuwe afbeelding</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Diavoorstelling gepauzeerd</translation>
     </message>
 </context>
 </TS>

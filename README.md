@@ -65,13 +65,14 @@ The packages are **not signed yet**:
 | + / − / mouse wheel | Zoom |
 | 0 / 1 | Fit to window / 100 % |
 | W / H | Fit to width / height |
+| X | Fill the window |
 | Z | Lock the zoom for the next images |
 | F, F11, double-click | Full screen |
 | R / Shift+R | Rotate clockwise / counterclockwise |
 | Shift+W / Shift+H | Mirror horizontally / vertically |
 | I / Shift+I | Information panel / overlay at the top |
 | B | Checkerboard behind transparent areas |
-| Space / Ctrl+← / Ctrl+→ (⌘ on macOS) | Pause an animation (or stop a slideshow) / previous frame / next frame |
+| Space / Ctrl+← / Ctrl+→ (⌘ on macOS) | Pause the running slideshow, otherwise the animation / previous frame / next frame |
 | S / Esc | Start or stop the slideshow / stop it |
 | E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
 | T | Tone mapping on/off (off: clip at the display's peak) |

@@ -123,10 +123,6 @@
         <translation>Размер на файла</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Мащаб</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Цветово пространство</translation>
     </message>
@@ -305,10 +301,6 @@
         <translation>Най-много:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Името на приложението</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Името на файла</translation>
     </message>
@@ -337,14 +329,30 @@
         <translation>Открояване на пикселите, променени при отсичане или тоново картографиране (магента)</translation>
     </message>
     <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Общо поддържани файлови формати: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Разширение</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Формат</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Декодер</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Формати на изображения</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Показване на информационния панел (%1)</translation>
-    </message>
-    <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Наслагване отгоре (%1)</translation>
     </message>
     <message>
         <source>Always</source>
@@ -468,6 +476,22 @@
         <translation>Навигация</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Същото като наслагването отгоре</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Наслагване отгоре</translation>
+    </message>
+    <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Стартиране на слайдшоуто на цял екран</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>След последното изображение слайдшоуто продължава с първото</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Автоматично (HDR, когато дисплеят го поддържа)</translation>
     </message>
@@ -531,6 +555,11 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Възстановяване на стандартните</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Показване на информационното наслагване отгоре (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -605,11 +634,6 @@
     <message>
         <source>Position</source>
         <translation>Позиция</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 от %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -974,8 +998,9 @@
         <translation>Открояване на променените пиксели</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Пауза на анимацията</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Пауза</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1023,8 +1048,8 @@
         <translation>Цвят &amp;&amp; HDR</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation>Отиване</translation>
+        <source>Jump to</source>
+        <translation>Преход към</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Слайдшоу: ново изображение на всеки %1 с</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Слайдшоуто е на пауза</translation>
     </message>
 </context>
 </TS>

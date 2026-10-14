@@ -123,10 +123,6 @@
         <translation>Tamanho do ficheiro</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Ampliação</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Espaço de cor</translation>
     </message>
@@ -265,11 +261,6 @@
         <translation>Mostrar o painel de informações (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Sobreposição no topo (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>Sempre</translation>
     </message>
@@ -378,10 +369,6 @@
         <translation>No máximo:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>O nome da aplicação</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>O nome do ficheiro</translation>
     </message>
@@ -394,12 +381,20 @@
         <translation>Nome, posição, dimensões, tamanho do ficheiro e zoom</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Igual à sobreposição de informação</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>Barra de título:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>Ocultar o ponteiro parado após:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Sobreposição no topo</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +450,42 @@
         <translation>Carregar antecipadamente a imagem seguinte e a anterior</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Iniciar a apresentação de diapositivos em ecrã inteiro</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Após a última imagem, continuar a apresentação de diapositivos na primeira</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
+    </message>
+    <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total de formatos de ficheiro suportados: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Extensão</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Formato</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Descodificador</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Formatos de imagem</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Mostrar a sobreposição de informação no topo (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -601,11 +630,6 @@
     <message>
         <source>Position</source>
         <translation>Posição</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 de %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -966,8 +990,9 @@
         <translation>Realçar píxeis alterados</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Pausar animação</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Pausar</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1004,6 +1029,10 @@
     <message>
         <source>No applications found</source>
         <translation>Nenhuma aplicação encontrada</translation>
+    </message>
+    <message>
+        <source>Jump to</source>
+        <translation>Saltar para</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>
@@ -1089,10 +1118,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Cor &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>Ir</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Apresentação de diapositivos: uma imagem nova a cada %1 s</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Apresentação de diapositivos em pausa</translation>
     </message>
 </context>
 </TS>

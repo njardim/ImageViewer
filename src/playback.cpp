@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace {
 constexpr qint64 kPlayingPanelMs = 250;
@@ -213,15 +214,42 @@ void ViewerWindow::toggleSlideshow()
     if (m_files.size() < 2)
         return;
     m_slideshow = true;
+    m_slideshowPaused = false;
     m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+    if (m_settings.slideshowFullScreen && visibility() != QWindow::FullScreen) {
+        m_slideshowLeavesFullScreen = true;
+        toggleFullScreen();
+    }
     //: %1: seconds between images, e.g. "5".
     showNotice(tr("Slideshow: a new image every %1 s").arg(QLocale().toString(m_settings.slideshowSeconds)));
+}
+
+void ViewerWindow::toggleSlideshowPause()
+{
+    m_slideshowPaused = !m_slideshowPaused;
+    if (m_slideshowPaused) {
+        m_slideshowTimer.stop();
+        showNotice(tr("Slideshow paused"));
+    } else {
+        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+        //: %1: seconds between images, e.g. "5".
+        showNotice(tr("Slideshow: a new image every %1 s").arg(QLocale().toString(m_settings.slideshowSeconds)));
+    }
+}
+
+void ViewerWindow::restartSlideshowInterval()
+{
+    if (m_slideshow && !m_slideshowPaused)
+        m_slideshowTimer.start();
 }
 
 void ViewerWindow::stopSlideshow()
 {
     m_slideshow = false;
+    m_slideshowPaused = false;
     m_slideshowTimer.stop();
+    if (std::exchange(m_slideshowLeavesFullScreen, false) && visibility() == QWindow::FullScreen)
+        leaveFullScreen();
 }
 
 void ViewerWindow::slideshowTimeout()
@@ -231,10 +259,18 @@ void ViewerWindow::slideshowTimeout()
         m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
         return;
     }
-    if (!hasNeighbour(+1)) { // the end of a folder that does not loop
+    // After the last image, the first only when the slideshow loops (D-58), whatever navigation does.
+    const bool last = m_index + 1 >= m_files.size();
+    if (m_files.size() < 2 || (last && !m_settings.slideshowLoop)) {
         stopSlideshow();
         showNotice(tr("Slideshow stopped"));
         return;
     }
-    step(+1);
+    if (!last) {
+        step(+1);
+        return;
+    }
+    m_direction = 1;
+    restartSlideshowInterval();
+    startLoading(0);
 }

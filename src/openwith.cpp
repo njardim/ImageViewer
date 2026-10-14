@@ -226,8 +226,9 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
     // escapes '"', '`', '$' and '\'; outside them it escapes any character, as in GLib. Then the
     // field codes are expanded (Desktop Entry Specification, "The Exec key").
     QStringList arguments;
+    QList<bool> hadQuotes; // per argument: the specification forbids field codes inside quotes
     QString current;
-    bool quoted = false, started = false;
+    bool quoted = false, started = false, currentQuoted = false;
     for (qsizetype i = 0; i < exec.size(); ++i) {
         const QChar c = exec.at(i);
         if (quoted) {
@@ -238,12 +239,14 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
             else
                 current += c;
         } else if (c == QLatin1Char('"')) {
-            quoted = started = true;
+            quoted = started = currentQuoted = true;
         } else if (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
-            if (started)
+            if (started) {
                 arguments << current;
+                hadQuotes << currentQuoted;
+            }
             current.clear();
-            started = false;
+            started = currentQuoted = false;
         } else if (c == QLatin1Char('\\') && i + 1 < exec.size()) {
             current += exec.at(++i);
             started = true;
@@ -254,13 +257,16 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
     }
     if (quoted)
         return {};
-    if (started)
+    if (started) {
         arguments << current;
+        hadQuotes << currentQuoted;
+    }
 
     const QString url = QUrl::fromLocalFile(file).toString(QUrl::FullyEncoded);
     QStringList command;
     bool fileGiven = false;
-    for (const QString &argument : std::as_const(arguments)) {
+    for (qsizetype a = 0; a < arguments.size(); ++a) {
+        const QString &argument = arguments.at(a);
         if (argument == QLatin1String("%i")) {
             if (!icon.isEmpty())
                 command << QStringLiteral("--icon") << icon;
@@ -277,11 +283,15 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
             case '%': expanded += QLatin1Char('%'); break;
             case 'f':
             case 'F':
+                if (hadQuotes.at(a))
+                    return {}; // sh -c "viewer %f" would run a file named $(cmd).png (D-53)
                 expanded += file;
                 fileGiven = true;
                 break;
             case 'u':
             case 'U':
+                if (hadQuotes.at(a))
+                    return {};
                 expanded += url;
                 fileGiven = true;
                 break;

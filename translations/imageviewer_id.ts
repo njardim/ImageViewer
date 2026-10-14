@@ -123,10 +123,6 @@
         <translation>Ukuran file</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Ruang warna</translation>
     </message>
@@ -265,11 +261,6 @@
         <translation>Tampilkan panel informasi (%1)</translation>
     </message>
     <message>
-        <source>Overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
-        <translation>Overlay di bagian atas (%1)</translation>
-    </message>
-    <message>
         <source>Always</source>
         <translation>Selalu</translation>
     </message>
@@ -378,10 +369,6 @@
         <translation>Maksimum:</translation>
     </message>
     <message>
-        <source>The application&apos;s name</source>
-        <translation>Nama aplikasi</translation>
-    </message>
-    <message>
         <source>The file name</source>
         <translation>Nama file</translation>
     </message>
@@ -394,12 +381,20 @@
         <translation>Nama, posisi, dimensi, ukuran file, dan zoom</translation>
     </message>
     <message>
+        <source>The same as the overlay at the top</source>
+        <translation>Sama seperti overlay di bagian atas</translation>
+    </message>
+    <message>
         <source>Title bar:</source>
         <translation>Bilah judul:</translation>
     </message>
     <message>
         <source>Hide a still pointer after:</source>
         <translation>Sembunyikan penunjuk yang diam setelah:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Overlay di bagian atas</translation>
     </message>
     <message>
         <source>Hide after:</source>
@@ -455,8 +450,42 @@
         <translation>Muat gambar berikutnya dan sebelumnya lebih awal</translation>
     </message>
     <message>
+        <source>Start the slideshow in full screen</source>
+        <translation>Mulai tayangan slide dalam layar penuh</translation>
+    </message>
+    <message>
+        <source>After the last image, continue the slideshow with the first</source>
+        <translation>Setelah gambar terakhir, lanjutkan tayangan slide dari gambar pertama</translation>
+    </message>
+    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
+    </message>
+    <message>
+        <source>Total supported file formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total format berkas yang didukung: %1</translation>
+    </message>
+    <message>
+        <source>Extension</source>
+        <translation>Ekstensi</translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation>Format</translation>
+    </message>
+    <message>
+        <source>Decoder</source>
+        <translation>Dekoder</translation>
+    </message>
+    <message>
+        <source>Image Formats</source>
+        <translation>Format gambar</translation>
+    </message>
+    <message>
+        <source>Show the information overlay at the top (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <translation>Tampilkan overlay informasi di bagian atas (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1), time per image:</source>
@@ -601,11 +630,6 @@
     <message>
         <source>Position</source>
         <translation>Posisi</translation>
-    </message>
-    <message>
-        <source>%1 of %2</source>
-        <extracomment>Position of the image in its folder, e.g. &quot;3 of 120&quot;.</extracomment>
-        <translation>%1 dari %2</translation>
     </message>
     <message>
         <source>%1 MP</source>
@@ -966,8 +990,9 @@
         <translation>Sorot Piksel yang Berubah</translation>
     </message>
     <message>
-        <source>Pause Animation</source>
-        <translation>Jeda animasi</translation>
+        <source>Pause</source>
+        <extracomment>Space: pauses the running slideshow, otherwise the animation.</extracomment>
+        <translation>Jeda</translation>
     </message>
     <message>
         <source>Previous Frame</source>
@@ -1004,6 +1029,10 @@
     <message>
         <source>No applications found</source>
         <translation>Aplikasi tidak ditemukan</translation>
+    </message>
+    <message>
+        <source>Jump to</source>
+        <translation>Lompat ke</translation>
     </message>
     <message>
         <source>Zoom locked: the next images keep it</source>
@@ -1089,10 +1118,6 @@
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Warna &amp;&amp; HDR</translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation>Pergi</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,6 +1208,10 @@
         <source>Slideshow: a new image every %1 s</source>
         <extracomment>%1: seconds between images, e.g. &quot;5&quot;.</extracomment>
         <translation>Tayangan slide: gambar baru setiap %1 dtk</translation>
+    </message>
+    <message>
+        <source>Slideshow paused</source>
+        <translation>Tayangan slide dijeda</translation>
     </message>
 </context>
 </TS>

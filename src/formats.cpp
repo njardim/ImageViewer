@@ -92,11 +92,13 @@ bool isApng(QByteArrayView h)
         if (startsWith(h, "IDAT", at + 4))
             return false;
         const quint32 length = bigEndian32(h, at);
-        if (length > quint32(h.size()))
-            return false;
+        if (quint64(length) + 12 > quint64(h.size() - at))
+            break;
         at += qsizetype(length) + 12;
     }
-    return false;
+    // Past the bytes read (a large iCCP or XMP before acTL is legal): perhaps an animation. The
+    // APNG decoder shows a plain PNG as a still image.
+    return h.size() >= kFormatHeadBytes;
 }
 bool isJpeg(QByteArrayView h) { return startsWithBytes(h, {0xFF, 0xD8, 0xFF}); }
 bool isGif(QByteArrayView h) { return startsWith(h, "GIF87a") || startsWith(h, "GIF89a"); }
@@ -388,4 +390,40 @@ QStringList formatReport()
                      .join(QStringLiteral(" | "));
     }
     return lines;
+}
+
+QList<SuffixRow> supportedSuffixTable()
+{
+    // As the user would name the decoder: APNG frames are PNGs OpenImageIO decodes, and the
+    // system's decoder is the platform's own.
+    const auto decoder = [](Decoder d) -> QString {
+        if (d == Decoder::Apng)
+            return QString::fromLatin1(decoderName(Decoder::OpenImageIO));
+#if defined(Q_OS_MACOS)
+        if (d == Decoder::System)
+            return QStringLiteral("ImageIO");
+#elif defined(Q_OS_WIN)
+        if (d == Decoder::System)
+            return QStringLiteral("WIC");
+#endif
+        return QString::fromLatin1(decoderName(d));
+    };
+    QList<const Format *> available;
+    for (const Format &f : kFormats)
+        if (isAvailable(f)) // the system's formats only where its codec is installed
+            available << &f;
+    QList<SuffixRow> rows;
+    for (const QString &suffix : supportedSuffixes()) {
+        QStringList names, decoders;
+        for (const Format *f : std::as_const(available)) {
+            if (!f->suffixes().contains(suffix))
+                continue;
+            names << QString::fromUtf8(f->name);
+            if (const QString d = decoder(f->decoder); !decoders.contains(d))
+                decoders << d;
+        }
+        if (!names.isEmpty())
+            rows.append({QLatin1Char('.') + suffix, names.join(QStringLiteral(", ")), decoders.join(QStringLiteral(", "))});
+    }
+    return rows;
 }

@@ -123,10 +123,6 @@
         <translation>ファイルサイズ</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>ズーム</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>カラースペース</translation>
     </message>

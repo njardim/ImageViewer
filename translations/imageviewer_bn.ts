@@ -123,10 +123,6 @@
         <translation>ফাইলের আকার</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>জুম</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>কালার স্পেস</translation>
     </message>

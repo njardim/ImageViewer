@@ -123,10 +123,6 @@
         <translation>Dosya boyutu</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Yakınlaştırma</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Renk uzayı</translation>
     </message>

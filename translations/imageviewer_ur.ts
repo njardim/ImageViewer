@@ -123,10 +123,6 @@
         <translation>فائل کا سائز</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>زوم</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>کلر اسپیس</translation>
     </message>

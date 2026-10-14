@@ -123,10 +123,6 @@
         <translation>Filstorlek</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Färgrymd</translation>
     </message>

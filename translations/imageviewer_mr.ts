@@ -123,10 +123,6 @@
         <translation>फाइलचा आकार</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>झूम</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>कलर स्पेस</translation>
     </message>

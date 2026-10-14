@@ -123,10 +123,6 @@
         <translation>Dung lượng tệp</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Thu phóng</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Không gian màu</translation>
     </message>

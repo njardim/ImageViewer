@@ -123,10 +123,6 @@
         <translation>Fájlméret</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Nagyítás</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Színtér</translation>
     </message>

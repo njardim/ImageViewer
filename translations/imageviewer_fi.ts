@@ -123,10 +123,6 @@
         <translation>Tiedoston koko</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoomaus</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Väriavaruus</translation>
     </message>

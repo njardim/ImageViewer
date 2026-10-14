@@ -123,10 +123,6 @@
         <translation>Dimensiune fișier</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Spațiu de culoare</translation>
     </message>

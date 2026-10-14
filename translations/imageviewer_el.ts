@@ -123,10 +123,6 @@
         <translation>Μέγεθος αρχείου</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Μεγέθυνση</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Χρωματικός χώρος</translation>
     </message>

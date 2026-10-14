@@ -123,10 +123,6 @@
         <translation>Faila izmērs</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Tālummaiņa</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Krāsu telpa</translation>
     </message>

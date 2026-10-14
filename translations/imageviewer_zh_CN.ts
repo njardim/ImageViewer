@@ -123,10 +123,6 @@
         <translation>文件大小</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>缩放</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>色彩空间</translation>
     </message>

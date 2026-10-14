@@ -123,10 +123,6 @@
         <translation>Veličina datoteke</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zumiranje</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Prostor boja</translation>
     </message>

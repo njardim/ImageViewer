@@ -123,10 +123,6 @@
         <translation>Размер файла</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Масштаб</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Цветовое пространство</translation>
     </message>

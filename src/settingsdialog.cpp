@@ -520,7 +520,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_output->setCurrentIndex(std::max(0, m_output->findData(int(settings.output))));
     m_shortcuts.clear();
     for (const ShortcutCommand &command : std::as_const(m_commands))
-        m_shortcuts.insert(command.key, effectiveShortcuts(settings.shortcuts, command.key, command.defaults));
+        m_shortcuts.insert(command.key, settings.shortcuts.value(command.key, command.defaults));
     m_shortcutNote->clear();
     fillShortcutTable();
 }

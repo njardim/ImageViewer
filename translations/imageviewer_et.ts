@@ -123,10 +123,6 @@
         <translation>Faili suurus</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Suum</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Värviruum</translation>
     </message>

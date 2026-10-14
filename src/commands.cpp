@@ -298,9 +298,12 @@ QString ViewerWindow::commandKey(Command command)
 
 QList<QKeySequence> ViewerWindow::shortcutsFor(Command command) const
 {
+    const auto user = m_settings.shortcuts.constFind(commandKey(command));
+    if (user != m_settings.shortcuts.cend())
+        return *user;
     const auto &table = commands();
     const auto it = std::find_if(table.cbegin(), table.cend(), [command](const CommandInfo &i) { return i.command == command; });
-    return effectiveShortcuts(m_settings.shortcuts, commandKey(command), it != table.cend() ? it->shortcuts : QList<QKeySequence>());
+    return it != table.cend() ? it->shortcuts : QList<QKeySequence>();
 }
 
 bool ViewerWindow::executeShortcut(QKeyEvent *e)

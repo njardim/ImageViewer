@@ -123,10 +123,6 @@
         <translation>Méid comhaid</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zúmáil</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Spás datha</translation>
     </message>

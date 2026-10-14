@@ -123,10 +123,6 @@
         <translation>Dateigröße</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Farbraum</translation>
     </message>

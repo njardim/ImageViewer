@@ -123,10 +123,6 @@
         <translation>ఫైల్ పరిమాణం</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>జూమ్</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>కలర్ స్పేస్</translation>
     </message>

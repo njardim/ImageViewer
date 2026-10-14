@@ -188,7 +188,7 @@ QString overlayFieldName(OverlayField field)
     case OverlayField::Name: return QCoreApplication::translate("Overlay", "File name");
     case OverlayField::Dimensions: return QCoreApplication::translate("Overlay", "Dimensions");
     case OverlayField::FileSize: return QCoreApplication::translate("Overlay", "File size");
-    case OverlayField::Zoom: return QCoreApplication::translate("Overlay", "Zoom");
+    case OverlayField::Zoom: return QStringLiteral("Zoom"); // a technical name, never translated (D-59)
     case OverlayField::ColorSpace: return QCoreApplication::translate("Overlay", "Color space");
     case OverlayField::Modified: return QCoreApplication::translate("Overlay", "Date modified");
     case OverlayField::Position: return QCoreApplication::translate("Overlay", "Position in the folder");
@@ -313,21 +313,6 @@ QKeyCombination comparableKey(QKeyCombination combination)
     if (character && !QChar::isLetter(char32_t(key)))
         modifiers &= ~Qt::ShiftModifier;
     return QKeyCombination(modifiers, combination.key());
-}
-
-QList<QKeySequence> effectiveShortcuts(const QMap<QString, QList<QKeySequence>> &user, const QString &key,
-                                       QList<QKeySequence> defaults)
-{
-    if (const auto own = user.constFind(key); own != user.cend())
-        return *own;
-    defaults.removeIf([&user, &key](const QKeySequence &shortcut) {
-        for (auto other = user.cbegin(); other != user.cend(); ++other)
-            if (other.key() != key
-                && std::any_of(other->cbegin(), other->cend(), [&shortcut](const QKeySequence &s) { return sameShortcut(s, shortcut); }))
-                return true;
-        return false;
-    });
-    return defaults;
 }
 
 bool sameShortcut(const QKeySequence &a, const QKeySequence &b)

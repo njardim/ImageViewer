@@ -123,10 +123,6 @@
         <translation>Velikost souboru</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Přiblížení</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Barevný prostor</translation>
     </message>

@@ -123,10 +123,6 @@
         <translation>Ukuran file</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Ruang warna</translation>
     </message>

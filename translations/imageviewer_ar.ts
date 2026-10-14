@@ -123,10 +123,6 @@
         <translation>حجم الملف</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>التكبير</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>مساحة الألوان</translation>
     </message>

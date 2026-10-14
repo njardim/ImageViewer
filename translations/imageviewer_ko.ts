@@ -123,10 +123,6 @@
         <translation>파일 크기</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>배율</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>색 공간</translation>
     </message>

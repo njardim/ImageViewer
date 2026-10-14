@@ -123,10 +123,6 @@
         <translation>Daqs tal-fajl</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Zoom</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Spazju tal-kulur</translation>
     </message>
@@ -335,7 +331,7 @@
     <message>
         <source>Total supported file formats: %1</source>
         <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Total ta' formati tal-fajls appoġġjati: %1</translation>
+        <translation>Total ta&apos; formati tal-fajls appoġġjati: %1</translation>
     </message>
     <message>
         <source>Extension</source>

@@ -123,10 +123,6 @@
         <translation>Failo dydis</translation>
     </message>
     <message>
-        <source>Zoom</source>
-        <translation>Mastelis</translation>
-    </message>
-    <message>
         <source>Color space</source>
         <translation>Spalvų erdvė</translation>
     </message>

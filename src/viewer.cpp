@@ -149,8 +149,9 @@ void ViewerWindow::saveSession() const
 {
     SessionState session;
     session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
-    session.fullScreen = windowStates().testFlag(Qt::WindowFullScreen);
-    session.maximized = session.fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
+    const bool fullScreen = windowStates().testFlag(Qt::WindowFullScreen);
+    session.fullScreen = fullScreen && !m_slideshowLeavesFullScreen; // the slideshow's own ends with it
+    session.maximized = fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
     session.lastFile = m_image.path;
     session.lastDirectory = m_lastDirectory;
     session.save(); // preferences are saved when they change, never here (U2)
@@ -820,6 +821,7 @@ void ViewerWindow::toggleFullScreen()
 
 void ViewerWindow::leaveFullScreen()
 {
+    m_slideshowLeavesFullScreen = false; // a full screen entered again later is the user's
     if (m_maximizedBeforeFullScreen)
         showMaximized();
     else

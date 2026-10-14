@@ -94,8 +94,7 @@ void ViewerWindow::step(int delta)
         target = (target % n + n) % n;
     }
     m_direction = delta > 0 ? 1 : -1;
-    if (m_slideshow && !m_slideshowPaused) // the next image comes a full interval after this one
-        m_slideshowTimer.start();
+    restartSlideshowInterval();
     startLoading(target);
 }
 
@@ -320,6 +319,7 @@ void ViewerWindow::applyListing(QStringList files)
     } else {
         // The current file is gone: the next one takes its place, or the last one.
         m_index = -1;
+        restartSlideshowInterval();
         startLoading(std::clamp(previousIndex, 0, int(m_files.size()) - 1));
     }
     updateOverlay();
@@ -368,6 +368,7 @@ void ViewerWindow::removeCurrentFromList()
     }
     const int next = std::min(m_index, int(m_files.size()) - 1);
     m_index = -1;
+    restartSlideshowInterval();
     startLoading(next);
 }
 

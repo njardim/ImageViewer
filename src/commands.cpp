@@ -253,10 +253,12 @@ void ViewerWindow::execute(Command command)
     case Command::Next: step(+1); break;
     case Command::First:
         m_direction = 1;
+        restartSlideshowInterval();
         startLoading(0);
         break;
     case Command::Last:
         m_direction = -1;
+        restartSlideshowInterval();
         startLoading(int(m_files.size()) - 1);
         break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
@@ -296,12 +298,9 @@ QString ViewerWindow::commandKey(Command command)
 
 QList<QKeySequence> ViewerWindow::shortcutsFor(Command command) const
 {
-    const auto user = m_settings.shortcuts.constFind(commandKey(command));
-    if (user != m_settings.shortcuts.cend())
-        return *user;
     const auto &table = commands();
     const auto it = std::find_if(table.cbegin(), table.cend(), [command](const CommandInfo &i) { return i.command == command; });
-    return it != table.cend() ? it->shortcuts : QList<QKeySequence>();
+    return effectiveShortcuts(m_settings.shortcuts, commandKey(command), it != table.cend() ? it->shortcuts : QList<QKeySequence>());
 }
 
 bool ViewerWindow::executeShortcut(QKeyEvent *e)

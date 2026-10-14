@@ -163,6 +163,10 @@ QString overlayFieldName(OverlayField field);
 // letters and Space. The viewer's matching and the Settings' conflicts use the same rule.
 QKeyCombination comparableKey(QKeyCombination combination);
 bool sameShortcut(const QKeySequence &a, const QKeySequence &b);
+// A command's shortcuts (D-52): the user's own, or its defaults less any key the user gave another
+// command, so that a default added later (X for Fill Window in 0.5) never takes a key in use.
+QList<QKeySequence> effectiveShortcuts(const QMap<QString, QList<QKeySequence>> &user, const QString &key,
+                                       QList<QKeySequence> defaults);
 
 // A command as the Shortcuts tab lists it: its stored key, its name in the interface language
 // and its default shortcuts (the viewer's command table, D-30).

@@ -510,8 +510,10 @@ try:
 
             # 8. Shortcuts (D-52): a hand-written unknown key leaves the defaults; a shifted symbol
             # ("!", Shift+1 on a US keyboard) is matched before the digit (Actual Size); the
-            # Shortcuts tab records a key in place of the first shortcut and keeps the others.
-            edit_settings(("window", "matchImage", "never"), ("shortcuts", "Next", "Foo"), ("shortcuts", "AboutQt", "!"))
+            # Shortcuts tab records a key in place of the first shortcut and keeps the others; a
+            # user's key stays theirs when it becomes another command's default (X, Fill Window, 0.5).
+            edit_settings(("window", "matchImage", "never"), ("shortcuts", "Next", "Foo"), ("shortcuts", "AboutQt", "!"),
+                          ("shortcuts", "Checkerboard", "X"))
             app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)
             wait_until("small.png shown", lambda: viewer()[0] == "small.png — ImageViewer")
             xdotool("key", "Right")
@@ -525,6 +527,14 @@ try:
             xdotool("windowfocus", "--sync", about)
             xdotool("key", "Escape")
             wait_until("About Qt closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^About Qt$").stdout.split())
+            def checkerboard():
+                with open(settings_file, encoding="utf-8") as f:
+                    m = re.search(r"(?m)^checkerboard=(\w+)$", f.read())
+                return m.group(1) if m else "false"
+            before = checkerboard()
+            xdotool("key", "x")
+            wait_until("X, the user's key for the checkerboard, is not taken by Fill Window's default",
+                       lambda: checkerboard() != before)
 
             def stored_previous():
                 with open(settings_file, encoding="utf-8") as f:

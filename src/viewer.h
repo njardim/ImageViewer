@@ -162,6 +162,7 @@ private:
     void presentFrame(const Animation::Frame &frame);
     void togglePause();
     void toggleSlideshowPause();
+    void restartSlideshowInterval(); // each new image is shown a full interval
     void stepFrame(int delta);
     void toggleSlideshow();
     void stopSlideshow();

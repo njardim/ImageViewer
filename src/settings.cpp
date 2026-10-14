@@ -315,6 +315,21 @@ QKeyCombination comparableKey(QKeyCombination combination)
     return QKeyCombination(modifiers, combination.key());
 }
 
+QList<QKeySequence> effectiveShortcuts(const QMap<QString, QList<QKeySequence>> &user, const QString &key,
+                                       QList<QKeySequence> defaults)
+{
+    if (const auto own = user.constFind(key); own != user.cend())
+        return *own;
+    defaults.removeIf([&user, &key](const QKeySequence &shortcut) {
+        for (auto other = user.cbegin(); other != user.cend(); ++other)
+            if (other.key() != key
+                && std::any_of(other->cbegin(), other->cend(), [&shortcut](const QKeySequence &s) { return sameShortcut(s, shortcut); }))
+                return true;
+        return false;
+    });
+    return defaults;
+}
+
 bool sameShortcut(const QKeySequence &a, const QKeySequence &b)
 {
     return a.count() == 1 && b.count() == 1 && comparableKey(a[0]) == comparableKey(b[0]);

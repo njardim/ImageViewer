@@ -492,7 +492,7 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 - **View ▸** Zoom In, Zoom Out, Fit to Window, Actual Size (100 %) | Full Screen, Information Panel, Information Overlay, Checkerboard Background
 - **Image ▸** Rotate Clockwise, Rotate Counterclockwise | Flip Horizontally, Flip Vertically
 - **Color & HDR ▸** Increase/Decrease/Reset Exposure | Tone Mapping (BT.2390), Highlight Altered Pixels
-- **Go ▸** Previous, Next | First, Last | Slideshow | Pause Animation, Previous Frame, Next Frame
+- **Jump to ▸** Previous, Next | First, Last | Pause, Previous Frame, Next Frame (D-58)
 - Settings…, **Help ▸** About ImageViewer, About Qt, Quit
 
 **Shortcuts:**
@@ -525,7 +525,7 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 | Ctrl/⌘+Shift+C | Copy path |
 | Ctrl/⌘+O | Open |
 | Space | Pause the running slideshow, otherwise the animation (D-58) |
-| `,` `.` | Previous / next frame |
+| Ctrl+← / Ctrl+→ (⌘ on macOS) | Previous / next frame |
 | S | Slideshow |
 | E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
 | C | Highlight altered pixels (clipped or tone mapped) |

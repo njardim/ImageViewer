@@ -237,6 +237,12 @@ void ViewerWindow::toggleSlideshowPause()
     }
 }
 
+void ViewerWindow::restartSlideshowInterval()
+{
+    if (m_slideshow && !m_slideshowPaused)
+        m_slideshowTimer.start();
+}
+
 void ViewerWindow::stopSlideshow()
 {
     m_slideshow = false;
@@ -265,6 +271,6 @@ void ViewerWindow::slideshowTimeout()
         return;
     }
     m_direction = 1;
-    m_slideshowTimer.start();
+    restartSlideshowInterval();
     startLoading(0);
 }

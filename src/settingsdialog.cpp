@@ -331,7 +331,8 @@ void SettingsDialog::buildUi()
     formatsTable->horizontalHeader()->setStretchLastSection(true);
     for (int row = 0; row < suffixRows.size(); ++row) {
         const SuffixRow &r = suffixRows.at(row);
-        formatsTable->setItem(row, 0, new QTableWidgetItem(r.suffix));
+        // Isolated left to right: in Arabic and Urdu ".jxl" read "jxl." (as the Shortcuts tab's keys).
+        formatsTable->setItem(row, 0, new QTableWidgetItem(QChar(0x2066) + r.suffix + QChar(0x2069)));
         formatsTable->setItem(row, 1, new QTableWidgetItem(r.formats));
         formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoders));
     }

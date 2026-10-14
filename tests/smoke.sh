@@ -264,15 +264,17 @@ ENTRY
     printf '[Desktop Entry]\nType=Application\nName=Missing\nTryExec=/nonexistent/missing\nExec=missing %%f\nMimeType=image/png;\n' >"$apps/missing.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Jpeg Only\nExec=jpeg %%f\nMimeType=image/jpeg;\n' >"$apps/jpeg.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Removed\nExec=/bin/echo\nMimeType=image/png;\n' >"$apps/sub/removed.desktop"
+    # A field code inside quotes (forbidden by the specification) would reach a shell unquoted: no command.
+    printf '[Desktop Entry]\nType=Application\nName=Shell\nExec=sh -c "echo %%f"\nMimeType=image/png;\n' >"$apps/shell.desktop"
     printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
     png="$data/alpha8.png"
     url="file://$(cd "$data" && pwd)/alpha8.png"
-    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s' "$url" "$(cd "$data" && pwd)/alpha8.png")"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s\nShell\tshell.desktop\t' "$url" "$(cd "$data" && pwd)/alpha8.png")"
     listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
               LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
     rm -rf "$xdg"
     if [ "$listed" = "$expected" ]; then
-        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes"
+        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes (never inside quotes)"
     else
         echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
         echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'

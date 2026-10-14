@@ -1,0 +1,82 @@
+name: Gemini Issue Solver
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  solve-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Identidade Git
+        run: |
+          git config --global user.name "gemini-bot"
+          git config --global user.email "gemini-bot@users.noreply.github.com"
+
+      - name: Executar Agente Gemini CLI
+        uses: google-github-actions/run-gemini-cli@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          
+          # 1. DEFINIÇÃO DO MODELO
+          gemini_model: "gemini-4-argon"
+          
+          # 2. THINKING LEVEL = HIGH + EXECUÇÃO DE CÓDIGO E FERRAMENTAS
+          settings: |
+            {
+              "modelConfigs": {
+                "overrides": [
+                  {
+                    "match": {
+                      "model": "*"
+                    },
+                    "modelConfig": {
+                      "generateContentConfig": {
+                        "thinkingConfig": {
+                          "thinkingLevel": "HIGH",
+                          "includeThoughts": true
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "coreTools": [
+                "read_file",
+                "write_file",
+                "replace",
+                "list_directory",
+                "glob",
+                "grep_search",
+                "run_shell_command"
+              ]
+            }
+
+          prompt: |
+            Analisa a Issue #${{ env.ISSUE_NUMBER }} que acabou de ser aberta.
+            Título: ${{ env.ISSUE_TITLE }}
+            Descrição: ${{ env.ISSUE_BODY }}
+
+            Instruções passo a passo:
+            1. Explora a base de código para encontrar os ficheiros relevantes.
+            2. Cria uma nova branch chamada `fix/issue-${{ env.ISSUE_NUMBER }}`.
+            3. Implementa a solução pedida na Issue.
+            4. Executa o código e os testes no terminal (`run_shell_command`) para validar que a solução funciona sem erros.
+            5. Faz commit das alterações e push da branch `fix/issue-${{ env.ISSUE_NUMBER }}`.
+            6. Abre um Pull Request com `gh pr create --fill --head fix/issue-${{ env.ISSUE_NUMBER }}` referenciando "Closes #${{ env.ISSUE_NUMBER }}".
+            7. Comenta na Issue #${{ env.ISSUE_NUMBER }} com o link do PR criado.

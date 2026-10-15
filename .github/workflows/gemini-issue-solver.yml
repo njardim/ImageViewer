@@ -61,6 +61,7 @@ jobs:
       - name: Run Gemini CLI Agent
         uses: google-github-actions/run-gemini-cli@v0
         env:
+          GEMINI_CLI_TRUST_WORKSPACE: "true"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}

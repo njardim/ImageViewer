@@ -19,22 +19,27 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
+      - name: Prepare /opt/qt directory
+        run: |
+          sudo mkdir -p /opt/qt
+          sudo chown -R "$USER:$USER" /opt/qt
+
       - name: Cache Qt 6.12.0
         id: cache-qt
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /opt/qt/6.12.0
-          key: qt-6.12.0-linux-gcc64-shadertools-tools-svg-imageformats
+          key: qt-6.12.0-linux-gcc64-shadertools-imageformats
 
       - name: Install Qt 6.12.0 and Linux build/test dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential cmake ninja-build pkg-config \
+            build-essential cmake ninja-build pkg-config p7zip-full \
             libopenimageio-dev openimageio-tools liblcms2-dev \
             libjxl-dev libwebp-dev libheif-dev libheif-plugin-libde265 \
             libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers \
@@ -42,9 +47,9 @@ jobs:
             xvfb xdotool x11-apps imagemagick \
             python3-pip python3-numpy python3-pil
           if [ "${{ steps.cache-qt.outputs.cache-hit }}" != "true" ]; then
-            python3 -m pip install --break-system-packages aqtinstall
-            sudo python3 -m aqt install-qt linux desktop 6.12.0 linux_gcc_64 \
-              -O /opt/qt -m qtshadertools qttools qtsvg qtimageformats
+            python3 -m pip install --break-system-packages "git+https://github.com/miurahr/aqtinstall.git"
+            python3 -m aqt install-qt linux desktop 6.12.0 linux_gcc_64 \
+              -O /opt/qt -m qtshadertools qtimageformats
           fi
           sudo ln -sfn /opt/qt/6.12.0/gcc_64 /opt/qt6
 

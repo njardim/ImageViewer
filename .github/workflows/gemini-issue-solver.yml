@@ -2,7 +2,7 @@ name: Gemini Issue Solver
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   contents: write
@@ -11,20 +11,50 @@ permissions:
 
 jobs:
   solve-issue:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    if: >
+      (github.event.action == 'opened' && github.event.issue.user.login == 'njardim') ||
+      (github.event.action == 'labeled' && github.event.label.name == 'gemini')
+    timeout-minutes: 45
+
     steps:
-      - name: Checkout do Repositório
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Configurar Identidade Git
+      - name: Cache Qt 6.12.0
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: /opt/qt/6.12.0
+          key: qt-6.12.0-linux-gcc64-shadertools-tools-svg-imageformats
+
+      - name: Install Qt 6.12.0 and Linux build/test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config \
+            libopenimageio-dev openimageio-tools liblcms2-dev \
+            libjxl-dev libwebp-dev libheif-dev libheif-plugin-libde265 \
+            libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers \
+            libopengl0 libegl1 libxcb-cursor0 libxfixes3 \
+            xvfb xdotool x11-apps imagemagick \
+            python3-pip python3-numpy python3-pil
+          if [ "${{ steps.cache-qt.outputs.cache-hit }}" != "true" ]; then
+            python3 -m pip install --break-system-packages aqtinstall
+            sudo python3 -m aqt install-qt linux desktop 6.12.0 linux_gcc_64 \
+              -O /opt/qt -m qtshadertools qttools qtsvg qtimageformats
+          fi
+          sudo ln -sfn /opt/qt/6.12.0/gcc_64 /opt/qt6
+
+      - name: Configure Git identity
         run: |
           git config --global user.name "gemini-bot"
           git config --global user.email "gemini-bot@users.noreply.github.com"
 
-      - name: Executar Agente Gemini CLI
-        uses: google-github-actions/run-gemini-cli@v1
+      - name: Run Gemini CLI Agent
+        uses: google-github-actions/run-gemini-cli@v0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
@@ -32,11 +62,7 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          
-          # 1. DEFINIÇÃO DO MODELO
           gemini_model: "gemini-4-argon"
-          
-          # 2. THINKING LEVEL = HIGH + EXECUÇÃO DE CÓDIGO E FERRAMENTAS
           settings: |
             {
               "modelConfigs": {
@@ -66,18 +92,24 @@ jobs:
                 "run_shell_command"
               ]
             }
-
           prompt: |
-            Analisa o Issue #${{ env.ISSUE_NUMBER }} que acabou de ser aberto.
-            Título: ${{ env.ISSUE_TITLE }}
-            Descrição: ${{ env.ISSUE_BODY }}
+            You are working on the ImageViewer repository.
+            First, read `GEMINI.md` and `docs/PLAN.md` to understand all project rules and decisions.
 
-            Instruções passo a passo:
-            1. Explora a base de código para encontrar os ficheiros relevantes.
-            2. Cria um novo branch chamado `gemini/issue-${{ env.ISSUE_NUMBER }}`.
-            3. Implementa a solução pedida no Issue.
-            4. Executa o código e os testes no terminal (`run_shell_command`) para validar que a solução funciona sem erros.
-            5. Executa uma análise adversarial ao código para garantir que não existem bugs, falhas de segurança, redundância de código, código morto, otimizações de performance por implementar ou má engenharia de software.
-            6. Faz commit das alterações e push do branch `gemini/issue-${{ env.ISSUE_NUMBER }}`.
-            7. Abre um Pull Request com `gh pr create --fill --head gemini/issue-${{ env.ISSUE_NUMBER }}` referenciando "Closes #${{ env.ISSUE_NUMBER }}".
-            8. Comenta o Issue #${{ env.ISSUE_NUMBER }} com a descrição da solução implementada e o link do PR criado.
+            Analyze and resolve Issue #${{ env.ISSUE_NUMBER }}:
+            Title: ${{ env.ISSUE_TITLE }}
+            Description:
+            ${{ env.ISSUE_BODY }}
+
+            Follow these mandatory rules and steps:
+            1. Everything committed to the repository MUST be 100% in English (Rule D-27: code, comments, UI source strings, docs, commit messages, and PR description), even if the Issue was written in Portuguese.
+            2. Create a new branch named `gemini/issue-${{ env.ISSUE_NUMBER }}`.
+            3. Implement the requested fix or feature following all invariants in `GEMINI.md` and `docs/PLAN.md` (minimal structure D-08, colour pipeline invariant D-21/D-22, command table D-30, settings D-29, names and closed development D-59).
+            4. Build and verify the code using `run_shell_command`:
+               `cmake --preset linux-system && cmake --build --preset linux-system`
+            5. If you changed any user-visible UI strings (`tr()` or `translate()`), update the translation files (`cmake --build build/linux-system --target update_translations`), translate the new strings in `translations/imageviewer_*.ts`, and verify with `python3 tests/check_translations.py --require-complete`.
+            6. Run the relevant test suites against `build/linux-system/ImageViewer` (`tests/smoke.sh`, `python3 tests/render_test.py`, `python3 tests/screen_test.py`, `python3 tests/ui_test.py`, `python3 tests/animation_test.py`, `python3 tests/fuzz_smoke.py`, `python3 tests/check_translations.py`) and ensure they pass with zero compiler warnings.
+            7. Update `docs/PLAN.md` (§1, §2, §9, §13/§14 as applicable) to record the change.
+            8. Stage your changes and commit with a DCO sign-off (`git commit -s -m "..."`).
+            9. Push the branch (`git push -u origin gemini/issue-${{ env.ISSUE_NUMBER }}`) and open a Pull Request in English using `gh pr create --head gemini/issue-${{ env.ISSUE_NUMBER }}` referencing `Closes #${{ env.ISSUE_NUMBER }}`.
+            10. Post a comment on Issue #${{ env.ISSUE_NUMBER }} (`gh issue comment ${{ env.ISSUE_NUMBER }} --body "..."`) with a summary and the link to the Pull Request.

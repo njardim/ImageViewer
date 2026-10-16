@@ -14,17 +14,14 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      by a pixel (E14); B shows the checkerboard behind a transparent image; Apply in the
      Settings saves a change while the dialog stays open, and Cancel keeps it;
   5. Q quits and the session (last file, window geometry) is in the settings file;
-  6. after a restart with settings written by 0.1 under the earlier file name (imageViewer.conf),
-     the file is taken over, the settings still apply and move to [app], and
-     the old default side-zone width (200 px) becomes the new one (100 px);
-  7. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
+  6. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
      detail on: fit to the window, U (a user shortcut for Fit to Width, D-52) fits the width,
      1 is 100 %, Z keeps it for the next image and Z again lets it fit; the window takes
      an image's size within 50 % of the screen;
-  8. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
+  7. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
      tab replaces the first shortcut while the others stay;
-  9. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
+  8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
      keyboard, are saved as settings (D-56).
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
@@ -394,53 +391,7 @@ try:
                 fail(f"session not saved as expected in {settings_file}: lastFile={last!r}")
             print("ok   session saved (last file, window geometry)")
 
-            # 6. Settings of 0.1 (group "general", which Qt writes as [%General] in INI files)
-            #    load after a restart and are saved again under [app]: with "do not ask again"
-            #    from 0.1, Delete moves the file to the trash at once. The side zones' old
-            #    default width (200 px, stored by every save up to 0.2) becomes the new 100 px;
-            #    the panels' old default background (60 %, stored up to 0.3) becomes 70 %
-            #    (D-49), and the overlay's in full screen (on hover) becomes "always".
-            with open(settings_file, encoding="utf-8") as f:
-                text = f.read()
-            start = text.index("[app]")
-            end = text.find("\n[", start + 1)
-            text = text[:start] + text[end + 1 if end >= 0 else len(text):]
-            text += "\n[%General]\nconfirmTrash=false\nlanguage=\nreopenLastImage=false\n"
-            text = re.sub(r"(?m)^version=\d+$", "version=1", text)
-            text = re.sub(r"(?m)^sideZoneWidth=\d+$", "sideZoneWidth=200", text)
-            text = re.sub(r"(?m)^backgroundOpacity=\d+$", "backgroundOpacity=60", text)
-            text = re.sub(r"(?m)^outline=\w+$", "outline=false", text)
-            text = re.sub(r"(?m)^fullScreen=\w+$", "fullScreen=hover", text)
-            # Up to 0.3 the application, and so its settings file, was called "imageViewer".
-            earlier_file = os.path.join(config, "Cristallumnis", "imageViewer.conf")
-            with open(earlier_file, "w", encoding="utf-8") as f:
-                f.write(text)
-            os.remove(settings_file)
-            app = subprocess.Popen([exe, os.path.join(pictures, "a.png")], env=env, stdout=log, stderr=log)
-            wait_for("restart shows the first image", refs["a"])
-            xdotool("key", "Delete")
-            wait_until("Delete trashes at once (the 0.1 setting was read)",
-                       lambda: not os.path.exists(os.path.join(pictures, "a.png")))
-            if xdotool("search", "--onlyvisible", "--name", "^ImageViewer$").stdout.split():
-                fail("a confirmation was shown although the 0.1 settings said not to ask")
-            xdotool("key", "q")
-            app.wait(15)
-            with open(settings_file, encoding="utf-8") as f:
-                text = f.read()
-            if "[%General]" in text or "confirmTrash=false" not in text.split("[app]", 1)[-1].split("\n[", 1)[0]:
-                fail(f"settings not migrated to [app] in {settings_file}")
-            if not re.search(r"(?m)^sideZoneWidth=100$", text) or not re.search(r"(?m)^version=3$", text):
-                fail(f"the old 200 px side zones were not migrated to 100 px in {settings_file}")
-            if not re.search(r"(?m)^backgroundOpacity=70$", text) or not re.search(r"(?m)^outline=false$", text):
-                fail(f"the panels' old default style was not migrated in {settings_file}")
-            if not re.search(r"(?m)^fullScreen=always$", text):
-                fail(f"the overlay's old full-screen default (on hover) was not migrated in {settings_file}")
-            if os.path.exists(earlier_file):
-                fail("the settings file of the earlier name was not taken over")
-            print("ok   0.3 settings file taken over; 0.1 settings migrated to [app]; old default side zones now 100 px; "
-                  "panels 70 % without outline; overlay always shown in full screen")
-
-            # 7. Zoom modes, zoom lock and the title bar (D-51).
+            # 6. Zoom modes, zoom lock and the title bar (D-51).
             zoom_dir = os.path.join(work, "zoom")
             os.makedirs(zoom_dir)
             for name, size, colour in (("big1.png", (2400, 1800), (200, 60, 30)), ("big2.png", (2400, 1800), (30, 60, 200)),
@@ -508,7 +459,7 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
-            # 8. Shortcuts (D-52): a hand-written unknown key leaves the defaults; a shifted symbol
+            # 7. Shortcuts (D-52): a hand-written unknown key leaves the defaults; a shifted symbol
             # ("!", Shift+1 on a US keyboard) is matched before the digit (Actual Size); the
             # Shortcuts tab records a key in place of the first shortcut and keeps the others.
             edit_settings(("window", "matchImage", "never"), ("shortcuts", "Next", "Foo"), ("shortcuts", "AboutQt", "!"))
@@ -549,7 +500,7 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
-            # 9. The pointer and the toggles (D-56): still over the image, the pointer hides after
+            # 8. The pointer and the toggles (D-56): still over the image, the pointer hides after
             # 2 s (the default) and a move shows it again; T and C are saved as settings.
             pointer_hidden = open_xfixes()
             app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)

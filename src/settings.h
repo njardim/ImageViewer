@@ -113,9 +113,6 @@ struct Settings {
 
     static Settings load(); // invalid or out-of-range stored values fall back to the defaults
     void save() const;
-    // Whether the stored preferences predate this version's form: load() migrates them, and
-    // saving them once at startup makes that permanent (they are not saved at exit).
-    static bool storedIsOutdated();
 
     bool operator==(const Settings &) const = default;
 };
@@ -131,11 +128,6 @@ struct SessionState {
     static SessionState load();
     void save() const;
 };
-
-// Up to 0.3 the application was called "imageViewer": on Linux its settings file, named after
-// it, is taken over once. Windows' registry ignores the case, and so does the default
-// (case-insensitive) macOS file system that holds the preferences file.
-void adoptEarlierSettingsFile();
 
 // Recently opened files, most recent first (Open Recent menu). Saved at once, not at exit.
 constexpr int kMaxRecentFiles = 10;

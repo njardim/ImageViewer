@@ -443,7 +443,6 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
-    adoptEarlierSettingsFile(); // before anything reads the settings
     // Runs after the viewer window (declared later, destroyed first) has waited for its last
     // decode, and before the application object goes.
     const auto decoders = qScopeGuard(&shutdownDecoders);
@@ -540,8 +539,6 @@ int main(int argc, char *argv[])
 
     // The interface only: --info and --render output stays English (tests parse it).
     const Settings settings = Settings::load();
-    if (Settings::storedIsOutdated())
-        settings.save();
     applyLanguage(settings.language);
 
     ViewerWindow window(vulkan);

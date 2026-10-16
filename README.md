@@ -66,6 +66,7 @@ The packages are **not signed yet**:
 | 0 / 1 | Fit to window / 100 % |
 | W / H | Fit to width / height |
 | X | Fill the window |
+| G | Gallery: the folder's thumbnails at the bottom |
 | Z | Lock the zoom for the next images |
 | F, F11, double-click | Full screen |
 | R / Shift+R | Rotate clockwise / counterclockwise |

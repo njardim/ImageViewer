@@ -261,7 +261,7 @@ private:
     QThreadPool m_framePool;
     QHash<QString, QImage> m_thumbnails; // by path, sRGB; null: unreadable
     QSet<QString> m_thumbnailsPending;
-    QList<QRectF> m_gallerySlots; // logical pixels, window coordinates
+    QList<QRectF> m_gallerySlots; // logical pixels in the gallery's texture
     QRectF m_galleryRect;         // device pixels
     QSize m_gallerySize;          // device pixels; empty: hidden
     QString m_galleryKey;

@@ -536,6 +536,7 @@ void ViewerWindow::recoverFromDeviceLoss()
     initializeRenderer();
     if (m_rendererReady) {
         m_topOverlayKey.clear(); // every overlay texture is gone too
+        m_galleryKey.clear();
         m_panelKey.clear();
         updateOverlay();
         updateNavigationButtons();

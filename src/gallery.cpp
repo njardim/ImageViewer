@@ -82,6 +82,7 @@ void ViewerWindow::updateGallery()
     if (!galleryShown()) {
         if (!m_gallerySize.isEmpty()) {
             m_gallerySize = QSize();
+            m_galleryKey.clear(); // drawn again when it shows again
             m_gallerySlots.clear();
             m_galleryHover = -1;
             m_renderer.setOverlay(Renderer::GalleryLayer, QImage());
@@ -151,8 +152,7 @@ void ViewerWindow::updateGallery()
     for (int i = 0; i < shown; ++i) {
         const QRectF slot(x, bottom - sizes.at(i), sizes.at(i), sizes.at(i));
         x += sizes.at(i) + kBorder;
-        // Kept in window coordinates for the pointer (logical pixels).
-        m_gallerySlots << slot.translated(m_galleryRect.topLeft() / dpr);
+        m_gallerySlots << slot; // logical pixels in the texture: the window may move it (galleryIndexAt)
         const QImage thumbnail = m_thumbnails.value(m_files.at(m_galleryFirst + i));
         if (thumbnail.isNull()) {
             painter.setBrush(QColor(255, 255, 255, 28)); // still being decoded, or unreadable
@@ -181,8 +181,10 @@ void ViewerWindow::requestThumbnail(const QString &path)
     m_thumbnailsPending.insert(path);
     // Decoded at the largest size the carousel can show, reduced in linear light (decodeImage).
     const int pixels = int(std::ceil((kThumbnail + Settings::kMaxGalleryEnlargement) * devicePixelRatio()));
-    m_thumbnailPool.start([this, path, pixels] {
-        const Image image = decodeImage(path, pixels);
+    // Within the preload's pixel limit: a huge image is decoded whole before it is reduced.
+    const qint64 maxPixels = m_cache.maxPreloadPixels();
+    m_thumbnailPool.start([this, path, pixels, maxPixels] {
+        const Image image = decodeImage(path, pixels, maxPixels);
         const QImage thumbnail = image.isValid() ? thumbnailFrom(image) : QImage();
         QMetaObject::invokeMethod(this, [this, path, thumbnail] { thumbnailReady(path, thumbnail); }, Qt::QueuedConnection);
     });
@@ -206,8 +208,9 @@ void ViewerWindow::thumbnailReady(const QString &path, const QImage &thumbnail)
 
 int ViewerWindow::galleryIndexAt(const QPointF &position) const
 {
+    const QPointF inTexture = position - m_galleryRect.topLeft() / devicePixelRatio();
     for (int i = 0; i < m_gallerySlots.size(); ++i)
-        if (m_gallerySlots.at(i).contains(position))
+        if (m_gallerySlots.at(i).contains(inTexture))
             return i;
     return -1;
 }

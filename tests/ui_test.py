@@ -23,7 +23,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      tab replaces the first shortcut while the others stay;
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
      keyboard, are saved as settings (D-56);
-  9. the gallery (D-60): G shows it, a click on a thumbnail shows that image, G hides it.
+  9. the title in the overlay's style with its fields (D-58); the gallery (D-60): G shows it, a
+     click on a thumbnail shows that image, G hides it.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -530,8 +531,10 @@ try:
             os.makedirs(gallery_dir)
             for i, colour in enumerate([(200, 0, 0), (0, 160, 0), (0, 0, 200), (200, 200, 0)]):
                 Image.new("RGB", (160, 120), colour).save(os.path.join(gallery_dir, f"g{i + 1}.png"))
+            edit_settings(("window", "title", "overlay"))  # D-58: the overlay's fields, in its style
             app = subprocess.Popen([exe, os.path.join(gallery_dir, "g1.png")], env=env, stdout=log, stderr=log)
-            wait_until("g1.png shown", lambda: viewer()[0] == "g1.png — ImageViewer")
+            wait_until("the title shows the overlay's fields in its style",
+                       lambda: re.fullmatch(r"g1\.png   ·   160 × 120   ·   .+ — ImageViewer", viewer()[0]) is not None)
             xdotool("key", "g")
             wait_until("G shows the gallery and saves it", lambda: stored(r"(?m)^show=true$"))
             wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
@@ -543,7 +546,7 @@ try:
             fourth = x + w // 2 - (4 * 136 + 8) // 2 + 8 + 3 * 136 + 64
             xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 64))
             xdotool("click", "1")
-            wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0] == "g4.png — ImageViewer")
+            wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0].startswith("g4.png   ·   "))
             xdotool("key", "g")
             wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
             xdotool("key", "q")

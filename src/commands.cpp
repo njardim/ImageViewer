@@ -494,6 +494,10 @@ void ViewerWindow::toggleTopOverlay()
         if (show && mode == OverlayVisibility::Hidden)
             mode = OverlayVisibility::Always;
     });
+    if (topOverlayMode() == OverlayVisibility::Hover) { // shown now, then hidden as on hover
+        setPointerAtTop(true);
+        setPointerAtTop(false);
+    }
     updateTopOverlay();
     requestUpdate();
 }

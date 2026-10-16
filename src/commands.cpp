@@ -81,6 +81,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::Info, {K(Qt::Key_I)}, false},
         {C::InfoOverlay, {K(Qt::SHIFT | Qt::Key_I)}, false},
         {C::Checkerboard, {K(Qt::Key_B)}, false},
+        {C::Gallery, {K(Qt::Key_G)}, false},
         {C::RotateClockwise, {K(Qt::Key_R)}, false},
         {C::RotateCounterclockwise, {K(Qt::SHIFT | Qt::Key_R)}, false},
         {C::FlipHorizontal, {K(Qt::SHIFT | Qt::Key_W)}, false},
@@ -143,6 +144,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::Info: return tr("Information Panel");
     case Command::InfoOverlay: return tr("Information Overlay");
     case Command::Checkerboard: return tr("Checkerboard Background");
+    case Command::Gallery: return tr("Gallery");
     case Command::RotateClockwise: return tr("Rotate Clockwise");
     case Command::RotateCounterclockwise: return tr("Rotate Counterclockwise");
     case Command::FlipHorizontal: return tr("Flip Horizontally");
@@ -223,6 +225,7 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::Info: return m_settings.showInfo;
     case Command::InfoOverlay: return topOverlayMode() != OverlayVisibility::Hidden;
     case Command::Checkerboard: return m_settings.checkerboard;
+    case Command::Gallery: return m_settings.showGallery;
     case Command::ToneMap: return m_settings.toneMap;
     case Command::ClipWarning: return m_settings.clipWarning;
     case Command::PlayPause: return m_slideshow ? m_slideshowPaused : m_animationPaused;
@@ -273,6 +276,7 @@ void ViewerWindow::execute(Command command)
     case Command::Info: toggleInfo(); break;
     case Command::InfoOverlay: toggleTopOverlay(); break;
     case Command::Checkerboard: toggleCheckerboard(); break;
+    case Command::Gallery: toggleGallery(); break;
     case Command::RotateClockwise: rotate(1); break;
     case Command::RotateCounterclockwise: rotate(-1); break;
     case Command::FlipHorizontal: flipHorizontal(); break;
@@ -416,6 +420,7 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(view, Command::Info);
     addCommand(view, Command::InfoOverlay);
     addCommand(view, Command::Checkerboard);
+    addCommand(view, Command::Gallery);
     view->addSeparator();
     addCommand(view, Command::Slideshow);
 

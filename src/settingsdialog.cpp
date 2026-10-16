@@ -261,6 +261,20 @@ void SettingsDialog::buildUi()
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     m_slideshowLabel = new QLabel;
     navigationForm->addRow(m_slideshowLabel, m_slideshowSeconds);
+    // The gallery (D-60): the carousel's switch, the background, then the carousel's size.
+    m_showGallery = new QCheckBox;
+    navigationForm->addRow(m_showGallery);
+    m_galleryCarousel = new QCheckBox(tr("Enlarge the thumbnails under the pointer (carousel)"));
+    navigationForm->addRow(m_galleryCarousel);
+    m_galleryOpacity = new QSpinBox;
+    m_galleryOpacity->setRange(0, 100);
+    m_galleryOpacity->setSuffix(tr(" %"));
+    navigationForm->addRow(tr("Gallery background opacity:"), m_galleryOpacity);
+    m_galleryEnlargement = new QSpinBox;
+    m_galleryEnlargement->setRange(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement);
+    m_galleryEnlargement->setSuffix(tr(" px"));
+    navigationForm->addRow(tr("Carousel enlargement:"), m_galleryEnlargement);
+    connect(m_galleryCarousel, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
     tabs->addTab(navigation, tr("Navigation"));
 
     // Color & HDR
@@ -516,6 +530,11 @@ void SettingsDialog::setValues(const Settings &settings)
     m_preload->setChecked(settings.preload);
     m_slideshowFullScreen->setChecked(settings.slideshowFullScreen);
     m_slideshowLoop->setChecked(settings.slideshowLoop);
+    m_showGallery->setChecked(settings.showGallery);
+    m_galleryCarousel->setChecked(settings.galleryCarousel);
+    m_galleryEnlargement->setEnabled(settings.galleryCarousel);
+    m_galleryOpacity->setValue(settings.galleryOpacity);
+    m_galleryEnlargement->setValue(settings.galleryEnlargement);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toneMap->setChecked(settings.toneMap);
     m_clipWarning->setChecked(settings.clipWarning);
@@ -576,6 +595,7 @@ void SettingsDialog::refreshShortcutTexts()
     m_showInfo->setText(tr("Show the information panel (%1)").arg(keyName("Info")));
     //: %1: the keyboard shortcut, e.g. "Shift+I".
     m_showOverlay->setText(tr("Show the information overlay at the top (%1)").arg(keyName("InfoOverlay")));
+    m_showGallery->setText(tr("Show the gallery (%1)").arg(keyName("Gallery")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
     m_slideshowLabel->setText(tr("Slideshow (%1), time per image:").arg(keyName("Slideshow")));
     //: %1: the keyboard shortcut, e.g. "L". The zoom of the image shown stays for the next ones.
@@ -692,6 +712,10 @@ Settings SettingsDialog::settings() const
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
     s.slideshowLoop = m_slideshowLoop->isChecked();
+    s.showGallery = m_showGallery->isChecked();
+    s.galleryCarousel = m_galleryCarousel->isChecked();
+    s.galleryOpacity = m_galleryOpacity->value();
+    s.galleryEnlargement = m_galleryEnlargement->value();
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());

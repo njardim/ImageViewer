@@ -22,7 +22,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
      tab replaces the first shortcut while the others stay;
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
-     keyboard, are saved as settings (D-56).
+     keyboard, are saved as settings (D-56);
+  9. the gallery (D-60): G shows it, a click on a thumbnail shows that image, G hides it.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -520,6 +521,31 @@ try:
             xdotool("key", "t", "c")
             wait_until("T and C toggled from the keyboard are saved as settings",
                        lambda: stored(r"(?m)^toneMap=false$") and stored(r"(?m)^clipWarning=true$"))
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 9. The gallery (D-60): G shows it at the bottom, a click on a thumbnail shows that
+            # image, G again hides it. Four 128 px thumbnails, 8 px apart, centred in the window.
+            gallery_dir = os.path.join(work, "gallery")
+            os.makedirs(gallery_dir)
+            for i, colour in enumerate([(200, 0, 0), (0, 160, 0), (0, 0, 200), (200, 200, 0)]):
+                Image.new("RGB", (160, 120), colour).save(os.path.join(gallery_dir, f"g{i + 1}.png"))
+            app = subprocess.Popen([exe, os.path.join(gallery_dir, "g1.png")], env=env, stdout=log, stderr=log)
+            wait_until("g1.png shown", lambda: viewer()[0] == "g1.png — ImageViewer")
+            xdotool("key", "g")
+            wait_until("G shows the gallery and saves it", lambda: stored(r"(?m)^show=true$"))
+            wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
+            xdotool("windowsize", "--sync", wid, "1280", "800")  # the session left a narrower window
+            wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
+            x, y, w, h = window_geometry()
+            if (w - 2 * 256 - 8 - 50) // 136 < 4:  # 50: the carousel's room at its default 20 px
+                fail(f"a {w} px window holds fewer than four thumbnails")
+            fourth = x + w // 2 - (4 * 136 + 8) // 2 + 8 + 3 * 136 + 64
+            xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 64))
+            xdotool("click", "1")
+            wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0] == "g4.png — ImageViewer")
+            xdotool("key", "g")
+            wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
             xdotool("key", "q")
             app.wait(15)
         finally:

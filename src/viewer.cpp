@@ -79,6 +79,7 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     });
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::decodeFinished);
     m_framePool.setMaxThreadCount(1);
+    m_thumbnailPool.setMaxThreadCount(2); // the gallery's thumbnails never hold up the image shown
     connect(&m_frameWatcher, &QFutureWatcher<FrameResult>::finished, this, &ViewerWindow::frameDecoded);
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
@@ -100,6 +101,7 @@ ViewerWindow::~ViewerWindow()
     // application menu quits that way) and emits visibilityChanged, when this object's
     // members are already destroyed: none of the handlers below may run from here on.
     disconnect(this, nullptr, this, nullptr);
+    m_thumbnailPool.clear(); // thumbnails not started yet are not decoded
     m_watcher.waitForFinished();
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
@@ -190,6 +192,7 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Leave:
         m_pointerTimer.stop();
         setHoverZone(Zone::None);
+        setGalleryHover(-1);
         setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
@@ -722,6 +725,11 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     default:
         return;
     }
+    if (galleryContains(e->position())) { // a thumbnail shows its image; the bar itself does nothing
+        if (const int slot = galleryIndexAt(e->position()); slot >= 0)
+            galleryClicked(slot);
+        return;
+    }
     m_pressZone = zoneAt(e->position());
     m_pressMoved = false;
     m_dragOrigin = e->position();
@@ -740,6 +748,7 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         m_pressZone = Zone::None;
         setHoverZone(zoneAt(e->position()));
         setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
+        setGalleryHover(galleryIndexAt(e->position()));
         return;
     }
     if (m_pressZone != Zone::None && !m_pressMoved) {
@@ -773,7 +782,7 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
 
 void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (e->button() != Qt::LeftButton)
+    if (e->button() != Qt::LeftButton || galleryContains(e->position()))
         return;
     if (zoneAt(e->position()) != Zone::None) {
         mousePressEvent(e); // quick clicks on a side keep navigating
@@ -791,6 +800,14 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
     pointerActive();
+    if (galleryContains(e->position())) { // over the gallery the wheel scrolls the thumbnails
+        m_galleryWheel += e->angleDelta().y() + e->angleDelta().x();
+        if (const int steps = m_galleryWheel / 120; steps != 0) {
+            m_galleryWheel -= steps * 120;
+            scrollGallery(-steps);
+        }
+        return;
+    }
     const QPointingDevice *device = e->pointingDevice();
     const bool gesture = e->phase() != Qt::NoScrollPhase
                          || (device && device->type() == QInputDevice::DeviceType::TouchPad);

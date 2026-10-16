@@ -65,7 +65,7 @@ find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/gallery.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp src/settingsdialog.cpp
     src/renderer.h src/renderer.cpp

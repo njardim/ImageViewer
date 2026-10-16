@@ -17,9 +17,11 @@
 #include <QFileSystemWatcher>
 #include <QFutureWatcher>
 #include <QImage>
+#include <QHash>
 #include <QKeySequence>
 #include <QList>
 #include <QPointF>
+#include <QSet>
 #include <QStringList>
 #include <QThreadPool>
 #include <QTimer>
@@ -58,7 +60,7 @@ public:
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
         ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
-        FullScreen, Info, InfoOverlay, Checkerboard,
+        FullScreen, Info, InfoOverlay, Checkerboard, Gallery,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,
@@ -176,6 +178,20 @@ private:
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
     void updateTopOverlay();
+    // The gallery (gallery.cpp, D-60). Slots count from the first thumbnail shown.
+    bool galleryShown() const;
+    double galleryReserve() const;          // logical pixels the gallery takes above the bottom margin
+    int galleryCapacity() const;            // thumbnails that fit the window's width
+    int galleryEnlargement(int slot) const; // the carousel: logical pixels added to that slot
+    void updateGallery();
+    void requestThumbnail(const QString &path);
+    void thumbnailReady(const QString &path, const QImage &thumbnail);
+    int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
+    bool galleryContains(const QPointF &position) const;
+    void setGalleryHover(int slot);
+    void galleryClicked(int slot);
+    void scrollGallery(int steps);
+    void toggleGallery();
     // The top overlay's facts for `fields`, in its order and wording; also the title's (D-58).
     QStringList overlayParts(const QList<OverlayField> &fields, int *nameIndex = nullptr) const;
     void updateTitle(); // per Settings::titleMode
@@ -243,6 +259,17 @@ private:
     // one is on screen; a frame is shown when both its turn has come and it is ready.
     std::shared_ptr<Animation> m_animation;
     QThreadPool m_framePool;
+    QHash<QString, QImage> m_thumbnails; // by path, sRGB; null: unreadable
+    QSet<QString> m_thumbnailsPending;
+    QList<QRectF> m_gallerySlots; // logical pixels, window coordinates
+    QRectF m_galleryRect;         // device pixels
+    QSize m_gallerySize;          // device pixels; empty: hidden
+    QString m_galleryKey;
+    int m_galleryFirst = 0;       // the file shown in the first slot
+    int m_galleryHover = -1;      // slot under the pointer
+    int m_galleryCentredOn = -2;  // the file the gallery last centred
+    int m_galleryWheel = 0;       // wheel angle not yet turned into a step (1/8 degrees)
+    QThreadPool m_thumbnailPool;  // after what its tasks report to: destroyed (and waited for) first
     QFutureWatcher<FrameResult> m_frameWatcher;
     bool m_frameBusy = false;   // as m_decodeBusy, for m_frameWatcher
     int m_frameGeneration = 0;  // changes when the animation shown changes

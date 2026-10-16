@@ -33,7 +33,7 @@ struct Uniforms {
     float uvMapY[4];        // their change per pixel along y; z: target height
     float layers[Renderer::OverlayLayerCount][4]; // overlay rectangles; width 0: absent
 };
-static_assert(sizeof(Uniforms) == 288, "uniform block must match the shaders");
+static_assert(sizeof(Uniforms) == 304, "uniform block must match the shaders");
 
 constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
 constexpr int kQuadBytes = 4 * kVertexStride;

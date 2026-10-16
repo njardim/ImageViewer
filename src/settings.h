@@ -82,6 +82,10 @@ struct Settings {
     double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
     bool slideshowLoop = true;        // after the last image the slideshow goes on with the first
+    bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
+    bool galleryCarousel = true;      // thumbnails under the pointer enlarge, and their neighbours less
+    int galleryOpacity = 70;          // percent, the gallery's background
+    int galleryEnlargement = 20;      // logical pixels added to the thumbnail under the pointer
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping (a toggle, T)
     bool clipWarning = false;  // clipped or tone-mapped pixels shown in magenta (a toggle, C)
@@ -96,6 +100,8 @@ struct Settings {
     // Every time in the Settings moves in half seconds.
     static constexpr double kMinSlideshowSeconds = 0.5;
     static constexpr double kMaxSlideshowSeconds = 3600.0;
+    static constexpr int kMinGalleryEnlargement = 10;
+    static constexpr int kMaxGalleryEnlargement = 40;
     static constexpr int kMaxPointerHideMs = 60000;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
     // Both information panels (D-49): values and labels in these greys over black at
@@ -245,6 +251,10 @@ private:
     QCheckBox *m_preload = nullptr;
     QCheckBox *m_slideshowFullScreen = nullptr;
     QCheckBox *m_slideshowLoop = nullptr;
+    QCheckBox *m_showGallery = nullptr; // its text names the command's shortcut
+    QCheckBox *m_galleryCarousel = nullptr;
+    QSpinBox *m_galleryOpacity = nullptr;
+    QSpinBox *m_galleryEnlargement = nullptr;
     QDoubleSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
     QCheckBox *m_clipWarning = nullptr;

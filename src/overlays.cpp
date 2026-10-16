@@ -123,6 +123,7 @@ void ViewerWindow::updateOverlay()
     updateTitle();
     if (!m_rendererReady)
         return;
+    updateGallery(); // the current image, the folder or the window's width may have changed
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
@@ -313,7 +314,7 @@ void ViewerWindow::updateOverlay()
     // At most half a large window (a long folder path must not cover the image), never larger
     // than a small one: long values are elided, rows that do not fit are left out.
     const qreal maxWidth = std::max(120.0, std::min(this->width() - 2 * kEdgeMargin, std::max(480.0, this->width() * 0.5)));
-    const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kEdgeMargin);
+    const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kEdgeMargin - galleryReserve());
     const qreal contentWidth = std::max(spanWidth, labelWidth > 0 ? labelWidth + columnGap + valueWidth : 0.0);
     const QSizeF logical(std::ceil(std::min(contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(height, maxHeight)));
 
@@ -517,12 +518,14 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
     const double margin = kEdgeMargin * dpr;
+    if (!m_gallerySize.isEmpty())
+        frame->overlayRects[Renderer::GalleryLayer] = m_galleryRect;
     if (!m_overlaySize.isEmpty()) {
         const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
                              ? deviceSize().width() - margin - m_overlaySize.width()
                              : margin;
         frame->overlayRects[Renderer::InfoLayer] =
-            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_overlaySize.height())),
+            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - galleryReserve() * dpr - m_overlaySize.height())),
                    QSizeF(m_overlaySize));
     }
     if (topOverlayVisible())

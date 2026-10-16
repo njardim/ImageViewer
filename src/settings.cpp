@@ -241,6 +241,11 @@ Settings Settings::load()
                              ? seconds : defaults.slideshowSeconds;
     s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
     s.slideshowLoop = boolValue(store, QStringLiteral("navigation/slideshowLoop"), defaults.slideshowLoop);
+    s.showGallery = boolValue(store, QStringLiteral("gallery/show"), defaults.showGallery);
+    s.galleryCarousel = boolValue(store, QStringLiteral("gallery/carousel"), defaults.galleryCarousel);
+    s.galleryOpacity = boundedInt(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
+    s.galleryEnlargement = boundedInt(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
+                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -335,6 +340,10 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
     store.setValue(QStringLiteral("navigation/slideshowLoop"), slideshowLoop);
+    store.setValue(QStringLiteral("gallery/show"), showGallery);
+    store.setValue(QStringLiteral("gallery/carousel"), galleryCarousel);
+    store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
+    store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
     store.remove(QStringLiteral("shortcuts"));
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QStringList parts;

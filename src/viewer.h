@@ -28,6 +28,11 @@
 #include <functional>
 #include <optional>
 
+// What is drawn over the image (panels, overlay, gallery) keeps kEdgeMargin from the window's
+// edges and rounds its corners by kPanelRadius (D-58, D-60), logical pixels.
+inline constexpr double kEdgeMargin = 16.0;
+inline constexpr double kPanelRadius = 8.0;
+
 class QMenu;
 class QVulkanInstance;
 class QWidget;

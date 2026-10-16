@@ -20,6 +20,7 @@ Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.12**, mini
 - **Releases** (D-19, D-26): versions are X.Y[-suffix], never X.Y.Z; the version comes from the tag. Publishing a GitHub release `vX.Y[-suffix]` (or pushing the tag) builds, verifies and attaches the packages; nobody builds release binaries by hand.
 - **Dependencies (D-46):** every library at its latest stable release; check versions against upstream at the start of each release and before its PR (vcpkg's baseline lags upstream). GraphicsMagick has a prepared path to ImageMagick 7 (D-47). Our patches to a dependency (D-57) are temporary: at every update, check whether upstream fixed the defect and remove the patch at once.
 - **Licences in practice:** a dependency that pulls default features can silently override `"default-features": false` in our manifest (that is how x265 got in, D-25); the CI licence gate must stay green.
+- **Components over the image (D-60):** every panel, overlay or bar drawn over the image keeps `kEdgeMargin` (16 px) from the window's edges and rounds its corners by `kPanelRadius` (8 px), both in `viewer.h`; a new component uses them, never its own values.
 - **Viewer is a `QWindow` with its own QRhi swapchain** (D-09) — Widgets cannot do HDR. Dialogs/menus may use Widgets.
 - **Evidence:** when adding claims to the plan, tag them `[code]`, `[doc]`, `[test]`, `[knowledge]` or `[inference]`.
 

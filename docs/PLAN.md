@@ -679,8 +679,11 @@ Nuno's adjustments after 0.4 (D-58):
 - [x] One 16 px margin and one corner radius for everything over the image (D-60) `[test: ui_test.py, screen_test.py]`
 - [x] Image Formats: sortable by any column, decoder versions, "Total supported image formats" (D-60)
 - [x] Gallery (G) with carousel, click, wheel; Settings > Navigation; fifth overlay layer (D-60) `[test: ui_test.py section 9; Xvfb capture]`
-- [ ] Tests still missing from 0.5: title in the overlay's mode, the overlay checkbox, slideshow full screen and loop
-- [ ] D-35 review (at most two reviewers), green CI, PR
+- [x] Shift+I in the on-hover mode shows the overlay at once, then hides it as on hover; `ui_test.py` checks the title in the overlay's mode
+- [x] D-08: `viewer.cpp` (847 lines) and `renderer.cpp` (814) split: `input.cpp` (keyboard, mouse, wheel) and `offscreen.cpp` (render to a texture and read back)
+- [x] D-35 review by the main session alone, without reviewer agents (owner, 2026-10-16: they cost more usage than they save), of the 0.6 changes: three defects of the gallery found and fixed — hidden and shown again it stayed invisible (stale texture key; reproduced under Xvfb with the previous build), thumbnail slots kept in window coordinates went stale after a resize (found by reading), thumbnails ignored the preload's pixel limit
+- [ ] Still without automated tests: the overlay checkbox, slideshow full screen and loop (0.5), the gallery's wheel and carousel sizes
+- [ ] Green CI, PR
 
 ### Phase 0 — Foundation (M)
 - [x] `CMakeLists.txt`, `CMakePresets.json`, `vcpkg.json`, `CLAUDE.md`, `scripts/build-qt-linux.sh`

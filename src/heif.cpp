@@ -340,3 +340,8 @@ bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QStrin
     return false;
 #endif
 }
+
+QString heifVersion()
+{
+    return QString::fromLatin1(heif_get_version());
+}

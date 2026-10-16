@@ -318,7 +318,7 @@ void SettingsDialog::buildUi()
     auto *formatsLayout = new QVBoxLayout(formatsPage);
     const QList<SuffixRow> suffixRows = supportedSuffixTable();
     //: %1: how many file name extensions the viewer opens, e.g. "134".
-    auto *formatsTotal = new QLabel(tr("Total supported file formats: %1").arg(QLocale().toString(suffixRows.size())));
+    auto *formatsTotal = new QLabel(tr("Total supported image formats: %1").arg(QLocale().toString(suffixRows.size())));
     formatsTotal->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
     formatsLayout->addWidget(formatsTotal);
     auto *formatsTable = new QTableWidget(int(suffixRows.size()), 3);
@@ -336,6 +336,8 @@ void SettingsDialog::buildUi()
         formatsTable->setItem(row, 1, new QTableWidgetItem(r.formats));
         formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoders));
     }
+    formatsTable->setSortingEnabled(true); // by any column, from its header; filled first, by extension
+    formatsTable->sortByColumn(0, Qt::AscendingOrder);
     formatsLayout->addWidget(formatsTable, 1);
     tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));

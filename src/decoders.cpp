@@ -14,6 +14,7 @@
 #include <QImageReader>
 #include <QLocale>
 #include <QRegularExpression>
+#include <QSysInfo>
 
 #include <algorithm>
 #include <cmath>
@@ -750,4 +751,35 @@ void shutdownOpenImageIO()
 #if OIIO_VERSION >= OIIO_MAKE_VERSION(3, 0, 0)
     OIIO::shutdown();
 #endif
+}
+
+QString decoderLabel(Decoder decoder)
+{
+    const auto named = [](const char *name, const QString &version) {
+        return version.isEmpty() ? QString::fromLatin1(name) : QString::fromLatin1(name) + QLatin1Char(' ') + version;
+    };
+    switch (decoder) {
+    case Decoder::OpenImageIO:
+    case Decoder::Apng: // its frames are PNGs that OpenImageIO decodes
+        return named("OpenImageIO", QString::fromLatin1(OIIO_VERSION_STRING));
+    case Decoder::Jxl: return named("libjxl", jxlVersion());
+    case Decoder::WebP: return named("libwebp", webpVersion());
+#ifdef IMAGEVIEWER_HAVE_LIBHEIF
+    case Decoder::Heif: return named("libheif", heifVersion());
+#else
+    case Decoder::Heif: return named("libheif", QString());
+#endif
+    case Decoder::Qt: return named("Qt", QString::fromLatin1(qVersion()));
+    case Decoder::GraphicsMagick: return named("GraphicsMagick", graphicsMagickVersion());
+    case Decoder::Softimage: return named("ImageViewer", QCoreApplication::applicationVersion()); // our own reader
+    case Decoder::System:
+#if defined(Q_OS_MACOS)
+        return QStringLiteral("ImageIO (macOS %1)").arg(QSysInfo::productVersion());
+#elif defined(Q_OS_WIN)
+        return QStringLiteral("WIC (Windows %1)").arg(QSysInfo::productVersion());
+#else
+        break;
+#endif
+    }
+    return QStringLiteral("system");
 }

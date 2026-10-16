@@ -653,3 +653,23 @@ bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *o
     *error = damaged("?");
     return false;
 }
+
+QString jxlVersion()
+{
+#ifdef IMAGEVIEWER_HAVE_LIBJXL
+    const uint32_t v = JxlDecoderVersion(); // major * 1000000 + minor * 1000 + patch
+    return QStringLiteral("%1.%2.%3").arg(v / 1000000).arg(v / 1000 % 1000).arg(v % 1000);
+#else
+    return {};
+#endif
+}
+
+QString webpVersion()
+{
+#ifdef IMAGEVIEWER_HAVE_LIBWEBP
+    const int v = WebPGetDecoderVersion(); // 0xMMmmpp
+    return QStringLiteral("%1.%2.%3").arg(v >> 16 & 0xff).arg(v >> 8 & 0xff).arg(v & 0xff);
+#else
+    return {};
+#endif
+}

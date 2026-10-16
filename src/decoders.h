@@ -126,3 +126,12 @@ bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *o
 // apng.cpp: animated PNG; a PNG without animation control is read as a plain PNG.
 bool decodeApng(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                 std::unique_ptr<FrameReader> *frames);
+
+// Settings > Image Formats (D-60): a decoder's name and the version this build uses, e.g.
+// "OpenImageIO 3.2.1.3". The libraries' own versions come from the files that include them
+// (codecs.cpp, heif.cpp, worker.cpp); empty when the library is not built in.
+QString decoderLabel(Decoder decoder);
+QString jxlVersion();
+QString webpVersion();
+QString heifVersion();
+QString graphicsMagickVersion();

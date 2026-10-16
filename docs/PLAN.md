@@ -823,7 +823,7 @@ The first dependency build takes 30 to 90 minutes per system `[estimate]`; after
 
 **Before every pull request (D-35):** at the end of each release's development and before opening its PR, a full adversarial review of the whole codebase, not only the diff.
 1. **Scope:** `src/` (including the shaders), `CMakeLists.txt` and presets, `tests/`, `.github/workflows/`, `packaging/`, `scripts/`, `translations/` and the documents that make claims about the code (README, this plan, CLAUDE.md).
-2. **Reviewers:** at most two independent reviewers in parallel (same model, D-37; owner, 2026-10-15), the codebase split between them by area, each looking for the four kinds of defect:
+2. **Reviewer:** the main session itself, without reviewer agents (owner, 2026-10-16: agents cost more usage than they save; before, at most two of the same model, D-37), going through the codebase area by area, each looking for the four kinds of defect:
    - **bugs:** logic and edge cases (empty folder, one image, huge, corrupt, read-only or vanished files, right-to-left languages, HiDPI, GPU device loss), threads and object lifetimes, error paths;
    - **security:** every file is untrusted input (dimensions, allocation sizes, integer overflow, decoder limits); paths and process arguments (never through a shell); clipboard, drag and drop and stored settings validated; no secrets in the repository; licences (the CI gate);
    - **performance:** nothing slow on the UI thread (decoding, file I/O, folder listing), memory peaks and the cache budget, copies of pixel buffers, GPU uploads, work done per frame;

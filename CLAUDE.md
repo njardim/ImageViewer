@@ -25,7 +25,7 @@ Cross-platform (Windows, macOS, Linux) image viewer in **C++20 + Qt 6.12**, mini
 - **Evidence:** when adding claims to the plan, tag them `[code]`, `[doc]`, `[test]`, `[knowledge]` or `[inference]`.
 
 ## Before every pull request (D-35)
-At the end of each release's development and before opening its PR: a **full adversarial review of the whole codebase** (not only the diff) for bugs, security, performance and badly structured code, with at most two reviewers in parallel (same model), split by area, every finding reproduced before it is fixed, all tests and CI green again, and the review summarised in the PR. The procedure is in `docs/PLAN.md` §11 ("Before every pull request"). No PR while a confirmed bug or security finding is open.
+At the end of each release's development and before opening its PR: a **full adversarial review of the whole codebase** (not only the diff) for bugs, security, performance and badly structured code, by the main session itself, without reviewer agents (owner, 2026-10-16: they cost more usage than they save), every finding reproduced before it is fixed, all tests and CI green again, and the review summarised in the PR. The procedure is in `docs/PLAN.md` §11 ("Before every pull request"). No PR while a confirmed bug or security finding is open.
 
 ## End-of-session duty
 Update `docs/PLAN.md`: §1 (status, next steps, blockers), §2 (new decisions with date and reason), §9 checkboxes, §13/§14 as needed. Commit it with the code.

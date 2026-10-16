@@ -6,7 +6,7 @@
   "builtin-baseline": "0699a19d0c6386247ce50d4dedbb8217d484d536",
   "dependencies": [
     {
-      "$comment": "Overlay port (packaging/vcpkg/ports/openimageio, D-46): 3.2.1.1. No 'jpegxl': the port deletes FindJXL.cmake and libjxl installs only pkg-config files, so OIIO is built without JPEG XL anyway. Its OpenColorIO pulls expat and minizip-ng, also overlays (D-46).",
+      "$comment": "Overlay port (packaging/vcpkg/ports/openimageio, D-46): 3.2.1.3. No 'jpegxl': the port deletes FindJXL.cmake and libjxl installs only pkg-config files, so OIIO is built without JPEG XL anyway. Its OpenColorIO pulls expat and minizip-ng, also overlays (D-46).",
       "name": "openimageio",
       "default-features": false,
       "features": ["gif", "libheif", "libraw", "openjpeg", "webp"]

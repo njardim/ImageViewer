@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.25)
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
 # Not a cache default, so a build tree configured earlier follows the version in development.
 if(NOT IMAGEVIEWER_VERSION)
-    set(IMAGEVIEWER_VERSION "0.5-dev")
+    set(IMAGEVIEWER_VERSION "0.6-dev")
 endif()
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")

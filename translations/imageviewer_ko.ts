@@ -325,13 +325,20 @@
         <translation>창</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>포인터 아래 썸네일 확대(캐러셀)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>지원되는 파일 형식 합계: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>갤러리 배경 불투명도:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>캐러셀 확대 크기:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>모든 명령의 기본값</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>지원되는 이미지 형식 합계: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>확인</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>상단에 정보 오버레이 표시(%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>갤러리 표시(%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>체크무늬 배경</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>갤러리</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -458,13 +458,20 @@
         <translation>शेवटच्या प्रतिमेनंतर स्लाइडशो पहिल्या प्रतिमेपासून सुरू ठेवा</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>क्लिपिंग किंवा टोन मॅपिंगमुळे बदललेले पिक्सेल हायलाइट करा (मॅजेंटा)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>पॉइंटरखालील लघुप्रतिमा मोठ्या करा (कॅरोसेल)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>एकूण समर्थित फाइल स्वरूपे: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>गॅलरी पार्श्वभूमीची अपारदर्शकता:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>कॅरोसेलचे मोठेपण:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>क्लिपिंग किंवा टोन मॅपिंगमुळे बदललेले पिक्सेल हायलाइट करा (मॅजेंटा)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>सर्व कमांडचे डीफॉल्ट</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>एकूण समर्थित प्रतिमा स्वरूपे: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ठीक आहे</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>डीफॉल्ट पुनर्संचयित करा</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>गॅलरी दाखवा (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>चेकरबोर्ड पार्श्वभूमी</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>गॅलरी</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

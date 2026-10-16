@@ -325,13 +325,20 @@
         <translation>Langas</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Paryškinti pikselius, kuriuos pakeitė apkirpimas arba tonų atvaizdavimas (purpurinė)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Padidinti miniatiūras po žymekliu (karuselė)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Iš viso palaikomų failų formatų: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Galerijos fono neskaidrumas:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Karuselės padidinimas:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Paryškinti pikselius, kuriuos pakeitė apkirpimas arba tonų atvaizdavimas (purpurinė)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Visų komandų numatytieji</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Iš viso palaikomų vaizdų formatų: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Gerai</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Rodyti informacijos užklotą viršuje (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Rodyti galeriją (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Languotas fonas</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerija</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

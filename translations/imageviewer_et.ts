@@ -325,13 +325,20 @@
         <translation>Aken</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Tõsta esile pikslid, mida on muutnud kärpimine või toonivastendus (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Suurenda kursori all olevaid pisipilte (karussell)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Toetatud failivorminguid kokku: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Galerii tausta läbipaistmatus:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Karusselli suurendus:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Tõsta esile pikslid, mida on muutnud kärpimine või toonivastendus (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Kõigi käskude vaikeväärtused</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Toetatud pildivorminguid kokku: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Kuva teabe ülekate üleval (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Kuva galerii (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Malelaua taust</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerii</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

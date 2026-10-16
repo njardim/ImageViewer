@@ -458,13 +458,20 @@
         <translation>Setelah gambar terakhir, lanjutkan tayangan slide dari gambar pertama</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Perbesar gambar mini di bawah penunjuk (karusel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Total format berkas yang didukung: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Opasitas latar galeri:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Pembesaran karusel:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>Bawaan untuk Semua Perintah</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total format gambar yang didukung: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Pulihkan Bawaan</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Tampilkan galeri (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Latar Belakang Papan Catur</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galeri</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -458,13 +458,20 @@
         <translation>最后一张图像之后，从第一张继续幻灯片放映</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>放大指针下的缩略图（轮播）</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>支持的文件格式总数：%1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>图库背景不透明度:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>轮播放大量:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>所有命令的默认值</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>支持的图像格式总数：%1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>确定</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>显示图库（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>棋盘格背景</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>图库</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

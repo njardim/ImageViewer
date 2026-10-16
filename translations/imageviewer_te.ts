@@ -458,13 +458,20 @@
         <translation>చివరి చిత్రం తర్వాత స్లైడ్‌షోను మొదటి చిత్రంతో కొనసాగించు</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>పాయింటర్ కింద ఉన్న థంబ్‌నెయిల్‌లను పెద్దవి చేయి (కరౌసెల్)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>మొత్తం మద్దతు ఉన్న ఫైల్ ఫార్మాట్‌లు: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>గ్యాలరీ నేపథ్య అపారదర్శకత:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>కరౌసెల్ పెంపు:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>అన్ని కమాండ్‌ల డిఫాల్ట్‌లు</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>మొత్తం మద్దతు ఉన్న చిత్ర ఫార్మాట్‌లు: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>సరే</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>డిఫాల్ట్‌లను పునరుద్ధరించు</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>గ్యాలరీ చూపు (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>చెకర్‌బోర్డ్ నేపథ్యం</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>గ్యాలరీ</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

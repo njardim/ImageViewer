@@ -325,13 +325,20 @@
         <translation>Okno</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Wyróżnij piksele zmienione przez obcinanie lub mapowanie tonów (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Powiększaj miniatury pod wskaźnikiem (karuzela)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Łącznie obsługiwanych formatów plików: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Krycie tła galerii:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Powiększenie karuzeli:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Wyróżnij piksele zmienione przez obcinanie lub mapowanie tonów (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Domyślne dla wszystkich poleceń</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Łącznie obsługiwanych formatów obrazów: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Pokaż nakładkę informacji u góry (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Pokaż galerię (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Tło w szachownicę</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galeria</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

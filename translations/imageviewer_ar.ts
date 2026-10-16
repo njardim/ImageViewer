@@ -458,13 +458,20 @@
         <translation>بعد الصورة الأخيرة، متابعة عرض الشرائح من الأولى</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>تكبير الصور المصغرة تحت المؤشر (دوّار)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>إجمالي تنسيقات الملفات المدعومة: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>عتامة خلفية المعرض:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>مقدار تكبير الدوّار:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>الافتراضي لجميع الأوامر</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>إجمالي تنسيقات الصور المدعومة: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>موافق</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>استعادة الإعدادات الافتراضية</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>إظهار المعرض (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>خلفية رقعة الشطرنج</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>المعرض</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

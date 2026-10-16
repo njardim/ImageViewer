@@ -325,13 +325,20 @@
         <translation>Tieqa</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Enfasizza l-pixels mibdula bil-clipping jew bit-tone mapping (manġenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Kabbar it-thumbnails taħt il-pointer (carousel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Total ta&apos; formati tal-fajls appoġġjati: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Opaċità tal-isfond tal-gallerija:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Tkabbir tal-carousel:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Enfasizza l-pixels mibdula bil-clipping jew bit-tone mapping (manġenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Valuri predefiniti għall-kmandi kollha</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total ta&apos; formati tal-immaġni appoġġjati: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Uri l-overlay tal-informazzjoni fin-naħa ta&apos; fuq (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Uri l-gallerija (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Sfond ta&apos; skakkiera</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Gallerija</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

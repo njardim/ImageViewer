@@ -325,13 +325,20 @@
         <translation>Fuinneog</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Aibhsigh picteilíní a athraíodh trí ghearradh nó mapáil toin (maigeanta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Méadaigh na mionsamhlacha faoin bpointeoir (timpeallán)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Líon iomlán na bhformáidí comhad a dtacaítear leo: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Teimhneacht chúlra an ghailearaí:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Méadú an timpealláin:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Aibhsigh picteilíní a athraíodh trí ghearradh nó mapáil toin (maigeanta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Réamhshocruithe do gach ordú</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Líon iomlán na bhformáidí íomhá a dtacaítear leo: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Taispeáin an forleagan faisnéise ag an mbarr (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Taispeáin an gailearaí (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Cúlra clár fichille</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Gailearaí</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

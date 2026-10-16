@@ -325,13 +325,20 @@
         <translation>Pencere</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Kırpma veya ton eşleme nedeniyle değişen pikselleri vurgula (macenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>İşaretçinin altındaki küçük resimleri büyüt (atlıkarınca)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Desteklenen toplam dosya biçimi: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Galeri arka planının opaklığı:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Atlıkarınca büyütmesi:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Kırpma veya ton eşleme nedeniyle değişen pikselleri vurgula (macenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Tüm komutların varsayılanları</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Desteklenen toplam görüntü biçimi: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Tamam</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Üstte bilgi bindirmesini göster (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Galeriyi göster (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Dama desenli arka plan</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galeri</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -325,13 +325,20 @@
         <translation>Прозорец</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Открояване на пикселите, променени при отсичане или тоново картографиране (магента)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Уголемяване на миниатюрите под показалеца (въртележка)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Общо поддържани файлови формати: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Непрозрачност на фона на галерията:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Уголемяване във въртележката:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Открояване на пикселите, променени при отсичане или тоново картографиране (магента)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Стандартни за всички команди</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Общо поддържани формати на изображения: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Показване на информационното наслагване отгоре (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Показване на галерията (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Шахматен фон</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Галерия</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -458,13 +458,20 @@
         <translation>Après la dernière image, reprendre le diaporama à la première</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Mettre en évidence les pixels modifiés par l’écrêtage ou le mappage des tons (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Agrandir les miniatures sous le pointeur (carrousel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Total des formats de fichier pris en charge : %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Opacité du fond de la galerie :</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Agrandissement du carrousel :</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Mettre en évidence les pixels modifiés par l’écrêtage ou le mappage des tons (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>Valeurs par défaut de toutes les commandes</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total des formats d’image pris en charge : %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Rétablir les valeurs par défaut</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Afficher la galerie (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Arrière-plan en damier</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerie</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

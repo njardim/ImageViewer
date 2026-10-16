@@ -458,13 +458,20 @@
         <translation>最後の画像の後、最初の画像からスライドショーを続ける</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>ポインター下のサムネイルを拡大（カルーセル）</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>対応ファイル形式の合計: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>ギャラリー背景の不透明度:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>カルーセルの拡大量:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>すべてのコマンドの既定値</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>対応画像形式の合計: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>既定値に戻す</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>ギャラリーを表示（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>市松模様の背景</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>ギャラリー</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

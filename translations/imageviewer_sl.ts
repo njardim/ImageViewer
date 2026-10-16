@@ -325,13 +325,20 @@
         <translation>Okno</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Označi piksle, spremenjene z obrezovanjem ali tonskim preslikavanjem (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Povečaj sličice pod kazalcem (vrtiljak)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Skupaj podprtih oblik datotek: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Prekrivnost ozadja galerije:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Povečava vrtiljaka:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Označi piksle, spremenjene z obrezovanjem ali tonskim preslikavanjem (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Privzeto za vse ukaze</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Skupaj podprtih oblik slik: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>V redu</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Prikaži informacijski prekrivni sloj na vrhu (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Prikaži galerijo (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Ozadje šahovnice</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerija</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

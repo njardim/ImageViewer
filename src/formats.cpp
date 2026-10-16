@@ -394,20 +394,6 @@ QStringList formatReport()
 
 QList<SuffixRow> supportedSuffixTable()
 {
-    // As the user would name the decoder: APNG frames are PNGs OpenImageIO decodes, and the
-    // system's decoder is the platform's own.
-    const auto decoder = [](Decoder d) -> QString {
-        if (d == Decoder::Apng)
-            return QString::fromLatin1(decoderName(Decoder::OpenImageIO));
-#if defined(Q_OS_MACOS)
-        if (d == Decoder::System)
-            return QStringLiteral("ImageIO");
-#elif defined(Q_OS_WIN)
-        if (d == Decoder::System)
-            return QStringLiteral("WIC");
-#endif
-        return QString::fromLatin1(decoderName(d));
-    };
     QList<const Format *> available;
     for (const Format &f : kFormats)
         if (isAvailable(f)) // the system's formats only where its codec is installed
@@ -419,7 +405,7 @@ QList<SuffixRow> supportedSuffixTable()
             if (!f->suffixes().contains(suffix))
                 continue;
             names << QString::fromUtf8(f->name);
-            if (const QString d = decoder(f->decoder); !decoders.contains(d))
+            if (const QString d = decoderLabel(f->decoder); !decoders.contains(d))
                 decoders << d;
         }
         if (!names.isEmpty())

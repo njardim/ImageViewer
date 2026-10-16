@@ -458,13 +458,20 @@
         <translation>Tras la última imagen, continuar la presentación con la primera</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Resaltar los píxeles alterados por recorte o mapeo de tonos (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Ampliar las miniaturas bajo el puntero (carrusel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Total de formatos de archivo compatibles: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Opacidad del fondo de la galería:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Ampliación del carrusel:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Resaltar los píxeles alterados por recorte o mapeo de tonos (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>Predeterminados de todos los comandos</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total de formatos de imagen compatibles: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Aceptar</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Restaurar valores predeterminados</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Mostrar la galería (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Fondo de cuadros</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galería</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

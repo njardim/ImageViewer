@@ -325,13 +325,20 @@
         <translation>Παράθυρο</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Επισήμανση pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (ματζέντα)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Μεγέθυνση των μικρογραφιών κάτω από τον δείκτη (καρουζέλ)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Σύνολο υποστηριζόμενων μορφών αρχείων: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Αδιαφάνεια φόντου συλλογής:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Μεγέθυνση καρουζέλ:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Επισήμανση pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (ματζέντα)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Προεπιλογές για όλες τις εντολές</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Σύνολο υποστηριζόμενων μορφών εικόνας: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Εμφάνιση της επικάλυψης πληροφοριών στην κορυφή (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Εμφάνιση της συλλογής (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Φόντο σκακιέρας</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Συλλογή</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

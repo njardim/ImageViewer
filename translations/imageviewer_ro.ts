@@ -325,13 +325,20 @@
         <translation>Fereastră</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Evidențiere pixeli modificați prin tăiere sau mapare tonală (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Mărește miniaturile de sub indicator (carusel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Total formate de fișiere acceptate: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Opacitatea fundalului galeriei:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Mărirea caruselului:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Evidențiere pixeli modificați prin tăiere sau mapare tonală (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Valori implicite pentru toate comenzile</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Total formate de imagine acceptate: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Afișează suprapunerea de informații în partea de sus (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Afișează galeria (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Fundal în carouri</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerie</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

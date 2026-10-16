@@ -325,13 +325,20 @@
         <translation>Vindue</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Fremhæv pixels ændret af klipning eller tonemapping (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Forstør miniaturerne under markøren (karrusel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Understøttede filformater i alt: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Gennemsigtighed for galleriets baggrund:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Karrusellens forstørrelse:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Fremhæv pixels ændret af klipning eller tonemapping (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Standarder for alle kommandoer</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Understøttede billedformater i alt: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Vis informationsoverlayet øverst (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Vis galleriet (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Skakternet baggrund</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galleri</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

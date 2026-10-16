@@ -458,13 +458,20 @@
         <translation>Sau ảnh cuối cùng, tiếp tục trình chiếu từ ảnh đầu tiên</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Phóng to hình thu nhỏ dưới con trỏ (băng chuyền)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Tổng số định dạng tệp được hỗ trợ: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Độ mờ đục của nền thư viện ảnh:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Mức phóng to của băng chuyền:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>Mặc định cho mọi lệnh</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Tổng số định dạng ảnh được hỗ trợ: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Khôi phục mặc định</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Hiện thư viện ảnh (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Nền ô vuông</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Thư viện ảnh</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.25)
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
 # Not a cache default, so a build tree configured earlier follows the version in development.
 if(NOT IMAGEVIEWER_VERSION)
-    set(IMAGEVIEWER_VERSION "0.5-dev")
+    set(IMAGEVIEWER_VERSION "0.6-dev")
 endif()
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
@@ -65,10 +65,10 @@ find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/gallery.cpp src/input.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp src/settingsdialog.cpp
-    src/renderer.h src/renderer.cpp
+    src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
     src/decoders.h src/decoders.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp

@@ -325,13 +325,20 @@
         <translation>Venster</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Miniaturen onder de aanwijzer vergroten (carrousel)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Totaal ondersteunde bestandsindelingen: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Dekking van de galerijachtergrond:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Vergroting van de carrousel:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Standaardwaarden voor alle opdrachten</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Totaal ondersteunde afbeeldingsindelingen: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>De informatie-overlay bovenaan tonen (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>De galerij tonen (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Dambordachtergrond</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerij</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -18,10 +18,7 @@
 
 namespace {
 constexpr double kNavigationButtonSize = 56.0; // logical pixels
-constexpr double kMargin = 12.0;               // between the window edge and a panel, logical pixels
-constexpr double kTopMargin = 8.0;
 constexpr int kNoticeMs = 3000;
-constexpr double kPanelRadius = 8.0;                  // both information panels' corners (D-58), logical pixels
 const QString kFieldSeparator = QStringLiteral("   ·   "); // between the top overlay's facts, and the title's
 
 // "100" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
@@ -126,6 +123,7 @@ void ViewerWindow::updateOverlay()
     updateTitle();
     if (!m_rendererReady)
         return;
+    updateGallery(); // the current image, the folder or the window's width may have changed
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
@@ -315,8 +313,8 @@ void ViewerWindow::updateOverlay()
     }
     // At most half a large window (a long folder path must not cover the image), never larger
     // than a small one: long values are elided, rows that do not fit are left out.
-    const qreal maxWidth = std::max(120.0, std::min(this->width() - 2 * kMargin, std::max(480.0, this->width() * 0.5)));
-    const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kMargin);
+    const qreal maxWidth = std::max(120.0, std::min(this->width() - 2 * kEdgeMargin, std::max(480.0, this->width() * 0.5)));
+    const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kEdgeMargin - galleryReserve());
     const qreal contentWidth = std::max(spanWidth, labelWidth > 0 ? labelWidth + columnGap + valueWidth : 0.0);
     const QSizeF logical(std::ceil(std::min(contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(height, maxHeight)));
 
@@ -389,7 +387,7 @@ bool ViewerWindow::topOverlayVisible() const
 double ViewerWindow::topActivationHeight() const
 {
     // The top band, and the overlay itself once it is shown.
-    return std::max(48.0, m_topOverlaySize.height() / devicePixelRatio() + 2 * kTopMargin);
+    return std::max(48.0, m_topOverlaySize.height() / devicePixelRatio() + 2 * kEdgeMargin);
 }
 
 void ViewerWindow::setPointerAtTop(bool atTop)
@@ -481,7 +479,7 @@ void ViewerWindow::updateTopOverlay()
     const QFont font = QGuiApplication::font();
     const QFontMetricsF metrics(font);
     const qreal paddingX = 14.0, paddingY = 6.0;
-    const qreal maxText = std::max(60.0, width() - 2 * kMargin - 2 * paddingX);
+    const qreal maxText = std::max(60.0, width() - 2 * kEdgeMargin - 2 * paddingX);
     QString text = parts.join(kFieldSeparator);
     // Too wide: shorten the file name first (it is usually the longest part), then the line.
     if (metrics.horizontalAdvance(text) > maxText && nameIndex >= 0) {
@@ -519,18 +517,20 @@ void ViewerWindow::updateTopOverlay()
 void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
-    const double margin = kMargin * dpr;
+    const double margin = kEdgeMargin * dpr;
+    if (!m_gallerySize.isEmpty())
+        frame->overlayRects[Renderer::GalleryLayer] = m_galleryRect;
     if (!m_overlaySize.isEmpty()) {
         const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
                              ? deviceSize().width() - margin - m_overlaySize.width()
                              : margin;
         frame->overlayRects[Renderer::InfoLayer] =
-            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_overlaySize.height())),
+            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - galleryReserve() * dpr - m_overlaySize.height())),
                    QSizeF(m_overlaySize));
     }
     if (topOverlayVisible())
         frame->overlayRects[Renderer::TopLayer] =
-            QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0), std::round(kTopMargin * dpr)),
+            QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0), std::round(kEdgeMargin * dpr)),
                    QSizeF(m_topOverlaySize));
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);

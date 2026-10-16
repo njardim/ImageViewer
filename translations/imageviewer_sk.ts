@@ -325,13 +325,20 @@
         <translation>Okno</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Zvýrazniť pixely zmenené orezaním alebo mapovaním tónov (purpurová)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Zväčšiť miniatúry pod ukazovateľom (kolotoč)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Celkovo podporovaných formátov súborov: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Nepriehľadnosť pozadia galérie:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Zväčšenie kolotoča:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Zvýrazniť pixely zmenené orezaním alebo mapovaním tónov (purpurová)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Predvolené pre všetky príkazy</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Celkovo podporovaných formátov obrázkov: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Zobraziť informačné prekrytie hore (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Zobraziť galériu (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Šachovnicové pozadie</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galéria</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

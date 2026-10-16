@@ -458,13 +458,20 @@
         <translation>শেষ ছবির পরে প্রথম ছবি থেকে স্লাইডশো চালিয়ে যান</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>পয়েন্টারের নিচের থাম্বনেইল বড় করুন (ক্যারোসেল)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>মোট সমর্থিত ফাইল ফরম্যাট: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>গ্যালারির পটভূমির অস্বচ্ছতা:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>ক্যারোসেলের বৃদ্ধি:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>সব কমান্ডের ডিফল্ট</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>মোট সমর্থিত ছবির ফরম্যাট: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ঠিক আছে</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ডিফল্ট পুনরুদ্ধার করুন</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>গ্যালারি দেখান (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>দাবার ছকের পটভূমি</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>গ্যালারি</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

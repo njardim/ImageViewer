@@ -5,13 +5,11 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QGuiApplication>
-#include <QKeyEvent>
 #include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPlatformSurfaceEvent>
 #include <QScreen>
-#include <QStyleHints>
 
 #include <algorithm>
 #include <cmath>
@@ -79,6 +77,7 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     });
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::decodeFinished);
     m_framePool.setMaxThreadCount(1);
+    m_thumbnailPool.setMaxThreadCount(2); // the gallery's thumbnails never hold up the image shown
     connect(&m_frameWatcher, &QFutureWatcher<FrameResult>::finished, this, &ViewerWindow::frameDecoded);
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
@@ -100,6 +99,7 @@ ViewerWindow::~ViewerWindow()
     // application menu quits that way) and emits visibilityChanged, when this object's
     // members are already destroyed: none of the handlers below may run from here on.
     disconnect(this, nullptr, this, nullptr);
+    m_thumbnailPool.clear(); // thumbnails not started yet are not decoded
     m_watcher.waitForFinished();
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
@@ -190,6 +190,7 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Leave:
         m_pointerTimer.stop();
         setHoverZone(Zone::None);
+        setGalleryHover(-1);
         setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
@@ -533,6 +534,7 @@ void ViewerWindow::recoverFromDeviceLoss()
     initializeRenderer();
     if (m_rendererReady) {
         m_topOverlayKey.clear(); // every overlay texture is gone too
+        m_galleryKey.clear();
         m_panelKey.clear();
         updateOverlay();
         updateNavigationButtons();
@@ -687,126 +689,6 @@ void ViewerWindow::toggleInfo()
 {
     savePreference([on = !m_settings.showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
-}
-
-void ViewerWindow::keyPressEvent(QKeyEvent *e)
-{
-    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && (m_slideshow || visibility() == QWindow::FullScreen)) {
-        if (m_slideshow) {
-            stopSlideshow();
-            showNotice(tr("Slideshow stopped"));
-        }
-        if (visibility() == QWindow::FullScreen)
-            leaveFullScreen();
-        return;
-    }
-    if (!executeShortcut(e))
-        QWindow::keyPressEvent(e);
-}
-
-void ViewerWindow::mousePressEvent(QMouseEvent *e)
-{
-    pointerActive();
-    switch (e->button()) {
-    case Qt::RightButton:
-        showContextMenu(e->globalPosition().toPoint());
-        return;
-    case Qt::BackButton: // mouse side buttons
-        step(-1);
-        return;
-    case Qt::ForwardButton:
-        step(+1);
-        return;
-    case Qt::LeftButton:
-        break;
-    default:
-        return;
-    }
-    m_pressZone = zoneAt(e->position());
-    m_pressMoved = false;
-    m_dragOrigin = e->position();
-    m_panOrigin = m_pan;
-    m_dragging = canPan();
-    if (m_pressZone != Zone::None)
-        updateNavigationButtons(); // pressed look
-}
-
-void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
-{
-    pointerActive();
-    if (!(e->buttons() & Qt::LeftButton)) {
-        // No press in progress (or its release went elsewhere, e.g. to the context menu).
-        m_dragging = false;
-        m_pressZone = Zone::None;
-        setHoverZone(zoneAt(e->position()));
-        setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
-        return;
-    }
-    if (m_pressZone != Zone::None && !m_pressMoved) {
-        // A press on a side zone is a click until it moves beyond the platform's drag distance.
-        if ((e->position() - m_dragOrigin).manhattanLength() < QGuiApplication::styleHints()->startDragDistance())
-            return;
-        m_pressMoved = true;
-        updateNavigationButtons();
-    }
-    if (!m_dragging)
-        return;
-    m_pan = m_panOrigin + (e->position() - m_dragOrigin) * devicePixelRatio();
-    clampPan();
-    requestUpdate();
-}
-
-void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
-{
-    if (e->button() != Qt::LeftButton)
-        return;
-    m_dragging = false;
-    const Zone pressed = std::exchange(m_pressZone, Zone::None);
-    const Zone released = zoneAt(e->position());
-    if (pressed != Zone::None && !m_pressMoved && released == pressed)
-        step(pressed == Zone::Next ? +1 : -1);
-    // Refresh unconditionally: the button loses its pressed look even when the zone is unchanged.
-    m_hoverZone = released;
-    updateCursor();
-    updateNavigationButtons();
-}
-
-void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
-{
-    if (e->button() != Qt::LeftButton)
-        return;
-    if (zoneAt(e->position()) != Zone::None) {
-        mousePressEvent(e); // quick clicks on a side keep navigating
-        return;
-    }
-    // The first click may have reached the end of a folder that does not loop: the second
-    // click of the pair is still a click on the side, never a request for full screen.
-    if (inSideStrip(e->position()))
-        return;
-    toggleFullScreen();
-}
-
-void ViewerWindow::wheelEvent(QWheelEvent *e)
-{
-    // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
-    // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
-    pointerActive();
-    const QPointingDevice *device = e->pointingDevice();
-    const bool gesture = e->phase() != Qt::NoScrollPhase
-                         || (device && device->type() == QInputDevice::DeviceType::TouchPad);
-    if (gesture && !(e->modifiers() & Qt::ControlModifier)) {
-        if (canPan()) {
-            const QPointF delta = !e->pixelDelta().isNull() ? QPointF(e->pixelDelta())
-                                                            : QPointF(e->angleDelta()) / 8.0; // degrees ~ pixels
-            m_pan += delta * devicePixelRatio();
-            clampPan();
-            requestUpdate();
-        }
-        return;
-    }
-    const double steps = e->angleDelta().y() / 120.0;
-    if (steps != 0.0)
-        zoomAt(std::pow(1.25, steps), e->position() * devicePixelRatio());
 }
 
 void ViewerWindow::toggleFullScreen()

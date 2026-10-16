@@ -458,13 +458,20 @@
         <translation>После последнего изображения продолжать слайд-шоу с первого</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Выделять пиксели, изменённые отсечением или тональной компрессией (пурпурный)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Увеличивать миниатюры под указателем (карусель)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Всего поддерживаемых форматов файлов: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Непрозрачность фона галереи:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Увеличение в карусели:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Выделять пиксели, изменённые отсечением или тональной компрессией (пурпурный)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>По умолчанию для всех команд</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Всего поддерживаемых форматов изображений: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Восстановить значения по умолчанию</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Показывать галерею (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Шахматный фон</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Галерея</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

@@ -454,3 +454,12 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     std::memcpy(out->data.get(), answer.constData() + kHeaderBytes + a.iccBytes, std::size_t(a.dataBytes));
     return true;
 }
+
+QString graphicsMagickVersion()
+{
+#ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
+    return QStringLiteral(MagickLibVersionText);
+#else
+    return {};
+#endif
+}

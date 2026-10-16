@@ -325,13 +325,20 @@
         <translation>Ablak</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>A mutató alatti bélyegképek nagyítása (körhinta)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Támogatott fájlformátumok összesen: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>A galéria hátterének átlátszatlansága:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Körhinta nagyítása:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Alapértelmezések minden parancshoz</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Támogatott képformátumok összesen: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Információs fedőréteg megjelenítése felül (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Galéria megjelenítése (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Sakktábla háttér</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galéria</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

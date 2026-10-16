@@ -325,13 +325,20 @@
         <translation>Logs</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Iezīmēt pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (magenta)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>Palielināt sīktēlus zem rādītāja (karuselis)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Kopā atbalstīto failu formātu: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>Galerijas fona necaurredzamība:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>Karuseļa palielinājums:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>Iezīmēt pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -541,6 +548,11 @@
         <translation>Visu komandu noklusējumi</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Kopā atbalstīto attēlu formātu: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Labi</translation>
     </message>
@@ -560,6 +572,10 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Rādīt informācijas pārklājumu augšpusē (%1)</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>Rādīt galeriju (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -958,6 +974,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>Rūtiņu fons</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerija</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

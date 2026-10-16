@@ -3,8 +3,6 @@
 #include "settings.h"
 
 #include <QApplication>
-#include <QFile>
-#include <QFileInfo>
 #include <QKeySequence>
 #include <QLibraryInfo>
 #include <QLocale>
@@ -17,11 +15,6 @@
 #include <utility>
 
 namespace {
-
-// Bumped when a stored value changes meaning; load() can then migrate older files.
-// 2 (0.3): the side zones' default width went from 200 to 100 px (D-36).
-// 3 (0.4): the panels' style applies to both panels, with new defaults (D-49).
-constexpr int kSettingsVersion = 3;
 
 const char *outputKey(Renderer::OutputPreference preference)
 {
@@ -140,19 +133,6 @@ bool boolValue(const QSettings &store, const QString &key, bool fallback)
     return boolFrom(store.value(key), fallback);
 }
 
-// The "app" group was called "general" up to 0.2: in INI files (Linux) QSettings writes that
-// group as [%General] and reads it back as "General", so the values never loaded. Read the
-// old spellings once; save() writes the new key and removes them.
-QVariant appValue(const QSettings &store, const char *name)
-{
-    for (const char *group : {"app/", "general/", "General/"}) {
-        const QString key = QLatin1String(group) + QLatin1String(name);
-        if (store.contains(key))
-            return store.value(key);
-    }
-    return {};
-}
-
 int boundedInt(const QSettings &store, const QString &key, int fallback, int low, int high)
 {
     bool ok = false;
@@ -202,11 +182,11 @@ Settings Settings::load()
     const QSettings store;
     const Settings defaults;
     Settings s;
-    s.language = appValue(store, "language").toString();
+    s.language = store.value(QStringLiteral("app/language")).toString();
     if (!s.language.isEmpty() && !isKnownLanguage(s.language))
         s.language.clear();
-    s.confirmTrash = boolFrom(appValue(store, "confirmTrash"), defaults.confirmTrash);
-    s.reopenLastImage = boolFrom(appValue(store, "reopenLastImage"), defaults.reopenLastImage);
+    s.confirmTrash = boolFrom(store.value(QStringLiteral("app/confirmTrash")), defaults.confirmTrash);
+    s.reopenLastImage = boolFrom(store.value(QStringLiteral("app/reopenLastImage")), defaults.reopenLastImage);
 
     const QColor background(store.value(QStringLiteral("window/background")).toString());
     s.background = background.isValid() ? background.toRgb() : defaults.background;
@@ -245,15 +225,6 @@ Settings Settings::load()
     s.overlayTextOpacity = boundedInt(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
                                       kMinOverlayTextOpacity, 100);
     s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
-    // Up to 0.3 these styled the top overlay only, and every save stored their defaults like a
-    // choice; from 0.4 they style both panels, with the new defaults (D-49).
-    // Likewise the overlay in full screen, on hover at the top up to 0.3, always from 0.4.
-    if (store.value(QStringLiteral("version")).toInt() < 3) {
-        if (s.overlayBackgroundOpacity == 60)
-            s.overlayBackgroundOpacity = defaults.overlayBackgroundOpacity;
-        if (s.overlayFullScreen == OverlayVisibility::Hover)
-            s.overlayFullScreen = defaults.overlayFullScreen;
-    }
     s.overlayHideDelayMs = boundedInt(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
                                       kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
 
@@ -261,9 +232,6 @@ Settings Settings::load()
     s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
     s.sideZoneWidth = boundedInt(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
                                  kMinSideZoneWidth, kMaxSideZoneWidth);
-    // Up to 0.2 every save stored the old 200 px default like a choice; it becomes the new one.
-    if (store.value(QStringLiteral("version")).toInt() < 2 && s.sideZoneWidth == 200)
-        s.sideZoneWidth = defaults.sideZoneWidth;
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
     s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
@@ -273,6 +241,11 @@ Settings Settings::load()
                              ? seconds : defaults.slideshowSeconds;
     s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
     s.slideshowLoop = boolValue(store, QStringLiteral("navigation/slideshowLoop"), defaults.slideshowLoop);
+    s.showGallery = boolValue(store, QStringLiteral("gallery/show"), defaults.showGallery);
+    s.galleryCarousel = boolValue(store, QStringLiteral("gallery/carousel"), defaults.galleryCarousel);
+    s.galleryOpacity = boundedInt(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
+    s.galleryEnlargement = boundedInt(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
+                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -330,18 +303,9 @@ QColor Settings::panelText(int grey) const
     return QColor(grey, grey, grey, int(std::lround(overlayTextOpacity * 2.55)));
 }
 
-bool Settings::storedIsOutdated()
-{
-    const QSettings store;
-    return store.value(QStringLiteral("version")).toInt() < kSettingsVersion && !store.allKeys().isEmpty();
-}
-
 void Settings::save() const
 {
     QSettings store;
-    store.setValue(QStringLiteral("version"), kSettingsVersion);
-    store.remove(QStringLiteral("general")); // pre-0.2 spellings (see appValue())
-    store.remove(QStringLiteral("General"));
     store.setValue(QStringLiteral("app/language"), language);
     store.setValue(QStringLiteral("app/confirmTrash"), confirmTrash);
     store.setValue(QStringLiteral("app/reopenLastImage"), reopenLastImage);
@@ -376,6 +340,10 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
     store.setValue(QStringLiteral("navigation/slideshowLoop"), slideshowLoop);
+    store.setValue(QStringLiteral("gallery/show"), showGallery);
+    store.setValue(QStringLiteral("gallery/carousel"), galleryCarousel);
+    store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
+    store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
     store.remove(QStringLiteral("shortcuts"));
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QStringList parts;
@@ -404,23 +372,13 @@ SessionState SessionState::load()
 
 void SessionState::save() const
 {
-    QSettings store; // "version" describes the preferences: only Settings::save() writes it
+    QSettings store;
     if (geometry.isValid())
         store.setValue(QStringLiteral("session/geometry"), geometry);
     store.setValue(QStringLiteral("session/maximized"), maximized);
     store.setValue(QStringLiteral("session/fullScreen"), fullScreen);
     store.setValue(QStringLiteral("session/lastFile"), lastFile);
     store.setValue(QStringLiteral("session/lastDirectory"), lastDirectory);
-}
-
-void adoptEarlierSettingsFile()
-{
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-    const QString current = QSettings().fileName();
-    const QString earlier = QFileInfo(current).absolutePath() + QStringLiteral("/imageViewer.conf");
-    if (!QFileInfo::exists(current) && QFileInfo::exists(earlier))
-        QFile::rename(earlier, current);
-#endif
 }
 
 QStringList loadRecentFiles()

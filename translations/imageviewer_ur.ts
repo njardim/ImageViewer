@@ -458,13 +458,20 @@
         <translation>آخری تصویر کے بعد سلائیڈ شو پہلی تصویر سے جاری رکھیں</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
+        <source>Enlarge the thumbnails under the pointer (carousel)</source>
+        <translation>پوائنٹر کے نیچے تھمب نیل بڑے کریں (کیروسل)</translation>
     </message>
     <message>
-        <source>Total supported file formats: %1</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>معاون فائل فارمیٹس کی کل تعداد: %1</translation>
+        <source>Gallery background opacity:</source>
+        <translation>گیلری کے پس منظر کی دھندلاہٹ:</translation>
+    </message>
+    <message>
+        <source>Carousel enlargement:</source>
+        <translation>کیروسل کی بڑائی:</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
+        <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -546,6 +553,11 @@
         <translation>تمام کمانڈز کے ڈیفالٹس</translation>
     </message>
     <message>
+        <source>Total supported image formats: %1</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>معاون تصویری فارمیٹس کی کل تعداد: %1</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ٹھیک ہے</translation>
     </message>
@@ -560,6 +572,10 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ڈیفالٹس بحال کریں</translation>
+    </message>
+    <message>
+        <source>Show the gallery (%1)</source>
+        <translation>گیلری دکھائیں (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -950,6 +966,10 @@
     <message>
         <source>Checkerboard Background</source>
         <translation>شطرنج نما پس منظر</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>گیلری</translation>
     </message>
     <message>
         <source>Rotate Clockwise</source>

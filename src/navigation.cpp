@@ -43,6 +43,7 @@ void ViewerWindow::openFile(const QString &path)
                 return;
             }
             m_files = std::move(files);
+            m_galleryCentredOn = -2; // another folder: the gallery centres the image again
             m_lastDirectory = folder;
             setFolder(folder);
             startLoading(0);
@@ -51,6 +52,7 @@ void ViewerWindow::openFile(const QString &path)
     }
     // The image first; the rest of its folder follows from the background listing.
     m_files = {info.absoluteFilePath()};
+    m_galleryCentredOn = -2;
     m_index = -1;
     m_lastDirectory = info.absolutePath();
     setFolder(m_lastDirectory);
@@ -302,6 +304,7 @@ void ViewerWindow::applyListing(QStringList files)
             files.prepend(current);
     }
     m_files = std::move(files);
+    m_galleryCentredOn = -2; // the same index may be another file now
     const int index = current.isEmpty() ? -1 : int(m_files.indexOf(current));
     if (index >= 0) {
         m_index = index;

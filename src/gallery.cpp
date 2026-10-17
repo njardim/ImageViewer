@@ -15,7 +15,11 @@
 namespace {
 constexpr double kThumbnail = 128.0;  // logical pixels, square
 constexpr double kBorder = 8.0;       // between thumbnails and around them
-constexpr double kSideFree = 256.0;   // left free on each side of the window
+constexpr double kSideFree = 128.0;   // left free on each side of the window
+// Behind the current thumbnail, and lighter (halfway to white) behind the one under the pointer;
+// at the gallery's background opacity, over that background.
+const QColor kSelected(255, 140, 0);
+const QColor kHovered(255, 198, 128);
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
 
 // sRGB, 8 bits, premultiplied in encoded values like every overlay texture; HDR values above SDR
@@ -67,7 +71,15 @@ int ViewerWindow::galleryCapacity() const
 double ViewerWindow::galleryReserve() const
 {
     // The gallery's bar and the margin above it: the information panel stays above both.
-    return m_gallerySize.isEmpty() ? 0.0 : kThumbnail + 2 * kBorder + kEdgeMargin;
+    return m_gallerySize.isEmpty() ? 0.0 : kThumbnail + 2 * kBorder + galleryBottomMargin();
+}
+
+double ViewerWindow::galleryBottomMargin() const
+{
+    // The bar keeps kEdgeMargin from the bottom; the carousel enlarges a thumbnail about the bar's
+    // middle line, so beyond 48 px of enlargement the bar rises to keep it on screen.
+    const int g = m_settings.galleryCarousel ? m_settings.galleryEnlargement : 0;
+    return std::max(kEdgeMargin, g / 2.0 - kBorder);
 }
 
 bool ViewerWindow::galleryShown() const
@@ -91,7 +103,9 @@ void ViewerWindow::updateGallery()
         return;
     }
     const int count = int(m_files.size());
-    const int shown = std::min(count, galleryCapacity());
+    // When not every image fits, an odd number: the current thumbnail then sits in the middle.
+    const int capacity = galleryCapacity();
+    const int shown = count <= capacity ? count : std::max(1, capacity % 2 ? capacity : capacity - 1);
     // The current image comes to the centre whenever it changes; the wheel moves away from it.
     if (m_index != m_galleryCentredOn) {
         m_galleryCentredOn = m_index;
@@ -125,8 +139,9 @@ void ViewerWindow::updateGallery()
                       .arg(m_settings.galleryOpacity).arg(g);
     for (int i = 0; i < shown; ++i)
         key += m_thumbnails.contains(m_files.at(m_galleryFirst + i)) ? QLatin1Char('1') : QLatin1Char('0');
+    // The texture reaches g/2 above and below the bar, for the enlarged thumbnails.
     m_galleryRect = QRectF(QPointF(std::round((width() - logical.width()) / 2.0 * dpr),
-                                   std::round((height() - kEdgeMargin - logical.height()) * dpr)),
+                                   std::round((height() - galleryBottomMargin() - kThumbnail - 2 * kBorder - g / 2.0) * dpr)),
                            logical * dpr);
     if (key == m_galleryKey)
         return;
@@ -139,20 +154,32 @@ void ViewerWindow::updateGallery()
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    // The background keeps its height; enlarged thumbnails rise above it, as in a dock.
-    const QRectF background((logical.width() - rowWidth) / 2.0, logical.height() - kThumbnail - 2 * kBorder, rowWidth,
-                            kThumbnail + 2 * kBorder);
+    // The background keeps its height; enlarged thumbnails grow about its middle line.
+    const QRectF background((logical.width() - rowWidth) / 2.0, g / 2.0, rowWidth, kThumbnail + 2 * kBorder);
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(0, 0, 0, int(std::lround(m_settings.galleryOpacity * 2.55))));
     painter.drawRoundedRect(background, kPanelRadius, kPanelRadius);
 
+    // The pointer is matched against the thumbnails' places without the carousel: matched against
+    // the enlarged ones, a thumbnail growing under the pointer pushed it onto its neighbour, which
+    // grew in turn, and the hover flickered between them. Each place takes half the gap either side.
     m_gallerySlots.clear();
-    const double bottom = logical.height() - kBorder;
+    const double baseLeft = (logical.width() - (shown * (kThumbnail + kBorder) + kBorder)) / 2.0 + kBorder / 2.0;
+    for (int i = 0; i < shown; ++i)
+        m_gallerySlots << QRectF(baseLeft + i * (kThumbnail + kBorder), 0, kThumbnail + kBorder, logical.height());
+
+    const int tileAlpha = int(std::lround(m_settings.galleryOpacity * 2.55));
+    const double middle = background.center().y(); // thumbnails grow evenly about it
     double x = background.left() + kBorder;
     for (int i = 0; i < shown; ++i) {
-        const QRectF slot(x, bottom - sizes.at(i), sizes.at(i), sizes.at(i));
+        const QRectF slot(x, middle - sizes.at(i) / 2.0, sizes.at(i), sizes.at(i));
         x += sizes.at(i) + kBorder;
-        m_gallerySlots << slot; // logical pixels in the texture: the window may move it (galleryIndexAt)
+        if (m_galleryFirst + i == m_index || i == m_galleryHover) {
+            QColor tile = m_galleryFirst + i == m_index ? kSelected : kHovered;
+            tile.setAlpha(tileAlpha);
+            painter.setBrush(tile);
+            painter.drawRoundedRect(slot.adjusted(-3, -3, 3, 3), kPanelRadius / 2, kPanelRadius / 2);
+        }
         const QImage thumbnail = m_thumbnails.value(m_files.at(m_galleryFirst + i));
         if (thumbnail.isNull()) {
             painter.setBrush(QColor(255, 255, 255, 28)); // still being decoded, or unreadable
@@ -160,12 +187,6 @@ void ViewerWindow::updateGallery()
         } else {
             QSizeF fitted = QSizeF(thumbnail.size()).scaled(slot.size(), Qt::KeepAspectRatio);
             painter.drawImage(QRectF(slot.center() - QPointF(fitted.width(), fitted.height()) / 2.0, fitted), thumbnail);
-        }
-        if (m_galleryFirst + i == m_index) {
-            painter.setBrush(Qt::NoBrush);
-            painter.setPen(QPen(QColor(240, 240, 240), 2.0));
-            painter.drawRoundedRect(slot.adjusted(-3, -3, 3, 3), kPanelRadius / 2, kPanelRadius / 2);
-            painter.setPen(Qt::NoPen);
         }
     }
     painter.end();

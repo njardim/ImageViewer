@@ -180,6 +180,7 @@ private:
     void updateTopOverlay();
     // The gallery (gallery.cpp, D-60). Slots count from the first thumbnail shown.
     bool galleryShown() const;
+    double galleryBottomMargin() const;     // logical pixels below the gallery's bar
     double galleryReserve() const;          // logical pixels the gallery takes above the bottom margin
     int galleryCapacity() const;            // thumbnails that fit the window's width
     int galleryEnlargement(int slot) const; // the carousel: logical pixels added to that slot

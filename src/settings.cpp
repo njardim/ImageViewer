@@ -245,7 +245,8 @@ Settings Settings::load()
     s.galleryCarousel = boolValue(store, QStringLiteral("gallery/carousel"), defaults.galleryCarousel);
     s.galleryOpacity = boundedInt(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
     s.galleryEnlargement = boundedInt(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
-                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
+                                      kMinGalleryEnlargement, kMaxGalleryEnlargement)
+                           / kGalleryEnlargementStep * kGalleryEnlargementStep; // the dialog's steps
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");

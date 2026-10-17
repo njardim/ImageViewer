@@ -260,10 +260,6 @@
         <translation>每张图像的时间：</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>图库</translation>
-    </message>
-    <message>
         <source>Enlarge the thumbnail under the pointer</source>
         <translation>放大指针下的缩略图</translation>
     </message>
@@ -437,6 +433,11 @@
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
     </message>
     <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>图库（%1）</translation>
+    </message>
+    <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
@@ -501,6 +502,10 @@
     <message>
         <source>Navigation</source>
         <translation>导航</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>显示图库</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -575,10 +580,6 @@
     <message>
         <source>Restore Defaults</source>
         <translation>恢复默认值</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>显示图库（%1）</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

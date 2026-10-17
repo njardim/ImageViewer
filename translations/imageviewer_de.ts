@@ -260,10 +260,6 @@
         <translation>Zeit pro Bild:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galerie</translation>
-    </message>
-    <message>
         <source>Enlarge the thumbnail under the pointer</source>
         <translation>Miniatur unter dem Zeiger vergrößern</translation>
     </message>
@@ -437,6 +433,11 @@
         <translation>Durch Klicken auf die linke oder rechte Fensterseite zum vorherigen oder nächsten Bild wechseln</translation>
     </message>
     <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerie (%1)</translation>
+    </message>
+    <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
@@ -501,6 +502,10 @@
     <message>
         <source>Navigation</source>
         <translation>Navigation</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>Galerie anzeigen</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -575,10 +580,6 @@
     <message>
         <source>Restore Defaults</source>
         <translation>Standardwerte wiederherstellen</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Galerie anzeigen (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

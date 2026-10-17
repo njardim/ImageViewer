@@ -329,8 +329,9 @@
         <translation>Tempo per immagine:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galleria</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galleria (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Avvia la presentazione a schermo intero</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Mostra la galleria</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatico (HDR quando lo schermo lo supporta)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Mostra la sovrapposizione informazioni in alto (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Mostra la galleria (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

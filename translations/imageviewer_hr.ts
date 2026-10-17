@@ -329,8 +329,9 @@
         <translation>Vrijeme po slici:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galerija</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerija (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Pokreni dijaprojekciju na cijelom zaslonu</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Prikaži galeriju</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatski (HDR kada ga zaslon podržava)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Prikaži informacijsko prekrivanje na vrhu (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Prikaži galeriju (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

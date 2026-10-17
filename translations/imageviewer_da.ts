@@ -329,8 +329,9 @@
         <translation>Tid pr. billede:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galleri</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galleri (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Start diasshowet i fuldskærm</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Vis galleriet</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatisk (HDR, når skærmen understøtter det)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Vis informationsoverlayet øverst (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Vis galleriet (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

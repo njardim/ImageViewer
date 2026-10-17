@@ -281,9 +281,9 @@ void SettingsDialog::buildUi()
     slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
     navigationLayout->addWidget(m_slideshowBox);
     // The gallery (D-60, D-61).
-    auto *galleryBox = new QGroupBox(tr("Gallery"));
-    auto *galleryForm = new QFormLayout(galleryBox);
-    m_showGallery = new QCheckBox; // its text names the command's shortcut
+    m_galleryBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
+    auto *galleryForm = new QFormLayout(m_galleryBox);
+    m_showGallery = new QCheckBox(tr("Show the gallery"));
     galleryForm->addRow(m_showGallery);
     m_galleryZoom = new QCheckBox(tr("Enlarge the thumbnail under the pointer"));
     galleryForm->addRow(m_galleryZoom);
@@ -292,7 +292,7 @@ void SettingsDialog::buildUi()
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
     m_galleryOpacity = sizeBox(0, 100, percent());
     galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
-    navigationLayout->addWidget(galleryBox);
+    navigationLayout->addWidget(m_galleryBox);
     navigationLayout->addStretch();
     tabs->addTab(navigation, tr("Navigation"));
 
@@ -360,8 +360,6 @@ void SettingsDialog::buildUi()
     formatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     formatsTable->verticalHeader()->hide();
     formatsTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    formatsTable->horizontalHeader()->setStretchLastSection(true);
     for (int row = 0; row < suffixRows.size(); ++row) {
         const SuffixRow &r = suffixRows.at(row);
         // Isolated left to right: in Arabic and Urdu ".jxl" read "jxl." (as the Shortcuts tab's keys).
@@ -372,6 +370,14 @@ void SettingsDialog::buildUi()
     }
     formatsTable->setSortingEnabled(true); // by any column, from its header; filled first, by extension
     formatsTable->sortByColumn(0, Qt::AscendingOrder);
+    // Each column as wide as its content and the same gap after it; the format's name takes the
+    // room left.
+    formatsTable->resizeColumnsToContents();
+    QHeaderView *formatsHeader = formatsTable->horizontalHeader();
+    const int gap = 2 * formatsTable->fontMetrics().horizontalAdvance(QLatin1Char('M'));
+    for (int column : {0, 2, 3})
+        formatsHeader->resizeSection(column, formatsHeader->sectionSize(column) + gap);
+    formatsHeader->setSectionResizeMode(1, QHeaderView::Stretch);
     formatsLayout->addWidget(formatsTable, 1);
     tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));
@@ -612,7 +618,8 @@ void SettingsDialog::refreshShortcutTexts()
     m_showInfo->setText(tr("Show the information panel (%1)").arg(keyName("Info")));
     //: %1: the keyboard shortcut, e.g. "Shift+I".
     m_showOverlay->setText(tr("Show the information overlay at the top (%1)").arg(keyName("InfoOverlay")));
-    m_showGallery->setText(tr("Show the gallery (%1)").arg(keyName("Gallery")));
+    //: %1: the key that shows and hides the gallery, e.g. "G".
+    m_galleryBox->setTitle(tr("Gallery (%1)").arg(keyName("Gallery")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
     m_slideshowBox->setTitle(tr("Slideshow (%1)").arg(keyName("Slideshow")));
     //: %1: the keyboard shortcut, e.g. "L". The zoom of the image shown stays for the next ones.

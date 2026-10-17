@@ -329,8 +329,9 @@
         <translation>Görüntü başına süre:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galeri</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galeri (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Slayt gösterisini tam ekranda başlat</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Galeriyi göster</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Otomatik (ekran destekliyorsa HDR)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Üstte bilgi bindirmesini göster (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Galeriyi göster (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

@@ -329,8 +329,9 @@
         <translation>Време за изображение:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Галерия</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Галерия (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Стартиране на слайдшоуто на цял екран</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Показване на галерията</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Автоматично (HDR, когато дисплеят го поддържа)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Показване на информационното наслагване отгоре (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Показване на галерията (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

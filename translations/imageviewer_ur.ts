@@ -260,10 +260,6 @@
         <translation>فی تصویر وقت:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>گیلری</translation>
-    </message>
-    <message>
         <source>Enlarge the thumbnail under the pointer</source>
         <translation>پوائنٹر کے نیچے والے تھمب نیل کو بڑا کریں</translation>
     </message>
@@ -437,6 +433,11 @@
         <translation>پچھلی یا اگلی تصویر کے لیے ونڈو کے بائیں یا دائیں جانب کلک کریں</translation>
     </message>
     <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>گیلری (%1)</translation>
+    </message>
+    <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
@@ -501,6 +502,10 @@
     <message>
         <source>Navigation</source>
         <translation>نیویگیشن</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>گیلری دکھائیں</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -575,10 +580,6 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ڈیفالٹس بحال کریں</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>گیلری دکھائیں (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

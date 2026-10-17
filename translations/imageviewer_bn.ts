@@ -260,10 +260,6 @@
         <translation>প্রতি ছবির সময়:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>গ্যালারি</translation>
-    </message>
-    <message>
         <source>Enlarge the thumbnail under the pointer</source>
         <translation>পয়েন্টারের নিচের থাম্বনেইল বড় করুন</translation>
     </message>
@@ -437,6 +433,11 @@
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
     </message>
     <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>গ্যালারি (%1)</translation>
+    </message>
+    <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
@@ -501,6 +502,10 @@
     <message>
         <source>Navigation</source>
         <translation>নেভিগেশন</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>গ্যালারি দেখান</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -575,10 +580,6 @@
     <message>
         <source>Restore Defaults</source>
         <translation>ডিফল্ট পুনরুদ্ধার করুন</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>গ্যালারি দেখান (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

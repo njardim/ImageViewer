@@ -329,8 +329,9 @@
         <translation>Χρόνος ανά εικόνα:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Συλλογή</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Συλλογή (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Έναρξη της παρουσίασης σε πλήρη οθόνη</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Εμφάνιση της συλλογής</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Αυτόματα (HDR όταν η οθόνη το υποστηρίζει)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Εμφάνιση της επικάλυψης πληροφοριών στην κορυφή (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Εμφάνιση της συλλογής (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

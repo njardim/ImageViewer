@@ -329,8 +329,9 @@
         <translation>Doba na obrázek:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galerie</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerie (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Spustit prezentaci na celé obrazovce</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Zobrazit galerii</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automaticky (HDR, pokud ho displej podporuje)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Zobrazit informační překrytí nahoře (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Zobrazit galerii (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

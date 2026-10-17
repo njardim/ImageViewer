@@ -215,7 +215,8 @@ private:
     QPushButton *m_shortcutDefault = nullptr;
     QLabel *m_shortcutNote = nullptr;
     bool m_keyInField = false; // a key press in a shortcut field is being handled
-    QGroupBox *m_slideshowBox = nullptr; // its title names the command's key
+    QGroupBox *m_slideshowBox = nullptr; // their titles name the commands' keys
+    QGroupBox *m_galleryBox = nullptr;
 
     QTabWidget *m_tabs = nullptr;
     QPushButton *m_apply = nullptr;
@@ -251,7 +252,7 @@ private:
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
     QCheckBox *m_slideshowFullScreen = nullptr;
-    QCheckBox *m_showGallery = nullptr; // its text names the command's shortcut
+    QCheckBox *m_showGallery = nullptr;
     QCheckBox *m_galleryZoom = nullptr;
     QSpinBox *m_galleryOpacity = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;

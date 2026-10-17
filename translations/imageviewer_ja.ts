@@ -260,10 +260,6 @@
         <translation>1 枚あたりの時間:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>ギャラリー</translation>
-    </message>
-    <message>
         <source>Enlarge the thumbnail under the pointer</source>
         <translation>ポインターの下のサムネイルを拡大</translation>
     </message>
@@ -437,6 +433,11 @@
         <translation>ウィンドウの左側または右側をクリックして前または次の画像を表示する</translation>
     </message>
     <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>ギャラリー（%1）</translation>
+    </message>
+    <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
@@ -501,6 +502,10 @@
     <message>
         <source>Navigation</source>
         <translation>ナビゲーション</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>ギャラリーを表示</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -575,10 +580,6 @@
     <message>
         <source>Restore Defaults</source>
         <translation>既定値に戻す</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>ギャラリーを表示（%1）</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

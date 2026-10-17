@@ -329,8 +329,9 @@
         <translation>Tijd per afbeelding:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galerij</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerij (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>De diavoorstelling op volledig scherm starten</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>De galerij tonen</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automatisch (HDR als het beeldscherm dit ondersteunt)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>De informatie-overlay bovenaan tonen (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>De galerij tonen (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

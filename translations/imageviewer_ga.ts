@@ -329,8 +329,9 @@
         <translation>Am in aghaidh na híomhá:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Gailearaí</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Gailearaí (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Tosaigh an taispeántas sleamhnán ar lánscáileán</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Taispeáin an gailearaí</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Uathoibríoch (HDR nuair a thacaíonn an scáileán leis)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Taispeáin an forleagan faisnéise ag an mbarr (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Taispeáin an gailearaí (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

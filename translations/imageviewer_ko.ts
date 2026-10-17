@@ -329,8 +329,9 @@
         <translation>이미지당 시간:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>갤러리</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>갤러리 (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>전체 화면에서 슬라이드 쇼 시작</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>갤러리 표시</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>자동(디스플레이가 지원하면 HDR)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>상단에 정보 오버레이 표시(%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>갤러리 표시(%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

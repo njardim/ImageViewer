@@ -329,8 +329,9 @@
         <translation>Ħin għal kull immaġni:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Gallerija</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Gallerija (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Ibda l-preżentazzjoni fuq skrin sħiħ</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Uri l-gallerija</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Awtomatiku (HDR meta l-iskrin jappoġġjah)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Uri l-overlay tal-informazzjoni fin-naħa ta&apos; fuq (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Uri l-gallerija (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

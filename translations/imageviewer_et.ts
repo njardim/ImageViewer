@@ -329,8 +329,9 @@
         <translation>Aeg pildi kohta:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galerii</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerii (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Alusta slaidiseanssi täisekraanil</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Kuva galerii</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automaatne (HDR, kui ekraan seda toetab)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Kuva teabe ülekate üleval (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Kuva galerii (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

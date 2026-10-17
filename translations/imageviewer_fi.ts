@@ -329,8 +329,9 @@
         <translation>Aika kuvaa kohden:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>Galleria</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galleria (%1)</translation>
     </message>
     <message>
         <source>Enlarge the thumbnail under the pointer</source>
@@ -498,6 +499,10 @@
         <translation>Aloita diaesitys koko näytössä</translation>
     </message>
     <message>
+        <source>Show the gallery</source>
+        <translation>Näytä galleria</translation>
+    </message>
+    <message>
         <source>Automatic (HDR when the display supports it)</source>
         <translation>Automaattinen (HDR, kun näyttö tukee sitä)</translation>
     </message>
@@ -575,10 +580,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Näytä tietopeittokerros ylhäällä (%1)</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Näytä galleria (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

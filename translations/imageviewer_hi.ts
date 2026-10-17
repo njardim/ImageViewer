@@ -260,10 +260,6 @@
         <translation>प्रति छवि समय:</translation>
     </message>
     <message>
-        <source>Gallery</source>
-        <translation>गैलरी</translation>
-    </message>
-    <message>
         <source>Enlarge the thumbnail under the pointer</source>
         <translation>पॉइंटर के नीचे के थंबनेल को बड़ा करें</translation>
     </message>
@@ -437,6 +433,11 @@
         <translation>पिछली या अगली छवि के लिए विंडो के बाएँ या दाएँ भाग पर क्लिक करें</translation>
     </message>
     <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>गैलरी (%1)</translation>
+    </message>
+    <message>
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
@@ -501,6 +502,10 @@
     <message>
         <source>Navigation</source>
         <translation>नेविगेशन</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>गैलरी दिखाएँ</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -575,10 +580,6 @@
     <message>
         <source>Restore Defaults</source>
         <translation>डिफ़ॉल्ट पुनर्स्थापित करें</translation>
-    </message>
-    <message>
-        <source>Show the gallery (%1)</source>
-        <translation>गैलरी दिखाएँ (%1)</translation>
     </message>
     <message>
         <source>Slideshow (%1)</source>

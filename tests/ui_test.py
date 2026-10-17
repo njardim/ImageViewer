@@ -544,9 +544,9 @@ try:
             if (w - 2 * 128 - 8 - 20) // 136 < 4:  # 20: the zoom's room at its default 20 px
                 fail(f"a {w} px window holds fewer than four thumbnails")
             fourth = x + w // 2 - (4 * 136 + 8) // 2 + 8 + 3 * 136 + 64
-            # With the zoom the bar sits as far up as the enlarged thumbnail's tile reaches below it,
-            # 20 / 2 + 3 - 8 = 5 px (D-61).
-            xdotool("mousemove", "--sync", str(fourth), str(y + h - 5 - 8 - 64))
+            # The bar 16 px up: the enlarged thumbnail's tile reaches only 20 / 2 + 3 - 8 = 5 px below
+            # it, less than the margin (D-61).
+            xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 64))
             xdotool("click", "1")
             wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0].startswith("g4.png   ·   "))
             xdotool("key", "g")

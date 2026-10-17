@@ -68,10 +68,9 @@ int ViewerWindow::galleryCapacity() const
 
 double ViewerWindow::galleryBottomMargin() const
 {
-    // From the window's bottom to the bar. With the zoom, the enlarged thumbnail's tile reaches the
-    // bottom and the bar sits that reach above it: the only exception to kEdgeMargin (D-61), as the
-    // bar already rises with the zoom.
-    return m_settings.galleryZoom ? galleryOverhang() : kEdgeMargin;
+    // From the window's bottom to the bar: kEdgeMargin, or more when the enlarged thumbnail's tile
+    // reaches further below the bar; it then touches the bottom (D-61).
+    return std::max(kEdgeMargin, galleryOverhang());
 }
 
 double ViewerWindow::galleryReserve() const

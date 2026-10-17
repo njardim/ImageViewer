@@ -370,14 +370,7 @@ void SettingsDialog::buildUi()
     }
     formatsTable->setSortingEnabled(true); // by any column, from its header; filled first, by extension
     formatsTable->sortByColumn(0, Qt::AscendingOrder);
-    // Each column as wide as its content and the same gap after it; the format's name takes the
-    // room left.
-    formatsTable->resizeColumnsToContents();
-    QHeaderView *formatsHeader = formatsTable->horizontalHeader();
-    const int gap = 2 * formatsTable->fontMetrics().horizontalAdvance(QLatin1Char('M'));
-    for (int column : {0, 2, 3})
-        formatsHeader->resizeSection(column, formatsHeader->sectionSize(column) + gap);
-    formatsHeader->setSectionResizeMode(1, QHeaderView::Stretch);
+    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // four equal columns
     formatsLayout->addWidget(formatsTable, 1);
     tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));

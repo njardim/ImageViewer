@@ -261,19 +261,20 @@ void SettingsDialog::buildUi()
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     m_slideshowLabel = new QLabel;
     navigationForm->addRow(m_slideshowLabel, m_slideshowSeconds);
-    // The gallery (D-60): the carousel's switch, the background, then the carousel's size.
+    // The gallery (D-60): the carousel's switch and size, then the background.
     m_showGallery = new QCheckBox;
     navigationForm->addRow(m_showGallery);
     m_galleryCarousel = new QCheckBox(tr("Enlarge the thumbnails under the pointer (carousel)"));
     navigationForm->addRow(m_galleryCarousel);
+    m_galleryEnlargement = new QSpinBox;
+    m_galleryEnlargement->setRange(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement);
+    m_galleryEnlargement->setSingleStep(Settings::kGalleryEnlargementStep);
+    m_galleryEnlargement->setSuffix(tr(" px"));
+    navigationForm->addRow(tr("Carousel enlargement:"), m_galleryEnlargement);
     m_galleryOpacity = new QSpinBox;
     m_galleryOpacity->setRange(0, 100);
     m_galleryOpacity->setSuffix(tr(" %"));
     navigationForm->addRow(tr("Gallery background opacity:"), m_galleryOpacity);
-    m_galleryEnlargement = new QSpinBox;
-    m_galleryEnlargement->setRange(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement);
-    m_galleryEnlargement->setSuffix(tr(" px"));
-    navigationForm->addRow(tr("Carousel enlargement:"), m_galleryEnlargement);
     connect(m_galleryCarousel, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
     tabs->addTab(navigation, tr("Navigation"));
 
@@ -409,10 +410,8 @@ void SettingsDialog::buildUi()
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject); // keeps what Apply applied
     connect(m_apply, &QPushButton::clicked, this, &SettingsDialog::apply);
     connect(defaults, &QPushButton::clicked, this, [this] {
-        // setValues() only touches what the dialog shows; settings() keeps the rest from m_initial.
-        Settings fresh;
-        fresh.language = m_language->currentData().toString(); // the language is not a "setting to reset"
-        setValues(fresh);
+        // Every option the dialog shows, the language included; settings() keeps the rest.
+        setValues(Settings());
     });
 
     auto *layout = new QVBoxLayout(this);

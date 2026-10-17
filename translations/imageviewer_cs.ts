@@ -48,6 +48,10 @@
         <translation>sRGB (předpokládáno)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>poškozený, zkrácený nebo nepodporovaný soubor</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>neplatné rozměry (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>vlastní primární barvy</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Nelze dekódovat: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Nelze dekódovat &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -327,6 +332,22 @@
     <message>
         <source>Time per image:</source>
         <translation>Doba na obrázek:</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Malé</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Střední</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Velké</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Velikost náhledů:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

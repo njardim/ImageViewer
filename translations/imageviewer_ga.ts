@@ -48,6 +48,10 @@
         <translation>sRGB (glactha leis)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>comhad atá damáistithe, teasctha nó gan tacaíocht</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>toisí neamhbhailí (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>príomhdhathanna saincheaptha</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Ní féidir díchódú a dhéanamh: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Ní féidir díchódú a dhéanamh &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -327,6 +332,22 @@
     <message>
         <source>Time per image:</source>
         <translation>Am in aghaidh na híomhá:</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Beag</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Meánach</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Mór</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Méid na mionsamhlacha:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

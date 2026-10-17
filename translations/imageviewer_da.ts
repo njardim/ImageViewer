@@ -48,6 +48,10 @@
         <translation>sRGB (antaget)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>beskadiget, afkortet eller ikke-understøttet fil</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>ugyldige dimensioner (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>brugerdefinerede primærfarver</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Kan ikke afkode: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Kan ikke afkode &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -327,6 +332,22 @@
     <message>
         <source>Time per image:</source>
         <translation>Tid pr. billede:</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Lille</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Mellem</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Stor</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Miniaturestørrelse:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -28,7 +28,7 @@ void ViewerWindow::openFile(const QString &path)
 {
     const QFileInfo info(path);
     if (!info.exists()) {
-        m_message = tr("File not found: %1").arg(path);
+        m_error = tr("File not found: %1").arg(path);
         editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
         updateOverlay();
         return;
@@ -38,7 +38,7 @@ void ViewerWindow::openFile(const QString &path)
         const QString folder = info.absoluteFilePath();
         listFolder(folder, [this, folder](QStringList files) {
             if (files.isEmpty()) { // keep the current list and image
-                m_message = tr("The folder contains no supported images.");
+                m_error = tr("The folder contains no supported images.");
                 updateOverlay();
                 return;
             }
@@ -137,6 +137,7 @@ void ViewerWindow::scheduleWork()
         } else {
             m_loadingMessage = tr("Loading %1…").arg(displayFileName(QFileInfo(current).fileName()));
             m_message = m_loadingMessage;
+            m_error.clear(); // the image that failed is no longer the one asked for
             updateOverlay();
             // A running decode (perhaps of this very file) is waited for: decodeFinished() comes back here.
             if (!m_decodeBusy)
@@ -145,7 +146,8 @@ void ViewerWindow::scheduleWork()
         }
     } else if (!m_loadingMessage.isEmpty() && m_message == m_loadingMessage) {
         // Back to the image on screen before the other one arrived (Right, Left).
-        m_message = m_image.error;
+        m_message.clear();
+        m_error = m_image.error;
         m_loadingMessage.clear();
         updateOverlay();
     }
@@ -204,13 +206,15 @@ void ViewerWindow::showImage(Image image, int limit)
     // the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
     if (!image.isValid()) {
-        m_message = image.error;
+        m_message.clear();
+        m_error = image.error;
         image.pixels.reset();
         m_image = std::move(image);
         m_renderer.clearImage();
         stopAnimation();
     } else {
         m_message.clear();
+        m_error.clear();
         m_renderer.setImage(image.pixels, QSize(image.width, image.height));
         image.pixels.reset(); // the cache keeps them when preloading is on; the GPU has its copy
         m_image = std::move(image);
@@ -317,7 +321,7 @@ void ViewerWindow::applyListing(QStringList files)
         m_image = Image();
         m_renderer.clearImage();
         m_cache.clear();
-        m_message = tr("No images left in this folder.");
+        m_error = tr("No images left in this folder.");
         setHoverZone(Zone::None);
         requestUpdate();
     } else {
@@ -364,7 +368,7 @@ void ViewerWindow::removeCurrentFromList()
     m_renderer.clearImage();
     if (m_files.isEmpty()) {
         m_index = -1;
-        m_message = tr("No images left in this folder.");
+        m_error = tr("No images left in this folder.");
         setHoverZone(Zone::None);
         updateOverlay();
         requestUpdate();

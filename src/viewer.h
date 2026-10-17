@@ -188,11 +188,13 @@ private:
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
     void updateTopOverlay();
+    void updateMessage();               // m_error, in the middle of the window (D-63)
     // The gallery (gallery.cpp, D-60). Slots count from the first thumbnail shown.
     bool galleryShown() const;
     double galleryBottomMargin() const;     // logical pixels below the gallery's bar
     double galleryReserve() const;          // logical pixels the gallery takes, from the window's bottom
     int galleryCapacity() const;            // thumbnails that fit the window's width
+    double galleryThumbnail() const;        // logical pixels, the side of a thumbnail
     int galleryZoom() const;                // logical pixels added to the thumbnail under the pointer
     double galleryOverhang() const;         // how far its tile reaches beyond the bar, above and below
     int galleryFile(int slot) const;        // the index in m_files shown there; -1: none
@@ -328,7 +330,8 @@ private:
         QDateTime modified; // later took the same name in the trash
     };
     QList<TrashedFile> m_trashed; // for Undo, most recent last
-    QString m_message; // loading status or error; cleared when an image arrives
+    QString m_message; // loading status, in the information panel; cleared when an image arrives
+    QString m_error;   // why no image is shown, in the middle of the window; cleared likewise
     QString m_loadingMessage; // the "Loading…" text in m_message, while it is there
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
@@ -343,6 +346,8 @@ private:
     bool m_mirrored = false;
     float m_exposureEv = 0.0f;
     QSize m_overlaySize; // device pixels; empty when no overlay is shown
+    QSize m_messageSize; // likewise for the error in the middle of the window
+    QString m_messageKey;
     QString m_overlayOutput; // output description the overlay was built with
     QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
     QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads

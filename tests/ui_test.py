@@ -526,7 +526,7 @@ try:
             app.wait(15)
 
             # 9. The gallery (D-60): G shows it at the bottom, a click on a thumbnail shows that
-            # image, G again hides it. Four 128 px thumbnails, 8 px apart, centred in the window.
+            # image, G again hides it. Four thumbnails of the default 96 px, 8 px apart, centred in the window.
             gallery_dir = os.path.join(work, "gallery")
             os.makedirs(gallery_dir)
             for i, colour in enumerate([(200, 0, 0), (0, 160, 0), (0, 0, 200), (200, 200, 0)]):
@@ -541,16 +541,35 @@ try:
             xdotool("windowsize", "--sync", wid, "1280", "800")  # the session left a narrower window
             wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
             x, y, w, h = window_geometry()
-            if (w - 2 * 128 - 8 - 20) // 136 < 4:  # 20: the zoom's room at its default 20 px
+            if (w - 2 * 128 - 8 - 20) // 104 < 4:  # 20: the zoom's room at its default 20 px
                 fail(f"a {w} px window holds fewer than four thumbnails")
-            fourth = x + w // 2 - (4 * 136 + 8) // 2 + 8 + 3 * 136 + 64
+            fourth = x + w // 2 - (4 * 104 + 8) // 2 + 8 + 3 * 104 + 48
             # The bar 16 px up: the enlarged thumbnail's tile reaches only 20 / 2 + 3 - 8 = 5 px below
             # it, less than the margin (D-61).
-            xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 64))
+            xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 48))
             xdotool("click", "1")
             wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0].startswith("g4.png   ·   "))
             xdotool("key", "g")
             wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 10. An error (D-63): a file that cannot be read shows the warning sign in the middle
+            # of the window, its message below it; the sign's amber is drawn exactly in SDR.
+            broken = os.path.join(work, "broken.png")
+            with open(broken, "wb") as f:
+                f.write(b"\x89PNG\r\n\x1a\nnot an image")
+            app = subprocess.Popen([exe, broken], env=env, stdout=log, stderr=log)
+
+            def warning_in_the_middle():
+                screen = grab()
+                if screen is None:
+                    return False
+                x, y, w, h = window_geometry()
+                ys, xs = np.nonzero(np.all(screen[y:y + h, x:x + w] == (255, 196, 0), axis=2))
+                # The sign above the middle (the message is below it), centred across.
+                return len(xs) > 2000 and abs(xs.mean() - w / 2) < 3 and h / 2 - 160 < ys.mean() < h / 2
+            wait_until("an unreadable file shows the warning sign in the middle", warning_in_the_middle)
             xdotool("key", "q")
             app.wait(15)
         finally:

@@ -48,6 +48,10 @@
         <translation>sRGB (supposé)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>fichier endommagé, tronqué ou non pris en charge</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>dimensions non valides (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>primaires personnalisées</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Impossible de décoder&#xa0;: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Impossible de décoder &quot;%1&quot;&#xa0;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -431,6 +436,22 @@
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Cliquer sur le côté gauche ou droit de la fenêtre pour afficher l’image précédente ou suivante</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Petite</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Moyenne</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Grande</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Taille des miniatures :</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

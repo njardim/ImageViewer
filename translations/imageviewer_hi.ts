@@ -48,6 +48,10 @@
         <translation>sRGB (मान लिया गया)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>क्षतिग्रस्त, अधूरी या असमर्थित फ़ाइल</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>अमान्य आयाम (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>कस्टम प्राइमरी</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>डिकोड नहीं किया जा सकता: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>डिकोड नहीं किया जा सकता &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -431,6 +436,22 @@
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>पिछली या अगली छवि के लिए विंडो के बाएँ या दाएँ भाग पर क्लिक करें</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>छोटा</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>मध्यम</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>बड़ा</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>थंबनेल का आकार:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

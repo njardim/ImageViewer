@@ -48,6 +48,10 @@
         <translation>sRGB（假定）</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>已损坏、不完整或不受支持的文件</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>无效的尺寸（%1×%2×%3）</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>自定义原色</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>无法解码：%1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>无法解码“%1”：%2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -431,6 +436,22 @@
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>小</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>中</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>大</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>缩略图大小：</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -285,6 +285,11 @@ void SettingsDialog::buildUi()
     auto *galleryForm = new QFormLayout(m_galleryBox);
     m_showGallery = new QCheckBox(tr("Show the gallery"));
     galleryForm->addRow(m_showGallery);
+    m_galleryThumbnailSize = new QComboBox;
+    const QString sizeNames[] = {tr("Small"), tr("Medium"), tr("Large")};
+    for (std::size_t i = 0; i < Settings::kGalleryThumbnailSizes.size(); ++i)
+        m_galleryThumbnailSize->addItem(sizeNames[i], Settings::kGalleryThumbnailSizes[i]);
+    galleryForm->addRow(tr("Thumbnail size:"), m_galleryThumbnailSize);
     m_galleryZoom = new QCheckBox(tr("Enlarge the thumbnail under the pointer"));
     galleryForm->addRow(m_galleryZoom);
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
@@ -547,6 +552,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_preload->setChecked(settings.preload);
     m_slideshowFullScreen->setChecked(settings.slideshowFullScreen);
     m_showGallery->setChecked(settings.showGallery);
+    m_galleryThumbnailSize->setCurrentIndex(std::max(0, m_galleryThumbnailSize->findData(settings.galleryThumbnailSize)));
     m_galleryZoom->setChecked(settings.galleryZoom);
     m_galleryEnlargement->setEnabled(settings.galleryZoom);
     m_galleryOpacity->setValue(settings.galleryOpacity);
@@ -729,6 +735,7 @@ Settings SettingsDialog::settings() const
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
     s.showGallery = m_showGallery->isChecked();
+    s.galleryThumbnailSize = m_galleryThumbnailSize->currentData().toInt();
     s.galleryZoom = m_galleryZoom->isChecked();
     s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();

@@ -48,6 +48,10 @@
         <translation>sRGB (feltételezett)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>sérült, csonka vagy nem támogatott fájl</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>érvénytelen méretek (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>egyéni alapszínek</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Nem dekódolható: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Nem dekódolható &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -327,6 +332,22 @@
     <message>
         <source>Time per image:</source>
         <translation>Képenkénti idő:</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Kicsi</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Közepes</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Nagy</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Bélyegképek mérete:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

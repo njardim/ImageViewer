@@ -48,6 +48,10 @@
         <translation>sRGB (предполагается)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>повреждённый, усечённый или неподдерживаемый файл</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>недопустимые размеры (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>пользовательские основные цвета</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Не удаётся декодировать: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Не удаётся декодировать &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -431,6 +436,22 @@
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Переход к предыдущему или следующему изображению щелчком по левой или правой части окна</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Маленькие</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Средние</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Большие</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Размер миниатюр:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

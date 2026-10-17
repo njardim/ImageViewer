@@ -295,7 +295,7 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
         return false;
     out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
     if (!in->read_image(0, 0, 0, readChannels, request, out->data.get())) {
-        *error = QString::fromStdString(in->geterror());
+        *error = libraryError("OpenImageIO:", in->geterror());
         return false;
     }
 
@@ -349,7 +349,7 @@ bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString
         auto memory = std::make_unique<OiioMemory>(std::move(bytes));
         auto in = openOiioMemory(*memory, QFile::encodeName(path).toStdString());
         if (!in) {
-            *error = QString::fromStdString(OIIO::geterror());
+            *error = libraryError("OpenImageIO:", OIIO::geterror());
             return false;
         }
         return readOiio(std::move(in), maxPixels, out, error, frames, &memory);
@@ -357,7 +357,7 @@ bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString
     const OIIO::ImageSpec config = oiioConfig();
     auto in = OIIO::ImageInput::open(path.toUtf8().toStdString(), &config);
     if (!in) {
-        *error = QString::fromStdString(OIIO::geterror());
+        *error = libraryError("OpenImageIO:", OIIO::geterror());
         return false;
     }
     return readOiio(std::move(in), maxPixels, out, error, frames);
@@ -407,7 +407,7 @@ bool decodeWithQt(const QString &path, qint64 maxPixels, Decoded *out, QString *
     reader.setAutoTransform(true); // orientation is applied by Qt
     QImage image = reader.read();
     if (image.isNull()) {
-        *error = reader.errorString();
+        *error = libraryError("Qt:", reader.errorString().toStdString());
         return false;
     }
     if (!fitsInMemory(qint64(image.width()) * image.height(), 16, error))
@@ -476,7 +476,7 @@ public:
         copyLayout(m_layout, out);
         out->data.reset(new unsigned char[frameBytes(m_layout)]);
         if (!m_in->read_image(m_next, 0, 0, m_layout.channels, m_request, out->data.get())) {
-            *error = QString::fromStdString(m_in->geterror());
+            *error = libraryError("OpenImageIO:", m_in->geterror(), m_in->format_name());
             return false;
         }
         *durationMs = oiioFrameDurationMs(spec);
@@ -492,7 +492,7 @@ public:
             m_in.reset();
             m_in = openOiioMemory(*m_memory, m_name);
             if (!m_in) {
-                *error = QString::fromStdString(OIIO::geterror());
+                *error = libraryError("OpenImageIO:", OIIO::geterror(), m_name.substr(m_name.rfind('.') + 1));
                 return false;
             }
         }
@@ -596,6 +596,12 @@ bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
     return false;
 }
 
+QString libraryError(const char *library, const std::string &message, const std::string &format)
+{
+    qCInfo(lcDecode).noquote() << library << QString::fromStdString(message).trimmed();
+    return format.empty() ? QString() : damaged(QString::fromStdString(format).toUpper().toUtf8().constData());
+}
+
 // A file that names its format but cannot be read as one (one message for every back end).
 QString damaged(const char *formatName)
 {
@@ -692,12 +698,19 @@ bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QStr
     OIIO::ImageSpec config = oiioConfig();
     // With a configuration, OpenImageIO's readers take the proxy from it, not from the argument.
     config.attribute("oiio:ioproxy", OIIO::TypeDesc::PTR, &proxy);
+    // APNG's frames come through here: their errors must not be empty, so the name's suffix names the format.
+    const std::string_view named(name);
+    const std::string suffix(named.substr(named.rfind('.') + 1));
     auto in = OIIO::ImageInput::open(name, &config, proxy);
     if (!in) {
-        *error = QString::fromStdString(OIIO::geterror());
+        *error = libraryError("OpenImageIO:", OIIO::geterror(), suffix);
         return false;
     }
-    return readOiio(std::move(in), maxPixels, out, error, nullptr);
+    if (readOiio(std::move(in), maxPixels, out, error, nullptr))
+        return true;
+    if (error->isEmpty())
+        *error = damaged(QString::fromStdString(suffix).toUpper().toUtf8().constData());
+    return false;
 }
 
 bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames)
@@ -742,7 +755,16 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     // A HEIC file where the system has no HEVC decoder (and OpenImageIO's libheif has none
     // either): say how to get one rather than why the last decoder failed.
     const bool noSystemCodec = format && format->decoder == Decoder::System && !isAvailable(*format);
-    *error = noSystemCodec ? missingHevcMessage() : firstError;
+    if (noSystemCodec)
+        *error = missingHevcMessage();
+    else if (!firstError.isEmpty())
+        *error = firstError;
+    else if (format) // only libraries' reasons, which stay in the log: the format by its name
+        *error = damaged(format->name);
+    else if (const QString suffix = QFileInfo(path).suffix().toUpper(); !suffix.isEmpty())
+        *error = damaged(suffix.toUtf8().constData()); // .xcf: "unsupported XCF file"
+    else
+        *error = QCoreApplication::translate("Image", "damaged, truncated or unsupported file");
     return false;
 }
 

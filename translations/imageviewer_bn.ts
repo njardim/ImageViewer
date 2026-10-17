@@ -48,6 +48,10 @@
         <translation>sRGB (অনুমিত)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>ক্ষতিগ্রস্ত, অসম্পূর্ণ বা অসমর্থিত ফাইল</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>অবৈধ মাত্রা (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>কাস্টম প্রাইমারি</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>ডিকোড করা যাচ্ছে না: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>ডিকোড করা যাচ্ছে না &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -431,6 +436,22 @@
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>ছোট</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>মাঝারি</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>বড়</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>থাম্বনেইলের আকার:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

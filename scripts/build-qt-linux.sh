@@ -11,7 +11,8 @@
 #              tests/smoke.sh build/linux-system/ImageViewer
 set -euo pipefail
 
-QT_TAG="${QT_TAG:-v6.12.0}"
+# The version CI uses (packaging/qt-version.txt, D-62).
+QT_TAG="${QT_TAG:-v$(tr -d '[:space:]' < "$(dirname "$0")/../packaging/qt-version.txt")}"
 PREFIX="${PREFIX:-/opt/qt6}"
 WORK="${WORK:-$HOME/qt-src}"
 

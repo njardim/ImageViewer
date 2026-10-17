@@ -48,6 +48,10 @@
         <translation>sRGB (مفترض)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>ملف تالف أو مقطوع أو غير مدعوم</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>أبعاد غير صالحة (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>ألوان أساسية مخصصة</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>تعذر فك الترميز: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>تعذر فك الترميز &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>
@@ -431,6 +436,22 @@
     <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>النقر على الجانب الأيسر أو الأيمن من النافذة لعرض الصورة السابقة أو التالية</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>صغير</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>متوسط</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>كبير</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>حجم الصور المصغرة:</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -3,16 +3,16 @@ name: build
 # Releases (docs/PLAN.md D-19, D-26): publish a GitHub release named vX.Y[-suffix]
 # (or push such a tag). This workflow, as it is at the tagged commit, builds the three
 # packages, tests them on clean machines and attaches them plus SHA256SUMS to the
-# release. A tag created from the web UI may also emit a push event; both runs share
-# the concurrency group of the tag, so only the last one survives.
+# release (or creates it, for a tag pushed alone). It runs on the tag's push only:
+# publishing a release from the web UI creates its tag, and that push is the one run; a
+# "release published" trigger as well started a second run on the same tag, which the
+# concurrency group cancelled and left in the history as a failure (D-63).
 on:
   push:
     branches: [main, "claude/**"]
     tags: ["v[0-9]+.[0-9]+", "v[0-9]+.[0-9]+-*"]
   pull_request:
   workflow_dispatch:
-  release:
-    types: [published]
 
 permissions:
   contents: read
@@ -20,9 +20,6 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
-env:
-  QT_VERSION: "6.12.0"
 
 jobs:
   build:
@@ -61,6 +58,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      # The Qt version lives outside the workflows so that the dependency update (D-62), whose
+      # token cannot change workflow files, can move it.
+      - name: Qt version
+        shell: bash
+        run: echo "QT_VERSION=$(tr -d '[:space:]' < packaging/qt-version.txt)" >> "$GITHUB_ENV"
 
       - name: System packages (Linux)
         if: runner.os == 'Linux'

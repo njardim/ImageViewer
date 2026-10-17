@@ -13,14 +13,13 @@
 #include <cmath>
 
 namespace {
-constexpr double kThumbnail = 128.0;  // logical pixels, square
 constexpr double kBorder = 8.0;       // between thumbnails and around them
 constexpr double kSideFree = 128.0;   // left free on each side of the window
 constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
-// Behind the current thumbnail, and lighter (halfway to white) behind the one under the pointer;
-// at the gallery's background opacity, over that background.
+// Behind the current thumbnail orange, behind the one under the pointer emerald (D-63); both at
+// the gallery's background opacity, over that background.
 const QColor kSelected(255, 140, 0);
-const QColor kHovered(255, 198, 128);
+const QColor kHovered(80, 200, 120);
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
 
 // sRGB, 8 bits, premultiplied in encoded values like every overlay texture; HDR values above SDR
@@ -46,6 +45,11 @@ QImage thumbnailFrom(const Image &image)
 }
 } // namespace
 
+double ViewerWindow::galleryThumbnail() const
+{
+    return m_settings.galleryThumbnailSize; // logical pixels, square
+}
+
 int ViewerWindow::galleryZoom() const
 {
     return m_settings.galleryZoom ? m_settings.galleryEnlargement : 0;
@@ -60,10 +64,10 @@ double ViewerWindow::galleryOverhang() const
 
 int ViewerWindow::galleryCapacity() const
 {
-    // n thumbnails take n·128 + (n + 1)·8 px, the zoom widens the row by its own size, and 128 px
+    // n thumbnails of side t take n·t + (n + 1)·8 px, the zoom widens the row by its own size, and 128 px
     // stay free on either side.
     const double room = width() - 2 * kSideFree - kBorder - galleryZoom();
-    return std::max(1, int(std::floor(room / (kThumbnail + kBorder))));
+    return std::max(1, int(std::floor(room / (galleryThumbnail() + kBorder))));
 }
 
 double ViewerWindow::galleryBottomMargin() const
@@ -77,7 +81,7 @@ double ViewerWindow::galleryReserve() const
 {
     // The bar with the tile's reach above and below it, and its margin: the information panel
     // stays above all of it.
-    return m_gallerySize.isEmpty() ? 0.0 : galleryBottomMargin() + kThumbnail + 2 * kBorder + galleryOverhang();
+    return m_gallerySize.isEmpty() ? 0.0 : galleryBottomMargin() + galleryThumbnail() + 2 * kBorder + galleryOverhang();
 }
 
 bool ViewerWindow::galleryShown() const
@@ -136,12 +140,12 @@ void ViewerWindow::updateGallery()
     const double dpr = devicePixelRatio();
     const int zoom = galleryZoom();
     const double overhang = galleryOverhang();
-    const double barHeight = kThumbnail + 2 * kBorder;
-    const QSizeF logical(shown * (kThumbnail + kBorder) + kBorder + zoom, barHeight + 2 * overhang);
+    const double barHeight = galleryThumbnail() + 2 * kBorder;
+    const QSizeF logical(shown * (galleryThumbnail() + kBorder) + kBorder + zoom, barHeight + 2 * overhang);
 
-    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7")
+    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
                       .arg(m_galleryFirst).arg(shown).arg(m_galleryHover).arg(m_index).arg(dpr)
-                      .arg(m_settings.galleryOpacity).arg(zoom);
+                      .arg(m_settings.galleryOpacity).arg(zoom).arg(galleryThumbnail());
     for (int i = 0; i < shown; ++i) { // which file, and whether its thumbnail is there yet
         const QString &path = m_files.at(galleryFile(i));
         key += QLatin1Char(m_thumbnails.contains(path) ? '+' : '-') + QString::number(qHash(path), 36);
@@ -154,12 +158,12 @@ void ViewerWindow::updateGallery()
     m_galleryKey = key;
 
     // The places: the thumbnail under the pointer is larger by the zoom, the others move aside.
-    const double rowWidth = shown * (kThumbnail + kBorder) + kBorder + (m_galleryHover >= 0 ? zoom : 0);
+    const double rowWidth = shown * (galleryThumbnail() + kBorder) + kBorder + (m_galleryHover >= 0 ? zoom : 0);
     const double middle = overhang + barHeight / 2.0; // thumbnails grow evenly about it
     QList<QRectF> places;
     double x = (logical.width() - rowWidth) / 2.0 + kBorder;
     for (int i = 0; i < shown; ++i) {
-        const double size = kThumbnail + (i == m_galleryHover ? zoom : 0);
+        const double size = galleryThumbnail() + (i == m_galleryHover ? zoom : 0);
         places << QRectF(x, middle - size / 2.0, size, size);
         x += size + kBorder;
     }
@@ -194,7 +198,7 @@ void ViewerWindow::updateGallery()
     // and the hover flickered between them. Each place takes half the gap either side.
     m_gallerySlots.clear();
     for (int i = 0; i < shown; ++i)
-        m_gallerySlots << QRectF((zoom + kBorder) / 2.0 + i * (kThumbnail + kBorder), 0, kThumbnail + kBorder, logical.height());
+        m_gallerySlots << QRectF((zoom + kBorder) / 2.0 + i * (galleryThumbnail() + kBorder), 0, galleryThumbnail() + kBorder, logical.height());
 
     for (int i = 0; i < shown; ++i) {
         const QRectF &place = places.at(i);
@@ -225,8 +229,10 @@ void ViewerWindow::requestThumbnail(const QString &path)
     if (m_thumbnails.contains(path) || m_thumbnailsPending.contains(path))
         return;
     m_thumbnailsPending.insert(path);
-    // Decoded at the largest size the zoom can show, reduced in linear light (decodeImage).
-    const int pixels = int(std::ceil((kThumbnail + Settings::kMaxGalleryEnlargement) * devicePixelRatio()));
+    // Decoded at the largest size the zoom can show with the largest thumbnails, reduced in linear
+    // light (decodeImage): another thumbnail size then decodes nothing again.
+    const int pixels = int(std::ceil((Settings::kGalleryThumbnailSizes.back() + Settings::kMaxGalleryEnlargement)
+                                     * devicePixelRatio()));
     // Within the preload's pixel limit: a huge image is decoded whole before it is reduced.
     const qint64 maxPixels = m_cache.maxPreloadPixels();
     m_thumbnailPool.start([this, path, pixels, maxPixels, generation = m_thumbnailGeneration] {

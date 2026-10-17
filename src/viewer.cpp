@@ -511,7 +511,8 @@ void ViewerWindow::render()
             refused.fileSize = m_image.fileSize;
             refused.modified = m_image.modified;
             refused.error = tr("The GPU did not accept the image.");
-            m_message = refused.error;
+            m_message.clear();
+            m_error = refused.error;
             stopAnimation();
             m_image = std::move(refused);
             m_shownLimit = textureLimit(m_image.path); // counts as shown at the capped size too
@@ -536,6 +537,7 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_topOverlayKey.clear(); // every overlay texture is gone too
         m_galleryKey.clear();
         m_panelKey.clear();
+        m_messageKey.clear();
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again

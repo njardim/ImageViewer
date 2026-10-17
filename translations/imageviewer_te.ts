@@ -256,6 +256,18 @@
         <translation>విండో</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>ప్రతి చిత్రానికి సమయం:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>పాయింటర్ కింద ఉన్న థంబ్‌నెయిల్‌ను పెద్దది చేయి</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>పెద్దదిగా చేయడం:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>సమాచార ప్యానెల్ చూపు (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>చివరి చిత్రం తర్వాత మొదటి చిత్రంతో కొనసాగించు</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>చిత్రాలు</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>మునుపటి లేదా తదుపరి చిత్రం కోసం విండో ఎడమ లేదా కుడి వైపున క్లిక్ చేయి</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>గ్యాలరీ (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>స్లైడ్‌షోను పూర్తి స్క్రీన్‌లో ప్రారంభించు</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>చివరి చిత్రం తర్వాత స్లైడ్‌షోను మొదటి చిత్రంతో కొనసాగించు</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>పాయింటర్ కింద ఉన్న థంబ్‌నెయిల్‌లను పెద్దవి చేయి (కరౌసెల్)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>గ్యాలరీ నేపథ్య అపారదర్శకత:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>కరౌసెల్ పెంపు:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>పైన సమాచార ఓవర్‌లే చూపు (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>స్లైడ్‌షో (%1), ఒక్కో చిత్రానికి సమయం:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>నావిగేషన్</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>గ్యాలరీ చూపు</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>మొత్తం మద్దతు ఉన్న చిత్ర ఫార్మాట్‌లు: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>డీకోడర్ వెర్షన్</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>సరే</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>డిఫాల్ట్‌లను పునరుద్ధరించు</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>గ్యాలరీ చూపు (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>స్లైడ్‌షో (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

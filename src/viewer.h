@@ -13,6 +13,7 @@
 #include "renderer.h"
 #include "settings.h"
 
+#include <QDateTime>
 #include <QElapsedTimer>
 #include <QFileSystemWatcher>
 #include <QFutureWatcher>
@@ -20,6 +21,7 @@
 #include <QHash>
 #include <QKeySequence>
 #include <QList>
+#include <QPainterPath>
 #include <QPointF>
 #include <QSet>
 #include <QStringList>
@@ -34,6 +36,14 @@
 // edges and rounds its corners by kPanelRadius (D-58, D-60), logical pixels.
 inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
+
+// A gallery thumbnail (D-60): sRGB, 8 bits, premultiplied; null when the file is unreadable. The
+// file's size and time say when it was written again since.
+struct Thumbnail {
+    QImage image;
+    qint64 fileSize = -1;
+    QDateTime modified;
+};
 
 class QMenu;
 class QVulkanInstance;
@@ -181,12 +191,15 @@ private:
     // The gallery (gallery.cpp, D-60). Slots count from the first thumbnail shown.
     bool galleryShown() const;
     double galleryBottomMargin() const;     // logical pixels below the gallery's bar
-    double galleryReserve() const;          // logical pixels the gallery takes above the bottom margin
+    double galleryReserve() const;          // logical pixels the gallery takes, from the window's bottom
     int galleryCapacity() const;            // thumbnails that fit the window's width
-    int galleryEnlargement(int slot) const; // the carousel: logical pixels added to that slot
+    int galleryZoom() const;                // logical pixels added to the thumbnail under the pointer
+    double galleryOverhang() const;         // how far its tile reaches beyond the bar, above and below
+    int galleryFile(int slot) const;        // the index in m_files shown there; -1: none
     void updateGallery();
     void requestThumbnail(const QString &path);
-    void thumbnailReady(const QString &path, const QImage &thumbnail);
+    void thumbnailReady(const QString &path, const Thumbnail &thumbnail);
+    void forgetChangedThumbnails();         // after the folder changed
     int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
     bool galleryContains(const QPointF &position) const;
     void setGalleryHover(int slot);
@@ -260,9 +273,11 @@ private:
     // one is on screen; a frame is shown when both its turn has come and it is ready.
     std::shared_ptr<Animation> m_animation;
     QThreadPool m_framePool;
-    QHash<QString, QImage> m_thumbnails; // by path, sRGB; null: unreadable
+    QHash<QString, Thumbnail> m_thumbnails; // by path
     QSet<QString> m_thumbnailsPending;
+    int m_thumbnailGeneration = 0; // changes when the folder does: thumbnails decoded before are dropped
     QList<QRectF> m_gallerySlots; // logical pixels in the gallery's texture
+    QPainterPath m_galleryShape;  // likewise: its background, where the pointer is over the gallery
     QRectF m_galleryRect;         // device pixels
     QSize m_gallerySize;          // device pixels; empty: hidden
     QString m_galleryKey;

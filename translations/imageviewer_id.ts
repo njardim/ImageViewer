@@ -256,6 +256,18 @@
         <translation>Jendela</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>Waktu per gambar:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Perbesar gambar mini di bawah penunjuk</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Pembesaran:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Tampilkan panel informasi (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>Setelah gambar terakhir, lanjutkan ke gambar pertama</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Gambar</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Klik sisi kiri atau kanan jendela untuk gambar sebelumnya atau berikutnya</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galeri (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>Mulai tayangan slide dalam layar penuh</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Setelah gambar terakhir, lanjutkan tayangan slide dari gambar pertama</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Perbesar gambar mini di bawah penunjuk (karusel)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opasitas latar galeri:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>Pembesaran karusel:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>Tampilkan overlay informasi di bagian atas (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Tayangan slide (%1), waktu per gambar:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigasi</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>Tampilkan galeri</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>Total format gambar yang didukung: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Versi dekoder</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Pulihkan Bawaan</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Tampilkan galeri (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Tayangan slide (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

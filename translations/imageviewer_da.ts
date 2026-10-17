@@ -325,16 +325,21 @@
         <translation>Vindue</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Forstør miniaturerne under markøren (karrusel)</translation>
+        <source>Time per image:</source>
+        <translation>Tid pr. billede:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Gennemsigtighed for galleriets baggrund:</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galleri (%1)</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Karrusellens forstørrelse:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Forstør miniaturen under markøren</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Forstørrelse:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +451,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Billeder</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Bredde på hver side:</translation>
     </message>
@@ -474,11 +483,6 @@
         <translation>Indlæs næste og forrige billede på forhånd</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Diasshow (%1), tid pr. billede:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigation</translation>
     </message>
@@ -495,8 +499,8 @@
         <translation>Start diasshowet i fuldskærm</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Fortsæt diasshowet med det første billede efter det sidste</translation>
+        <source>Show the gallery</source>
+        <translation>Vis galleriet</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +557,10 @@
         <translation>Understøttede billedformater i alt: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Dekoderversion</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Vis informationsoverlayet øverst (%1)</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Vis galleriet (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diasshow (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

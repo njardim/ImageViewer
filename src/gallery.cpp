@@ -1,6 +1,6 @@
 // ViewerWindow, part 7: the gallery (D-60). The folder's images as thumbnails in a bar at the
-// bottom, like a dock: the one under the pointer and its neighbours enlarge (the carousel), a
-// click shows that image, the wheel scrolls. Thumbnails are decoded on their own threads,
+// bottom: the one under the pointer enlarges (the zoom), a click shows that image, the wheel
+// scrolls. Thumbnails are decoded on their own threads,
 // colour-managed to sRGB like the clipboard, and drawn into one texture the renderer composites
 // at SDR white, like the information panels.
 #include "viewer.h"
@@ -16,6 +16,7 @@ namespace {
 constexpr double kThumbnail = 128.0;  // logical pixels, square
 constexpr double kBorder = 8.0;       // between thumbnails and around them
 constexpr double kSideFree = 128.0;   // left free on each side of the window
+constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
 // Behind the current thumbnail, and lighter (halfway to white) behind the one under the pointer;
 // at the gallery's background opacity, over that background.
 const QColor kSelected(255, 140, 0);
@@ -45,46 +46,53 @@ QImage thumbnailFrom(const Image &image)
 }
 } // namespace
 
-int ViewerWindow::galleryEnlargement(int offset) const
+int ViewerWindow::galleryZoom() const
 {
-    // The carousel: the thumbnail under the pointer grows by the setting, its neighbours by a
-    // half and a quarter of it.
-    if (!m_settings.galleryCarousel || m_galleryHover < 0)
-        return 0;
-    const int distance = std::abs(offset - m_galleryHover);
-    return distance == 0 ? m_settings.galleryEnlargement
-           : distance == 1 ? m_settings.galleryEnlargement / 2
-           : distance == 2 ? m_settings.galleryEnlargement / 4
-                           : 0;
+    return m_settings.galleryZoom ? m_settings.galleryEnlargement : 0;
+}
+
+double ViewerWindow::galleryOverhang() const
+{
+    // The thumbnail under the pointer grows by the zoom about the bar's middle line; its tile, and
+    // the bar's background behind it, reach this far above and below the bar.
+    return std::max(0.0, galleryZoom() / 2.0 + kTileMargin - kBorder);
 }
 
 int ViewerWindow::galleryCapacity() const
 {
-    // n thumbnails take n·128 + (n + 1)·8 px; the carousel adds at most 2.5 times the setting
-    // (the hovered one and two neighbours on each side), and 256 px stay free on either side.
-    const int g = m_settings.galleryCarousel ? m_settings.galleryEnlargement : 0;
-    const double carousel = g + 2 * (g / 2) + 2 * (g / 4);
-    const double room = width() - 2 * kSideFree - kBorder - carousel;
+    // n thumbnails take n·128 + (n + 1)·8 px, the zoom widens the row by its own size, and 128 px
+    // stay free on either side.
+    const double room = width() - 2 * kSideFree - kBorder - galleryZoom();
     return std::max(1, int(std::floor(room / (kThumbnail + kBorder))));
-}
-
-double ViewerWindow::galleryReserve() const
-{
-    // The gallery's bar and the margin above it: the information panel stays above both.
-    return m_gallerySize.isEmpty() ? 0.0 : kThumbnail + 2 * kBorder + galleryBottomMargin();
 }
 
 double ViewerWindow::galleryBottomMargin() const
 {
-    // The bar keeps kEdgeMargin from the bottom; the carousel enlarges a thumbnail about the bar's
-    // middle line, so beyond 48 px of enlargement the bar rises to keep it on screen.
-    const int g = m_settings.galleryCarousel ? m_settings.galleryEnlargement : 0;
-    return std::max(kEdgeMargin, g / 2.0 - kBorder);
+    // From the window's bottom to the bar: kEdgeMargin, or more when the enlarged thumbnail's tile
+    // reaches further below the bar; it then touches the bottom (D-61).
+    return std::max(kEdgeMargin, galleryOverhang());
+}
+
+double ViewerWindow::galleryReserve() const
+{
+    // The bar with the tile's reach above and below it, and its margin: the information panel
+    // stays above all of it.
+    return m_gallerySize.isEmpty() ? 0.0 : galleryBottomMargin() + kThumbnail + 2 * kBorder + galleryOverhang();
 }
 
 bool ViewerWindow::galleryShown() const
 {
     return m_settings.showGallery && !m_files.isEmpty();
+}
+
+int ViewerWindow::galleryFile(int slot) const
+{
+    // Navigation's loop makes the gallery a ring: after the last image, the first again.
+    const int count = int(m_files.size());
+    const int file = m_galleryFirst + slot;
+    if (m_settings.loop && count > 0)
+        return (file % count + count) % count;
+    return file >= 0 && file < count ? file : -1;
 }
 
 void ViewerWindow::updateGallery()
@@ -107,45 +115,57 @@ void ViewerWindow::updateGallery()
     const int capacity = galleryCapacity();
     const int shown = count <= capacity ? count : std::max(1, capacity % 2 ? capacity : capacity - 1);
     // The current image comes to the centre whenever it changes; the wheel moves away from it.
+    // When the window holds more or fewer thumbnails, the middle one stays (both counts are odd).
+    if (!m_gallerySlots.isEmpty())
+        m_galleryFirst += (int(m_gallerySlots.size()) - shown) / 2;
     if (m_index != m_galleryCentredOn) {
         m_galleryCentredOn = m_index;
         m_galleryFirst = std::max(0, m_index) - shown / 2;
     }
-    m_galleryFirst = std::clamp(m_galleryFirst, 0, count - shown);
+    m_galleryFirst = m_settings.loop && count > shown ? galleryFile(0) : std::clamp(m_galleryFirst, 0, count - shown);
     if (m_galleryHover >= shown)
         m_galleryHover = -1;
 
     // Thumbnails for what is shown first, then a row's worth either side.
-    const int from = std::max(0, m_galleryFirst - kPrefetch * shown);
-    const int to = std::min(count, m_galleryFirst + shown + kPrefetch * shown);
-    for (int i = m_galleryFirst; i < m_galleryFirst + shown; ++i)
-        requestThumbnail(m_files.at(i));
-    for (int i = from; i < to; ++i)
-        requestThumbnail(m_files.at(i));
+    for (int i = 0; i < shown; ++i)
+        requestThumbnail(m_files.at(galleryFile(i)));
+    for (int i = -kPrefetch * shown; i < (kPrefetch + 1) * shown; ++i)
+        if (const int file = galleryFile(i); file >= 0)
+            requestThumbnail(m_files.at(file));
 
     const double dpr = devicePixelRatio();
-    const int g = m_settings.galleryCarousel ? m_settings.galleryEnlargement : 0;
-    QList<double> sizes;
-    double rowWidth = kBorder;
-    for (int i = 0; i < shown; ++i) {
-        sizes << kThumbnail + galleryEnlargement(i);
-        rowWidth += sizes.last() + kBorder;
-    }
-    const double carousel = g + 2 * (g / 2) + 2 * (g / 4);
-    const QSizeF logical(shown * (kThumbnail + kBorder) + kBorder + carousel, kThumbnail + 2 * kBorder + g);
+    const int zoom = galleryZoom();
+    const double overhang = galleryOverhang();
+    const double barHeight = kThumbnail + 2 * kBorder;
+    const QSizeF logical(shown * (kThumbnail + kBorder) + kBorder + zoom, barHeight + 2 * overhang);
 
     QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7")
                       .arg(m_galleryFirst).arg(shown).arg(m_galleryHover).arg(m_index).arg(dpr)
-                      .arg(m_settings.galleryOpacity).arg(g);
-    for (int i = 0; i < shown; ++i)
-        key += m_thumbnails.contains(m_files.at(m_galleryFirst + i)) ? QLatin1Char('1') : QLatin1Char('0');
-    // The texture reaches g/2 above and below the bar, for the enlarged thumbnails.
+                      .arg(m_settings.galleryOpacity).arg(zoom);
+    for (int i = 0; i < shown; ++i) { // which file, and whether its thumbnail is there yet
+        const QString &path = m_files.at(galleryFile(i));
+        key += QLatin1Char(m_thumbnails.contains(path) ? '+' : '-') + QString::number(qHash(path), 36);
+    }
     m_galleryRect = QRectF(QPointF(std::round((width() - logical.width()) / 2.0 * dpr),
-                                   std::round((height() - galleryBottomMargin() - kThumbnail - 2 * kBorder - g / 2.0) * dpr)),
+                                   std::round((height() - galleryBottomMargin() - barHeight - overhang) * dpr)),
                            logical * dpr);
     if (key == m_galleryKey)
         return;
     m_galleryKey = key;
+
+    // The places: the thumbnail under the pointer is larger by the zoom, the others move aside.
+    const double rowWidth = shown * (kThumbnail + kBorder) + kBorder + (m_galleryHover >= 0 ? zoom : 0);
+    const double middle = overhang + barHeight / 2.0; // thumbnails grow evenly about it
+    QList<QRectF> places;
+    double x = (logical.width() - rowWidth) / 2.0 + kBorder;
+    for (int i = 0; i < shown; ++i) {
+        const double size = kThumbnail + (i == m_galleryHover ? zoom : 0);
+        places << QRectF(x, middle - size / 2.0, size, size);
+        x += size + kBorder;
+    }
+    const auto tileOf = [](const QRectF &place) {
+        return place.adjusted(-kTileMargin, -kTileMargin, kTileMargin, kTileMargin);
+    };
 
     QImage image(QSize(int(std::ceil(logical.width() * dpr)), int(std::ceil(logical.height() * dpr))),
                  QImage::Format_RGBA8888_Premultiplied);
@@ -154,39 +174,44 @@ void ViewerWindow::updateGallery()
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    // The background keeps its height; enlarged thumbnails grow about its middle line.
-    const QRectF background((logical.width() - rowWidth) / 2.0, g / 2.0, rowWidth, kThumbnail + 2 * kBorder);
+    // The background: the bar, and around the enlarged thumbnail exactly its tile, in one path
+    // filled once (two translucent shapes would darken where they overlap).
+    QPainterPath background;
+    background.addRoundedRect(QRectF((logical.width() - rowWidth) / 2.0, overhang, rowWidth, barHeight),
+                              kPanelRadius, kPanelRadius);
+    if (m_galleryHover >= 0) {
+        QPainterPath tile;
+        tile.addRoundedRect(tileOf(places.at(m_galleryHover)), kPanelRadius / 2, kPanelRadius / 2);
+        background = background.united(tile);
+    }
+    const int alpha = int(std::lround(m_settings.galleryOpacity * 2.55));
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, int(std::lround(m_settings.galleryOpacity * 2.55))));
-    painter.drawRoundedRect(background, kPanelRadius, kPanelRadius);
+    painter.fillPath(background, QColor(0, 0, 0, alpha));
+    m_galleryShape = background;
 
-    // The pointer is matched against the thumbnails' places without the carousel: matched against
-    // the enlarged ones, a thumbnail growing under the pointer pushed it onto its neighbour, which
-    // grew in turn, and the hover flickered between them. Each place takes half the gap either side.
+    // The pointer is matched against the places without the zoom: matched against the enlarged
+    // one, a thumbnail growing under the pointer pushed it onto its neighbour, which grew in turn,
+    // and the hover flickered between them. Each place takes half the gap either side.
     m_gallerySlots.clear();
-    const double baseLeft = (logical.width() - (shown * (kThumbnail + kBorder) + kBorder)) / 2.0 + kBorder / 2.0;
     for (int i = 0; i < shown; ++i)
-        m_gallerySlots << QRectF(baseLeft + i * (kThumbnail + kBorder), 0, kThumbnail + kBorder, logical.height());
+        m_gallerySlots << QRectF((zoom + kBorder) / 2.0 + i * (kThumbnail + kBorder), 0, kThumbnail + kBorder, logical.height());
 
-    const int tileAlpha = int(std::lround(m_settings.galleryOpacity * 2.55));
-    const double middle = background.center().y(); // thumbnails grow evenly about it
-    double x = background.left() + kBorder;
     for (int i = 0; i < shown; ++i) {
-        const QRectF slot(x, middle - sizes.at(i) / 2.0, sizes.at(i), sizes.at(i));
-        x += sizes.at(i) + kBorder;
-        if (m_galleryFirst + i == m_index || i == m_galleryHover) {
-            QColor tile = m_galleryFirst + i == m_index ? kSelected : kHovered;
-            tile.setAlpha(tileAlpha);
+        const QRectF &place = places.at(i);
+        const QString &path = m_files.at(galleryFile(i));
+        if (galleryFile(i) == m_index || i == m_galleryHover) {
+            QColor tile = galleryFile(i) == m_index ? kSelected : kHovered;
+            tile.setAlpha(alpha);
             painter.setBrush(tile);
-            painter.drawRoundedRect(slot.adjusted(-3, -3, 3, 3), kPanelRadius / 2, kPanelRadius / 2);
+            painter.drawRoundedRect(tileOf(place), kPanelRadius / 2, kPanelRadius / 2);
         }
-        const QImage thumbnail = m_thumbnails.value(m_files.at(m_galleryFirst + i));
+        const QImage thumbnail = m_thumbnails.value(path).image;
         if (thumbnail.isNull()) {
             painter.setBrush(QColor(255, 255, 255, 28)); // still being decoded, or unreadable
-            painter.drawRoundedRect(slot, kPanelRadius / 2, kPanelRadius / 2);
+            painter.drawRoundedRect(place, kPanelRadius / 2, kPanelRadius / 2);
         } else {
-            QSizeF fitted = QSizeF(thumbnail.size()).scaled(slot.size(), Qt::KeepAspectRatio);
-            painter.drawImage(QRectF(slot.center() - QPointF(fitted.width(), fitted.height()) / 2.0, fitted), thumbnail);
+            const QSizeF fitted = QSizeF(thumbnail.size()).scaled(place.size(), Qt::KeepAspectRatio);
+            painter.drawImage(QRectF(place.center() - QPointF(fitted.width(), fitted.height()) / 2.0, fitted), thumbnail);
         }
     }
     painter.end();
@@ -200,35 +225,56 @@ void ViewerWindow::requestThumbnail(const QString &path)
     if (m_thumbnails.contains(path) || m_thumbnailsPending.contains(path))
         return;
     m_thumbnailsPending.insert(path);
-    // Decoded at the largest size the carousel can show, reduced in linear light (decodeImage).
+    // Decoded at the largest size the zoom can show, reduced in linear light (decodeImage).
     const int pixels = int(std::ceil((kThumbnail + Settings::kMaxGalleryEnlargement) * devicePixelRatio()));
     // Within the preload's pixel limit: a huge image is decoded whole before it is reduced.
     const qint64 maxPixels = m_cache.maxPreloadPixels();
-    m_thumbnailPool.start([this, path, pixels, maxPixels] {
-        const Image image = decodeImage(path, pixels, maxPixels);
-        const QImage thumbnail = image.isValid() ? thumbnailFrom(image) : QImage();
-        QMetaObject::invokeMethod(this, [this, path, thumbnail] { thumbnailReady(path, thumbnail); }, Qt::QueuedConnection);
+    m_thumbnailPool.start([this, path, pixels, maxPixels, generation = m_thumbnailGeneration] {
+        Thumbnail thumbnail;
+        const QFileInfo info(path); // before decoding: a file changed meanwhile is decoded again
+        thumbnail.fileSize = info.size();
+        thumbnail.modified = info.lastModified();
+        if (const Image image = decodeImage(path, pixels, maxPixels); image.isValid())
+            thumbnail.image = thumbnailFrom(image);
+        QMetaObject::invokeMethod(this, [this, path, thumbnail, generation] {
+            m_thumbnailsPending.remove(path);
+            if (generation == m_thumbnailGeneration) // otherwise decoded before the folder changed: asked again
+                thumbnailReady(path, thumbnail);
+            else
+                updateGallery();
+        }, Qt::QueuedConnection);
     });
 }
 
-void ViewerWindow::thumbnailReady(const QString &path, const QImage &thumbnail)
+void ViewerWindow::thumbnailReady(const QString &path, const Thumbnail &thumbnail)
 {
-    m_thumbnailsPending.remove(path);
     m_thumbnails.insert(path, thumbnail); // a null one stays: an unreadable file is not tried again
     // Kept: about three rows either side of what is shown.
-    if (m_thumbnails.size() > 8 * std::max(1, galleryCapacity()) + 64) {
-        const int shown = galleryCapacity();
-        const int from = std::max(0, m_galleryFirst - 3 * shown);
-        const int to = std::min(int(m_files.size()), m_galleryFirst + 4 * shown);
-        const QSet<QString> keep(m_files.cbegin() + from, m_files.cbegin() + to);
-        for (auto it = m_thumbnails.begin(); it != m_thumbnails.end();)
-            it = keep.contains(it.key()) ? std::next(it) : m_thumbnails.erase(it);
+    const int shown = galleryCapacity();
+    if (m_thumbnails.size() > 8 * shown + 64) {
+        QSet<QString> keep;
+        for (int i = -3 * shown; i < 4 * shown; ++i)
+            if (const int file = galleryFile(i); file >= 0)
+                keep.insert(m_files.at(file));
+        m_thumbnails.removeIf([&keep](const auto &entry) { return !keep.contains(entry.key()); });
     }
     updateGallery();
 }
 
+void ViewerWindow::forgetChangedThumbnails()
+{
+    // The folder changed: a file written again since its thumbnail was made gets a new one.
+    m_thumbnails.removeIf([](const auto &entry) {
+        const QFileInfo info(entry.key());
+        return info.size() != entry.value().fileSize || info.lastModified() != entry.value().modified;
+    });
+    ++m_thumbnailGeneration; // and one being decoded now may have read the file before it changed
+}
+
 int ViewerWindow::galleryIndexAt(const QPointF &position) const
 {
+    if (!galleryContains(position))
+        return -1;
     const QPointF inTexture = position - m_galleryRect.topLeft() / devicePixelRatio();
     for (int i = 0; i < m_gallerySlots.size(); ++i)
         if (m_gallerySlots.at(i).contains(inTexture))
@@ -238,8 +284,8 @@ int ViewerWindow::galleryIndexAt(const QPointF &position) const
 
 bool ViewerWindow::galleryContains(const QPointF &position) const
 {
-    return !m_gallerySize.isEmpty() && QRectF(m_galleryRect.topLeft() / devicePixelRatio(),
-                                              QSizeF(m_gallerySize) / devicePixelRatio()).contains(position);
+    // The background drawn, not the texture: the room left for the zoom is the image's.
+    return !m_gallerySize.isEmpty() && m_galleryShape.contains(position - m_galleryRect.topLeft() / devicePixelRatio());
 }
 
 void ViewerWindow::setGalleryHover(int slot)
@@ -252,8 +298,8 @@ void ViewerWindow::setGalleryHover(int slot)
 
 void ViewerWindow::galleryClicked(int slot)
 {
-    const int index = m_galleryFirst + slot;
-    if (index < 0 || index >= m_files.size() || index == m_index)
+    const int index = galleryFile(slot);
+    if (index < 0 || index == m_index)
         return;
     m_direction = index > m_index ? 1 : -1;
     restartSlideshowInterval();

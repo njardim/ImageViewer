@@ -256,6 +256,18 @@
         <translation>ونڈو</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>فی تصویر وقت:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>پوائنٹر کے نیچے والے تھمب نیل کو بڑا کریں</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>بڑا کرنا:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>معلوماتی پینل دکھائیں (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>آخری تصویر کے بعد پہلی سے جاری رکھیں</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>تصاویر</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>پچھلی یا اگلی تصویر کے لیے ونڈو کے بائیں یا دائیں جانب کلک کریں</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>گیلری (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>سلائیڈ شو پوری اسکرین میں شروع کریں</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>آخری تصویر کے بعد سلائیڈ شو پہلی تصویر سے جاری رکھیں</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>پوائنٹر کے نیچے تھمب نیل بڑے کریں (کیروسل)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>گیلری کے پس منظر کی دھندلاہٹ:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>کیروسل کی بڑائی:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>اوپر معلوماتی اوورلے دکھائیں (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>سلائیڈ شو (%1)، فی تصویر وقت:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>نیویگیشن</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>گیلری دکھائیں</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>معاون تصویری فارمیٹس کی کل تعداد: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>ڈیکوڈر کا ورژن</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ٹھیک ہے</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>ڈیفالٹس بحال کریں</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>گیلری دکھائیں (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>سلائیڈ شو (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

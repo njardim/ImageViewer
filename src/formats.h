@@ -75,11 +75,13 @@ const QStringList &supportedSuffixes();
 // without the system's codec). tests/smoke.sh decodes every test file.
 QStringList formatReport();
 
-// Settings > Image Formats (D-58): one row per suffix this build opens, sorted, with its formats
-// (two for .avif and .png, in detection order) and their decoders, all from the registry.
+// Settings > Image Formats (D-58, D-61): one row per suffix this build opens, sorted, with its
+// formats (two for .avif and .png, in detection order) and the decoder tried first, with the
+// version this build uses, all from the registry.
 struct SuffixRow {
     QString suffix; // with its dot, e.g. ".jxl"
     QString formats;
-    QString decoders;
+    QString decoder;
+    QString version;
 };
 QList<SuffixRow> supportedSuffixTable();

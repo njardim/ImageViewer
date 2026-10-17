@@ -256,6 +256,18 @@
         <translation>Cửa sổ</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>Thời gian mỗi ảnh:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Phóng to hình thu nhỏ dưới con trỏ</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Mức phóng to:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Hiện bảng thông tin (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>Sau ảnh cuối cùng, tiếp tục từ ảnh đầu tiên</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Hình ảnh</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Nhấp vào bên trái hoặc bên phải cửa sổ để chuyển đến ảnh trước hoặc ảnh tiếp theo</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Thư viện ảnh (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>Bắt đầu trình chiếu ở chế độ toàn màn hình</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Sau ảnh cuối cùng, tiếp tục trình chiếu từ ảnh đầu tiên</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Phóng to hình thu nhỏ dưới con trỏ (băng chuyền)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>Độ mờ đục của nền thư viện ảnh:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>Mức phóng to của băng chuyền:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>Hiện lớp phủ thông tin ở trên cùng (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Trình chiếu (%1), thời gian mỗi ảnh:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Điều hướng</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>Hiện thư viện ảnh</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>Tổng số định dạng ảnh được hỗ trợ: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Phiên bản bộ giải mã</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Khôi phục mặc định</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Hiện thư viện ảnh (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Trình chiếu (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

@@ -256,6 +256,18 @@
         <translation>विंडो</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>प्रति प्रतिमा वेळ:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>पॉइंटरखालील थंबनेल मोठे करा</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>मोठे करणे:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>माहिती पॅनेल दाखवा (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>शेवटच्या प्रतिमेनंतर पहिल्या प्रतिमेपासून पुढे सुरू ठेवा</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>प्रतिमा</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>मागील किंवा पुढील प्रतिमेसाठी विंडोच्या डाव्या किंवा उजव्या बाजूला क्लिक करा</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>गॅलरी (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>स्लाइडशो पूर्ण स्क्रीनमध्ये सुरू करा</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>शेवटच्या प्रतिमेनंतर स्लाइडशो पहिल्या प्रतिमेपासून सुरू ठेवा</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>पॉइंटरखालील लघुप्रतिमा मोठ्या करा (कॅरोसेल)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>गॅलरी पार्श्वभूमीची अपारदर्शकता:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>कॅरोसेलचे मोठेपण:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>क्लिपिंग किंवा टोन मॅपिंगमुळे बदललेले पिक्सेल हायलाइट करा (मॅजेंटा)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>वर माहिती ओव्हरले दाखवा (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>स्लाइडशो (%1), प्रति प्रतिमा वेळ:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>नेव्हिगेशन</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>गॅलरी दाखवा</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>एकूण समर्थित प्रतिमा स्वरूपे: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>डिकोडरची आवृत्ती</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ठीक आहे</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>डीफॉल्ट पुनर्संचयित करा</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>गॅलरी दाखवा (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>स्लाइडशो (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

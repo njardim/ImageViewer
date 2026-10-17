@@ -325,16 +325,21 @@
         <translation>Fuinneog</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Méadaigh na mionsamhlacha faoin bpointeoir (timpeallán)</translation>
+        <source>Time per image:</source>
+        <translation>Am in aghaidh na híomhá:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Teimhneacht chúlra an ghailearaí:</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Gailearaí (%1)</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Méadú an timpealláin:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Méadaigh an mionsamhail faoin bpointeoir</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Méadú:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +451,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Íomhánna</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Leithead gach taobh:</translation>
     </message>
@@ -474,11 +483,6 @@
         <translation>Luchtaigh an chéad íomhá eile agus an íomhá roimhe seo roimh ré</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Taispeántas sleamhnán (%1), am in aghaidh na híomhá:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Nascleanúint</translation>
     </message>
@@ -495,8 +499,8 @@
         <translation>Tosaigh an taispeántas sleamhnán ar lánscáileán</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Tar éis na híomhá deiridh, lean leis an taispeántas sleamhnán ón gcéad cheann</translation>
+        <source>Show the gallery</source>
+        <translation>Taispeáin an gailearaí</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +557,10 @@
         <translation>Líon iomlán na bhformáidí íomhá a dtacaítear leo: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Leagan an díchódóra</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Taispeáin an forleagan faisnéise ag an mbarr (%1)</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Taispeáin an gailearaí (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Taispeántas sleamhnán (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

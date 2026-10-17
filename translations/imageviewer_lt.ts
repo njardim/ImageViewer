@@ -325,16 +325,21 @@
         <translation>Langas</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Padidinti miniatiūras po žymekliu (karuselė)</translation>
+        <source>Time per image:</source>
+        <translation>Laikas vienam vaizdui:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Galerijos fono neskaidrumas:</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerija (%1)</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Karuselės padidinimas:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Padidinti miniatiūrą po žymekliu</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Padidinimas:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +451,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Vaizdai</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Kiekvienos pusės plotis:</translation>
     </message>
@@ -474,11 +483,6 @@
         <translation>Iš anksto įkelti kitą ir ankstesnį vaizdus</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Skaidrių peržiūra (%1), laikas vienam vaizdui:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Naršymas</translation>
     </message>
@@ -495,8 +499,8 @@
         <translation>Pradėti skaidrių peržiūrą visame ekrane</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Po paskutinio vaizdo tęsti skaidrių peržiūrą nuo pirmojo</translation>
+        <source>Show the gallery</source>
+        <translation>Rodyti galeriją</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +557,10 @@
         <translation>Iš viso palaikomų vaizdų formatų: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Dekoderio versija</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Gerai</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Rodyti informacijos užklotą viršuje (%1)</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Rodyti galeriją (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Skaidrių peržiūra (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

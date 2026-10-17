@@ -256,6 +256,18 @@
         <translation>窗口</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>每张图像的时间：</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>放大指针下的缩略图</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>放大：</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>显示信息面板（%1）</translation>
@@ -413,8 +425,17 @@
         <translation>到达最后一张图像后，从第一张继续</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>图像</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>图库（%1）</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>以全屏方式开始幻灯片放映</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>最后一张图像之后，从第一张继续幻灯片放映</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>放大指针下的缩略图（轮播）</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>图库背景不透明度:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>轮播放大量:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>在顶部显示信息叠加层（%1）</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>幻灯片放映（%1），每张图像时间：</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>导航</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>显示图库</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>支持的图像格式总数：%1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>解码器版本</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>确定</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>恢复默认值</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>显示图库（%1）</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>幻灯片放映（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

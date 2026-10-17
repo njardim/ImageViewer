@@ -753,33 +753,52 @@ void shutdownOpenImageIO()
 #endif
 }
 
-QString decoderLabel(Decoder decoder)
+QString decoderName(Decoder decoder)
 {
-    const auto named = [](const char *name, const QString &version) {
-        return version.isEmpty() ? QString::fromLatin1(name) : QString::fromLatin1(name) + QLatin1Char(' ') + version;
-    };
     switch (decoder) {
     case Decoder::OpenImageIO:
-    case Decoder::Apng: // its frames are PNGs that OpenImageIO decodes
-        return named("OpenImageIO", QString::fromLatin1(OIIO_VERSION_STRING));
-    case Decoder::Jxl: return named("libjxl", jxlVersion());
-    case Decoder::WebP: return named("libwebp", webpVersion());
-#ifdef IMAGEVIEWER_HAVE_LIBHEIF
-    case Decoder::Heif: return named("libheif", heifVersion());
-#else
-    case Decoder::Heif: return named("libheif", QString());
-#endif
-    case Decoder::Qt: return named("Qt", QString::fromLatin1(qVersion()));
-    case Decoder::GraphicsMagick: return named("GraphicsMagick", graphicsMagickVersion());
-    case Decoder::Softimage: return named("ImageViewer", QCoreApplication::applicationVersion()); // our own reader
+    case Decoder::Apng: return QStringLiteral("OpenImageIO"); // APNG frames are PNGs that OpenImageIO decodes
+    case Decoder::Jxl: return QStringLiteral("libjxl");
+    case Decoder::WebP: return QStringLiteral("libwebp");
+    case Decoder::Heif: return QStringLiteral("libheif");
+    case Decoder::Qt: return QStringLiteral("Qt");
+    case Decoder::GraphicsMagick: return QStringLiteral("GraphicsMagick");
+    case Decoder::Softimage: return QStringLiteral("ImageViewer"); // our own reader
     case Decoder::System:
 #if defined(Q_OS_MACOS)
-        return QStringLiteral("ImageIO (macOS %1)").arg(QSysInfo::productVersion());
+        return QStringLiteral("ImageIO");
 #elif defined(Q_OS_WIN)
-        return QStringLiteral("WIC (Windows %1)").arg(QSysInfo::productVersion());
+        return QStringLiteral("WIC");
 #else
         break;
 #endif
     }
     return QStringLiteral("system");
+}
+
+QString decoderVersion(Decoder decoder)
+{
+    switch (decoder) {
+    case Decoder::OpenImageIO:
+    case Decoder::Apng: return QString::fromLatin1(OIIO_VERSION_STRING);
+    case Decoder::Jxl: return jxlVersion();
+    case Decoder::WebP: return webpVersion();
+#ifdef IMAGEVIEWER_HAVE_LIBHEIF
+    case Decoder::Heif: return heifVersion();
+#else
+    case Decoder::Heif: break;
+#endif
+    case Decoder::Qt: return QString::fromLatin1(qVersion());
+    case Decoder::GraphicsMagick: return graphicsMagickVersion();
+    case Decoder::Softimage: return QCoreApplication::applicationVersion();
+    case Decoder::System:
+#if defined(Q_OS_MACOS)
+        return QStringLiteral("macOS %1").arg(QSysInfo::productVersion());
+#elif defined(Q_OS_WIN)
+        return QStringLiteral("Windows %1").arg(QSysInfo::productVersion());
+#else
+        break;
+#endif
+    }
+    return {};
 }

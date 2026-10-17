@@ -256,6 +256,18 @@
         <translation>Окно</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>Время на изображение:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Увеличивать миниатюру под указателем</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Увеличение:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Показывать информационную панель (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>После последнего изображения переходить к первому</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Изображения</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Переход к предыдущему или следующему изображению щелчком по левой или правой части окна</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Галерея (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>Запускать слайд-шоу в полноэкранном режиме</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>После последнего изображения продолжать слайд-шоу с первого</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Увеличивать миниатюры под указателем (карусель)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>Непрозрачность фона галереи:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>Увеличение в карусели:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Выделять пиксели, изменённые отсечением или тональной компрессией (пурпурный)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>Показывать информационный оверлей вверху (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Слайд-шоу (%1), время на изображение:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Навигация</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>Показывать галерею</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>Всего поддерживаемых форматов изображений: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Версия декодера</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ОК</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Восстановить значения по умолчанию</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Показывать галерею (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Слайд-шоу (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

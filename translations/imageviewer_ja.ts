@@ -256,6 +256,18 @@
         <translation>ウィンドウ</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>1 枚あたりの時間:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>ポインターの下のサムネイルを拡大</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>拡大:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>情報パネルを表示（%1）</translation>
@@ -413,8 +425,17 @@
         <translation>最後の画像の次は最初の画像に戻る</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>画像</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>ウィンドウの左側または右側をクリックして前または次の画像を表示する</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>ギャラリー（%1）</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>スライドショーを全画面表示で開始</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>最後の画像の後、最初の画像からスライドショーを続ける</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>ポインター下のサムネイルを拡大（カルーセル）</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>ギャラリー背景の不透明度:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>カルーセルの拡大量:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>上部に情報オーバーレイを表示（%1）</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>スライドショー（%1）、1枚あたりの時間：</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>ナビゲーション</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>ギャラリーを表示</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>対応画像形式の合計: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>デコーダーのバージョン</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>既定値に戻す</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>ギャラリーを表示（%1）</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>スライドショー（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

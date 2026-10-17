@@ -325,16 +325,21 @@
         <translation>Fereastră</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Mărește miniaturile de sub indicator (carusel)</translation>
+        <source>Time per image:</source>
+        <translation>Timp pe imagine:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opacitatea fundalului galeriei:</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerie (%1)</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Mărirea caruselului:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Mărește miniatura de sub cursor</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Mărire:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +451,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Imagini</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Lățimea fiecărei laturi:</translation>
     </message>
@@ -474,11 +483,6 @@
         <translation>Încarcă din timp imaginea următoare și pe cea anterioară</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Prezentare (%1), timp pentru fiecare imagine:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigare</translation>
     </message>
@@ -495,8 +499,8 @@
         <translation>Pornește prezentarea pe ecran complet</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>După ultima imagine, continuă prezentarea cu prima</translation>
+        <source>Show the gallery</source>
+        <translation>Afișează galeria</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +557,10 @@
         <translation>Total formate de imagine acceptate: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Versiunea decodorului</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Afișează suprapunerea de informații în partea de sus (%1)</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Afișează galeria (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Prezentare (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

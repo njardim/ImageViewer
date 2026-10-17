@@ -50,16 +50,44 @@ QIcon swatchIcon(const QColor &color)
     return QIcon(pixmap);
 }
 
-// A time in seconds: every one in the Settings moves in half seconds.
+// Every number moves by one of the two steps of Settings (sizes by 5, times by half a second),
+// and a typed value goes to the nearest one, as it is stored: a typed 22 becomes 20.
+QSpinBox *sizeBox(int minimum, int maximum, const QString &suffix)
+{
+    auto *box = new QSpinBox;
+    box->setRange(minimum, maximum);
+    box->setSingleStep(Settings::kSizeStep);
+    box->setSuffix(suffix);
+    QObject::connect(box, &QSpinBox::editingFinished, box, [box] {
+        box->setValue(int(std::lround(double(box->value()) / Settings::kSizeStep)) * Settings::kSizeStep);
+    });
+    return box;
+}
+
 QDoubleSpinBox *secondsBox(double minimum, double maximum)
 {
+    constexpr double step = Settings::kTimeStepMs / 1000.0;
     auto *box = new QDoubleSpinBox;
     box->setRange(minimum, maximum);
     box->setDecimals(1);
-    box->setSingleStep(0.5);
+    box->setSingleStep(step);
     //: Unit after a number of seconds; keep the leading space if your language separates units.
     box->setSuffix(QCoreApplication::translate("SettingsDialog", " s"));
+    QObject::connect(box, &QDoubleSpinBox::editingFinished, box,
+                     [box, step] { box->setValue(std::round(box->value() / step) * step); });
     return box;
+}
+
+QString percent()
+{
+    //: Unit after a percentage; keep the leading space if your language separates it.
+    return QCoreApplication::translate("SettingsDialog", " %");
+}
+
+QString pixels()
+{
+    //: Unit after a number of pixels; keep the leading space if your language separates units.
+    return QCoreApplication::translate("SettingsDialog", " px");
 }
 
 } // namespace
@@ -148,11 +176,9 @@ void SettingsDialog::buildUi()
     m_windowFit->addItem(tr("Fit it to the first image"), int(WindowFit::FirstImage));
     m_windowFit->addItem(tr("Fit it to every image"), int(WindowFit::EveryImage));
     windowForm->addRow(tr("Window size:"), m_windowFit);
-    m_windowFitPercent = new QSpinBox;
-    m_windowFitPercent->setRange(Settings::kMinWindowFitPercent, Settings::kMaxWindowFitPercent);
-    m_windowFitPercent->setSingleStep(5);
-    //: Unit after a percentage of the screen's size; keep the leading space if your language separates it.
-    m_windowFitPercent->setSuffix(tr(" % of the screen"));
+    m_windowFitPercent = sizeBox(Settings::kMinWindowFitPercent, Settings::kMaxWindowFitPercent,
+                                 //: Unit after a percentage of the screen's size; keep the leading space if your language separates it.
+                                 tr(" % of the screen"));
     windowForm->addRow(tr("At most:"), m_windowFitPercent);
     connect(m_windowFit, &QComboBox::currentIndexChanged, this,
             [this] { m_windowFitPercent->setEnabled(WindowFit(m_windowFit->currentData().toInt()) != WindowFit::Never); });
@@ -175,8 +201,8 @@ void SettingsDialog::buildUi()
     informationLayout->addWidget(m_showInfo);
     m_showOverlay = new QCheckBox; // likewise
     informationLayout->addWidget(m_showOverlay);
-    m_overlayBox = new QGroupBox(tr("Overlay at the top"));
-    auto *overlayForm = new QFormLayout(m_overlayBox);
+    auto *overlayBox = new QGroupBox(tr("Overlay at the top"));
+    auto *overlayForm = new QFormLayout(overlayBox);
     const auto fillVisibility = [](QComboBox *combo) {
         combo->addItem(tr("Always"), int(OverlayVisibility::Always));
         combo->addItem(tr("When the pointer is at the top"), int(OverlayVisibility::Hover));
@@ -207,20 +233,13 @@ void SettingsDialog::buildUi()
     overlayForm->addRow(tr("Fields:"), fieldsRow);
     m_overlayDelay = secondsBox(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
     overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
-    informationLayout->addWidget(m_overlayBox);
+    informationLayout->addWidget(overlayBox);
     // One look for both panels (D-49).
     auto *styleBox = new QGroupBox(tr("Appearance of the panel and the overlay"));
     auto *styleForm = new QFormLayout(styleBox);
-    m_overlayBackground = new QSpinBox;
-    m_overlayBackground->setRange(0, 100);
-    m_overlayBackground->setSingleStep(10);
-    //: Unit after a percentage; keep the leading space if your language separates it.
-    m_overlayBackground->setSuffix(tr(" %"));
+    m_overlayBackground = sizeBox(0, 100, percent());
     styleForm->addRow(tr("Background opacity:"), m_overlayBackground);
-    m_overlayText = new QSpinBox;
-    m_overlayText->setRange(Settings::kMinOverlayTextOpacity, 100);
-    m_overlayText->setSingleStep(10);
-    m_overlayText->setSuffix(tr(" %"));
+    m_overlayText = sizeBox(Settings::kMinOverlayTextOpacity, 100, percent());
     styleForm->addRow(tr("Text opacity:"), m_overlayText);
     m_overlayOutline = new QCheckBox(tr("Outline the text"));
     styleForm->addRow(m_overlayOutline);
@@ -228,19 +247,18 @@ void SettingsDialog::buildUi()
     informationLayout->addStretch();
     tabs->addTab(information, tr("Information"));
 
-    // Navigation
+    // Navigation: the loop for everything that steps through the folder, then a group each for
+    // moving between images, the slideshow and the gallery.
     auto *navigation = new QWidget;
-    auto *navigationForm = new QFormLayout(navigation);
+    auto *navigationLayout = new QVBoxLayout(navigation);
     m_loop = new QCheckBox(tr("After the last image, continue with the first"));
-    navigationForm->addRow(m_loop);
+    navigationLayout->addWidget(m_loop);
+    auto *imagesBox = new QGroupBox(tr("Images"));
+    auto *imagesForm = new QFormLayout(imagesBox);
     m_sideZones = new QCheckBox(tr("Click the left or right side of the window for the previous or next image"));
-    navigationForm->addRow(m_sideZones);
-    m_sideZoneWidth = new QSpinBox;
-    m_sideZoneWidth->setRange(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth);
-    m_sideZoneWidth->setSingleStep(10);
-    //: Unit after a number of pixels; keep the leading space if your language separates units.
-    m_sideZoneWidth->setSuffix(tr(" px"));
-    navigationForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
+    imagesForm->addRow(m_sideZones);
+    m_sideZoneWidth = sizeBox(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth, pixels());
+    imagesForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
     connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
     m_sortBy = new QComboBox;
     m_sortBy->addItem(tr("Name"), int(FolderSort::Name));
@@ -251,35 +269,31 @@ void SettingsDialog::buildUi()
     sortRow->addWidget(m_sortBy);
     sortRow->addWidget(m_sortDescending);
     sortRow->addStretch();
-    navigationForm->addRow(tr("Sort images by:"), sortRow);
+    imagesForm->addRow(tr("Sort images by:"), sortRow);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
-    navigationForm->addRow(m_preload);
+    imagesForm->addRow(m_preload);
+    navigationLayout->addWidget(imagesBox);
+    m_slideshowBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
+    auto *slideshowForm = new QFormLayout(m_slideshowBox);
     m_slideshowFullScreen = new QCheckBox(tr("Start the slideshow in full screen"));
-    navigationForm->addRow(m_slideshowFullScreen);
-    m_slideshowLoop = new QCheckBox(tr("After the last image, continue the slideshow with the first"));
-    navigationForm->addRow(m_slideshowLoop);
+    slideshowForm->addRow(m_slideshowFullScreen);
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
-    m_slideshowLabel = new QLabel;
-    navigationForm->addRow(m_slideshowLabel, m_slideshowSeconds);
-    // The gallery (D-60): the carousel's switch and size, then the background.
-    m_showGallery = new QCheckBox;
-    navigationForm->addRow(m_showGallery);
-    m_galleryCarousel = new QCheckBox(tr("Enlarge the thumbnails under the pointer (carousel)"));
-    navigationForm->addRow(m_galleryCarousel);
-    m_galleryEnlargement = new QSpinBox;
-    m_galleryEnlargement->setRange(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement);
-    m_galleryEnlargement->setSingleStep(Settings::kGalleryEnlargementStep);
-    connect(m_galleryEnlargement, &QSpinBox::editingFinished, this, [this] { // a typed 22 becomes 20, as stored
-        const int step = Settings::kGalleryEnlargementStep;
-        m_galleryEnlargement->setValue((m_galleryEnlargement->value() + step / 2) / step * step);
-    });
-    m_galleryEnlargement->setSuffix(tr(" px"));
-    navigationForm->addRow(tr("Carousel enlargement:"), m_galleryEnlargement);
-    m_galleryOpacity = new QSpinBox;
-    m_galleryOpacity->setRange(0, 100);
-    m_galleryOpacity->setSuffix(tr(" %"));
-    navigationForm->addRow(tr("Gallery background opacity:"), m_galleryOpacity);
-    connect(m_galleryCarousel, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
+    slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
+    navigationLayout->addWidget(m_slideshowBox);
+    // The gallery (D-60, D-61).
+    m_galleryBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
+    auto *galleryForm = new QFormLayout(m_galleryBox);
+    m_showGallery = new QCheckBox(tr("Show the gallery"));
+    galleryForm->addRow(m_showGallery);
+    m_galleryZoom = new QCheckBox(tr("Enlarge the thumbnail under the pointer"));
+    galleryForm->addRow(m_galleryZoom);
+    m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
+    galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
+    connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
+    m_galleryOpacity = sizeBox(0, 100, percent());
+    galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
+    navigationLayout->addWidget(m_galleryBox);
+    navigationLayout->addStretch();
     tabs->addTab(navigation, tr("Navigation"));
 
     // Color & HDR
@@ -340,23 +354,23 @@ void SettingsDialog::buildUi()
     auto *formatsTotal = new QLabel(tr("Total supported image formats: %1").arg(QLocale().toString(suffixRows.size())));
     formatsTotal->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
     formatsLayout->addWidget(formatsTotal);
-    auto *formatsTable = new QTableWidget(int(suffixRows.size()), 3);
-    formatsTable->setHorizontalHeaderLabels({tr("Extension"), tr("Format"), tr("Decoder")});
+    auto *formatsTable = new QTableWidget(int(suffixRows.size()), 4);
+    formatsTable->setHorizontalHeaderLabels({tr("Extension"), tr("Format"), tr("Decoder"), tr("Decoder version")});
     formatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     formatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     formatsTable->verticalHeader()->hide();
     formatsTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    formatsTable->horizontalHeader()->setStretchLastSection(true);
     for (int row = 0; row < suffixRows.size(); ++row) {
         const SuffixRow &r = suffixRows.at(row);
         // Isolated left to right: in Arabic and Urdu ".jxl" read "jxl." (as the Shortcuts tab's keys).
         formatsTable->setItem(row, 0, new QTableWidgetItem(QChar(0x2066) + r.suffix + QChar(0x2069)));
         formatsTable->setItem(row, 1, new QTableWidgetItem(r.formats));
-        formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoders));
+        formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoder));
+        formatsTable->setItem(row, 3, new QTableWidgetItem(r.version));
     }
     formatsTable->setSortingEnabled(true); // by any column, from its header; filled first, by extension
     formatsTable->sortByColumn(0, Qt::AscendingOrder);
+    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // four equal columns
     formatsLayout->addWidget(formatsTable, 1);
     tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));
@@ -532,10 +546,9 @@ void SettingsDialog::setValues(const Settings &settings)
     m_sortDescending->setChecked(settings.sortDescending);
     m_preload->setChecked(settings.preload);
     m_slideshowFullScreen->setChecked(settings.slideshowFullScreen);
-    m_slideshowLoop->setChecked(settings.slideshowLoop);
     m_showGallery->setChecked(settings.showGallery);
-    m_galleryCarousel->setChecked(settings.galleryCarousel);
-    m_galleryEnlargement->setEnabled(settings.galleryCarousel);
+    m_galleryZoom->setChecked(settings.galleryZoom);
+    m_galleryEnlargement->setEnabled(settings.galleryZoom);
     m_galleryOpacity->setValue(settings.galleryOpacity);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
@@ -598,9 +611,10 @@ void SettingsDialog::refreshShortcutTexts()
     m_showInfo->setText(tr("Show the information panel (%1)").arg(keyName("Info")));
     //: %1: the keyboard shortcut, e.g. "Shift+I".
     m_showOverlay->setText(tr("Show the information overlay at the top (%1)").arg(keyName("InfoOverlay")));
-    m_showGallery->setText(tr("Show the gallery (%1)").arg(keyName("Gallery")));
+    //: %1: the key that shows and hides the gallery, e.g. "G".
+    m_galleryBox->setTitle(tr("Gallery (%1)").arg(keyName("Gallery")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
-    m_slideshowLabel->setText(tr("Slideshow (%1), time per image:").arg(keyName("Slideshow")));
+    m_slideshowBox->setTitle(tr("Slideshow (%1)").arg(keyName("Slideshow")));
     //: %1: the keyboard shortcut, e.g. "L". The zoom of the image shown stays for the next ones.
     m_lockZoom->setText(tr("Keep the zoom for the next images (%1)").arg(keyName("LockZoom")));
 }
@@ -714,9 +728,8 @@ Settings SettingsDialog::settings() const
     s.preload = m_preload->isChecked();
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
-    s.slideshowLoop = m_slideshowLoop->isChecked();
     s.showGallery = m_showGallery->isChecked();
-    s.galleryCarousel = m_galleryCarousel->isChecked();
+    s.galleryZoom = m_galleryZoom->isChecked();
     s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();
     s.toneMap = m_toneMap->isChecked();

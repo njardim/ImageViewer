@@ -325,16 +325,21 @@
         <translation>Ablak</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>A mutató alatti bélyegképek nagyítása (körhinta)</translation>
+        <source>Time per image:</source>
+        <translation>Képenkénti idő:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>A galéria hátterének átlátszatlansága:</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galéria (%1)</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Körhinta nagyítása:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>A mutató alatti bélyegkép nagyítása</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Nagyítás:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +451,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Képek</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Az egyes oldalak szélessége:</translation>
     </message>
@@ -474,11 +483,6 @@
         <translation>A következő és az előző kép előzetes betöltése</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Diavetítés (%1), idő képenként:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigáció</translation>
     </message>
@@ -495,8 +499,8 @@
         <translation>A diavetítés teljes képernyőn induljon</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Az utolsó kép után a diavetítés folytatódjon az elsővel</translation>
+        <source>Show the gallery</source>
+        <translation>Galéria megjelenítése</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +557,10 @@
         <translation>Támogatott képformátumok összesen: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Dekóder verziója</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Információs fedőréteg megjelenítése felül (%1)</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Galéria megjelenítése (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diavetítés (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

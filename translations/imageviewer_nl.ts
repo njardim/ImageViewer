@@ -325,16 +325,21 @@
         <translation>Venster</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Miniaturen onder de aanwijzer vergroten (carrousel)</translation>
+        <source>Time per image:</source>
+        <translation>Tijd per afbeelding:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Dekking van de galerijachtergrond:</translation>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galerij (%1)</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Vergroting van de carrousel:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>De miniatuur onder de aanwijzer vergroten</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Vergroting:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +451,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Afbeeldingen</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Breedte van elke zijde:</translation>
     </message>
@@ -474,11 +483,6 @@
         <translation>De volgende en vorige afbeelding vooraf laden</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Diavoorstelling (%1), tijd per afbeelding:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigatie</translation>
     </message>
@@ -495,8 +499,8 @@
         <translation>De diavoorstelling op volledig scherm starten</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Na de laatste afbeelding de diavoorstelling met de eerste voortzetten</translation>
+        <source>Show the gallery</source>
+        <translation>De galerij tonen</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +557,10 @@
         <translation>Totaal ondersteunde afbeeldingsindelingen: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Decoderversie</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>De informatie-overlay bovenaan tonen (%1)</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>De galerij tonen (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diavoorstelling (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

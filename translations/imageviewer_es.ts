@@ -256,6 +256,18 @@
         <translation>Ventana</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>Tiempo por imagen:</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Ampliar la miniatura bajo el puntero</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Ampliación:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Mostrar el panel de información (%1)</translation>
@@ -413,8 +425,17 @@
         <translation>Después de la última imagen, continuar con la primera</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Imágenes</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Hacer clic en el lado izquierdo o derecho de la ventana para ir a la imagen anterior o siguiente</translation>
+    </message>
+    <message>
+        <source>Gallery (%1)</source>
+        <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
+        <translation>Galería (%1)</translation>
     </message>
     <message>
         <source> px</source>
@@ -454,22 +475,6 @@
         <translation>Iniciar la presentación en pantalla completa</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Tras la última imagen, continuar la presentación con la primera</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Ampliar las miniaturas bajo el puntero (carrusel)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opacidad del fondo de la galería:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>Ampliación del carrusel:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Resaltar los píxeles alterados por recorte o mapeo de tonos (magenta)</translation>
     </message>
@@ -495,13 +500,12 @@
         <translation>Mostrar la superposición de información en la parte superior (%1)</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Presentación (%1), tiempo por imagen:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navegación</translation>
+    </message>
+    <message>
+        <source>Show the gallery</source>
+        <translation>Mostrar la galería</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -558,6 +562,10 @@
         <translation>Total de formatos de imagen compatibles: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Versión del decodificador</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Aceptar</translation>
     </message>
@@ -574,8 +582,9 @@
         <translation>Restaurar valores predeterminados</translation>
     </message>
     <message>
-        <source>Show the gallery (%1)</source>
-        <translation>Mostrar la galería (%1)</translation>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Presentación (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

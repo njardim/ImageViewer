@@ -18,6 +18,8 @@
 
 namespace {
 constexpr double kNavigationButtonSize = 56.0; // logical pixels
+constexpr double kWarningSign = 128.0;          // logical pixels, square (D-63)
+constexpr double kWarningGap = 12.0;            // between the sign and the message
 constexpr int kNoticeMs = 3000;
 const QString kFieldSeparator = QStringLiteral("   ·   "); // between the top overlay's facts, and the title's
 
@@ -84,6 +86,27 @@ void drawPanelText(QPainter &painter, const QRectF &rect, int flags, const QStri
     painter.drawText(rect, flags, text);
 }
 
+// The warning sign over an error (D-63), the shape of the ⚠️ emoji: drawn rather than taken from
+// an emoji font, which not every system has (a missing glyph would show an empty box).
+void drawWarningSign(QPainter &painter, const QRectF &box)
+{
+    const double w = box.width();
+    const QColor amber(255, 196, 0);
+    QPainterPath triangle;
+    triangle.moveTo(box.center().x(), box.top() + 0.1 * w);
+    triangle.lineTo(box.right() - 0.06 * w, box.top() + 0.88 * w);
+    triangle.lineTo(box.left() + 0.06 * w, box.top() + 0.88 * w);
+    triangle.closeSubpath();
+    painter.setPen(QPen(amber, 0.1 * w, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)); // rounds the corners
+    painter.setBrush(amber);
+    painter.drawPath(triangle);
+    const double bar = 0.09 * w;
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(32, 32, 32));
+    painter.drawRoundedRect(QRectF(box.center().x() - bar / 2, box.top() + 0.36 * w, bar, 0.3 * w), bar / 2, bar / 2);
+    painter.drawEllipse(QPointF(box.center().x(), box.top() + 0.76 * w), 0.6 * bar, 0.6 * bar);
+}
+
 struct Row {
     QString label; // empty: the value spans both columns (messages)
     QString value;
@@ -124,6 +147,7 @@ void ViewerWindow::updateOverlay()
     if (!m_rendererReady)
         return;
     updateGallery(); // the current image, the folder or the window's width may have changed
+    updateMessage();
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
@@ -365,6 +389,58 @@ void ViewerWindow::updateOverlay()
     requestUpdate();
 }
 
+void ViewerWindow::updateMessage()
+{
+    // An error, in the middle of the window (D-63): the warning sign and, below it, the message
+    // in the panels' look (D-49), its lines wrapped and centred.
+    const qreal dpr = devicePixelRatio();
+    const QFont font = QGuiApplication::font();
+    const QString key = m_error.isEmpty() ? QString()
+                                          : QStringLiteral("%1|%2|%3|%4|%5|%6|%7|")
+                                                    .arg(width())
+                                                    .arg(dpr)
+                                                    .arg(m_settings.overlayBackgroundOpacity)
+                                                    .arg(m_settings.overlayTextOpacity)
+                                                    .arg(m_settings.overlayOutline)
+                                                    .arg(int(QGuiApplication::layoutDirection()))
+                                                    .arg(font.key())
+                                                + m_error;
+    if (key == m_messageKey)
+        return;
+    m_messageKey = key;
+    if (m_error.isEmpty()) {
+        m_messageSize = {};
+        m_renderer.setOverlay(Renderer::MessageLayer, QImage());
+        return;
+    }
+    const QFontMetricsF metrics(font);
+    const qreal padding = 10.0;
+    const int flags = Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap;
+    const QString text = isolated(m_error);
+    const qreal maxText = std::max(120.0, std::min(560.0, width() - 2 * kEdgeMargin - 2 * padding));
+    const QSizeF textSize = metrics.boundingRect(QRectF(0, 0, maxText, 1e6), flags, text).size();
+    const QSizeF panel(std::ceil(textSize.width() + 2 * padding), std::ceil(textSize.height() + 2 * padding));
+    const QSizeF logical(std::max(panel.width(), kWarningSign), kWarningSign + kWarningGap + panel.height());
+
+    QImage image((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
+    image.setDevicePixelRatio(dpr);
+    image.fill(Qt::transparent);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setLayoutDirection(QGuiApplication::layoutDirection());
+    drawWarningSign(painter, QRectF((logical.width() - kWarningSign) / 2.0, 0, kWarningSign, kWarningSign));
+    const QRectF panelRect((logical.width() - panel.width()) / 2.0, kWarningSign + kWarningGap, panel.width(), panel.height());
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(m_settings.panelBackground());
+    painter.drawRoundedRect(panelRect, kPanelRadius, kPanelRadius);
+    painter.setFont(font);
+    drawPanelText(painter, panelRect.adjusted(padding, padding, -padding, -padding), flags, text,
+                  m_settings.panelText(Settings::kPanelValueGrey), m_settings.overlayOutline);
+    painter.end();
+    m_messageSize = image.size();
+    m_renderer.setOverlay(Renderer::MessageLayer, image);
+}
+
 OverlayVisibility ViewerWindow::topOverlayMode() const
 {
     if (!m_settings.showOverlay)
@@ -520,6 +596,11 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
     const double margin = kEdgeMargin * dpr;
     if (!m_gallerySize.isEmpty())
         frame->overlayRects[Renderer::GalleryLayer] = m_galleryRect;
+    if (!m_messageSize.isEmpty())
+        frame->overlayRects[Renderer::MessageLayer] =
+            QRectF(QPointF(std::round((deviceSize().width() - m_messageSize.width()) / 2.0),
+                           std::round((deviceSize().height() - m_messageSize.height()) / 2.0)),
+                   QSizeF(m_messageSize));
     if (!m_overlaySize.isEmpty()) {
         const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
                              ? deviceSize().width() - margin - m_overlaySize.width()

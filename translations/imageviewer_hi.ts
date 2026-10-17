@@ -433,6 +433,22 @@
         <translation>पिछली या अगली छवि के लिए विंडो के बाएँ या दाएँ भाग पर क्लिक करें</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>छोटा</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>मध्यम</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>बड़ा</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>थंबनेल का आकार:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>गैलरी (%1)</translation>

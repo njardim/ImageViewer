@@ -329,6 +329,22 @@
         <translation>Aika kuvaa kohden:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Pieni</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Keskikokoinen</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Suuri</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Pikkukuvien koko:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galleria (%1)</translation>

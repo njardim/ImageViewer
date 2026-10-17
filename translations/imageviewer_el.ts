@@ -329,6 +329,22 @@
         <translation>Χρόνος ανά εικόνα:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Μικρό</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Μεσαίο</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Μεγάλο</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Μέγεθος μικρογραφιών:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Συλλογή (%1)</translation>

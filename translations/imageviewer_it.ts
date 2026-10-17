@@ -329,6 +329,22 @@
         <translation>Tempo per immagine:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Piccole</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medie</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Grandi</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Dimensione delle miniature:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galleria (%1)</translation>

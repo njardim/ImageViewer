@@ -329,6 +329,22 @@
         <translation>Čas na obrázok:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Malé</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Stredné</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Veľké</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Veľkosť miniatúr:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galéria (%1)</translation>

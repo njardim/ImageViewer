@@ -433,6 +433,22 @@
         <translation>پچھلی یا اگلی تصویر کے لیے ونڈو کے بائیں یا دائیں جانب کلک کریں</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>چھوٹا</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>درمیانہ</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>بڑا</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>تھمب نیل کا سائز:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>گیلری (%1)</translation>

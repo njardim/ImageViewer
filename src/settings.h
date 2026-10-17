@@ -5,6 +5,7 @@
 #include "folder.h"
 #include "renderer.h"
 
+#include <array>
 #include <functional>
 
 #include <QColor>
@@ -82,6 +83,7 @@ struct Settings {
     double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
     bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
+    int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
     bool galleryZoom = true;          // the thumbnail under the pointer enlarges
     int galleryOpacity = 70;          // percent, the gallery's background
     int galleryEnlargement = 20;      // logical pixels added to the thumbnail under the pointer
@@ -104,6 +106,7 @@ struct Settings {
     static constexpr double kMaxSlideshowSeconds = 3600.0;
     static constexpr int kMinGalleryEnlargement = 10;
     static constexpr int kMaxGalleryEnlargement = 100;
+    static constexpr std::array<int, 3> kGalleryThumbnailSizes = {64, 96, 128}; // small, medium, large
     static constexpr int kMaxPointerHideMs = 60000;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
     // Both information panels (D-49): values and labels in these greys over black at
@@ -253,6 +256,7 @@ private:
     QCheckBox *m_preload = nullptr;
     QCheckBox *m_slideshowFullScreen = nullptr;
     QCheckBox *m_showGallery = nullptr;
+    QComboBox *m_galleryThumbnailSize = nullptr;
     QCheckBox *m_galleryZoom = nullptr;
     QSpinBox *m_galleryOpacity = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;

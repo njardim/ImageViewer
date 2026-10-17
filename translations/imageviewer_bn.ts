@@ -433,6 +433,22 @@
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>ছোট</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>মাঝারি</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>বড়</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>থাম্বনেইলের আকার:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>গ্যালারি (%1)</translation>

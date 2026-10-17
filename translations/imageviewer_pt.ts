@@ -433,6 +433,22 @@
         <translation>Clicar no lado esquerdo ou direito da janela para a imagem anterior ou seguinte</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Pequenas</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Médias</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Grandes</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Tamanho das miniaturas:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galeria (%1)</translation>

@@ -329,6 +329,22 @@
         <translation>Am in aghaidh na híomhá:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Beag</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Meánach</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Mór</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Méid na mionsamhlacha:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Gailearaí (%1)</translation>

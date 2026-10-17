@@ -433,6 +433,22 @@
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>小</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>中</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>大</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>缩略图大小：</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>图库（%1）</translation>

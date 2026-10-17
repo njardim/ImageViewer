@@ -329,6 +329,22 @@
         <translation>Ħin għal kull immaġni:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Żgħar</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medji</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Kbar</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Daqs tal-minjaturi:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Gallerija (%1)</translation>

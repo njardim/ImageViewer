@@ -433,6 +433,22 @@
         <translation>Durch Klicken auf die linke oder rechte Fensterseite zum vorherigen oder nächsten Bild wechseln</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Klein</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Mittel</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Groß</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Miniaturgröße:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerie (%1)</translation>

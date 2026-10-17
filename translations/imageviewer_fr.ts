@@ -433,6 +433,22 @@
         <translation>Cliquer sur le côté gauche ou droit de la fenêtre pour afficher l’image précédente ou suivante</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Petite</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Moyenne</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Grande</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Taille des miniatures :</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerie (%1)</translation>

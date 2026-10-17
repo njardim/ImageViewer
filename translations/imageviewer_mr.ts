@@ -433,6 +433,22 @@
         <translation>मागील किंवा पुढील प्रतिमेसाठी विंडोच्या डाव्या किंवा उजव्या बाजूला क्लिक करा</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>लहान</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>मध्यम</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>मोठे</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>थंबनेलचा आकार:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>गॅलरी (%1)</translation>

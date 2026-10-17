@@ -433,6 +433,22 @@
         <translation>మునుపటి లేదా తదుపరి చిత్రం కోసం విండో ఎడమ లేదా కుడి వైపున క్లిక్ చేయి</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>చిన్నది</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>మధ్యస్థం</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>పెద్దది</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>థంబ్‌నెయిల్ పరిమాణం:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>గ్యాలరీ (%1)</translation>

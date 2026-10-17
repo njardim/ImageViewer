@@ -329,6 +329,22 @@
         <translation>Timp pe imagine:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Mici</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medii</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Mari</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Dimensiunea miniaturilor:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerie (%1)</translation>

@@ -433,6 +433,22 @@
         <translation>ウィンドウの左側または右側をクリックして前または次の画像を表示する</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>小</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>中</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>大</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>サムネイルのサイズ:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>ギャラリー（%1）</translation>

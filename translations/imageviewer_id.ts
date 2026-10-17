@@ -433,6 +433,22 @@
         <translation>Klik sisi kiri atau kanan jendela untuk gambar sebelumnya atau berikutnya</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Kecil</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Sedang</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Besar</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Ukuran gambar mini:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galeri (%1)</translation>

@@ -329,6 +329,22 @@
         <translation>Laikas vienam vaizdui:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Mažos</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Vidutinės</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Didelės</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Miniatiūrų dydis:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerija (%1)</translation>

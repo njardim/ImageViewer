@@ -253,6 +253,10 @@ Settings Settings::load()
                              : defaults.slideshowSeconds;
     s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
     s.showGallery = boolValue(store, QStringLiteral("gallery/show"), defaults.showGallery);
+    s.galleryThumbnailSize = store.value(QStringLiteral("gallery/thumbnailSize")).toInt();
+    if (std::find(kGalleryThumbnailSizes.cbegin(), kGalleryThumbnailSizes.cend(), s.galleryThumbnailSize)
+        == kGalleryThumbnailSizes.cend())
+        s.galleryThumbnailSize = defaults.galleryThumbnailSize;
     s.galleryZoom = boolValue(store, QStringLiteral("gallery/zoom"), defaults.galleryZoom);
     s.galleryOpacity = sizeValue(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
     s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
@@ -351,6 +355,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
     store.setValue(QStringLiteral("gallery/show"), showGallery);
+    store.setValue(QStringLiteral("gallery/thumbnailSize"), galleryThumbnailSize);
     store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
     store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);

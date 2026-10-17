@@ -329,6 +329,22 @@
         <translation>Vrijeme po slici:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Male</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Srednje</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Velike</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Veličina sličica:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerija (%1)</translation>

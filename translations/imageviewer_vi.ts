@@ -433,6 +433,22 @@
         <translation>Nhấp vào bên trái hoặc bên phải cửa sổ để chuyển đến ảnh trước hoặc ảnh tiếp theo</translation>
     </message>
     <message>
+        <source>Small</source>
+        <translation>Nhỏ</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Vừa</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Lớn</translation>
+    </message>
+    <message>
+        <source>Thumbnail size:</source>
+        <translation>Kích thước hình thu nhỏ:</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Thư viện ảnh (%1)</translation>

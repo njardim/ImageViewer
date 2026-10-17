@@ -3,18 +3,27 @@ name: Gemini Issue Solver
 on:
   issues:
     types: [opened, labeled]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
   pull-requests: write
   issues: write
 
+concurrency:
+  group: gemini-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   solve-issue:
     runs-on: ubuntu-24.04
+    cache-mode: write
+    # Runs when njardim opens an issue, adds the 'gemini' label, or posts a follow-up comment on an issue
     if: >
-      (github.event.action == 'opened' && github.event.issue.user.login == 'njardim') ||
-      (github.event.action == 'labeled' && github.event.label.name == 'gemini')
+      (github.event_name == 'issues' && github.event.action == 'opened' && github.event.issue.user.login == 'njardim') ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'gemini') ||
+      (github.event_name == 'issue_comment' && github.event.comment.user.login == 'njardim' && !github.event.issue.pull_request)
     timeout-minutes: 45
 
     steps:
@@ -53,10 +62,18 @@ jobs:
           fi
           sudo ln -sfn /opt/qt/6.12.0/gcc_64 /opt/qt6
 
-      - name: Configure Git identity
+      - name: Configure Git identity and checkout issue branch
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           git config --global user.name "gemini-bot"
           git config --global user.email "gemini-bot@users.noreply.github.com"
+          git fetch origin
+          if git show-ref --verify --quiet "refs/remotes/origin/gemini/issue-${ISSUE_NUMBER}"; then
+            git checkout -B "gemini/issue-${ISSUE_NUMBER}" "origin/gemini/issue-${ISSUE_NUMBER}"
+          else
+            git checkout -B "gemini/issue-${ISSUE_NUMBER}"
+          fi
 
       - name: Run Gemini CLI Agent
         uses: google-github-actions/run-gemini-cli@v0
@@ -66,6 +83,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
+          LATEST_COMMENT: ${{ github.event.comment.body }}
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: "gemini-4-argon"
@@ -99,23 +117,29 @@ jobs:
               ]
             }
           prompt: |
-            You are working on the ImageViewer repository.
+            You are working on the ImageViewer repository on branch `gemini/issue-${{ env.ISSUE_NUMBER }}`.
             First, read `GEMINI.md` and `docs/PLAN.md` to understand all project rules and decisions.
 
-            Analyze and resolve Issue #${{ env.ISSUE_NUMBER }}:
+            Analyze Issue #${{ env.ISSUE_NUMBER }}:
             Title: ${{ env.ISSUE_TITLE }}
-            Description:
+            Original Description:
             ${{ env.ISSUE_BODY }}
 
+            Latest follow-up comment from the owner (if any):
+            ${{ env.LATEST_COMMENT }}
+
             Follow these mandatory rules and steps:
-            1. Everything committed to the repository MUST be 100% in English (Rule D-27: code, comments, UI source strings, docs, commit messages, and PR description), even if the Issue was written in Portuguese.
-            2. Create a new branch named `gemini/issue-${{ env.ISSUE_NUMBER }}`.
-            3. Implement the requested fix or feature following all invariants in `GEMINI.md` and `docs/PLAN.md` (minimal structure D-08, colour pipeline invariant D-21/D-22, command table D-30, settings D-29, names and closed development D-59).
-            4. Build and verify the code using `run_shell_command`:
+            1. Everything committed to the repository MUST be 100% in English (Rule D-27: code, comments, UI source strings, docs, commit messages, and PR description), even if the Issue or comments were written in Portuguese.
+            2. Run `gh issue view ${{ env.ISSUE_NUMBER }} --comments` and `git log -n 5 --oneline` using `run_shell_command` to see the full conversation history and any commits already made on this branch.
+            3. Ensure you are on branch `gemini/issue-${{ env.ISSUE_NUMBER }}` (use `git checkout -B gemini/issue-${{ env.ISSUE_NUMBER }}` only if not already on it).
+            4. Implement the requested fix, feature, or follow-up adjustment following all invariants in `GEMINI.md` and `docs/PLAN.md` (minimal structure D-08, colour pipeline invariant D-21/D-22, command table D-30, settings D-29, names and closed development D-59).
+            5. Build and verify the code using `run_shell_command`:
                `cmake --preset linux-system && cmake --build --preset linux-system`
-            5. If you changed any user-visible UI strings (`tr()` or `translate()`), update the translation files (`cmake --build build/linux-system --target update_translations`), translate the new strings in `translations/imageviewer_*.ts`, and verify with `python3 tests/check_translations.py --require-complete`.
-            6. Run the relevant test suites against `build/linux-system/ImageViewer` (`tests/smoke.sh`, `python3 tests/render_test.py`, `python3 tests/screen_test.py`, `python3 tests/ui_test.py`, `python3 tests/animation_test.py`, `python3 tests/fuzz_smoke.py`, `python3 tests/check_translations.py`) and ensure they pass with zero compiler warnings.
-            7. Update `docs/PLAN.md` (§1, §2, §9, §13/§14 as applicable) to record the change.
-            8. Stage your changes and commit with a DCO sign-off (`git commit -s -m "..."`).
-            9. Push the branch (`git push -u origin gemini/issue-${{ env.ISSUE_NUMBER }}`) and open a Pull Request in English using `gh pr create --head gemini/issue-${{ env.ISSUE_NUMBER }}` referencing `Closes #${{ env.ISSUE_NUMBER }}`.
-            10. Post a comment on Issue #${{ env.ISSUE_NUMBER }} (`gh issue comment ${{ env.ISSUE_NUMBER }} --body "..."`) with a summary and the link to the Pull Request.
+            6. If you changed any user-visible UI strings (`tr()` or `translate()`), update the translation files (`cmake --build build/linux-system --target update_translations`), translate the new strings in `translations/imageviewer_*.ts`, and verify with `python3 tests/check_translations.py --require-complete`.
+            7. Run the relevant test suites against `build/linux-system/ImageViewer` (`tests/smoke.sh`, `python3 tests/render_test.py`, `python3 tests/screen_test.py`, `python3 tests/ui_test.py`, `python3 tests/animation_test.py`, `python3 tests/fuzz_smoke.py`, `python3 tests/check_translations.py`) and ensure they pass with zero compiler warnings.
+            8. Update `docs/PLAN.md` (§1, §2, §9, §13/§14 as applicable) to record the change.
+            9. Stage your changes and commit with a DCO sign-off (`git commit -s -m "..."`).
+            10. Push the branch using:
+                `git push --force-with-lease -u origin gemini/issue-${{ env.ISSUE_NUMBER }}`
+            11. Check if a Pull Request already exists for this branch with `gh pr view gemini/issue-${{ env.ISSUE_NUMBER }}`. If none exists yet, open a Pull Request in English using `gh pr create --head gemini/issue-${{ env.ISSUE_NUMBER }}` referencing `Closes #${{ env.ISSUE_NUMBER }}`.
+            12. Post a reply on Issue #${{ env.ISSUE_NUMBER }} (`gh issue comment ${{ env.ISSUE_NUMBER }} --body "..."`) summarizing what was done and linking to the Pull Request.

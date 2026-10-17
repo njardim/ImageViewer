@@ -101,7 +101,7 @@ struct Settings {
     static constexpr double kMinSlideshowSeconds = 0.5;
     static constexpr double kMaxSlideshowSeconds = 3600.0;
     static constexpr int kMinGalleryEnlargement = 10;
-    static constexpr int kMaxGalleryEnlargement = 60;
+    static constexpr int kMaxGalleryEnlargement = 80;
     static constexpr int kGalleryEnlargementStep = 5;
     static constexpr int kMaxPointerHideMs = 60000;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible

@@ -71,7 +71,15 @@ int ViewerWindow::galleryCapacity() const
 double ViewerWindow::galleryReserve() const
 {
     // The gallery's bar and the margin above it: the information panel stays above both.
-    return m_gallerySize.isEmpty() ? 0.0 : kThumbnail + 2 * kBorder + kEdgeMargin;
+    return m_gallerySize.isEmpty() ? 0.0 : kThumbnail + 2 * kBorder + galleryBottomMargin();
+}
+
+double ViewerWindow::galleryBottomMargin() const
+{
+    // The bar keeps kEdgeMargin from the bottom; the carousel enlarges a thumbnail about the bar's
+    // middle line, so beyond 48 px of enlargement the bar rises to keep it on screen.
+    const int g = m_settings.galleryCarousel ? m_settings.galleryEnlargement : 0;
+    return std::max(kEdgeMargin, g / 2.0 - kBorder);
 }
 
 bool ViewerWindow::galleryShown() const
@@ -131,8 +139,9 @@ void ViewerWindow::updateGallery()
                       .arg(m_settings.galleryOpacity).arg(g);
     for (int i = 0; i < shown; ++i)
         key += m_thumbnails.contains(m_files.at(m_galleryFirst + i)) ? QLatin1Char('1') : QLatin1Char('0');
+    // The texture reaches g/2 above and below the bar, for the enlarged thumbnails.
     m_galleryRect = QRectF(QPointF(std::round((width() - logical.width()) / 2.0 * dpr),
-                                   std::round((height() - kEdgeMargin - logical.height()) * dpr)),
+                                   std::round((height() - galleryBottomMargin() - kThumbnail - 2 * kBorder - g / 2.0) * dpr)),
                            logical * dpr);
     if (key == m_galleryKey)
         return;
@@ -145,9 +154,8 @@ void ViewerWindow::updateGallery()
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    // The background keeps its height; enlarged thumbnails rise above it, as in a dock.
-    const QRectF background((logical.width() - rowWidth) / 2.0, logical.height() - kThumbnail - 2 * kBorder, rowWidth,
-                            kThumbnail + 2 * kBorder);
+    // The background keeps its height; enlarged thumbnails grow about its middle line.
+    const QRectF background((logical.width() - rowWidth) / 2.0, g / 2.0, rowWidth, kThumbnail + 2 * kBorder);
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(0, 0, 0, int(std::lround(m_settings.galleryOpacity * 2.55))));
     painter.drawRoundedRect(background, kPanelRadius, kPanelRadius);
@@ -161,10 +169,10 @@ void ViewerWindow::updateGallery()
         m_gallerySlots << QRectF(baseLeft + i * (kThumbnail + kBorder), 0, kThumbnail + kBorder, logical.height());
 
     const int tileAlpha = int(std::lround(m_settings.galleryOpacity * 2.55));
-    const double bottom = logical.height() - kBorder;
+    const double middle = background.center().y(); // thumbnails grow evenly about it
     double x = background.left() + kBorder;
     for (int i = 0; i < shown; ++i) {
-        const QRectF slot(x, bottom - sizes.at(i), sizes.at(i), sizes.at(i));
+        const QRectF slot(x, middle - sizes.at(i) / 2.0, sizes.at(i), sizes.at(i));
         x += sizes.at(i) + kBorder;
         if (m_galleryFirst + i == m_index || i == m_galleryHover) {
             QColor tile = m_galleryFirst + i == m_index ? kSelected : kHovered;

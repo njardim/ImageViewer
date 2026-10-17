@@ -1,0 +1,90 @@
+name: dependency update
+
+# D-62: give an issue the "auto update" label (or run this workflow by hand) to check every
+# pinned dependency against its upstream releases (scripts/update_dependencies.py: overlay
+# ports, the vcpkg baseline, Qt). When any is behind, it opens a pull request that moves them and
+# starts the full build (build.yml: three systems, every test, the packages) on it, and links
+# both from the issue; when everything is current, it says so and closes the issue. Merging and
+# publishing a release stay with a person.
+#
+# Labels need triage access, so only collaborators start it. Nothing from the issue (title,
+# body, comments) reaches a shell. Repository setting needed once: Settings > Actions > General
+# > "Allow GitHub Actions to create and approve pull requests".
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'auto update'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write      # the update branch
+      pull-requests: write # its pull request
+      issues: write        # the report on the issue
+      actions: write       # start build.yml (a push or a PR made with this token starts no workflow)
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE: ${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Check the dependencies against upstream
+        id: check
+        run: python3 scripts/update_dependencies.py --apply --report "$RUNNER_TEMP/report.md"
+
+      - name: Pull request and full build
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          branch="deps/update-$GITHUB_RUN_ID"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -A
+          # DCO sign-off (CONTRIBUTING.md), as for every contribution.
+          git commit -s -q -m "Dependencies: move to the latest stable releases (D-62)" \
+            -m "Made by the dependency update workflow; the pull request lists each change."
+          git push -q origin "$branch"
+          {
+            echo "Made by the dependency update workflow (D-62) from the latest stable releases upstream."
+            echo
+            cat "$RUNNER_TEMP/report.md"
+            echo
+            echo "The full build runs on this branch (see the checks). Before merging: green on the three systems, and the notes above resolved."
+            if [ -n "$ISSUE" ]; then echo; echo "Closes #$ISSUE"; fi
+          } > "$RUNNER_TEMP/body.md"
+          url="$(gh pr create --base main --head "$branch" \
+            --title "Dependencies: latest stable releases" --body-file "$RUNNER_TEMP/body.md")"
+          gh workflow run build.yml --ref "$branch"
+          if [ -n "$ISSUE" ]; then
+            { echo "Updates found: $url (the full build runs on it)."; echo; cat "$RUNNER_TEMP/report.md"; } > "$RUNNER_TEMP/comment.md"
+            gh issue comment "$ISSUE" --body-file "$RUNNER_TEMP/comment.md"
+          fi
+
+      - name: Nothing to update
+        if: steps.check.outputs.changed != 'true' && env.ISSUE != ''
+        env:
+          FAILED: ${{ steps.check.outputs.failed }}
+        run: |
+          # A check that could not reach its upstream leaves the issue open, to try again.
+          if [ "$FAILED" = true ]; then
+            summary="No update found, but some checks failed (see the notes): the issue stays open; remove and add the label again to retry."
+          else
+            summary="Every dependency is at its latest stable release; nothing to build."
+          fi
+          { echo "$summary"; echo; cat "$RUNNER_TEMP/report.md"; } > "$RUNNER_TEMP/comment.md"
+          gh issue comment "$ISSUE" --body-file "$RUNNER_TEMP/comment.md"
+          if [ "$FAILED" != true ]; then
+            gh issue close "$ISSUE" --reason completed
+          fi

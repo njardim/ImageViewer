@@ -21,9 +21,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  QT_VERSION: "6.12.0"
-
 jobs:
   build:
     name: ${{ matrix.name }}
@@ -61,6 +58,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      # The Qt version lives outside the workflows so that the dependency update (D-62), whose
+      # token cannot change workflow files, can move it.
+      - name: Qt version
+        shell: bash
+        run: echo "QT_VERSION=$(tr -d '[:space:]' < packaging/qt-version.txt)" >> "$GITHUB_ENV"
 
       - name: System packages (Linux)
         if: runner.os == 'Linux'

@@ -256,6 +256,22 @@
         <translation>উইন্ডো</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>প্রতি ছবির সময়:</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>গ্যালারি</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>পয়েন্টারের নিচের থাম্বনেইল বড় করুন</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>বড় করা:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>তথ্য প্যানেল দেখান (%1)</translation>
@@ -413,6 +429,10 @@
         <translation>শেষ ছবির পরে প্রথম ছবি থেকে চালিয়ে যান</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>ছবি</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
     </message>
@@ -454,22 +474,6 @@
         <translation>পূর্ণ স্ক্রিনে স্লাইডশো শুরু করুন</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>শেষ ছবির পরে প্রথম ছবি থেকে স্লাইডশো চালিয়ে যান</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>পয়েন্টারের নিচের থাম্বনেইল বড় করুন (ক্যারোসেল)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>গ্যালারির পটভূমির অস্বচ্ছতা:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>ক্যারোসেলের বৃদ্ধি:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
     </message>
@@ -493,11 +497,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>উপরে তথ্য ওভারলে দেখান (%1)</translation>
-    </message>
-    <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>স্লাইডশো (%1), প্রতি ছবির সময়:</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -558,6 +557,10 @@
         <translation>মোট সমর্থিত ছবির ফরম্যাট: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>ডিকোডারের সংস্করণ</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>ঠিক আছে</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>গ্যালারি দেখান (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>স্লাইডশো (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

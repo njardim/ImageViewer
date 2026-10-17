@@ -325,16 +325,20 @@
         <translation>Prozor</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Povećaj minijature ispod pokazivača (vrtuljak)</translation>
+        <source>Time per image:</source>
+        <translation>Vrijeme po slici:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Neprozirnost pozadine galerije:</translation>
+        <source>Gallery</source>
+        <translation>Galerija</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Povećanje vrtuljka:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Povećaj sličicu ispod pokazivača</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Povećanje:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Slike</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Širina svake strane:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Unaprijed učitaj sljedeću i prethodnu sliku</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Dijaprojekcija (%1), vrijeme po slici:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigacija</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Pokreni dijaprojekciju na cijelom zaslonu</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Nakon posljednje slike nastavi dijaprojekciju s prvom</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Ukupno podržanih formata slika: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Verzija dekodera</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>U redu</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Prikaži galeriju (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Dijaprojekcija (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

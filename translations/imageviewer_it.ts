@@ -325,16 +325,20 @@
         <translation>Finestra</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Ingrandisci le miniature sotto il puntatore (carosello)</translation>
+        <source>Time per image:</source>
+        <translation>Tempo per immagine:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opacità dello sfondo della galleria:</translation>
+        <source>Gallery</source>
+        <translation>Galleria</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Ingrandimento del carosello:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Ingrandisci la miniatura sotto il puntatore</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Ingrandimento:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Immagini</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Larghezza di ogni lato:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Carica in anticipo l&apos;immagine successiva e quella precedente</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Presentazione (%1), tempo per immagine:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigazione</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Avvia la presentazione a schermo intero</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Dopo l&apos;ultima immagine, continua la presentazione dalla prima</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Formati di immagine supportati in totale: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Versione del decodificatore</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Mostra la galleria (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Presentazione (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

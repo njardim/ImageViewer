@@ -325,16 +325,20 @@
         <translation>Fönster</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Förstora miniatyrerna under pekaren (karusell)</translation>
+        <source>Time per image:</source>
+        <translation>Tid per bild:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opacitet för galleriets bakgrund:</translation>
+        <source>Gallery</source>
+        <translation>Galleri</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Karusellens förstoring:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Förstora miniatyren under pekaren</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Förstoring:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Bilder</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Bredd på varje sida:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Läs in nästa och föregående bild i förväg</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Bildspel (%1), tid per bild:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigering</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Starta bildspelet i helskärm</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Fortsätt bildspelet med den första bilden efter den sista</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Antal bildformat som stöds: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Avkodarversion</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Visa galleriet (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Bildspel (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

@@ -325,16 +325,20 @@
         <translation>창</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>포인터 아래 썸네일 확대(캐러셀)</translation>
+        <source>Time per image:</source>
+        <translation>이미지당 시간:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>갤러리 배경 불투명도:</translation>
+        <source>Gallery</source>
+        <translation>갤러리</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>캐러셀 확대 크기:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>포인터 아래의 썸네일 확대</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>확대:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation>px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>이미지</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>각 측면 영역의 너비:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>다음 및 이전 이미지를 미리 불러오기</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>슬라이드 쇼(%1), 이미지당 시간:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>탐색</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>전체 화면에서 슬라이드 쇼 시작</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>마지막 이미지 다음에 첫 이미지부터 슬라이드 쇼 계속</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>지원되는 이미지 형식 합계: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>디코더 버전</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>확인</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>갤러리 표시(%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>슬라이드 쇼 (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

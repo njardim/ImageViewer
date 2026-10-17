@@ -325,16 +325,20 @@
         <translation>Παράθυρο</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Μεγέθυνση των μικρογραφιών κάτω από τον δείκτη (καρουζέλ)</translation>
+        <source>Time per image:</source>
+        <translation>Χρόνος ανά εικόνα:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Αδιαφάνεια φόντου συλλογής:</translation>
+        <source>Gallery</source>
+        <translation>Συλλογή</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Μεγέθυνση καρουζέλ:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Μεγέθυνση της μικρογραφίας κάτω από τον δείκτη</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Μεγέθυνση:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Εικόνες</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Πλάτος κάθε πλευράς:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Προφόρτωση της επόμενης και της προηγούμενης εικόνας</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Παρουσίαση (%1), χρόνος ανά εικόνα:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Πλοήγηση</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Έναρξη της παρουσίασης σε πλήρη οθόνη</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Μετά την τελευταία εικόνα, συνέχιση της παρουσίασης με την πρώτη</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Σύνολο υποστηριζόμενων μορφών εικόνας: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Έκδοση αποκωδικοποιητή</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Εμφάνιση της συλλογής (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Παρουσίαση (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

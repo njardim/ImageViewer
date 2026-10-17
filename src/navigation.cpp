@@ -305,6 +305,7 @@ void ViewerWindow::applyListing(QStringList files)
     }
     m_files = std::move(files);
     m_galleryCentredOn = -2; // the same index may be another file now
+    forgetChangedThumbnails();
     const int index = current.isEmpty() ? -1 : int(m_files.indexOf(current));
     if (index >= 0) {
         m_index = index;

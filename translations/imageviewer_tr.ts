@@ -325,16 +325,20 @@
         <translation>Pencere</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>İşaretçinin altındaki küçük resimleri büyüt (atlıkarınca)</translation>
+        <source>Time per image:</source>
+        <translation>Görüntü başına süre:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Galeri arka planının opaklığı:</translation>
+        <source>Gallery</source>
+        <translation>Galeri</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Atlıkarınca büyütmesi:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>İşaretçinin altındaki küçük resmi büyüt</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Büyütme:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Görüntüler</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Her kenarın genişliği:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Sonraki ve önceki görüntüleri önceden yükle</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Slayt gösterisi (%1), görüntü başına süre:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Gezinme</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Slayt gösterisini tam ekranda başlat</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Son görüntüden sonra slayt gösterisine ilk görüntüyle devam et</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Desteklenen toplam görüntü biçimi: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Kod çözücü sürümü</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Tamam</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Galeriyi göster (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Slayt gösterisi (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

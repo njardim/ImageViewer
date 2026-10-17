@@ -325,16 +325,20 @@
         <translation>Logs</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Palielināt sīktēlus zem rādītāja (karuselis)</translation>
+        <source>Time per image:</source>
+        <translation>Laiks katram attēlam:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Galerijas fona necaurredzamība:</translation>
+        <source>Gallery</source>
+        <translation>Galerija</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Karuseļa palielinājums:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Palielināt sīktēlu zem rādītāja</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Palielinājums:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Attēli</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Katras malas platums:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Iepriekš ielādēt nākamo un iepriekšējo attēlu</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Slīdrāde (%1), laiks katram attēlam:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigācija</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Sākt slīdrādi pilnekrāna režīmā</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Pēc pēdējā attēla turpināt slīdrādi ar pirmo</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Kopā atbalstīto attēlu formātu: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Dekodētāja versija</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>Labi</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Rādīt galeriju (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Slīdrāde (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

@@ -226,7 +226,8 @@ const QList<Format> kFormats = {
     {"wbmp", "Wireless bitmap", "wbmp", D::Qt, 0, nullptr, false, "gm.wbmp"},
 };
 
-const char *decoderName(Decoder d)
+// The decoder as --formats names it (tests/smoke.sh parses it): APNG apart from OpenImageIO.
+const char *decoderId(Decoder d)
 {
     switch (d) {
     case Decoder::OpenImageIO: return "OpenImageIO";
@@ -381,7 +382,7 @@ QStringList formatReport()
         if (f.capabilities & CanHavePages)
             caps << QStringLiteral("pages");
         lines << QStringList{QString::fromLatin1(f.id), QString::fromLatin1(f.name),
-                             QString::fromLatin1(decoderName(f.decoder)),
+                             QString::fromLatin1(decoderId(f.decoder)),
                              isAvailable(f)                   ? QStringLiteral("yes")
                              : f.decoder == Decoder::System ? QStringLiteral("system-missing")
                                                             : QStringLiteral("no"),
@@ -400,16 +401,18 @@ QList<SuffixRow> supportedSuffixTable()
             available << &f;
     QList<SuffixRow> rows;
     for (const QString &suffix : supportedSuffixes()) {
-        QStringList names, decoders;
+        QStringList names;
+        const Format *first = nullptr; // detection tries the formats in this order
         for (const Format *f : std::as_const(available)) {
             if (!f->suffixes().contains(suffix))
                 continue;
             names << QString::fromUtf8(f->name);
-            if (const QString d = decoderLabel(f->decoder); !decoders.contains(d))
-                decoders << d;
+            if (!first)
+                first = f;
         }
-        if (!names.isEmpty())
-            rows.append({QLatin1Char('.') + suffix, names.join(QStringLiteral(", ")), decoders.join(QStringLiteral(", "))});
+        if (first)
+            rows.append({QLatin1Char('.') + suffix, names.join(QStringLiteral(", ")), decoderName(first->decoder),
+                         decoderVersion(first->decoder)});
     }
     return rows;
 }

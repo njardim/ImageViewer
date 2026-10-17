@@ -133,11 +133,22 @@ bool boolValue(const QSettings &store, const QString &key, bool fallback)
     return boolFrom(store.value(key), fallback);
 }
 
-int boundedInt(const QSettings &store, const QString &key, int fallback, int low, int high)
+// As the dialog shows it: within the range, on its step (the range's ends are on it).
+int steppedInt(const QSettings &store, const QString &key, int fallback, int low, int high, int step)
 {
     bool ok = false;
     const int value = store.value(key, fallback).toInt(&ok);
-    return ok ? std::clamp(value, low, high) : fallback;
+    return ok ? int(std::lround(double(std::clamp(value, low, high)) / step)) * step : fallback;
+}
+
+int sizeValue(const QSettings &store, const QString &key, int fallback, int low, int high)
+{
+    return steppedInt(store, key, fallback, low, high, Settings::kSizeStep);
+}
+
+int timeValue(const QSettings &store, const QString &key, int fallback, int low, int high)
+{
+    return steppedInt(store, key, fallback, low, high, Settings::kTimeStepMs);
 }
 
 bool isKnownLanguage(const QString &code)
@@ -197,10 +208,10 @@ Settings Settings::load()
     s.enlargeSmallImages = boolValue(store, QStringLiteral("view/enlargeSmallImages"), defaults.enlargeSmallImages);
     s.lockZoom = boolValue(store, QStringLiteral("view/lockZoom"), defaults.lockZoom);
     s.windowFit = fromKey(kWindowFits, store.value(QStringLiteral("window/matchImage")).toString(), defaults.windowFit);
-    s.windowFitPercent = boundedInt(store, QStringLiteral("window/matchImagePercent"), defaults.windowFitPercent,
+    s.windowFitPercent = sizeValue(store, QStringLiteral("window/matchImagePercent"), defaults.windowFitPercent,
                                     kMinWindowFitPercent, kMaxWindowFitPercent);
     s.titleMode = fromKey(kTitleModes, store.value(QStringLiteral("window/title")).toString(), defaults.titleMode);
-    s.pointerHideMs = boundedInt(store, QStringLiteral("window/pointerHideMs"), defaults.pointerHideMs, 0, kMaxPointerHideMs);
+    s.pointerHideMs = timeValue(store, QStringLiteral("window/pointerHideMs"), defaults.pointerHideMs, 0, kMaxPointerHideMs);
     s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
     s.showOverlay = boolValue(store, QStringLiteral("window/showOverlay"), defaults.showOverlay);
 
@@ -220,17 +231,17 @@ Settings Settings::load()
                 if (id == QLatin1String(fieldKey(field)) && !s.overlayFields.contains(field))
                     s.overlayFields.append(field);
     }
-    s.overlayBackgroundOpacity = boundedInt(store, QStringLiteral("overlay/backgroundOpacity"),
+    s.overlayBackgroundOpacity = sizeValue(store, QStringLiteral("overlay/backgroundOpacity"),
                                             defaults.overlayBackgroundOpacity, 0, 100);
-    s.overlayTextOpacity = boundedInt(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
+    s.overlayTextOpacity = sizeValue(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
                                       kMinOverlayTextOpacity, 100);
     s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
-    s.overlayHideDelayMs = boundedInt(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
+    s.overlayHideDelayMs = timeValue(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
                                       kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
 
     s.loop = boolValue(store, QStringLiteral("navigation/loop"), defaults.loop);
     s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
-    s.sideZoneWidth = boundedInt(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
+    s.sideZoneWidth = sizeValue(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
                                  kMinSideZoneWidth, kMaxSideZoneWidth);
     s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
@@ -238,15 +249,14 @@ Settings Settings::load()
     bool numeric = false;
     const double seconds = store.value(QStringLiteral("navigation/slideshowSeconds")).toDouble(&numeric);
     s.slideshowSeconds = numeric && seconds >= kMinSlideshowSeconds && seconds <= kMaxSlideshowSeconds
-                             ? seconds : defaults.slideshowSeconds;
+                             ? std::round(seconds * 1000.0 / kTimeStepMs) * kTimeStepMs / 1000.0 // on the step
+                             : defaults.slideshowSeconds;
     s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
-    s.slideshowLoop = boolValue(store, QStringLiteral("navigation/slideshowLoop"), defaults.slideshowLoop);
     s.showGallery = boolValue(store, QStringLiteral("gallery/show"), defaults.showGallery);
-    s.galleryCarousel = boolValue(store, QStringLiteral("gallery/carousel"), defaults.galleryCarousel);
-    s.galleryOpacity = boundedInt(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
-    s.galleryEnlargement = boundedInt(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
-                                      kMinGalleryEnlargement, kMaxGalleryEnlargement)
-                           / kGalleryEnlargementStep * kGalleryEnlargementStep; // the dialog's steps
+    s.galleryZoom = boolValue(store, QStringLiteral("gallery/zoom"), defaults.galleryZoom);
+    s.galleryOpacity = sizeValue(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
+    s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
+                                     kMinGalleryEnlargement, kMaxGalleryEnlargement);
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -340,9 +350,8 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/preload"), preload);
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
-    store.setValue(QStringLiteral("navigation/slideshowLoop"), slideshowLoop);
     store.setValue(QStringLiteral("gallery/show"), showGallery);
-    store.setValue(QStringLiteral("gallery/carousel"), galleryCarousel);
+    store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
     store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
     store.remove(QStringLiteral("shortcuts"));

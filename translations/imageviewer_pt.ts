@@ -256,6 +256,22 @@
         <translation>Janela</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>Tempo por imagem:</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galeria</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Ampliar a miniatura sob o ponteiro</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Ampliação:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Mostrar o painel de informações (%1)</translation>
@@ -413,6 +429,10 @@
         <translation>Após a última imagem, continuar na primeira</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Imagens</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Clicar no lado esquerdo ou direito da janela para a imagem anterior ou seguinte</translation>
     </message>
@@ -454,22 +474,6 @@
         <translation>Iniciar a apresentação de diapositivos em ecrã inteiro</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Após a última imagem, continuar a apresentação de diapositivos na primeira</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Ampliar as miniaturas sob o ponteiro (carrossel)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opacidade do fundo da galeria:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>Ampliação do carrossel:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
     </message>
@@ -493,11 +497,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Mostrar a sobreposição de informação no topo (%1)</translation>
-    </message>
-    <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Apresentação de diapositivos (%1), tempo por imagem:</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -558,6 +557,10 @@
         <translation>Total de formatos de imagem suportados: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Versão do descodificador</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Mostrar a galeria (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Apresentação de diapositivos (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

@@ -256,6 +256,22 @@
         <translation>Fenster</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>Zeit pro Bild:</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>Galerie</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Miniatur unter dem Zeiger vergrößern</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Vergrößerung:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Informationsbereich anzeigen (%1)</translation>
@@ -413,6 +429,10 @@
         <translation>Nach dem letzten Bild mit dem ersten fortfahren</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Bilder</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>Durch Klicken auf die linke oder rechte Fensterseite zum vorherigen oder nächsten Bild wechseln</translation>
     </message>
@@ -454,22 +474,6 @@
         <translation>Diashow im Vollbild starten</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Nach dem letzten Bild die Diashow mit dem ersten fortsetzen</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Miniaturen unter dem Zeiger vergrößern (Karussell)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>Deckkraft des Galeriehintergrunds:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>Vergrößerung im Karussell:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>Pixel hervorheben, die durch Clipping oder Tone-Mapping verändert wurden (Magenta)</translation>
     </message>
@@ -493,11 +497,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>Informationseinblendung oben anzeigen (%1)</translation>
-    </message>
-    <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Diashow (%1), Zeit pro Bild:</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -558,6 +557,10 @@
         <translation>Unterstützte Bildformate insgesamt: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Decoder-Version</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Galerie anzeigen (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diashow (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

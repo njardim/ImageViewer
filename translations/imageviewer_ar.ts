@@ -256,6 +256,22 @@
         <translation>النافذة</translation>
     </message>
     <message>
+        <source>Time per image:</source>
+        <translation>المدة لكل صورة:</translation>
+    </message>
+    <message>
+        <source>Gallery</source>
+        <translation>المعرض</translation>
+    </message>
+    <message>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>تكبير الصورة المصغرة تحت المؤشر</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>التكبير:</translation>
+    </message>
+    <message>
         <source>Show the information panel (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>إظهار لوحة المعلومات (%1)</translation>
@@ -413,6 +429,10 @@
         <translation>بعد آخر صورة، المتابعة من الصورة الأولى</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>الصور</translation>
+    </message>
+    <message>
         <source>Click the left or right side of the window for the previous or next image</source>
         <translation>النقر على الجانب الأيسر أو الأيمن من النافذة لعرض الصورة السابقة أو التالية</translation>
     </message>
@@ -454,22 +474,6 @@
         <translation>بدء عرض الشرائح في وضع ملء الشاشة</translation>
     </message>
     <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>بعد الصورة الأخيرة، متابعة عرض الشرائح من الأولى</translation>
-    </message>
-    <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>تكبير الصور المصغرة تحت المؤشر (دوّار)</translation>
-    </message>
-    <message>
-        <source>Gallery background opacity:</source>
-        <translation>عتامة خلفية المعرض:</translation>
-    </message>
-    <message>
-        <source>Carousel enlargement:</source>
-        <translation>مقدار تكبير الدوّار:</translation>
-    </message>
-    <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
         <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
     </message>
@@ -493,11 +497,6 @@
         <source>Show the information overlay at the top (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
         <translation>إظهار تراكب المعلومات في الأعلى (%1)</translation>
-    </message>
-    <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>عرض الشرائح (%1)، الوقت لكل صورة:</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -558,6 +557,10 @@
         <translation>إجمالي تنسيقات الصور المدعومة: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>إصدار مفكك الترميز</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>موافق</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>إظهار المعرض (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>عرض الشرائح (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

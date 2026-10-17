@@ -541,10 +541,11 @@ try:
             xdotool("windowsize", "--sync", wid, "1280", "800")  # the session left a narrower window
             wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
             x, y, w, h = window_geometry()
-            if (w - 2 * 128 - 8 - 50) // 136 < 4:  # 50: the carousel's room at its default 20 px
+            if (w - 2 * 128 - 8 - 20) // 136 < 4:  # 20: the zoom's room at its default 20 px
                 fail(f"a {w} px window holds fewer than four thumbnails")
             fourth = x + w // 2 - (4 * 136 + 8) // 2 + 8 + 3 * 136 + 64
-            xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 64))
+            # The bar 16 px up, and 5 more: the enlarged thumbnail's tile reaches 20 / 2 + 3 - 8 px below it.
+            xdotool("mousemove", "--sync", str(fourth), str(y + h - 21 - 8 - 64))
             xdotool("click", "1")
             wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0].startswith("g4.png   ·   "))
             xdotool("key", "g")

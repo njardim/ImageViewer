@@ -325,16 +325,20 @@
         <translation>Okno</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Zväčšiť miniatúry pod ukazovateľom (kolotoč)</translation>
+        <source>Time per image:</source>
+        <translation>Čas na obrázok:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Nepriehľadnosť pozadia galérie:</translation>
+        <source>Gallery</source>
+        <translation>Galéria</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Zväčšenie kolotoča:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Zväčšiť miniatúru pod ukazovateľom</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Zväčšenie:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Obrázky</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Šírka každej strany:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Načítavať vopred nasledujúci a predchádzajúci obrázok</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Prezentácia (%1), čas na obrázok:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigácia</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Spustiť prezentáciu na celej obrazovke</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Po poslednom obrázku pokračovať v prezentácii prvým</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Celkovo podporovaných formátov obrázkov: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Verzia dekodéra</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Zobraziť galériu (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Prezentácia (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

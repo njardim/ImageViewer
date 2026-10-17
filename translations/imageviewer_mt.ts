@@ -325,16 +325,20 @@
         <translation>Tieqa</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Kabbar it-thumbnails taħt il-pointer (carousel)</translation>
+        <source>Time per image:</source>
+        <translation>Ħin għal kull immaġni:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Opaċità tal-isfond tal-gallerija:</translation>
+        <source>Gallery</source>
+        <translation>Gallerija</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Tkabbir tal-carousel:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Kabbar il-minjatura taħt il-pointer</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Tkabbir:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Immaġnijiet</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Wisa&apos; ta&apos; kull naħa:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Tgħabbi minn qabel l-immaġni li jmiss u l-preċedenti</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Preżentazzjoni (%1), ħin għal kull stampa:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Navigazzjoni</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Ibda l-preżentazzjoni fuq skrin sħiħ</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Wara l-aħħar immaġni, kompli l-preżentazzjoni bl-ewwel waħda</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Total ta&apos; formati tal-immaġni appoġġjati: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Verżjoni tad-dekoder</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Uri l-gallerija (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Preżentazzjoni (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

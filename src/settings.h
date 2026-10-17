@@ -73,7 +73,7 @@ struct Settings {
     bool overlayOutline = false;       // dark outline around the text, for HDR highlights (D-58)
     int overlayHideDelayMs = 1500;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
-    bool loop = true;          // wrap from the last image to the first and back
+    bool loop = true;          // wrap from the last image to the first and back: keys, mouse, slideshow, gallery
     bool sideZones = true;     // click the left/right edge of the window for previous/next
     int sideZoneWidth = 100;   // logical pixels (200 until 0.2, D-36)
     FolderSort sortBy = FolderSort::Name;
@@ -81,9 +81,8 @@ struct Settings {
     bool preload = true;       // decode the next and previous images in advance (D-33)
     double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
-    bool slideshowLoop = true;        // after the last image the slideshow goes on with the first
     bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
-    bool galleryCarousel = true;      // thumbnails under the pointer enlarge, and their neighbours less
+    bool galleryZoom = true;          // the thumbnail under the pointer enlarges
     int galleryOpacity = 70;          // percent, the gallery's background
     int galleryEnlargement = 20;      // logical pixels added to the thumbnail under the pointer
     // Color & HDR
@@ -93,16 +92,18 @@ struct Settings {
     // Shortcuts (D-52): the user's own, per command key; a command not listed has its defaults.
     QMap<QString, QList<QKeySequence>> shortcuts;
 
+    // Every number in the Settings moves by one of two steps, so the whole interface responds the
+    // same way: sizes (pixels and percentages) by 5, times by half a second.
+    static constexpr int kSizeStep = 5;
+    static constexpr int kTimeStepMs = 500;
     static constexpr int kMinWindowFitPercent = 20;
     static constexpr int kMaxWindowFitPercent = 100;
     static constexpr int kMinSideZoneWidth = 80;
     static constexpr int kMaxSideZoneWidth = 400;
-    // Every time in the Settings moves in half seconds.
     static constexpr double kMinSlideshowSeconds = 0.5;
     static constexpr double kMaxSlideshowSeconds = 3600.0;
     static constexpr int kMinGalleryEnlargement = 10;
-    static constexpr int kMaxGalleryEnlargement = 80;
-    static constexpr int kGalleryEnlargementStep = 5;
+    static constexpr int kMaxGalleryEnlargement = 100;
     static constexpr int kMaxPointerHideMs = 60000;
     static constexpr int kMinOverlayTextOpacity = 20; // never invisible
     // Both information panels (D-49): values and labels in these greys over black at
@@ -214,8 +215,7 @@ private:
     QPushButton *m_shortcutDefault = nullptr;
     QLabel *m_shortcutNote = nullptr;
     bool m_keyInField = false; // a key press in a shortcut field is being handled
-    QGroupBox *m_overlayBox = nullptr;  // its title names the command's key
-    QLabel *m_slideshowLabel = nullptr; // likewise
+    QGroupBox *m_slideshowBox = nullptr; // its title names the command's key
 
     QTabWidget *m_tabs = nullptr;
     QPushButton *m_apply = nullptr;
@@ -251,9 +251,8 @@ private:
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
     QCheckBox *m_slideshowFullScreen = nullptr;
-    QCheckBox *m_slideshowLoop = nullptr;
     QCheckBox *m_showGallery = nullptr; // its text names the command's shortcut
-    QCheckBox *m_galleryCarousel = nullptr;
+    QCheckBox *m_galleryZoom = nullptr;
     QSpinBox *m_galleryOpacity = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;
     QDoubleSpinBox *m_slideshowSeconds = nullptr;

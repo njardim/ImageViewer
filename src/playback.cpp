@@ -259,18 +259,11 @@ void ViewerWindow::slideshowTimeout()
         m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
         return;
     }
-    // After the last image, the first only when the slideshow loops (D-58), whatever navigation does.
-    const bool last = m_index + 1 >= m_files.size();
-    if (m_files.size() < 2 || (last && !m_settings.slideshowLoop)) {
+    // After the last image, the first only when navigation loops (D-61).
+    if (!hasNeighbour(+1)) {
         stopSlideshow();
         showNotice(tr("Slideshow stopped"));
         return;
     }
-    if (!last) {
-        step(+1);
-        return;
-    }
-    m_direction = 1;
-    restartSlideshowInterval();
-    startLoading(0);
+    step(+1);
 }

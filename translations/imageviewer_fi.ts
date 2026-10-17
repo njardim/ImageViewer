@@ -325,16 +325,20 @@
         <translation>Ikkuna</translation>
     </message>
     <message>
-        <source>Enlarge the thumbnails under the pointer (carousel)</source>
-        <translation>Suurenna osoittimen alla olevia pikkukuvia (karuselli)</translation>
+        <source>Time per image:</source>
+        <translation>Aika kuvaa kohden:</translation>
     </message>
     <message>
-        <source>Gallery background opacity:</source>
-        <translation>Gallerian taustan peittävyys:</translation>
+        <source>Gallery</source>
+        <translation>Galleria</translation>
     </message>
     <message>
-        <source>Carousel enlargement:</source>
-        <translation>Karusellin suurennus:</translation>
+        <source>Enlarge the thumbnail under the pointer</source>
+        <translation>Suurenna osoittimen alla oleva pikkukuva</translation>
+    </message>
+    <message>
+        <source>Enlargement:</source>
+        <translation>Suurennus:</translation>
     </message>
     <message>
         <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
@@ -446,6 +450,10 @@
         <translation> px</translation>
     </message>
     <message>
+        <source>Images</source>
+        <translation>Kuvat</translation>
+    </message>
+    <message>
         <source>Width of each side:</source>
         <translation>Kunkin reunan leveys:</translation>
     </message>
@@ -474,11 +482,6 @@
         <translation>Lataa seuraava ja edellinen kuva etukäteen</translation>
     </message>
     <message>
-        <source>Slideshow (%1), time per image:</source>
-        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
-        <translation>Diaesitys (%1), aika kuvaa kohden:</translation>
-    </message>
-    <message>
         <source>Navigation</source>
         <translation>Selaus</translation>
     </message>
@@ -493,10 +496,6 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Aloita diaesitys koko näytössä</translation>
-    </message>
-    <message>
-        <source>After the last image, continue the slideshow with the first</source>
-        <translation>Jatka diaesitystä viimeisen kuvan jälkeen ensimmäisestä</translation>
     </message>
     <message>
         <source>Automatic (HDR when the display supports it)</source>
@@ -553,6 +552,10 @@
         <translation>Tuettuja kuvamuotoja yhteensä: %1</translation>
     </message>
     <message>
+        <source>Decoder version</source>
+        <translation>Dekooderin versio</translation>
+    </message>
+    <message>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -576,6 +579,11 @@
     <message>
         <source>Show the gallery (%1)</source>
         <translation>Näytä galleria (%1)</translation>
+    </message>
+    <message>
+        <source>Slideshow (%1)</source>
+        <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
+        <translation>Diaesitys (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>

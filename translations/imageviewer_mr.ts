@@ -48,6 +48,10 @@
         <translation>sRGB (गृहीत)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>खराब, अपूर्ण किंवा असमर्थित फाइल</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>अवैध परिमाणे (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>सानुकूल प्राथमिक रंग</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>डिकोड करता येत नाही: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>डिकोड करता येत नाही &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

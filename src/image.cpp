@@ -4,6 +4,7 @@
 
 #include <QColorSpace>
 #include <QCoreApplication>
+#include <QDir>
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QLoggingCategory>
@@ -239,7 +240,8 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
             result.error = QStringLiteral("larger than the pixel limit"); // never shown
             return result;
         }
-        result.error = QCoreApplication::translate("Image", "Cannot decode: %1").arg(error);
+        //: %1: the file's path; %2: why, e.g. "damaged, truncated or unsupported XCF file".
+        result.error = QCoreApplication::translate("Image", "Cannot decode \"%1\": %2").arg(QDir::toNativeSeparators(path), error);
         return result;
     }
     const qint64 readNs = timer.nsecsElapsed();

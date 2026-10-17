@@ -48,6 +48,10 @@
         <translation>sRGB（仮定）</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>破損・不完全、または未対応のファイル</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>無効なサイズ（%1×%2×%3）</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>カスタム原色</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>デコードできません：%1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>デコードできません「%1」：%2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

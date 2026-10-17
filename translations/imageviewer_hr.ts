@@ -48,6 +48,10 @@
         <translation>sRGB (pretpostavljeno)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>oštećena, skraćena ili nepodržana datoteka</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>nevažeće dimenzije (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>prilagođene primarne boje</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Dekodiranje nije moguće: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Dekodiranje nije moguće &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

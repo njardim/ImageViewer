@@ -48,6 +48,10 @@
         <translation>sRGB (preżunt)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>fajl bil-ħsara, maqtugħ jew mhux appoġġjat</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>dimensjonijiet invalidi (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>kuluri primarji personalizzati</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Ma jistax jiġi ddekodifikat: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Ma jistax jiġi ddekodifikat &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

@@ -6,9 +6,11 @@
 #include "formats.h"
 #include "image.h"
 
+#include <QLoggingCategory>
 #include <QString>
 
 #include <memory>
+#include <string>
 
 // Decoder output before colour conversion: interleaved samples in their native type.
 struct Decoded {
@@ -80,6 +82,11 @@ bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error);
 qint64 decodeMemoryBudget();
 // "damaged, truncated or unsupported <format> file", for every back end.
 QString damaged(const char *formatName);
+Q_DECLARE_LOGGING_CATEGORY(lcDecode) // imageviewer.decode (image.cpp)
+// A library's own reason (OpenImageIO, Qt's readers) goes to the log, never to the interface
+// (D-64): the interface says it in its own words. Returns damaged(format), or an empty string
+// for decodeFile() to name the format when the format is not known here.
+QString libraryError(const char *library, const std::string &message, const std::string &format = {});
 // Shooting data, and the orientation when asked, from an EXIF block (TIFF header first).
 CameraInfo cameraFromExif(QByteArrayView tiff, int *orientation);
 void describeIcc(const QByteArray &icc, color::Descriptor *d);

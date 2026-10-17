@@ -48,6 +48,10 @@
         <translation>sRGB (diasumsikan)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>berkas rusak, terpotong, atau tidak didukung</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>dimensi tidak valid (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>primer khusus</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Tidak dapat mendekode: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Tidak dapat mendekode &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

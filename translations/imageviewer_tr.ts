@@ -48,6 +48,10 @@
         <translation>sRGB (varsayıldı)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>hasarlı, eksik veya desteklenmeyen dosya</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>geçersiz boyutlar (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>özel ana renkler</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Çözülemiyor: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>&quot;%1&quot; çözülemiyor: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

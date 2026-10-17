@@ -48,6 +48,10 @@
         <translation>sRGB(가정)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>손상되었거나 잘렸거나 지원되지 않는 파일</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>잘못된 크기(%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>사용자 지정 원색</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>디코딩할 수 없음: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>&quot;%1&quot;을(를) 디코딩할 수 없음: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

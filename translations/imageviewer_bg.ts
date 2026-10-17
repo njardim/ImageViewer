@@ -48,6 +48,10 @@
         <translation>sRGB (предполагаемо)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>повреден, непълен или неподдържан файл</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>невалидни размери (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>персонализирани основни цветове</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Не може да се декодира: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Не може да се декодира &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

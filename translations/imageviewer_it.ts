@@ -48,6 +48,10 @@
         <translation>sRGB (presunto)</translation>
     </message>
     <message>
+        <source>damaged, truncated or unsupported file</source>
+        <translation>file danneggiato, troncato o non supportato</translation>
+    </message>
+    <message>
         <source>invalid dimensions (%1×%2×%3)</source>
         <translation>dimensioni non valide (%1×%2×%3)</translation>
     </message>
@@ -68,8 +72,9 @@
         <translation>primari personalizzati</translation>
     </message>
     <message>
-        <source>Cannot decode: %1</source>
-        <translation>Impossibile decodificare: %1</translation>
+        <source>Cannot decode &quot;%1&quot;: %2</source>
+        <extracomment>%1: the file&apos;s path; %2: why, e.g. &quot;damaged, truncated or unsupported XCF file&quot;.</extracomment>
+        <translation>Impossibile decodificare &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>%1 (assumed: %2)</source>

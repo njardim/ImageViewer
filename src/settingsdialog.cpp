@@ -269,6 +269,10 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = new QSpinBox;
     m_galleryEnlargement->setRange(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement);
     m_galleryEnlargement->setSingleStep(Settings::kGalleryEnlargementStep);
+    connect(m_galleryEnlargement, &QSpinBox::editingFinished, this, [this] { // a typed 22 becomes 20, as stored
+        const int step = Settings::kGalleryEnlargementStep;
+        m_galleryEnlargement->setValue((m_galleryEnlargement->value() + step / 2) / step * step);
+    });
     m_galleryEnlargement->setSuffix(tr(" px"));
     navigationForm->addRow(tr("Carousel enlargement:"), m_galleryEnlargement);
     m_galleryOpacity = new QSpinBox;

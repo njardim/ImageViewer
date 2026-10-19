@@ -56,7 +56,10 @@ public:
 
     // UI layers drawn over the image at SDR white, each from its own small texture so
     // that changing one (hover feedback) does not re-upload the others.
-    enum OverlayLayer { InfoLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, MessageLayer, OverlayLayerCount };
+    enum OverlayLayer {
+        InfoLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, SlideshowLayer, MessageLayer,
+        OverlayLayerCount
+    };
 
     // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
     enum class OutputPreference { Automatic, Sdr, Hdr10 };

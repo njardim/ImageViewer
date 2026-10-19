@@ -219,7 +219,7 @@ void ViewerWindow::showImage(Image image, int limit)
         image.pixels.reset(); // the cache keeps them when preloading is on; the GPU has its copy
         m_image = std::move(image);
         if (!sameFile) {
-            if (!m_settings.lockZoom) // a locked zoom (L) carries over to the new image
+            if (!m_settings.lockZoom) // a locked zoom (Z) carries over to the new image
                 m_fit = m_settings.fitMode;
             m_quarterTurns = 0;
             m_mirrored = false;

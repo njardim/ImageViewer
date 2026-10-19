@@ -39,7 +39,7 @@ enum class OverlayField { Name, Dimensions, FileSize, Zoom, ColorSpace, Modified
 
 // How a newly shown image is zoomed (D-51): to fit the window, its width or its height, or to
 // fill it. Images smaller than that stay at 100 % unless Settings::enlargeSmallImages.
-enum class FitMode { Window, Width, Height, Fill };
+enum class FitMode { Window, Width, Height, Fill, Actual }; // Actual: 100 %
 // When the window takes the size of the image (D-51).
 enum class WindowFit { Never, FirstImage, EveryImage };
 // What the title bar shows (D-51, D-58): the top overlay's fields, or a fixed set in its style.
@@ -55,9 +55,9 @@ struct Settings {
     QColor background = QColor(0x21, 0x21, 0x21); // sRGB; shown at SDR white
     bool checkerboard = false; // checks behind transparent pixels instead of the plain background
     bool rememberGeometry = true;
-    FitMode fitMode = FitMode::Window;
+    FitMode fitMode = FitMode::Window; // the zoom mode chosen last: new images open in it (D-65)
     bool enlargeSmallImages = false;
-    bool lockZoom = false;           // new images keep the zoom (a toggle, L)
+    bool lockZoom = false;           // new images keep the zoom, free or fitted (a toggle, Z)
     WindowFit windowFit = WindowFit::Never;
     int windowFitPercent = 80;       // largest share of the screen the window takes for an image
     TitleMode titleMode = TitleMode::Name;
@@ -82,11 +82,14 @@ struct Settings {
     bool preload = true;       // decode the next and previous images in advance (D-33)
     double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
+    bool slideshowToolbarAutoHide = true; // its toolbar hides while the pointer is still (D-65)
+    int slideshowToolbarHideMs = 2000;    // ...after this long
     bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
     bool galleryZoom = true;          // the thumbnail under the pointer enlarges
     int galleryOpacity = 70;          // percent, the gallery's background
-    int galleryEnlargement = 20;      // logical pixels added to the thumbnail under the pointer
+    int galleryEnlargement = 50;      // logical pixels added to the thumbnail under the pointer
+    QColor galleryHighlight = QColor(80, 200, 120); // sRGB, behind the current and the hovered thumbnail (emerald)
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping (a toggle, T)
     bool clipWarning = false;  // clipped or tone-mapped pixels shown in magenta (a toggle, C)
@@ -117,6 +120,8 @@ struct Settings {
     QColor panelText(int grey) const;
     static constexpr int kMinOverlayHideDelayMs = 500;
     static constexpr int kMaxOverlayHideDelayMs = 10000;
+    static constexpr int kMinToolbarHideMs = 500;
+    static constexpr int kMaxToolbarHideMs = 10000;
 
     // The six fields of ImageGlass issue #2475 (E14).
     static QList<OverlayField> defaultOverlayFields();
@@ -197,8 +202,18 @@ private:
     void apply();
     void updateApplyButton();
     void setValues(const Settings &settings);
-    void setBackground(const QColor &color);
-    void chooseCustomBackground();
+    // A row of colour swatches and "Custom…" (the window's background, the gallery's highlight).
+    struct ColorChoice {
+        QButtonGroup *group = nullptr; // owned by the dialog, not by a widget
+        QToolButton *custom = nullptr;
+        const QColor *presets = nullptr;
+        int presetCount = 0;
+        QString dialogTitle;
+        QColor color;
+    };
+    QLayout *colorRow(ColorChoice &choice, const QColor *presets, const QString *names, int count,
+                      const QString &dialogTitle);
+    void setColor(ColorChoice &choice, const QColor &color);
     void moveOverlayField(int delta);
     void fillShortcutTable();
     void refreshShortcutTexts();     // the table's shortcuts and the labels that name keys
@@ -227,9 +242,7 @@ private:
     QComboBox *m_language = nullptr;
     QCheckBox *m_confirmTrash = nullptr;
     QCheckBox *m_reopenLast = nullptr;
-    QButtonGroup *m_backgroundGroup = nullptr;
-    QToolButton *m_customBackground = nullptr;
-    QColor m_background;
+    ColorChoice m_background;
     QCheckBox *m_checkerboard = nullptr;
     QCheckBox *m_rememberGeometry = nullptr;
     QComboBox *m_fitMode = nullptr;
@@ -255,11 +268,14 @@ private:
     QCheckBox *m_sortDescending = nullptr;
     QCheckBox *m_preload = nullptr;
     QCheckBox *m_slideshowFullScreen = nullptr;
+    QCheckBox *m_toolbarAutoHide = nullptr;
+    QDoubleSpinBox *m_toolbarHide = nullptr;
     QCheckBox *m_showGallery = nullptr;
     QComboBox *m_galleryThumbnailSize = nullptr;
     QCheckBox *m_galleryZoom = nullptr;
     QSpinBox *m_galleryOpacity = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;
+    ColorChoice m_galleryHighlight;
     QDoubleSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
     QCheckBox *m_clipWarning = nullptr;

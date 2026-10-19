@@ -16,15 +16,20 @@ opened from a folder; every step waits until the expected pixels are on screen, 
   5. Q quits and the session (last file, window geometry) is in the settings file;
   6. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
      detail on: fit to the window, U (a user shortcut for Fit to Width, D-52) fits the width,
-     1 is 100 %, Z keeps it for the next image and Z again lets it fit; the window takes
-     an image's size within 50 % of the screen;
+     1 is 100 %, Z keeps it for the next image; the mode chosen last stays for the next
+     images and is saved, a zoom by hand lasts for its image (D-65); the window takes an
+     image's size within 50 % of the screen;
   7. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
      tab replaces the first shortcut while the others stay;
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
-     keyboard, are saved as settings (D-56);
-  9. the title in the overlay's style with its fields (D-58); the gallery (D-60): G shows it, a
-     click on a thumbnail shows that image, G hides it.
+     keyboard, are saved as settings (D-56); Shift+I and the overlay's checkbox in Settings are
+     one switch;
+  9. the title in the overlay's style with its fields (D-58); the gallery (D-60, D-65): G shows
+     it, the current thumbnail on the highlight colour and the hovered one fainter, a click
+     shows a thumbnail's image, the ring past the first image, the wheel scrolls, G hides it;
+     large thumbnails and another highlight from the settings;
+ 10. an unreadable file shows the warning sign in the middle (D-63).
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -386,6 +391,10 @@ try:
                 print(log_text())
                 fail(f"ImageViewer exited with code {app.returncode}")
             settings_file = os.path.join(config, "Cristallumnis", "ImageViewer.conf")
+
+            def stored(pattern):
+                with open(settings_file, encoding="utf-8") as f:
+                    return re.search(pattern, f.read()) is not None
             store = configparser.ConfigParser(interpolation=None)
             store.read(settings_file)
             last = store.get("session", "lastFile", fallback="")
@@ -445,7 +454,21 @@ try:
             wait_until("with the zoom locked (Z), the next image keeps 100 %", title_zoom("big2.png", lambda w, h: 100.0))
             xdotool("key", "z")
             xdotool("key", "Left")
-            wait_until("unlocked, an image fits again", title_zoom("big1.png", fit))
+            # D-65: the mode chosen last (Actual Size, 1) stays for the next images, locked or not.
+            wait_until("unlocked, the next image keeps the mode chosen last (Actual Size)",
+                       title_zoom("big1.png", lambda w, h: 100.0))
+            xdotool("key", "u")
+            xdotool("key", "Right")
+            wait_until("Fit to Width chosen, the next image fits its width too",
+                       title_zoom("big2.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
+            wait_until("the mode chosen is saved as the zoom of a new image",
+                       lambda: stored(r"(?m)^fitMode=width$"))
+            xdotool("key", "minus")  # a zoom by hand lasts for its image only, unless locked
+            xdotool("key", "Left")
+            wait_until("after a zoom by hand, the next image opens in the mode again",
+                       title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
+            xdotool("key", "0")  # back to Fit to Window for the sections below
+            wait_until("Fit to Window is saved", lambda: stored(r"(?m)^fitMode=window$"))
             xdotool("key", "q")
             app.wait(15)
 
@@ -515,42 +538,138 @@ try:
                 fail(f"the pointer hid {time.monotonic() - moved:.1f} s after a move, before 2 s")
             xdotool("mousemove", "--sync", str(x + w // 2 + 20), str(y + h // 2))
             wait_until("a move shows the pointer again", lambda: not pointer_hidden())
-
-            def stored(pattern):
-                with open(settings_file, encoding="utf-8") as f:
-                    return re.search(pattern, f.read()) is not None
             xdotool("key", "t", "c")
             wait_until("T and C toggled from the keyboard are saved as settings",
                        lambda: stored(r"(?m)^toneMap=false$") and stored(r"(?m)^clipWarning=true$"))
+
+            # The top overlay's checkbox in Settings (D-58) and Shift+I are one switch: Shift+I hides
+            # the overlay (shown since the E14 check), the dialog opens with the box clear, and
+            # ticking it with Apply shows the overlay again.
+            def overlay_visible():
+                shot = grab()
+                if shot is None:
+                    return False
+                band = shot[y + 8:y + 48, x + w // 2 - 150:x + w // 2 + 150]
+                return (band.min(axis=2) > 200).sum() > 30
+            wait_until("the top overlay is shown (saved by the E14 check)", overlay_visible)
+            xdotool("key", "shift+i")
+            wait_until("Shift+I hides it and saves the switch",
+                       lambda: not overlay_visible() and stored(r"(?m)^showOverlay=false$"))
+            xdotool("key", "ctrl+comma")
+            dialog = find_dialog("Settings")
+            if not dialog:
+                fail("Ctrl+, did not open the Settings dialog")
+            xdotool("windowfocus", "--sync", dialog)
+            xdotool("key", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")  # Information: past the panel's box, the overlay's
+            info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
+            xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
+                    str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
+            xdotool("click", "1")  # Apply
+            wait_until("the overlay's checkbox, cleared by Shift+I, ticked and applied, shows the overlay",
+                       lambda: stored(r"(?m)^showOverlay=true$") and overlay_visible())
+            xdotool("key", "Escape")
             xdotool("key", "q")
             app.wait(15)
 
-            # 9. The gallery (D-60): G shows it at the bottom, a click on a thumbnail shows that
-            # image, G again hides it. Four thumbnails of the default 96 px, 8 px apart, centred in the window.
+            # 9. The gallery (D-60, D-61, D-65). Twelve images in a 1280 px window: nine thumbnails of the
+            # default 96 px, 8 px apart, centred, the current one in the middle; navigation loops, so
+            # the gallery is a ring. A click shows a thumbnail's image, the wheel scrolls; behind the
+            # current thumbnail and the one under the pointer, the highlight colour (emerald by
+            # default; fainter under the pointer).
             gallery_dir = os.path.join(work, "gallery")
             os.makedirs(gallery_dir)
-            for i, colour in enumerate([(200, 0, 0), (0, 160, 0), (0, 0, 200), (200, 200, 0)]):
-                Image.new("RGB", (160, 120), colour).save(os.path.join(gallery_dir, f"g{i + 1}.png"))
+            for i in range(12):
+                Image.new("RGB", (160, 120), (20 * i, 100, 200 - 15 * i)).save(os.path.join(gallery_dir, f"g{i + 1:02}.png"))
             edit_settings(("window", "title", "overlay"))  # D-58: the overlay's fields, in its style
-            app = subprocess.Popen([exe, os.path.join(gallery_dir, "g1.png")], env=env, stdout=log, stderr=log)
+            app = subprocess.Popen([exe, os.path.join(gallery_dir, "g01.png")], env=env, stdout=log, stderr=log)
             wait_until("the title shows the overlay's fields in its style",
-                       lambda: re.fullmatch(r"g1\.png   ·   160 × 120   ·   .+ — ImageViewer", viewer()[0]) is not None)
+                       lambda: re.fullmatch(r"g01\.png   ·   160 × 120   ·   .+ — ImageViewer", viewer()[0]) is not None)
+            shown = lambda name: lambda: viewer()[0].startswith(name + "   ·   ")
             xdotool("key", "g")
             wait_until("G shows the gallery and saves it", lambda: stored(r"(?m)^show=true$"))
             wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
             xdotool("windowsize", "--sync", wid, "1280", "800")  # the session left a narrower window
             wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
             x, y, w, h = window_geometry()
-            if (w - 2 * 128 - 8 - 20) // 104 < 4:  # 20: the zoom's room at its default 20 px
-                fail(f"a {w} px window holds fewer than four thumbnails")
-            fourth = x + w // 2 - (4 * 104 + 8) // 2 + 8 + 3 * 104 + 48
-            # The bar 16 px up: the enlarged thumbnail's tile reaches only 20 / 2 + 3 - 8 = 5 px below
-            # it, less than the margin (D-61).
-            xdotool("mousemove", "--sync", str(fourth), str(y + h - 16 - 8 - 48))
+
+            def slot_centre(slot, thumb=96, enlargement=50):
+                """Screen centre of a thumbnail: `slot` from the middle one (0), for an odd count."""
+                count = (w - 2 * 128 - 8 - enlargement) // (thumb + 8)
+                count -= 1 - count % 2
+                if count < 3:
+                    fail(f"a {w} px window holds only {count} thumbnails of {thumb} px")
+                # Below the bar, the margin: 16 px, or the enlarged tile's reach (50 / 2 + 3 - 8 = 20).
+                margin = max(16, enlargement // 2 + 3 - 8)
+                return x + w // 2 + slot * (thumb + 8), y + h - margin - 8 - thumb // 2
+
+            def tile_colour(centre_x, top):
+                """The highlight above a thumbnail: 160 × 120 fills 96 × 72, the tile shows above it."""
+                shot = grab()
+                return shot[top + 5, centre_x] if shot is not None else None
+            mx, my = slot_centre(0)
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))  # off the gallery
+            time.sleep(0.5)
+            current = tile_colour(mx, my - 48)
+            if current is None or not (current[1] > current[0] + 40 and current[1] > current[2] + 20):
+                fail(f"the current thumbnail's tile is {current}, not emerald")
+            print(f"ok   the current thumbnail sits on an emerald tile {tuple(current)}")
+            hx, hy = slot_centre(2)
+            xdotool("mousemove", "--sync", str(hx), str(hy))
+            time.sleep(0.5)
+            hovered = tile_colour(hx, hy - 73)  # enlarged by 50 px: 146 px, about the same centre
+            if hovered is None or not (hovered[1] > hovered[0] + 30 and 0 < hovered[1] < current[1]):
+                fail(f"the hovered tile is {hovered}, not a fainter emerald than {tuple(current)}")
+            print(f"ok   the thumbnail under the pointer sits on a fainter emerald {tuple(hovered)}")
             xdotool("click", "1")
-            wait_until("a click on the fourth thumbnail shows g4.png", lambda: viewer()[0].startswith("g4.png   ·   "))
+            wait_until("a click on a thumbnail two to the right shows g03.png", shown("g03.png"))
+            xdotool("key", "Home")
+            wait_until("Home shows g01.png, in the middle again", shown("g01.png"))
+            lx, ly = slot_centre(-1)
+            xdotool("mousemove", "--sync", str(lx), str(ly))
+            xdotool("click", "1")
+            wait_until("left of the first image, the ring shows the last: g12.png", shown("g12.png"))
+            xdotool("key", "Home")
+            wait_until("Home shows g01.png", shown("g01.png"))
+            xdotool("mousemove", "--sync", str(mx), str(my))
+            xdotool("click", "--repeat", "2", "--delay", "100", "5")  # two wheel steps down
+            time.sleep(0.5)
+            xdotool("click", "1")
+            wait_until("the wheel scrolls the gallery: two steps on, the middle shows g03.png", shown("g03.png"))
             xdotool("key", "g")
             wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
+            xdotool("key", "q")
+            app.wait(15)
+
+            # Large thumbnails (128 px) in ruby, enlarged by the most (100 px), chosen in the settings.
+            edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("gallery", "highlight", "#e0115f"),
+                          ("gallery", "enlargement", "100"))
+            app = subprocess.Popen([exe, os.path.join(gallery_dir, "g01.png")], env=env, stdout=log, stderr=log)
+            wait_until("g01.png shown with the gallery", shown("g01.png"))
+            xdotool("windowsize", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0],
+                    "1280", "800")
+            wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
+            x, y, w, h = window_geometry()
+            mx, my = slot_centre(0, thumb=128, enlargement=100)
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))
+            time.sleep(0.5)
+            current = tile_colour(mx, my - 64)
+            if current is None or not (current[0] > current[1] + 60 and current[0] > current[2] + 20):
+                fail(f"the current thumbnail's tile is {current}, not ruby")
+            print(f"ok   the highlight follows the setting: ruby {tuple(current)}")
+            rx, ry = slot_centre(1, thumb=128, enlargement=100)
+            xdotool("mousemove", "--sync", str(rx), str(ry))
+
+            def tile_at_bottom():
+                # 228 px enlarged, its tile 3 px around: it reaches past the 16 px margin, down to
+                # the window's bottom row (D-61).
+                shot = grab()
+                if shot is None:
+                    return False
+                pixel = shot[y + h - 1, rx]
+                return pixel[0] > pixel[1] + 40 and pixel[0] > pixel[2] + 10
+            wait_until("enlarged by 100 px, the hovered thumbnail's tile reaches the window's bottom", tile_at_bottom)
+            xdotool("click", "1")
+            wait_until("128 px thumbnails: a click on the next one shows g02.png", shown("g02.png"))
             xdotool("key", "q")
             app.wait(15)
 

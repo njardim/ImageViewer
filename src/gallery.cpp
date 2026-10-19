@@ -16,10 +16,7 @@ namespace {
 constexpr double kBorder = 8.0;       // between thumbnails and around them
 constexpr double kSideFree = 128.0;   // left free on each side of the window
 constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
-// Behind the current thumbnail orange, behind the one under the pointer emerald (D-63); both at
-// the gallery's background opacity, over that background.
-const QColor kSelected(255, 140, 0);
-const QColor kHovered(80, 200, 120);
+constexpr int kHoverFade = 10;        // the hovered tile: the highlight 10 points less opaque (D-65)
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
 
 // sRGB, 8 bits, premultiplied in encoded values like every overlay texture; HDR values above SDR
@@ -143,9 +140,10 @@ void ViewerWindow::updateGallery()
     const double barHeight = galleryThumbnail() + 2 * kBorder;
     const QSizeF logical(shown * (galleryThumbnail() + kBorder) + kBorder + zoom, barHeight + 2 * overhang);
 
-    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
+    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|")
                       .arg(m_galleryFirst).arg(shown).arg(m_galleryHover).arg(m_index).arg(dpr)
-                      .arg(m_settings.galleryOpacity).arg(zoom).arg(galleryThumbnail());
+                      .arg(m_settings.galleryOpacity).arg(zoom).arg(galleryThumbnail())
+                  + m_settings.galleryHighlight.name(QColor::HexRgb);
     for (int i = 0; i < shown; ++i) { // which file, and whether its thumbnail is there yet
         const QString &path = m_files.at(galleryFile(i));
         key += QLatin1Char(m_thumbnails.contains(path) ? '+' : '-') + QString::number(qHash(path), 36);
@@ -203,9 +201,13 @@ void ViewerWindow::updateGallery()
     for (int i = 0; i < shown; ++i) {
         const QRectF &place = places.at(i);
         const QString &path = m_files.at(galleryFile(i));
+        // One colour behind the current thumbnail and the hovered one, at the gallery's opacity
+        // over its background; the hovered one a little fainter, unless it is the current one.
         if (galleryFile(i) == m_index || i == m_galleryHover) {
-            QColor tile = galleryFile(i) == m_index ? kSelected : kHovered;
-            tile.setAlpha(alpha);
+            QColor tile = m_settings.galleryHighlight;
+            const int opacity = galleryFile(i) == m_index ? m_settings.galleryOpacity
+                                                          : std::max(0, m_settings.galleryOpacity - kHoverFade);
+            tile.setAlpha(int(std::lround(opacity * 2.55)));
             painter.setBrush(tile);
             painter.drawRoundedRect(tileOf(place), kPanelRadius / 2, kPanelRadius / 2);
         }

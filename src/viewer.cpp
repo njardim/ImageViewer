@@ -3,9 +3,11 @@
 #include "viewer.h"
 
 #include <QApplication>
+#include <QCursor>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QLocale>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPlatformSurfaceEvent>
@@ -15,6 +17,8 @@
 #include <cmath>
 #include <limits>
 #include <utility>
+
+Q_LOGGING_CATEGORY(lcView, "imageviewer.view", QtWarningMsg)
 
 namespace {
 constexpr int kDefaultMaxTexture = 16384;
@@ -71,7 +75,8 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     connect(&m_folderTimer, &QTimer::timeout, this, &ViewerWindow::refreshFolder);
     connect(&m_folderWatcher, &QFileSystemWatcher::directoryChanged, &m_folderTimer, qOverload<>(&QTimer::start));
     connect(&m_folderWatcher, &QFileSystemWatcher::fileChanged, &m_folderTimer, qOverload<>(&QTimer::start));
-    connect(this, &QWindow::visibilityChanged, this, [this] {
+    connect(this, &QWindow::visibilityChanged, this, [this](QWindow::Visibility visibility) {
+        qCDebug(lcView) << "visibility" << visibility; // tests: full screen without a window manager
         updateOverlay(); // the top overlay has its own setting for full screen
         requestUpdate();
     });
@@ -82,6 +87,16 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
     connect(&m_slideshowTimer, &QTimer::timeout, this, &ViewerWindow::slideshowTimeout);
+    m_toolbarTimer.setSingleShot(true);
+    connect(&m_toolbarTimer, &QTimer::timeout, this, [this] {
+        if (toolbarButtonAt(mapFromGlobal(QCursor::pos(screen()))) != ToolbarButton::None) {
+            m_toolbarTimer.start(); // never from under the pointer
+            return;
+        }
+        m_toolbarHidden = true;
+        setToolbarHover(ToolbarButton::None);
+        updateSlideshowToolbar();
+    });
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
@@ -325,6 +340,7 @@ double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
     case FitMode::Width: zoom = width; break;
     case FitMode::Height: zoom = height; break;
     case FitMode::Fill: zoom = std::max(width, height); break;
+    case FitMode::Actual: return 1.0;
     }
     if (!m_settings.enlargeSmallImages)
         zoom = std::min(zoom, 1.0);
@@ -367,17 +383,22 @@ void ViewerWindow::zoomAt(double factor, const QPointF &devicePos)
     requestUpdate();
 }
 
-void ViewerWindow::setActualSize()
+void ViewerWindow::chooseFit(FitMode mode)
 {
-    if (m_image.width == 0)
+    // The mode chosen stays for the next images (D-65): it is the setting "Zoom of a new image".
+    // A locked zoom (Z) carries the mode too, since it keeps whatever the image shows.
+    if (mode != m_settings.fitMode)
+        savePreference([mode](Settings &s) { s.fitMode = mode; });
+    if (mode == FitMode::Actual && m_image.width > 0) {
+        // 100 % about the window's centre, which keeps the point under it.
+        m_pan /= currentZoom();
+        m_fit = mode;
+        clampPan();
+        updateOverlay();
+        requestUpdate();
         return;
-    // Explicit, so that an image that already fits leaves fit mode too (it must stay at
-    // 100 % when the window shrinks, and become pannable).
-    m_pan /= currentZoom();
-    m_zoom = 1.0;
-    m_fit.reset();
-    clampPan();
-    updateOverlay();
+    }
+    setFit(mode);
 }
 
 void ViewerWindow::setFit(FitMode mode)
@@ -538,6 +559,7 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_galleryKey.clear();
         m_panelKey.clear();
         m_messageKey.clear();
+        m_toolbarKey.clear();
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again
@@ -589,11 +611,13 @@ void ViewerWindow::pointerActive()
         m_pointerTimer.start(m_settings.pointerHideMs);
     else
         m_pointerTimer.stop();
+    showSlideshowToolbar();
 }
 
 void ViewerWindow::updateCursor()
 {
-    setCursor(m_pointerHidden ? Qt::BlankCursor : m_hoverZone == Zone::None ? Qt::ArrowCursor : Qt::PointingHandCursor);
+    const bool onButton = m_hoverZone != Zone::None || m_toolbarHover != ToolbarButton::None;
+    setCursor(m_pointerHidden ? Qt::BlankCursor : onButton ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }
 
 void ViewerWindow::savePreference(const std::function<void(Settings &)> &change)
@@ -622,6 +646,9 @@ void ViewerWindow::applySettings(const Settings &settings)
         pointerActive();
     if (m_slideshow && !m_slideshowPaused && settings.slideshowSeconds != previous.slideshowSeconds)
         m_slideshowTimer.start(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes the new interval
+    if (settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
+        || settings.slideshowToolbarHideMs != previous.slideshowToolbarHideMs)
+        showSlideshowToolbar();
     m_renderer.setOutputPreference(settings.output);
     // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
     if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)

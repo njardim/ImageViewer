@@ -37,6 +37,10 @@ namespace {
 // Background presets, sRGB. The default (dark grey) keeps the image's own contrast readable.
 const QColor kBackgroundPresets[] = {QColor(0x00, 0x00, 0x00), QColor(0x21, 0x21, 0x21), QColor(0x80, 0x80, 0x80),
                                      QColor(0xd0, 0xd0, 0xd0), QColor(0xff, 0xff, 0xff)};
+// The gallery's highlight, sRGB (D-65): ruby, emerald (the default), sapphire (lighter than the
+// stone's #0F52BA, which hardly shows on the black bar), gold and diamond.
+const QColor kHighlightPresets[] = {QColor(224, 17, 95), QColor(80, 200, 120), QColor(30, 100, 220),
+                                    QColor(255, 215, 0), QColor(235, 242, 255)};
 
 QIcon swatchIcon(const QColor &color)
 {
@@ -131,31 +135,9 @@ void SettingsDialog::buildUi()
     // Window
     auto *window = new QWidget;
     auto *windowForm = new QFormLayout(window);
-    auto *swatches = new QHBoxLayout;
-    m_backgroundGroup = new QButtonGroup(this);
-    m_backgroundGroup->setExclusive(true);
-    const QString presetNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
-    for (int i = 0; i < int(std::size(kBackgroundPresets)); ++i) {
-        auto *button = new QToolButton;
-        button->setCheckable(true);
-        button->setIcon(swatchIcon(kBackgroundPresets[i]));
-        button->setIconSize(QSize(28, 20));
-        button->setToolTip(presetNames[i]);
-        button->setAccessibleName(presetNames[i]);
-        m_backgroundGroup->addButton(button, i);
-        swatches->addWidget(button);
-        connect(button, &QToolButton::clicked, this, [this, i] { setBackground(kBackgroundPresets[i]); });
-    }
-    m_customBackground = new QToolButton;
-    m_customBackground->setCheckable(true);
-    m_customBackground->setText(tr("Custom…"));
-    m_customBackground->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_customBackground->setIconSize(QSize(28, 20));
-    m_backgroundGroup->addButton(m_customBackground, int(std::size(kBackgroundPresets)));
-    swatches->addWidget(m_customBackground);
-    swatches->addStretch();
-    connect(m_customBackground, &QToolButton::clicked, this, &SettingsDialog::chooseCustomBackground);
-    windowForm->addRow(tr("Background:"), swatches);
+    const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
+    windowForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
+                                                   int(std::size(kBackgroundPresets)), tr("Background Color")));
     m_checkerboard = new QCheckBox(tr("Show a checkerboard behind transparent areas"));
     windowForm->addRow(m_checkerboard);
     m_rememberGeometry = new QCheckBox(tr("Remember the window size and position"));
@@ -166,6 +148,7 @@ void SettingsDialog::buildUi()
     m_fitMode->addItem(tr("Fit to the width"), int(FitMode::Width));
     m_fitMode->addItem(tr("Fit to the height"), int(FitMode::Height));
     m_fitMode->addItem(tr("Fill the window"), int(FitMode::Fill));
+    m_fitMode->addItem(tr("Actual size (100 %)"), int(FitMode::Actual));
     windowForm->addRow(tr("Zoom of a new image:"), m_fitMode);
     m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
     windowForm->addRow(m_enlargeSmall);
@@ -279,6 +262,11 @@ void SettingsDialog::buildUi()
     slideshowForm->addRow(m_slideshowFullScreen);
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
+    m_toolbarAutoHide = new QCheckBox(tr("Hide the toolbar while the pointer is still"));
+    slideshowForm->addRow(m_toolbarAutoHide);
+    m_toolbarHide = secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0);
+    slideshowForm->addRow(tr("Hide after:"), m_toolbarHide);
+    connect(m_toolbarAutoHide, &QCheckBox::toggled, m_toolbarHide, &QWidget::setEnabled);
     navigationLayout->addWidget(m_slideshowBox);
     // The gallery (D-60, D-61).
     m_galleryBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
@@ -295,6 +283,9 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
     galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
+    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
+    galleryForm->addRow(tr("Highlight color:"), colorRow(m_galleryHighlight, kHighlightPresets, highlightNames,
+                                                         int(std::size(kHighlightPresets)), tr("Highlight Color")));
     m_galleryOpacity = sizeBox(0, 100, percent());
     galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
     navigationLayout->addWidget(m_galleryBox);
@@ -493,7 +484,8 @@ void SettingsDialog::rebuildUi()
     const int tab = m_tabs->currentIndex();
     m_apply = nullptr; // updateApplyButton() is called while the new widgets are filled
     delete layout();
-    delete m_backgroundGroup; // owned by the dialog, not by a widget
+    delete m_background.group; // owned by the dialog, not by a widget
+    delete m_galleryHighlight.group;
     qDeleteAll(findChildren<QWidget *>(Qt::FindDirectChildrenOnly));
     buildUi();
     setValues(shown);
@@ -507,7 +499,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_language->setCurrentIndex(std::max(0, m_language->findData(settings.language)));
     m_confirmTrash->setChecked(settings.confirmTrash);
     m_reopenLast->setChecked(settings.reopenLastImage);
-    setBackground(settings.background);
+    setColor(m_background, settings.background);
     m_checkerboard->setChecked(settings.checkerboard);
     m_rememberGeometry->setChecked(settings.rememberGeometry);
     m_fitMode->setCurrentIndex(std::max(0, m_fitMode->findData(int(settings.fitMode))));
@@ -557,7 +549,11 @@ void SettingsDialog::setValues(const Settings &settings)
     m_galleryEnlargement->setEnabled(settings.galleryZoom);
     m_galleryOpacity->setValue(settings.galleryOpacity);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
+    setColor(m_galleryHighlight, settings.galleryHighlight);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
+    m_toolbarAutoHide->setChecked(settings.slideshowToolbarAutoHide);
+    m_toolbarHide->setEnabled(settings.slideshowToolbarAutoHide);
+    m_toolbarHide->setValue(settings.slideshowToolbarHideMs / 1000.0);
     m_toneMap->setChecked(settings.toneMap);
     m_clipWarning->setChecked(settings.clipWarning);
     m_output->setCurrentIndex(std::max(0, m_output->findData(int(settings.output))));
@@ -665,24 +661,54 @@ void SettingsDialog::setShortcuts(int row, QList<QKeySequence> shortcuts)
     updateApplyButton();
 }
 
-void SettingsDialog::setBackground(const QColor &color)
+QLayout *SettingsDialog::colorRow(ColorChoice &choice, const QColor *presets, const QString *names, int count,
+                                  const QString &dialogTitle)
 {
-    m_background = color;
-    const auto preset = std::find(std::begin(kBackgroundPresets), std::end(kBackgroundPresets), color);
-    if (preset != std::end(kBackgroundPresets)) {
-        m_backgroundGroup->button(int(preset - std::begin(kBackgroundPresets)))->setChecked(true);
-        m_customBackground->setIcon(QIcon());
-    } else {
-        m_customBackground->setChecked(true);
-        m_customBackground->setIcon(swatchIcon(color));
+    choice.presets = presets;
+    choice.presetCount = count;
+    choice.dialogTitle = dialogTitle;
+    choice.group = new QButtonGroup(this);
+    choice.group->setExclusive(true);
+    auto *row = new QHBoxLayout;
+    for (int i = 0; i < count; ++i) {
+        auto *button = new QToolButton;
+        button->setCheckable(true);
+        button->setIcon(swatchIcon(presets[i]));
+        button->setIconSize(QSize(28, 20));
+        button->setToolTip(names[i]);
+        button->setAccessibleName(names[i]);
+        choice.group->addButton(button, i);
+        row->addWidget(button);
+        connect(button, &QToolButton::clicked, this, [this, &choice, i] { setColor(choice, choice.presets[i]); });
     }
-    updateApplyButton(); // a new custom colour toggles no button
+    choice.custom = new QToolButton;
+    choice.custom->setCheckable(true);
+    choice.custom->setText(tr("Custom…"));
+    choice.custom->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    choice.custom->setIconSize(QSize(28, 20));
+    choice.group->addButton(choice.custom, count);
+    row->addWidget(choice.custom);
+    row->addStretch();
+    connect(choice.custom, &QToolButton::clicked, this, [this, &choice] {
+        const QColor chosen = QColorDialog::getColor(choice.color, this, choice.dialogTitle);
+        setColor(choice, chosen.isValid() ? chosen.toRgb() : choice.color); // cancelled: restore the selection
+    });
+    return row;
 }
 
-void SettingsDialog::chooseCustomBackground()
+void SettingsDialog::setColor(ColorChoice &choice, const QColor &color)
 {
-    const QColor chosen = QColorDialog::getColor(m_background, this, tr("Background Color"));
-    setBackground(chosen.isValid() ? chosen.toRgb() : m_background); // cancelled: restore the selection
+    choice.color = color;
+    const QColor *end = choice.presets + choice.presetCount;
+    const QColor *preset = std::find(choice.presets, end, color);
+    if (preset != end) {
+        choice.group->button(int(preset - choice.presets))->setChecked(true);
+        choice.custom->setIcon(QIcon());
+    } else {
+        choice.custom->setChecked(true);
+        choice.custom->setIcon(swatchIcon(color));
+    }
+    updateApplyButton(); // a new custom colour toggles no button
 }
 
 void SettingsDialog::moveOverlayField(int delta)
@@ -702,7 +728,7 @@ Settings SettingsDialog::settings() const
     s.language = m_language->currentData().toString();
     s.confirmTrash = m_confirmTrash->isChecked();
     s.reopenLastImage = m_reopenLast->isChecked();
-    s.background = m_background;
+    s.background = m_background.color;
     s.checkerboard = m_checkerboard->isChecked();
     s.rememberGeometry = m_rememberGeometry->isChecked();
     s.fitMode = FitMode(m_fitMode->currentData().toInt());
@@ -734,11 +760,14 @@ Settings SettingsDialog::settings() const
     s.preload = m_preload->isChecked();
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
+    s.slideshowToolbarAutoHide = m_toolbarAutoHide->isChecked();
+    s.slideshowToolbarHideMs = int(std::lround(m_toolbarHide->value() * 1000));
     s.showGallery = m_showGallery->isChecked();
     s.galleryThumbnailSize = m_galleryThumbnailSize->currentData().toInt();
     s.galleryZoom = m_galleryZoom->isChecked();
     s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();
+    s.galleryHighlight = m_galleryHighlight.color;
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());

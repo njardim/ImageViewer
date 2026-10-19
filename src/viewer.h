@@ -112,7 +112,7 @@ private:
     double shownZoom() const; // of the file's own pixels: a texture reduced for the GPU has fewer
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
-    void setActualSize();
+    void chooseFit(FitMode mode); // a command: the mode stays for the next images (D-65)
     void setFit(FitMode mode);
     void resetPan();      // centred; a width-fitted image from its top, a height-fitted one from its start
     bool canPan() const;  // the image is larger than the window
@@ -184,6 +184,14 @@ private:
     void toggleSlideshow();
     void stopSlideshow();
     void slideshowTimeout();
+    // The slideshow's toolbar (D-65): pause or play, and stop, below the top overlay.
+    enum class ToolbarButton { None, PlayPause, Stop };
+    QRectF slideshowToolbarRect() const;                         // device pixels; empty when hidden
+    ToolbarButton toolbarButtonAt(const QPointF &position) const; // logical pixels
+    void showSlideshowToolbar(); // when the pointer moves; it hides again when it stays still
+    void updateSlideshowToolbar();
+    void setToolbarHover(ToolbarButton button);
+    void toolbarClicked(ToolbarButton button);
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
@@ -305,6 +313,12 @@ private:
     QTimer m_frameTimer;
     bool m_slideshow = false;
     QTimer m_slideshowTimer;
+    QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
+    bool m_toolbarHidden = false;
+    ToolbarButton m_toolbarHover = ToolbarButton::None;
+    ToolbarButton m_toolbarPress = ToolbarButton::None; // a press that becomes a click when released on it
+    QSize m_toolbarSize;          // device pixels; empty when not shown
+    QString m_toolbarKey;         // what its texture shows
     // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
     // as soon as the worker ends, while the finished signal is still queued, and setting a
     // new future then would discard the result that was never delivered.

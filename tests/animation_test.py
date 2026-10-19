@@ -8,6 +8,10 @@ still image. The colour in the middle of the window shows what is on screen:
      K plays again;
   3. S starts the slideshow (1 s per image, from the settings): the yellow image follows
      by itself; Esc stops it and the image stays.
+  4. The slideshow's toolbar (D-65), below the top overlay: pause and stop while it runs; a
+     click on pause holds the image and turns it into play, play goes on; a still pointer
+     hides the toolbar after the time in the settings, a move shows it again; stop ends it.
+  5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back.
 
 usage: python3 tests/animation_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
@@ -85,6 +89,44 @@ def wait_for(what, names):
     fail(f"{what}: not after {DEADLINE_S} s (see {shot_path})")
 
 
+def toolbar():
+    """(glyph, x, y) of the slideshow toolbar's first button: "pause" or "play", with its
+    centre on the screen; None when the toolbar is not shown. The toolbar's glyphs are the only
+    near-white pixels in the window's top band."""
+    result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}", shell=True,
+                            stderr=subprocess.DEVNULL)
+    if result.returncode != 0:
+        return None
+    screen = np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
+    x0, y0, w, _ = geometry
+    band = screen[y0:y0 + 150, x0:x0 + w]
+    ys, xs = np.nonzero(band.min(axis=2) >= 225)
+    if len(xs) < 40:
+        return None
+    # Two glyphs: the first is everything left of the widest gap between white columns.
+    columns = np.unique(xs)
+    split = columns[np.argmax(np.diff(columns))] if len(columns) > 1 else columns[-1]
+    first = xs <= split
+    left, right = xs[first].min(), xs[first].max()
+    middle = (left + right) // 2
+    # Pause is two bars with a gap in the middle; play's triangle is solid there.
+    glyph = "play" if np.any(xs[first] == middle) else "pause"
+    return glyph, x0 + int(xs[first].mean()), y0 + int(ys[first].mean())
+
+
+def toolbar_is(what, glyph):
+    start = time.monotonic()
+    while time.monotonic() - start < DEADLINE_S:
+        if app.poll() is not None:
+            fail(f"{what}: ImageViewer exited with code {app.returncode}")
+        seen = toolbar()
+        if (seen[0] if seen else None) == glyph:
+            print(f"ok   {what} ({time.monotonic() - start:.1f} s)")
+            return seen
+        time.sleep(POLL_S)
+    fail(f"{what}: toolbar shows {seen[0] if seen else 'nothing'} instead of {glyph} (see {shot_path})")
+
+
 def stays(what, name, seconds):
     end = time.monotonic() + seconds
     while time.monotonic() < end:
@@ -145,7 +187,61 @@ try:
             wait_for("and comes back to the still image", {"yellow"})
             xdotool("key", "Escape")
             stays("Esc stops the slideshow", "yellow", 2.5)
+            if toolbar() is not None:
+                fail("the slideshow's toolbar stayed after Esc")
 
+            # 4. The toolbar (D-65).
+            centre = (geometry[0] + geometry[2] // 2, geometry[1] + geometry[3] // 2)
+            xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))  # off the image and the toolbar
+            xdotool("key", "s")
+            glyph, bx, by = toolbar_is("S shows the toolbar with pause", "pause")
+            xdotool("mousemove", "--sync", str(bx), str(by))
+            xdotool("click", "1")
+            toolbar_is("a click on pause turns it into play", "play")
+            held = colour()
+            stays("and the slideshow holds its image", held, 2.5)
+            xdotool("click", "1")
+            toolbar_is("a click on play turns it back into pause", "pause")
+            wait_for("and the slideshow goes on", set(COLOURS) - {held})
+            xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))
+            moved = time.monotonic()
+            toolbar_is("a still pointer hides the toolbar", None)
+            if time.monotonic() - moved < 1.8:
+                fail(f"the toolbar hid {time.monotonic() - moved:.1f} s after a move, before 2 s")
+            xdotool("mousemove", "--sync", str(centre[0] + 20), str(centre[1] + 150))
+            glyph, bx, by = toolbar_is("a move shows it again", "pause")
+            stop_x = 2 * centre[0] - bx  # the stop button mirrors the first about the middle
+            xdotool("mousemove", "--sync", str(stop_x), str(by))
+            wait_for("the slideshow comes to the still image", {"yellow"})  # the animation changes by itself
+            xdotool("click", "1")
+            toolbar_is("a click on stop takes the toolbar away", None)
+            stays("and stops the slideshow", "yellow", 2.5)
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 5. The slideshow in full screen, given back by Esc.
+            with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "a") as f:
+                f.write("\n[navigation]\nslideshowFullScreen=true\n")
+            app = subprocess.Popen([exe, os.path.join(pictures, "b-still.png")], env=env, stdout=log, stderr=log)
+            wait_for("the still image is shown again", {"yellow"})
+
+            # Xvfb has no window manager to resize the window: the viewer's log says what it asked for.
+            def logged(what, count):
+                start = time.monotonic()
+                while time.monotonic() - start < DEADLINE_S:
+                    with open(log_path, encoding="utf-8", errors="replace") as f:
+                        if f.read().count(what) >= count:
+                            print(f"ok   {what} ({time.monotonic() - start:.1f} s)")
+                            return
+                    time.sleep(POLL_S)
+                fail(f"no {what!r} in the log")
+            with open(log_path, encoding="utf-8", errors="replace") as f:
+                windowed = f.read().count("visibility QWindow::Windowed")
+            xdotool("windowfocus", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0])
+            xdotool("key", "s")
+            logged("visibility QWindow::FullScreen", 1)
+            xdotool("key", "Escape")
+            logged("visibility QWindow::Windowed", windowed + 1)
             xdotool("key", "q")
             app.wait(15)
         finally:

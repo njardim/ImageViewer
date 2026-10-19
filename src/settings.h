@@ -72,7 +72,7 @@ struct Settings {
     int overlayBackgroundOpacity = 70; // percent
     int overlayTextOpacity = 100;      // percent
     bool overlayOutline = false;       // dark outline around the text, for HDR highlights (D-58)
-    int overlayHideDelayMs = 1500;     // on-hover mode: hidden this long after the pointer leaves
+    int overlayHideDelayMs = 2000;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back: keys, mouse, slideshow, gallery
     bool sideZones = true;     // click the left/right edge of the window for previous/next

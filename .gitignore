@@ -7,3 +7,4 @@ CMakeUserPresets.json
 __pycache__/
 *.pyc
 aqtinstall.log
+*.whl

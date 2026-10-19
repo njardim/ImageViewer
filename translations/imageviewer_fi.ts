@@ -273,6 +273,10 @@
         <translation>Täytä ikkuna</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Todellinen koko (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Uuden kuvan zoomaus:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Aika kuvaa kohden:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Piilota työkalurivi, kun osoitin on paikallaan</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Pieni</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Pikkukuvien koko:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubiini</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragdi</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safiiri</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Kulta</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Timantti</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Korostusväri:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Korostusväri</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

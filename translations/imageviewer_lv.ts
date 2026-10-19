@@ -273,6 +273,10 @@
         <translation>Aizpildīt logu</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Faktiskais izmērs (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Jaunā attēla tālummaiņa:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Laiks katram attēlam:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Paslēpt rīkjoslu, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Mazi</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Sīktēlu izmērs:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubīns</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragds</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safīrs</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Zelts</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Dimants</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Izcēluma krāsa:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Izcēluma krāsa</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

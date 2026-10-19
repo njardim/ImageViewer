@@ -353,6 +353,10 @@
         <translation>విండోను నింపు</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>అసలు పరిమాణం (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>కొత్త చిత్రం జూమ్:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>మునుపటి లేదా తదుపరి చిత్రం కోసం విండో ఎడమ లేదా కుడి వైపున క్లిక్ చేయి</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు టూల్‌బార్‌ను దాచు</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>చిన్నది</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>థంబ్‌నెయిల్ పరిమాణం:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>మాణిక్యం</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>పచ్చ</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>నీలం</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>బంగారు</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>వజ్రం</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>హైలైట్ రంగు:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>హైలైట్ రంగు</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

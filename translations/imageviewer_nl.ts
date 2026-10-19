@@ -273,6 +273,10 @@
         <translation>Venster vullen</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Werkelijke grootte (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom van een nieuwe afbeelding:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Tijd per afbeelding:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Werkbalk verbergen zolang de aanwijzer stilstaat</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Klein</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Grootte van de miniaturen:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Robijn</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Saffier</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Goud</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Markeringskleur:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Markeringskleur</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

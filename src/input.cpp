@@ -11,6 +11,7 @@
 #include <QWheelEvent>
 
 #include <cmath>
+#include <utility>
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
@@ -29,6 +30,8 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
 
 void ViewerWindow::mousePressEvent(QMouseEvent *e)
 {
+    // Only a toolbar on screen takes the press: a hidden one comes back with it (pointerActive).
+    const ToolbarButton button = toolbarButtonAt(e->position());
     pointerActive();
     switch (e->button()) {
     case Qt::RightButton:
@@ -43,6 +46,11 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     case Qt::LeftButton:
         break;
     default:
+        return;
+    }
+    if (button != ToolbarButton::None) {
+        m_toolbarPress = button; // a click when released on the same button
+        updateSlideshowToolbar();
         return;
     }
     if (galleryContains(e->position())) { // a thumbnail shows its image; the bar itself does nothing
@@ -66,7 +74,9 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         m_dragging = false;
         m_pressZone = Zone::None;
-        setHoverZone(zoneAt(e->position()));
+        const ToolbarButton button = toolbarButtonAt(e->position());
+        setToolbarHover(button);
+        setHoverZone(button == ToolbarButton::None ? zoneAt(e->position()) : Zone::None);
         setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
         setGalleryHover(galleryIndexAt(e->position()));
         return;
@@ -89,6 +99,12 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton)
         return;
+    if (const ToolbarButton pressed = std::exchange(m_toolbarPress, ToolbarButton::None); pressed != ToolbarButton::None) {
+        updateSlideshowToolbar();
+        if (toolbarButtonAt(e->position()) == pressed)
+            toolbarClicked(pressed);
+        return;
+    }
     m_dragging = false;
     const Zone pressed = std::exchange(m_pressZone, Zone::None);
     const Zone released = zoneAt(e->position());
@@ -104,6 +120,10 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton || galleryContains(e->position()))
         return;
+    if (toolbarButtonAt(e->position()) != ToolbarButton::None) {
+        mousePressEvent(e); // quick clicks on its buttons are clicks, never full screen
+        return;
+    }
     if (zoneAt(e->position()) != Zone::None) {
         mousePressEvent(e); // quick clicks on a side keep navigating
         return;
@@ -120,6 +140,8 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
     pointerActive();
+    if (toolbarButtonAt(e->position()) != ToolbarButton::None)
+        return;
     if (galleryContains(e->position())) { // over the gallery the wheel scrolls the thumbnails
         m_galleryWheel += e->angleDelta().y() + e->angleDelta().x();
         if (const int steps = m_galleryWheel / 120; steps != 0) {

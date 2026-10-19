@@ -353,6 +353,10 @@
         <translation>ウィンドウいっぱいに表示</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>実際のサイズ（100%）</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>新しい画像のズーム：</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>ウィンドウの左側または右側をクリックして前または次の画像を表示する</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>ポインターが止まっている間はツールバーを隠す</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>小</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>サムネイルのサイズ:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>ルビー</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>エメラルド</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>サファイア</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>ゴールド</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>ダイヤモンド</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>ハイライトの色：</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>ハイライトの色</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

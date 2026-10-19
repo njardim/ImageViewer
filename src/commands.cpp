@@ -220,6 +220,7 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::FitWidth: return m_fit == FitMode::Width;
     case Command::FitHeight: return m_fit == FitMode::Height;
     case Command::Fill: return m_fit == FitMode::Fill;
+    case Command::ActualSize: return m_fit == FitMode::Actual;
     case Command::LockZoom: return m_settings.lockZoom;
     case Command::FullScreen: return visibility() == QWindow::FullScreen;
     case Command::Info: return m_settings.showInfo;
@@ -266,12 +267,12 @@ void ViewerWindow::execute(Command command)
         break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
     case Command::ZoomOut: zoomAt(1.0 / kZoomStep, centre); break;
-    case Command::Fit: setFit(FitMode::Window); break;
-    case Command::FitWidth: setFit(FitMode::Width); break;
-    case Command::FitHeight: setFit(FitMode::Height); break;
-    case Command::Fill: setFit(FitMode::Fill); break;
+    case Command::Fit: chooseFit(FitMode::Window); break;
+    case Command::FitWidth: chooseFit(FitMode::Width); break;
+    case Command::FitHeight: chooseFit(FitMode::Height); break;
+    case Command::Fill: chooseFit(FitMode::Fill); break;
     case Command::LockZoom: toggleLockZoom(); break;
-    case Command::ActualSize: setActualSize(); break;
+    case Command::ActualSize: chooseFit(FitMode::Actual); break;
     case Command::FullScreen: toggleFullScreen(); break;
     case Command::Info: toggleInfo(); break;
     case Command::InfoOverlay: toggleTopOverlay(); break;

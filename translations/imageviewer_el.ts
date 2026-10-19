@@ -273,6 +273,10 @@
         <translation>Γέμισμα του παραθύρου</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Πραγματικό μέγεθος (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Μεγέθυνση νέας εικόνας:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Χρόνος ανά εικόνα:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Απόκρυψη της γραμμής εργαλείων όσο ο δείκτης μένει ακίνητος</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Μικρό</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Μέγεθος μικρογραφιών:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Ρουμπίνι</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Σμαράγδι</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Ζαφείρι</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Χρυσό</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Διαμάντι</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Χρώμα επισήμανσης:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Χρώμα επισήμανσης</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

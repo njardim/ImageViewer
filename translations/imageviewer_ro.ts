@@ -273,6 +273,10 @@
         <translation>Umplerea ferestrei</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Dimensiune reală (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom pentru o imagine nouă:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Timp pe imagine:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Ascunde bara de instrumente cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Mici</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Dimensiunea miniaturilor:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smarald</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Auriu</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Culoarea evidențierii:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Culoarea evidențierii</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

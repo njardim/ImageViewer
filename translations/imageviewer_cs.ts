@@ -273,6 +273,10 @@
         <translation>Vyplnit okno</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Skutečná velikost (100&#xa0;%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Přiblížení nového obrázku:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Doba na obrázek:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Skrýt panel nástrojů, když se ukazatel nehýbe</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Malé</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Velikost náhledů:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubín</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safír</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Zlatá</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Barva zvýraznění:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Barva zvýraznění</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

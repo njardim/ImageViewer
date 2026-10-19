@@ -273,6 +273,10 @@
         <translation>Ispuni prozor</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Stvarna veličina (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zumiranje nove slike:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Vrijeme po slici:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Sakrij alatnu traku dok se pokazivač ne miče</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Male</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Veličina sličica:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Zlatna</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Dijamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Boja isticanja:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Boja isticanja</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

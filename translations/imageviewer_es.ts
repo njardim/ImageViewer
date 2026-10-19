@@ -353,6 +353,10 @@
         <translation>Rellenar la ventana</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Tamaño real (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom de una imagen nueva:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>Hacer clic en el lado izquierdo o derecho de la ventana para ir a la imagen anterior o siguiente</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Ocultar la barra de herramientas mientras el puntero esté quieto</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Pequeño</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Tamaño de las miniaturas:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubí</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Esmeralda</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Zafiro</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Oro</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamante</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Color de resaltado:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Color de resaltado</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

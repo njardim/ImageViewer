@@ -353,6 +353,10 @@
         <translation>填满窗口</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>实际大小（100%）</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>新图像的缩放：</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>指针静止时隐藏工具栏</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>小</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>缩略图大小：</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>红宝石</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>祖母绿</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>蓝宝石</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>金色</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>钻石</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>高亮颜色：</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>高亮颜色</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -353,6 +353,10 @@
         <translation>Заполнить окно</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Фактический размер (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Масштаб нового изображения:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>Переход к предыдущему или следующему изображению щелчком по левой или правой части окна</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Скрывать панель инструментов, пока указатель неподвижен</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Маленькие</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Размер миниатюр:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Рубин</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Изумруд</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Сапфир</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Золото</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Бриллиант</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Цвет выделения:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Цвет выделения</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

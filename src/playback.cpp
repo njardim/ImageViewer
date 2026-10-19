@@ -216,6 +216,7 @@ void ViewerWindow::toggleSlideshow()
     m_slideshow = true;
     m_slideshowPaused = false;
     m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+    showSlideshowToolbar();
     if (m_settings.slideshowFullScreen && visibility() != QWindow::FullScreen) {
         m_slideshowLeavesFullScreen = true;
         toggleFullScreen();
@@ -235,6 +236,7 @@ void ViewerWindow::toggleSlideshowPause()
         //: %1: seconds between images, e.g. "5".
         showNotice(tr("Slideshow: a new image every %1 s").arg(QLocale().toString(m_settings.slideshowSeconds)));
     }
+    updateSlideshowToolbar(); // play and pause trade places
 }
 
 void ViewerWindow::restartSlideshowInterval()
@@ -248,6 +250,10 @@ void ViewerWindow::stopSlideshow()
     m_slideshow = false;
     m_slideshowPaused = false;
     m_slideshowTimer.stop();
+    m_toolbarTimer.stop();
+    m_toolbarPress = ToolbarButton::None;
+    setToolbarHover(ToolbarButton::None);
+    updateSlideshowToolbar();
     if (std::exchange(m_slideshowLeavesFullScreen, false) && visibility() == QWindow::FullScreen)
         leaveFullScreen();
 }
@@ -266,4 +272,35 @@ void ViewerWindow::slideshowTimeout()
         return;
     }
     step(+1);
+}
+
+void ViewerWindow::showSlideshowToolbar()
+{
+    if (!m_slideshow)
+        return;
+    m_toolbarHidden = false;
+    if (m_settings.slideshowToolbarAutoHide)
+        m_toolbarTimer.start(m_settings.slideshowToolbarHideMs);
+    else
+        m_toolbarTimer.stop();
+    updateSlideshowToolbar();
+}
+
+void ViewerWindow::setToolbarHover(ToolbarButton button)
+{
+    if (button == m_toolbarHover)
+        return;
+    m_toolbarHover = button;
+    updateCursor();
+    updateSlideshowToolbar();
+}
+
+void ViewerWindow::toolbarClicked(ToolbarButton button)
+{
+    if (button == ToolbarButton::PlayPause) {
+        toggleSlideshowPause();
+    } else if (button == ToolbarButton::Stop) {
+        stopSlideshow();
+        showNotice(tr("Slideshow stopped"));
+    }
 }

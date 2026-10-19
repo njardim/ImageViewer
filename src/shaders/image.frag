@@ -24,7 +24,7 @@ layout(std140, binding = 0) uniform Params {
     vec4 imageRect; // the image on screen, device pixels: x, y, width, height (width 0: none)
     vec4 uvMap;     // xy: texture coordinates at imageRect's top-left; zw: their change per pixel along x
     vec4 uvMapY;    // xy: their change per pixel along y; z: target height in pixels
-    vec4 layers[6]; // overlay rectangles, device pixels (width 0: absent), in drawing order
+    vec4 layers[7]; // overlay rectangles, device pixels (width 0: absent), in drawing order
 };
 
 layout(binding = 1) uniform sampler2D tex; // the image
@@ -34,6 +34,7 @@ layout(binding = 4) uniform sampler2D overlay2;
 layout(binding = 5) uniform sampler2D overlay3;
 layout(binding = 6) uniform sampler2D overlay4;
 layout(binding = 7) uniform sampler2D overlay5;
+layout(binding = 8) uniform sampler2D overlay6;
 
 const int MODE_SDR = 0;
 const int MODE_SCRGB = 1;
@@ -186,11 +187,13 @@ void main()
     vec4 ui3 = texture(overlay3, (p - layers[3].xy) / max(layers[3].zw, vec2(1.0)));
     vec4 ui4 = texture(overlay4, (p - layers[4].xy) / max(layers[4].zw, vec2(1.0)));
     vec4 ui5 = texture(overlay5, (p - layers[5].xy) / max(layers[5].zw, vec2(1.0)));
+    vec4 ui6 = texture(overlay6, (p - layers[6].xy) / max(layers[6].zw, vec2(1.0)));
     rgb = overUi(rgb, ui0, layer >= 0 && within(p, layers[0]));
     rgb = overUi(rgb, ui1, layer >= 1 && within(p, layers[1]));
     rgb = overUi(rgb, ui2, layer >= 2 && within(p, layers[2]));
     rgb = overUi(rgb, ui3, layer >= 3 && within(p, layers[3]));
     rgb = overUi(rgb, ui4, layer >= 4 && within(p, layers[4]));
     rgb = overUi(rgb, ui5, layer >= 5 && within(p, layers[5]));
+    rgb = overUi(rgb, ui6, layer >= 6 && within(p, layers[6]));
     fragColor = vec4(encodeOutput(rgb), 1.0);
 }

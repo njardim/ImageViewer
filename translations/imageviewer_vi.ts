@@ -353,6 +353,10 @@
         <translation>Lấp đầy cửa sổ</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Kích thước thực (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Thu phóng ảnh mới:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>Nhấp vào bên trái hoặc bên phải cửa sổ để chuyển đến ảnh trước hoặc ảnh tiếp theo</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Ẩn thanh công cụ khi con trỏ đứng yên</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Nhỏ</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Kích thước hình thu nhỏ:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Hồng ngọc</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Ngọc lục bảo</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Ngọc bích</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Vàng</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Kim cương</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Màu tô sáng:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Màu tô sáng</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

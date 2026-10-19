@@ -273,6 +273,10 @@
         <translation>Imla t-tieqa</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Daqs attwali (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom ta&apos; immaġni ġdida:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Ħin għal kull immaġni:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Aħbi l-barra tal-għodod sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Żgħar</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Daqs tal-minjaturi:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Żmerald</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Żaffir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Deheb</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Djamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Kulur tal-enfasi:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Kulur tal-enfasi</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

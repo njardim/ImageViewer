@@ -273,6 +273,10 @@
         <translation>Fyll fönstret</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Verklig storlek (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom för en ny bild:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Tid per bild:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Dölj verktygsfältet medan pekaren står still</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Små</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Miniatyrstorlek:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Guld</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Markeringsfärg:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Markeringsfärg</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -80,7 +80,8 @@ const char *sortKey(FolderSort sort)
 
 // Stored names of the view preferences of D-51.
 constexpr std::pair<FitMode, const char *> kFitModes[] = {
-    {FitMode::Window, "window"}, {FitMode::Width, "width"}, {FitMode::Height, "height"}, {FitMode::Fill, "fill"}};
+    {FitMode::Window, "window"}, {FitMode::Width, "width"}, {FitMode::Height, "height"}, {FitMode::Fill, "fill"},
+    {FitMode::Actual, "actual"}};
 constexpr std::pair<WindowFit, const char *> kWindowFits[] = {
     {WindowFit::Never, "never"}, {WindowFit::FirstImage, "first"}, {WindowFit::EveryImage, "every"}};
 constexpr std::pair<TitleMode, const char *> kTitleModes[] = {{TitleMode::Overlay, "overlay"},
@@ -151,6 +152,17 @@ int timeValue(const QSettings &store, const QString &key, int fallback, int low,
     return steppedInt(store, key, fallback, low, high, Settings::kTimeStepMs);
 }
 
+// "#rrggbb", opaque.
+QColor colorValue(const QSettings &store, const QString &key, const QColor &fallback)
+{
+    QColor color(store.value(key).toString());
+    if (!color.isValid())
+        return fallback;
+    color = color.toRgb();
+    color.setAlpha(255);
+    return color;
+}
+
 bool isKnownLanguage(const QString &code)
 {
     const QList<UiLanguage> &languages = uiLanguages();
@@ -199,9 +211,7 @@ Settings Settings::load()
     s.confirmTrash = boolFrom(store.value(QStringLiteral("app/confirmTrash")), defaults.confirmTrash);
     s.reopenLastImage = boolFrom(store.value(QStringLiteral("app/reopenLastImage")), defaults.reopenLastImage);
 
-    const QColor background(store.value(QStringLiteral("window/background")).toString());
-    s.background = background.isValid() ? background.toRgb() : defaults.background;
-    s.background.setAlpha(255);
+    s.background = colorValue(store, QStringLiteral("window/background"), defaults.background);
     s.checkerboard = boolValue(store, QStringLiteral("window/checkerboard"), defaults.checkerboard);
     s.rememberGeometry = boolValue(store, QStringLiteral("window/rememberGeometry"), defaults.rememberGeometry);
     s.fitMode = fromKey(kFitModes, store.value(QStringLiteral("view/fitMode")).toString(), defaults.fitMode);
@@ -252,6 +262,10 @@ Settings Settings::load()
                              ? std::round(seconds * 1000.0 / kTimeStepMs) * kTimeStepMs / 1000.0 // on the step
                              : defaults.slideshowSeconds;
     s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
+    s.slideshowToolbarAutoHide = boolValue(store, QStringLiteral("navigation/slideshowToolbarAutoHide"),
+                                           defaults.slideshowToolbarAutoHide);
+    s.slideshowToolbarHideMs = timeValue(store, QStringLiteral("navigation/slideshowToolbarHideMs"),
+                                         defaults.slideshowToolbarHideMs, kMinToolbarHideMs, kMaxToolbarHideMs);
     s.showGallery = boolValue(store, QStringLiteral("gallery/show"), defaults.showGallery);
     s.galleryThumbnailSize = store.value(QStringLiteral("gallery/thumbnailSize")).toInt();
     if (std::find(kGalleryThumbnailSizes.cbegin(), kGalleryThumbnailSizes.cend(), s.galleryThumbnailSize)
@@ -261,6 +275,7 @@ Settings Settings::load()
     s.galleryOpacity = sizeValue(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
     s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
+    s.galleryHighlight = colorValue(store, QStringLiteral("gallery/highlight"), defaults.galleryHighlight);
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -354,11 +369,14 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/preload"), preload);
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
+    store.setValue(QStringLiteral("navigation/slideshowToolbarAutoHide"), slideshowToolbarAutoHide);
+    store.setValue(QStringLiteral("navigation/slideshowToolbarHideMs"), slideshowToolbarHideMs);
     store.setValue(QStringLiteral("gallery/show"), showGallery);
     store.setValue(QStringLiteral("gallery/thumbnailSize"), galleryThumbnailSize);
     store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
     store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
+    store.setValue(QStringLiteral("gallery/highlight"), galleryHighlight.name(QColor::HexRgb));
     store.remove(QStringLiteral("shortcuts"));
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QStringList parts;

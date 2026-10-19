@@ -273,6 +273,10 @@
         <translation>Запълване на прозореца</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Действителен размер (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Мащаб на новото изображение:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Време за изображение:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Скриване на лентата с инструменти, докато показалецът е неподвижен</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Малък</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Размер на миниатюрите:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Рубин</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Изумруд</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Сапфир</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Злато</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Диамант</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Цвят на открояването:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Цвят на открояването</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

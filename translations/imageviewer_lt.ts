@@ -273,6 +273,10 @@
         <translation>Užpildyti langą</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Tikrasis dydis (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Naujo vaizdo mastelis:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Laikas vienam vaizdui:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Slėpti įrankių juostą, kol žymiklis nejuda</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Mažos</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Miniatiūrų dydis:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubinas</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragdas</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safyras</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Auksas</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Deimantas</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Paryškinimo spalva:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Paryškinimo spalva</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

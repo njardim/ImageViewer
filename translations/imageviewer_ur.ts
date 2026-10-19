@@ -353,6 +353,10 @@
         <translation>ونڈو کو بھریں</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>اصل سائز (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>نئی تصویر کا زوم:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>پچھلی یا اگلی تصویر کے لیے ونڈو کے بائیں یا دائیں جانب کلک کریں</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر ٹول بار چھپائیں</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>چھوٹا</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>تھمب نیل کا سائز:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>یاقوت</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>زمرد</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>نیلم</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>سنہری</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>ہیرا</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>نمایاں رنگ:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>نمایاں رنگ</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

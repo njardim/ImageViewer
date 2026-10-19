@@ -273,6 +273,10 @@
         <translation>Udfyld vinduet</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Faktisk størrelse (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom for nyt billede:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Tid pr. billede:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Skjul værktøjslinjen, mens markøren står stille</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Lille</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Miniaturestørrelse:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Guld</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Fremhævningsfarve:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Fremhævningsfarve</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

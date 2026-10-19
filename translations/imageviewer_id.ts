@@ -353,6 +353,10 @@
         <translation>Isi jendela</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Ukuran Sebenarnya (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom gambar baru:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>Klik sisi kiri atau kanan jendela untuk gambar sebelumnya atau berikutnya</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Sembunyikan bilah alat saat penunjuk diam</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Kecil</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Ukuran gambar mini:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubi</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Zamrud</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Emas</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Berlian</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Warna sorotan:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Warna Sorotan</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

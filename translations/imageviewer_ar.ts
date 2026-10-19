@@ -353,6 +353,10 @@
         <translation>ملء النافذة</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>الحجم الفعلي (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>التكبير عند فتح صورة جديدة:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>النقر على الجانب الأيسر أو الأيمن من النافذة لعرض الصورة السابقة أو التالية</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>إخفاء شريط الأدوات ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>صغير</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>حجم الصور المصغرة:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>ياقوت أحمر</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>زمرد</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>ياقوت أزرق</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>ذهبي</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>ماسي</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>لون التمييز:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>لون التمييز</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -64,7 +64,7 @@ pictures = os.path.join(home, "pictures")
 config = os.path.join(work, "config")
 data = os.path.join(home, ".local", "share")
 # A reused UI_TEST_DIR must not carry an earlier run's settings or trash into this one.
-for d in (home, config):
+for d in (home, config, os.path.join(work, "zoom"), os.path.join(work, "gallery")):
     shutil.rmtree(d, ignore_errors=True)
 for d in (pictures, config, data):
     os.makedirs(d, exist_ok=True)

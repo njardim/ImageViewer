@@ -273,6 +273,10 @@
         <translation>Pencereyi doldur</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Gerçek boyut (%100)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Yeni görüntünün yakınlaştırması:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Görüntü başına süre:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>İşaretçi hareketsizken araç çubuğunu gizle</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Küçük</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Küçük resim boyutu:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Yakut</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Zümrüt</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Altın</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Elmas</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Vurgu rengi:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Vurgu Rengi</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

@@ -273,6 +273,10 @@
         <translation>창 채우기</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>실제 크기(100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>새 이미지 배율:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>이미지당 시간:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 도구 모음 숨기기</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>작게</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>썸네일 크기:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>루비</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>에메랄드</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>사파이어</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>골드</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>다이아몬드</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>강조 색:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>강조 색</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

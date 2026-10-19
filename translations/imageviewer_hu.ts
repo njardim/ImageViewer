@@ -273,6 +273,10 @@
         <translation>Ablak kitöltése</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Valódi méret (100%)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Új kép nagyítása:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Képenkénti idő:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Az eszköztár elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Kicsi</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Bélyegképek mérete:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Zafír</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Arany</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Gyémánt</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Kiemelés színe:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Kiemelés színe</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

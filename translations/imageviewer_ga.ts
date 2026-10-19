@@ -273,6 +273,10 @@
         <translation>Líon an fhuinneog</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Fíormhéid (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zúmáil íomhá nua:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Am in aghaidh na híomhá:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Folaigh an barra uirlisí fad is atá an pointeoir socair</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Beag</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Méid na mionsamhlacha:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rúbaí</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragaid</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Saifír</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Ór</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Dath aibhsithe:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Dath aibhsithe</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

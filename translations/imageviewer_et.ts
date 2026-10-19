@@ -273,6 +273,10 @@
         <translation>Täida aken</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Tegelik suurus (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Uue pildi suum:</translation>
     </message>
@@ -334,6 +338,10 @@
         <translation>Aeg pildi kohta:</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Peida tööriistariba, kui kursor ei liigu</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Väike</translation>
     </message>
@@ -348,6 +356,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Pisipiltide suurus:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubiin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Safiir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Kuld</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Teemant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Esiletõstu värv:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Esiletõstu värv</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

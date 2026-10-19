@@ -353,6 +353,10 @@
         <translation>উইন্ডো ভরে দিন</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>প্রকৃত আকার (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>নতুন ছবির জুম:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে টুলবার লুকান</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>ছোট</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>থাম্বনেইলের আকার:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>রুবি</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>পান্না</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>নীলকান্তমণি</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>সোনালি</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>হীরা</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>হাইলাইটের রং:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>হাইলাইটের রং</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

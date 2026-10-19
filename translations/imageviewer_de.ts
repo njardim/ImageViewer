@@ -353,6 +353,10 @@
         <translation>Fenster ausfüllen</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>Originalgröße (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>Zoom für neue Bilder:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>Durch Klicken auf die linke oder rechte Fensterseite zum vorherigen oder nächsten Bild wechseln</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>Symbolleiste ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>Klein</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>Miniaturgröße:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>Rubin</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>Smaragd</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>Saphir</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>Gold</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>Diamant</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>Hervorhebungsfarbe:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>Hervorhebungsfarbe</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

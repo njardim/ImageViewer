@@ -353,6 +353,10 @@
         <translation>विंडो भरा</translation>
     </message>
     <message>
+        <source>Actual size (100 %)</source>
+        <translation>वास्तविक आकार (100 %)</translation>
+    </message>
+    <message>
         <source>Zoom of a new image:</source>
         <translation>नवीन प्रतिमेचा झूम:</translation>
     </message>
@@ -438,6 +442,10 @@
         <translation>मागील किंवा पुढील प्रतिमेसाठी विंडोच्या डाव्या किंवा उजव्या बाजूला क्लिक करा</translation>
     </message>
     <message>
+        <source>Hide the toolbar while the pointer is still</source>
+        <translation>पॉइंटर स्थिर असताना टूलबार लपवा</translation>
+    </message>
+    <message>
         <source>Small</source>
         <translation>लहान</translation>
     </message>
@@ -452,6 +460,34 @@
     <message>
         <source>Thumbnail size:</source>
         <translation>थंबनेलचा आकार:</translation>
+    </message>
+    <message>
+        <source>Ruby</source>
+        <translation>माणिक</translation>
+    </message>
+    <message>
+        <source>Emerald</source>
+        <translation>पाचू</translation>
+    </message>
+    <message>
+        <source>Sapphire</source>
+        <translation>नीलम</translation>
+    </message>
+    <message>
+        <source>Gold</source>
+        <translation>सोनेरी</translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation>हिरा</translation>
+    </message>
+    <message>
+        <source>Highlight color:</source>
+        <translation>हायलाइट रंग:</translation>
+    </message>
+    <message>
+        <source>Highlight Color</source>
+        <translation>हायलाइट रंग</translation>
     </message>
     <message>
         <source>Gallery (%1)</source>

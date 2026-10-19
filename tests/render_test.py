@@ -11,6 +11,13 @@ checks two things:
 The backend that actually rendered must be the one requested. It also runs
 `ImageViewer --panel-check` in each output: the information panels' contrast (D-49).
 
+PQ and HLG files (H1, H2; D-65): ramps in PNG (cICP), JPEG XL and AVIF from tests/hdr_corpus.py
+are decoded and drawn on an extended-range output that neither clips nor maps them (H1: the
+decoded light against ST 2084 and BT.2100, within 0.1 %), and on a PQ output with a
+10,000-nit peak (H2: content within the display's range comes out in the same absolute nits).
+A local build whose decoders cannot read a file's colour (OpenImageIO 2.4 ignores cICP) or
+depth skips it; CI ($CI set) fails instead.
+
 usage: python3 tests/render_test.py <ImageViewer> [vulkan|opengl]
   Linux:          Xvfb + xcb; Vulkan (default) or OpenGL.
   Windows, macOS: offscreen platform; the native backend (D3D11, Metal), no argument.
@@ -26,6 +33,8 @@ import sys
 import tempfile
 
 import numpy as np
+
+import hdr_corpus as hdr
 
 SYSTEM = platform.system()
 NATIVE = {"Windows": "d3d11", "Darwin": "metal"}
@@ -213,6 +222,48 @@ try:
     elif abs(float(pixel.group(1)) - 1.2246) > 2e-3:
         failures.append(f"wide gamut: P3 red R = {pixel.group(1)} at an SDR peak, expected 1.2246 (not clipped)")
 
+    # PQ and HLG files (H1, H2; D-65). The error of a pixel is its largest channel error over its
+    # brightest channel (a hue's zero channel is judged against the light around it), with a
+    # floor of 0.05 nits near black, where FP16 storage (RGBA16F) is coarser than 0.1 %.
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+    pngs = hdr.write_pngs(work)
+    hdr_files = [(pngs["pq"], "pq", 16), (pngs["hlg"], "hlg", 16)] + \
+        [(os.path.join(data_dir, name), kind, bits) for name, kind, bits in hdr.DATA_FILES]
+    for path, kind, bits in hdr_files:
+        name = os.path.basename(path)
+        info = subprocess.run([exe, "--info", path], env=dict(env, QT_QPA_PLATFORM="offscreen"), capture_output=True,
+                              text=True, encoding="utf-8", errors="replace", timeout=120).stdout
+        depth = re.search(r"^source:\s+\d+ ch, (\d+) bits", info, re.MULTILINE)
+        colour = re.search(r"^colour:\s+(.*)$", info, re.MULTILINE)
+        wanted = "PQ" if kind == "pq" else "HLG"
+        if not depth or not colour or wanted not in colour.group(1) or int(depth.group(1)) < bits:
+            seen = f"{colour.group(1) if colour else '?'}, {depth.group(1) if depth else '?'} bits"
+            if os.environ.get("CI"):
+                failures.append(f"{name}: read as {seen}, not {wanted} at {bits} bits")
+            else:
+                print(f"--- {name}: skipped, this build reads it as {seen}")
+            continue
+        reference = hdr.reference_nits(kind, hdr.codes(bits), bits)  # BT.2020 linear, nits
+        brightness = np.maximum(reference.max(axis=-1, keepdims=True), 0.05)
+        for case, args, to_nits, limit in (
+                ("H1 decoded light", ["--output", "edr", "--peak", "100", "--no-tonemap"],
+                 lambda raw: raw @ hdr.BT709_TO_BT2020.T * WHITE_NITS, 1e-3),
+                ("H2 on a 10,000-nit PQ output", ["--output", "pq", "--white", "203", "--peak", "10000"],
+                 hdr.pq_to_nits, 1e-3)):
+            pfm = os.path.join(work, f"{rhi}-{name}-{case[:2]}.pfm")
+            run = subprocess.run([exe, "--render", path, "--pfm", pfm, *args], env=env, capture_output=True,
+                                 text=True, encoding="utf-8", errors="replace", timeout=120)
+            if run.returncode != 0:
+                failures.append(f"{name} {case}: harness exit {run.returncode} {run.stderr.strip()[-300:]}")
+                continue
+            nits = to_nits(read_pfm(pfm))
+            error = (np.abs(nits - reference) / brightness).max(axis=-1)
+            row, level = np.unravel_index(np.argmax(error), error.shape)
+            print(f"--- {rhi} {name} {case}: max error {error.max():.2g} at level {level} of row {row} "
+                  f"({reference[row, level].round(3)} nits, got {nits[row, level].round(3)})")
+            if error.max() > limit:
+                failures.append(f"{name} {case}: error {error.max():.3g} above {limit} at level {level} of row {row}")
+
     # The information panels (D-49): their background darkens SDR white as in SDR in every
     # output, their labels keep 4.5:1 against it, and against their outline over the brightest
     # content the output shows (the harness measures and judges; exit 3 is a failed check).
@@ -230,4 +281,4 @@ finally:
 if failures:
     print("FAIL\n  " + "\n  ".join(failures))
     sys.exit(1)
-print(f"{rhi}: all {len(CASES)} output-stage cases and the wide-gamut case pass")
+print(f"{rhi}: all {len(CASES)} output-stage cases, the wide-gamut case and the PQ/HLG files pass")

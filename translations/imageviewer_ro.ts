@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Păstrează zoomul pentru imaginile următoare (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Zoom deblocat</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Afișează fiecare imagine așa cum o definește fișierul ei, cu culori verificabile, în SDR și HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Un vizualizator de imagini căruia îi puteți încredința culoarea: fiecare imagine așa cum o definește fișierul ei, în SDR și HDR, pe Windows, macOS și Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Rapid și minimalist, deschide peste 50 de formate pe Windows, macOS și Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Fiecare imagine este convertită o singură dată, din propria descriere a culorii (profil ICC sau CICP), într-un spațiu liniar în virgulă mobilă pe 16 biți, și trimisă către o ieșire HDR reală oriunde sistemul are una. Luminile mai strălucitoare decât ecranul sunt mapate tonal cu ITU-R BT.2390 sau tăiate la cerere, iar vizualizatorul vă spune mereu care dintre ele.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Citește %1 extensii de fișier, recunoscute după conținut: de la JPEG, PNG și TIFF la JPEG XL, AVIF, OpenEXR, DPX și RAW de aparat foto, cu animații redate în ritmul lor. Formatele cele mai rare sunt decodate într-un proces separat, ca un fișier deteriorat să nu poată bloca vizualizatorul.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Fidelitatea este testată la fiecare compilare: ieșirea GPU este citită înapoi și comparată cu formulele SMPTE și ITU, inclusiv pentru fișiere PQ și HLG, iar o imagine pe 8 biți la 100&amp;nbsp;% trebuie să ajungă pe ecran bit cu bit.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

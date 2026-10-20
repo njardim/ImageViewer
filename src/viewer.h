@@ -185,7 +185,7 @@ private:
     void stopSlideshow();
     void slideshowTimeout();
     // The slideshow's toolbar (D-65): pause or play, and stop, below the top overlay.
-    enum class ToolbarButton { None, PlayPause, Stop };
+    enum class ToolbarButton { None, Stop, PlayPause }; // left to right
     QRectF slideshowToolbarRect() const;                         // device pixels; empty when hidden
     ToolbarButton toolbarButtonAt(const QPointF &position) const; // logical pixels
     void showSlideshowToolbar(); // when the pointer moves; it hides again when it stays still

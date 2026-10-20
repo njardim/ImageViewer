@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iterator>
+#include <memory>
 
 namespace {
 // Background presets, sRGB. The default (dark grey) keeps the image's own contrast readable.
@@ -41,6 +42,20 @@ const QColor kBackgroundPresets[] = {QColor(0x00, 0x00, 0x00), QColor(0x21, 0x21
 // stone's #0F52BA, which hardly shows on the black bar), gold and diamond.
 const QColor kHighlightPresets[] = {QColor(224, 17, 95), QColor(80, 200, 120), QColor(30, 100, 220),
                                     QColor(255, 215, 0), QColor(235, 242, 255)};
+
+// An extension, shown isolated left to right (LRI … PDI) and sorted without those marks: with
+// them, ".avif" + PDI sorted after ".avifs".
+class ExtensionItem final : public QTableWidgetItem {
+public:
+    explicit ExtensionItem(const QString &suffix) : QTableWidgetItem(QChar(0x2066) + suffix + QChar(0x2069))
+    {
+        setData(Qt::UserRole, suffix);
+    }
+    bool operator<(const QTableWidgetItem &other) const override
+    {
+        return data(Qt::UserRole).toString() < other.data(Qt::UserRole).toString();
+    }
+};
 
 QIcon swatchIcon(const QColor &color)
 {
@@ -319,6 +334,9 @@ void SettingsDialog::buildUi()
     m_shortcutTable->setUniformRowHeights(true);
     m_shortcutTable->setAllColumnsShowFocus(true);
     m_shortcutTable->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    // Sorted from either header; until then, in the menus' order (no column sorted: -1).
+    m_shortcutTable->header()->setSortIndicator(-1, Qt::AscendingOrder);
+    m_shortcutTable->setSortingEnabled(true);
     shortcutsLayout->addWidget(m_shortcutTable, 1);
     auto *editForm = new QFormLayout;
     const auto sequenceEdit = [] {
@@ -350,32 +368,62 @@ void SettingsDialog::buildUi()
     auto *formatsTotal = new QLabel(tr("Total supported image formats: %1").arg(QLocale().toString(suffixRows.size())));
     formatsTotal->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
     formatsLayout->addWidget(formatsTotal);
-    auto *formatsTable = new QTableWidget(int(suffixRows.size()), 4);
-    formatsTable->setHorizontalHeaderLabels({tr("Extension"), tr("Format"), tr("Decoder"), tr("Decoder version")});
+    auto *formatsTable = new QTableWidget(int(suffixRows.size()), 5);
+    // "#" is a symbol, the same in every language: it numbers the rows.
+    formatsTable->setHorizontalHeaderLabels({QStringLiteral("#"), tr("Extension"), tr("Format"), tr("Decoder"), tr("Decoder version")});
     formatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     formatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     formatsTable->verticalHeader()->hide();
     formatsTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     for (int row = 0; row < suffixRows.size(); ++row) {
         const SuffixRow &r = suffixRows.at(row);
+        auto *number = new QTableWidgetItem;
+        number->setTextAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
+        formatsTable->setItem(row, 0, number);
         // Isolated left to right: in Arabic and Urdu ".jxl" read "jxl." (as the Shortcuts tab's keys).
-        formatsTable->setItem(row, 0, new QTableWidgetItem(QChar(0x2066) + r.suffix + QChar(0x2069)));
-        formatsTable->setItem(row, 1, new QTableWidgetItem(r.formats));
-        formatsTable->setItem(row, 2, new QTableWidgetItem(r.decoder));
-        formatsTable->setItem(row, 3, new QTableWidgetItem(r.version));
+        formatsTable->setItem(row, 1, new ExtensionItem(r.suffix));
+        formatsTable->setItem(row, 2, new QTableWidgetItem(r.formats));
+        formatsTable->setItem(row, 3, new QTableWidgetItem(r.decoder));
+        formatsTable->setItem(row, 4, new QTableWidgetItem(r.version));
     }
-    formatsTable->setSortingEnabled(true); // by any column, from its header; filled first, by extension
-    formatsTable->sortByColumn(0, Qt::AscendingOrder);
-    formatsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // four equal columns
+    // "#" counts the rows as shown, 1 to the total, whatever the order, and is not a sort key:
+    // a click on it changes nothing. The table sorts itself here rather than through the view's
+    // own sorting, which would sort again by "#" whenever its numbers change.
+    const auto renumber = [formatsTable] {
+        for (int row = 0; row < formatsTable->rowCount(); ++row)
+            formatsTable->item(row, 0)->setData(Qt::DisplayRole, row + 1);
+    };
+    QHeaderView *formatsHeader = formatsTable->horizontalHeader();
+    formatsHeader->setSectionsClickable(true);
+    formatsHeader->setSortIndicatorShown(true);
+    formatsTable->sortItems(1, Qt::AscendingOrder); // by extension
+    formatsHeader->setSortIndicator(1, Qt::AscendingOrder);
+    renumber();
+    auto sorted = std::make_shared<std::pair<int, Qt::SortOrder>>(1, Qt::AscendingOrder);
+    connect(formatsHeader, &QHeaderView::sortIndicatorChanged, formatsTable,
+            [formatsTable, formatsHeader, renumber, sorted](int column, Qt::SortOrder order) {
+                if (column == 0) { // the header moved its indicator to "#": back where it was
+                    const QSignalBlocker block(formatsHeader);
+                    formatsHeader->setSortIndicator(sorted->first, sorted->second);
+                    return;
+                }
+                *sorted = {column, order};
+                formatsTable->sortItems(column, order);
+                renumber();
+            });
+    // The table sizes its columns to their contents; Format and Decoder share what is left,
+    // equally, so the two are as wide as each other and the widest.
+    formatsHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+    formatsHeader->setSectionResizeMode(2, QHeaderView::Stretch);
+    formatsHeader->setSectionResizeMode(3, QHeaderView::Stretch);
     formatsLayout->addWidget(formatsTable, 1);
     tabs->addTab(formatsPage, tr("Image Formats"));
     tabs->addTab(shortcuts, tr("Shortcuts"));
-    connect(m_shortcutTable, &QTreeWidget::currentItemChanged, this,
-            [this] { showShortcutsOf(m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem())); });
+    connect(m_shortcutTable, &QTreeWidget::currentItemChanged, this, [this] { showShortcutsOf(currentCommand()); });
     m_shortcutEdit->installEventFilter(this);
     m_alternativeEdit->installEventFilter(this);
     const auto edited = [this] {
-        const int row = m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem());
+        const int row = currentCommand();
         if (row < 0 || row >= m_commands.size())
             return;
         const QList<QKeySequence> current = m_shortcuts.value(m_commands.at(row).key);
@@ -399,8 +447,7 @@ void SettingsDialog::buildUi()
         });
     }
     connect(m_shortcutDefault, &QPushButton::clicked, this, [this] {
-        const int row = m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem());
-        if (row >= 0)
+        if (const int row = currentCommand(); row >= 0)
             setShortcuts(row, m_commands.at(row).defaults);
     });
     connect(allDefaults, &QPushButton::clicked, this, [this] {
@@ -581,28 +628,43 @@ QString isolatedShortcut(const QKeySequence &sequence)
 }
 } // namespace
 
+int SettingsDialog::currentCommand() const
+{
+    // Rows can be sorted: each item carries its command's index in m_commands.
+    const QTreeWidgetItem *item = m_shortcutTable->currentItem();
+    return item ? item->data(0, Qt::UserRole).toInt() : -1;
+}
+
 void SettingsDialog::fillShortcutTable()
 {
-    const int row = std::max(0, m_shortcutTable->indexOfTopLevelItem(m_shortcutTable->currentItem()));
+    const int command = std::max(0, currentCommand());
     m_shortcutTable->clear();
-    for (const ShortcutCommand &command : std::as_const(m_commands)) {
-        QString name = command.name;
+    QTreeWidgetItem *current = nullptr;
+    for (int i = 0; i < m_commands.size(); ++i) {
+        QString name = m_commands.at(i).name;
         name.remove(QLatin1Char('&')); // menu mnemonics; "&&" is not used in command names
-        new QTreeWidgetItem(m_shortcutTable, {name, QString()});
+        auto *item = new QTreeWidgetItem(m_shortcutTable, {name, QString()});
+        item->setData(0, Qt::UserRole, i);
+        if (i == command)
+            current = item;
     }
     refreshShortcutTexts();
-    if (row < m_shortcutTable->topLevelItemCount())
-        m_shortcutTable->setCurrentItem(m_shortcutTable->topLevelItem(row));
-    showShortcutsOf(row);
+    if (current)
+        m_shortcutTable->setCurrentItem(current);
+    showShortcutsOf(current ? command : -1);
 }
 
 void SettingsDialog::refreshShortcutTexts()
 {
-    for (int i = 0; i < m_commands.size() && i < m_shortcutTable->topLevelItemCount(); ++i) {
+    for (int i = 0; i < m_shortcutTable->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *item = m_shortcutTable->topLevelItem(i);
+        const int command = item->data(0, Qt::UserRole).toInt();
+        if (command < 0 || command >= m_commands.size())
+            continue;
         QStringList shown;
-        for (const QKeySequence &sequence : m_shortcuts.value(m_commands.at(i).key))
+        for (const QKeySequence &sequence : m_shortcuts.value(m_commands.at(command).key))
             shown << isolatedShortcut(sequence);
-        m_shortcutTable->topLevelItem(i)->setText(1, shown.join(QStringLiteral(", ")));
+        item->setText(1, shown.join(QStringLiteral(", ")));
     }
     // The labels that name a command's key name its first shortcut now, or none.
     const auto keyName = [this](const char *command) {
@@ -617,7 +679,7 @@ void SettingsDialog::refreshShortcutTexts()
     m_galleryBox->setTitle(tr("Gallery (%1)").arg(keyName("Gallery")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
     m_slideshowBox->setTitle(tr("Slideshow (%1)").arg(keyName("Slideshow")));
-    //: %1: the keyboard shortcut, e.g. "L". The zoom of the image shown stays for the next ones.
+    //: %1: the keyboard shortcut, e.g. "Z". The zoom of the image shown stays for the next ones.
     m_lockZoom->setText(tr("Keep the zoom for the next images (%1)").arg(keyName("LockZoom")));
 }
 

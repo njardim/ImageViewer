@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>अगली छवियों के लिए ज़ूम बनाए रखें (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>ज़ूम अनलॉक किया गया</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>हर छवि को वैसे ही दिखाता है जैसा उसकी फ़ाइल परिभाषित करती है, ऐसे रंगों के साथ जिन्हें आप सत्यापित कर सकते हैं, SDR और HDR दोनों में।</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>एक इमेज व्यूअर जिस पर आप रंगों के मामले में भरोसा कर सकते हैं: हर इमेज वैसी ही जैसी उसकी फ़ाइल उसे परिभाषित करती है, SDR और HDR में, Windows, macOS और Linux पर।</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>तेज़ और न्यूनतम, यह Windows, macOS और Linux पर 50 से अधिक फ़ॉर्मैट खोलता है।</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>हर इमेज को केवल एक बार, उसके अपने रंग विवरण (ICC प्रोफ़ाइल या CICP) से, एक रैखिक 16-बिट फ़्लोटिंग-पॉइंट स्पेस में बदला जाता है, और जहाँ भी सिस्टम में असली HDR आउटपुट हो वहाँ भेजा जाता है। स्क्रीन से अधिक चमकीले हिस्सों को ITU-R BT.2390 से टोन मैप किया जाता है, या अनुरोध पर काट दिया जाता है, और व्यूअर हमेशा बताता है कि क्या हुआ।</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>यह %1 फ़ाइल एक्सटेंशन पढ़ता है, जिन्हें उनकी सामग्री से पहचाना जाता है: JPEG, PNG और TIFF से लेकर JPEG XL, AVIF, OpenEXR, DPX और कैमरा RAW तक, और एनिमेशन अपनी ही गति से चलते हैं। सबसे दुर्लभ फ़ॉर्मैट एक अलग प्रोसेस में डिकोड होते हैं, ताकि कोई ख़राब फ़ाइल व्यूअर को गिरा न सके।</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>हर बिल्ड पर सटीकता की जाँच होती है: GPU का आउटपुट वापस पढ़कर SMPTE और ITU के सूत्रों से मिलाया जाता है, PQ और HLG फ़ाइलों सहित, और 100&amp;nbsp;% पर 8-बिट इमेज को स्क्रीन तक बिट-दर-बिट पहुँचना चाहिए।</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

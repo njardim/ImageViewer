@@ -8,10 +8,11 @@ still image. The colour in the middle of the window shows what is on screen:
      K plays again;
   3. S starts the slideshow (1 s per image, from the settings): the yellow image follows
      by itself; Esc stops it and the image stays.
-  4. The slideshow's toolbar (D-65), below the top overlay: pause and stop while it runs; a
-     click on pause holds the image and turns it into play, play goes on; a still pointer
-     hides the toolbar after the time in the settings, a move shows it again; stop ends it.
-  5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back.
+  4. The slideshow's toolbar (D-65), 16 px below the top overlay: stop, then pause, while it
+     runs; a click on pause holds the image and turns it into play, play goes on; with auto-hide
+     off (the default) it stays; stop ends the slideshow.
+  5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back;
+     with auto-hide on, a still pointer hides the toolbar after 2 s and a move shows it again.
 
 usage: python3 tests/animation_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
@@ -90,9 +91,9 @@ def wait_for(what, names):
 
 
 def toolbar():
-    """(glyph, x, y) of the slideshow toolbar's first button: "pause" or "play", with its
-    centre on the screen; None when the toolbar is not shown. The toolbar's glyphs are the only
-    near-white pixels in the window's top band."""
+    """(glyph, x, y, stop_x) for the slideshow toolbar: its second button's glyph ("pause" or
+    "play") and centre on the screen, and the first button's (stop) x; None when the toolbar is
+    not shown. The toolbar's glyphs are the only near-white pixels in the window's top band."""
     result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}", shell=True,
                             stderr=subprocess.DEVNULL)
     if result.returncode != 0:
@@ -103,15 +104,17 @@ def toolbar():
     ys, xs = np.nonzero(band.min(axis=2) >= 225)
     if len(xs) < 40:
         return None
-    # Two glyphs: the first is everything left of the widest gap between white columns.
+    # Two glyphs, split at the widest gap between white columns: stop, then play or pause.
     columns = np.unique(xs)
     split = columns[np.argmax(np.diff(columns))] if len(columns) > 1 else columns[-1]
-    first = xs <= split
-    left, right = xs[first].min(), xs[first].max()
+    stop, second = xs <= split, xs > split
+    if not second.any():
+        return None
+    left, right = xs[second].min(), xs[second].max()
     middle = (left + right) // 2
     # Pause is two bars with a gap in the middle; play's triangle is solid there.
-    glyph = "play" if np.any(xs[first] == middle) else "pause"
-    return glyph, x0 + int(xs[first].mean()), y0 + int(ys[first].mean())
+    glyph = "play" if np.any(xs[second] == middle) else "pause"
+    return glyph, x0 + int(xs[second].mean()), y0 + int(ys[second].mean()), x0 + int(xs[stop].mean())
 
 
 def toolbar_is(what, glyph):
@@ -194,7 +197,38 @@ try:
             centre = (geometry[0] + geometry[2] // 2, geometry[1] + geometry[3] // 2)
             xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))  # off the image and the toolbar
             xdotool("key", "s")
-            glyph, bx, by = toolbar_is("S shows the toolbar with pause", "pause")
+            glyph, bx, by, stop_x = toolbar_is("S shows the toolbar: stop, then pause", "pause")
+            if stop_x >= bx:
+                fail("the stop button is not the first, on the left")
+
+            # 16 px between the top overlay and the toolbar below it (D-60): the rows across the
+            # middle hold the overlay's panel, then the window's background, then the toolbar's.
+            xdotool("key", "shift+i")
+
+            def gap_below_overlay():
+                result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}", shell=True,
+                                        stderr=subprocess.DEVNULL)
+                if result.returncode != 0:
+                    return None
+                screen = np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
+                rows = screen[geometry[1]:geometry[1] + 200, centre[0] - 40:centre[0] + 40]
+                dark = (rows.max(axis=2) < 24).sum(axis=1) > 20  # the panels: black at 70 % over #212121
+                runs, start = [], None
+                for y, d in enumerate(list(dark) + [False]):
+                    if d and start is None:
+                        start = y
+                    elif not d and start is not None:
+                        runs.append((start, y))
+                        start = None
+                return runs[1][0] - runs[0][1] if len(runs) >= 2 else None
+            start = time.monotonic()
+            while (gap := gap_below_overlay()) is None and time.monotonic() - start < DEADLINE_S:
+                time.sleep(POLL_S)
+            if gap is None or abs(gap - 16) > 1:
+                fail(f"{gap} px between the top overlay and the toolbar, not 16 (see {shot_path})")
+            print(f"ok   16 px between the top overlay and the toolbar ({gap} px)")
+            xdotool("key", "shift+i")
+            toolbar_is("the overlay hidden again, the toolbar stays", "pause")
             xdotool("mousemove", "--sync", str(bx), str(by))
             xdotool("click", "1")
             toolbar_is("a click on pause turns it into play", "play")
@@ -204,13 +238,12 @@ try:
             toolbar_is("a click on play turns it back into pause", "pause")
             wait_for("and the slideshow goes on", set(COLOURS) - {held})
             xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))
-            moved = time.monotonic()
-            toolbar_is("a still pointer hides the toolbar", None)
-            if time.monotonic() - moved < 1.8:
-                fail(f"the toolbar hid {time.monotonic() - moved:.1f} s after a move, before 2 s")
-            xdotool("mousemove", "--sync", str(centre[0] + 20), str(centre[1] + 150))
-            glyph, bx, by = toolbar_is("a move shows it again", "pause")
-            stop_x = 2 * centre[0] - bx  # the stop button mirrors the first about the middle
+            end = time.monotonic() + 3.0
+            while time.monotonic() < end:  # auto-hide is off by default: the user opts in
+                if toolbar() is None:
+                    fail("the toolbar hid by itself with auto-hide off (the default)")
+                time.sleep(POLL_S)
+            print("ok   auto-hide off by default: the toolbar stays while the pointer is still")
             xdotool("mousemove", "--sync", str(stop_x), str(by))
             wait_for("the slideshow comes to the still image", {"yellow"})  # the animation changes by itself
             xdotool("click", "1")
@@ -219,9 +252,9 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
-            # 5. The slideshow in full screen, given back by Esc.
+            # 5. The slideshow in full screen, given back by Esc; the toolbar hiding by itself.
             with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "a") as f:
-                f.write("\n[navigation]\nslideshowFullScreen=true\n")
+                f.write("\n[navigation]\nslideshowFullScreen=true\nslideshowToolbarAutoHide=true\n")
             app = subprocess.Popen([exe, os.path.join(pictures, "b-still.png")], env=env, stdout=log, stderr=log)
             wait_for("the still image is shown again", {"yellow"})
 
@@ -238,8 +271,16 @@ try:
             with open(log_path, encoding="utf-8", errors="replace") as f:
                 windowed = f.read().count("visibility QWindow::Windowed")
             xdotool("windowfocus", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0])
+            xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))
+            moved = time.monotonic()  # the toolbar's 2 s count from S at the earliest
             xdotool("key", "s")
             logged("visibility QWindow::FullScreen", 1)
+            toolbar_is("the toolbar shows", "pause")
+            toolbar_is("with auto-hide on, a still pointer hides the toolbar", None)
+            if time.monotonic() - moved < 1.8:
+                fail(f"the toolbar hid {time.monotonic() - moved:.1f} s after a move, before 2 s")
+            xdotool("mousemove", "--sync", str(centre[0] + 20), str(centre[1] + 150))
+            toolbar_is("a move shows it again", "pause")
             xdotool("key", "Escape")
             logged("visibility QWindow::Windowed", windowed + 1)
             xdotool("key", "q")

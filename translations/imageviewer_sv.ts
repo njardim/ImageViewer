@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Behåll zoomen för nästa bilder (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Zoomen är upplåst</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Visar varje bild så som dess fil definierar den, med färger du kan verifiera, i SDR och HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>En bildvisare du kan lita på när det gäller färg: varje bild som filen definierar den, i SDR och HDR, på Windows, macOS och Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Snabbt och minimalistiskt öppnar det fler än 50 format i Windows, macOS och Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Varje bild konverteras en gång, från sin egen färgbeskrivning (ICC-profil eller CICP), till ett linjärt 16-bitars flyttalsutrymme och skickas till en äkta HDR-utgång där systemet har en. Högdagrar som är ljusare än skärmen tonmappas med ITU-R BT.2390, eller klipps på begäran, och visaren talar alltid om vilket.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Den läser %1 filändelser, igenkända på sitt innehåll: från JPEG, PNG och TIFF till JPEG XL, AVIF, OpenEXR, DPX och kamera-RAW, med animationer i sin egen takt. De ovanligaste formaten avkodas i en separat process, så att en skadad fil inte kan fälla visaren.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Troheten testas vid varje bygge: GPU:ns utdata läses tillbaka och jämförs med SMPTE:s och ITU:s formler, PQ- och HLG-filer inräknade, och en 8-bitarsbild vid 100&amp;nbsp;% måste nå skärmen bit för bit.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

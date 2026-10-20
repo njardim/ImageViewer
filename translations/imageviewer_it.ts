@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Mantieni lo zoom per le immagini successive (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Zoom sbloccato</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Mostra ogni immagine come la definisce il suo file, con colori verificabili, in SDR e HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Un visualizzatore di immagini a cui affidare il colore: ogni immagine come la definisce il suo file, in SDR e HDR, su Windows, macOS e Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Veloce e minimale, apre più di 50 formati su Windows, macOS e Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Ogni immagine viene convertita una sola volta, dalla propria descrizione del colore (profilo ICC o CICP), in uno spazio lineare in virgola mobile a 16 bit, e inviata a una vera uscita HDR ovunque il sistema ne abbia una. Le alte luci più brillanti dello schermo vengono mappate con ITU-R BT.2390, o tagliate su richiesta, e il visualizzatore dice sempre quale delle due.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Legge %1 estensioni di file, riconosciute dal contenuto: da JPEG, PNG e TIFF a JPEG XL, AVIF, OpenEXR, DPX e RAW della fotocamera, con animazioni riprodotte al loro ritmo. I formati più rari sono decodificati in un processo separato, così che un file danneggiato non possa bloccare il visualizzatore.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>La fedeltà viene verificata a ogni compilazione: l’uscita della GPU viene riletta e confrontata con le formule SMPTE e ITU, file PQ e HLG compresi, e un’immagine a 8 bit al 100&amp;nbsp;% deve arrivare allo schermo bit per bit.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

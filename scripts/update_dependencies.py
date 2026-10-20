@@ -5,7 +5,7 @@ gets the "auto update" label; it also runs locally (without --apply it only repo
 
 What is pinned, and where:
 - overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, expat, minizip-ng: a git tag's
-  commit; GraphicsMagick: a release archive and its SHA-512);
+  commit; GraphicsMagick and libaom: a release archive and its SHA-512);
 - every other vcpkg port through the manifest's builtin-baseline (a vcpkg release tag's commit);
 - Qt in packaging/qt-version.txt (read by .github/workflows/build.yml, whose files the workflow's
   token may not change) and packaging/licenses/Qt.txt.
@@ -39,8 +39,10 @@ GIT_PORTS = [
     ("expat", "https://github.com/libexpat/libexpat", r"R_(\d+)_(\d+)_(\d+)"),
     ("minizip-ng", "https://github.com/zlib-ng/minizip-ng", r"(\d+)\.(\d+)\.(\d+)"),
 ]
-GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagick&limit=200"
+GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagick&limit=100"  # more: HTTP 400
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
+AOM_LISTING = "https://storage.googleapis.com/aom-releases/"  # the bucket's XML listing (googlesource has no tag API)
+AOM_ARCHIVE = "https://storage.googleapis.com/aom-releases/libaom-{0}.tar.gz"
 
 
 def read(path):
@@ -55,9 +57,6 @@ def write(path, text):
 
 def fetch(url):
     request = urllib.request.Request(url, headers={"User-Agent": "ImageViewer-dependency-update"})
-    token = os.environ.get("GH_TOKEN")
-    if token and url.startswith("https://api.github.com/"):
-        request.add_header("Authorization", f"Bearer {token}")
     with urllib.request.urlopen(request, timeout=120) as response:
         return response.read()
 
@@ -173,23 +172,27 @@ def update_manifest_comment(port, old, new):
     write(path, "\n".join(line.replace(old, new) if f"packaging/vcpkg/ports/{port}" in line else line for line in lines))
 
 
-def update_graphicsmagick(apply, report):
-    manifest = os.path.join(PORTS, "graphicsmagick", "vcpkg.json")
-    pinned = json.loads(read(manifest))["version"]
-    versions = {version_tuple(v) for v in re.findall(r"GraphicsMagick-(\d+\.\d+\.\d+)\.tar\.xz", fetch(GM_RSS).decode())}
+def update_tarball_port(port, listing, pattern, archive, apply, report):
+    """An overlay port built from a release tarball: the newest release in `listing` (versions
+    matched by `pattern`) within the pinned major version; the new archive's SHA-512 is computed."""
+    manifest = os.path.join(PORTS, port, "vcpkg.json")
+    data = json.loads(read(manifest))
+    key = "version-semver" if "version-semver" in data else "version"
+    pinned = data[key]
+    versions = {version_tuple(v) for v in re.findall(pattern, fetch(listing).decode())}
     target, overall = newest(list(versions), version_tuple(pinned), 1)
     if target <= version_tuple(pinned):
-        report.row("graphicsmagick", pinned, as_text(overall), "up to date")
+        report.row(port, pinned, as_text(overall), "up to date")
         return
     new = as_text(target)
-    report.row("graphicsmagick", pinned, as_text(overall), f"**→ {new}**")
+    report.row(port, pinned, as_text(overall), f"**→ {new}**")
     report.changed = True
     if apply:
-        sha512 = hashlib.sha512(fetch(GM_ARCHIVE.format(new))).hexdigest()
-        portfile = os.path.join(PORTS, "graphicsmagick", "portfile.cmake")
+        sha512 = hashlib.sha512(fetch(archive.format(new))).hexdigest()
+        portfile = os.path.join(PORTS, port, "portfile.cmake")
         write(portfile, re.sub(r"SHA512 [0-9a-f]{128}", f"SHA512 {sha512}", read(portfile)))
-        write(manifest, read(manifest).replace(f'"version": "{pinned}"', f'"version": "{new}"'))
-        update_manifest_comment("graphicsmagick", pinned, new)
+        write(manifest, read(manifest).replace(f'"{key}": "{pinned}"', f'"{key}": "{new}"'))
+        update_manifest_comment(port, pinned, new)
 
 
 def update_vcpkg_baseline(apply, report):
@@ -200,9 +203,14 @@ def update_vcpkg_baseline(apply, report):
     if commit == baseline:
         report.row("vcpkg baseline (every other port)", tag, tag, "up to date")
         return
-    # The baseline may be a commit between two releases: move only when the release is newer.
-    status = json.loads(fetch(f"https://api.github.com/repos/microsoft/vcpkg/compare/{baseline}...{commit}"))["status"]
-    if status != "ahead":
+    # The baseline may be a commit between two releases: move only when the release is newer, i.e.
+    # when the baseline is its ancestor. Asked of git (commits only, no trees or files) rather than
+    # GitHub's API, which needs a token outside Actions.
+    with tempfile.TemporaryDirectory() as work:
+        git("init", "-q", work)
+        git("fetch", "-q", "--filter=tree:0", "https://github.com/microsoft/vcpkg", baseline, commit, cwd=work)
+        newer = subprocess.run(["git", "merge-base", "--is-ancestor", baseline, commit], cwd=work).returncode == 0
+    if not newer:
         report.row("vcpkg baseline (every other port)", baseline[:10], tag, f"up to date ({tag} is not newer)")
         return
     report.row("vcpkg baseline (every other port)", baseline[:10], tag, f"**→ {tag}** (`{commit[:10]}`)")
@@ -240,7 +248,10 @@ def main():
     args = parser.parse_args()
     report = Report()
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report)) for p, u, t in GIT_PORTS]
-    checks += [("graphicsmagick", lambda: update_graphicsmagick(args.apply, report)),
+    checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", GM_RSS, r"GraphicsMagick-(\d+\.\d+\.\d+)\.tar\.xz",
+                                                          GM_ARCHIVE, args.apply, report)),
+               ("aom", lambda: update_tarball_port("aom", AOM_LISTING, r"libaom-(\d+\.\d+\.\d+)\.tar\.gz",
+                                               AOM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
                ("Qt", lambda: update_qt(args.apply, report))]
     failed = False

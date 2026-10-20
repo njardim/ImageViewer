@@ -42,9 +42,8 @@ QString fileSizeText(qint64 bytes, const QLocale &locale)
 
 constexpr double kToolbarButton = 44.0;  // the slideshow toolbar's round buttons, logical pixels (D-65)
 constexpr double kToolbarPadding = 8.0;  // around and between them
-constexpr double kToolbarGap = 8.0;      // below the top overlay
 
-// The slideshow's toolbar: pause (or play, when paused) and stop, round buttons in the side
+// The slideshow's toolbar: stop, then pause (or play, when paused), round buttons in the side
 // buttons' look on a panel in the information panels' look.
 QImage slideshowToolbar(bool paused, int hover, int press, double dpr, const QColor &background)
 {
@@ -66,7 +65,7 @@ QImage slideshowToolbar(bool paused, int hover, int press, double dpr, const QCo
         painter.drawEllipse(circle.adjusted(0.5, 0.5, -0.5, -0.5));
         painter.setBrush(glyph);
         const QPointF c = circle.center();
-        if (i == 1) { // stop: a square
+        if (i == 0) { // stop: a square
             const double half = s * 0.17;
             painter.drawRoundedRect(QRectF(c.x() - half, c.y() - half, 2 * half, 2 * half), 1.5, 1.5);
         } else if (paused) { // play: a triangle, its centre of mass on the circle's
@@ -515,7 +514,7 @@ double ViewerWindow::topActivationHeight() const
     const double dpr = devicePixelRatio();
     double band = std::max(48.0, m_topOverlaySize.height() / dpr + 2 * kEdgeMargin);
     if (!m_toolbarSize.isEmpty())
-        band = std::max(band, m_topOverlaySize.height() / dpr + kToolbarGap + m_toolbarSize.height() / dpr
+        band = std::max(band, m_topOverlaySize.height() / dpr + kEdgeMargin + m_toolbarSize.height() / dpr
                                   + 2 * kEdgeMargin);
     return band;
 }
@@ -734,7 +733,7 @@ QRectF ViewerWindow::slideshowToolbarRect() const
     const double dpr = devicePixelRatio();
     double top = kEdgeMargin * dpr;
     if (topOverlayVisible())
-        top += m_topOverlaySize.height() + kToolbarGap * dpr;
+        top += m_topOverlaySize.height() + kEdgeMargin * dpr;
     return QRectF(QPointF(std::round((deviceSize().width() - m_toolbarSize.width()) / 2.0), std::round(top)),
                   QSizeF(m_toolbarSize));
 }
@@ -746,5 +745,5 @@ ViewerWindow::ToolbarButton ViewerWindow::toolbarButtonAt(const QPointF &positio
     if (!rect.contains(device))
         return ToolbarButton::None;
     // Each button takes its half of the panel, padding included.
-    return device.x() < rect.center().x() ? ToolbarButton::PlayPause : ToolbarButton::Stop;
+    return device.x() < rect.center().x() ? ToolbarButton::Stop : ToolbarButton::PlayPause;
 }

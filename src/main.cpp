@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
+#include <QIcon>
 #include <QPainter>
 #include <QScopeGuard>
 
@@ -443,6 +444,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    if (!console)
+        QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/imageviewer.png"))); // D-66
     // Runs after the viewer window (declared later, destroyed first) has waited for its last
     // decode, and before the application object goes.
     const auto decoders = qScopeGuard(&shutdownDecoders);

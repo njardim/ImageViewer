@@ -265,6 +265,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
     const QString url = QUrl::fromLocalFile(file).toString(QUrl::FullyEncoded);
     QStringList command;
     bool fileGiven = false;
+    bool embedded = false; // the file inside a longer argument ("--file=%f", or "echo\\ %f")
     for (qsizetype a = 0; a < arguments.size(); ++a) {
         const QString &argument = arguments.at(a);
         if (argument == QLatin1String("%i")) {
@@ -287,6 +288,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
                     return {}; // sh -c "viewer %f" would run a file named $(cmd).png (D-53)
                 expanded += file;
                 fileGiven = true;
+                embedded = embedded || argument.size() != 2;
                 break;
             case 'u':
             case 'U':
@@ -294,6 +296,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
                     return {};
                 expanded += url;
                 fileGiven = true;
+                embedded = embedded || argument.size() != 2;
                 break;
             case 'c': expanded += name; break;
             case 'k': expanded += desktopFile; break;
@@ -304,6 +307,17 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
             command << expanded;
     }
     if (command.isEmpty())
+        return {};
+    // A shell would read the file's name as code where it is part of a word ("sh -c echo\\ %f"
+    // makes the script "echo /path/$(cmd).png"): with a shell anywhere in the command, the file
+    // may only be an argument of its own, which a script receives as data ($1).
+    static const QStringList shells = {QStringLiteral("sh"), QStringLiteral("bash"), QStringLiteral("dash"),
+                                       QStringLiteral("zsh"), QStringLiteral("ksh"), QStringLiteral("mksh"),
+                                       QStringLiteral("fish"), QStringLiteral("csh"), QStringLiteral("tcsh"),
+                                       QStringLiteral("busybox")};
+    if (embedded && std::any_of(command.cbegin(), command.cend(), [](const QString &argument) {
+            return shells.contains(QFileInfo(argument).fileName());
+        }))
         return {};
     if (!fileGiven)
         command << file;

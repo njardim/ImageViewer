@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Säilita suum järgmiste piltide jaoks (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Suumi lukustus eemaldatud</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Kuvab iga pildi nii, nagu selle fail seda määratleb, kontrollitavate värvidega, SDR- ja HDR-režiimis.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Pildivaatur, kellele võite värvid usaldada: iga pilt nii, nagu selle fail seda määratleb, SDR- ja HDR-režiimis, Windowsis, macOS-is ja Linuxis.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Kiire ja minimalistlik, avab üle 50 vormingu süsteemides Windows, macOS ja Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Iga pilt teisendatakse üks kord, tema enda värvikirjeldusest (ICC-profiil või CICP) lineaarsesse 16-bitisesse ujukomaruumi, ja saadetakse päris HDR-väljundisse, kui süsteemil see on. Ekraanist heledamad heledad alad toonikaardistatakse ITU-R BT.2390 järgi või lõigatakse soovi korral ära, ja vaatur ütleb alati, kumb.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>See loeb %1 failinime laiendit, mis tuvastatakse sisu järgi: JPEG-ist, PNG-st ja TIFF-ist kuni JPEG XL-i, AVIF-i, OpenEXR-i, DPX-i ja kaamerate RAW-failideni, animatsioonid mängivad omas tempos. Kõige haruldasemad vormingud dekodeeritakse eraldi protsessis, et kahjustatud fail ei saaks vaaturit kokku jooksutada.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Täpsust testitakse igas koostes: GPU väljund loetakse tagasi ja võrreldakse SMPTE ja ITU valemitega, ka PQ- ja HLG-failidega, ning 8-bitine pilt peab 100&amp;nbsp;% juures jõudma ekraanile bitt-bitilt.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

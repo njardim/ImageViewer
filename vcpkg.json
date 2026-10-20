@@ -12,7 +12,7 @@
       "features": ["gif", "libheif", "libraw", "openjpeg", "webp"]
     },
     {
-      "$comment": "AVIF only. The overlay port (packaging/vcpkg/ports/libheif) drops the default 'hevc' feature (x265 encoder, GPL-2.0) and libde265 (HEVC decoding; HEIC goes through the operating system, D-39).",
+      "$comment": "AVIF only, decoded by libaom, an overlay port (packaging/vcpkg/ports/aom): 3.15.2. The overlay port (packaging/vcpkg/ports/libheif) drops the default 'hevc' feature (x265 encoder, GPL-2.0) and libde265 (HEVC decoding; HEIC goes through the operating system, D-39).",
       "name": "libheif",
       "default-features": false,
       "features": ["aom"]

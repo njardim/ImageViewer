@@ -14,9 +14,11 @@
 #include <QGridLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QLocale>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QPixmap>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
@@ -95,7 +97,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::PreviousFrame, {K(Qt::CTRL | Qt::Key_Left)}, true},
         {C::NextFrame, {K(Qt::CTRL | Qt::Key_Right)}, true},
         {C::Slideshow, {K(Qt::Key_S)}, false},
-        {C::About, {}, false},
+        {C::About, {K(Qt::Key_V)}, false},
         {C::AboutQt, {}, false},
     };
     return table;
@@ -542,16 +544,36 @@ void ViewerWindow::showAbout()
     QDialog dialog;
     dialog.setWindowTitle(tr("About ImageViewer"));
     auto *layout = new QGridLayout(&dialog);
-    // The application's logo goes here, 256 × 256 logical pixels.
+    // The application's icon (D-66), 256 × 256 logical pixels, sharp at any device pixel ratio.
     auto *logo = new QLabel;
     logo->setFixedSize(256, 256);
+    const qreal dpr = devicePixelRatio();
+    QPixmap icon(QStringLiteral(":/imageviewer.png"));
+    icon = icon.scaled(QSize(256, 256) * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    icon.setDevicePixelRatio(dpr);
+    logo->setPixmap(icon);
     layout->addWidget(logo, 0, 0, Qt::AlignTop);
+    const QString count = QLocale().toString(supportedSuffixTable().size());
     auto *text = new QLabel(
-        QStringLiteral("<h3>ImageViewer %1</h3><p>%2<br>%3</p><p>© 2026 Cristallumnis, Lda.<br>%4</p><p>%5</p>"
+        QStringLiteral("<h2>ImageViewer %1</h2><p><b>%2</b></p><p>%3</p><p>%4</p><p>%5</p>"
+                       "<p>© 2026 Cristallumnis, Lda.<br>%6</p><p>%7</p>"
                        "<p><a href=\"https://github.com/njardim/ImageViewer\">github.com/njardim/ImageViewer</a></p>")
             .arg(QCoreApplication::applicationVersion().toHtmlEscaped(),
-                 tr("Shows every image as its file defines it, with colors you can verify, in SDR and HDR."),
-                 tr("Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux."),
+                 tr("An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, "
+                    "on Windows, macOS and Linux."),
+                 tr("Each image is converted once, from its own color description (ICC profile or CICP), into a "
+                    "linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. "
+                    "Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, "
+                    "and the viewer always tells you which."),
+                 //: %1: how many file name extensions the viewer opens, e.g. "134".
+                 tr("It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to "
+                    "JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest "
+                    "formats are decoded in a separate process, so that a damaged file cannot take the viewer down.")
+                     .arg(count),
+                 //: "&nbsp;" keeps "100 %" on one line; write it as your language writes the percentage.
+                 tr("Fidelity is tested on every build: the GPU's output is read back and compared with the "
+                    "SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&nbsp;% must reach "
+                    "the screen bit for bit."),
                  tr("Licensed under the Apache License, Version 2.0."),
                  tr("The licenses of the third-party components are in the <i>third-party</i> folder "
                     "installed with the application.")));

@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Išlaikyti mastelį kitiems vaizdams (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Mastelis atrakintas</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Rodo kiekvieną vaizdą taip, kaip jį apibrėžia failas, su patikrinamomis spalvomis, SDR ir HDR režimais.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Vaizdų peržiūros programa, kuria galite pasitikėti spalvomis: kiekvienas vaizdas toks, kokį jį apibrėžia jo failas, SDR ir HDR režimu, „Windows“, „macOS“ ir „Linux“ sistemose.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Greita ir minimalistinė programa atidaro daugiau nei 50 formatų sistemose Windows, macOS ir Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Kiekvienas vaizdas konvertuojamas vieną kartą, iš jo paties spalvų aprašo (ICC profilio arba CICP), į tiesinę 16 bitų slankiojo kablelio erdvę ir siunčiamas į tikrą HDR išvestį visur, kur sistema ją turi. Už ekraną šviesesnės šviesos atvaizduojamos pagal ITU-R BT.2390 arba pageidaujant nukerpamos, o programa visada pasako, kas iš to.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Ji skaito %1 failų plėtinių, atpažįstamų pagal turinį: nuo JPEG, PNG ir TIFF iki JPEG XL, AVIF, OpenEXR, DPX ir fotoaparatų RAW, o animacijos rodomos savo tempu. Rečiausi formatai dekoduojami atskirame procese, kad sugadintas failas negalėtų nulaužti programos.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Tikslumas tikrinamas kiekvieno kompiliavimo metu: GPU išvestis nuskaitoma atgal ir lyginama su SMPTE ir ITU formulėmis, įskaitant PQ ir HLG failus, o 8 bitų vaizdas esant 100&amp;nbsp;% turi pasiekti ekraną bitas į bitą.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

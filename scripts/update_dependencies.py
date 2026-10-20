@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Checks every pinned dependency against its upstream releases and, with --apply, moves it to
-the latest stable one (D-46, D-62). Run by .github/workflows/dependency-update.yml when an issue
-gets the "auto update" label; it also runs locally (without --apply it only reports).
+the newest release it may take (D-46, D-62, D-67). Run by .github/workflows/dependency-update.yml
+when an issue gets the "auto update" label; it also runs locally (without --apply it only reports).
 
 What is pinned, and where:
 - overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, expat, minizip-ng: a git tag's
@@ -10,27 +10,39 @@ What is pinned, and where:
 - Qt in packaging/qt-version.txt (read by .github/workflows/build.yml, whose files the workflow's
   token may not change) and packaging/licenses/Qt.txt.
 
-Policy: libraries move to their latest stable release within the same major version; Qt only to
-the latest patch release of its minor version (the viewer uses Qt's private QRhi API, D-09).
-Anything newer than that is reported and left for a person. An overlay port's own patches are
-tried on the new source in order: a patch upstream already contains is removed (D-57), one that
-no longer applies is reported (the build will fail on it).
+Policy:
+- Libraries move within their major version; Qt only to the latest patch release of its minor
+  version (the viewer uses Qt's private QRhi API, D-09). Anything newer is left for a person.
+- Cooldown (D-67): a release is taken only once it is MIN_RELEASE_AGE_DAYS old, so that a
+  compromised or broken release is found and withdrawn upstream before it reaches us. The age is
+  GitHub's release date where there is one, the upload date of a release archive, or else the tag's
+  own date. A vcpkg baseline is as young as the youngest library it moves.
+- Security exception (D-67): when the pinned version has a known vulnerability (OSV) and no release
+  old enough fixes it, the oldest younger release that does is taken, and marked for a person to
+  review its changes by hand before merging.
+- A release archive is taken only when it matches its tag file for file (scripts/audit_dependencies.py).
+- Every move lists what changed upstream (build system, scripts, CI, binary files) for review.
+- An overlay port's own patches are tried on the new source in order: a patch upstream already
+  contains is removed (D-57), one that no longer applies is reported (the build will fail on it).
 
 usage: python3 scripts/update_dependencies.py [--apply] [--report FILE]
-Writes changed=true|false to $GITHUB_OUTPUT when it is set.
+Writes changed=true|false, failed=true|false and exception=true|false to $GITHUB_OUTPUT when it is set.
 """
 import argparse
-import hashlib
+import datetime
 import json
 import os
 import re
 import subprocess
 import sys
 import tempfile
-import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import audit_dependencies as audit  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PORTS = os.path.join(ROOT, "packaging", "vcpkg", "ports")
+MIN_RELEASE_AGE_DAYS = audit.MIN_RELEASE_AGE_DAYS
 
 # Overlay ports fetched by git: name, repository, stable tag pattern (its groups are the version).
 GIT_PORTS = [
@@ -39,10 +51,18 @@ GIT_PORTS = [
     ("expat", "https://github.com/libexpat/libexpat", r"R_(\d+)_(\d+)_(\d+)"),
     ("minizip-ng", "https://github.com/zlib-ng/minizip-ng", r"(\d+)\.(\d+)\.(\d+)"),
 ]
-GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagick&limit=100"  # more: HTTP 400
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
-AOM_LISTING = "https://storage.googleapis.com/aom-releases/"  # the bucket's XML listing (googlesource has no tag API)
 AOM_ARCHIVE = "https://storage.googleapis.com/aom-releases/libaom-{0}.tar.gz"
+VCPKG = audit.VCPKG
+
+# What a reviewer reads first in an upstream change (the xz backdoor of 2024 came in through
+# build scripts and binary test files).
+SENSITIVE = [
+    ("build system or scripts", re.compile(r"(^|/)(CMakeLists\.txt|[^/]+\.cmake|configure(\.ac|\.in)?|[^/]+\.m4|"
+                                           r"Makefile[^/]*|meson\.build|meson_options\.txt|[^/]+\.(sh|py|pl|bat|ps1))$")),
+    ("CI", re.compile(r"(^|/)\.(github|gitlab-ci\.yml|travis\.yml|circleci|cirrus\.yml|appveyor\.yml)")),
+    ("binary or compressed", re.compile(r"\.(a|o|so|dll|dylib|exe|lib|obj|jar|class|pyc|bin|xz|lzma|gz|bz2|zst|zip|7z)$")),
+]
 
 
 def read(path):
@@ -55,10 +75,7 @@ def write(path, text):
         f.write(text)
 
 
-def fetch(url):
-    request = urllib.request.Request(url, headers={"User-Agent": "ImageViewer-dependency-update"})
-    with urllib.request.urlopen(request, timeout=120) as response:
-        return response.read()
+fetch = audit.fetch
 
 
 def git(*args, cwd=None):
@@ -86,15 +103,25 @@ def as_text(version):
     return ".".join(str(part) for part in version)
 
 
-def newest(versions, current, same_prefix):
-    """The newest version sharing the current one's first `same_prefix` parts, and the newest overall."""
-    allowed = [v for v in versions if v[:same_prefix] == current[:same_prefix]]
-    return (max(allowed) if allowed else current), (max(versions) if versions else current)
+tag_date, github_repository, age_days = audit.tag_date, audit.github_repository, audit.age_days
+
+
+def ripe(when):
+    return age_days(when) >= MIN_RELEASE_AGE_DAYS
+
+
+def fixable(commit):
+    """The ids of the known vulnerabilities of a commit that have a fix upstream (OSV)."""
+    if not commit:
+        return set()
+    return {vid for vid, _, _, fixed in audit.osv_lookup([commit]).get(commit, []) if fixed}
 
 
 class Report:
     def __init__(self):
-        self.rows, self.notes, self.changed = [], [], False
+        self.rows, self.notes, self.review = [], [], []
+        self.changed = self.exception = False
+        self.exceptions = {}  # name: (version, the vulnerabilities its release fixes)
 
     def row(self, name, pinned, latest, action):
         self.rows.append(f"| {name} | {pinned} | {latest} | {action} |")
@@ -103,7 +130,77 @@ class Report:
         lines = ["| Dependency | Pinned | Latest stable | Action |", "|---|---|---|---|", *self.rows]
         if self.notes:
             lines += ["", *[f"- {note}" for note in self.notes]]
+        if self.review:
+            lines += ["", "### Upstream changes to review before merging (D-67)", "",
+                      "Read at least the files flagged below; a change to the build system, the scripts or "
+                      "the CI, or a new binary file, needs a reason in the release notes.", "", *self.review]
         return "\n".join(lines) + "\n"
+
+
+def choose(name, current, candidates, released, vulnerable_now, fixes, report):
+    """The version to move to, or None. `candidates`: the versions newer than `current` that the
+    policy allows, ascending; released(v) -> (datetime, how known); vulnerable_now: the ids of the
+    pinned version's fixable vulnerabilities; fixes(v) -> True when v has none of them.
+
+    The newest candidate at least MIN_RELEASE_AGE_DAYS old; when that one (or the pinned version,
+    if none is old enough) is still vulnerable, the oldest younger candidate that is not, as a
+    security exception for a person to review."""
+    held = []
+    target = None
+    for version in reversed(candidates):
+        when, how = released(version)
+        if ripe(when):
+            target = version
+            break
+        held.append((version, when, how))
+    if held:
+        version, when, how = held[0]
+        until = (when + datetime.timedelta(days=MIN_RELEASE_AGE_DAYS)).date().isoformat()
+        report.notes.append(f"{name} {as_text(version)}: released {age_days(when):.0f} days ago ({how}); held by the "
+                            f"{MIN_RELEASE_AGE_DAYS}-day cooldown until {until} (D-67).")
+    if vulnerable_now and (target is None or not fixes(target)):
+        for version, when, how in reversed(held):  # oldest first
+            if fixes(version):
+                report.exception = True
+                report.exceptions[name] = (version, sorted(vulnerable_now))
+                report.notes.append(f"**{name} {as_text(version)}: security exception (D-67)**: the pinned version has "
+                                    f"{', '.join(sorted(vulnerable_now))} (OSV), fixed in this release, which is only "
+                                    f"{age_days(when):.0f} days old ({how}). Review its upstream changes by hand "
+                                    f"before merging.")
+                return version
+        report.notes.append(f"**{name}: the pinned version has {', '.join(sorted(vulnerable_now))} (OSV) and no "
+                            f"release allowed here fixes it**: a person decides (a new major version, a patch "
+                            f"in an overlay port, or a newer vcpkg port).")
+    return target
+
+
+def record_exception(entries, reason):
+    """Adds "library version" entries to COOLDOWN_EXCEPTIONS in scripts/audit_dependencies.py, so
+    that the release gate lets them through (D-67); a person reviews them in the pull request."""
+    path = os.path.join(ROOT, "scripts", "audit_dependencies.py")
+    text = read(path)
+    lines = "".join(f'    "{entry}": "{reason} ({audit.datetime.date.today().isoformat()})",\n' for entry in entries)
+    write(path, text.replace("COOLDOWN_EXCEPTIONS = {\n", "COOLDOWN_EXCEPTIONS = {\n" + lines, 1))
+
+
+def review_changes(name, url, old_tag, new_tag, report):
+    """What changed upstream between two tags, flagged for review (files only: trees, no blobs)."""
+    with tempfile.TemporaryDirectory() as work:
+        git("init", "-q", work)
+        git("fetch", "-q", "--depth", "1", "--filter=blob:none", url,
+            f"+refs/tags/{old_tag}:refs/tags/old", f"+refs/tags/{new_tag}:refs/tags/new", cwd=work)
+        changes = [line.split("\t") for line in git("diff", "--no-renames", "--name-status", "old", "new",
+                                                    cwd=work).splitlines()]
+    added = sum(1 for c in changes if c[0] == "A")
+    deleted = sum(1 for c in changes if c[0] == "D")
+    lines = [f"- **{name}** `{old_tag}` → `{new_tag}`: {len(changes)} files changed ({added} added, {deleted} deleted)"]
+    if repository := github_repository(url):
+        lines[0] += f"; https://github.com/{repository}/compare/{old_tag}...{new_tag}"
+    for label, pattern in SENSITIVE:
+        hits = [f"{status} `{path}`" for status, path in changes if pattern.search(path)]
+        if hits:
+            lines.append(f"  - {label} ({len(hits)}): " + ", ".join(hits[:15]) + (" …" if len(hits) > 15 else ""))
+    report.review += lines
 
 
 def check_patches(port, url, tag, apply, report):
@@ -143,16 +240,21 @@ def update_git_port(port, url, pattern, apply, report):
     pinned = json.loads(read(manifest))["version"]
     current = version_tuple(pinned)
     tags = stable_tags(url, pattern)
-    target, overall = newest(list(tags), current, 1)
-    held = f" ({as_text(overall)} is a new major version: for a person)" if overall > target else ""
-    if target <= current:
-        report.row(port, pinned, as_text(overall), "up to date" + held)
+    overall = max(tags) if tags else current
+    held = f" ({as_text(overall)} is a new major version: for a person)" if overall[:1] > current[:1] else ""
+    candidates = sorted(v for v in tags if v > current and v[:1] == current[:1])
+    old_commit, old_tag = re.search(r"REF ([0-9a-f]{40}) # (\S+)", read(os.path.join(PORTS, port, "portfile.cmake"))).groups()
+    vulnerable_now = fixable(old_commit)
+    target = choose(port, current, candidates, lambda v: tag_date(url, tags[v][0]), vulnerable_now,
+                    lambda v: not (fixable(tags[v][1]) & vulnerable_now), report)
+    if target is None:
+        report.row(port, pinned, as_text(overall), ("held (cooldown)" if candidates else "up to date") + held)
         return
     new = as_text(target)
     tag, commit = tags[target]
-    _, old_tag = re.search(r"REF ([0-9a-f]{40}) # (\S+)", read(os.path.join(PORTS, port, "portfile.cmake"))).groups()
     report.row(port, pinned, as_text(overall), f"**→ {new}**" + held)
     report.changed = True
+    review_changes(port, url, old_tag, tag, report)
     if apply:
         portfile = os.path.join(PORTS, port, "portfile.cmake")
         text = re.sub(r"REF [0-9a-f]{40} # \S+", f"REF {commit} # {tag}", read(portfile))
@@ -162,6 +264,8 @@ def update_git_port(port, url, pattern, apply, report):
         write(portfile, text)
         write(manifest, read(manifest).replace(f'"version": "{pinned}"', f'"version": "{new}"'))
         update_manifest_comment(port, pinned, new)
+        if port in report.exceptions:
+            record_exception([f"{port} {new}"], "security: fixes " + ", ".join(report.exceptions[port][1]))
     check_patches(port, url, tag, apply, report)
 
 
@@ -172,71 +276,171 @@ def update_manifest_comment(port, old, new):
     write(path, "\n".join(line.replace(old, new) if f"packaging/vcpkg/ports/{port}" in line else line for line in lines))
 
 
-def update_tarball_port(port, listing, pattern, archive, apply, report):
-    """An overlay port built from a release tarball: the newest release in `listing` (versions
-    matched by `pattern`) within the pinned major version; the new archive's SHA-512 is computed."""
+def update_tarball_port(port, releases, archive, apply, report):
+    """An overlay port built from a release tarball: the newest release (from `releases`, version
+    to upload date) the policy allows. The new archive is pinned only when it matches its tag file
+    for file (audit_dependencies.compare_tarball); its SHA-512 is computed here."""
     manifest = os.path.join(PORTS, port, "vcpkg.json")
     data = json.loads(read(manifest))
     key = "version-semver" if "version-semver" in data else "version"
     pinned = data[key]
-    versions = {version_tuple(v) for v in re.findall(pattern, fetch(listing).decode())}
-    target, overall = newest(list(versions), version_tuple(pinned), 1)
-    if target <= version_tuple(pinned):
-        report.row(port, pinned, as_text(overall), "up to date")
+    current = version_tuple(pinned)
+    kind, repository, template = audit.TARBALL_PORTS[port]
+    versions = {version_tuple(v): when for v, when in releases().items()}
+    overall = max(versions) if versions else current
+    candidates = sorted(v for v in versions if v > current and v[:1] == current[:1])
+
+    def commit_of(version):
+        return audit.release_tag(repository, template, as_text(version))[1] if kind == "git" else None
+    vulnerable_now = fixable(commit_of(current))
+    target = choose(port, current, candidates, lambda v: (versions[v], "archive upload date"), vulnerable_now,
+                    lambda v: not (fixable(commit_of(v)) & vulnerable_now), report)
+    if kind != "git":
+        report.notes.append(f"{port}: OSV has no commit index for its Mercurial repository; read its NEWS for "
+                            f"security fixes ({repository}).")
+    if target is None:
+        report.row(port, pinned, as_text(overall), "held (cooldown)" if candidates else "up to date")
         return
     new = as_text(target)
-    report.row(port, pinned, as_text(overall), f"**→ {new}**")
+    url = archive.format(new)
+    with tempfile.TemporaryDirectory() as work:
+        path = os.path.join(work, "archive")
+        with open(path, "wb") as f:
+            f.write(fetch(url))
+        sha512 = audit.sha512_of(path)
+    check = audit.Report()
+    tag = audit.release_tag(repository, template, new)[0] if kind == "git" else template.format(v_=new.replace(".", "_"))
+    if not audit.compare_tarball(port, new, url, sha512, kind, repository, tag, check):
+        report.row(port, pinned, as_text(overall), f"**{new} refused: its archive does not match `{tag}`**")
+        report.notes += check.notes
+        return
+    report.row(port, pinned, as_text(overall), f"**→ {new}** (archive identical to `{tag}`)")
     report.changed = True
+    if kind == "git":
+        old_tag = audit.release_tag(repository, template, pinned)[0]
+        review_changes(port, repository, old_tag, tag, report)
+    else:
+        report.review.append(f"- **{port}** {pinned} → {new}: read the NEWS of {new} ({repository}); the archive "
+                             f"matches `{tag}` file for file.")
     if apply:
-        sha512 = hashlib.sha512(fetch(archive.format(new))).hexdigest()
         portfile = os.path.join(PORTS, port, "portfile.cmake")
         write(portfile, re.sub(r"SHA512 [0-9a-f]{128}", f"SHA512 {sha512}", read(portfile)))
         write(manifest, read(manifest).replace(f'"{key}": "{pinned}"', f'"{key}": "{new}"'))
         update_manifest_comment(port, pinned, new)
+        if port in report.exceptions:
+            record_exception([f"{port} {new}"], "security: fixes " + ", ".join(report.exceptions[port][1]))
+
+
+def baseline_at(commit):
+    data = json.loads(fetch(f"https://raw.githubusercontent.com/microsoft/vcpkg/{commit}/versions/baseline.json"))
+    return {port: entry["baseline"] for port, entry in data["default"].items()}
 
 
 def update_vcpkg_baseline(apply, report):
+    """The newest vcpkg release newer than the baseline whose own tag and every library it moves
+    (of those the packages ship) are past the cooldown."""
     path = os.path.join(ROOT, "vcpkg.json")
     baseline = json.loads(read(path))["builtin-baseline"]
-    tags = stable_tags("https://github.com/microsoft/vcpkg", r"(\d{4})\.(\d{2})\.(\d{2})")
-    tag, commit = tags[max(tags)]
-    if commit == baseline:
-        report.row("vcpkg baseline (every other port)", tag, tag, "up to date")
-        return
-    # The baseline may be a commit between two releases: move only when the release is newer, i.e.
-    # when the baseline is its ancestor. Asked of git (commits only, no trees or files) rather than
-    # GitHub's API, which needs a token outside Actions.
+    tags = stable_tags(VCPKG, r"(\d{4})\.(\d{2})\.(\d{2})")
+    # The baseline may be a commit between two releases: only releases it is an ancestor of are
+    # newer. Asked of git (commits only, no trees or files) rather than GitHub's API.
+    recent = sorted(tags)[-6:]
     with tempfile.TemporaryDirectory() as work:
         git("init", "-q", work)
-        git("fetch", "-q", "--filter=tree:0", "https://github.com/microsoft/vcpkg", baseline, commit, cwd=work)
-        newer = subprocess.run(["git", "merge-base", "--is-ancestor", baseline, commit], cwd=work).returncode == 0
-    if not newer:
-        report.row("vcpkg baseline (every other port)", baseline[:10], tag, f"up to date ({tag} is not newer)")
+        git("fetch", "-q", "--filter=tree:0", VCPKG, baseline, *(tags[v][1] for v in recent), cwd=work)
+        candidates = [v for v in recent if tags[v][1] != baseline and subprocess.run(
+            ["git", "merge-base", "--is-ancestor", baseline, tags[v][1]], cwd=work).returncode == 0]
+    latest = tags[max(tags)][0]
+    if not candidates:
+        report.row("vcpkg baseline (every other port)", baseline[:10], latest, "up to date")
         return
-    report.row("vcpkg baseline (every other port)", baseline[:10], tag, f"**→ {tag}** (`{commit[:10]}`)")
+    pinned = baseline_at(baseline)
+    shipped = audit.BASELINE_PORTS
+    moves = {}
+
+    def moved(version):
+        if version not in moves:
+            new = baseline_at(tags[version][1])
+            moves[version] = {p: (pinned.get(p), new[p]) for p in shipped if p in new and new[p] != pinned.get(p)}
+        return moves[version]
+
+    def released(version):
+        when, how = tag_date(VCPKG, tags[version][0])
+        for port, (_, new) in moved(version).items():
+            url, template = shipped[port]
+            tag = audit.release_tag(url, template, new)[0]
+            port_when, port_how = tag_date(url, tag)
+            if port_when > when:
+                when, how = port_when, f"{port} {new}, {port_how}"
+        return when, how
+
+    commits = {p: audit.release_tag(url, t, pinned[p])[1] for p, (url, t) in shipped.items() if p in pinned}
+    found = audit.osv_lookup(c for c in commits.values() if c)
+    vulnerable_now = {f"{p}:{vid}" for p, c in commits.items() for vid, _, _, fixed in found.get(c, []) if fixed}
+
+    def fixes(version):
+        still = set()
+        for item in vulnerable_now:
+            port, vid = item.split(":", 1)
+            if port in moved(version):
+                url, template = shipped[port]
+                still |= {f"{port}:{v}" for v in fixable(audit.release_tag(url, template, moved(version)[port][1])[1])}
+            else:
+                still.add(item)
+        return not (still & vulnerable_now)
+    target = choose("vcpkg", None, candidates, released, vulnerable_now, fixes, report)
+    if target is None:
+        report.row("vcpkg baseline (every other port)", baseline[:10], latest, "held (cooldown)")
+        return
+    tag, commit = tags[target]
+    report.row("vcpkg baseline (every other port)", baseline[:10], latest, f"**→ {tag}** (`{commit[:10]}`)")
     report.notes.append(f"vcpkg {tag}: the libraries without an overlay (libjxl, libwebp, lcms and every codec) move "
                         "to its versions; an overlay port whose version vcpkg now matches can be dropped (D-46).")
+    report.review.append(f"- **vcpkg** `{baseline[:10]}` → `{tag}`: the port recipes run in our build; "
+                         f"{VCPKG}/compare/{baseline}...{commit}")
+    for port, (old, new) in sorted(moved(target).items()):
+        url, template = shipped[port]
+        if old is None:
+            report.review.append(f"- **{port}** {new}: new in the packages; read it whole.")
+            continue
+        try:
+            review_changes(port, url, audit.release_tag(url, template, old)[0],
+                           audit.release_tag(url, template, new)[0], report)
+        except subprocess.CalledProcessError:
+            report.review.append(f"- **{port}** {old} → {new}: could not list its changes ({url}); review by hand.")
     report.changed = True
     if apply:
         write(path, read(path).replace(baseline, commit))
+        if "vcpkg" in report.exceptions:
+            record_exception([f"vcpkg port recipes {commit[:10]}"] + [f"{p} {new}" for p, (_, new) in moved(target).items()],
+                             "security: fixes " + ", ".join(report.exceptions["vcpkg"][1]))
 
 
 def update_qt(apply, report):
     pin = os.path.join(ROOT, "packaging", "qt-version.txt")
     pinned = read(pin).strip()
-    versions = list(stable_tags("https://github.com/qt/qtbase", r"v(\d+)\.(\d+)\.(\d+)"))
-    target, overall = newest(versions, version_tuple(pinned), 2)
+    current = version_tuple(pinned)
+    tags = stable_tags("https://github.com/qt/qtbase", r"v(\d+)\.(\d+)\.(\d+)")
+    overall = max(tags) if tags else current
     held = f" ({as_text(overall)}: a new minor version, for a person — the private QRhi API may change)" \
-        if overall > target else ""
-    if target <= version_tuple(pinned):
-        report.row("Qt", pinned, as_text(overall), "up to date" + held)
+        if overall[:2] > current[:2] else ""
+    candidates = sorted(v for v in tags if v > current and v[:2] == current[:2])
+    vulnerable_now = fixable(tags.get(current, (None, None))[1])
+    target = choose("Qt", current, candidates, lambda v: tag_date("https://github.com/qt/qtbase", tags[v][0]),
+                    vulnerable_now, lambda v: not (fixable(tags[v][1]) & vulnerable_now), report)
+    if target is None:
+        report.row("Qt", pinned, as_text(overall), ("held (cooldown)" if candidates else "up to date") + held)
         return
     new = as_text(target)
     report.row("Qt", pinned, as_text(overall), f"**→ {new}**" + held)
     report.notes.append(f"Qt {new}: the build installs it with aqtinstall, whose mirrors can lag a release by a few days.")
+    report.review.append(f"- **Qt** {pinned} → {new}: read the release notes (https://code.qt.io/cgit/qt/qtreleasenotes.git) "
+                         f"for security fixes and changes to the private QRhi API.")
     report.changed = True
     if apply:
         write(pin, new + "\n")
+        if "Qt" in report.exceptions:
+            record_exception([f"Qt {new}"], "security: fixes " + ", ".join(report.exceptions["Qt"][1]))
         licence = os.path.join(ROOT, "packaging", "licenses", "Qt.txt")
         write(licence, read(licence).replace(pinned, new))
 
@@ -248,10 +452,8 @@ def main():
     args = parser.parse_args()
     report = Report()
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report)) for p, u, t in GIT_PORTS]
-    checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", GM_RSS, r"GraphicsMagick-(\d+\.\d+\.\d+)\.tar\.xz",
-                                                          GM_ARCHIVE, args.apply, report)),
-               ("aom", lambda: update_tarball_port("aom", AOM_LISTING, r"libaom-(\d+\.\d+\.\d+)\.tar\.gz",
-                                               AOM_ARCHIVE, args.apply, report)),
+    checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
+               ("aom", lambda: update_tarball_port("aom", audit.aom_releases, AOM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
                ("Qt", lambda: update_qt(args.apply, report))]
     failed = False
@@ -268,7 +470,8 @@ def main():
         write(args.report, text)
     if "GITHUB_OUTPUT" in os.environ:
         with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
-            out.write(f"changed={'true' if report.changed else 'false'}\nfailed={'true' if failed else 'false'}\n")
+            out.write(f"changed={'true' if report.changed else 'false'}\nfailed={'true' if failed else 'false'}\n"
+                      f"exception={'true' if report.exception else 'false'}\n")
     return 0
 
 

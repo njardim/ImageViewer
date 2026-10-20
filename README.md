@@ -109,6 +109,14 @@ Command-line tools for diagnosis:
 
 Versions are numbered `X.Y` (for example 0.1, 0.2, 1.0), with an optional suffix such as `-beta`. Publishing a GitHub release named `vX.Y` builds, tests and attaches the three packages automatically; nobody builds release binaries by hand.
 
+## Security
+
+Every file is treated as hostile input. Dependencies are audited against known vulnerabilities by
+the exact commit they are built from, release archives are checked against their source
+repository, a new release of a library is taken only after a 15-day cooldown, and every release
+carries attested provenance and a bill of materials for each package. To report a
+vulnerability, see [`SECURITY.md`](SECURITY.md) (privately, never in a public issue).
+
 ## Contributing
 
 Contributions are welcome, including translations; see [`CONTRIBUTING.md`](CONTRIBUTING.md). Commits need a [Developer Certificate of Origin](https://developercertificate.org/) sign-off (`git commit -s`).

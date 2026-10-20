@@ -390,9 +390,19 @@ bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
     return true;
 }
 
-bool decodeWithQt(const QString &path, qint64 maxPixels, Decoded *out, QString *error)
+bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error)
 {
-    QImageReader reader(path);
+    // Only the plugin of the format the registry gave to Qt reads the file, never one Qt picks by
+    // content: Qt's other plugins and built-in readers decode with Qt's own copies of libjpeg,
+    // libpng, libtiff and libwebp, which the dependency audit does not follow (D-67).
+    if (!format || format->decoder != Decoder::Qt) {
+        *error = QCoreApplication::translate("Image", "damaged, truncated or unsupported file");
+        return false;
+    }
+    const QStringList suffixes = format->suffixes();
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    QImageReader reader(path, (suffixes.contains(suffix) ? suffix : suffixes.constFirst()).toLatin1());
+    reader.setAutoDetectImageFormat(false);
     // Qt's SVG reader lays out text with QFontDatabase, which aborts without a QGuiApplication
     // (console modes such as --info run on a QCoreApplication).
     if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())
@@ -553,7 +563,7 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
             return false;
         return decodeHeifSequence(std::move(bytes), maxPixels, out, error, frames);
     }
-    case Decoder::Qt: return decodeWithQt(path, maxPixels, out, error);
+    case Decoder::Qt: return decodeWithQt(path, format, maxPixels, out, error);
     case Decoder::System: return decodeSystemHeic(path, maxPixels, out, error);
     case Decoder::GraphicsMagick:
         if (!format)
@@ -720,7 +730,8 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
         *error = file.errorString();
         return false;
     }
-    // Detection by content (D-38): the format's own back end first, then the general ones.
+    // Detection by content (D-38): the format's own back end first, then OpenImageIO (Qt reads
+    // only its own formats, D-67).
     const QByteArray head = file.read(kFormatHeadBytes);
     file.close();
     const Format *format = detectFormat(head, QFileInfo(path).suffix());
@@ -734,9 +745,8 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
     // A format whose OpenImageIO reader crashes on damaged files never reaches it (D-45), not even
     // under the name of another format.
     const bool notOiio = (format && !oiioMayRead(*format)) || !oiioMayReadContent(head);
-    for (Decoder general : {Decoder::OpenImageIO, Decoder::Qt})
-        if (!order.contains(general) && !(notOiio && general == Decoder::OpenImageIO))
-            order << general;
+    if (!order.contains(Decoder::OpenImageIO) && !notOiio)
+        order << Decoder::OpenImageIO;
     QString firstError;
     for (Decoder decoder : std::as_const(order)) {
         *out = Decoded(); // nothing from a failed attempt may leak into the next one

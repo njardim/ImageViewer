@@ -49,8 +49,9 @@ jobs:
         if: matrix.language == 'c-cpp'
         run: |
           sudo apt-get update -qq
+          # openimageio-tools: Ubuntu's OpenImageIO CMake config checks that its tools exist.
           sudo apt-get install -y -qq --no-install-recommends cmake ninja-build pkg-config \
-            libopenimageio-dev liblcms2-dev libjxl-dev libwebp-dev libheif-dev \
+            libopenimageio-dev openimageio-tools liblcms2-dev libjxl-dev libwebp-dev libheif-dev \
             libgl1-mesa-dev libvulkan-dev libxkbcommon-dev > /dev/null
 
       - name: Qt ${{ env.QT_VERSION }}

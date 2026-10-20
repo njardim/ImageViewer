@@ -53,6 +53,9 @@ jobs:
           sudo apt-get install -y -qq --no-install-recommends cmake ninja-build pkg-config \
             libopenimageio-dev openimageio-tools liblcms2-dev libjxl-dev libwebp-dev libheif-dev \
             libgl1-mesa-dev libvulkan-dev libxkbcommon-dev > /dev/null
+          # Ubuntu's OpenImageIO CMake config names /usr/include/opencv4 as an include directory
+          # without depending on OpenCV; CMake refuses a target with a missing one. Nothing is read from it.
+          sudo mkdir -p /usr/include/opencv4
 
       - name: Qt ${{ env.QT_VERSION }}
         if: matrix.language == 'c-cpp'

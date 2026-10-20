@@ -49,9 +49,10 @@ jobs:
         if: matrix.language == 'c-cpp'
         run: |
           sudo apt-get update -qq
-          # openimageio-tools: Ubuntu's OpenImageIO CMake config checks that its tools exist.
+          # openimageio-tools: Ubuntu's OpenImageIO CMake config checks that its tools exist;
+          # libtiff-dev: OpenImageIO's tiffutils.h includes tiff.h.
           sudo apt-get install -y -qq --no-install-recommends cmake ninja-build pkg-config \
-            libopenimageio-dev openimageio-tools liblcms2-dev libjxl-dev libwebp-dev libheif-dev \
+            libopenimageio-dev openimageio-tools libtiff-dev liblcms2-dev libjxl-dev libwebp-dev libheif-dev \
             libgl1-mesa-dev libvulkan-dev libxkbcommon-dev > /dev/null
           # Ubuntu's OpenImageIO CMake config names /usr/include/opencv4 as an include directory
           # without depending on OpenCV; CMake refuses a target with a missing one. Nothing is read from it.

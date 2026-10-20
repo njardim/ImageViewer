@@ -130,7 +130,8 @@ REGENERATED = ["configure", "aclocal.m4", "*Makefile.in", "config.h.in", "*/conf
                "compile", "*/depcomp", "depcomp", "*/config.guess", "config.guess", "*/config.sub", "config.sub",
                "*/test-driver", "test-driver", "*/ar-lib", "ar-lib", "m4/libtool.m4", "m4/ltoptions.m4",
                "m4/ltsugar.m4", "m4/ltversion.m4", "m4/lt~obsolete.m4"]
-DOCUMENTATION = ["*.html", "*.css", "*.[1-9]", "*.png", "*.gif", "*.jpg", "*.svg", "ChangeLog*", "NEWS*"]
+# Matched against the file's name, wherever it is (GraphicsMagick's www/ChangeLog-2001.rst).
+DOCUMENTATION = ["*.html", "*.css", "*.rst", "*.[1-9]", "*.png", "*.gif", "*.jpg", "*.svg", "ChangeLog*", "NEWS*"]
 # The tarball libraries whose build regenerates the Autotools files (giflib builds with vcpkg's CMake
 # project and reads none of them, aom with its own CMake).
 AUTORECONF = {"graphicsmagick"}
@@ -444,8 +445,29 @@ def tarball_source(port, version, baseline_commit):
     else:  # giflib: vcpkg_from_sourceforge in the baseline's portfile
         text = fetch(f"https://raw.githubusercontent.com/microsoft/vcpkg/{baseline_commit}/ports/{port}/portfile.cmake").decode()
         filename = re.search(r'FILENAME "([^"]+)"', text).group(1).replace("${VERSION}", version)
-        url = f"https://downloads.sourceforge.net/project/{port}/{filename}"
+        url = f"https://sourceforge.net/projects/{port}/files/{filename}/download"  # as vcpkg_from_sourceforge
     return url, re.search(r"SHA512 ([0-9a-f]{128})", text).group(1)
+
+
+def configure_outputs(checkout):
+    """The files configure writes (AC_CONFIG_FILES, AC_CONFIG_HEADERS) per the tag's own
+    configure.ac, each from its ".in" template, which is compared with the tag like any source:
+    the tarball's copies are replaced when our build runs configure (GraphicsMagick's
+    magick/magick_types.h)."""
+    for name in ("configure.ac", "configure.in"):
+        path = os.path.join(checkout, name)
+        if os.path.isfile(path):
+            text = read(path)
+            break
+    else:
+        return []
+    outputs = []
+    for macro in re.finditer(r"AC_CONFIG_(?:FILES|HEADERS)\(\s*\[?([^\])]*)", text):
+        for entry in macro.group(1).replace("\\\n", " ").split():
+            output = entry.split(":")[0].strip("[]")
+            if output and os.path.isfile(os.path.join(checkout, output + ".in")):
+                outputs.append(output)
+    return outputs
 
 
 def tree_files(top):
@@ -481,8 +503,12 @@ def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
         ours, theirs = tree_files(tarball), tree_files(checkout)
         extra = sorted(set(ours) - set(theirs))
         changed = sorted(p for p in set(ours) & set(theirs) if not filecmp.cmp(ours[p], theirs[p], shallow=False))
-        allowed = DOCUMENTATION + (REGENERATED if port in AUTORECONF else [])
-        unexplained = [p for p in extra + changed if not any(fnmatch.fnmatchcase(p, g) for g in allowed)]
+        generated = set(configure_outputs(checkout)) if port in AUTORECONF else set()
+
+        def explained(path):
+            return (path in generated or any(fnmatch.fnmatchcase(os.path.basename(path), g) for g in DOCUMENTATION)
+                    or (port in AUTORECONF and any(fnmatch.fnmatchcase(path, g) for g in REGENERATED)))
+        unexplained = [p for p in extra + changed if not explained(p)]
         if unexplained:
             shown = ", ".join(f"`{p}`" for p in unexplained[:30]) + (" …" if len(unexplained) > 30 else "")
             report.notes.append(f"**{port} {version}: the release tarball differs from {tag} in {len(unexplained)} "

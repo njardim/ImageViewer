@@ -59,7 +59,6 @@ PORTS = os.path.join(ROOT, "packaging", "vcpkg", "ports")
 OSV = "https://api.osv.dev/v1"
 MIN_RELEASE_AGE_DAYS = 15  # D-67: no release ships before it is this old
 GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagick&limit=100"  # more: HTTP 400
-AOM_LISTING = "https://storage.googleapis.com/aom-releases/"  # the bucket's XML listing (googlesource has no tag API)
 VCPKG = "https://github.com/microsoft/vcpkg"
 
 # Releases allowed to ship younger than MIN_RELEASE_AGE_DAYS, each with its reason and date
@@ -102,6 +101,7 @@ BASELINE_PORTS = {
 COMMIT_PORTS = {
     "openimageio": ("https://github.com/AcademySoftwareFoundation/OpenImageIO", "v{v}"),
     "libheif": ("https://github.com/strukturag/libheif", "v{v}"),
+    "aom": ("https://aomedia.googlesource.com/aom", "v{v}"),
     "expat": ("https://github.com/libexpat/libexpat", "R_{v_}"),
     "minizip-ng": ("https://github.com/zlib-ng/minizip-ng", "{v}"),
 }
@@ -111,7 +111,6 @@ PRERELEASE = {"libjpeg-turbo": lambda v: v[-1] >= 90}
 # repository is Mercurial and OSV has no commit index for it: its security fixes are read from
 # its NEWS at every update (a person, D-67).
 TARBALL_PORTS = {
-    "aom": ("git", "https://aomedia.googlesource.com/aom", "v{v}"),
     "graphicsmagick": ("hg", "https://foss.heptapod.net/graphicsmagick/graphicsmagick",
                        "GraphicsMagick-{v_}"),
 }
@@ -134,7 +133,7 @@ REGENERATED = ["configure", "aclocal.m4", "*Makefile.in", "config.h.in", "*/conf
 # Matched against the file's name, wherever it is (GraphicsMagick's www/ChangeLog-2001.rst).
 DOCUMENTATION = ["*.html", "*.css", "*.rst", "*.[1-9]", "*.png", "*.gif", "*.jpg", "*.svg", "ChangeLog*", "NEWS*"]
 # The tarball libraries whose build regenerates the Autotools files (giflib builds with vcpkg's CMake
-# project and reads none of them, aom with its own CMake).
+# project and reads none of them).
 AUTORECONF = {"graphicsmagick"}
 
 
@@ -218,13 +217,6 @@ def gm_releases():
         if name and date:
             releases[name.group(1)] = email.utils.parsedate_to_datetime(date.group(1))
     return releases
-
-
-def aom_releases():
-    """{version: upload date} of libaom's archives in Google's bucket (dates set by the bucket)."""
-    found = re.findall(r"<Key>libaom-(\d+\.\d+\.\d+)\.tar\.gz</Key>.*?<LastModified>([^<]+)</LastModified>",
-                       fetch(AOM_LISTING).decode(), re.S)
-    return {version: datetime.datetime.fromisoformat(date.replace("Z", "+00:00")) for version, date in found}
 
 
 def age_days(when):
@@ -381,9 +373,8 @@ def release_dates(baseline_commit, baseline):
     for port, (url, _) in COMMIT_PORTS.items():
         tag = re.search(r"REF [0-9a-f]{40} # (\S+)", read(os.path.join(PORTS, port, "portfile.cmake"))).group(1)
         add(port, overlay_version(port), lambda url=url, tag=tag: tag_date(url, tag))
-    for port, listing in (("graphicsmagick", gm_releases), ("aom", aom_releases)):
-        version = overlay_version(port)
-        add(port, version, lambda listing=listing, version=version: (listing()[version], "archive upload date"))
+    version = overlay_version("graphicsmagick")
+    add("graphicsmagick", version, lambda: (gm_releases()[version], "archive upload date"))
     for port, (url, templates) in BASELINE_PORTS.items():
         version = baseline[port]
         add(port, version, lambda url=url, templates=templates, version=version:
@@ -472,14 +463,23 @@ def configure_outputs(checkout):
 
 
 def tree_files(top):
+    """Every file under `top` by its relative path, symbolic links included (to a file or to a
+    directory, which is not entered): a link is compared as a link, never followed. Left out, a
+    source file the tarball turned into a link to code hidden under a documentation name passed."""
     files = {}
     for directory, dirs, names in os.walk(top):
         dirs[:] = [d for d in dirs if d not in (".git", ".hg")]
-        for name in names:
+        for name in names + [d for d in dirs if os.path.islink(os.path.join(directory, d))]:
             path = os.path.join(directory, name)
-            if not os.path.islink(path):
-                files[os.path.relpath(path, top).replace(os.sep, "/")] = path
+            files[os.path.relpath(path, top).replace(os.sep, "/")] = path
     return files
+
+
+def same_file(a, b):
+    """Same content, or the same link; a link never equals a file."""
+    if os.path.islink(a) or os.path.islink(b):
+        return os.path.islink(a) and os.path.islink(b) and os.readlink(a) == os.readlink(b)
+    return filecmp.cmp(a, b, shallow=False)
 
 
 def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
@@ -503,10 +503,12 @@ def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
             run("hg", "clone", "--quiet", "--updaterev", tag, repo, checkout)
         ours, theirs = tree_files(tarball), tree_files(checkout)
         extra = sorted(set(ours) - set(theirs))
-        changed = sorted(p for p in set(ours) & set(theirs) if not filecmp.cmp(ours[p], theirs[p], shallow=False))
+        changed = sorted(p for p in set(ours) & set(theirs) if not same_file(ours[p], theirs[p]))
         generated = set(configure_outputs(checkout)) if port in AUTORECONF else set()
 
         def explained(path):
+            if os.path.islink(ours[path]):
+                return False  # a link the tag does not have is never documentation nor generated
             return (path in generated or any(fnmatch.fnmatchcase(os.path.basename(path), g) for g in DOCUMENTATION)
                     or (port in AUTORECONF and any(fnmatch.fnmatchcase(path, g) for g in REGENERATED)))
         unexplained = [p for p in extra + changed if not explained(p)]

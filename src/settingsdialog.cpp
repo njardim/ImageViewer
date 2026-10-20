@@ -656,8 +656,12 @@ void SettingsDialog::fillShortcutTable()
 
 void SettingsDialog::refreshShortcutTexts()
 {
-    for (int i = 0; i < m_shortcutTable->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = m_shortcutTable->topLevelItem(i);
+    // The items first: sorted by the shortcuts' column, the table moves a row as soon as its text
+    // changes, and walking it by index would then skip rows.
+    QList<QTreeWidgetItem *> items;
+    for (int i = 0; i < m_shortcutTable->topLevelItemCount(); ++i)
+        items << m_shortcutTable->topLevelItem(i);
+    for (QTreeWidgetItem *item : std::as_const(items)) {
         const int command = item->data(0, Qt::UserRole).toInt();
         if (command < 0 || command >= m_commands.size())
             continue;

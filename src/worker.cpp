@@ -109,10 +109,14 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
     a->bits = readWord(answer, 24);
     a->orientation = readWord(answer, 28);
     a->iccBytes = readWord(answer, 32);
+    // The answer is untrusted (a worker may be compromised): every field is bounded before any
+    // arithmetic, which the sizes of two 32-bit words could otherwise overflow.
+    if (a->width == 0 || a->height == 0 || a->width > kMaxPixels || a->height > kMaxPixels
+        || (a->channels != 3 && a->channels != 4) || (a->sampleBytes != 1 && a->sampleBytes != 2))
+        return false;
     const qint64 pixels = qint64(a->width) * a->height;
     a->dataBytes = pixels * a->channels * a->sampleBytes;
-    return a->width > 0 && a->height > 0 && pixels <= limit && (a->channels == 3 || a->channels == 4)
-           && (a->sampleBytes == 1 || a->sampleBytes == 2) && a->bits > 0 && a->bits <= 16 && a->iccBytes <= kMaxIccBytes;
+    return pixels <= limit && a->bits > 0 && a->bits <= 16 && a->iccBytes <= kMaxIccBytes;
 }
 
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK

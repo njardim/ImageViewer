@@ -264,17 +264,21 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
 
     const QString url = QUrl::fromLocalFile(file).toString(QUrl::FullyEncoded);
     QStringList command;
+    QList<bool> holdsFile; // per element of `command`
     bool fileGiven = false;
     bool embedded = false; // the file inside a longer argument ("--file=%f", or "echo\\ %f")
     for (qsizetype a = 0; a < arguments.size(); ++a) {
         const QString &argument = arguments.at(a);
         if (argument == QLatin1String("%i")) {
-            if (!icon.isEmpty())
+            if (!icon.isEmpty()) {
                 command << QStringLiteral("--icon") << icon;
+                holdsFile << false << false;
+            }
             continue;
         }
         QString expanded;
         bool dropped = false; // an argument made only of a code without a value disappears
+        const bool givenBefore = fileGiven;
         for (qsizetype i = 0; i < argument.size(); ++i) {
             if (argument.at(i) != QLatin1Char('%') || i + 1 == argument.size()) {
                 expanded += argument.at(i);
@@ -303,11 +307,17 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
             default: dropped = argument.size() == 2; break; // deprecated or unknown codes
             }
         }
-        if (!dropped)
+        if (!dropped) {
             command << expanded;
+            holdsFile << (fileGiven && !givenBefore);
+        }
     }
     if (command.isEmpty())
         return {};
+    if (!fileGiven) {
+        command << file;
+        holdsFile << true;
+    }
     // A shell would read the file's name as code where it is part of a word ("sh -c echo\\ %f"
     // makes the script "echo /path/$(cmd).png"): with a shell anywhere in the command, the file
     // may only be an argument of its own, which a script receives as data ($1).
@@ -315,12 +325,31 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
                                        QStringLiteral("zsh"), QStringLiteral("ksh"), QStringLiteral("mksh"),
                                        QStringLiteral("fish"), QStringLiteral("csh"), QStringLiteral("tcsh"),
                                        QStringLiteral("busybox")};
-    if (embedded && std::any_of(command.cbegin(), command.cend(), [](const QString &argument) {
-            return shells.contains(QFileInfo(argument).fileName());
-        }))
-        return {};
-    if (!fileGiven)
-        command << file;
+    const auto isShell = [](const QString &argument) { return shells.contains(QFileInfo(argument).fileName()); };
+    if (qsizetype s = std::find_if(command.cbegin(), command.cend(), isShell) - command.cbegin(); s < command.size()) {
+        if (embedded)
+            return {};
+        // Nor may the file be the script of the shell started (the first one; "busybox sh" is sh,
+        // and a later "sh" is the script's $0): the argument of -c ("sh -c %f", the name is the
+        // code) or its first operand ("sh %f", the content is the code). After the script, the
+        // file is data ($1).
+        if (QFileInfo(command.at(s)).fileName() == QLatin1String("busybox") && s + 1 < command.size()
+            && isShell(command.at(s + 1)))
+            ++s;
+        bool operand = false;
+        for (qsizetype i = s + 1; i < command.size(); ++i) {
+            const QString &argument = command.at(i);
+            const bool shortOptions = argument.size() > 1 && argument.startsWith(QLatin1Char('-'))
+                                      && !argument.startsWith(QLatin1String("--"));
+            if (shortOptions && argument.contains(QLatin1Char('c')) && i + 1 < command.size() && holdsFile.at(i + 1))
+                return {}; // -c, -ec, -lc
+            if (!operand && !argument.startsWith(QLatin1Char('-'))) {
+                if (holdsFile.at(i))
+                    return {};
+                operand = true;
+            }
+        }
+    }
     return command;
 }
 

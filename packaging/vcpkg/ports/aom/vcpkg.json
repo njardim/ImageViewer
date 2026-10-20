@@ -1,7 +1,7 @@
 {
   "name": "aom",
-  "$comment": "ImageViewer overlay (docs/PLAN.md D-46): libaom at its latest release (the vcpkg baseline lags), libheif's AV1 decoder for AVIF. Release tarball from Google's aom-releases bucket, SHA-512 pinned; the port is otherwise vcpkg's.",
-  "version-semver": "3.15.2",
+  "$comment": "ImageViewer overlay (docs/PLAN.md D-46, D-67): libaom at its newest release past the cooldown (the vcpkg baseline lags), libheif's AV1 decoder for AVIF. Fetched by git at the tag's commit; the port is otherwise vcpkg's.",
+  "version": "3.15.1",
   "description": "AV1 codec library",
   "homepage": "https://aomedia.googlesource.com/aom",
   "license": "BSD-2-Clause AND BSD-3-Clause AND MIT AND ISC",

@@ -3,7 +3,7 @@ name: security audit
 # D-67: the supply chain of the packages, audited by scripts/audit_dependencies.py.
 # - Known vulnerabilities (OSV, by the exact commit each library is built from): one fixed in a
 #   release the update policy allows fails, whatever the cooldown.
-# - Release tarballs (GraphicsMagick, libaom, giflib) compared file by file with their tags: where
+# - Release tarballs (GraphicsMagick, giflib) compared file by file with their tags: where
 #   the xz backdoor of 2024 hid.
 # - Release ages: a library younger than 15 days is reported here; the release workflow refuses it.
 # Weekly, and on every change to the pins. A scheduled run that finds a problem opens (or updates)

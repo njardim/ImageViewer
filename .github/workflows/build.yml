@@ -192,6 +192,27 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
+      # Qt reads only the formats the registry gives it (D-67, D-68): SVG, ICNS, ICO (.cur) and WBMP
+      # through these plugins, XPM and XBM built in. Its other image plugins decode with Qt's own
+      # copies of libjpeg, libtiff and libwebp, which the audit does not follow, and an SVG (a data:
+      # URI) or an icon hands an embedded image to any plugin that recognises it. They are held back
+      # from the tests and the deploy step, which reads Qt's plugin folder only then (after Configure:
+      # Qt's CMake package checks that every plugin it names exists), and put back afterwards, so
+      # that the cached Qt stays whole. The package step checks the result.
+      - name: Hold back the Qt image plugins the registry does not use
+        shell: bash
+        run: |
+          root="$QT_ROOT_DIR"; [ "$RUNNER_OS" = Windows ] && root="$(cygpath -u "$root")"
+          dir="$root/plugins/imageformats"
+          [ -d "$dir" ] || { echo "::error::$dir not found"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/qt-imageformats"
+          for f in "$dir"/*; do
+            case "$(basename "$f")" in
+              *qsvg.*|*qsvgd.*|*qicns.*|*qicnsd.*|*qico.*|*qicod.*|*qwbmp.*|*qwbmpd.*) ;;
+              *) echo "held back: $(basename "$f")"; mv "$f" "$RUNNER_TEMP/qt-imageformats/" ;;
+            esac
+          done
+
       # Every tr() string must be in the .ts files (update_translations was run), and releases
       # and pull requests into main need every UI language complete; elsewhere missing
       # translations only warn while work is in progress (D-27).
@@ -296,6 +317,14 @@ jobs:
         shell: bash
         run: cmake --install "build/$PRESET" --prefix "$RUNNER_TEMP/dist"
 
+      - name: Put the Qt image plugins back
+        if: always()
+        shell: bash
+        run: |
+          [ -d "$RUNNER_TEMP/qt-imageformats" ] || exit 0
+          root="$QT_ROOT_DIR"; [ "$RUNNER_OS" = Windows ] && root="$(cygpath -u "$root")"
+          find "$RUNNER_TEMP/qt-imageformats" -mindepth 1 -maxdepth 1 -exec mv {} "$root/plugins/imageformats/" \;
+
       - name: Package
         id: package
         shell: bash
@@ -319,6 +348,11 @@ jobs:
           if find "$dist" \( -iname '*x265*' -o -iname '*de265*' \) | grep .; then
             echo "::error::HEVC codec files in the package"; exit 1
           fi
+          # Only the Qt image plugins the registry uses (D-67, "Qt image plugins" above).
+          plugins="$(find "$dist" -path '*/imageformats/*' -type f)"
+          extra="$(printf '%s\n' "$plugins" | grep -Ev '(qsvg|qicns|qico|qwbmp)d?\.[^/]*$' || true)"
+          [ -z "$extra" ] || { echo "::error::Qt image plugins the registry does not use: $extra"; exit 1; }
+          printf '%s\n' "$plugins" | grep -Eq 'qsvgd?\.[^/]*$' || { echo "::error::no SVG image plugin in the package"; exit 1; }
           # MSVC runtime is deployed app-locally (no vc_redist installer).
           if [ "$RUNNER_OS" = Windows ]; then
             for f in vcruntime140.dll vcruntime140_1.dll msvcp140.dll; do

@@ -1,12 +1,12 @@
-# ImageViewer overlay (D-46): see vcpkg.json. Derived from the vcpkg baseline port (0699a19d,
-# 3.15.1); the release tarball instead of the git repository, so the version comes from CHANGELOG.
-vcpkg_download_distfile(ARCHIVE
-    URLS "https://storage.googleapis.com/aom-releases/libaom-${VERSION}.tar.gz"
-    FILENAME "libaom-${VERSION}.tar.gz"
-    SHA512 4ba185a642c9dd32d1ab708916a5aed1a65d3cd6d2599d632f33c83849e6702ca91528ad09a007eb39ac2723f0b10de9a7905ed26abfef42a164f13e21aacb7a
-)
-vcpkg_extract_source_archive(SOURCE_PATH
-    ARCHIVE "${ARCHIVE}"
+# ImageViewer overlay (D-46, D-67): vcpkg's port (baseline 0699a19d), fetched by git at the tag's
+# commit, so the commit hash pins the source and scripts/update_dependencies.py moves it to each
+# release once it is past the cooldown, ahead of the baseline.
+vcpkg_from_git(
+    OUT_SOURCE_PATH SOURCE_PATH
+    URL "https://aomedia.googlesource.com/aom"
+    REF 44d0a57786f432d933ff64b653347c66f4d0fa1d # v3.15.1
+    FETCH_REF "v${VERSION}"
+    HEAD_REF main
     PATCHES
         aom-rename-static.diff
 )

@@ -4,8 +4,8 @@ the newest release it may take (D-46, D-62, D-67). Run by .github/workflows/depe
 when an issue gets the "auto update" label; it also runs locally (without --apply it only reports).
 
 What is pinned, and where:
-- overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, expat, minizip-ng: a git tag's
-  commit; GraphicsMagick and libaom: a release archive and its SHA-512);
+- overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, libaom, expat, minizip-ng: a git
+  tag's commit; GraphicsMagick: a release archive and its SHA-512);
 - every other vcpkg port through the manifest's builtin-baseline (a vcpkg release tag's commit);
 - Qt in packaging/qt-version.txt (read by .github/workflows/build.yml, whose files the workflow's
   token may not change) and packaging/licenses/Qt.txt.
@@ -48,11 +48,11 @@ MIN_RELEASE_AGE_DAYS = audit.MIN_RELEASE_AGE_DAYS
 GIT_PORTS = [
     ("openimageio", "https://github.com/AcademySoftwareFoundation/OpenImageIO", r"v(\d+)\.(\d+)\.(\d+)\.(\d+)"),
     ("libheif", "https://github.com/strukturag/libheif", r"v(\d+)\.(\d+)\.(\d+)"),
+    ("aom", "https://aomedia.googlesource.com/aom", r"v(\d+)\.(\d+)\.(\d+)"),
     ("expat", "https://github.com/libexpat/libexpat", r"R_(\d+)_(\d+)_(\d+)"),
     ("minizip-ng", "https://github.com/zlib-ng/minizip-ng", r"(\d+)\.(\d+)\.(\d+)"),
 ]
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
-AOM_ARCHIVE = "https://storage.googleapis.com/aom-releases/libaom-{0}.tar.gz"
 VCPKG = audit.VCPKG
 
 # What a reviewer reads first in an upstream change (the xz backdoor of 2024 came in through
@@ -453,7 +453,6 @@ def main():
     report = Report()
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report)) for p, u, t in GIT_PORTS]
     checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
-               ("aom", lambda: update_tarball_port("aom", audit.aom_releases, AOM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
                ("Qt", lambda: update_qt(args.apply, report))]
     failed = False

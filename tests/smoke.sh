@@ -204,6 +204,18 @@ for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orang
         check "$f" 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "colour exact"
     fi
 done
+# A cursor holding a PNG (Pillow 12.3, 8x8 orange): Qt hands the PNG to our plugin, which reads it
+# with OpenImageIO, never to Qt's own copy of libpng (D-68).
+if "$exe" --formats 2>/dev/null | grep -q "^ *cur | .* | yes | "; then
+    said="$(QT_LOGGING_RULES='qt.gui.imageio.reader.debug=true' "$exe" --info "$data/png.cur" 2>&1 || true)"
+    if grep -q 'OiioPngPlugin.* can read the format "png"' <<<"$said" && grep -Eq 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' <<<"$said"; then
+        echo "ok   png.cur: the PNG inside read by OpenImageIO (our Qt plugin), colour exact"
+    else
+        echo "FAIL png.cur: the PNG inside was not read by OiioPngPlugin, or not exactly"
+        grep -E 'imageio|pixel|error' <<<"$said" | sed 's/^/     /'
+        failures=$((failures + 1))
+    fi
+fi
 # A FITS volume: every slice is read (a one-slice buffer overflowed), the first one shown.
 if "$exe" --formats 2>/dev/null | grep -q "^ *fits | .* | yes | "; then
     check volume.fits 'size: +6x4' "FITS volume (5 slices) read whole, one slice shown"
@@ -304,15 +316,26 @@ Name=Shell Word
 Exec=sh -c echo\\ %f
 MimeType=image/png;
 ENTRY
+    # Nor as the shell's script: the argument of -c (the name is the code) or its first operand
+    # (the content is the code). After the script it is data: "$1" of the script.
+    printf '[Desktop Entry]\nType=Application\nName=Shell Script\nExec=sh -c %%f\nMimeType=image/png;\n' >"$apps/shellscript.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Shell File\nExec=/bin/sh %%f\nMimeType=image/png;\n' >"$apps/shellfile.desktop"
+    cat >"$apps/shelldata.desktop" <<'ENTRY'
+[Desktop Entry]
+Type=Application
+Name=Shell Data
+Exec=sh -c "viewer \\"\\$1\\"" sh %f
+MimeType=image/png;
+ENTRY
     printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
     png="$data/alpha8.png"
     url="file://$(cd "$data" && pwd)/alpha8.png"
-    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s\nShell\tshell.desktop\t\nShell Word\tshellword.desktop\t' "$url" "$(cd "$data" && pwd)/alpha8.png")"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s\nShell\tshell.desktop\t\nShell Data\tshelldata.desktop\tsh|-c|viewer "$1"|sh|%s\nShell File\tshellfile.desktop\t\nShell Script\tshellscript.desktop\t\nShell Word\tshellword.desktop\t' "$url" "$(cd "$data" && pwd)/alpha8.png" "$(cd "$data" && pwd)/alpha8.png")"
     listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
               LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
     rm -rf "$xdg"
     if [ "$listed" = "$expected" ]; then
-        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes (never inside quotes, nor in a shell's word)"
+        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes (never inside quotes, a shell's word or its script)"
     else
         echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
         echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'

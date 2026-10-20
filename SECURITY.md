@@ -45,6 +45,12 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
   [OSV](https://osv.dev); libraries built from release archives are compared file by file with
   their repository's tag; nothing is installed that the audit does not follow.
 - **Release gate.** A release is published only when the audit is clean.
+- **Only audited code reads images.** Qt reads only SVG, ICNS, cursors, WBMP, XPM and XBM; the PNG
+  images inside them are decoded by OpenImageIO with the audited libpng, never by Qt's own copy, and
+  the packages carry no other Qt image plugin (D-68).
+- **Never below a security fix.** Each library is pinned to its newest release past the cooldown;
+  when that would drop a security fix, the newer release ships as a recorded exception, approved
+  by the maintainer after reading its changes (D-69).
 - **Verifiable packages.** Every release attaches `SHA256SUMS` and, for each package, an SPDX bill of
   materials (`*.spdx.json`); both the build provenance and the bill of materials are attested:
 

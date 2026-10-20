@@ -232,11 +232,18 @@ try:
             xdotool("mousemove", "--sync", str(bx), str(by))
             xdotool("click", "1")
             toolbar_is("a click on pause turns it into play", "play")
-            held = colour()
-            stays("and the slideshow holds its image", held, 2.5)
+            # The image held: the still one, or the animation, which goes on playing while the
+            # slideshow is paused (D-58), so its colours count as one image.
+            held = {"yellow"} if colour() == "yellow" else {"red", "green", "blue"}
+            end = time.monotonic() + 2.5
+            while time.monotonic() < end:
+                if (seen := colour()) not in held:
+                    fail(f"and the slideshow holds its image: {seen} instead of {'/'.join(sorted(held))}")
+                time.sleep(POLL_S)
+            print(f"ok   and the slideshow holds its image: {'/'.join(sorted(held))} for 2.5 s")
             xdotool("click", "1")
             toolbar_is("a click on play turns it back into pause", "pause")
-            wait_for("and the slideshow goes on", set(COLOURS) - {held})
+            wait_for("and the slideshow goes on", set(COLOURS) - held)
             xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))
             end = time.monotonic() + 3.0
             while time.monotonic() < end:  # auto-hide is off by default: the user opts in

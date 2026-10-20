@@ -92,6 +92,7 @@ BASELINE_PORTS = {
     "openjph": ("https://github.com/aous72/OpenJPH", "{v}"),
     "pystring": ("https://github.com/imageworks/pystring", "v{v}"),
     "robin-map": ("https://github.com/Tessil/robin-map", "v{v}"),
+    "sse2neon": ("https://github.com/DLTcollab/sse2neon", "v{v}"),  # macOS (ARM) only: SSE on NEON
     "tiff": ("https://gitlab.com/libtiff/libtiff", "v{v}"),
     "yaml-cpp": ("https://github.com/jbeder/yaml-cpp", "yaml-cpp-{v}|{v}"),
     "zlib": ("https://github.com/madler/zlib", "v{v}"),

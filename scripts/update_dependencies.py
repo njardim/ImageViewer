@@ -16,7 +16,9 @@ Policy:
 - Cooldown (D-67): a release is taken only once it is MIN_RELEASE_AGE_DAYS old, so that a
   compromised or broken release is found and withdrawn upstream before it reaches us. The age is
   GitHub's release date where there is one, the upload date of a release archive, or else the tag's
-  own date. A vcpkg baseline is as young as the youngest library it moves.
+  own date. A vcpkg baseline is as young as the youngest library it moves. The number of days is
+  packaging/cooldown-days.txt (15; lowered by the owner to take the latest releases sooner, 0 for
+  every latest release).
 - Security exception (D-67): when the pinned version has a known vulnerability (OSV) and no release
   old enough fixes it, the oldest younger release that does is taken, and marked for a person to
   review its changes by hand before merging.
@@ -26,7 +28,8 @@ Policy:
   contains is removed (D-57), one that no longer applies is reported (the build will fail on it).
 
 usage: python3 scripts/update_dependencies.py [--apply] [--report FILE]
-Writes changed=true|false, failed=true|false and exception=true|false to $GITHUB_OUTPUT when it is set.
+Writes changed=true|false, failed=true|false, exception=true|false and cooldown_days=<days> to
+$GITHUB_OUTPUT when it is set.
 """
 import argparse
 import datetime
@@ -179,7 +182,8 @@ def record_exception(entries, reason):
     that the release gate lets them through (D-67); a person reviews them in the pull request."""
     path = os.path.join(ROOT, "scripts", "audit_dependencies.py")
     text = read(path)
-    lines = "".join(f'    "{entry}": "{reason} ({audit.datetime.date.today().isoformat()})",\n' for entry in entries)
+    # repr(): the reason carries OSV's vulnerability ids, text from outside written into a script.
+    lines = "".join(f"    {entry!r}: {f'{reason} ({audit.datetime.date.today().isoformat()})'!r},\n" for entry in entries)
     write(path, text.replace("COOLDOWN_EXCEPTIONS = {\n", "COOLDOWN_EXCEPTIONS = {\n" + lines, 1))
 
 
@@ -451,6 +455,10 @@ def main():
     parser.add_argument("--report", help="write the Markdown report to this file")
     args = parser.parse_args()
     report = Report()
+    if MIN_RELEASE_AGE_DAYS < audit.POLICY_DAYS:
+        report.notes.append(f"**Cooldown lowered to {MIN_RELEASE_AGE_DAYS} days** (packaging/cooldown-days.txt; the "
+                            f"policy is {audit.POLICY_DAYS}, D-67): releases younger than {audit.POLICY_DAYS} days "
+                            f"are taken. Set it back to {audit.POLICY_DAYS} once the release that needed it is out.")
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report)) for p, u, t in GIT_PORTS]
     checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
@@ -470,7 +478,7 @@ def main():
     if "GITHUB_OUTPUT" in os.environ:
         with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
             out.write(f"changed={'true' if report.changed else 'false'}\nfailed={'true' if failed else 'false'}\n"
-                      f"exception={'true' if report.exception else 'false'}\n")
+                      f"exception={'true' if report.exception else 'false'}\ncooldown_days={MIN_RELEASE_AGE_DAYS}\n")
     return 0
 
 

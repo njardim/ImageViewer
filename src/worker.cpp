@@ -114,9 +114,12 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
     if (a->width == 0 || a->height == 0 || a->width > kMaxPixels || a->height > kMaxPixels
         || (a->channels != 3 && a->channels != 4) || (a->sampleBytes != 1 && a->sampleBytes != 2))
         return false;
+    // Each side at most 2^30: their product fits, but not times 8 (2^30 x 2^30 x 4 x 2 overflowed).
     const qint64 pixels = qint64(a->width) * a->height;
+    if (pixels > limit || pixels > kMaxPixels)
+        return false;
     a->dataBytes = pixels * a->channels * a->sampleBytes;
-    return pixels <= limit && a->bits > 0 && a->bits <= 16 && a->iccBytes <= kMaxIccBytes;
+    return a->bits > 0 && a->bits <= 16 && a->iccBytes <= kMaxIccBytes;
 }
 
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK

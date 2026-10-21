@@ -7,10 +7,12 @@ name: dependency update
 # both from the issue; when everything is current, it says so and closes the issue. Merging and
 # publishing a release stay with a person.
 #
-# D-67: a release is taken only once it is 15 days old (a security fix that cannot wait is the
-# exception, marked for review), a release archive only when it matches its tag, and the pull
-# request lists what changed upstream for a person to read; the full audit of the updated pins
-# goes in its description, and a pull request whose audit fails is opened as a draft.
+# D-67: a release is taken only once it is as old as the cooldown, packaging/cooldown-days.txt
+# (15 days; the owner lowers it on main to take the latest releases sooner, 0 for every latest
+# one, and sets it back afterwards); a security fix that cannot wait is the exception, marked for
+# review. A release archive is taken only when it matches its tag, and the pull request lists
+# what changed upstream for a person to read; the full audit of the updated pins goes in its
+# description, and a pull request whose audit fails is opened as a draft.
 #
 # Labels need triage access, so only collaborators start it. Nothing from the issue (title,
 # body, comments) reaches a shell. Repository setting needed once: Settings > Actions > General
@@ -68,6 +70,7 @@ jobs:
         env:
           AUDIT: ${{ steps.audit.outputs.status }}
           EXCEPTION: ${{ steps.check.outputs.exception }}
+          DAYS: ${{ steps.check.outputs.cooldown_days }}
         run: |
           branch="deps/update-$GITHUB_RUN_ID"
           git config user.name "github-actions[bot]"
@@ -81,7 +84,11 @@ jobs:
           draft=()
           {
             if [ "$EXCEPTION" = true ]; then
-              echo "> **Security exception (D-67)**: a release younger than the 15-day cooldown is taken because it fixes a known vulnerability. Read its upstream changes (below) before merging."
+              echo "> **Security exception (D-67)**: a release younger than the $DAYS-day cooldown is taken because it fixes a known vulnerability. Read its upstream changes (below) before merging."
+              echo
+            fi
+            if [ "$DAYS" -lt 15 ]; then
+              echo "> **Cooldown lowered to $DAYS days** (packaging/cooldown-days.txt): releases younger than 15 days are taken. Set it back to 15 once the release that needed it is out."
               echo
             fi
             if [ "$AUDIT" != 0 ]; then

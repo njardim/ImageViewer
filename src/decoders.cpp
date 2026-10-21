@@ -4,14 +4,10 @@
 #include <OpenImageIO/imageio.h>
 #include <OpenImageIO/tiffutils.h>
 
-#include <QColorSpace>
 #include <QCoreApplication>
 #include <QFile>
 #include <QFileInfo>
-#include <QGuiApplication>
 #include <QHash>
-#include <QImage>
-#include <QImageReader>
 #include <QLocale>
 #include <QRegularExpression>
 #include <QSysInfo>
@@ -362,102 +358,6 @@ bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString
     }
     return readOiio(std::move(in), maxPixels, out, error, frames);
 }
-
-// Describes a QColorSpace that was not built from an ICC profile (PNG gAMA/cHRM/sRGB chunks).
-bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
-{
-    switch (cs.primaries()) {
-    case QColorSpace::Primaries::SRgb: d->primaries = color::kBt709; break;
-    case QColorSpace::Primaries::AdobeRgb: d->primaries = color::kAdobeRgb; break;
-    case QColorSpace::Primaries::DciP3D65: d->primaries = color::kDisplayP3; break;
-    case QColorSpace::Primaries::Bt2020: d->primaries = color::kBt2020; break;
-    default: return false;
-    }
-    switch (cs.transferFunction()) {
-    case QColorSpace::TransferFunction::Linear: d->transfer = Transfer::Linear; break;
-    case QColorSpace::TransferFunction::SRgb: d->transfer = Transfer::Srgb; break;
-    case QColorSpace::TransferFunction::Gamma:
-        d->transfer = Transfer::Power;
-        d->gamma = cs.gamma();
-        break;
-    case QColorSpace::TransferFunction::Bt2020: d->transfer = Transfer::Bt1886; break; // decision D-12
-    case QColorSpace::TransferFunction::St2084: d->transfer = Transfer::Pq; break;
-    case QColorSpace::TransferFunction::Hlg: d->transfer = Transfer::Hlg; break;
-    default: return false;
-    }
-    d->source = Descriptor::Source::FormatAttributes;
-    d->description = QCoreApplication::translate("Image", "%1 (file metadata, via Qt)").arg(cs.description());
-    return true;
-}
-
-bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error)
-{
-    // Only the plugin of the format the registry gave to Qt reads the file, never one Qt picks by
-    // content: Qt's other plugins and built-in readers decode with Qt's own copies of libjpeg,
-    // libpng, libtiff and libwebp, which the dependency audit does not follow (D-67).
-    if (!format || format->decoder != Decoder::Qt) {
-        *error = QCoreApplication::translate("Image", "damaged, truncated or unsupported file");
-        return false;
-    }
-    const QStringList suffixes = format->suffixes();
-    const QString suffix = QFileInfo(path).suffix().toLower();
-    QImageReader reader(path, (suffixes.contains(suffix) ? suffix : suffixes.constFirst()).toLatin1());
-    reader.setAutoDetectImageFormat(false);
-    // Qt's SVG reader lays out text with QFontDatabase, which aborts without a QGuiApplication
-    // (console modes such as --info run on a QCoreApplication).
-    if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())
-        && (reader.format() == "svg" || reader.format() == "svgz")) {
-        *error = QCoreApplication::translate("Image", "SVG is only decoded in the graphical interface");
-        return false;
-    }
-    if (const QSize size = reader.size(); maxPixels > 0 && size.isValid() && qint64(size.width()) * size.height() > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
-    reader.setAutoTransform(true); // orientation is applied by Qt
-    QImage image = reader.read();
-    if (image.isNull()) {
-        *error = libraryError("Qt:", reader.errorString().toStdString());
-        return false;
-    }
-    if (!fitsInMemory(qint64(image.width()) * image.height(), 16, error))
-        return false;
-    const QColorSpace cs = image.colorSpace();
-    // Keep the source precision: float formats stay float (values above 1 survive),
-    // anything deeper than 8 bits per channel goes through 16 bits.
-    const QPixelFormat pf = image.pixelFormat();
-    const bool isFloat = pf.typeInterpretation() == QPixelFormat::FloatingPoint;
-    const bool deep = !isFloat && (pf.redSize() > 8 || image.depth() / std::max<uint>(pf.channelCount(), 1) > 8);
-    out->width = image.width();
-    out->height = image.height();
-    out->sample = isFloat ? Decoded::Sample::F32 : deep ? Decoded::Sample::U16 : Decoded::Sample::U8;
-    out->channels = 4;
-    out->sourceChannels = int(pf.channelCount());
-    out->alphaIndex = image.hasAlphaChannel() ? 3 : -1;
-    out->gray = false;
-    out->bits = isFloat ? 32 : deep ? 16 : 8;
-    out->orientation = 1;
-    out->codec = QStringLiteral("Qt/%1").arg(QString::fromLatin1(reader.format()));
-    if (cs.isValid() && !cs.iccProfile().isEmpty()) {
-        out->colour.source = Descriptor::Source::Icc;
-        out->colour.icc = cs.iccProfile();
-        out->colour.description = QStringLiteral("ICC: %1").arg(cs.description());
-    } else if (!(cs.isValid() && describeQtColorSpace(cs, &out->colour))) {
-        out->colour.transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-        out->colour.description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
-    }
-    image.setColorSpace(QColorSpace()); // keep the encoded values untouched
-    image.convertTo(isFloat ? QImage::Format_RGBA32FPx4 : deep ? QImage::Format_RGBA64 : QImage::Format_RGBA8888);
-    const std::size_t rowBytes = std::size_t(out->width) * 4 * std::size_t(out->sampleBytes());
-    out->data.reset(new unsigned char[rowBytes * std::size_t(out->height)]);
-    for (int y = 0; y < out->height; ++y)
-        std::memcpy(out->data.get() + rowBytes * std::size_t(y), image.constScanLine(y), rowBytes);
-    return true;
-}
-
-
-
-
 
 // The frames after the first of an animated GIF, composited by OpenImageIO (its subimages),
 // read from the file's bytes in memory.

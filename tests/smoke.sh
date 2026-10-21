@@ -205,13 +205,13 @@ for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orang
     fi
 done
 # A cursor holding a PNG (Pillow 12.3, 8x8 orange): Qt hands the PNG to our plugin, which reads it
-# with OpenImageIO, never to Qt's own copy of libpng (D-68).
+# with OpenImageIO, never to Qt's own copy of libpng (D-68, D-71).
 if "$exe" --formats 2>/dev/null | grep -q "^ *cur | .* | yes | "; then
     said="$(QT_LOGGING_RULES='qt.gui.imageio.reader.debug=true' "$exe" --info "$data/png.cur" 2>&1 || true)"
-    if grep -q 'OiioPngPlugin.* can read the format "png"' <<<"$said" && grep -Eq 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' <<<"$said"; then
+    if grep -q 'OiioImagePlugin.* can read the format "png"' <<<"$said" && grep -Eq 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' <<<"$said"; then
         echo "ok   png.cur: the PNG inside read by OpenImageIO (our Qt plugin), colour exact"
     else
-        echo "FAIL png.cur: the PNG inside was not read by OiioPngPlugin, or not exactly"
+        echo "FAIL png.cur: the PNG inside was not read by OiioImagePlugin, or not exactly"
         grep -E 'imageio|pixel|error' <<<"$said" | sed 's/^/     /'
         failures=$((failures + 1))
     fi

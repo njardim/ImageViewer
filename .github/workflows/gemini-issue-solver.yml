@@ -16,7 +16,10 @@ concurrency:
 jobs:
   solve-issue:
     runs-on: ubuntu-24.04
-    cache-mode: write
+    # No access to the Actions cache (D-71): code in this job (the agent's shell, the Gemini CLI)
+    # could write entries under main's scope that the release build restores (its vcpkg cache
+    # falls back to any entry with its triplet's prefix). Qt is installed afresh each run.
+    cache-mode: none
     # Runs when njardim opens an issue, adds the 'gemini' label, or posts a follow-up comment on an issue.
     # Security (D-67): the agent has a shell, write access and the API key, so everything it reads
     # must come from the owner: the issue's author and whoever triggered the run are both njardim
@@ -44,13 +47,6 @@ jobs:
           sudo mkdir -p /opt/qt
           sudo chown -R "$USER:$USER" /opt/qt
 
-      - name: Cache Qt 6.12.0
-        id: cache-qt
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
-        with:
-          path: /opt/qt/6.12.0
-          key: qt-6.12.0-linux-gcc64-shadertools-imageformats
-
       - name: Install Qt 6.12.0 and Linux build/test dependencies
         run: |
           sudo apt-get update
@@ -62,12 +58,10 @@ jobs:
             libopengl0 libegl1 libxcb-cursor0 libxfixes3 \
             xvfb xdotool x11-apps imagemagick \
             python3-pip python3-numpy python3-pil
-          if [ "${{ steps.cache-qt.outputs.cache-hit }}" != "true" ]; then
-            # A released version, not the development branch's head (D-67).
-            python3 -m pip install --break-system-packages "aqtinstall==3.3.0"
-            python3 -m aqt install-qt linux desktop 6.12.0 linux_gcc_64 \
-              -O /opt/qt -m qtshadertools qtimageformats
-          fi
+          # A released version, not the development branch's head (D-67).
+          python3 -m pip install --break-system-packages "aqtinstall==3.3.0"
+          python3 -m aqt install-qt linux desktop 6.12.0 linux_gcc_64 \
+            -O /opt/qt -m qtshadertools qtimageformats
           sudo ln -sfn /opt/qt/6.12.0/gcc_64 /opt/qt6
 
       - name: Configure Git identity and checkout issue branch
@@ -93,6 +87,9 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           LATEST_COMMENT: ${{ github.event.comment.body }}
         with:
+          # Pinned (D-67, D-71): the action installs this version from npm at every run, "latest"
+          # by default, which can be hours old; 0.62.0 was published on 2026-09-29, past the cooldown.
+          gemini_cli_version: "0.62.0"
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: "gemini-4-argon"
           settings: |

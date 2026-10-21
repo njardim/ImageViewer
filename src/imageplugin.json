@@ -1,0 +1,4 @@
+{
+    "Keys": [ "png", "jpeg", "jpg", "gif", "webp" ],
+    "MimeTypes": [ "image/png", "image/jpeg", "image/gif", "image/webp" ]
+}

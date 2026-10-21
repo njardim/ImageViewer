@@ -1,6 +1,7 @@
 #include "image.h"
 
 #include "decoders.h"
+#include "folder.h"
 
 #include <QColorSpace>
 #include <QCoreApplication>
@@ -241,7 +242,8 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
             return result;
         }
         //: %1: the file's path; %2: why, e.g. "damaged, truncated or unsupported XCF file".
-        result.error = QCoreApplication::translate("Image", "Cannot decode \"%1\": %2").arg(QDir::toNativeSeparators(path), error);
+        result.error = QCoreApplication::translate("Image", "Cannot decode \"%1\": %2")
+                           .arg(displayFileName(QDir::toNativeSeparators(path)), error); // no bidi override shown
         return result;
     }
     const qint64 readNs = timer.nsecsElapsed();

@@ -1,0 +1,77 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57): the Nikon ShotInfo offsets are read only inside the tag
+Library: libraw 0.22.2
+Fixes: CVE-2026-111272
+Upstream: none yet: no fix on master or 0.22-stable as of 2026-10-21 (ours)
+Remove when: a release fixes CVE-2026-111272 (OSV), or this patch no longer applies
+
+parseNikonMakernote() read 4-byte values at fixed offsets of the ShotInfo tag (0x10, 0x84,
+0x98, 0x9c, 0xa0) whatever the tag's length: a short tag in a crafted NEF read past its heap
+buffer. A value past the tag's end now reads as 0, which the code already treats as absent.
+
+diff --git a/src/metadata/nikon.cpp b/src/metadata/nikon.cpp
+index ef16100b..1c874077 100644
+--- a/src/metadata/nikon.cpp
++++ b/src/metadata/nikon.cpp
+@@ -21,6 +21,15 @@ double sget_fixed32u (short _order, uchar *s);
+ double AngleConversion_a (short _order, uchar *s);
+ double AngleConversion (short _order, uchar *s);
+ 
++// The 4-byte value at offset in the ShotInfo tag (len bytes), 0 past its end
++// (CVE-2026-111272: the offsets below are fixed, the tag's length is not).
++static unsigned shotinfo_get4(short _order, uchar *buf, unsigned len,
++                              unsigned offset)
++{
++  return offset <= len && len - offset >= 4 ? sget4_order(_order, buf + offset)
++                                            : 0;
++}
++
+ static const uchar xlat[2][256] = {
+     {0xc1, 0xbf, 0x6d, 0x0d, 0x59, 0xc5, 0x13, 0x9d, 0x83, 0x61, 0x6b, 0x4f,
+      0xc7, 0x7f, 0x3d, 0x3d, 0x53, 0x59, 0xe3, 0xc7, 0xe9, 0x2f, 0x95, 0xa7,
+@@ -910,27 +919,27 @@ free(ck_block);
+           break;
+ 
+         case 233: // ShotInfoD810, Roll/Pitch/Yaw
+-          OrientationOffset = sget4_order(morder, ShotInfo_buf+0x84);
++          OrientationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0x84);
+           break;
+ 
+         case 238: // D5,   ShotInfoD500, Rotation, Roll/Pitch/Yaw
+         case 239: // D500, ShotInfoD500, Rotation, Roll/Pitch/Yaw
+-          RotationOffset = sget4_order(morder, ShotInfo_buf+0x10) + 0xca;
++          RotationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0x10) + 0xca;
+           if (RotationOffset > 0xca) {
+             RotationOffset -= 0xb0;
+           }
+           if (RotationOffset<ShotInfo_len) {
+             imNikon.MakernotesFlip = *(ShotInfo_buf+RotationOffset) & 0x03;
+           }
+-          OrientationOffset = sget4_order(morder, ShotInfo_buf+0xa0);
++          OrientationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0xa0);
+           break;
+ 
+         case 243: // ShotInfoD850, Roll/Pitch/Yaw
+-          OrientationOffset = sget4_order(morder, ShotInfo_buf+0xa0);
++          OrientationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0xa0);
+           break;
+ 
+         case 246: // ShotInfoD6, Roll/Pitch/Yaw
+-          OrientationOffset = sget4_order(morder, ShotInfo_buf+0x9c);
++          OrientationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0x9c);
+           break;
+ 
+         case 800: // "Z 6", "Z 7",     ShotInfoZ7II, Roll/Pitch/Yaw
+@@ -938,11 +947,11 @@ free(ck_block);
+         case 802: // "Z 5",            ShotInfoZ7II, Roll/Pitch/Yaw
+         case 803: // "Z 6_2", "Z 7_2", ShotInfoZ7II, Roll/Pitch/Yaw
+         case 804: // "Z fc"            ShotInfoZ7II, Roll/Pitch/Yaw
+-          OrientationOffset = sget4_order(morder, ShotInfo_buf+0x98);
++          OrientationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0x98);
+           break;
+ 
+         case 805: // "Z 9",            ShotInfoZ9, Roll/Pitch/Yaw
+-          OrientationOffset = sget4_order(morder, ShotInfo_buf+0x84);
++          OrientationOffset = shotinfo_get4(morder, ShotInfo_buf, ShotInfo_len, 0x84);
+           break;
+         case 806: // "Z 8"
+         	if (ShotInfo_len >= 12) {

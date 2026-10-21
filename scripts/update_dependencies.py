@@ -4,8 +4,9 @@ the newest release it may take (D-46, D-62, D-67). Run by .github/workflows/depe
 when an issue gets the "auto update" label; it also runs locally (without --apply it only reports).
 
 What is pinned, and where:
-- overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, libaom, expat, minizip-ng: a git
-  tag's commit; GraphicsMagick: a release archive and its SHA-512);
+- overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, libaom, expat, minizip-ng, and
+  OpenJPH, LibRaw and OpenJPEG for the patches we carry: a git tag's commit; GraphicsMagick: a
+  release archive and its SHA-512);
 - every other vcpkg port through the manifest's builtin-baseline (a vcpkg release tag's commit);
 - Qt in packaging/qt-version.txt (read by .github/workflows/build.yml, whose files the workflow's
   token may not change) and packaging/licenses/Qt.txt.
@@ -21,11 +22,16 @@ Policy:
   every latest release).
 - Security exception (D-67): when the pinned version has a known vulnerability (OSV) and no release
   old enough fixes it, the oldest younger release that does is taken, and marked for a person to
-  review its changes by hand before merging.
+  review its changes by hand before merging; it is recorded in packaging/cooldown-exceptions.txt,
+  and removed from there once it is past the cooldown or no longer pinned (D-73). A vulnerability
+  a patch of ours fixes, or one assessed as out of reach (packaging/known-vulnerabilities.txt),
+  needs no exception.
 - A release archive is taken only when it matches its tag file for file (scripts/audit_dependencies.py).
 - Every move lists what changed upstream (build system, scripts, CI, binary files) for review.
 - An overlay port's own patches are tried on the new source in order: a patch upstream already
-  contains is removed (D-57), one that no longer applies is reported (the build will fail on it).
+  contains is removed (D-57), one that no longer applies is reported (the build will fail on it),
+  and for one of ours (imageviewer-*.patch, docs/PLAN.md section 15) the report says when its
+  "Upstream:" fix may have landed or OSV no longer finds what its "Fixes:" line names.
 
 usage: python3 scripts/update_dependencies.py [--apply] [--report FILE]
 Writes changed=true|false, failed=true|false, exception=true|false and cooldown_days=<days> to
@@ -54,6 +60,9 @@ GIT_PORTS = [
     ("aom", "https://aomedia.googlesource.com/aom", r"v(\d+)\.(\d+)\.(\d+)"),
     ("expat", "https://github.com/libexpat/libexpat", r"R_(\d+)_(\d+)_(\d+)"),
     ("minizip-ng", "https://github.com/zlib-ng/minizip-ng", r"(\d+)\.(\d+)\.(\d+)"),
+    ("openjph", "https://github.com/aous72/OpenJPH", r"(\d+)\.(\d+)\.(\d+)"),
+    ("libraw", "https://github.com/LibRaw/LibRaw", r"(\d+)\.(\d+)\.(\d+)"),
+    ("openjpeg", "https://github.com/uclouvain/openjpeg", r"v(\d+)\.(\d+)\.(\d+)"),
 ]
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
 VCPKG = audit.VCPKG
@@ -113,11 +122,23 @@ def ripe(when):
     return age_days(when) >= MIN_RELEASE_AGE_DAYS
 
 
-def fixable(commit):
-    """The ids of the known vulnerabilities of a commit that have a fix upstream (OSV)."""
+def answered(port):
+    """The vulnerability ids of a library that need no new release: those a patch of ours fixes
+    ("Fixes:") and those a person assessed as out of the packages' reach (D-73). An accepted risk
+    is not among them: a release that fixes it is still taken as soon as it may be."""
+    ids = {vid for patch in audit.our_patches(port) for vid in patch["fixes"]}
+    return ids | {vid for (library, vid), text in audit.KNOWN_VULNERABILITIES.items()
+                  if library == port and text.startswith("out of reach")}
+
+
+def fixable(commit, port=None):
+    """The ids of the known vulnerabilities of a commit that have a fix upstream (OSV), less those
+    the port answers (answered())."""
     if not commit:
         return set()
-    return {vid for vid, _, _, fixed in audit.osv_lookup([commit]).get(commit, []) if fixed}
+    skip = answered(port) if port else set()
+    return {vid for vid, aliases, _, fixed in audit.osv_lookup([commit]).get(commit, [])
+            if fixed and not ({vid, *(a.strip() for a in aliases.split(",") if a.strip())} & skip)}
 
 
 class Report:
@@ -178,13 +199,30 @@ def choose(name, current, candidates, released, vulnerable_now, fixes, report):
 
 
 def record_exception(entries, reason):
-    """Adds "library version" entries to COOLDOWN_EXCEPTIONS in scripts/audit_dependencies.py, so
-    that the release gate lets them through (D-67); a person reviews them in the pull request."""
-    path = os.path.join(ROOT, "scripts", "audit_dependencies.py")
-    text = read(path)
-    # repr(): the reason carries OSV's vulnerability ids, text from outside written into a script.
-    lines = "".join(f"    {entry!r}: {f'{reason} ({audit.datetime.date.today().isoformat()})'!r},\n" for entry in entries)
-    write(path, text.replace("COOLDOWN_EXCEPTIONS = {\n", "COOLDOWN_EXCEPTIONS = {\n" + lines, 1))
+    """Adds "library version" entries to packaging/cooldown-exceptions.txt, so that the release gate
+    lets them through (D-67, D-73); a person reviews them in the pull request. Data, never code:
+    the reason carries OSV's vulnerability ids, text from outside, kept to one printable line."""
+    reason = re.sub(r"[^\x20-\x7e]+", " ", reason).strip()
+    lines = "".join(f"{entry}: {reason} ({audit.datetime.date.today().isoformat()})\n" for entry in entries
+                    if entry not in audit.COOLDOWN_EXCEPTIONS)
+    write(audit.EXCEPTIONS_FILE, read(audit.EXCEPTIONS_FILE) + lines)
+
+
+def prune_exceptions(apply, report):
+    """Removes the exceptions whose release is past the cooldown or no longer pinned (D-73), as the
+    audit finds them with the pins as they are now: none outlives its release."""
+    check = audit.Report()
+    baseline_commit = json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
+    audit.cooldown(baseline_commit, baseline_at(baseline_commit), check)
+    if not check.stale:
+        return
+    report.notes.append("Expired cooldown exceptions, removed from packaging/cooldown-exceptions.txt: "
+                        + ", ".join(f"`{key}`" for key in check.stale) + ".")
+    report.changed = True  # a pull request, even when no pin moved
+    if apply:
+        keep = [line for line in read(audit.EXCEPTIONS_FILE).splitlines(keepends=True)
+                if line.lstrip().startswith("#") or line.partition(": ")[0].strip() not in check.stale]
+        write(audit.EXCEPTIONS_FILE, "".join(keep))
 
 
 def review_changes(name, url, old_tag, new_tag, report):
@@ -214,18 +252,25 @@ def check_patches(port, url, tag, apply, report):
     patches = [p for p in re.findall(r"([\w.-]+\.(?:patch|diff))\b", text) if os.path.exists(os.path.join(PORTS, port, p))]
     if not patches:
         return
+    ours = {patch["file"]: patch for patch in audit.our_patches(port)}
     with tempfile.TemporaryDirectory() as source:
         git("clone", "--quiet", "--depth", "1", "--branch", tag, url, source)
+        commit = git("rev-parse", "HEAD", cwd=source).strip()
+        still = {vid for vid, aliases, _, _ in audit.osv_lookup([commit]).get(commit, [])
+                 for vid in (vid, *(a.strip() for a in aliases.split(",") if a.strip()))}
         for patch in dict.fromkeys(patches):
             path = os.path.join(PORTS, port, patch)
             options = ["--ignore-whitespace", "--whitespace=nowarn"]
+            if patch in ours and ours[patch]["fixes"] and not (ours[patch]["fixes"] & still):
+                report.notes.append(f"{port}: OSV finds none of {', '.join(sorted(ours[patch]['fixes']))} in {tag}: "
+                                    f"check that upstream fixed it there and remove `{patch}` (D-57).")
             if subprocess.run(["git", "apply", "--check", *options, path], cwd=source, capture_output=True).returncode == 0:
                 subprocess.run(["git", "apply", *options, path], cwd=source, check=True, capture_output=True)
-                # Ours, with an upstream fix named in the portfile ("upstream #5555"): that fix may
-                # differ from ours and still leave our patch applicable.
-                if upstream := re.search(rf"{re.escape(patch)}.*upstream (#\d+)", text):
-                    report.notes.append(f"{port}: `{patch}` still applies to {tag}; check whether upstream "
-                                        f"{upstream.group(1)} is in {tag} and remove the patch if it is (D-57).")
+                # Ours, with an upstream fix named in its header: that fix may differ from ours and
+                # still leave our patch applicable.
+                if patch in ours and not ours[patch]["upstream"].startswith("none"):
+                    report.notes.append(f"{port}: `{patch}` still applies to {tag}; check whether its upstream fix "
+                                        f"({ours[patch]['upstream']}) is in {tag} and remove the patch if it is (D-57).")
             elif subprocess.run(["git", "apply", "--check", "--reverse", *options, path], cwd=source,
                                 capture_output=True).returncode == 0:
                 report.notes.append(f"{port}: `{patch}` is already in {tag}; removed (D-57).")
@@ -248,7 +293,7 @@ def update_git_port(port, url, pattern, apply, report):
     held = f" ({as_text(overall)} is a new major version: for a person)" if overall[:1] > current[:1] else ""
     candidates = sorted(v for v in tags if v > current and v[:1] == current[:1])
     old_commit, old_tag = re.search(r"REF ([0-9a-f]{40}) # (\S+)", read(os.path.join(PORTS, port, "portfile.cmake"))).groups()
-    vulnerable_now = fixable(old_commit)
+    vulnerable_now = fixable(old_commit, port)
     target = choose(port, current, candidates, lambda v: tag_date(url, tags[v][0]), vulnerable_now,
                     lambda v: not (fixable(tags[v][1]) & vulnerable_now), report)
     if target is None:
@@ -296,7 +341,7 @@ def update_tarball_port(port, releases, archive, apply, report):
 
     def commit_of(version):
         return audit.release_tag(repository, template, as_text(version))[1] if kind == "git" else None
-    vulnerable_now = fixable(commit_of(current))
+    vulnerable_now = fixable(commit_of(current), port)
     target = choose(port, current, candidates, lambda v: (versions[v], "archive upload date"), vulnerable_now,
                     lambda v: not (fixable(commit_of(v)) & vulnerable_now), report)
     if kind != "git":
@@ -380,7 +425,8 @@ def update_vcpkg_baseline(apply, report):
 
     commits = {p: audit.release_tag(url, t, pinned[p])[1] for p, (url, t) in shipped.items() if p in pinned}
     found = audit.osv_lookup(c for c in commits.values() if c)
-    vulnerable_now = {f"{p}:{vid}" for p, c in commits.items() for vid, _, _, fixed in found.get(c, []) if fixed}
+    vulnerable_now = {f"{p}:{vid}" for p, c in commits.items() for vid, aliases, _, fixed in found.get(c, [])
+                      if fixed and not ({vid, *(a.strip() for a in aliases.split(",") if a.strip())} & answered(p))}
 
     def fixes(version):
         still = set()
@@ -399,7 +445,8 @@ def update_vcpkg_baseline(apply, report):
     tag, commit = tags[target]
     report.row("vcpkg baseline (every other port)", baseline[:10], latest, f"**→ {tag}** (`{commit[:10]}`)")
     report.notes.append(f"vcpkg {tag}: the libraries without an overlay (libjxl, libwebp, lcms and every codec) move "
-                        "to its versions; an overlay port whose version vcpkg now matches can be dropped (D-46).")
+                        "to its versions; an overlay port whose version vcpkg now matches can be dropped (D-46), "
+                        "unless it carries patches of ours (imageviewer-*.patch, docs/PLAN.md section 15).")
     report.review.append(f"- **vcpkg** `{baseline[:10]}` → `{tag}`: the port recipes run in our build; "
                          f"{VCPKG}/compare/{baseline}...{commit}")
     for port, (old, new) in sorted(moved(target).items()):
@@ -462,7 +509,8 @@ def main():
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report)) for p, u, t in GIT_PORTS]
     checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
-               ("Qt", lambda: update_qt(args.apply, report))]
+               ("Qt", lambda: update_qt(args.apply, report)),
+               ("cooldown exceptions", lambda: prune_exceptions(args.apply, report))]
     failed = False
     for name, check in checks:
         try:

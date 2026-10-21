@@ -1,0 +1,43 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57): a one-row code-block gets the second row the decoders write
+Library: openjph 0.32.0
+Fixes: CVE-2026-111151
+Upstream: none yet: no fix on master as of 2026-10-21 (ours)
+Remove when: a release fixes CVE-2026-111151 (OSV), or this patch no longer applies
+
+The HT block decoders (generic, SSSE3, AVX2, VSX, WASM) write the cleanup pass two rows at a
+time. A precinct one sample high (ycb_prime = 0) makes code-blocks one row high, whose buffer
+held one row: the second row was written past it, into the next allocation (heap
+out-of-bounds write from any .jph, .j2c or HTJ2K-compressed EXR). Code-block buffers now hold
+an even number of rows; the decoders read back only cb_size.h of them.
+
+diff --git a/src/core/codestream/ojph_codeblock.cpp b/src/core/codestream/ojph_codeblock.cpp
+index a24be39..1cd5124 100644
+--- a/src/core/codestream/ojph_codeblock.cpp
++++ b/src/core/codestream/ojph_codeblock.cpp
+@@ -61,11 +61,14 @@ namespace ojph {
+       assert(byte_alignment / sizeof(ui32) > 1);
+       const ui32 f = byte_alignment / sizeof(ui32) - 1;
+       ui32 stride = (nominal.w + f) & ~f; // a multiple of 8
++      // the block decoders write rows in pairs, so a one-row codeblock
++      // (a precinct one sample high) needs a second row
++      ui32 rows = (nominal.h + 1) & ~1u;
+ 
+       if (precision <= 32)
+-        allocator->pre_alloc_data<ui32>(nominal.h * (size_t)stride, 0);
++        allocator->pre_alloc_data<ui32>(rows * (size_t)stride, 0);
+       else
+-        allocator->pre_alloc_data<ui64>(nominal.h * (size_t)stride, 0);
++        allocator->pre_alloc_data<ui64>(rows * (size_t)stride, 0);
+     }
+ 
+     //////////////////////////////////////////////////////////////////////////
+@@ -80,7 +83,8 @@ namespace ojph {
+ 
+       const ui32 f = byte_alignment / sizeof(ui32) - 1;
+       this->stride = (nominal.w + f) & ~f; // a multiple of 8
+-      this->buf_size = this->stride * nominal.h;
++      // an even number of rows, as in pre_alloc()
++      this->buf_size = this->stride * ((nominal.h + 1) & ~1u);
+ 
+       if (precision <= 32) {
+         this->precision = BUF32;

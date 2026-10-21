@@ -10,9 +10,10 @@ name: dependency update
 # D-67: a release is taken only once it is as old as the cooldown, packaging/cooldown-days.txt
 # (15 days; the owner lowers it on main to take the latest releases sooner, 0 for every latest
 # one, and sets it back afterwards); a security fix that cannot wait is the exception, marked for
-# review. A release archive is taken only when it matches its tag, and the pull request lists
-# what changed upstream for a person to read; the full audit of the updated pins goes in its
-# description, and a pull request whose audit fails is opened as a draft.
+# review and recorded in packaging/cooldown-exceptions.txt, which the same run clears of exceptions
+# whose release is past the cooldown (D-73). A release archive is taken only when it matches its
+# tag, and the pull request lists what changed upstream for a person to read; the full audit of
+# the updated pins goes in its description, and a pull request whose audit fails is a draft.
 #
 # Labels need triage access, so only collaborators start it. Nothing from the issue (title,
 # body, comments) reaches a shell. Repository setting needed once: Settings > Actions > General

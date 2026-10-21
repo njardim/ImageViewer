@@ -1,3 +1,11 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57): FITS rows are stored bottom first: row y is height - 1 - y
+Library: openimageio 3.2.1.1
+Fixes: none (a wrong image, not a vulnerability)
+Upstream: AcademySoftwareFoundation/OpenImageIO #5555, on main after 3.2.1.3 (ours, upstreamed)
+Remove when: a release contains #5555 (the update script removes a patch the release already contains)
+
+OpenImageIO 3.2.1.1 read every FITS row one off (0.4 review). Test: tests/smoke.sh, rows.fits.
+
 diff --git a/src/fits.imageio/fitsinput.cpp b/src/fits.imageio/fitsinput.cpp
 index e3c448c..a397a13 100644
 --- a/src/fits.imageio/fitsinput.cpp

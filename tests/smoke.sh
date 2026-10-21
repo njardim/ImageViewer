@@ -69,6 +69,11 @@ check palette.gif 'size: +5x3' "GIF dimensions"
 check palette.gif 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "GIF palette colour exact"
 check lossless.jp2 'size: +7x5' "JPEG 2000 dimensions"
 check lossless.jp2 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "JPEG 2000 lossless pixel exact"
+# HTJ2K (JPEG 2000 Part 15), lossless, made with OpenJPH 0.32.0's ojph_compress: precincts of 2x2
+# give code-blocks one row high, the case of our OpenJPH patch (D-73). OpenImageIO decodes it with
+# OpenJPH in the CI builds, with OpenJPEG where it has no OpenJPH.
+check htj2k.jph 'size: +7x5' "HTJ2K dimensions"
+check htj2k.jph 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "HTJ2K lossless pixel exact"
 check flat.avif 'size: +8x6' "AVIF dimensions"
 check flat.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF pixel within 1-2 codes (lossy, 4:4:4)"
 # 16-bit TIFF: G = 33024/65535 lies between two 8-bit codes, so only a 16-bit decode gives 0.2177.

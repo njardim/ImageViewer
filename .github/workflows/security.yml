@@ -2,16 +2,17 @@ name: security audit
 
 # D-67: the supply chain of the packages, audited by scripts/audit_dependencies.py.
 # - Known vulnerabilities (OSV, by the exact commit each library is built from): one fixed in a
-#   release the update policy allows fails, whatever the cooldown.
+#   release the update policy allows fails, whatever the cooldown; so does one that is neither fixed
+#   by a patch of ours nor assessed in packaging/known-vulnerabilities.txt (D-73).
 # - Release tarballs (GraphicsMagick, giflib) compared file by file with their tags: where
 #   the xz backdoor of 2024 hid.
 # - Release ages: a library younger than the cooldown (packaging/cooldown-days.txt: 15 days, which
 #   the owner may lower for a release) is reported here; the release workflow refuses it.
-# Weekly, and on every change to the pins. A scheduled run that finds a problem, a known
-# vulnerability that no release fixes yet (nothing to update, but a person decides: a patch, the
-# format in a separate process, or waiting), or a cooldown lowered below 15 days and not set back,
-# opens (or updates) the issue "Dependency security audit", so nothing waits for someone to look
-# at the Actions tab.
+# Weekly, and on every change to the pins. A scheduled run that finds a problem (among them a new
+# known vulnerability nobody has assessed: a person decides, a patch, the format in a separate
+# process, or an assessment) or a cooldown lowered below 15 days and not set back opens (or
+# comments on) the issue "Dependency security audit", so nothing waits for someone to look at the
+# Actions tab; vulnerabilities already answered by a patch or an assessment do not reopen it.
 on:
   schedule:
     - cron: "17 5 * * 1" # Mondays, 05:17 UTC
@@ -22,6 +23,8 @@ on:
       - packaging/vcpkg/**
       - packaging/qt-version.txt
       - packaging/cooldown-days.txt
+      - packaging/cooldown-exceptions.txt
+      - packaging/known-vulnerabilities.txt
       - scripts/audit_dependencies.py
       - scripts/update_dependencies.py
       - .github/workflows/security.yml
@@ -32,6 +35,8 @@ on:
       - packaging/vcpkg/**
       - packaging/qt-version.txt
       - packaging/cooldown-days.txt
+      - packaging/cooldown-exceptions.txt
+      - packaging/known-vulnerabilities.txt
       - scripts/audit_dependencies.py
       - scripts/update_dependencies.py
       - .github/workflows/security.yml
@@ -76,7 +81,7 @@ jobs:
       - name: Issue
         if: >-
           github.event_name == 'schedule' && (steps.audit.outputs.status != '0'
-          || steps.audit.outputs.vulnerable == 'true' || steps.audit.outputs.lowered == 'true')
+          || steps.audit.outputs.lowered == 'true')
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -97,6 +102,7 @@ jobs:
         env:
           STATUS: ${{ steps.audit.outputs.status }}
           ACTIONABLE: ${{ steps.audit.outputs.actionable }}
+          UNASSESSED: ${{ steps.audit.outputs.unassessed }}
           MISMATCH: ${{ steps.audit.outputs.mismatch }}
           YOUNG: ${{ steps.audit.outputs.young }}
           FAILED: ${{ steps.audit.outputs.failed }}
@@ -112,6 +118,7 @@ jobs:
           [ "$YOUNG" = true ] && echo "::warning::a pinned release is under the $DAYS-day cooldown: no release until it ends (see the summary)"
           [ "$LOWERED" = true ] && echo "::warning::the cooldown is lowered to $DAYS days (packaging/cooldown-days.txt): set it back to 15 once the release that needed it is out"
           [ "$ACTIONABLE" = true ] && echo "::error::a known vulnerability is fixed in a release we may take: update now (see the summary)"
+          [ "$UNASSESSED" = true ] && echo "::error::a known vulnerability is neither patched nor assessed: answer it in packaging/known-vulnerabilities.txt or with a patch (see the summary)"
           [ "$MISMATCH" = true ] && echo "::error::a release tarball differs from its tag (see the summary)"
           [ "$FAILED" = true ] && echo "::error::a check could not run: an audit that cannot run is never a pass (see the summary)"
-          [ "$ACTIONABLE" != true ] && [ "$MISMATCH" != true ] && [ "$FAILED" != true ]
+          [ "$ACTIONABLE" != true ] && [ "$UNASSESSED" != true ] && [ "$MISMATCH" != true ] && [ "$FAILED" != true ]

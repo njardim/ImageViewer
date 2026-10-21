@@ -39,7 +39,8 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
 
 - **Cooldown.** A new release of a library, of Qt, of vcpkg's recipes or of a GitHub Action is
   taken only once it is 15 days old, unless it fixes a known vulnerability that cannot wait; such
-  an exception is recorded in `scripts/audit_dependencies.py` and its changes are read by hand.
+  an exception is recorded in `packaging/cooldown-exceptions.txt`, its changes are read by hand,
+  and it is removed once its release is 15 days old (D-73).
   The libraries' cooldown is the number in `packaging/cooldown-days.txt`: the maintainer may lower
   it on `main` for a release that should take the latest releases sooner, and every such change is
   a commit; while it is below 15 days, the weekly audit opens an issue until it is set back (D-72).
@@ -47,6 +48,13 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
   library is resolved to the exact commit it is built from and looked up in
   [OSV](https://osv.dev); libraries built from release archives are compared file by file with
   their repository's tag; nothing is installed that the audit does not follow.
+- **Every known vulnerability is answered** (D-73): updated away, fixed by a patch of ours, or
+  assessed by a person in `packaging/known-vulnerabilities.txt` (out of reach, with the reason, or
+  an accepted risk). A new one nobody has assessed stops the release and opens an issue.
+- **Our patches to libraries** are `imageviewer-*.patch` files in their overlay ports, each naming
+  what it fixes, its upstream fix and when it goes; `docs/PLAN.md` §15 lists them, and each
+  package's bill of materials names the ones built into it. Today: OpenJPH (CVE-2026-111151 and
+  two upstream fixes), LibRaw (CVE-2026-111272), OpenJPEG (OSV-2025-219) and OpenImageIO (two).
 - **Release gate.** A release is published only when the audit is clean.
 - **Only audited code reads images.** Qt reads only SVG, ICNS, cursors, WBMP, XPM and XBM; the PNG,
   JPEG, GIF and WebP images inside them are decoded by OpenImageIO with the audited libraries, never

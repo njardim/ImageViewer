@@ -454,9 +454,11 @@ jobs:
           tests/smoke.sh "$exe"
 
   # D-67: a release ships only libraries with no known vulnerability fixed in a release we may
-  # take, built from sources that match their tags, and as old as the cooldown at the tagged
+  # take and none that is neither patched by us nor assessed (packaging/known-vulnerabilities.txt,
+  # D-73), built from sources that match their tags, and as old as the cooldown at the tagged
   # commit (packaging/cooldown-days.txt: 15 days unless the owner lowered it for this release)
-  # or a recorded security exception. Checked while the packages build; the release waits for it.
+  # or a recorded security exception (packaging/cooldown-exceptions.txt). Checked while the
+  # packages build; the release waits for it.
   supply-chain:
     name: Supply-chain gate
     if: startsWith(github.ref, 'refs/tags/v')

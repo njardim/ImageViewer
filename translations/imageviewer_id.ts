@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Pertahankan zoom untuk gambar berikutnya (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>Kunci zoom dibuka</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Menampilkan setiap gambar sebagaimana ditentukan oleh filenya, dengan warna yang dapat Anda verifikasi, dalam SDR dan HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Penampil gambar yang bisa Anda percayai soal warna: setiap gambar seperti yang ditetapkan berkasnya, dalam SDR dan HDR, di Windows, macOS, dan Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Cepat dan minimalis, aplikasi ini membuka lebih dari 50 format di Windows, macOS, dan Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Setiap gambar dikonversi sekali saja, dari deskripsi warnanya sendiri (profil ICC atau CICP), ke ruang linear floating-point 16-bit, lalu dikirim ke keluaran HDR sungguhan di mana pun sistem memilikinya. Sorotan yang lebih terang dari layar dipetakan nadanya dengan ITU-R BT.2390, atau dipotong bila diminta, dan penampil selalu memberi tahu mana yang terjadi.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Penampil ini membaca %1 ekstensi nama berkas, dikenali dari isinya: dari JPEG, PNG, dan TIFF hingga JPEG XL, AVIF, OpenEXR, DPX, dan RAW kamera, dengan animasi diputar sesuai temponya sendiri. Format paling langka didekode dalam proses terpisah, sehingga berkas rusak tidak dapat menjatuhkan penampil.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Ketepatan diuji pada setiap build: keluaran GPU dibaca kembali dan dibandingkan dengan rumus SMPTE dan ITU, termasuk berkas PQ dan HLG, dan gambar 8-bit pada 100&amp;nbsp;% harus sampai ke layar bit demi bit.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

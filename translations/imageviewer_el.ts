@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Διατήρηση της μεγέθυνσης για τις επόμενες εικόνες (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Η μεγέθυνση ξεκλειδώθηκε</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Εμφανίζει κάθε εικόνα όπως την ορίζει το αρχείο της, με επαληθεύσιμα χρώματα, σε SDR και HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Ένα πρόγραμμα προβολής εικόνων στο οποίο μπορείτε να εμπιστευτείτε το χρώμα: κάθε εικόνα όπως την ορίζει το αρχείο της, σε SDR και HDR, σε Windows, macOS και Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Γρήγορο και μινιμαλιστικό, ανοίγει περισσότερες από 50 μορφές σε Windows, macOS και Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Κάθε εικόνα μετατρέπεται μία φορά, από τη δική της περιγραφή χρώματος (προφίλ ICC ή CICP), σε γραμμικό χώρο κινητής υποδιαστολής 16 bit, και στέλνεται σε πραγματική έξοδο HDR όπου το σύστημα διαθέτει. Οι φωτεινές περιοχές πιο φωτεινές από την οθόνη αντιστοιχίζονται τονικά με το ITU-R BT.2390 ή αποκόπτονται κατ’ επιλογή, και το πρόγραμμα λέει πάντα ποιο από τα δύο.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Διαβάζει %1 επεκτάσεις αρχείων, που αναγνωρίζονται από το περιεχόμενό τους: από JPEG, PNG και TIFF έως JPEG XL, AVIF, OpenEXR, DPX και RAW φωτογραφικών μηχανών, με κινούμενες εικόνες στον δικό τους ρυθμό. Οι σπανιότερες μορφές αποκωδικοποιούνται σε ξεχωριστή διεργασία, ώστε ένα κατεστραμμένο αρχείο να μην μπορεί να ρίξει το πρόγραμμα.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Η πιστότητα ελέγχεται σε κάθε έκδοση: η έξοδος της GPU διαβάζεται πίσω και συγκρίνεται με τους τύπους της SMPTE και της ITU, μαζί με αρχεία PQ και HLG, και μια εικόνα 8 bit στο 100&amp;nbsp;% πρέπει να φτάνει στην οθόνη bit προς bit.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

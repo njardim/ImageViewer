@@ -501,6 +501,14 @@ try:
             xdotool("windowfocus", "--sync", about)
             xdotool("key", "Escape")
             wait_until("About Qt closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^About Qt$").stdout.split())
+            xdotool("key", "v")
+            about = find_dialog("About ImageViewer")
+            if not about:
+                fail("V did not open the About dialog")
+            print("ok   V opens About ImageViewer")
+            xdotool("windowfocus", "--sync", about)
+            xdotool("key", "Escape")
+            wait_until("About closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^About ImageViewer$").stdout.split())
 
             def stored_previous():
                 with open(settings_file, encoding="utf-8") as f:

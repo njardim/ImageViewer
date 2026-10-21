@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Запазване на мащаба за следващите изображения (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Мащабът е отключен</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Показва всяко изображение така, както го определя файлът му, с проверими цветове, в SDR и HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Програма за преглед на изображения, на която можете да поверите цвета: всяко изображение такова, каквото го определя файлът му, в SDR и HDR, под Windows, macOS и Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Бърз и минималистичен, отваря над 50 формата във Windows, macOS и Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Всяко изображение се преобразува само веднъж, от собственото си цветово описание (ICC профил или CICP), в линейно 16-битово пространство с плаваща запетая и се изпраща към истински HDR изход навсякъде, където системата има такъв. Светлините, по-ярки от екрана, се тонално картографират с ITU-R BT.2390 или при поискване се отрязват, и програмата винаги казва кое от двете.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Чете %1 файлови разширения, разпознавани по съдържанието: от JPEG, PNG и TIFF до JPEG XL, AVIF, OpenEXR, DPX и RAW от фотоапарати, с анимации, възпроизвеждани със собственото им темпо. Най-редките формати се декодират в отделен процес, за да не може повреден файл да срине програмата.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Точността се проверява при всяко компилиране: изходът на GPU се прочита обратно и се сравнява с формулите на SMPTE и ITU, включително с PQ и HLG файлове, а 8-битово изображение при 100&amp;nbsp;% трябва да стигне до екрана бит по бит.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

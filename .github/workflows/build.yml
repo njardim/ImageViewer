@@ -180,14 +180,38 @@ jobs:
           path: ${{ runner.temp }}/vcpkg-cache
           key: ${{ steps.vcpkg.outputs.cache-key }}-partial-${{ github.run_id }}
 
-      - name: Licence gate (vcpkg packages)
+      # Licences, and the security audit's coverage (D-67): every installed library must be one
+      # that scripts/audit_dependencies.py follows, so that nothing ships unaudited.
+      - name: Licence gate and audit coverage (vcpkg packages)
         shell: bash
         run: |
           py=python3; [ "$RUNNER_OS" = Windows ] && py=python
           "$py" packaging/check_licences.py "build/$PRESET/vcpkg_installed/$TRIPLET"
+          "$py" scripts/audit_dependencies.py --coverage "build/$PRESET/vcpkg_installed/$TRIPLET"
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
+
+      # Qt reads only the formats the registry gives it (D-67, D-68): SVG, ICNS, ICO (.cur) and WBMP
+      # through these plugins, XPM and XBM built in. Its other image plugins decode with Qt's own
+      # copies of libjpeg, libtiff and libwebp, which the audit does not follow, and an SVG (a data:
+      # URI) or an icon hands an embedded image to any plugin that recognises it. They are held back
+      # from the tests and the deploy step, which reads Qt's plugin folder only then (after Configure:
+      # Qt's CMake package checks that every plugin it names exists), and put back afterwards, so
+      # that the cached Qt stays whole. The package step checks the result.
+      - name: Hold back the Qt image plugins the registry does not use
+        shell: bash
+        run: |
+          root="$QT_ROOT_DIR"; [ "$RUNNER_OS" = Windows ] && root="$(cygpath -u "$root")"
+          dir="$root/plugins/imageformats"
+          [ -d "$dir" ] || { echo "::error::$dir not found"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/qt-imageformats"
+          for f in "$dir"/*; do
+            case "$(basename "$f")" in
+              *qsvg.*|*qsvgd.*|*qicns.*|*qicnsd.*|*qico.*|*qicod.*|*qwbmp.*|*qwbmpd.*) ;;
+              *) echo "held back: $(basename "$f")"; mv "$f" "$RUNNER_TEMP/qt-imageformats/" ;;
+            esac
+          done
 
       # Every tr() string must be in the .ts files (update_translations was run), and releases
       # and pull requests into main need every UI language complete; elsewhere missing
@@ -293,6 +317,14 @@ jobs:
         shell: bash
         run: cmake --install "build/$PRESET" --prefix "$RUNNER_TEMP/dist"
 
+      - name: Put the Qt image plugins back
+        if: always()
+        shell: bash
+        run: |
+          [ -d "$RUNNER_TEMP/qt-imageformats" ] || exit 0
+          root="$QT_ROOT_DIR"; [ "$RUNNER_OS" = Windows ] && root="$(cygpath -u "$root")"
+          find "$RUNNER_TEMP/qt-imageformats" -mindepth 1 -maxdepth 1 -exec mv {} "$root/plugins/imageformats/" \;
+
       - name: Package
         id: package
         shell: bash
@@ -316,6 +348,11 @@ jobs:
           if find "$dist" \( -iname '*x265*' -o -iname '*de265*' \) | grep .; then
             echo "::error::HEVC codec files in the package"; exit 1
           fi
+          # Only the Qt image plugins the registry uses (D-67, "Qt image plugins" above).
+          plugins="$(find "$dist" -path '*/imageformats/*' -type f)"
+          extra="$(printf '%s\n' "$plugins" | grep -Ev '(qsvg|qicns|qico|qwbmp)d?\.[^/]*$' || true)"
+          [ -z "$extra" ] || { echo "::error::Qt image plugins the registry does not use: $extra"; exit 1; }
+          printf '%s\n' "$plugins" | grep -Eq 'qsvgd?\.[^/]*$' || { echo "::error::no SVG image plugin in the package"; exit 1; }
           # MSVC runtime is deployed app-locally (no vc_redist installer).
           if [ "$RUNNER_OS" = Windows ]; then
             for f in vcruntime140.dll vcruntime140_1.dll msvcp140.dll; do
@@ -329,12 +366,23 @@ jobs:
             Linux)   tar -C "$dist" -czf "$file" . ;;
           esac
           echo "file=$file" >> "$GITHUB_OUTPUT"
+          # Software bill of materials (SPDX): every library in this package, with its source (D-67).
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          "$py" scripts/audit_dependencies.py --sbom "build/$PRESET/vcpkg_installed/$TRIPLET" "$file.spdx.json" "$version"
+          echo "sbom=$file.spdx.json" >> "$GITHUB_OUTPUT"
 
       - name: Upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ImageViewer-${{ matrix.preset }}
           path: ${{ steps.package.outputs.file }}
+          if-no-files-found: error
+
+      - name: Upload the bill of materials
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-${{ matrix.preset }}
+          path: ${{ steps.package.outputs.sbom }}
           if-no-files-found: error
 
   # The packages, not the build tree, on fresh runners without Qt or vcpkg: catches
@@ -405,6 +453,34 @@ jobs:
           [[ "$version" == *"$expected" ]] || { echo "::error::version '$version' does not end in '$expected'"; exit 1; }
           tests/smoke.sh "$exe"
 
+  # D-67: a release ships only libraries with no known vulnerability fixed in a release we may
+  # take, built from sources that match their tags, and at least 15 days old (or a recorded
+  # security exception). Checked while the packages build; the release waits for it.
+  supply-chain:
+    name: Supply-chain gate
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Mercurial (GraphicsMagick's repository)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends mercurial > /dev/null
+
+      - name: Audit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=0
+          python3 scripts/audit_dependencies.py --vulnerabilities --sources --cooldown \
+            --report "$RUNNER_TEMP/audit.md" || status=$?
+          cat "$RUNNER_TEMP/audit.md" >> "$GITHUB_STEP_SUMMARY"
+          [ "$status" = 0 ] || { echo "::error::the supply-chain audit refuses this release (see the summary)"; exit 1; }
+
   # Tags vX.Y[-suffix] (pushed, or created by publishing a release): attach the three
   # verified packages and SHA256SUMS to the release, creating it if needed (published;
   # a suffix marks a pre-release). Unsigned for now: signing and notarisation arrive
@@ -412,7 +488,7 @@ jobs:
   release:
     name: Publish release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build, verify]
+    needs: [build, verify, supply-chain]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -426,7 +502,14 @@ jobs:
           path: packages
           merge-multiple: true
 
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: sbom-*
+          path: sboms
+          merge-multiple: true
+
       - name: Check the tag and the packages, write SHA256SUMS
+        id: packages
         run: |
           tag="$GITHUB_REF_NAME"
           [[ "$tag" =~ ^v[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] \
@@ -434,6 +517,11 @@ jobs:
           shopt -s nullglob
           files=(packages/*)
           [ "${#files[@]}" -eq 3 ] || { echo "::error::expected 3 packages, got: ${files[*]}"; exit 1; }
+          for f in "${files[@]}"; do
+            [ -f "sboms/$(basename "$f").spdx.json" ] || { echo "::error::no bill of materials for $f"; exit 1; }
+            echo "$(basename "$f" | sed -E 's/^ImageViewer-[^-]+(-[^-]+)*-([a-z]+-[a-z0-9]+)\..*$/\2/')=$f" >> "$GITHUB_OUTPUT"
+          done
+          mv sboms/*.spdx.json packages/
           (cd packages && sha256sum ImageViewer-* > SHA256SUMS && cat SHA256SUMS)
 
       # Artifact attestations need a public repository (or GitHub Enterprise Cloud).
@@ -441,7 +529,31 @@ jobs:
         if: ${{ !github.event.repository.private }}
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-path: packages/ImageViewer-*
+          subject-path: |
+            packages/ImageViewer-*.zip
+            packages/ImageViewer-*.dmg
+            packages/ImageViewer-*.tar.gz
+
+      # Each package's bill of materials, attested against the package (D-67): verify with
+      # "gh attestation verify <package> -R njardim/ImageViewer --predicate-type https://spdx.dev/Document/v2.3".
+      - name: Bill of materials attestation (Windows)
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: ${{ steps.packages.outputs.windows-x64 }}
+          sbom-path: ${{ steps.packages.outputs.windows-x64 }}.spdx.json
+      - name: Bill of materials attestation (macOS)
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: ${{ steps.packages.outputs.macos-arm64 }}
+          sbom-path: ${{ steps.packages.outputs.macos-arm64 }}.spdx.json
+      - name: Bill of materials attestation (Linux)
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: ${{ steps.packages.outputs.linux-x64 }}
+          sbom-path: ${{ steps.packages.outputs.linux-x64 }}.spdx.json
 
       - name: Attach to the release
         env:

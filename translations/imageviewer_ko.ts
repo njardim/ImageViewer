@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>다음 이미지에도 배율 유지 (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>배율 고정 해제됨</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>모든 이미지를 파일에 정의된 그대로, 검증할 수 있는 색상으로 SDR과 HDR에서 표시합니다.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>색을 믿고 맡길 수 있는 이미지 뷰어: 모든 이미지를 파일이 정의한 그대로, SDR과 HDR로, Windows, macOS, Linux에서 보여 줍니다.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>빠르고 미니멀하며, Windows, macOS, Linux에서 50개가 넘는 형식을 열 수 있습니다.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>각 이미지는 자체 색 정보(ICC 프로필 또는 CICP)에서 선형 16비트 부동소수점 공간으로 한 번만 변환되고, 시스템에 실제 HDR 출력이 있으면 그곳으로 보내집니다. 화면보다 밝은 하이라이트는 ITU-R BT.2390으로 톤 매핑되거나 요청 시 잘리며, 뷰어는 어느 쪽인지 항상 알려 줍니다.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>내용으로 인식하는 %1개의 파일 확장자를 읽습니다. JPEG, PNG, TIFF부터 JPEG XL, AVIF, OpenEXR, DPX, 카메라 RAW까지, 애니메이션은 각자의 속도로 재생됩니다. 가장 드문 형식은 별도 프로세스에서 디코딩하므로 손상된 파일이 뷰어를 멈추게 할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>충실도는 빌드마다 테스트됩니다. GPU 출력을 다시 읽어 PQ와 HLG 파일을 포함해 SMPTE와 ITU의 공식과 비교하며, 100&amp;nbsp;%로 표시한 8비트 이미지는 화면에 비트 단위로 정확히 도달해야 합니다.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

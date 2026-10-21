@@ -1,0 +1,2 @@
+// The executable's icon (D-66); made by scripts/make_icons.py.
+IDI_ICON1 ICON "imageviewer.ico"

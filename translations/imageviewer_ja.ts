@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>次の画像でもズームを維持する (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>ズームの固定を解除しました</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>すべての画像をファイルの定義どおりに、検証可能な色で、SDR と HDR の両方で表示します。</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>色を安心して任せられる画像ビューアー：すべての画像を、そのファイルが定めるとおりに、SDR でも HDR でも、Windows、macOS、Linux で表示します。</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>高速でミニマル。Windows、macOS、Linux で 50 種類以上の形式を開けます。</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>各画像は、それ自身の色の記述（ICC プロファイルまたは CICP）から、線形の 16 ビット浮動小数点空間へ一度だけ変換され、システムに本物の HDR 出力があればそこへ送られます。画面より明るいハイライトは ITU-R BT.2390 でトーンマッピングされるか、指定に応じてクリップされ、どちらを行ったかを常に表示します。</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>内容で判別する %1 種類のファイル拡張子を読み込みます：JPEG、PNG、TIFF から JPEG XL、AVIF、OpenEXR、DPX、カメラの RAW まで、アニメーションはそれぞれの速さで再生します。最も珍しい形式は別プロセスでデコードするため、破損したファイルでビューアーが落ちることはありません。</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>忠実度はビルドごとにテストされます：GPU の出力を読み戻して SMPTE と ITU の式と比較し（PQ と HLG のファイルも含む）、100% で表示した 8 ビット画像は画面にビット単位で一致しなければなりません。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

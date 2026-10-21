@@ -17,7 +17,7 @@ This adds a `Signed-off-by: Your Name <you@example.com>` line. There is no separ
 - Read [`docs/PLAN.md`](docs/PLAN.md): the decisions (§2) and the fidelity criteria (§7) are the project's rules. To change a decision, open an issue with the new evidence first.
 - [`CLAUDE.md`](CLAUDE.md) summarises the working rules. The most important ones:
   - **English only** in the repository: code, comments, interface text and documentation. The interface is translated separately (below).
-  - **No code from GPL projects**: qView and ImageGlass are references for behaviour only.
+  - **No code from GPL-licensed projects**, other image viewers included: they may inform behaviour, never the code.
   - **Dependencies** must be permissive or LGPL (dynamically linked); a CI gate checks every package.
   - **The color pipeline** converts once into linear scRGB at 16-bit float; the shader only applies exposure, tone mapping, compositing and the output encoding.
 - Keep changes focused; one topic per pull request.

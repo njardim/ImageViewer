@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Giữ nguyên thu phóng cho các ảnh tiếp theo (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>Đã mở khóa thu phóng</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Hiển thị mọi ảnh đúng như tệp của nó định nghĩa, với màu sắc có thể kiểm chứng, ở cả SDR và HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Một trình xem ảnh bạn có thể tin cậy về màu sắc: mỗi ảnh đúng như tệp của nó định nghĩa, ở SDR và HDR, trên Windows, macOS và Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Nhanh và tối giản, ứng dụng mở hơn 50 định dạng trên Windows, macOS và Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Mỗi ảnh được chuyển đổi một lần duy nhất, từ mô tả màu của chính nó (hồ sơ ICC hoặc CICP), sang một không gian tuyến tính dấu phẩy động 16 bit, rồi gửi tới đầu ra HDR thực sự ở bất cứ nơi nào hệ thống có. Các vùng sáng hơn màn hình được ánh xạ tông màu theo ITU-R BT.2390, hoặc cắt bớt khi bạn yêu cầu, và trình xem luôn cho bạn biết đã làm gì.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Nó đọc %1 phần mở rộng tệp, được nhận diện theo nội dung: từ JPEG, PNG và TIFF đến JPEG XL, AVIF, OpenEXR, DPX và RAW của máy ảnh, với ảnh động phát theo nhịp riêng. Các định dạng hiếm nhất được giải mã trong một tiến trình riêng, để một tệp hỏng không thể làm sập trình xem.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Độ trung thực được kiểm tra ở mỗi bản dựng: đầu ra của GPU được đọc lại và so sánh với các công thức của SMPTE và ITU, kể cả tệp PQ và HLG, và một ảnh 8 bit ở 100&amp;nbsp;% phải tới màn hình đúng từng bit.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

@@ -82,7 +82,7 @@ struct Settings {
     bool preload = true;       // decode the next and previous images in advance (D-33)
     double slideshowSeconds = 5.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
-    bool slideshowToolbarAutoHide = true; // its toolbar hides while the pointer is still (D-65)
+    bool slideshowToolbarAutoHide = false; // its toolbar hides while the pointer is still (D-65); the user opts in
     int slideshowToolbarHideMs = 2000;    // ...after this long
     bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
@@ -216,6 +216,7 @@ private:
     void setColor(ColorChoice &choice, const QColor &color);
     void moveOverlayField(int delta);
     void fillShortcutTable();
+    int currentCommand() const;      // the selected row's index in m_commands; -1: none
     void refreshShortcutTexts();     // the table's shortcuts and the labels that name keys
     void showShortcutsOf(int row);   // in the two edit fields
     void setShortcuts(int row, QList<QKeySequence> shortcuts); // taken away from any other command

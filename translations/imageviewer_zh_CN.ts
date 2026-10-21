@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>后续图像保持当前缩放 (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>缩放已解锁</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>按文件自身的定义显示每一张图像，色彩可验证，支持 SDR 和 HDR。</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>一款可以放心交托色彩的图像查看器：每张图像都按其文件的定义显示，支持 SDR 和 HDR，适用于 Windows、macOS 和 Linux。</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>快速而简约，可在 Windows、macOS 和 Linux 上打开 50 多种格式。</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>每张图像只转换一次，从其自身的颜色描述（ICC 配置文件或 CICP）转换到线性 16 位浮点空间，并在系统具备真正的 HDR 输出时送往该输出。比显示器更亮的高光会按 ITU-R BT.2390 进行色调映射，或按需裁切，查看器始终会告诉您采用了哪一种。</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>它可读取 %1 种文件扩展名，并按内容识别：从 JPEG、PNG 和 TIFF 到 JPEG XL、AVIF、OpenEXR、DPX 和相机 RAW，动画按其自身节奏播放。最罕见的格式在独立进程中解码，因此损坏的文件无法让查看器崩溃。</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>每次构建都会测试保真度：读回 GPU 的输出并与 SMPTE 和 ITU 的公式进行比较（包括 PQ 和 HLG 文件），以 100% 显示的 8 位图像必须逐位准确地呈现在屏幕上。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

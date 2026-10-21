@@ -11,8 +11,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
+#include <QIcon>
 #include <QPainter>
 #include <QScopeGuard>
+#include <QtPlugin>
 
 #include <cstring>
 #include <QTextStream>
@@ -34,6 +36,9 @@
 #include <QVulkanInstance>
 #include <rhi/qrhi.h>
 #endif
+
+// The PNG reader for the images inside the files Qt reads for us, in place of Qt's own (codecs.cpp, D-68).
+Q_IMPORT_PLUGIN(OiioPngPlugin)
 
 namespace {
 
@@ -443,6 +448,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    if (!console)
+        QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/imageviewer.png"))); // D-66
     // Runs after the viewer window (declared later, destroyed first) has waited for its last
     // decode, and before the application object goes.
     const auto decoders = qScopeGuard(&shutdownDecoders);

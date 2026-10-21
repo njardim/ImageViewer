@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>পরের ছবিগুলোর জন্য জুম ধরে রাখুন (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>জুম আনলক করা হয়েছে</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>প্রতিটি ছবি ঠিক সেভাবেই দেখায় যেভাবে তার ফাইল সংজ্ঞায়িত করে, যাচাই করা যায় এমন রঙে, SDR ও HDR-এ।</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>একটি ইমেজ ভিউয়ার যার ওপর রঙের ব্যাপারে ভরসা রাখা যায়: প্রতিটি ছবি ঠিক যেমন তার ফাইল সংজ্ঞায়িত করে, SDR ও HDR-এ, Windows, macOS ও Linux-এ।</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>দ্রুত ও সহজ, এটি Windows, macOS ও Linux-এ 50টির বেশি ফরম্যাট খোলে।</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>প্রতিটি ছবি কেবল একবার, তার নিজস্ব রঙের বিবরণ (ICC প্রোফাইল বা CICP) থেকে, একটি রৈখিক 16-বিট ফ্লোটিং-পয়েন্ট স্পেসে রূপান্তরিত হয় এবং সিস্টেমে প্রকৃত HDR আউটপুট থাকলে সেখানে পাঠানো হয়। পর্দার চেয়ে উজ্জ্বল অংশগুলো ITU-R BT.2390 দিয়ে টোন ম্যাপ করা হয়, বা অনুরোধে কেটে ফেলা হয়, এবং ভিউয়ার সবসময় জানায় কোনটি হয়েছে।</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>এটি %1টি ফাইল এক্সটেনশন পড়ে, যেগুলো বিষয়বস্তু দেখে চেনা হয়: JPEG, PNG ও TIFF থেকে JPEG XL, AVIF, OpenEXR, DPX ও ক্যামেরা RAW পর্যন্ত, আর অ্যানিমেশন চলে তাদের নিজস্ব গতিতে। সবচেয়ে বিরল ফরম্যাটগুলো আলাদা প্রসেসে ডিকোড হয়, যাতে ক্ষতিগ্রস্ত ফাইল ভিউয়ারকে বন্ধ করে দিতে না পারে।</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>প্রতিটি বিল্ডে বিশ্বস্ততা পরীক্ষা করা হয়: GPU-র আউটপুট ফিরিয়ে পড়ে SMPTE ও ITU-র সূত্রের সঙ্গে মেলানো হয়, PQ ও HLG ফাইলসহ, এবং 100&amp;nbsp;%-এ একটি 8-বিট ছবিকে পর্দায় বিট-বাই-বিট পৌঁছাতে হবে।</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

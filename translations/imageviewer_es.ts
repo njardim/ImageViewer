@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Mantener el zoom en las siguientes imágenes (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>Zoom desbloqueado</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Muestra cada imagen tal como la define su archivo, con colores verificables, en SDR y HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Un visor de imágenes en el que puede confiar el color: cada imagen tal como la define su archivo, en SDR y HDR, en Windows, macOS y Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Rápido y minimalista, abre más de 50 formatos en Windows, macOS y Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Cada imagen se convierte una sola vez, desde su propia descripción de color (perfil ICC o CICP), a un espacio lineal de coma flotante de 16 bits, y se envía a una salida HDR real siempre que el sistema la tenga. Las luces más brillantes que la pantalla se mapean con ITU-R BT.2390, o se recortan si lo pide, y el visor siempre le dice cuál.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Lee %1 extensiones de archivo, reconocidas por su contenido: de JPEG, PNG y TIFF a JPEG XL, AVIF, OpenEXR, DPX y RAW de cámara, con animaciones reproducidas a su propio ritmo. Los formatos más raros se decodifican en un proceso aparte, para que un archivo dañado no pueda tumbar el visor.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>La fidelidad se prueba en cada compilación: la salida de la GPU se lee de vuelta y se compara con las fórmulas de SMPTE e ITU, incluidos archivos PQ y HLG, y una imagen de 8 bits al 100&amp;nbsp;% debe llegar a la pantalla bit a bit.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

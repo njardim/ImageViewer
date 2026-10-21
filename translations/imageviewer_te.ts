@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>తదుపరి చిత్రాలకు జూమ్ కొనసాగించు (%1)</translation>
     </message>
     <message>
@@ -1129,12 +1129,22 @@
         <translation>జూమ్ అన్‌లాక్ చేయబడింది</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>ప్రతి చిత్రాన్ని దాని ఫైల్ నిర్వచించినట్లుగానే, ధృవీకరించగల రంగులతో, SDR మరియు HDR లో చూపిస్తుంది.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>రంగుల విషయంలో మీరు నమ్మగలిగే ఇమేజ్ వ్యూయర్: ప్రతి చిత్రం దాని ఫైల్ నిర్వచించినట్లే, SDR మరియు HDRలో, Windows, macOS మరియు Linuxలో.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>వేగంగా మరియు కనిష్టంగా, ఇది Windows, macOS మరియు Linux లో 50 కంటే ఎక్కువ ఫార్మాట్‌లను తెరుస్తుంది.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>ప్రతి చిత్రం ఒక్కసారి మాత్రమే, దాని స్వంత రంగు వివరణ (ICC ప్రొఫైల్ లేదా CICP) నుండి, రేఖీయ 16-బిట్ ఫ్లోటింగ్-పాయింట్ స్పేస్‌లోకి మార్చబడి, సిస్టమ్‌లో నిజమైన HDR అవుట్‌పుట్ ఉన్నచోట పంపబడుతుంది. స్క్రీన్ కంటే ప్రకాశవంతమైన భాగాలు ITU-R BT.2390తో టోన్ మ్యాప్ చేయబడతాయి, లేదా కోరితే కత్తిరించబడతాయి, మరియు ఏం జరిగిందో వ్యూయర్ ఎప్పుడూ చెబుతుంది.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>ఇది %1 ఫైల్ ఎక్స్‌టెన్షన్‌లను చదువుతుంది, వాటి కంటెంట్ ద్వారా గుర్తించి: JPEG, PNG మరియు TIFF నుండి JPEG XL, AVIF, OpenEXR, DPX మరియు కెమెరా RAW వరకు, యానిమేషన్‌లు వాటి స్వంత వేగంతో ప్లే అవుతాయి. అరుదైన ఫార్మాట్‌లు వేరే ప్రాసెస్‌లో డీకోడ్ అవుతాయి, కాబట్టి పాడైన ఫైల్ వ్యూయర్‌ను పడగొట్టలేదు.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>ప్రతి బిల్డ్‌లో విశ్వసనీయత పరీక్షించబడుతుంది: GPU అవుట్‌పుట్ తిరిగి చదివి SMPTE మరియు ITU సూత్రాలతో పోల్చబడుతుంది, PQ మరియు HLG ఫైళ్లతో సహా, మరియు 100&amp;nbsp;% వద్ద 8-బిట్ చిత్రం స్క్రీన్‌కు బిట్ బిట్‌గా చేరాలి.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

@@ -1,0 +1,84 @@
+name: codeql
+
+# D-67: static analysis of our own code (C++) and of the workflows (GitHub Actions: injection,
+# excessive permissions, untrusted checkouts). Findings appear under Security > Code scanning.
+# The C++ is built as a contributor builds it locally (Ubuntu's OpenImageIO, Qt from aqtinstall,
+# the same Qt version as the packages), which compiles every source file.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "41 4 * * 3" # Wednesdays, 04:41 UTC: new queries find old code
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: ${{ matrix.language }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      security-events: write # upload the results
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: manual
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Qt version
+        if: matrix.language == 'c-cpp'
+        run: echo "QT_VERSION=$(tr -d '[:space:]' < packaging/qt-version.txt)" >> "$GITHUB_ENV"
+
+      - name: Build dependencies
+        if: matrix.language == 'c-cpp'
+        run: |
+          sudo apt-get update -qq
+          # openimageio-tools: Ubuntu's OpenImageIO CMake config checks that its tools exist;
+          # libtiff-dev: OpenImageIO's tiffutils.h includes tiff.h.
+          sudo apt-get install -y -qq --no-install-recommends cmake ninja-build pkg-config \
+            libopenimageio-dev openimageio-tools libtiff-dev liblcms2-dev libjxl-dev libwebp-dev libheif-dev \
+            libgl1-mesa-dev libvulkan-dev libxkbcommon-dev > /dev/null
+          # Ubuntu's OpenImageIO CMake config names /usr/include/opencv4 as an include directory
+          # without depending on OpenCV; CMake refuses a target with a missing one. Nothing is read from it.
+          sudo mkdir -p /usr/include/opencv4
+
+      - name: Qt ${{ env.QT_VERSION }}
+        if: matrix.language == 'c-cpp'
+        uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: qtshadertools qtimageformats
+          aqtversion: "==3.3.0"
+          cache: true
+
+      - uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      - name: Build
+        if: matrix.language == 'c-cpp'
+        run: |
+          cmake -S . -B build/codeql -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+          cmake --build build/codeql
+
+      - uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        with:
+          category: /language:${{ matrix.language }}

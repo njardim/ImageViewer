@@ -1,0 +1,98 @@
+name: security audit
+
+# D-67: the supply chain of the packages, audited by scripts/audit_dependencies.py.
+# - Known vulnerabilities (OSV, by the exact commit each library is built from): one fixed in a
+#   release the update policy allows fails, whatever the cooldown.
+# - Release tarballs (GraphicsMagick, giflib) compared file by file with their tags: where
+#   the xz backdoor of 2024 hid.
+# - Release ages: a library younger than 15 days is reported here; the release workflow refuses it.
+# Weekly, and on every change to the pins. A scheduled run that finds a problem opens (or updates)
+# the issue "Dependency security audit", so nothing waits for someone to look at the Actions tab.
+on:
+  schedule:
+    - cron: "17 5 * * 1" # Mondays, 05:17 UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - vcpkg.json
+      - packaging/vcpkg/**
+      - packaging/qt-version.txt
+      - scripts/audit_dependencies.py
+      - scripts/update_dependencies.py
+      - .github/workflows/security.yml
+  push:
+    branches: [main]
+    paths:
+      - vcpkg.json
+      - packaging/vcpkg/**
+      - packaging/qt-version.txt
+      - scripts/audit_dependencies.py
+      - scripts/update_dependencies.py
+      - .github/workflows/security.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      issues: write # the issue of a scheduled run
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Mercurial (GraphicsMagick's repository)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends mercurial > /dev/null
+
+      - name: Audit
+        id: audit
+        env:
+          GH_TOKEN: ${{ github.token }} # GitHub's release dates (api.github.com only)
+        run: |
+          status=0
+          python3 scripts/audit_dependencies.py --vulnerabilities --sources --cooldown \
+            --report "$RUNNER_TEMP/audit.md" || status=$?
+          cat "$RUNNER_TEMP/audit.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Issue
+        if: github.event_name == 'schedule' && steps.audit.outputs.status != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Dependency security audit"
+          { echo "The weekly audit found something to act on ($RUN_URL; D-67, SECURITY.md)."; echo
+            cat "$RUNNER_TEMP/audit.md"; } > "$RUNNER_TEMP/body.md"
+          number="$(gh issue list --state open --search "in:title \"$title\"" --json number,title \
+            --jq ".[] | select(.title == \"$title\") | .number" | head -1)"
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          fi
+
+      - name: Result
+        env:
+          ACTIONABLE: ${{ steps.audit.outputs.actionable }}
+          MISMATCH: ${{ steps.audit.outputs.mismatch }}
+          YOUNG: ${{ steps.audit.outputs.young }}
+          FAILED: ${{ steps.audit.outputs.failed }}
+        run: |
+          # The cooldown alone only warns here: a pin under it may be merged, not released.
+          [ "$YOUNG" = true ] && echo "::warning::a pinned release is under the 15-day cooldown: no release until it ends (see the summary)"
+          [ "$ACTIONABLE" = true ] && echo "::error::a known vulnerability is fixed in a release we may take: update now (see the summary)"
+          [ "$MISMATCH" = true ] && echo "::error::a release tarball differs from its tag (see the summary)"
+          [ "$FAILED" = true ] && echo "::error::a check could not run: an audit that cannot run is never a pass (see the summary)"
+          [ "$ACTIONABLE" != true ] && [ "$MISMATCH" != true ] && [ "$FAILED" != true ]

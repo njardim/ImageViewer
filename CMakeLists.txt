@@ -77,6 +77,21 @@ qt_add_executable(imageviewer
     src/openwith.h src/openwith.cpp
 )
 
+# The application's icon (D-66): packaging/icons, made by scripts/make_icons.py. The PNG is
+# compiled in (:/imageviewer.png: the windows' icon, the About dialog); Windows takes the .ico as
+# the executable's resource, macOS the .icns in the bundle.
+qt_add_resources(imageviewer "icons"
+    PREFIX "/"
+    BASE packaging/icons
+    FILES packaging/icons/imageviewer.png
+)
+if(WIN32)
+    target_sources(imageviewer PRIVATE packaging/icons/imageviewer.rc)
+elseif(APPLE)
+    target_sources(imageviewer PRIVATE packaging/icons/imageviewer.icns)
+    set_source_files_properties(packaging/icons/imageviewer.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+endif()
+
 qt_add_shaders(imageviewer "shaders"
     PREFIX "/shaders"
     BASE src/shaders
@@ -182,6 +197,7 @@ set_target_properties(imageviewer PROPERTIES
     MACOSX_BUNDLE ON
     MACOSX_BUNDLE_BUNDLE_NAME ImageViewer
     MACOSX_BUNDLE_GUI_IDENTIFIER com.cristallumnis.imageviewer
+    MACOSX_BUNDLE_ICON_FILE imageviewer.icns
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
 )

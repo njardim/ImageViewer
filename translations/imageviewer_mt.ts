@@ -645,7 +645,7 @@
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;L&quot;. The zoom of the image shown stays for the next ones.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Z&quot;. The zoom of the image shown stays for the next ones.</extracomment>
         <translation>Żomm iż-zoom għall-immaġini li jmiss (%1)</translation>
     </message>
     <message>
@@ -1159,12 +1159,22 @@
         <translation>Iż-zoom ġie żblokkjat</translation>
     </message>
     <message>
-        <source>Shows every image as its file defines it, with colors you can verify, in SDR and HDR.</source>
-        <translation>Juri kull immaġni kif tiddefinixxiha l-fajl tagħha, b&apos;kuluri li tista&apos; tivverifika, f&apos;SDR u HDR.</translation>
+        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Werrej tal-istampi li tista’ tafdah bil-kulur: kull stampa kif jiddefiniha l-fajl tagħha, f’SDR u HDR, fuq Windows, macOS u Linux.</translation>
     </message>
     <message>
-        <source>Fast and minimal, it opens more than 50 formats on Windows, macOS and Linux.</source>
-        <translation>Veloċi u minimali, jiftaħ aktar minn 50 format fuq Windows, macOS u Linux.</translation>
+        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
+        <translation>Kull stampa tiġi kkonvertita darba biss, mid-deskrizzjoni tal-kulur tagħha stess (profil ICC jew CICP), għal spazju lineari ta’ 16-il bit b’punt varjabbli, u tintbagħat lejn output HDR veru kull fejn is-sistema jkollha wieħed. Id-dwal aktar qawwija mill-iskrin jiġu mmappjati bl-ITU-R BT.2390, jew maqtugħa jekk titlob, u l-werrej dejjem jgħidlek liema minnhom.</translation>
+    </message>
+    <message>
+        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
+        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
+        <translation>Jaqra %1 estensjoni ta’ fajls, magħrufa mill-kontenut tagħhom: minn JPEG, PNG u TIFF sa JPEG XL, AVIF, OpenEXR, DPX u RAW tal-kamera, b’animazzjonijiet li jindaqqu bil-pass tagħhom. L-aktar formati rari jiġu dekodifikati fi proċess separat, biex fajl bil-ħsara ma jkunx jista’ jwaqqa’ l-werrej.</translation>
+    </message>
+    <message>
+        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
+        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
+        <translation>Il-fedeltà tiġi ttestjata f’kull build: l-output tal-GPU jinqara lura u jitqabbel mal-formuli tal-SMPTE u l-ITU, inklużi fajls PQ u HLG, u stampa ta’ 8 bits f’100&amp;nbsp;% trid tasal fuq l-iskrin bit b’bit.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

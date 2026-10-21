@@ -62,9 +62,16 @@ GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagi
 VCPKG = "https://github.com/microsoft/vcpkg"
 
 # Releases allowed to ship younger than MIN_RELEASE_AGE_DAYS, each with its reason and date
-# ("library version": "why"). Only for a security fix that cannot wait (D-67), after a person has
-# read the release's changes; scripts/update_dependencies.py adds one when it takes such a release.
+# ("library version": "why"). Only for a security fix that cannot wait (D-67), or where the release
+# before it would drop one (D-69), after a person has read the release's changes and with the
+# owner's approval; scripts/update_dependencies.py adds one when it takes such a release. The audit
+# asks for an entry's removal once its release is past the cooldown.
 COOLDOWN_EXCEPTIONS = {
+    "graphicsmagick 1.3.49": "security: fixes PICT, WPG (CVE-2026-103118) and MAT, coders of the decode worker; "
+                             "1.3.48 would ship them unfixed; approved by the owner for v0.8, D-70 (2026-10-21)",
+    "vcpkg port recipes 0699a19d0c": "moves no library under the cooldown; the release before it would move back nine, "
+                                     "libpng 1.6.59 (CVE-2026-46675) among them; approved by the owner for v0.8, "
+                                     "D-70 (2026-10-21)",
 }
 
 # Libraries the vcpkg baseline provides (no overlay): port, repository, tag of a version (alternatives

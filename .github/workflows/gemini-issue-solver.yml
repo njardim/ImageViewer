@@ -13,6 +13,11 @@ concurrency:
   group: gemini-issue-${{ github.event.issue.number }}
   cancel-in-progress: false
 
+# Two jobs (D-74). The agent's job can only read: it commits on the issue branch inside its
+# runner, and its commits leave the job as a git bundle. The publish job runs no agent and no code
+# from the repository: it pushes that bundle to gemini/issue-<n> only (never main, never a forced
+# push), opens the pull request, starts the full build on it and answers on the issue. Merging stays
+# with the owner, after review.
 jobs:
   solve-issue:
     runs-on: ubuntu-24.04
@@ -32,9 +37,10 @@ jobs:
       (github.event_name == 'issue_comment' && github.event.comment.user.login == 'njardim' && !github.event.issue.pull_request))
     timeout-minutes: 45
     permissions:
-      contents: write      # the issue branch
-      pull-requests: write # its pull request
-      issues: write        # the reply on the issue
+      contents: read # the repository; this job pushes nothing
+      issues: read   # the owner's comments
+    outputs:
+      base: ${{ steps.branch.outputs.base }}
 
     steps:
       - name: Checkout repository
@@ -65,6 +71,7 @@ jobs:
           sudo ln -sfn /opt/qt/6.12.0/gcc_64 /opt/qt6
 
       - name: Configure Git identity and checkout issue branch
+        id: branch
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
@@ -76,6 +83,8 @@ jobs:
           else
             git checkout -B "gemini/issue-${ISSUE_NUMBER}"
           fi
+          # Recorded before the agent runs: the publish job takes only commits on top of it.
+          echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Run Gemini CLI Agent
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489 # v0.1.22
@@ -86,10 +95,12 @@ jobs:
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
           LATEST_COMMENT: ${{ github.event.comment.body }}
+          REPLY_FILE: ${{ runner.temp }}/gemini-reply.md
         with:
-          # Pinned (D-67, D-71): the action installs this version from npm at every run, "latest"
-          # by default, which can be hours old; 0.62.0 was published on 2026-09-29, past the cooldown.
-          gemini_cli_version: "0.62.0"
+          # Pinned (D-71): the action installs this version from npm at every run, "latest" by default.
+          # 0.65.0 (2026-10-20) by the owner's decision, younger than the cooldown: gemini-4-argon
+          # gave no answer with 0.62.0, and answered with 0.64.0 (D-74). Kept current by hand.
+          gemini_cli_version: "0.65.0"
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: "gemini-4-argon"
           settings: |
@@ -143,8 +154,94 @@ jobs:
             6. If you changed any user-visible UI strings (`tr()` or `translate()`), update the translation files (`cmake --build build/linux-system --target update_translations`), translate the new strings in `translations/imageviewer_*.ts`, and verify with `python3 tests/check_translations.py --require-complete`.
             7. Run the relevant test suites against `build/linux-system/ImageViewer` (`tests/smoke.sh`, `python3 tests/render_test.py`, `python3 tests/screen_test.py`, `python3 tests/ui_test.py`, `python3 tests/animation_test.py`, `python3 tests/fuzz_smoke.py`, `python3 tests/check_translations.py`) and ensure they pass with zero compiler warnings.
             8. Update `docs/PLAN.md` (§1, §2, §9, §13/§14 as applicable) to record the change.
-            9. Stage your changes and commit with a DCO sign-off (`git commit -s -m "..."`).
-            10. Push the branch using:
-                `git push --force-with-lease -u origin gemini/issue-${{ env.ISSUE_NUMBER }}`
-            11. Check if a Pull Request already exists for this branch with `gh pr view gemini/issue-${{ env.ISSUE_NUMBER }}`. If none exists yet, open a Pull Request in English using `gh pr create --head gemini/issue-${{ env.ISSUE_NUMBER }}` referencing `Closes #${{ env.ISSUE_NUMBER }}`.
-            12. Post a reply on Issue #${{ env.ISSUE_NUMBER }} (`gh issue comment ${{ env.ISSUE_NUMBER }} --body "..."`) summarizing what was done and linking to the Pull Request.
+            9. Stage your changes and commit with a DCO sign-off (`git commit -s -m "..."`) on branch `gemini/issue-${{ env.ISSUE_NUMBER }}`. Never rewrite its history (no rebase, amend, reset or force) and never switch to another branch.
+            10. Do not push and do not open a pull request: you cannot, and the workflow does both from your commits once you finish, for the owner to review and merge. If the issue asks only for an analysis, or says not to open a pull request yet, make no commit at all.
+            11. Write your reply to the owner, in the issue's language, to the file named by the environment variable `REPLY_FILE` (`$REPLY_FILE`): what you found or did, the tests you ran and their results, and anything left for the owner to decide. The workflow posts it on Issue #${{ env.ISSUE_NUMBER }} and in the pull request.
+
+      - name: Hand over the commits and the reply
+        if: always()
+        env:
+          BASE: ${{ steps.branch.outputs.base }}
+          REPLY_FILE: ${{ runner.temp }}/gemini-reply.md
+        run: |
+          out="$RUNNER_TEMP/gemini-out"
+          mkdir -p "$out"
+          [ -f "$REPLY_FILE" ] && cp "$REPLY_FILE" "$out/reply.md"
+          # A bundle is data: the publish job fetches it and runs nothing from it.
+          if [ -n "$BASE" ] && [ "$(git rev-parse HEAD)" != "$BASE" ]; then
+            git bundle create "$out/commits.bundle" "$BASE..HEAD"
+          fi
+          ls -la "$out"
+
+      - name: Upload the commits and the reply
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gemini-issue-${{ github.event.issue.number }}
+          path: ${{ runner.temp }}/gemini-out
+          if-no-files-found: ignore
+          retention-days: 7
+
+  publish:
+    needs: solve-issue
+    if: always() && (needs.solve-issue.result == 'success' || needs.solve-issue.result == 'failure')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write      # gemini/issue-<n> only: the script below pushes no other ref
+      pull-requests: write # its pull request
+      issues: write        # the reply on the issue
+      actions: write       # start build.yml (a push or a PR made with this token starts no workflow)
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          name: gemini-issue-${{ github.event.issue.number }}
+          path: ${{ runner.temp }}/gemini-out
+
+      - name: Push the issue branch, open the pull request, answer on the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          BASE: ${{ needs.solve-issue.outputs.base }}
+          RESULT: ${{ needs.solve-issue.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          branch="gemini/issue-${ISSUE_NUMBER}"
+          out="$RUNNER_TEMP/gemini-out"
+          comment="$RUNNER_TEMP/comment.md"
+          say() { gh issue comment "$ISSUE_NUMBER" --body-file "$comment"; }
+          if [ -s "$out/reply.md" ]; then cp "$out/reply.md" "$RUNNER_TEMP/reply.md"
+          else echo "The agent left no reply (run $RESULT): $RUN_URL" > "$RUNNER_TEMP/reply.md"; fi
+          url=""
+          if [ -f "$out/commits.bundle" ]; then
+            git fetch -q origin "+refs/heads/${branch}:refs/remotes/origin/${branch}" 2>/dev/null || true
+            if ! git fetch -q "$out/commits.bundle" HEAD || ! git merge-base --is-ancestor "$BASE" FETCH_HEAD; then
+              { cat "$RUNNER_TEMP/reply.md"; echo; echo "The agent's commits do not build on the branch it started from: nothing pushed ($RUN_URL)."; } > "$comment"
+              say; exit 1
+            fi
+            # Never forced: an existing branch only moves forward. GitHub refuses changes to
+            # .github/workflows from this token.
+            if ! git push origin "FETCH_HEAD:refs/heads/${branch}"; then
+              { cat "$RUNNER_TEMP/reply.md"; echo; echo "Pushing ${branch} failed: nothing published ($RUN_URL)."; } > "$comment"
+              say; exit 1
+            fi
+            url="$(gh pr view "$branch" --json url --jq .url 2>/dev/null || true)"
+            if [ -z "$url" ]; then
+              { cat "$RUNNER_TEMP/reply.md"; echo; echo "Closes #${ISSUE_NUMBER}"; } > "$RUNNER_TEMP/body.md"
+              url="$(gh pr create --base main --head "$branch" --title "Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}" \
+                --body-file "$RUNNER_TEMP/body.md")"
+            fi
+            gh workflow run build.yml --ref "$branch"
+          fi
+          {
+            cat "$RUNNER_TEMP/reply.md"
+            if [ -n "$url" ]; then echo; echo "Pull request: $url (the full build runs on it; review and merge are the owner's)."; fi
+          } > "$comment"
+          say
+          [ "$RESULT" = success ]

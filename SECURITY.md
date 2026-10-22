@@ -66,13 +66,14 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
 - **Never below a security fix.** Each library is pinned to its newest release past the cooldown;
   when that would drop a security fix, the newer release ships as a recorded exception, approved
   by the maintainer after reading its changes (D-69).
-- **Verifiable packages.** Every release attaches `SHA256SUMS` and, for each package, an SPDX bill of
-  materials (`*.spdx.json`); both the build provenance and the bill of materials are attested:
+- **Verifiable packages.** Every release attaches `SHA256SUMS`; each package's build provenance and
+  its SPDX bill of materials are attested with it. The second command also prints the bill of
+  materials (the release does not carry it as a separate file, D-74):
 
   ```
   gh attestation verify ImageViewer-0.8-linux-x64.tar.gz -R njardim/ImageViewer
   gh attestation verify ImageViewer-0.8-linux-x64.tar.gz -R njardim/ImageViewer \
-    --predicate-type https://spdx.dev/Document/v2.3
+    --predicate-type https://spdx.dev/Document/v2.3 --format json
   ```
 - **Code scanning.** CodeQL analyses the C++ and the workflows; OpenSSF Scorecard grades the
   repository's practices; every action is pinned by commit; workflow tokens have the least

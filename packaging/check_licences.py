@@ -27,9 +27,7 @@ STRONG_COPYLEFT = re.compile(r"^A?GPL-", re.IGNORECASE)
 UNKNOWN = {"NOASSERTION", "NONE", "LicenseRef-vcpkg-null"}
 # Ports whose vcpkg port declares no licence, checked by hand against share/<port>/copyright.
 # Pinned to the reviewed version: a new version is a warning again until re-checked.
-REVIEWED = {
-    "jasper": ("4.2.9", "JasPer-2.0"),  # LICENSE.txt: JasPer License 2.0, MIT-style
-}
+REVIEWED = {}
 
 
 class ExpressionError(ValueError):

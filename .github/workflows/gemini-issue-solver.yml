@@ -26,10 +26,10 @@ jobs:
     # falls back to any entry with its triplet's prefix). Qt is installed afresh each run.
     cache-mode: none
     # Runs when njardim opens an issue, adds the 'gemini' label, or posts a follow-up comment on an issue.
-    # Security (D-67): the agent has a shell, write access and the API key, so everything it reads
-    # must come from the owner: the issue's author and whoever triggered the run are both njardim
-    # (a label added to someone else's issue would hand that person's text to the agent: prompt
-    # injection), and the prompt carries only the owner's comments.
+    # Security (D-67, D-74): the agent has a shell and the API key (its token only reads), so
+    # everything it reads must come from the owner: the issue's author and whoever triggered the
+    # run are both njardim (a label added to someone else's issue would hand that person's text to
+    # the agent: prompt injection), and the prompt carries only the owner's comments.
     if: >
       github.event.issue.user.login == 'njardim' && github.event.sender.login == 'njardim' && (
       (github.event_name == 'issues' && github.event.action == 'opened' && !contains(github.event.issue.labels.*.name, 'auto update')) ||
@@ -165,6 +165,7 @@ jobs:
           REPLY_FILE: ${{ runner.temp }}/gemini-reply.md
         run: |
           out="$RUNNER_TEMP/gemini-out"
+          rm -rf "$out" # nothing the agent may have left there goes into the artifact
           mkdir -p "$out"
           [ -f "$REPLY_FILE" ] && cp "$REPLY_FILE" "$out/reply.md"
           # A bundle is data: the publish job fetches it and runs nothing from it.
@@ -216,7 +217,8 @@ jobs:
           out="$RUNNER_TEMP/gemini-out"
           comment="$RUNNER_TEMP/comment.md"
           say() { gh issue comment "$ISSUE_NUMBER" --body-file "$comment"; }
-          if [ -s "$out/reply.md" ]; then cp "$out/reply.md" "$RUNNER_TEMP/reply.md"
+          # GitHub refuses a comment over 65,536 characters: the reply is cut well below that.
+          if [ -s "$out/reply.md" ]; then head -c 60000 "$out/reply.md" > "$RUNNER_TEMP/reply.md"
           else echo "The agent left no reply (run $RESULT): $RUN_URL" > "$RUNNER_TEMP/reply.md"; fi
           url=""
           if [ -f "$out/commits.bundle" ]; then
@@ -231,7 +233,8 @@ jobs:
               { cat "$RUNNER_TEMP/reply.md"; echo; echo "Pushing ${branch} failed: nothing published ($RUN_URL)."; } > "$comment"
               say; exit 1
             fi
-            url="$(gh pr view "$branch" --json url --jq .url 2>/dev/null || true)"
+            # An open pull request only: after a merge, new commits get a new one.
+            url="$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')"
             if [ -z "$url" ]; then
               { cat "$RUNNER_TEMP/reply.md"; echo; echo "Closes #${ISSUE_NUMBER}"; } > "$RUNNER_TEMP/body.md"
               url="$(gh pr create --base main --head "$branch" --title "Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}" \

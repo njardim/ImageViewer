@@ -714,7 +714,7 @@ Nuno's adjustments after 0.4 (D-58):
 - [x] Decoding errors in our own words, the libraries' reasons in the log (D-64) `[test: smoke.sh, fuzz_smoke.py]`
 - [x] Green CI, PR #14 `[test: runs 149, 150]`
 
-### Release 0.8 (in progress)
+### Release 0.8 (published)
 - [x] Slideshow toolbar (pause/play, stop) below the top overlay, hidden while the pointer is still (D-65) `[test: animation_test.py section 4]`
 - [x] Gallery: one highlight colour (five presets and custom), hovered tile fainter; enlargement 50 px by default (D-65) `[test: ui_test.py section 9]`
 - [x] Zoom modes that stay for the next images, Actual Size among them; Z keeps priority (D-65) `[test: ui_test.py section 6]`
@@ -736,6 +736,12 @@ Nuno's adjustments after 0.4 (D-58):
 - [x] Every known vulnerability answered: patched (`Fixes:`) or assessed in `packaging/known-vulnerabilities.txt`; an unassessed one stops the release and opens the weekly issue, which answered ones no longer do (D-73) `[test: audit_dependencies.py --vulnerabilities --sources --cooldown: three patched, twelve assessed, nothing actionable or unassessed]`
 - [x] Cooldown exceptions in `packaging/cooldown-exceptions.txt`, written and removed by `update_dependencies.py` (D-73) `[test: a hostile OSV text stays one line of data; expired entries removed, comments kept; update_dependencies.py report clean]`
 - [x] HTJ2K test file `htj2k.jph` `[test: smoke.sh, local build through OpenJPEG]`
+- [x] Green CI, PRs #16 and #17 (merged); `v0.8` published
+
+### Release 0.9 (in progress)
+- [x] Gemini through pull requests only (D-74): the agent's job reads only and hands its commits over as a git bundle; a job without the agent pushes `gemini/issue-<n>` (never forced), opens the pull request (an open one; after a merge, a new one), starts `build.yml` and posts the reply (at most 60,000 characters); a failed or silent agent is reported on the issue. Gemini CLI 0.65.0. `GEMINI.md` brought level with `CLAUDE.md` (it lacked D-61 to D-73) and told not to push `[test: the publish script against a local origin with a stand-in gh: new branch, follow-up on an open pull request, reply only, failed agent, rewritten history, commits on main — each published or refused as intended, never main, never forced]`
+- [x] The release attaches the packages and `SHA256SUMS` only; the bills of materials stay attested (D-74) `[test: the release step's file handling on the three package names]`
+- [x] JasPer out of the packages (D-74) `[test: CI run 184: 36 vcpkg packages, no JasPer, LibRaw rebuilt, every test green on the three systems]`
 - [ ] Green CI, PR
 
 ### Phase 0 — Foundation (M)

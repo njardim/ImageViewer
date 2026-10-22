@@ -522,9 +522,10 @@ jobs:
           [ "${#files[@]}" -eq 3 ] || { echo "::error::expected 3 packages, got: ${files[*]}"; exit 1; }
           for f in "${files[@]}"; do
             [ -f "sboms/$(basename "$f").spdx.json" ] || { echo "::error::no bill of materials for $f"; exit 1; }
-            echo "$(basename "$f" | sed -E 's/^ImageViewer-[^-]+(-[^-]+)*-([a-z]+-[a-z0-9]+)\..*$/\2/')=$f" >> "$GITHUB_OUTPUT"
+            echo "$(basename "$f" | sed -E 's/^ImageViewer-[^-]+(-[^-]+)*-([a-z]+-[a-z0-9]+)\..*$/\2/')=$(basename "$f")" >> "$GITHUB_OUTPUT"
           done
-          mv sboms/*.spdx.json packages/
+          # The bills of materials stay out of the release's files (D-74): each is attested with its
+          # package below, and "gh attestation verify --predicate-type" returns it.
           (cd packages && sha256sum ImageViewer-* > SHA256SUMS && cat SHA256SUMS)
 
       # Artifact attestations need a public repository (or GitHub Enterprise Cloud).
@@ -543,20 +544,20 @@ jobs:
         if: ${{ !github.event.repository.private }}
         uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         with:
-          subject-path: ${{ steps.packages.outputs.windows-x64 }}
-          sbom-path: ${{ steps.packages.outputs.windows-x64 }}.spdx.json
+          subject-path: packages/${{ steps.packages.outputs.windows-x64 }}
+          sbom-path: sboms/${{ steps.packages.outputs.windows-x64 }}.spdx.json
       - name: Bill of materials attestation (macOS)
         if: ${{ !github.event.repository.private }}
         uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         with:
-          subject-path: ${{ steps.packages.outputs.macos-arm64 }}
-          sbom-path: ${{ steps.packages.outputs.macos-arm64 }}.spdx.json
+          subject-path: packages/${{ steps.packages.outputs.macos-arm64 }}
+          sbom-path: sboms/${{ steps.packages.outputs.macos-arm64 }}.spdx.json
       - name: Bill of materials attestation (Linux)
         if: ${{ !github.event.repository.private }}
         uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         with:
-          subject-path: ${{ steps.packages.outputs.linux-x64 }}
-          sbom-path: ${{ steps.packages.outputs.linux-x64 }}.spdx.json
+          subject-path: packages/${{ steps.packages.outputs.linux-x64 }}
+          sbom-path: sboms/${{ steps.packages.outputs.linux-x64 }}.spdx.json
 
       - name: Attach to the release
         env:

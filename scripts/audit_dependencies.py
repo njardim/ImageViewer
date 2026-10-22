@@ -132,7 +132,6 @@ BASELINE_PORTS = {
     "giflib": ("https://git.code.sf.net/p/giflib/code", "{v}|giflib-{v}|v{v}"),
     "highway": ("https://github.com/google/highway", "{v}"),
     "imath": ("https://github.com/AcademySoftwareFoundation/Imath", "v{v}"),
-    "jasper": ("https://github.com/jasper-software/jasper", "version-{v}"),
     "lcms": ("https://github.com/mm2/Little-CMS", "lcms{v}"),
     "libdeflate": ("https://github.com/ebiggers/libdeflate", "v{v}"),
     "libjpeg-turbo": ("https://github.com/libjpeg-turbo/libjpeg-turbo", "{v}"),

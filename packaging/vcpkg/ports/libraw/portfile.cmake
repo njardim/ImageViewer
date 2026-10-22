@@ -41,7 +41,7 @@ vcpkg_cmake_configure(
     OPTIONS
         ${FEATURE_OPTIONS}
         -DENABLE_EXAMPLES=OFF
-        -DCMAKE_REQUIRE_FIND_PACKAGE_Jasper=1
+        -DENABLE_JASPER=OFF # LibRaw 0.22 has no JasPer code; LibRaw-cmake looks for it only before 0.22 (D-74)
         -DCMAKE_REQUIRE_FIND_PACKAGE_ZLIB=1
     MAYBE_UNUSED_VARIABLES
         CMAKE_REQUIRE_FIND_PACKAGE_OpenMP

@@ -1,16 +1,12 @@
 {
   "name": "libraw",
-  "$comment": "ImageViewer overlay (docs/PLAN.md D-46, D-67, D-73): vcpkg's port with LibRaw fetched by git at the tag's commit, for the patch we carry (imageviewer-*, docs/PLAN.md section 15). OpenImageIO's camera RAW reader.",
+  "$comment": "ImageViewer overlay (docs/PLAN.md D-46, D-67, D-73): vcpkg's port with LibRaw fetched by git at the tag's commit, for the patch we carry (imageviewer-*, docs/PLAN.md section 15). OpenImageIO's camera RAW reader. Without JasPer, which LibRaw has not used since 0.22 (D-74).",
   "version": "0.22.2",
   "description": "raw image decoder library",
   "homepage": "https://www.libraw.org",
   "license": "(LGPL-2.1-only OR CDDL-1.0) AND BSD-3-Clause",
   "supports": "!uwp & !xbox",
   "dependencies": [
-    {
-      "name": "jasper",
-      "default-features": false
-    },
     "lcms",
     {
       "name": "vcpkg-cmake",

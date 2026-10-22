@@ -69,6 +69,11 @@ check palette.gif 'size: +5x3' "GIF dimensions"
 check palette.gif 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "GIF palette colour exact"
 check lossless.jp2 'size: +7x5' "JPEG 2000 dimensions"
 check lossless.jp2 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "JPEG 2000 lossless pixel exact"
+# HTJ2K (JPEG 2000 Part 15), lossless, made with OpenJPH 0.32.0's ojph_compress: precincts of 2x2
+# give code-blocks one row high, the case of our OpenJPH patch (D-73). OpenImageIO decodes it with
+# OpenJPH in the CI builds, with OpenJPEG where it has no OpenJPH.
+check htj2k.jph 'size: +7x5' "HTJ2K dimensions"
+check htj2k.jph 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "HTJ2K lossless pixel exact"
 check flat.avif 'size: +8x6' "AVIF dimensions"
 check flat.avif 'pixel\[0,0\]: +(1|0\.9[89][0-9]*) 0\.2[12][0-9]* ' "AVIF pixel within 1-2 codes (lossy, 4:4:4)"
 # 16-bit TIFF: G = 33024/65535 lies between two 8-bit codes, so only a 16-bit decode gives 0.2177.
@@ -205,13 +210,13 @@ for f in orange.bmp orange.tga orange.ico orange.cur orange.sgi orange.dds orang
     fi
 done
 # A cursor holding a PNG (Pillow 12.3, 8x8 orange): Qt hands the PNG to our plugin, which reads it
-# with OpenImageIO, never to Qt's own copy of libpng (D-68).
+# with OpenImageIO, never to Qt's own copy of libpng (D-68, D-71).
 if "$exe" --formats 2>/dev/null | grep -q "^ *cur | .* | yes | "; then
     said="$(QT_LOGGING_RULES='qt.gui.imageio.reader.debug=true' "$exe" --info "$data/png.cur" 2>&1 || true)"
-    if grep -q 'OiioPngPlugin.* can read the format "png"' <<<"$said" && grep -Eq 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' <<<"$said"; then
+    if grep -q 'OiioImagePlugin.* can read the format "png"' <<<"$said" && grep -Eq 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' <<<"$said"; then
         echo "ok   png.cur: the PNG inside read by OpenImageIO (our Qt plugin), colour exact"
     else
-        echo "FAIL png.cur: the PNG inside was not read by OiioPngPlugin, or not exactly"
+        echo "FAIL png.cur: the PNG inside was not read by OiioImagePlugin, or not exactly"
         grep -E 'imageio|pixel|error' <<<"$said" | sed 's/^/     /'
         failures=$((failures + 1))
     fi

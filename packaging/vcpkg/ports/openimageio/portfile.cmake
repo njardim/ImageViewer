@@ -3,8 +3,8 @@ set(PATCHES
     imath-version-guard.patch
     fix-openimageio_include_dir.patch
     fix-openexr-target-missing.patch
-    fits-row-offset.patch # ours: FITS rows are stored bottom first, row y is height - 1 - y (0.4 review); upstream #5555, on main after 3.2.1.3
-    heif-image-handle-error.patch # ours: a damaged HEIF item threw out of open() and aborted (0.4, fuzz); upstream #5556, on main after 3.2.1.3
+    imageviewer-fits-row-offset.patch # ours, upstream #5555 (docs/PLAN.md section 15)
+    imageviewer-heif-image-handle-error.patch # ours, upstream #5556 (docs/PLAN.md section 15)
 )
 
 if(VCPKG_TARGET_IS_OSX)

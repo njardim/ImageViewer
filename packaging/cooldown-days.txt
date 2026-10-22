@@ -1,0 +1,7 @@
+# Supply-chain cooldown in days (D-67, D-72): a release of a library, of Qt or of vcpkg's port
+# recipes is taken ("auto update") and shipped (the release gate) only once it is this old.
+# The policy is 15. To ship the latest releases sooner, the owner lowers it on main (0 takes
+# every latest release) before running "auto update" and tagging the release, then sets it back
+# to 15; while it is below 15, the weekly audit opens an issue saying so.
+# Read by scripts/audit_dependencies.py and scripts/update_dependencies.py: one whole number.
+15

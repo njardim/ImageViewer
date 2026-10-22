@@ -18,6 +18,10 @@ decoded light against ST 2084 and BT.2100, within 0.1 %), and on a PQ output wit
 A local build whose decoders cannot read a file's colour (OpenImageIO 2.4 ignores cICP) or
 depth skips it; CI ($CI set) fails instead.
 
+SVG (D-71): files that name an image, a style sheet or an SVG outside the document (beside it,
+by path, by entity, by an ATTLIST default, inside an embedded SVG) must draw nothing from it;
+embedded PNG, JPEG, GIF and WebP images must still show; an svgz inflating past the limit fails.
+
 usage: python3 tests/render_test.py <ImageViewer> [vulkan|opengl]
   Linux:          Xvfb + xcb; Vulkan (default) or OpenGL.
   Windows, macOS: offscreen platform; the native backend (D3D11, Metal), no argument.
@@ -25,12 +29,16 @@ exit:  0 pass, 1 fail, 4 no usable GPU/QRhi on this machine (the harness's own c
 needs: numpy; on Linux also Xvfb
 env:   RENDER_TEST_DIR  where to keep the corpus and the GPU results (default: a temp dir)
 """
+import base64
+import gzip
 import os
 import platform
 import re
+import struct
 import subprocess
 import sys
 import tempfile
+import zlib
 
 import numpy as np
 
@@ -264,6 +272,83 @@ try:
             if error.max() > limit:
                 failures.append(f"{name} {case}: error {error.max():.3g} above {limit} at level {level} of row {row}")
 
+    # SVG (D-71): nothing outside the document is read, as browsers show an SVG used as an image.
+    # Qt's renderer opened a file an <image> names (beside the SVG, at any path, or on Windows at
+    # \\server\share, where the system presents the user's credentials) and an xml-stylesheet's
+    # style sheet. Every case draws red over the whole 8 x 8 canvas if it reads the red PNG or
+    # the red style sheet written here; black is what is left (nothing over the black ground).
+    # The images an SVG embeds still show, through OpenImageIO (D-68): orange JPEG, GIF and WebP
+    # test files, a blue PNG, also inside an SVG inside the SVG, and in an svgz file. An svgz that
+    # inflates past the limit is refused rather than allocated.
+    def png_bytes(rgb):
+        rows = b"".join(b"\0" + bytes(rgb) * 8 for _ in range(8))
+        chunk = lambda kind, body: struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body))
+        return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 8, 8, 8, 2, 0, 0, 0))
+                + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b""))
+
+    def data_url(kind, body):
+        return f"data:{kind};base64,{base64.b64encode(body).decode()}"
+
+    svg_dir = os.path.join(work, "svg")
+    os.makedirs(svg_dir, exist_ok=True)
+    red_png = os.path.join(svg_dir, "red.png")
+    with open(red_png, "wb") as f:
+        f.write(png_bytes((255, 0, 0)))
+    red_css = os.path.join(svg_dir, "red.css")
+    with open(red_css, "w", encoding="utf-8") as f:
+        f.write("rect { fill: red; }\n")
+    red_url = "file:///" + red_png.replace("\\", "/").lstrip("/")
+    svg_open = ('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                'width="8" height="8">')
+    image = lambda href: f'{svg_open}<image xlink:href="{href}" width="8" height="8"/></svg>'
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+    embedded = lambda name, kind: image(data_url(kind, open(os.path.join(data_dir, name), "rb").read()))
+    BLACK, BLUE, ORANGE = (0.0, 0.0, 0.0), (0.0, 0.0, 1.0), (1.0, 0.502, 0.0)
+    svg_cases = [
+        ("a file beside it", image("red.png"), BLACK),
+        ("a file by its path", image(red_png.replace("\\", "/")), BLACK),
+        ("a file URL", image(red_url), BLACK),
+        ("a style sheet", f'<?xml-stylesheet type="text/css" href="{red_css.replace(chr(92), "/")}"?>\n'
+                          f'{svg_open}<rect width="8" height="8"/></svg>', BLACK),
+        ("an entity", f'<!DOCTYPE svg [<!ENTITY p "{red_png.replace(chr(92), "/")}">]>\n{image("&p;")}', BLACK),
+        ("an ATTLIST default", f'<!DOCTYPE svg [<!ATTLIST image xlink:href CDATA "{red_png.replace(chr(92), "/")}">]>\n'
+                               f'{svg_open}<image width="8" height="8"/></svg>', BLACK),
+        ("an SVG inside it", image(data_url("image/svg+xml", image(red_png.replace("\\", "/")).encode())), BLACK),
+        ("an embedded PNG", image(data_url("image/png", png_bytes((0, 0, 255)))), BLUE),
+        ("an embedded JPEG", embedded("orange.jpg", "image/jpeg"), ORANGE),
+        ("an embedded GIF", embedded("palette.gif", "image/gif"), ORANGE),
+        ("an embedded WebP", embedded("lossless.webp", "image/webp"), ORANGE),
+        ("a PNG in an SVG inside it", image(data_url("image/svg+xml", image(data_url("image/png", png_bytes((0, 0, 255)))).encode())), BLUE),
+    ]
+    for n, (case, text, expected) in enumerate(svg_cases + [("svgz", None, BLUE)]):
+        path = os.path.join(svg_dir, f"case{n}.svg" if text is not None else "case.svgz")
+        if text is None:
+            with gzip.open(path, "wb") as f:
+                f.write(svg_cases[7][1].encode())
+        else:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(text)
+        run = subprocess.run([exe, "--render", path, "--output", "sdr"], env=env, capture_output=True, text=True,
+                             encoding="utf-8", errors="replace", timeout=120)
+        pixel = re.search(r"^pixel\[0,0\]:\s+(\S+)\s+(\S+)\s+(\S+)", run.stdout, re.MULTILINE)
+        got = tuple(float(v) for v in pixel.groups()) if pixel else None
+        print(f"--- {rhi} SVG, {case}: {got}")
+        if run.returncode != 0 or got is None:
+            failures.append(f"SVG, {case}: harness exit {run.returncode} {run.stdout.strip()[-200:]} {run.stderr.strip()[-200:]}")
+        elif max(abs(g - e) for g, e in zip(got, expected)) > 0.02:
+            failures.append(f"SVG, {case}: pixel {got}, expected {expected}")
+    bomb = os.path.join(svg_dir, "bomb.svgz")
+    with gzip.open(bomb, "wb", compresslevel=9) as f:
+        f.write(svg_open.encode())
+        for _ in range(272):  # 272 MiB of spaces: past the 256 MiB an SVG may inflate to
+            f.write(b" " * (1 << 20))
+        f.write(b"</svg>")
+    run = subprocess.run([exe, "--render", bomb, "--output", "sdr"], env=env, capture_output=True, text=True,
+                         encoding="utf-8", errors="replace", timeout=120)
+    print(f"--- {rhi} SVG, an svgz inflating past the limit: exit {run.returncode}")
+    if run.returncode != 1 or "Cannot decode" not in run.stdout:
+        failures.append(f"SVG bomb: exit {run.returncode}, expected 1 with 'Cannot decode': {run.stdout.strip()[-200:]}")
+
     # The information panels (D-49): their background darkens SDR white as in SDR in every
     # output, their labels keep 4.5:1 against it, and against their outline over the brightest
     # content the output shows (the harness measures and judges; exit 3 is a failed check).
@@ -281,4 +366,4 @@ finally:
 if failures:
     print("FAIL\n  " + "\n  ".join(failures))
     sys.exit(1)
-print(f"{rhi}: all {len(CASES)} output-stage cases, the wide-gamut case and the PQ/HLG files pass")
+print(f"{rhi}: all {len(CASES)} output-stage cases, the wide-gamut case, the PQ/HLG files and the SVG cases pass")

@@ -1,7 +1,8 @@
 # D-67: the actions the workflows use, pinned by commit, move by Dependabot's pull requests,
-# after the same 15-day cooldown as the libraries (a compromised release of an action, as with
-# tj-actions/changed-files in 2025, is usually found within days). The libraries themselves move
-# through scripts/update_dependencies.py (D-62), which Dependabot does not replace.
+# after a 15-day cooldown (a compromised release of an action, as with tj-actions/changed-files
+# in 2025, is usually found within days). Dependabot reads only this file: lowering the
+# libraries' cooldown (packaging/cooldown-days.txt) does not change this one. The libraries
+# themselves move through scripts/update_dependencies.py (D-62), which Dependabot does not replace.
 version: 2
 updates:
   - package-ecosystem: github-actions

@@ -1,0 +1,25 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57): upstream's fix of a heap overflow in NLT marker parsing
+Library: openjph 0.32.0
+Fixes: none in OSV (OSS-Fuzz issue 566653567, found through OpenEXR)
+Upstream: aous72/OpenJPH b7b2dee (#384), on master after 0.32.0
+Remove when: a release contains b7b2dee (the update script removes a patch the release already contains)
+
+param_nlt::read() read the whole allocation's length into marker_points, which starts partway
+into it: a heap out-of-bounds write from an NLT marker with one byte per point (HTJ2K inside
+EXR). Upstream's commit, unchanged.
+
+diff --git a/src/core/codestream/ojph_params.cpp b/src/core/codestream/ojph_params.cpp
+index a86a53b..a2d4371 100644
+--- a/src/core/codestream/ojph_params.cpp
++++ b/src/core/codestream/ojph_params.cpp
+@@ -2688,7 +2688,9 @@ namespace ojph {
+         p->rec.assign_pointers_for_decoding();
+ 
+         if (p->rec.bytes_per_point == 1)
+-          result &= file->read(p->rec.marker_points, len) == len;
++          result &= 
++            file->read(p->rec.marker_points, p->rec.num_points) 
++              == p->rec.num_points;
+         else if (p->rec.bytes_per_point == 2)
+         {
+           ui16 buf2;

@@ -28,7 +28,7 @@ void ViewerWindow::openFile(const QString &path)
 {
     const QFileInfo info(path);
     if (!info.exists()) {
-        m_error = tr("File not found: %1").arg(path);
+        m_error = tr("File not found: %1").arg(displayFileName(path));
         editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
         updateOverlay();
         return;

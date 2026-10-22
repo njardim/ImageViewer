@@ -1,3 +1,12 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57): a damaged HEIF item is an error, not an exception out of open()
+Library: openimageio 3.2.1.1
+Fixes: none in OSV (found by our fuzz smoke test, CI run 80)
+Upstream: AcademySoftwareFoundation/OpenImageIO #5556, on main after 3.2.1.3 (ours, upstreamed)
+Remove when: a release contains #5556 (the update script removes a patch the release already contains)
+
+A heif::Error escaped open() for a HEIF item without properties and aborted the viewer on all
+three systems (0.4). Test: tests/fuzz_smoke.py.
+
 diff --git a/src/heif.imageio/heifinput.cpp b/src/heif.imageio/heifinput.cpp
 index 8f18db4..d631e12 100644
 --- a/src/heif.imageio/heifinput.cpp

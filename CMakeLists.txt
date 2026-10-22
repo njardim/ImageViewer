@@ -44,6 +44,8 @@ qt_standard_project_setup(
 )
 
 find_package(OpenImageIO CONFIG REQUIRED)
+# svgz, inflated before Qt sees the SVG (qtimage.cpp, D-71); the zlib OpenImageIO ships with.
+find_package(ZLIB REQUIRED)
 
 # Little CMS: CMake config from vcpkg, pkg-config elsewhere (e.g. Linux distributions).
 find_package(lcms2 CONFIG QUIET)
@@ -71,7 +73,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
+    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
     src/openwith.h src/openwith.cpp
@@ -117,6 +119,7 @@ target_link_libraries(imageviewer PRIVATE
     Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent
     OpenImageIO::OpenImageIO
     lcms2::lcms2
+    ZLIB::ZLIB
 )
 if(APPLE)
     # SVG is read by Qt's image plugin; macdeployqt copies that plugin only into bundles

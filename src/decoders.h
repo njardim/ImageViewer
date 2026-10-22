@@ -124,6 +124,10 @@ bool describeHeifStill(QByteArrayView bytes, color::Descriptor *d);
 bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                         std::unique_ptr<FrameReader> *frames);
 
+// qtimage.cpp: the formats the registry gives to Qt, each through its own plugin only; an SVG
+// from memory, without what would make Qt read outside it (D-71).
+bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error);
+
 // codecs.cpp: libjxl, libwebp and Softimage PIC (D-45), which parse the file from memory; APNG
 // is handed to apng.cpp.
 bool codecAvailable(Decoder decoder);

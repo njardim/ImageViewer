@@ -187,6 +187,8 @@ private:
                 }
                 m_frames.push_back(frame);
             } else if (std::memcmp(type, "IDAT", 4) == 0) {
+                if (!animated)
+                    return false; // acTL comes before the image data: a still PNG, read as such
                 // The default image is the first frame only when a frame control precedes it.
                 if (animated && m_frames.size() == 1) {
                     m_frames.front().data << QByteArrayView(reinterpret_cast<const char *>(data), length);

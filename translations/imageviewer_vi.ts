@@ -673,14 +673,6 @@
         <translation>Đang tải %1…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Đây là ảnh cuối cùng.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Đây là ảnh đầu tiên.</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>Đang thu nhỏ ảnh cho vừa GPU (tối đa %1 px)…</translation>

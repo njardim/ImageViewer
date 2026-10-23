@@ -682,14 +682,6 @@
         <translation>La cartella non contiene immagini supportate.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Questa è l&apos;ultima immagine.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Questa è la prima immagine.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Caricamento di %1…</translation>
     </message>

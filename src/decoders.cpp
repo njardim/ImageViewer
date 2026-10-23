@@ -118,10 +118,7 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
     }
     if (const OIIO::ParamValue *p = spec.find_attribute("ICCProfile");
         p && p->type().basetype == OIIO::TypeDesc::UINT8 && p->type().size() > 0) {
-        d->source = Descriptor::Source::Icc;
-        d->icc = QByteArray(static_cast<const char *>(p->data()), qsizetype(p->type().size()));
-        const QString name = color::iccDescription(d->icc);
-        d->description = QStringLiteral("ICC: %1").arg(name.isEmpty() ? QCoreApplication::translate("Image", "(no description)") : name);
+        describeIcc(QByteArray(static_cast<const char *>(p->data()), qsizetype(p->type().size())), d);
         return;
     }
     if (const OIIO::ParamValue *p = spec.find_attribute("chromaticities");
@@ -162,26 +159,15 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
         // OIIO also fills this in when the file carries no colour tag at all, so it
         // is reported as the decoder's interpretation, not as file metadata (F12).
         d->source = Descriptor::Source::FormatAttributes;
-        d->description = QCoreApplication::translate("Image", "%1 (assigned by the decoder)").arg(cs);
+        d->description = QCoreApplication::translate("Image", "%1 (assigned by the decoder)").arg(cleanText(cs)); // the file may name it
         return;
     }
     assumeDefault(isFloat, d);
 }
 
-// EXIF text is file content: no control characters (they would break the panel's layout),
-// one line, bounded length.
 QString cleanText(const std::string &raw)
 {
-    QString text = QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256))).simplified();
-    text.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
-    text = text.simplified(); // tabs and newlines became spaces first; removed characters may leave two
-    if (text.size() > 64) {
-        text.truncate(63);
-        if (text.back().isHighSurrogate()) // never half a character
-            text.chop(1);
-        text += QChar(0x2026);
-    }
-    return text;
+    return cleanText(QString::fromUtf8(raw.data(), qsizetype(std::min<std::size_t>(raw.size(), 256))));
 }
 
 // Shooting data as OpenImageIO names it (EXIF tags, also filled by the RAW reader).
@@ -231,15 +217,20 @@ OIIO::ImageSpec oiioConfig()
     return config;
 }
 
-// Opens a file held in memory (the name only tells OpenImageIO the format).
-std::unique_ptr<OIIO::ImageInput> openOiioMemory(OiioMemory &memory, const std::string &name)
+// Opens bytes in memory, read through `proxy` from its start (the name only tells OpenImageIO
+// the format, by its suffix).
+std::unique_ptr<OIIO::ImageInput> openOiioProxy(OIIO::Filesystem::IOProxy *proxy, const std::string &name)
 {
-    OIIO::Filesystem::IOProxy *proxy = &memory.reader;
     proxy->seek(0);
     OIIO::ImageSpec config = oiioConfig();
     // With a configuration, OpenImageIO's readers take the proxy from it, not from the argument.
     config.attribute("oiio:ioproxy", OIIO::TypeDesc::PTR, &proxy);
     return OIIO::ImageInput::open(name, &config, proxy);
+}
+
+std::unique_ptr<OIIO::ImageInput> openOiioMemory(OiioMemory &memory, const std::string &name)
+{
+    return openOiioProxy(&memory.reader, name);
 }
 
 // Reads the first subimage of an opened file. With `frames`, a file of several subimages is
@@ -335,15 +326,18 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
     return true;
 }
 
-bool decodeWithOiio(const QString &path, qint64 maxPixels, Decoded *out, QString *error,
+// With `frames`, `format` is the animated format the content was recognised as.
+bool decodeWithOiio(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error,
                     std::unique_ptr<FrameReader> *frames = nullptr)
 {
-    if (frames) { // an animation: read from memory, see OiioMemory
+    if (frames && format) { // an animation: read from memory, see OiioMemory
         QByteArray bytes;
         if (!readWholeFile(path, &bytes, error))
             return false;
         auto memory = std::make_unique<OiioMemory>(std::move(bytes));
-        auto in = openOiioMemory(*memory, QFile::encodeName(path).toStdString());
+        // Named by its format, not by the file's name: a GIF named .jpg would go to the JPEG
+        // reader first, and then to every other reader in turn.
+        auto in = openOiioMemory(*memory, "image." + format->suffixes().constFirst().toStdString());
         if (!in) {
             *error = libraryError("OpenImageIO:", OIIO::geterror());
             return false;
@@ -473,7 +467,7 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
     const bool animatable = frames && format && format->decoder == Decoder::OpenImageIO && (format->capabilities & CanAnimate);
-    if (!decodeWithOiio(path, maxPixels, out, error, animatable ? frames : nullptr))
+    if (!decodeWithOiio(path, format, maxPixels, out, error, animatable ? frames : nullptr))
         return false;
     if (out->codec == QLatin1String("OpenImageIO/heif")) {
         QByteArray bytes;
@@ -532,11 +526,28 @@ CameraInfo cameraFromExif(QByteArrayView tiff, int *orientation)
     return cameraFromOiio(spec);
 }
 
+QString cleanText(QString text)
+{
+    text.truncate(256);
+    if (!text.isEmpty() && text.back().isHighSurrogate()) // never half a character
+        text.chop(1);
+    text = text.simplified();
+    text.removeIf([](QChar c) { return c.category() == QChar::Other_Control || c.category() == QChar::Other_Format; });
+    text = text.simplified(); // tabs and newlines became spaces first; removed characters may leave two
+    if (text.size() > 64) {
+        text.truncate(63);
+        if (text.back().isHighSurrogate()) // never half a character
+            text.chop(1);
+        text += QChar(0x2026);
+    }
+    return text;
+}
+
 void describeIcc(const QByteArray &icc, Descriptor *d)
 {
     d->source = Descriptor::Source::Icc;
     d->icc = icc;
-    const QString name = color::iccDescription(icc);
+    const QString name = cleanText(color::iccDescription(icc)); // the profile's own text
     d->description = QStringLiteral("ICC: %1").arg(name.isEmpty() ? QCoreApplication::translate("Image", "(no description)") : name);
 }
 
@@ -604,14 +615,10 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error)
 bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error, qint64 maxPixels)
 {
     OIIO::Filesystem::IOMemReader memory(bytes.data(), std::size_t(bytes.size())); // outlives the reader below
-    OIIO::Filesystem::IOProxy *proxy = &memory;
-    OIIO::ImageSpec config = oiioConfig();
-    // With a configuration, OpenImageIO's readers take the proxy from it, not from the argument.
-    config.attribute("oiio:ioproxy", OIIO::TypeDesc::PTR, &proxy);
     // APNG's frames come through here: their errors must not be empty, so the name's suffix names the format.
     const std::string_view named(name);
     const std::string suffix(named.substr(named.rfind('.') + 1));
-    auto in = OIIO::ImageInput::open(name, &config, proxy);
+    auto in = openOiioProxy(&memory, name);
     if (!in) {
         *error = libraryError("OpenImageIO:", OIIO::geterror(), suffix);
         return false;

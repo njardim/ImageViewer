@@ -682,14 +682,6 @@
         <translation>Klasörde desteklenen görüntü yok.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Bu, son görüntü.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Bu, ilk görüntü.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Yükleniyor: %1…</translation>
     </message>

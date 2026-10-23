@@ -682,14 +682,6 @@
         <translation>Priečinok neobsahuje žiadne podporované obrázky.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Toto je posledný obrázok.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Toto je prvý obrázok.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Načítavanie %1…</translation>
     </message>

@@ -205,6 +205,7 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Leave:
         m_pointerTimer.stop();
         setHoverZone(Zone::None);
+        setToolbarHover(ToolbarButton::None);
         setGalleryHover(-1);
         setPointerAtTop(false);
         break;

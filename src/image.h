@@ -125,11 +125,14 @@ private:
 // Decodes `path`. Images larger than `maxTextureSize` on either axis are reduced
 // with a box filter in linear light (tiling arrives in Phase 2). With `maxPixels` > 0,
 // a source of more pixels is not decoded (overPixelLimit), judged from the header.
-Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0);
+// Without `animate`, an animation is read as its first frame only (a thumbnail, the clipboard).
+Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true);
 
-// Decodes `path` at full resolution for the clipboard: 16-bit sRGB, straight alpha.
-// HDR values above SDR white and colours outside sRGB are clipped (the clipboard
-// formats other applications read are SDR). A null image when decoding fails.
+// The image for the clipboard: 16-bit sRGB, straight alpha. HDR values above SDR white and
+// colours outside sRGB are clipped (the clipboard formats other applications read are SDR).
+// A null image when `image` is not valid.
+QImage clipboardImage(const Image &image);
+// `path` decoded at full resolution, for the clipboard (clipboardImage).
 QImage decodeForClipboard(const QString &path);
 
 // Stops the decoders' own worker threads. Called once, after the last decode has finished

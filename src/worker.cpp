@@ -137,6 +137,19 @@ int fail(const char *what, const ExceptionInfo &exception)
     return kExitFailed;
 }
 
+// Over the limits this decode was given (its pixels, the memory they need), rather than a
+// damaged file: GraphicsMagick raises a resource limit error as well for a width or height of 0
+// or past WidthResource and HeightResource, as damaged headers have (CheckImagePixelLimits).
+bool overLimit(const ExceptionInfo &exception)
+{
+    if (exception.severity != ResourceLimitError || !exception.reason)
+        return false;
+    for (const char *tag : {"Resource/Limit/Error/ImagePixelLimitExceeded", "Resource/Limit/Error/MemoryAllocationFailed"})
+        if (const char *message = GetLocaleMessage(tag); message && std::strcmp(exception.reason, message) == 0)
+            return true;
+    return false;
+}
+
 // Unregisters every coder that is not in the allow-list, so that no file, and no image
 // embedded in one (WPG, PICT), reaches another coder or an external program. Null when that
 // worked; otherwise why the worker must not decode.
@@ -265,7 +278,7 @@ int runDecodeWorker(int argc, char **argv)
     GmImage *image = BlobToImage(info, input.data(), input.size(), &exception);
     DestroyImageInfo(info);
     if (!image) {
-        const int code = exception.severity == ResourceLimitError ? kExitOverLimit : fail("not decoded", exception);
+        const int code = overLimit(exception) ? kExitOverLimit : fail("not decoded", exception);
         DestroyExceptionInfo(&exception);
         return code;
     }

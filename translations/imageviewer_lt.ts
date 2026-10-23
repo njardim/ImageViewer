@@ -682,14 +682,6 @@
         <translation>Aplanke nėra palaikomų vaizdų.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Tai paskutinis vaizdas.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Tai pirmasis vaizdas.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Įkeliama %1…</translation>
     </message>

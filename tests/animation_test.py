@@ -65,11 +65,9 @@ def xdotool(*args):
 
 def colour():
     """Name of the colour in the middle of the viewer, or None."""
-    result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}", shell=True,
-                            stderr=subprocess.DEVNULL)
-    if result.returncode != 0:
+    screen = xvfb.grab(display, shot_path)
+    if screen is None:
         return None
-    screen = np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
     pixel = screen[geometry[1] + geometry[3] // 2, geometry[0] + geometry[2] // 2]
     for name, rgb in COLOURS.items():
         if np.abs(pixel - rgb).max() <= 2:
@@ -94,11 +92,9 @@ def toolbar():
     """(glyph, x, y, stop_x) for the slideshow toolbar: its second button's glyph ("pause" or
     "play") and centre on the screen, and the first button's (stop) x; None when the toolbar is
     not shown. The toolbar's glyphs are the only near-white pixels in the window's top band."""
-    result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}", shell=True,
-                            stderr=subprocess.DEVNULL)
-    if result.returncode != 0:
+    screen = xvfb.grab(display, shot_path)
+    if screen is None:
         return None
-    screen = np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
     x0, y0, w, _ = geometry
     band = screen[y0:y0 + 150, x0:x0 + w]
     ys, xs = np.nonzero(band.min(axis=2) >= 225)
@@ -206,11 +202,9 @@ try:
             xdotool("key", "shift+i")
 
             def gap_below_overlay():
-                result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}", shell=True,
-                                        stderr=subprocess.DEVNULL)
-                if result.returncode != 0:
+                screen = xvfb.grab(display, shot_path)
+                if screen is None:
                     return None
-                screen = np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
                 rows = screen[geometry[1]:geometry[1] + 200, centre[0] - 40:centre[0] + 40]
                 dark = (rows.max(axis=2) < 24).sum(axis=1) > 20  # the panels: black at 70 % over #212121
                 runs, start = [], None

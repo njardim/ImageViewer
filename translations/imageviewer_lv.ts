@@ -682,14 +682,6 @@
         <translation>Mapē nav atbalstītu attēlu.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Šis ir pēdējais attēls.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Šis ir pirmais attēls.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Ielādē %1…</translation>
     </message>

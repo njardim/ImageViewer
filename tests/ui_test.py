@@ -80,11 +80,7 @@ for i, name in enumerate(("a", "b", "c", "e")):
 
 
 def grab():
-    result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}",
-                            shell=True, stderr=subprocess.DEVNULL)
-    if result.returncode != 0:
-        return None
-    return np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
+    return xvfb.grab(display, shot_path)
 
 
 def find(screen, ref):
@@ -147,6 +143,17 @@ def window_geometry():
         info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
         if int(info["WIDTH"]) >= 640:  # the viewer, not a dialog
             return int(info["X"]), int(info["Y"]), int(info["WIDTH"]), int(info["HEIGHT"])
+    fail("viewer window not found")
+
+
+def focus_viewer():
+    """Keyboard focus on the viewer again: without a window manager, a dialog that closes leaves
+    it on the root window with some Qt builds (seen with Qt 6.12 built from source)."""
+    for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
+        info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
+        if int(info["WIDTH"]) >= 640:  # the viewer, not a dialog
+            xdotool("windowfocus", "--sync", wid)
+            return
     fail("viewer window not found")
 
 
@@ -530,6 +537,8 @@ try:
             xdotool("click", "1")  # Apply
             wait_until("a key recorded in the Shortcuts tab replaces the first shortcut, the others stay", stored_previous)
             xdotool("key", "Escape")
+            wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            focus_viewer()
             xdotool("key", "q")
             app.wait(15)
 
@@ -576,6 +585,8 @@ try:
             wait_until("the overlay's checkbox, cleared by Shift+I, ticked and applied, shows the overlay",
                        lambda: stored(r"(?m)^showOverlay=true$") and overlay_visible())
             xdotool("key", "Escape")
+            wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            focus_viewer()
             xdotool("key", "q")
             app.wait(15)
 
@@ -593,6 +604,7 @@ try:
             wait_until("the title shows the overlay's fields in its style",
                        lambda: re.fullmatch(r"g01\.png   ·   160 × 120   ·   .+ — ImageViewer", viewer()[0]) is not None)
             shown = lambda name: lambda: viewer()[0].startswith(name + "   ·   ")
+            focus_viewer()
             xdotool("key", "g")
             wait_until("G shows the gallery and saves it", lambda: stored(r"(?m)^show=true$"))
             wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]

@@ -682,14 +682,6 @@
         <translation>Mappen innehåller inga bilder som stöds.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Detta är den sista bilden.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Detta är den första bilden.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Läser in %1…</translation>
     </message>

@@ -673,14 +673,6 @@
         <translation>%1 wird geladen…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Dies ist das letzte Bild.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Dies ist das erste Bild.</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>Bild wird für die GPU verkleinert (höchstens %1 px)…</translation>

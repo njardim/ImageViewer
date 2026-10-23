@@ -179,7 +179,6 @@ void Renderer::releaseResources()
     }
     drop(m_linearSampler);
     drop(m_nearestSampler);
-    drop(m_overlaySampler);
     drop(m_vertices);
     drop(m_imageUniforms);
     drop(m_rhi);
@@ -263,10 +262,8 @@ bool Renderer::initialize(QString *error)
                                         QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     m_nearestSampler = m_rhi->newSampler(QRhiSampler::Nearest, QRhiSampler::Nearest, QRhiSampler::None,
                                          QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
-    m_overlaySampler = m_rhi->newSampler(QRhiSampler::Nearest, QRhiSampler::Nearest, QRhiSampler::None,
-                                         QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     const bool created = m_vertices->create() && m_imageUniforms->create() && m_linearSampler->create()
-                         && m_nearestSampler->create() && m_overlaySampler->create();
+                         && m_nearestSampler->create();
     if (!created) {
         *error = QCoreApplication::translate("Renderer", "Cannot create GPU resources.");
         return false;
@@ -602,7 +599,7 @@ void Renderer::bindImageTexture(QRhiTexture *texture)
                                                       srb == m_imageBindingsLinear ? m_linearSampler : m_nearestSampler)};
         for (int layer = 0; layer < OverlayLayerCount; ++layer)
             bindings.append(QRhiShaderResourceBinding::sampledTexture(2 + layer, fragment, m_overlays[layer].texture,
-                                                                      m_overlaySampler));
+                                                                      m_nearestSampler)); // sampled 1:1
         srb->setBindings(bindings.cbegin(), bindings.cend());
         srb->create();
     }
@@ -728,8 +725,8 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
                   {1.0f, 0}, updates);
     cb->setGraphicsPipeline(pipeline);
     cb->setViewport({0, 0, float(outputSize.width()), float(outputSize.height())});
+    cb->setShaderResources(frame.nearest ? m_imageBindingsNearest : m_imageBindingsLinear); // every quad's
     if (m_hasImage && !r.isEmpty()) {
-        cb->setShaderResources(frame.nearest ? m_imageBindingsNearest : m_imageBindingsLinear);
         const QRhiCommandBuffer::VertexInput input(m_vertices, 0);
         cb->setVertexInput(0, 1, &input);
         cb->draw(4);
@@ -737,7 +734,6 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
     for (int layer = 0; layer < OverlayLayerCount; ++layer) {
         if (!m_overlays[layer].present || frame.overlayRects[layer].isEmpty())
             continue;
-        cb->setShaderResources(frame.nearest ? m_imageBindingsNearest : m_imageBindingsLinear);
         const QRhiCommandBuffer::VertexInput input(m_vertices, quint32((1 + layer) * kQuadBytes));
         cb->setVertexInput(0, 1, &input);
         cb->draw(4);

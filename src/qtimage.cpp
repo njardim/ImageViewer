@@ -33,20 +33,6 @@ using color::Transfer;
 constexpr qsizetype kMaxSvgBytes = qsizetype(256) << 20; // the XML of one SVG document, inflated
 constexpr int kMaxSvgNesting = 4;                         // SVG images inside SVG images
 
-// The format of an image a document embeds, by its signature: what OiioImageHandler reads.
-const char *embeddedFormat(QByteArrayView head)
-{
-    if (head.startsWith("\x89PNG\r\n\x1a\n"))
-        return "png";
-    if (head.startsWith("\xff\xd8\xff"))
-        return "jpeg";
-    if (head.startsWith("GIF87a") || head.startsWith("GIF89a"))
-        return "gif";
-    if (head.size() >= 12 && head.startsWith("RIFF") && head.sliced(8, 4) == "WEBP")
-        return "webp";
-    return nullptr;
-}
-
 // An svgz file's XML, every gzip member inflated, within kMaxSvgBytes: a few kilobytes can
 // inflate to gigabytes, which Qt's own reader would allocate. Empty when damaged or larger.
 QByteArray gunzip(QByteArrayView in)
@@ -97,7 +83,7 @@ QString safeDataUrl(QStringView url, int nesting)
     QByteArray bytes = QByteArray::fromPercentEncoding(url.sliced(comma + 1).toUtf8());
     if (url.first(comma).endsWith(QLatin1String(";base64"), Qt::CaseInsensitive))
         bytes = QByteArray::fromBase64(bytes); // lenient, as Qt's: what it decodes is what is written below
-    if (const char *format = embeddedFormat(bytes))
+    if (const char *format = embeddedImageFormat(bytes))
         return QStringLiteral("data:image/%1;base64,").arg(QLatin1String(format)) + QString::fromLatin1(bytes.toBase64());
     if (nesting >= kMaxSvgNesting)
         return {};
@@ -113,9 +99,12 @@ QString safeDataUrl(QStringView url, int nesting)
 // entities are expanded by the reader here, and an ATTLIST default would put back an attribute
 // taken out), no processing instruction, and no reference but "#id": an <image> keeps only an
 // embedded image (safeDataUrl). Empty when the document cannot be read or is too large.
+// Only the file itself may be an svgz: an SVG inside it inflated as well would multiply the work
+// at each level (a few kilobytes of gzip inflate to hundreds of megabytes, which can hold many
+// more), and browsers do not inflate a data: URL either.
 QByteArray safeSvg(QByteArrayView svg, int nesting)
 {
-    const QByteArray xml = svg.startsWith("\x1f\x8b")     ? gunzip(svg) // svgz
+    const QByteArray xml = nesting == 0 && svg.startsWith("\x1f\x8b") ? gunzip(svg) // svgz
                            : svg.size() <= kMaxSvgBytes ? QByteArray::fromRawData(svg.data(), svg.size()) // read in place
                                                         : QByteArray();
     if (xml.isEmpty())
@@ -262,14 +251,10 @@ bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, D
     out->bits = isFloat ? 32 : deep ? 16 : 8;
     out->orientation = 1;
     out->codec = QStringLiteral("Qt/%1").arg(QString::fromLatin1(reader.format()));
-    if (cs.isValid() && !cs.iccProfile().isEmpty()) {
-        out->colour.source = Descriptor::Source::Icc;
-        out->colour.icc = cs.iccProfile();
-        out->colour.description = QStringLiteral("ICC: %1").arg(cs.description());
-    } else if (!(cs.isValid() && describeQtColorSpace(cs, &out->colour))) {
-        out->colour.transfer = isFloat ? Transfer::Linear : Transfer::Srgb;
-        out->colour.description = isFloat ? QCoreApplication::translate("Image", "linear BT.709 (assumed)") : QCoreApplication::translate("Image", "sRGB (assumed)");
-    }
+    if (cs.isValid() && !cs.iccProfile().isEmpty())
+        describeIcc(cs.iccProfile(), &out->colour);
+    else if (!(cs.isValid() && describeQtColorSpace(cs, &out->colour)))
+        assumeDefault(isFloat, &out->colour);
     image.setColorSpace(QColorSpace()); // keep the encoded values untouched
     image.convertTo(isFloat ? QImage::Format_RGBA32FPx4 : deep ? QImage::Format_RGBA64 : QImage::Format_RGBA8888);
     const std::size_t rowBytes = std::size_t(out->width) * 4 * std::size_t(out->sampleBytes());
@@ -316,11 +301,11 @@ QColorSpace qtColorSpace(const color::Descriptor &d)
 
 class OiioImageHandler final : public QImageIOHandler {
 public:
-    static bool canRead(QIODevice *device) { return device && embeddedFormat(device->peek(12)) != nullptr; }
+    static bool canRead(QIODevice *device) { return device && embeddedImageFormat(device->peek(12)) != nullptr; }
 
     bool canRead() const override
     {
-        const char *format = device() ? embeddedFormat(device()->peek(12)) : nullptr;
+        const char *format = device() ? embeddedImageFormat(device()->peek(12)) : nullptr;
         if (format)
             setFormat(format);
         return format != nullptr;
@@ -329,7 +314,7 @@ public:
     bool read(QImage *image) override
     {
         const QByteArray bytes = device()->readAll();
-        const char *format = embeddedFormat(bytes);
+        const char *format = embeddedImageFormat(bytes);
         if (!format) // asked for one format, given another
             return false;
         // Within Qt's limit on the images it allocates (QImageReader::allocationLimit(), in MiB).
@@ -394,7 +379,7 @@ public:
     {
         auto *handler = new OiioImageHandler;
         handler->setDevice(device);
-        const char *detected = device ? embeddedFormat(device->peek(12)) : nullptr;
+        const char *detected = device ? embeddedImageFormat(device->peek(12)) : nullptr;
         handler->setFormat(format.isEmpty() && detected ? QByteArray(detected) : format);
         return handler;
     }

@@ -25,12 +25,6 @@
 
 #include <algorithm>
 
-namespace {
-
-constexpr double kZoomStep = 1.25;
-
-} // namespace
-
 void makeTransient(QWidget &widget, QWindow *parent)
 {
     widget.winId();
@@ -463,8 +457,7 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(&menu, Command::Quit);
 
     makeTransient(menu, this);
-    m_dragging = false;
-    m_pressZone = Zone::None;
+    cancelPress(); // the menu takes the release of a left press held meanwhile
     menu.exec(globalPos);
 }
 

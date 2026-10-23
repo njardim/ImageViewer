@@ -34,6 +34,17 @@ def start(screen="640x480x24", timeout_s=30):
     return process, ":" + reply.decode().strip()
 
 
+def grab(display, path):
+    """The screen as an int array (rows, columns, RGB) through `path`, or None if the capture failed."""
+    import numpy as np  # only the tests that look at the screen need them
+    from PIL import Image
+    result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {path}", shell=True,
+                            stderr=subprocess.DEVNULL)
+    if result.returncode != 0 or not os.path.exists(path):
+        return None
+    return np.asarray(Image.open(path).convert("RGB")).astype(int)
+
+
 def stop(process):
     process.terminate()
     try:

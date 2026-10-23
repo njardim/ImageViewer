@@ -329,26 +329,37 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
     if (qsizetype s = std::find_if(command.cbegin(), command.cend(), isShell) - command.cbegin(); s < command.size()) {
         if (embedded)
             return {};
-        // Nor may the file be the script of the shell started (the first one; "busybox sh" is sh,
-        // and a later "sh" is the script's $0): the argument of -c ("sh -c %f", the name is the
-        // code) or its first operand ("sh %f", the content is the code). After the script, the
-        // file is data ($1).
+        // Nor may the file be what that shell runs (the first one; "busybox sh" is sh, and a later
+        // "sh" is the script's $0): its first operand, the script ("sh %f": the content is the
+        // code) or the code of -c ("sh -c %f": the name is the code), nor an option's argument
+        // ("bash --rcfile %f"). Options start with '-' or '+' ("sh +e %f"), "-" and "--" end them
+        // ("sh - %f"); an option may take the next argument ("sh -o errexit %f"): each o, O, C,
+        // d, f or T in a group of short ones (sh, bash, zsh, fish, mksh) and a long one without
+        // '='. Where a shell takes none, a command is refused, never allowed: the file follows
+        // the first operand only as data ($0, $1...).
         if (QFileInfo(command.at(s)).fileName() == QLatin1String("busybox") && s + 1 < command.size()
             && isShell(command.at(s + 1)))
             ++s;
-        bool operand = false;
-        for (qsizetype i = s + 1; i < command.size(); ++i) {
-            const QString &argument = command.at(i);
-            const bool shortOptions = argument.size() > 1 && argument.startsWith(QLatin1Char('-'))
-                                      && !argument.startsWith(QLatin1String("--"));
-            if (shortOptions && argument.contains(QLatin1Char('c')) && i + 1 < command.size() && holdsFile.at(i + 1))
-                return {}; // -c, -ec, -lc
-            if (!operand && !argument.startsWith(QLatin1Char('-'))) {
-                if (holdsFile.at(i))
-                    return {};
-                operand = true;
+        static const QString takesArgument = QStringLiteral("oOCdfT");
+        qsizetype i = s + 1;
+        while (i < command.size()) {
+            const QString &argument = command.at(i++);
+            if (argument == QLatin1String("-") || argument == QLatin1String("--"))
+                break;
+            if (argument.size() < 2 || (argument.at(0) != QLatin1Char('-') && argument.at(0) != QLatin1Char('+'))) {
+                --i; // the first operand
+                break;
             }
+            const qsizetype arguments = argument.startsWith(QLatin1String("--"))
+                                            ? (argument.contains(QLatin1Char('=')) ? 0 : 1)
+                                            : std::count_if(argument.cbegin() + 1, argument.cend(),
+                                                            [](QChar c) { return takesArgument.contains(c); });
+            for (qsizetype k = 0; k < arguments && i < command.size(); ++k)
+                if (holdsFile.at(i++))
+                    return {};
         }
+        if (i < command.size() && holdsFile.at(i))
+            return {};
     }
     return command;
 }

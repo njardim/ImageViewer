@@ -673,14 +673,6 @@
         <translation>Загрузка %1…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Это последнее изображение.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Это первое изображение.</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>Уменьшение изображения под ограничения GPU (не более %1 px)…</translation>

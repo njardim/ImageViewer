@@ -682,14 +682,6 @@
         <translation>Il-folder ma fihx immaġni appoġġjati.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Din hija l-aħħar immaġni.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Din hija l-ewwel immaġni.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Qed jitgħabba %1…</translation>
     </message>

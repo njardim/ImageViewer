@@ -682,14 +682,6 @@
         <translation>폴더에 지원되는 이미지가 없습니다.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>마지막 이미지입니다.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>첫 번째 이미지입니다.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>%1 불러오는 중…</translation>
     </message>

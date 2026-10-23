@@ -89,6 +89,11 @@ Q_DECLARE_LOGGING_CATEGORY(lcDecode) // imageviewer.decode (image.cpp)
 QString libraryError(const char *library, const std::string &message, const std::string &format = {});
 // Shooting data, and the orientation when asked, from an EXIF block (TIFF header first).
 CameraInfo cameraFromExif(QByteArrayView tiff, int *orientation);
+// Text from a file (EXIF, an ICC profile's description, a colour space's name) as the panels show
+// it: no control or format characters (line breaks, bidirectional overrides), one line, at most
+// 64 characters.
+QString cleanText(QString text);
+// The colour of an embedded ICC profile, described by the profile's own text.
 void describeIcc(const QByteArray &icc, color::Descriptor *d);
 // sRGB for integer samples, linear BT.709 for float, marked as assumed (F12).
 void assumeDefault(bool isFloat, color::Descriptor *d);

@@ -682,14 +682,6 @@
         <translation>Složka neobsahuje žádné podporované obrázky.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Toto je poslední obrázek.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Toto je první obrázek.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Načítání %1…</translation>
     </message>

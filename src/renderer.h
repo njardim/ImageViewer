@@ -160,7 +160,6 @@ private:
     QRhiBuffer *m_imageUniforms = nullptr;
     QRhiSampler *m_linearSampler = nullptr;
     QRhiSampler *m_nearestSampler = nullptr;
-    QRhiSampler *m_overlaySampler = nullptr;
     QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
     QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
     QRhiTexture *m_boundImage = nullptr;         // the image texture or the placeholder

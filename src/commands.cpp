@@ -545,7 +545,7 @@ void ViewerWindow::showAbout()
     icon = icon.scaled(QSize(256, 256) * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     icon.setDevicePixelRatio(dpr);
     logo->setPixmap(icon);
-    layout->addWidget(logo, 0, 0, Qt::AlignTop);
+    layout->addWidget(logo, 0, 0, Qt::AlignVCenter);
     const QString count = QLocale().toString(supportedSuffixTable().size());
     auto *text = new QLabel(
         QStringLiteral("<h2>ImageViewer %1</h2><p><b>%2</b></p><p>%3</p><p>%4</p><p>%5</p>"

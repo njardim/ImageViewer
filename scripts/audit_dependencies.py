@@ -127,7 +127,6 @@ except (OSError, ValueError) as data_error:
 # Libraries the vcpkg baseline provides (no overlay): port, repository, tag of a version (alternatives
 # separated by "|", tried in order, when a project changed its naming).
 BASELINE_PORTS = {
-    "brotli": ("https://github.com/google/brotli", "v{v}"),
     "fmt": ("https://github.com/fmtlib/fmt", "{v}"),
     "giflib": ("https://git.code.sf.net/p/giflib/code", "{v}|giflib-{v}|v{v}"),
     "highway": ("https://github.com/google/highway", "{v}"),
@@ -161,6 +160,8 @@ COMMIT_PORTS = {
     "openjph": ("https://github.com/aous72/OpenJPH", "{v}"),
     "libraw": ("https://github.com/LibRaw/LibRaw", "{v}"),
     "openjpeg": ("https://github.com/uclouvain/openjpeg", "v{v}"),
+    # A security fix ahead of vcpkg's baseline (D-76); vcpkg's port otherwise.
+    "brotli": ("https://github.com/google/brotli", "v{v}"),
 }
 # Tags that look like releases but are not (libjpeg-turbo numbers its betas x.y.90 and up).
 PRERELEASE = {"libjpeg-turbo": lambda v: v[-1] >= 90}

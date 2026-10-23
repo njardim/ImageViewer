@@ -63,6 +63,7 @@ GIT_PORTS = [
     ("openjph", "https://github.com/aous72/OpenJPH", r"(\d+)\.(\d+)\.(\d+)"),
     ("libraw", "https://github.com/LibRaw/LibRaw", r"(\d+)\.(\d+)\.(\d+)"),
     ("openjpeg", "https://github.com/uclouvain/openjpeg", r"v(\d+)\.(\d+)\.(\d+)"),
+    ("brotli", "https://github.com/google/brotli", r"v(\d+)\.(\d+)\.(\d+)"),
 ]
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
 VCPKG = audit.VCPKG

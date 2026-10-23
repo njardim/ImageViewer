@@ -682,14 +682,6 @@
         <translation>Папката не съдържа поддържани изображения.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Това е последното изображение.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Това е първото изображение.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Зареждане на %1…</translation>
     </message>

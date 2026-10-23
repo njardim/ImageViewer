@@ -221,7 +221,7 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     return out;
 }
 
-Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
+Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate)
 {
     QElapsedTimer timer;
     timer.start();
@@ -235,7 +235,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels)
     Decoded dec;
     QString error;
     std::unique_ptr<FrameReader> frames;
-    if (!decodeFile(path, maxPixels, &dec, &error, &frames)) {
+    if (!decodeFile(path, maxPixels, &dec, &error, animate ? &frames : nullptr)) {
         if (dec.overLimit) {
             result.overPixelLimit = true;
             result.error = QStringLiteral("larger than the pixel limit"); // never shown
@@ -401,12 +401,12 @@ bool Animation::frameLocked(int index, Frame *out, QString *error)
     }
 }
 
-Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels)
+Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate)
 {
     // Runs on a worker thread: an exception escaping here would be rethrown by
     // QFuture::result() on the GUI thread and terminate the application.
     try {
-        return decode(path, maxTextureSize, maxPixels);
+        return decode(path, maxTextureSize, maxPixels, animate);
     } catch (const std::bad_alloc &) {
         Image failed;
         failed.path = path;
@@ -422,7 +422,11 @@ Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels)
 
 QImage decodeForClipboard(const QString &path)
 {
-    Image image = decodeImage(path, 0);
+    return clipboardImage(decodeImage(path, 0, 0, false));
+}
+
+QImage clipboardImage(const Image &image)
+{
     if (!image.isValid())
         return {};
     QImage out(image.width, image.height, QImage::Format_RGBA64);

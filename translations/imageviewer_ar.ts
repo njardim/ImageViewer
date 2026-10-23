@@ -673,14 +673,6 @@
         <translation>جارٍ تحميل %1…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>هذه هي الصورة الأخيرة.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>هذه هي الصورة الأولى.</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>جارٍ تصغير الصورة لتلائم GPU (%1 px كحد أقصى)…</translation>

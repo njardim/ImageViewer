@@ -49,11 +49,7 @@ shot_path = os.path.join(work, f"screen-{rhi}.png")
 
 def grab():
     """Screen as an int array, or None if the capture failed."""
-    result = subprocess.run(f"xwd -root -silent -display {display} | convert xwd:- {shot_path}",
-                            shell=True, stderr=subprocess.DEVNULL)
-    if result.returncode != 0 or not os.path.exists(shot_path):
-        return None
-    return np.asarray(Image.open(shot_path).convert("RGB")).astype(int)
+    return xvfb.grab(display, shot_path)
 
 
 def locate(screen):

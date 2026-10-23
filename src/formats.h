@@ -59,6 +59,11 @@ bool oiioMayRead(const Format &format);
 // OpenImageIO picks its reader by content, so a Softimage PIC named .svg reached it as a fallback.
 bool oiioMayReadContent(QByteArrayView head);
 
+// The format of an image a document embeds (an SVG's data: URL, an icon's entry), by its
+// signature: "png", "jpeg", "gif" or "webp", the Qt formats OiioImagePlugin reads (qtimage.cpp,
+// D-71); nullptr for anything else.
+const char *embeddedImageFormat(QByteArrayView head);
+
 // How many bytes detectFormat() wants from the start of the file.
 inline constexpr qsizetype kFormatHeadBytes = 64 * 1024;
 

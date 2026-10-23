@@ -329,6 +329,30 @@ bool isAvailable(const Format &format)
     return false;
 }
 
+namespace {
+
+// The decoder that reads an available format in this build: its own, or OpenImageIO where the
+// build lacks libjxl or libwebp (isAvailable).
+Decoder effectiveDecoder(const Format &format)
+{
+#ifndef IMAGEVIEWER_HAVE_LIBJXL
+    if (format.decoder == Decoder::Jxl)
+        return Decoder::OpenImageIO;
+#endif
+#ifndef IMAGEVIEWER_HAVE_LIBWEBP
+    if (format.decoder == Decoder::WebP)
+        return Decoder::OpenImageIO;
+#endif
+    return format.decoder;
+}
+
+} // namespace
+
+const char *embeddedImageFormat(QByteArrayView head)
+{
+    return isPng(head) ? "png" : isJpeg(head) ? "jpeg" : isGif(head) ? "gif" : isWebP(head) ? "webp" : nullptr;
+}
+
 const Format *detectFormat(QByteArrayView head, const QString &suffix)
 {
     const QString lower = suffix.toLower();
@@ -410,9 +434,11 @@ QList<SuffixRow> supportedSuffixTable()
             if (!first)
                 first = f;
         }
-        if (first)
-            rows.append({QLatin1Char('.') + suffix, names.join(QStringLiteral(", ")), decoderName(first->decoder),
-                         decoderVersion(first->decoder)});
+        if (first) {
+            const Decoder decoder = effectiveDecoder(*first);
+            rows.append({QLatin1Char('.') + suffix, names.join(QStringLiteral(", ")), decoderName(decoder),
+                         decoderVersion(decoder)});
+        }
     }
     return rows;
 }

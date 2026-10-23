@@ -682,14 +682,6 @@
         <translation>Folderul nu conține imagini acceptate.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Aceasta este ultima imagine.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Aceasta este prima imagine.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Se încarcă %1…</translation>
     </message>

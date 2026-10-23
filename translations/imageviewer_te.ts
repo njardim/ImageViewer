@@ -673,14 +673,6 @@
         <translation>%1 లోడ్ అవుతోంది…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>ఇది చివరి చిత్రం.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>ఇది మొదటి చిత్రం.</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>GPUకి సరిపోయేలా చిత్రాన్ని చిన్నదిగా చేస్తోంది (గరిష్ఠంగా %1 px)…</translation>

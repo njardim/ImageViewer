@@ -172,12 +172,18 @@ void ViewerWindow::copyImage()
 {
     if (m_copyBusy || !currentFileIsShown())
         return;
-    // The displayed pixels live on the GPU, possibly reduced: decode the file again at full
-    // resolution, on the decode thread (after any decode already running).
+    // The displayed pixels live on the GPU, possibly reduced: the preload cache's copy when it is
+    // the file's full resolution, else the file decoded again at full resolution, on the decode
+    // thread (after any decode already running).
     m_copyPath = m_image.path;
     showNotice(tr("Copying the image…"));
     const QString path = m_copyPath;
     m_copyBusy = true;
+    if (std::optional<Image> kept = m_cache.find(path, m_shownLimit);
+        kept && kept->width == kept->sourceWidth && kept->height == kept->sourceHeight) {
+        m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(*kept)] { return clipboardImage(image); }));
+        return;
+    }
     m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path] { return decodeForClipboard(path); }));
 }
 

@@ -682,14 +682,6 @@
         <translation>De map bevat geen ondersteunde afbeeldingen.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Dit is de laatste afbeelding.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Dit is de eerste afbeelding.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>%1 laden…</translation>
     </message>

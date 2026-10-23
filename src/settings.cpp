@@ -16,69 +16,19 @@
 
 namespace {
 
-const char *outputKey(Renderer::OutputPreference preference)
-{
-    switch (preference) {
-    case Renderer::OutputPreference::Sdr: return "sdr";
-    case Renderer::OutputPreference::Hdr10: return "hdr10";
-    case Renderer::OutputPreference::Automatic: break;
-    }
-    return "automatic";
-}
-
-Renderer::OutputPreference outputFromKey(const QString &key)
-{
-    if (key == QLatin1String("sdr"))
-        return Renderer::OutputPreference::Sdr;
-    if (key == QLatin1String("hdr10"))
-        return Renderer::OutputPreference::Hdr10;
-    return Renderer::OutputPreference::Automatic;
-}
-
-const char *visibilityKey(OverlayVisibility visibility)
-{
-    switch (visibility) {
-    case OverlayVisibility::Always: return "always";
-    case OverlayVisibility::Hidden: return "hidden";
-    case OverlayVisibility::Hover: break;
-    }
-    return "hover";
-}
-
-OverlayVisibility visibilityFromKey(const QString &key, OverlayVisibility fallback)
-{
-    for (OverlayVisibility v : {OverlayVisibility::Always, OverlayVisibility::Hover, OverlayVisibility::Hidden})
-        if (key == QLatin1String(visibilityKey(v)))
-            return v;
-    return fallback;
-}
-
-const char *fieldKey(OverlayField field)
-{
-    switch (field) {
-    case OverlayField::Name: return "name";
-    case OverlayField::Dimensions: return "dimensions";
-    case OverlayField::FileSize: return "fileSize";
-    case OverlayField::Zoom: return "zoom";
-    case OverlayField::ColorSpace: return "colorSpace";
-    case OverlayField::Modified: return "modified";
-    case OverlayField::Position: return "position";
-    case OverlayField::Output: return "output";
-    }
-    return "";
-}
-
-const char *sortKey(FolderSort sort)
-{
-    switch (sort) {
-    case FolderSort::Modified: return "modified";
-    case FolderSort::Size: return "size";
-    case FolderSort::Name: break;
-    }
-    return "name";
-}
-
-// Stored names of the view preferences of D-51.
+// Stored names of the enumerations; the first is written for a value missing from its table.
+constexpr std::pair<Renderer::OutputPreference, const char *> kOutputs[] = {
+    {Renderer::OutputPreference::Automatic, "automatic"}, {Renderer::OutputPreference::Sdr, "sdr"},
+    {Renderer::OutputPreference::Hdr10, "hdr10"}};
+constexpr std::pair<OverlayVisibility, const char *> kVisibilities[] = {
+    {OverlayVisibility::Hover, "hover"}, {OverlayVisibility::Always, "always"}, {OverlayVisibility::Hidden, "hidden"}};
+constexpr std::pair<OverlayField, const char *> kFields[] = {
+    {OverlayField::Name, "name"},         {OverlayField::Dimensions, "dimensions"}, {OverlayField::FileSize, "fileSize"},
+    {OverlayField::Zoom, "zoom"},         {OverlayField::ColorSpace, "colorSpace"}, {OverlayField::Modified, "modified"},
+    {OverlayField::Position, "position"}, {OverlayField::Output, "output"}};
+constexpr std::pair<FolderSort, const char *> kSorts[] = {
+    {FolderSort::Name, "name"}, {FolderSort::Modified, "modified"}, {FolderSort::Size, "size"}};
+// The view preferences of D-51.
 constexpr std::pair<FitMode, const char *> kFitModes[] = {
     {FitMode::Window, "window"}, {FitMode::Width, "width"}, {FitMode::Height, "height"}, {FitMode::Fill, "fill"},
     {FitMode::Actual, "actual"}};
@@ -107,18 +57,10 @@ Enum fromKey(const std::pair<Enum, const char *> (&table)[N], const QString &key
     return fallback;
 }
 
-FolderSort sortFromKey(const QString &key)
+bool boolValue(const QSettings &store, const QString &key, bool fallback)
 {
-    if (key == QLatin1String("modified"))
-        return FolderSort::Modified;
-    if (key == QLatin1String("size"))
-        return FolderSort::Size;
-    return FolderSort::Name;
-}
-
-// A stored boolean; anything but true/false/1/0 (a hand-edited or corrupt file) is the default.
-bool boolFrom(const QVariant &value, bool fallback)
-{
+    // Anything but true/false/1/0 (a hand-edited or corrupt file) is the default.
+    const QVariant value = store.value(key);
     if (value.typeId() == QMetaType::Bool)
         return value.toBool();
     const QString text = value.toString().trimmed().toLower();
@@ -127,11 +69,6 @@ bool boolFrom(const QVariant &value, bool fallback)
     if (text == QLatin1String("false") || text == QLatin1String("0"))
         return false;
     return fallback;
-}
-
-bool boolValue(const QSettings &store, const QString &key, bool fallback)
-{
-    return boolFrom(store.value(key), fallback);
 }
 
 // As the dialog shows it: within the range, on its step (the range's ends are on it).
@@ -208,8 +145,8 @@ Settings Settings::load()
     s.language = store.value(QStringLiteral("app/language")).toString();
     if (!s.language.isEmpty() && !isKnownLanguage(s.language))
         s.language.clear();
-    s.confirmTrash = boolFrom(store.value(QStringLiteral("app/confirmTrash")), defaults.confirmTrash);
-    s.reopenLastImage = boolFrom(store.value(QStringLiteral("app/reopenLastImage")), defaults.reopenLastImage);
+    s.confirmTrash = boolValue(store, QStringLiteral("app/confirmTrash"), defaults.confirmTrash);
+    s.reopenLastImage = boolValue(store, QStringLiteral("app/reopenLastImage"), defaults.reopenLastImage);
 
     s.background = colorValue(store, QStringLiteral("window/background"), defaults.background);
     s.checkerboard = boolValue(store, QStringLiteral("window/checkerboard"), defaults.checkerboard);
@@ -225,9 +162,9 @@ Settings Settings::load()
     s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
     s.showOverlay = boolValue(store, QStringLiteral("window/showOverlay"), defaults.showOverlay);
 
-    s.overlayFullScreen = visibilityFromKey(store.value(QStringLiteral("overlay/fullScreen")).toString(),
-                                            defaults.overlayFullScreen);
-    s.overlayWindow = visibilityFromKey(store.value(QStringLiteral("overlay/window")).toString(), defaults.overlayWindow);
+    s.overlayFullScreen = fromKey(kVisibilities, store.value(QStringLiteral("overlay/fullScreen")).toString(),
+                                  defaults.overlayFullScreen);
+    s.overlayWindow = fromKey(kVisibilities, store.value(QStringLiteral("overlay/window")).toString(), defaults.overlayWindow);
     if (store.contains(QStringLiteral("overlay/fields"))) {
         // Comma-separated ids; an empty value means "no fields". Unknown or repeated ids are dropped.
         s.overlayFields.clear();
@@ -237,8 +174,8 @@ Settings Settings::load()
                                                                           : stored.toString();
         const QStringList ids = joined.split(QLatin1Char(','), Qt::SkipEmptyParts);
         for (const QString &id : ids)
-            for (OverlayField field : allOverlayFields())
-                if (id == QLatin1String(fieldKey(field)) && !s.overlayFields.contains(field))
+            for (const auto &[field, key] : kFields)
+                if (id == QLatin1String(key) && !s.overlayFields.contains(field))
                     s.overlayFields.append(field);
     }
     s.overlayBackgroundOpacity = sizeValue(store, QStringLiteral("overlay/backgroundOpacity"),
@@ -253,7 +190,7 @@ Settings Settings::load()
     s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
     s.sideZoneWidth = sizeValue(store, QStringLiteral("navigation/sideZoneWidth"), defaults.sideZoneWidth,
                                  kMinSideZoneWidth, kMaxSideZoneWidth);
-    s.sortBy = sortFromKey(store.value(QStringLiteral("navigation/sortBy")).toString());
+    s.sortBy = fromKey(kSorts, store.value(QStringLiteral("navigation/sortBy")).toString(), defaults.sortBy);
     s.sortDescending = boolValue(store, QStringLiteral("navigation/sortDescending"), defaults.sortDescending);
     s.preload = boolValue(store, QStringLiteral("navigation/preload"), defaults.preload);
     bool numeric = false;
@@ -304,7 +241,7 @@ Settings Settings::load()
     }
     s.toneMap = boolValue(store, QStringLiteral("color/toneMap"), defaults.toneMap);
     s.clipWarning = boolValue(store, QStringLiteral("color/clipWarning"), defaults.clipWarning);
-    s.output = outputFromKey(store.value(QStringLiteral("color/output")).toString());
+    s.output = fromKey(kOutputs, store.value(QStringLiteral("color/output")).toString(), defaults.output);
     return s;
 }
 
@@ -351,11 +288,11 @@ void Settings::save() const
     store.setValue(QStringLiteral("window/pointerHideMs"), pointerHideMs);
     store.setValue(QStringLiteral("window/showInfo"), showInfo);
     store.setValue(QStringLiteral("window/showOverlay"), showOverlay);
-    store.setValue(QStringLiteral("overlay/fullScreen"), QString::fromLatin1(visibilityKey(overlayFullScreen)));
-    store.setValue(QStringLiteral("overlay/window"), QString::fromLatin1(visibilityKey(overlayWindow)));
+    store.setValue(QStringLiteral("overlay/fullScreen"), QString::fromLatin1(keyOf(kVisibilities, overlayFullScreen)));
+    store.setValue(QStringLiteral("overlay/window"), QString::fromLatin1(keyOf(kVisibilities, overlayWindow)));
     QStringList ids;
     for (OverlayField field : overlayFields)
-        ids << QString::fromLatin1(fieldKey(field));
+        ids << QString::fromLatin1(keyOf(kFields, field));
     store.setValue(QStringLiteral("overlay/fields"), ids.join(QLatin1Char(',')));
     store.setValue(QStringLiteral("overlay/backgroundOpacity"), overlayBackgroundOpacity);
     store.setValue(QStringLiteral("overlay/textOpacity"), overlayTextOpacity);
@@ -364,7 +301,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/loop"), loop);
     store.setValue(QStringLiteral("navigation/sideZones"), sideZones);
     store.setValue(QStringLiteral("navigation/sideZoneWidth"), sideZoneWidth);
-    store.setValue(QStringLiteral("navigation/sortBy"), QString::fromLatin1(sortKey(sortBy)));
+    store.setValue(QStringLiteral("navigation/sortBy"), QString::fromLatin1(keyOf(kSorts, sortBy)));
     store.setValue(QStringLiteral("navigation/sortDescending"), sortDescending);
     store.setValue(QStringLiteral("navigation/preload"), preload);
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
@@ -386,7 +323,7 @@ void Settings::save() const
     }
     store.setValue(QStringLiteral("color/toneMap"), toneMap);
     store.setValue(QStringLiteral("color/clipWarning"), clipWarning);
-    store.setValue(QStringLiteral("color/output"), QString::fromLatin1(outputKey(output)));
+    store.setValue(QStringLiteral("color/output"), QString::fromLatin1(keyOf(kOutputs, output)));
 }
 
 SessionState SessionState::load()

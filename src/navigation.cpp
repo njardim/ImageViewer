@@ -28,9 +28,8 @@ void ViewerWindow::openFile(const QString &path)
 {
     const QFileInfo info(path);
     if (!info.exists()) {
-        m_error = tr("File not found: %1").arg(displayFileName(path));
         editRecentFiles([&path](QStringList &recent) { recent.removeAll(path); });
-        updateOverlay();
+        reportOpenFailure(tr("File not found: %1").arg(displayFileName(path)));
         return;
     }
     m_direction = 1;
@@ -38,8 +37,7 @@ void ViewerWindow::openFile(const QString &path)
         const QString folder = info.absoluteFilePath();
         listFolder(folder, [this, folder](QStringList files) {
             if (files.isEmpty()) { // keep the current list and image
-                m_error = tr("The folder contains no supported images.");
-                updateOverlay();
+                reportOpenFailure(tr("The folder contains no supported images."));
                 return;
             }
             m_files = std::move(files);
@@ -59,6 +57,18 @@ void ViewerWindow::openFile(const QString &path)
     addRecentFile(info.absoluteFilePath());
     startLoading(0);
     relist();
+}
+
+void ViewerWindow::reportOpenFailure(const QString &why)
+{
+    // The image on screen stays, and so does the window's middle: an error there would cover it
+    // until the next image (D-63).
+    if (m_image.width > 0) {
+        showNotice(why);
+        return;
+    }
+    m_error = why;
+    updateOverlay();
 }
 
 QString ViewerWindow::currentPath() const
@@ -84,17 +94,12 @@ bool ViewerWindow::hasNeighbour(int delta) const
 
 void ViewerWindow::step(int delta)
 {
-    if (m_files.isEmpty())
+    // Every way of stepping (keys, menus, mouse buttons, side zones, slideshow) is offered only
+    // where there is a neighbour, as Previous and Next are enabled.
+    if (!hasNeighbour(delta))
         return;
     const int n = int(m_files.size());
-    int target = m_index + delta;
-    if (target < 0 || target >= n) {
-        if (!m_settings.loop) {
-            showNotice(delta > 0 ? tr("This is the last image.") : tr("This is the first image."));
-            return;
-        }
-        target = (target % n + n) % n;
-    }
+    const int target = ((m_index + delta) % n + n) % n;
     m_direction = delta > 0 ? 1 : -1;
     restartSlideshowInterval();
     startLoading(target);
@@ -315,15 +320,8 @@ void ViewerWindow::applyListing(QStringList files)
         m_index = index;
         scheduleWork(); // the neighbours may be different files now
     } else if (m_files.isEmpty()) {
-        // Everything was deleted or moved away.
-        m_index = -1;
-        stopAnimation();
-        m_image = Image();
-        m_renderer.clearImage();
-        m_cache.clear();
-        m_error = tr("No images left in this folder.");
-        setHoverZone(Zone::None);
-        requestUpdate();
+        showFolderEmpty(); // everything was deleted or moved away
+        return;
     } else {
         // The current file is gone: the next one takes its place, or the last one.
         m_index = -1;
@@ -363,21 +361,31 @@ void ViewerWindow::removeCurrentFromList()
     // The next image takes the removed one's place; after the last, the previous one.
     m_files.removeAt(m_index);
     relist(); // a listing still running was taken before the removal: it must not bring the file back
+    if (m_files.isEmpty()) {
+        showFolderEmpty();
+        return;
+    }
+    // Not shown until the next one arrives: the file is gone.
     stopAnimation();
     m_image = Image();
     m_renderer.clearImage();
-    if (m_files.isEmpty()) {
-        m_index = -1;
-        m_error = tr("No images left in this folder.");
-        setHoverZone(Zone::None);
-        updateOverlay();
-        requestUpdate();
-        return;
-    }
     const int next = std::min(m_index, int(m_files.size()) - 1);
     m_index = -1;
     restartSlideshowInterval();
     startLoading(next);
+}
+
+void ViewerWindow::showFolderEmpty()
+{
+    m_index = -1;
+    stopAnimation();
+    m_image = Image();
+    m_renderer.clearImage();
+    m_cache.clear();
+    m_error = tr("No images left in this folder.");
+    setHoverZone(Zone::None);
+    updateOverlay();
+    requestUpdate();
 }
 
 void ViewerWindow::addRecentFile(const QString &path)

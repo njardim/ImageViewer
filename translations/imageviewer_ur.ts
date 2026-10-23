@@ -673,14 +673,6 @@
         <translation>%1 لوڈ ہو رہا ہے…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>یہ آخری تصویر ہے۔</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>یہ پہلی تصویر ہے۔</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>GPU کے مطابق تصویر چھوٹی کی جا رہی ہے (زیادہ سے زیادہ %1 px)…</translation>

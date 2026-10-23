@@ -837,10 +837,7 @@ Settings SettingsDialog::settings() const
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());
-    // Kept: the shortcuts of commands this version does not have (another version wrote them).
-    s.shortcuts.removeIf([this](const auto &entry) {
-        return std::any_of(m_commands.cbegin(), m_commands.cend(), [&entry](const ShortcutCommand &c) { return c.key == entry.key(); });
-    });
+    s.shortcuts.clear(); // the commands of this version only (D-59)
     for (const ShortcutCommand &command : std::as_const(m_commands)) {
         const QList<QKeySequence> list = m_shortcuts.value(command.key, command.defaults);
         if (list != command.defaults)

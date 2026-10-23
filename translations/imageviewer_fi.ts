@@ -682,14 +682,6 @@
         <translation>Kansiossa ei ole tuettuja kuvia.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Tämä on viimeinen kuva.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Tämä on ensimmäinen kuva.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Ladataan %1…</translation>
     </message>

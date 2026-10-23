@@ -682,14 +682,6 @@
         <translation>Ο φάκελος δεν περιέχει υποστηριζόμενες εικόνες.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Αυτή είναι η τελευταία εικόνα.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Αυτή είναι η πρώτη εικόνα.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Φόρτωση %1…</translation>
     </message>

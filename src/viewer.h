@@ -1,11 +1,14 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
-// swapchain (decision D-09). ViewerWindow is implemented in six files:
-//   viewer.cpp      display, view state and input;
+// swapchain (decision D-09). ViewerWindow is implemented in eight files:
+//   viewer.cpp      display, view state, side zones and the pointer;
 //   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
-//   overlays.cpp    information panel, top overlay (D-34) and navigation buttons;
+//   overlays.cpp    what is drawn over the image: information panel, top overlay (D-34),
+//                   navigation buttons, the slideshow's toolbar;
 //   commands.cpp    the command table, menus and dialogs (D-30);
 //   files.cpp       file operations: show, copy, rename, trash and undo, delete (D-41);
-//   playback.cpp    animation playback and the slideshow (E6, E11, D-41).
+//   playback.cpp    animation playback and the slideshow, its toolbar's behaviour (E6, E11, D-41);
+//   gallery.cpp     the gallery (D-60);
+//   input.cpp       the keyboard, the mouse and the wheel.
 #pragma once
 
 #include "cache.h"
@@ -36,6 +39,8 @@
 // edges and rounds its corners by kPanelRadius (D-58, D-60), logical pixels.
 inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
+// One step of Zoom In or Zoom Out, and of a wheel notch.
+inline constexpr double kZoomStep = 1.25;
 
 // A gallery thumbnail (D-60): sRGB, 8 bits, premultiplied; null when the file is unreadable. The
 // file's size and time say when it was written again since.
@@ -126,6 +131,7 @@ private:
     Zone zoneAt(const QPointF &position) const;  // logical pixels
     QRectF zoneButtonRect(Zone zone) const;      // device pixels
     void setHoverZone(Zone zone);
+    void cancelPress();   // input.cpp: a press whose release goes elsewhere clicks nothing
     void pointerActive(); // shows the pointer again and restarts its hiding timer
     void updateCursor();
 
@@ -159,6 +165,8 @@ private:
     void applyListing(QStringList files);
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
+    void showFolderEmpty();             // nothing left to show in the folder
+    void reportOpenFailure(const QString &why); // a notice over a shown image, else the error
     void addRecentFile(const QString &path);
     // Every instance shares the recent files: a change is made to the stored list, which may
     // have grown in another instance meanwhile, and m_recent follows it.
@@ -207,7 +215,8 @@ private:
     double galleryOverhang() const;         // how far its tile reaches beyond the bar, above and below
     int galleryFile(int slot) const;        // the index in m_files shown there; -1: none
     void updateGallery();
-    void requestThumbnail(const QString &path);
+    void startThumbnails();                 // from m_thumbnailQueue, while the pool has a thread free
+    void decodeThumbnail(const QString &path);
     void thumbnailReady(const QString &path, const Thumbnail &thumbnail);
     void forgetChangedThumbnails();         // after the folder changed
     int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
@@ -284,7 +293,8 @@ private:
     std::shared_ptr<Animation> m_animation;
     QThreadPool m_framePool;
     QHash<QString, Thumbnail> m_thumbnails; // by path
-    QSet<QString> m_thumbnailsPending;
+    QSet<QString> m_thumbnailsPending; // being decoded
+    QStringList m_thumbnailQueue;      // to decode next, most wanted first (updateGallery)
     int m_thumbnailGeneration = 0; // changes when the folder does: thumbnails decoded before are dropped
     QList<QRectF> m_gallerySlots; // logical pixels in the gallery's texture
     QPainterPath m_galleryShape;  // likewise: its background, where the pointer is over the gallery

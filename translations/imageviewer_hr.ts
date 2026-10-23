@@ -682,14 +682,6 @@
         <translation>Mapa ne sadrži podržane slike.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Ovo je zadnja slika.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Ovo je prva slika.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Učitavanje %1…</translation>
     </message>

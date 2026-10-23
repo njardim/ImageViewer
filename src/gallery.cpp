@@ -101,6 +101,7 @@ void ViewerWindow::updateGallery()
     if (!m_rendererReady)
         return;
     if (!galleryShown()) {
+        m_thumbnailQueue.clear();
         if (!m_gallerySize.isEmpty()) {
             m_gallerySize = QSize();
             m_galleryKey.clear(); // drawn again when it shows again
@@ -127,12 +128,20 @@ void ViewerWindow::updateGallery()
     if (m_galleryHover >= shown)
         m_galleryHover = -1;
 
-    // Thumbnails for what is shown first, then a row's worth either side.
+    // Thumbnails for what is shown first, then a row's worth either side. Asked again at every
+    // change: what scrolled out of reach before its turn is never decoded (the pool's own queue
+    // would decode it before what is shown now).
+    QStringList wanted;
     for (int i = 0; i < shown; ++i)
-        requestThumbnail(m_files.at(galleryFile(i)));
+        wanted << m_files.at(galleryFile(i));
     for (int i = -kPrefetch * shown; i < (kPrefetch + 1) * shown; ++i)
         if (const int file = galleryFile(i); file >= 0)
-            requestThumbnail(m_files.at(file));
+            wanted << m_files.at(file);
+    m_thumbnailQueue.clear();
+    for (const QString &path : std::as_const(wanted))
+        if (!m_thumbnails.contains(path) && !m_thumbnailsPending.contains(path) && !m_thumbnailQueue.contains(path))
+            m_thumbnailQueue << path;
+    startThumbnails();
 
     const double dpr = devicePixelRatio();
     const int zoom = galleryZoom();
@@ -226,10 +235,14 @@ void ViewerWindow::updateGallery()
     requestUpdate();
 }
 
-void ViewerWindow::requestThumbnail(const QString &path)
+void ViewerWindow::startThumbnails()
 {
-    if (m_thumbnails.contains(path) || m_thumbnailsPending.contains(path))
-        return;
+    while (!m_thumbnailQueue.isEmpty() && m_thumbnailsPending.size() < m_thumbnailPool.maxThreadCount())
+        decodeThumbnail(m_thumbnailQueue.takeFirst());
+}
+
+void ViewerWindow::decodeThumbnail(const QString &path)
+{
     m_thumbnailsPending.insert(path);
     // Decoded at the largest size the zoom can show with the largest thumbnails, reduced in linear
     // light (decodeImage): another thumbnail size then decodes nothing again.
@@ -242,7 +255,7 @@ void ViewerWindow::requestThumbnail(const QString &path)
         const QFileInfo info(path); // before decoding: a file changed meanwhile is decoded again
         thumbnail.fileSize = info.size();
         thumbnail.modified = info.lastModified();
-        if (const Image image = decodeImage(path, pixels, maxPixels); image.isValid())
+        if (const Image image = decodeImage(path, pixels, maxPixels, false); image.isValid())
             thumbnail.image = thumbnailFrom(image);
         QMetaObject::invokeMethod(this, [this, path, thumbnail, generation] {
             m_thumbnailsPending.remove(path);

@@ -682,14 +682,6 @@
         <translation>Kaustas ei ole toetatud pilte.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>See on viimane pilt.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>See on esimene pilt.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Laadimine: %1…</translation>
     </message>

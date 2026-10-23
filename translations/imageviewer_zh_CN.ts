@@ -673,14 +673,6 @@
         <translation>正在加载 %1…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>这是最后一张图像。</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>这是第一张图像。</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>正在缩小图像以适应 GPU（最大 %1 px）…</translation>

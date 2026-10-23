@@ -682,14 +682,6 @@
         <translation>A mappa nem tartalmaz támogatott képeket.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Ez az utolsó kép.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Ez az első kép.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Betöltés: %1…</translation>
     </message>

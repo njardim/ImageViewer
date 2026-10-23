@@ -682,14 +682,6 @@
         <translation>Folder nie zawiera obsługiwanych obrazów.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>To jest ostatni obraz.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>To jest pierwszy obraz.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Wczytywanie %1…</translation>
     </message>

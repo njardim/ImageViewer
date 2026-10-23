@@ -46,17 +46,6 @@ const float PQ_C1 = 3424.0 / 4096.0;
 const float PQ_C2 = 2413.0 / 4096.0 * 32.0;
 const float PQ_C3 = 2392.0 / 4096.0 * 32.0;
 
-float srgbEncode(float x)
-{
-    x = clamp(x, 0.0, 1.0);
-    return x <= 0.0031308 ? 12.92 * x : 1.055 * pow(x, 1.0 / 2.4) - 0.055;
-}
-
-float srgbDecode(float x)
-{
-    return x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4);
-}
-
 // The sRGB curve on both sides of [0, 1] (HDR content and negative scRGB under a panel).
 vec3 srgbEncodeExtended(vec3 x)
 {
@@ -146,7 +135,7 @@ vec3 encodeOutput(vec3 rgb)
         return rgb; // negative components keep colours outside BT.709
     if (modes.x == MODE_PQ)
         return pqEncode(max(BT709_TO_BT2020 * rgb, vec3(0.0)));
-    return vec3(srgbEncode(rgb.r), srgbEncode(rgb.g), srgbEncode(rgb.b));
+    return srgbEncodeExtended(clamp(rgb, 0.0, 1.0));
 }
 
 bool within(vec2 p, vec4 r)

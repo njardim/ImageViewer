@@ -682,14 +682,6 @@
         <translation>Mappen indeholder ingen understøttede billeder.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Dette er det sidste billede.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Dette er det første billede.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>Indlæser %1…</translation>
     </message>

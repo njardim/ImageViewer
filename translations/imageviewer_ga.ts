@@ -682,14 +682,6 @@
         <translation>Níl aon íomhá a dtacaítear léi san fhillteán.</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>Is í seo an íomhá dheireanach.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>Is í seo an chéad íomhá.</translation>
-    </message>
-    <message>
         <source>Loading %1…</source>
         <translation>%1 á luchtú…</translation>
     </message>

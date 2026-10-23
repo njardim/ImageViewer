@@ -673,14 +673,6 @@
         <translation>%1 लोड करत आहे…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>ही शेवटची प्रतिमा आहे.</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>ही पहिली प्रतिमा आहे.</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>GPU मध्ये बसवण्यासाठी प्रतिमा लहान करत आहे (कमाल %1 px)…</translation>

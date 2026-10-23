@@ -8,10 +8,12 @@
 #include <QApplication>
 #include <QByteArrayView>
 #include <QCommandLineParser>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
 #include <QIcon>
+#include <QLibraryInfo>
 #include <QPainter>
 #include <QScopeGuard>
 #include <QtPlugin>
@@ -382,6 +384,28 @@ int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance
     return 0;
 }
 
+// Qt's plugins from this Qt's own plugin directory and the application's only, never from a
+// directory in QT_PLUGIN_PATH (D-68): Qt asks a plugin library before OiioImagePlugin, a static
+// one [code: qtbase v6.12.0 qfactoryloader.cpp, metaData()], so one of Qt's other image plugins
+// there would decode what SVG, icon and cursor files embed. Called once the application exists:
+// the platform's plugins, loaded with it, are not affected.
+void ignorePluginPathVariable()
+{
+    const QStringList variable = qEnvironmentVariable("QT_PLUGIN_PATH").split(QDir::listSeparator(), Qt::SkipEmptyParts);
+    if (variable.isEmpty())
+        return;
+    QStringList own; // the same directory may be in the variable too (aqtinstall's environment)
+    for (const QString &dir : {QLibraryInfo::path(QLibraryInfo::PluginsPath), QCoreApplication::applicationDirPath()})
+        own << QDir(dir).canonicalPath();
+    QStringList added;
+    for (const QString &dir : variable)
+        if (const QString canonical = QDir(dir).canonicalPath(); !canonical.isEmpty() && !own.contains(canonical))
+            added << canonical;
+    QStringList paths = QCoreApplication::libraryPaths();
+    paths.removeIf([&added](const QString &path) { return added.contains(QDir(path).canonicalPath()); });
+    QCoreApplication::setLibraryPaths(paths);
+}
+
 // Modes that never open a window run on a QCoreApplication: no platform plugin is
 // loaded, so they work headless (CI checks the packaged binaries this way).
 bool isConsoleMode(int argc, char *argv[])
@@ -449,6 +473,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("Cristallumnis"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
+    ignorePluginPathVariable();
     if (!console)
         QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/imageviewer.png"))); // D-66
     // Runs after the viewer window (declared later, destroyed first) has waited for its last

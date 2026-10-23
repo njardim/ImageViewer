@@ -343,5 +343,9 @@ bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QStrin
 
 QString heifVersion()
 {
+#ifdef IMAGEVIEWER_HAVE_LIBHEIF
     return QString::fromLatin1(heif_get_version());
+#else
+    return {};
+#endif
 }

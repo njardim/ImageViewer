@@ -37,11 +37,13 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     case Qt::RightButton:
         showContextMenu(e->globalPosition().toPoint());
         return;
-    case Qt::BackButton: // mouse side buttons
-        step(-1);
+    case Qt::BackButton: // mouse side buttons: the commands, so they stop where the keys do
+        if (isCommandEnabled(Command::Previous))
+            execute(Command::Previous);
         return;
     case Qt::ForwardButton:
-        step(+1);
+        if (isCommandEnabled(Command::Next))
+            execute(Command::Next);
         return;
     case Qt::LeftButton:
         break;
@@ -72,8 +74,7 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
     pointerActive();
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
-        m_dragging = false;
-        m_pressZone = Zone::None;
+        cancelPress();
         const ToolbarButton button = toolbarButtonAt(e->position());
         setToolbarHover(button);
         setHoverZone(button == ToolbarButton::None ? zoneAt(e->position()) : Zone::None);
@@ -114,6 +115,16 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
     m_hoverZone = released;
     updateCursor();
     updateNavigationButtons();
+}
+
+void ViewerWindow::cancelPress()
+{
+    // Nothing is clicked, and the pressed look goes.
+    m_dragging = false;
+    if (std::exchange(m_pressZone, Zone::None) != Zone::None)
+        updateNavigationButtons();
+    if (std::exchange(m_toolbarPress, ToolbarButton::None) != ToolbarButton::None)
+        updateSlideshowToolbar();
 }
 
 void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
@@ -165,5 +176,5 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     }
     const double steps = e->angleDelta().y() / 120.0;
     if (steps != 0.0)
-        zoomAt(std::pow(1.25, steps), e->position() * devicePixelRatio());
+        zoomAt(std::pow(kZoomStep, steps), e->position() * devicePixelRatio());
 }

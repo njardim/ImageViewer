@@ -673,14 +673,6 @@
         <translation>%1 を読み込み中…</translation>
     </message>
     <message>
-        <source>This is the last image.</source>
-        <translation>これが最後の画像です。</translation>
-    </message>
-    <message>
-        <source>This is the first image.</source>
-        <translation>これが最初の画像です。</translation>
-    </message>
-    <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>
         <extracomment>%1: a size in pixels.</extracomment>
         <translation>GPU に収まるように画像を縮小しています（最大 %1 px）…</translation>

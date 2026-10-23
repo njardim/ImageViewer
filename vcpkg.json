@@ -23,7 +23,7 @@
       "default-features": false
     },
     {
-      "$comment": "JPEG XL read directly (D-38): the openimageio port cannot find libjxl, and its reader keeps only an animation's last frame.",
+      "$comment": "JPEG XL read directly (D-38): the openimageio port cannot find libjxl, and its reader keeps only an animation's last frame. Its brotli, which decompresses the files' brob boxes, is an overlay port (packaging/vcpkg/ports/brotli, D-76): 1.2.1.",
       "name": "libjxl"
     },
     {

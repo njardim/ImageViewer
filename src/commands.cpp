@@ -40,7 +40,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
     // platforms' application commands (files, clipboard, undo, settings, quit, zoom) and resets;
     // never Alt. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the
     // F keys, forward Delete) is never a command's only shortcut. The first shortcut is the one
-    // menus show, so macOS lists its own first. By the owner's choice (D-78), Open is O, and
+    // menus show, so macOS lists its own first. By the owner's choice (D-78, D-79), Open is O, and
     // Shift+O, its second command, opens with another application.
 #ifdef Q_OS_MACOS
     constexpr bool mac = true;

@@ -84,9 +84,9 @@ qt_add_executable(imageviewer
     src/openwith.h src/openwith.cpp
 )
 
-# The application's icon (D-66): packaging/icons, made by scripts/make_icons.py. The PNG is
-# compiled in (:/imageviewer.png: the windows' icon, the About dialog); Windows takes the .ico as
-# the executable's resource, macOS the .icns in the bundle.
+# The application's icon (D-66, D-78): packaging/icons, made by scripts/make_icons.py. The PNG is
+# compiled in (:/imageviewer.png: the windows' icon on Windows and Linux, the About dialog); Windows
+# takes the .ico as the executable's resource, macOS the .icns in the bundle.
 qt_add_resources(imageviewer "icons"
     PREFIX "/"
     BASE packaging/icons

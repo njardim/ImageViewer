@@ -474,8 +474,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QStringLiteral("cristallumnis.com"));
     QCoreApplication::setApplicationVersion(QStringLiteral(IMAGEVIEWER_VERSION));
     ignorePluginPathVariable();
+#ifndef Q_OS_MACOS
+    // Not on macOS: Qt makes the application's icon the Dock's (NSApp.applicationIconImage), which
+    // would replace the bundle's .icns, on Apple's grid, with the full-bleed PNG while it runs (D-78).
     if (!console)
         QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/imageviewer.png"))); // D-66
+#endif
     // Runs after the viewer window (declared later, destroyed first) has waited for its last
     // decode, and before the application object goes.
     const auto decoders = qScopeGuard(&shutdownDecoders);

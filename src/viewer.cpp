@@ -1,5 +1,5 @@
-// ViewerWindow, part 1: the window, rendering, view state (zoom, pan, rotation, exposure)
-// and input. See viewer.h for the other parts.
+// ViewerWindow, part 1: the window, rendering, view state (zoom, pan, rotation, exposure), the
+// side zones and the pointer. See viewer.h for the other parts.
 #include "viewer.h"
 
 #include <QApplication>

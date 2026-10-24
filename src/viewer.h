@@ -377,7 +377,6 @@ private:
     QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads
     QString m_panelKey;      // likewise for the information panel
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
-    // What Shift+I turns the overlay back on to, in a window and in full screen.
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
     bool m_maximizedBeforeFullScreen = false;

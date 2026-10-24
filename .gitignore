@@ -8,9 +8,3 @@ __pycache__/
 *.pyc
 aqtinstall.log
 *.whl
-# The Gemini workflow's (D-74): run-gemini-cli writes .gemini/ (settings, commands) and
-# gemini-artifacts/ (logs) in the checkout; the owner's comments and the agent's reply are in
-# .gemini-issue/.
-.gemini/
-.gemini-issue/
-gemini-artifacts/

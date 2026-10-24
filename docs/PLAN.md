@@ -769,7 +769,7 @@ Nuno's adjustments after 0.4 (D-58):
 - [x] The icons from `imageviewer-1024x1024.png`, the only source; the macOS icon on Apple's grid and cut to Apple's shape (D-79 (2)) `[test: imageviewer.png is the source's pixels; every .icns entry's alpha within 0.002 of the shape's area; the viewer opens the .icns at 1024 px and the .ico at 256 px]`
 - [x] The owner's SVG with Qt and with resvg, against Chromium; resvg's C API and crates read for security and maintenance (D-79 (3)) `[test: local; OSV]`
 - [x] Before its pull request: the expired cooldown exceptions removed (D-80); `audit_dependencies.py` clean, sources included `[test: local, exit 0: GraphicsMagick 1.3.49 and giflib 6.1.3 identical to their tags]`
-- [x] The macOS package step tries `hdiutil create` up to five times, further apart each time: PR #26's first run (209) failed there with "Resource busy" on a commit whose push run (208) had built the same `.dmg` `[test: the loop under `bash -e -o pipefail` with a stand-in hdiutil: two failures then success, and five failures ending in an error]`
+- [x] The macOS package step tries `hdiutil create` up to five times, further apart each time, each after detaching any `/Volumes/ImageViewer*` a failed try left attached: PR #26's first run (209) failed there with "Resource busy" on a commit whose push run (208) had built the same `.dmg` `[test: the loop under `bash -e -o pipefail` with a stand-in hdiutil: two failures then success, and five failures ending in an error; the leftover volumes, one named with a space, detached before each try]`
 - [ ] Green CI, PR #26 (D-78, D-79, D-80); then `v0.9` published
 
 ### Release 1.0 (planned)

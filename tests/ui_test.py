@@ -21,7 +21,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      image's size within 50 % of the screen;
   7. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
-     tab replaces the first shortcut while the others stay;
+     tab replaces the first shortcut while the others stay; O opens a file, Ctrl+O another
+     application, M asks the window manager to minimize the viewer (D-78);
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
      keyboard, are saved as settings (D-56); Shift+I and the overlay's checkbox in Settings are
      one switch;
@@ -193,6 +194,38 @@ def open_xfixes():
         x11.XFree(image)
         return hidden
     return pointer_hidden
+
+
+def watch_iconify():
+    """A test of whether the viewer asked the window manager to minimize it since this call: the
+    ICCCM's WM_CHANGE_STATE message with IconicState, which Qt sends to the root window (there is
+    no window manager here to act on it)."""
+    x11 = ctypes.CDLL(ctypes.util.find_library("X11") or "libX11.so.6")
+    x11.XOpenDisplay.restype = ctypes.c_void_p
+    x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
+    x11.XDefaultRootWindow.restype = ctypes.c_ulong
+    x11.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
+    x11.XInternAtom.restype = ctypes.c_ulong
+    x11.XInternAtom.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+    x11.XSelectInput.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_long]
+    x11.XPending.argtypes = [ctypes.c_void_p]
+    x11.XNextEvent.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    connection = x11.XOpenDisplay(display.encode())
+    if not connection:
+        fail("cannot open the X display")
+    change_state = x11.XInternAtom(connection, b"WM_CHANGE_STATE", 0)
+    x11.XSelectInput(connection, x11.XDefaultRootWindow(connection), 1 << 17)  # StructureNotifyMask
+    x11.XPending(connection)  # sends the request
+    event = (ctypes.c_long * 24)()  # an XEvent; as XClientMessageEvent on LP64: type, ..., message_type
+                                    # at word 5, format at 6, data.l[0] at 7
+
+    def iconify_requested():
+        while x11.XPending(connection):
+            x11.XNextEvent(connection, event)
+            if event[0] & 0xFFFFFFFF == 33 and event[5] == change_state and event[7] == 3:  # ClientMessage, IconicState
+                return True
+        return False
+    return iconify_requested
 
 
 server, display = xvfb.start("1600x1000x24")
@@ -539,6 +572,20 @@ try:
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
             focus_viewer()
+            # The owner's shortcuts (D-78): O opens a file, Ctrl+O another application, M minimizes.
+            for key, title in (("o", "Open Image"), ("ctrl+o", "Choose an Application")):
+                xdotool("key", key)
+                dialog = find_dialog(title)
+                if not dialog:
+                    fail(f"{key} did not open the dialog \"{title}\"")
+                print(f"ok   {key} opens \"{title}\"")
+                xdotool("windowfocus", "--sync", dialog)
+                xdotool("key", "Escape")
+                wait_until(f"\"{title}\" closes", lambda: not xdotool("search", "--onlyvisible", "--name", f"^{title}$").stdout.split())
+                focus_viewer()
+            iconify_requested = watch_iconify()
+            xdotool("key", "m")
+            wait_until("M asks the window manager to minimize the viewer (WM_CHANGE_STATE, IconicState)", iconify_requested)
             xdotool("key", "q")
             app.wait(15)
 

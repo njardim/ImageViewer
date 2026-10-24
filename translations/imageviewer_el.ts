@@ -386,6 +386,15 @@
         <translation>Χρώμα επισήμανσης</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Αναζήτηση επεκτάσεων, μορφών και αποκωδικοποιητών</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Αναζήτηση</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Συλλογή (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Πλήρης οθόνη</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Ελαχιστοποίηση</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Πίνακας πληροφοριών</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Η μεγέθυνση ξεκλειδώθηκε</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Ένα πρόγραμμα προβολής εικόνων στο οποίο μπορείτε να εμπιστευτείτε το χρώμα: κάθε εικόνα όπως την ορίζει το αρχείο της, σε SDR και HDR, σε Windows, macOS και Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Ένα πρόγραμμα προβολής εικόνων που μπορείτε να εμπιστευτείτε. Δείτε κάθε εικόνα ακριβώς όπως την ορίζει το αρχείο της, εικονοστοιχείο προς εικονοστοιχείο και bit προς bit, σε SDR και HDR, σε Windows, macOS και Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Κάθε εικόνα μετατρέπεται μία φορά, από τη δική της περιγραφή χρώματος (προφίλ ICC ή CICP), σε γραμμικό χώρο κινητής υποδιαστολής 16 bit, και στέλνεται σε πραγματική έξοδο HDR όπου το σύστημα διαθέτει. Οι φωτεινές περιοχές πιο φωτεινές από την οθόνη αντιστοιχίζονται τονικά με το ITU-R BT.2390 ή αποκόπτονται κατ’ επιλογή, και το πρόγραμμα λέει πάντα ποιο από τα δύο.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Ανοίγει τα πάντα, από τα καθημερινά JPEG έως JPEG XL, AVIF, TIFF, OpenEXR, DPX και RAW φωτογραφικών μηχανών, με τις κινούμενες εικόνες να αναπαράγονται με τον δικό τους ρυθμό, ενώ ακόμη και οι πιο σπάνιες μορφές αντιμετωπίζονται με ασφάλεια, απομονωμένα, ώστε ένα κατεστραμμένο αρχείο να μην μπορεί να ρίξει το πρόγραμμα.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Διαβάζει %1 επεκτάσεις αρχείων, που αναγνωρίζονται από το περιεχόμενό τους: από JPEG, PNG και TIFF έως JPEG XL, AVIF, OpenEXR, DPX και RAW φωτογραφικών μηχανών, με κινούμενες εικόνες στον δικό τους ρυθμό. Οι σπανιότερες μορφές αποκωδικοποιούνται σε ξεχωριστή διεργασία, ώστε ένα κατεστραμμένο αρχείο να μην μπορεί να ρίξει το πρόγραμμα.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Η πιστότητα ελέγχεται σε κάθε έκδοση: η έξοδος της GPU διαβάζεται πίσω και συγκρίνεται με τους τύπους της SMPTE και της ITU, μαζί με αρχεία PQ και HLG, και μια εικόνα 8 bit στο 100&amp;nbsp;% πρέπει να φτάνει στην οθόνη bit προς bit.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Όταν ένα φωτεινό σημείο είναι πιο φωτεινό από όσο μπορεί να δείξει η οθόνη σας, το ImageViewer σάς λέει πώς το χειρίστηκε, αντί να αποφασίζει σιωπηλά για εσάς. Κάθε έκδοση ελέγχεται σε σχέση με ό,τι λαμβάνει πραγματικά η οθόνη, ώστε αυτό που βλέπετε να είναι ακριβώς αυτό που λέει το αρχείο.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

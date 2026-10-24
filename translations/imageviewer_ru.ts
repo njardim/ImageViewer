@@ -490,6 +490,15 @@
         <translation>Цвет выделения</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Поиск по расширениям, форматам и декодерам</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Поиск</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Галерея (%1)</translation>
@@ -1014,6 +1023,10 @@
         <translation>Полноэкранный режим</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Свернуть</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Информационная панель</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>Фиксация масштаба снята</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Программа просмотра изображений, которой можно доверить цвет: каждое изображение таким, каким его задаёт файл, в SDR и HDR, в Windows, macOS и Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Программа просмотра изображений, которой можно доверять. Каждое изображение именно таким, каким его задаёт файл, пиксель за пикселем и бит за битом, в SDR и HDR, в Windows, macOS и Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Каждое изображение преобразуется один раз, из собственного описания цвета (профиль ICC или CICP), в линейное 16-битное пространство с плавающей запятой и выводится на настоящий HDR-выход везде, где он есть в системе. Света ярче экрана тонально отображаются по ITU-R BT.2390 или по запросу обрезаются, и программа всегда сообщает, что именно произошло.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Она открывает всё — от повседневных JPEG до JPEG XL, AVIF, TIFF, OpenEXR, DPX и RAW с фотокамер, воспроизводит анимацию в её собственном темпе, а даже самые редкие форматы обрабатываются безопасно и изолированно, так что повреждённый файл не сможет обрушить программу.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Она читает %1 расширений файлов, распознавая их по содержимому: от JPEG, PNG и TIFF до JPEG XL, AVIF, OpenEXR, DPX и RAW с камер, а анимации воспроизводятся в собственном темпе. Самые редкие форматы декодируются в отдельном процессе, чтобы повреждённый файл не мог обрушить программу.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Точность проверяется при каждой сборке: вывод GPU считывается обратно и сравнивается с формулами SMPTE и ITU, включая файлы PQ и HLG, а 8-битное изображение при 100&amp;nbsp;% должно попасть на экран бит в бит.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Когда яркий участок светлее, чем может показать ваш дисплей, ImageViewer сообщает, как он с ним поступил, а не решает за вас втихую. Каждая сборка проверяется по тому, что экран получает на самом деле, поэтому вы видите ровно то, что говорит файл.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

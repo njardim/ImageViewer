@@ -386,6 +386,15 @@
         <translation>Kulur tal-enfasi</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Fittex estensjonijiet, formati u dekoders</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Fittex</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Gallerija (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Skrin sħiħ</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Imminimizza</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Pannell tal-informazzjoni</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Iż-zoom ġie żblokkjat</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Werrej tal-istampi li tista’ tafdah bil-kulur: kull stampa kif jiddefiniha l-fajl tagħha, f’SDR u HDR, fuq Windows, macOS u Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Werrej tal-istampi li tista’ tafdah. Ara kull stampa eżattament kif jiddefiniha l-fajl tagħha, pixel b’pixel u bit b’bit, f’SDR u HDR, fuq Windows, macOS u Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Kull stampa tiġi kkonvertita darba biss, mid-deskrizzjoni tal-kulur tagħha stess (profil ICC jew CICP), għal spazju lineari ta’ 16-il bit b’punt varjabbli, u tintbagħat lejn output HDR veru kull fejn is-sistema jkollha wieħed. Id-dwal aktar qawwija mill-iskrin jiġu mmappjati bl-ITU-R BT.2390, jew maqtugħa jekk titlob, u l-werrej dejjem jgħidlek liema minnhom.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Jiftaħ kollox, mill-JPEGs ta’ kuljum sa JPEG XL, AVIF, TIFF, OpenEXR, DPX u RAW tal-kamera, bl-animazzjonijiet jindaqqu bil-pass tagħhom, u anke l-aktar formati rari jiġu ttrattati b’mod sigur u iżolat, biex fajl bil-ħsara ma jkunx jista’ jwaqqa’ l-werrej.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Jaqra %1 estensjoni ta’ fajls, magħrufa mill-kontenut tagħhom: minn JPEG, PNG u TIFF sa JPEG XL, AVIF, OpenEXR, DPX u RAW tal-kamera, b’animazzjonijiet li jindaqqu bil-pass tagħhom. L-aktar formati rari jiġu dekodifikati fi proċess separat, biex fajl bil-ħsara ma jkunx jista’ jwaqqa’ l-werrej.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Il-fedeltà tiġi ttestjata f’kull build: l-output tal-GPU jinqara lura u jitqabbel mal-formuli tal-SMPTE u l-ITU, inklużi fajls PQ u HLG, u stampa ta’ 8 bits f’100&amp;nbsp;% trid tasal fuq l-iskrin bit b’bit.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Meta parti ċara tkun aktar qawwija milli jista’ juri l-iskrin tiegħek, ImageViewer jgħidlek kif ittrattaha minflok ma jiddeċiedi bil-kwiet minflokok. Kull verżjoni tiġi ċċekkjata kontra dak li l-iskrin verament jirċievi, biex dak li tara jkun eżattament dak li jgħid il-fajl.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

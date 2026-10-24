@@ -75,7 +75,7 @@ public:
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
         ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
-        FullScreen, Info, InfoOverlay, Checkerboard, Gallery,
+        FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,

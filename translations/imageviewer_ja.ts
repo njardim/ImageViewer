@@ -490,6 +490,15 @@
         <translation>ハイライトの色</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>拡張子、形式、デコーダーを検索</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>検索</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>ギャラリー（%1）</translation>
@@ -1014,6 +1023,10 @@
         <translation>全画面表示</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>最小化</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>情報パネル</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>ズームの固定を解除しました</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>色を安心して任せられる画像ビューアー：すべての画像を、そのファイルが定めるとおりに、SDR でも HDR でも、Windows、macOS、Linux で表示します。</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>信頼できる画像ビューアー。すべての画像を、そのファイルが定めるとおりに、ピクセル単位、ビット単位で正確に、SDR でも HDR でも、Windows、macOS、Linux で表示します。</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>各画像は、それ自身の色の記述（ICC プロファイルまたは CICP）から、線形の 16 ビット浮動小数点空間へ一度だけ変換され、システムに本物の HDR 出力があればそこへ送られます。画面より明るいハイライトは ITU-R BT.2390 でトーンマッピングされるか、指定に応じてクリップされ、どちらを行ったかを常に表示します。</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>日常的な JPEG から JPEG XL、AVIF、TIFF、OpenEXR、DPX、カメラの RAW まで何でも開き、アニメーションはそれぞれのペースで再生します。最も珍しい形式でさえ安全に隔離して処理するため、破損したファイルがビューアーを停止させることはありません。</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>内容で判別する %1 種類のファイル拡張子を読み込みます：JPEG、PNG、TIFF から JPEG XL、AVIF、OpenEXR、DPX、カメラの RAW まで、アニメーションはそれぞれの速さで再生します。最も珍しい形式は別プロセスでデコードするため、破損したファイルでビューアーが落ちることはありません。</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>忠実度はビルドごとにテストされます：GPU の出力を読み戻して SMPTE と ITU の式と比較し（PQ と HLG のファイルも含む）、100% で表示した 8 ビット画像は画面にビット単位で一致しなければなりません。</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>ハイライトがディスプレイで表示できる明るさを超えるとき、ImageViewer は黙って代わりに決めるのではなく、どう処理したかを知らせます。すべてのビルドは画面が実際に受け取る内容と照合して検証されるので、目にするものはファイルが示すとおりです。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

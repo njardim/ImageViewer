@@ -549,7 +549,9 @@ The application guarantees fidelity **up to the buffer handed to the system**. W
 | F2 / Return | Rename |
 | Ctrl/⌘+C | Copy image |
 | Ctrl/⌘+Shift+C | Copy path |
-| Ctrl/⌘+O | Open |
+| O | Open (D-78) |
+| Ctrl/⌘+O | Open with another application (D-78) |
+| M | Minimize, keyboard only (D-78) |
 | Space | Pause the running slideshow, otherwise the animation (D-58) |
 | Ctrl+← / Ctrl+→ (⌘ on macOS) | Previous / next frame |
 | S | Slideshow |

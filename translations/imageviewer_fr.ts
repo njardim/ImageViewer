@@ -490,6 +490,15 @@
         <translation>Couleur de surbrillance</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Rechercher des extensions, formats et décodeurs</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Rechercher</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerie (%1)</translation>
@@ -1014,6 +1023,10 @@
         <translation>Plein écran</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Réduire</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Panneau d’informations</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>Zoom déverrouillé</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Une visionneuse d’images à qui confier la couleur : chaque image telle que son fichier la définit, en SDR et en HDR, sous Windows, macOS et Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Une visionneuse d’images en qui vous pouvez avoir confiance. Voyez chaque image exactement telle que son fichier la définit, pixel par pixel et bit par bit, en SDR et en HDR, sous Windows, macOS et Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Chaque image est convertie une seule fois, depuis sa propre description de couleur (profil ICC ou CICP), vers un espace linéaire en virgule flottante 16 bits, puis envoyée vers une véritable sortie HDR dès que le système en dispose. Les hautes lumières plus brillantes que l’écran sont compressées avec ITU-R BT.2390, ou écrêtées sur demande, et la visionneuse indique toujours lequel des deux.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Elle ouvre tout, des JPEG du quotidien aux JPEG XL, AVIF, TIFF, OpenEXR, DPX et RAW d’appareil photo, avec des animations lues à leur propre rythme, et même les formats les plus rares sont traités en toute sécurité, à l’écart, pour qu’un fichier endommagé ne puisse pas faire tomber la visionneuse.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Elle lit %1 extensions de fichier, reconnues par leur contenu : de JPEG, PNG et TIFF à JPEG XL, AVIF, OpenEXR, DPX et RAW d’appareil photo, avec des animations jouées à leur propre rythme. Les formats les plus rares sont décodés dans un processus séparé, pour qu’un fichier endommagé ne puisse pas faire tomber la visionneuse.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>La fidélité est testée à chaque compilation : la sortie du GPU est relue et comparée aux formules SMPTE et ITU, fichiers PQ et HLG compris, et une image 8 bits à 100&amp;nbsp;% doit arriver à l’écran bit pour bit.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Lorsqu’une haute lumière est plus lumineuse que ce que votre écran peut afficher, ImageViewer vous indique comment il l’a traitée au lieu de décider discrètement à votre place. Chaque version est vérifiée par rapport à ce que l’écran reçoit réellement : ce que vous voyez est exactement ce que dit le fichier.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

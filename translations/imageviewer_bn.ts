@@ -490,6 +490,15 @@
         <translation>হাইলাইটের রং</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>এক্সটেনশন, ফরম্যাট ও ডিকোডার খুঁজুন</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>খুঁজুন</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>গ্যালারি (%1)</translation>
@@ -1014,6 +1023,10 @@
         <translation>পূর্ণ স্ক্রিন</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>ছোট করুন</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>তথ্য প্যানেল</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>জুম আনলক করা হয়েছে</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>একটি ইমেজ ভিউয়ার যার ওপর রঙের ব্যাপারে ভরসা রাখা যায়: প্রতিটি ছবি ঠিক যেমন তার ফাইল সংজ্ঞায়িত করে, SDR ও HDR-এ, Windows, macOS ও Linux-এ।</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>একটি ইমেজ ভিউয়ার যার ওপর ভরসা রাখা যায়। প্রতিটি ছবি দেখুন ঠিক যেমন তার ফাইল সংজ্ঞায়িত করে, পিক্সেল ধরে পিক্সেল আর বিট ধরে বিট, SDR ও HDR-এ, Windows, macOS ও Linux-এ।</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>প্রতিটি ছবি কেবল একবার, তার নিজস্ব রঙের বিবরণ (ICC প্রোফাইল বা CICP) থেকে, একটি রৈখিক 16-বিট ফ্লোটিং-পয়েন্ট স্পেসে রূপান্তরিত হয় এবং সিস্টেমে প্রকৃত HDR আউটপুট থাকলে সেখানে পাঠানো হয়। পর্দার চেয়ে উজ্জ্বল অংশগুলো ITU-R BT.2390 দিয়ে টোন ম্যাপ করা হয়, বা অনুরোধে কেটে ফেলা হয়, এবং ভিউয়ার সবসময় জানায় কোনটি হয়েছে।</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>এটি প্রতিদিনের JPEG থেকে শুরু করে JPEG XL, AVIF, TIFF, OpenEXR, DPX ও ক্যামেরা RAW পর্যন্ত সবকিছু খোলে, অ্যানিমেশন তাদের নিজস্ব গতিতে চালায়, আর বিরলতম ফরম্যাটগুলোও নিরাপদে আলাদা করে সামলানো হয়, যাতে কোনো ক্ষতিগ্রস্ত ফাইল ভিউয়ারকে বন্ধ করে দিতে না পারে।</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>এটি %1টি ফাইল এক্সটেনশন পড়ে, যেগুলো বিষয়বস্তু দেখে চেনা হয়: JPEG, PNG ও TIFF থেকে JPEG XL, AVIF, OpenEXR, DPX ও ক্যামেরা RAW পর্যন্ত, আর অ্যানিমেশন চলে তাদের নিজস্ব গতিতে। সবচেয়ে বিরল ফরম্যাটগুলো আলাদা প্রসেসে ডিকোড হয়, যাতে ক্ষতিগ্রস্ত ফাইল ভিউয়ারকে বন্ধ করে দিতে না পারে।</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>প্রতিটি বিল্ডে বিশ্বস্ততা পরীক্ষা করা হয়: GPU-র আউটপুট ফিরিয়ে পড়ে SMPTE ও ITU-র সূত্রের সঙ্গে মেলানো হয়, PQ ও HLG ফাইলসহ, এবং 100&amp;nbsp;%-এ একটি 8-বিট ছবিকে পর্দায় বিট-বাই-বিট পৌঁছাতে হবে।</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>যখন কোনো উজ্জ্বল অংশ আপনার ডিসপ্লে যতটা দেখাতে পারে তার চেয়ে বেশি উজ্জ্বল হয়, ImageViewer চুপচাপ আপনার হয়ে সিদ্ধান্ত না নিয়ে জানিয়ে দেয় সেটি কীভাবে সামলানো হয়েছে। প্রতিটি বিল্ড যাচাই করা হয় স্ক্রিন আসলে যা পায় তার সঙ্গে মিলিয়ে, তাই আপনি যা দেখেন তা ঠিক ফাইল যা বলে।</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

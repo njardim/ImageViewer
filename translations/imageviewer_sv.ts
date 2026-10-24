@@ -386,6 +386,15 @@
         <translation>Markeringsfärg</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Sök filändelser, format och avkodare</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Sök</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galleri (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Helskärm</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Minimera</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Informationspanel</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Zoomen är upplåst</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>En bildvisare du kan lita på när det gäller färg: varje bild som filen definierar den, i SDR och HDR, på Windows, macOS och Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>En bildvisare du kan lita på. Se varje bild exakt som filen definierar den, pixel för pixel och bit för bit, i SDR och HDR, på Windows, macOS och Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Varje bild konverteras en gång, från sin egen färgbeskrivning (ICC-profil eller CICP), till ett linjärt 16-bitars flyttalsutrymme och skickas till en äkta HDR-utgång där systemet har en. Högdagrar som är ljusare än skärmen tonmappas med ITU-R BT.2390, eller klipps på begäran, och visaren talar alltid om vilket.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Den öppnar allt från vardagliga JPEG-bilder till JPEG XL, AVIF, TIFF, OpenEXR, DPX och kamera-RAW, spelar upp animationer i deras egen takt, och även de ovanligaste formaten hanteras säkert och isolerat, så att en skadad fil inte kan fälla bildvisaren.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Den läser %1 filändelser, igenkända på sitt innehåll: från JPEG, PNG och TIFF till JPEG XL, AVIF, OpenEXR, DPX och kamera-RAW, med animationer i sin egen takt. De ovanligaste formaten avkodas i en separat process, så att en skadad fil inte kan fälla visaren.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Troheten testas vid varje bygge: GPU:ns utdata läses tillbaka och jämförs med SMPTE:s och ITU:s formler, PQ- och HLG-filer inräknade, och en 8-bitarsbild vid 100&amp;nbsp;% måste nå skärmen bit för bit.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>När en högdager är ljusare än vad din skärm kan visa berättar ImageViewer hur den hanterades i stället för att i tysthet bestämma åt dig. Varje version kontrolleras mot det som skärmen faktiskt tar emot, så att det du ser är exakt det som filen säger.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

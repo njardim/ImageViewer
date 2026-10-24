@@ -490,6 +490,15 @@
         <translation>高亮颜色</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>搜索扩展名、格式和解码器</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>搜索</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>图库（%1）</translation>
@@ -1014,6 +1023,10 @@
         <translation>全屏</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>最小化</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>信息面板</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>缩放已解锁</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>一款可以放心交托色彩的图像查看器：每张图像都按其文件的定义显示，支持 SDR 和 HDR，适用于 Windows、macOS 和 Linux。</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>一款值得信赖的图像查看器。每张图像都完全按其文件的定义呈现，逐像素、逐位精确，支持 SDR 和 HDR，适用于 Windows、macOS 和 Linux。</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>每张图像只转换一次，从其自身的颜色描述（ICC 配置文件或 CICP）转换到线性 16 位浮点空间，并在系统具备真正的 HDR 输出时送往该输出。比显示器更亮的高光会按 ITU-R BT.2390 进行色调映射，或按需裁切，查看器始终会告诉您采用了哪一种。</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>从日常的 JPEG 到 JPEG XL、AVIF、TIFF、OpenEXR、DPX 和相机 RAW，无所不开，动画按其自身节奏播放；即使是最罕见的格式，也会在隔离环境中安全处理，因此损坏的文件无法让查看器崩溃。</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>它可读取 %1 种文件扩展名，并按内容识别：从 JPEG、PNG 和 TIFF 到 JPEG XL、AVIF、OpenEXR、DPX 和相机 RAW，动画按其自身节奏播放。最罕见的格式在独立进程中解码，因此损坏的文件无法让查看器崩溃。</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>每次构建都会测试保真度：读回 GPU 的输出并与 SMPTE 和 ITU 的公式进行比较（包括 PQ 和 HLG 文件），以 100% 显示的 8 位图像必须逐位准确地呈现在屏幕上。</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>当高光超出显示器所能呈现的亮度时，ImageViewer 会告诉你它是如何处理的，而不是悄悄替你做决定。每个版本都会对照屏幕实际接收到的内容进行检验，因此你看到的正是文件所表达的内容。</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

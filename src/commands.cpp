@@ -14,7 +14,6 @@
 #include <QGridLayout>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QLocale>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMetaEnum>
@@ -41,7 +40,8 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
     // platforms' application commands (files, clipboard, undo, settings, quit, zoom) and resets;
     // never Alt. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the
     // F keys, forward Delete) is never a command's only shortcut. The first shortcut is the one
-    // menus show, so macOS lists its own first.
+    // menus show, so macOS lists its own first. By the owner's choice (D-78), Open is O and
+    // Ctrl/⌘+O opens with another application.
 #ifdef Q_OS_MACOS
     constexpr bool mac = true;
 #else
@@ -49,10 +49,10 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
 #endif
     const auto either = [](bool first, const K &a, const K &b) { return first ? QList<K>{a, b} : QList<K>{b, a}; };
     static const QList<CommandInfo> table = {
-        {C::Open, {K(Qt::CTRL | Qt::Key_O)}, false},
+        {C::Open, {K(Qt::Key_O)}, false},
         {C::ClearRecent, {}, false},
         {C::ShowInFolder, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_E)}, false},
-        {C::OpenWithOther, {}, false},
+        {C::OpenWithOther, {K(Qt::CTRL | Qt::Key_O)}, false},
         {C::CopyImage, {K(Qt::CTRL | Qt::Key_C)}, false},
         {C::CopyPath, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_C)}, false},
         {C::Rename, either(mac, K(Qt::Key_Return), K(Qt::Key_F2)), false},
@@ -74,6 +74,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::LockZoom, {K(Qt::Key_Z)}, false},
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
+        {C::Minimize, {K(Qt::Key_M)}, false}, // keyboard only, in no menu (D-78)
         {C::Info, {K(Qt::Key_I)}, false},
         {C::InfoOverlay, {K(Qt::SHIFT | Qt::Key_I)}, false},
         {C::Checkerboard, {K(Qt::Key_B)}, false},
@@ -137,6 +138,7 @@ QString ViewerWindow::commandText(Command command) const
     //: "100 %" is a zoom percentage; write the percent sign as your language does.
     case Command::ActualSize: return tr("Actual Size (100 %)");
     case Command::FullScreen: return tr("Full Screen");
+    case Command::Minimize: return tr("Minimize");
     case Command::Info: return tr("Information Panel");
     case Command::InfoOverlay: return tr("Information Overlay");
     case Command::Checkerboard: return tr("Checkerboard Background");
@@ -270,6 +272,8 @@ void ViewerWindow::execute(Command command)
     case Command::LockZoom: toggleLockZoom(); break;
     case Command::ActualSize: chooseFit(FitMode::Actual); break;
     case Command::FullScreen: toggleFullScreen(); break;
+    // Minimized on top of its other states: restored, a full-screen or maximized window comes back so.
+    case Command::Minimize: setWindowStates(windowStates() | Qt::WindowMinimized); break;
     case Command::Info: toggleInfo(); break;
     case Command::InfoOverlay: toggleTopOverlay(); break;
     case Command::Checkerboard: toggleCheckerboard(); break;
@@ -546,27 +550,20 @@ void ViewerWindow::showAbout()
     icon.setDevicePixelRatio(dpr);
     logo->setPixmap(icon);
     layout->addWidget(logo, 0, 0, Qt::AlignVCenter);
-    const QString count = QLocale().toString(supportedSuffixTable().size());
     auto *text = new QLabel(
-        QStringLiteral("<h2>ImageViewer %1</h2><p><b>%2</b></p><p>%3</p><p>%4</p><p>%5</p>"
-                       "<p>© 2026 Cristallumnis, Lda.<br>%6</p><p>%7</p>"
+        QStringLiteral("<h2>ImageViewer %1</h2><p><b>%2</b></p><p>%3</p><p>%4</p>"
+                       "<p>© 2026 Cristallumnis, Lda.<br>%5</p><p>%6</p>"
                        "<p><a href=\"https://github.com/njardim/ImageViewer\">github.com/njardim/ImageViewer</a></p>")
             .arg(QCoreApplication::applicationVersion().toHtmlEscaped(),
-                 tr("An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, "
-                    "on Windows, macOS and Linux."),
-                 tr("Each image is converted once, from its own color description (ICC profile or CICP), into a "
-                    "linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. "
-                    "Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, "
-                    "and the viewer always tells you which."),
-                 //: %1: how many file name extensions the viewer opens, e.g. "134".
-                 tr("It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to "
-                    "JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest "
-                    "formats are decoded in a separate process, so that a damaged file cannot take the viewer down.")
-                     .arg(count),
-                 //: "&nbsp;" keeps "100 %" on one line; write it as your language writes the percentage.
-                 tr("Fidelity is tested on every build: the GPU's output is read back and compared with the "
-                    "SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&nbsp;% must reach "
-                    "the screen bit for bit."),
+                 // The owner's text (D-78).
+                 tr("An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, "
+                    "and bit by bit, in SDR and HDR, on Windows, macOS and Linux."),
+                 tr("It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, "
+                    "with animations played at their own pace, and even the rarest formats are securely handled "
+                    "in isolation, so a damaged file can’t take the viewer down."),
+                 tr("When a highlight is brighter than your display can show, ImageViewer tells you how it handled "
+                    "it instead of quietly deciding for you. Every build is checked against what the screen actually "
+                    "receives, so what you see is exactly what the file says."),
                  tr("Licensed under the Apache License, Version 2.0."),
                  tr("The licenses of the third-party components are in the <i>third-party</i> folder "
                     "installed with the application.")));

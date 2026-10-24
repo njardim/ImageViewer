@@ -490,6 +490,15 @@
         <translation>Màu tô sáng</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Tìm phần mở rộng, định dạng và bộ giải mã</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Tìm kiếm</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Thư viện ảnh (%1)</translation>
@@ -1014,6 +1023,10 @@
         <translation>Toàn màn hình</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Thu nhỏ</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Bảng thông tin</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>Đã mở khóa thu phóng</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Một trình xem ảnh bạn có thể tin cậy về màu sắc: mỗi ảnh đúng như tệp của nó định nghĩa, ở SDR và HDR, trên Windows, macOS và Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Một trình xem ảnh bạn có thể tin cậy. Xem mọi ảnh đúng như tệp của nó định nghĩa, từng điểm ảnh và từng bit, ở SDR và HDR, trên Windows, macOS và Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Mỗi ảnh được chuyển đổi một lần duy nhất, từ mô tả màu của chính nó (hồ sơ ICC hoặc CICP), sang một không gian tuyến tính dấu phẩy động 16 bit, rồi gửi tới đầu ra HDR thực sự ở bất cứ nơi nào hệ thống có. Các vùng sáng hơn màn hình được ánh xạ tông màu theo ITU-R BT.2390, hoặc cắt bớt khi bạn yêu cầu, và trình xem luôn cho bạn biết đã làm gì.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Ứng dụng mở mọi thứ, từ ảnh JPEG thường ngày đến JPEG XL, AVIF, TIFF, OpenEXR, DPX và RAW của máy ảnh, phát hoạt ảnh theo nhịp riêng của chúng, và ngay cả những định dạng hiếm nhất cũng được xử lý an toàn trong môi trường tách biệt, nên một tệp hỏng không thể làm sập trình xem.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Nó đọc %1 phần mở rộng tệp, được nhận diện theo nội dung: từ JPEG, PNG và TIFF đến JPEG XL, AVIF, OpenEXR, DPX và RAW của máy ảnh, với ảnh động phát theo nhịp riêng. Các định dạng hiếm nhất được giải mã trong một tiến trình riêng, để một tệp hỏng không thể làm sập trình xem.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Độ trung thực được kiểm tra ở mỗi bản dựng: đầu ra của GPU được đọc lại và so sánh với các công thức của SMPTE và ITU, kể cả tệp PQ và HLG, và một ảnh 8 bit ở 100&amp;nbsp;% phải tới màn hình đúng từng bit.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Khi một vùng sáng sáng hơn mức màn hình của bạn có thể hiển thị, ImageViewer cho bạn biết nó đã xử lý thế nào thay vì lặng lẽ quyết định thay bạn. Mỗi bản dựng đều được kiểm tra dựa trên những gì màn hình thực sự nhận được, nên những gì bạn thấy chính là những gì tệp nói.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

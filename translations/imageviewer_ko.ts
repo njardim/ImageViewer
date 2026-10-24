@@ -386,6 +386,15 @@
         <translation>강조 색</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>확장자, 형식, 디코더 검색</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>검색</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>갤러리 (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>전체 화면</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>최소화</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>정보 패널</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>배율 고정 해제됨</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>색을 믿고 맡길 수 있는 이미지 뷰어: 모든 이미지를 파일이 정의한 그대로, SDR과 HDR로, Windows, macOS, Linux에서 보여 줍니다.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>믿을 수 있는 이미지 뷰어. 모든 이미지를 파일이 정의한 그대로, 픽셀 하나하나, 비트 하나하나까지, SDR과 HDR로, Windows, macOS, Linux에서 보세요.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>각 이미지는 자체 색 정보(ICC 프로필 또는 CICP)에서 선형 16비트 부동소수점 공간으로 한 번만 변환되고, 시스템에 실제 HDR 출력이 있으면 그곳으로 보내집니다. 화면보다 밝은 하이라이트는 ITU-R BT.2390으로 톤 매핑되거나 요청 시 잘리며, 뷰어는 어느 쪽인지 항상 알려 줍니다.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>일상적인 JPEG부터 JPEG XL, AVIF, TIFF, OpenEXR, DPX, 카메라 RAW까지 모두 열고, 애니메이션은 각자의 속도로 재생하며, 가장 드문 형식도 안전하게 격리해 처리하므로 손상된 파일이 뷰어를 멈추게 할 수 없습니다.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>내용으로 인식하는 %1개의 파일 확장자를 읽습니다. JPEG, PNG, TIFF부터 JPEG XL, AVIF, OpenEXR, DPX, 카메라 RAW까지, 애니메이션은 각자의 속도로 재생됩니다. 가장 드문 형식은 별도 프로세스에서 디코딩하므로 손상된 파일이 뷰어를 멈추게 할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>충실도는 빌드마다 테스트됩니다. GPU 출력을 다시 읽어 PQ와 HLG 파일을 포함해 SMPTE와 ITU의 공식과 비교하며, 100&amp;nbsp;%로 표시한 8비트 이미지는 화면에 비트 단위로 정확히 도달해야 합니다.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>하이라이트가 디스플레이가 표시할 수 있는 것보다 밝을 때, ImageViewer는 조용히 대신 결정하지 않고 어떻게 처리했는지 알려 줍니다. 모든 빌드는 화면이 실제로 받는 내용과 대조해 검증되므로, 보이는 것이 곧 파일이 말하는 그대로입니다.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

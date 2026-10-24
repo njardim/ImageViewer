@@ -18,6 +18,7 @@
 #include <QKeySequence>
 #include <QKeySequenceEdit>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QPainter>
 #include <QPushButton>
@@ -368,6 +369,13 @@ void SettingsDialog::buildUi()
     auto *formatsTotal = new QLabel(tr("Total supported image formats: %1").arg(QLocale().toString(suffixRows.size())));
     formatsTotal->setAlignment(Qt::AlignTrailing | Qt::AlignVCenter);
     formatsLayout->addWidget(formatsTotal);
+    // A search in every column but "#" (D-78), in the table's room: the dialog keeps its height.
+    auto *formatsSearch = new QLineEdit;
+    //: Placeholder of the field that filters the table of image formats.
+    formatsSearch->setPlaceholderText(tr("Search extensions, formats and decoders"));
+    formatsSearch->setAccessibleName(tr("Search"));
+    formatsSearch->setClearButtonEnabled(true);
+    formatsLayout->addWidget(formatsSearch);
     auto *formatsTable = new QTableWidget(int(suffixRows.size()), 5);
     // "#" is a symbol, the same in every language: it numbers the rows.
     formatsTable->setHorizontalHeaderLabels({QStringLiteral("#"), tr("Extension"), tr("Format"), tr("Decoder"), tr("Decoder version")});
@@ -386,13 +394,25 @@ void SettingsDialog::buildUi()
         formatsTable->setItem(row, 3, new QTableWidgetItem(r.decoder));
         formatsTable->setItem(row, 4, new QTableWidgetItem(r.version));
     }
-    // "#" counts the rows as shown, 1 to the total, whatever the order, and is not a sort key:
-    // a click on it changes nothing. The table sorts itself here rather than through the view's
-    // own sorting, which would sort again by "#" whenever its numbers change.
-    const auto renumber = [formatsTable] {
-        for (int row = 0; row < formatsTable->rowCount(); ++row)
-            formatsTable->item(row, 0)->setData(Qt::DisplayRole, row + 1);
+    // "#" counts the rows as shown, 1 to the number shown, whatever the order and the search, and
+    // is not a sort key: a click on it changes nothing. The table sorts itself here rather than
+    // through the view's own sorting, which would sort again by "#" whenever its numbers change.
+    // The search matches the extension without its isolation marks (".cr" finds ".cr2"), in any case.
+    const auto renumber = [formatsTable, formatsSearch] {
+        const QString text = formatsSearch->text().trimmed();
+        int shown = 0;
+        for (int row = 0; row < formatsTable->rowCount(); ++row) {
+            bool match = text.isEmpty();
+            for (int column = 1; column < formatsTable->columnCount() && !match; ++column) {
+                const QTableWidgetItem *item = formatsTable->item(row, column);
+                match = (column == 1 ? item->data(Qt::UserRole).toString() : item->text()).contains(text, Qt::CaseInsensitive);
+            }
+            formatsTable->setRowHidden(row, !match);
+            if (match)
+                formatsTable->item(row, 0)->setData(Qt::DisplayRole, ++shown);
+        }
     };
+    connect(formatsSearch, &QLineEdit::textChanged, formatsTable, renumber);
     QHeaderView *formatsHeader = formatsTable->horizontalHeader();
     formatsHeader->setSectionsClickable(true);
     formatsHeader->setSortIndicatorShown(true);

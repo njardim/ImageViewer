@@ -2,14 +2,14 @@
 
 <img src="packaging/icons/imageviewer.png" alt="ImageViewer" width="128" align="right">
 
-**An image viewer you can trust with color.** ImageViewer shows every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux, and proves it: the colors it puts on screen are tested against the standards on every build.
+**An image viewer you can trust.** ImageViewer shows every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux, and proves it: the colors it puts on screen are tested against the standards on every build.
 
 - **One conversion, done right.** Each image is converted once, from its own color description (ICC v2/v4 profile, CICP code points or EXR chromaticities), into a linear wide-gamut working space at 16-bit floating point. Nothing is quantized below that before the display; wide-gamut colors are kept, not clipped to sRGB.
 - **Real HDR.** Where the system has an HDR output (scRGB on Windows, EDR on macOS, HDR10), ImageViewer uses it: PQ content keeps its absolute luminance, HLG gets the BT.2100 system gamma. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always says which; it can mark every pixel it had to alter.
 - **Professional formats.** 134 file name extensions, recognized by their content rather than their name: JPEG, JPEG XL, PNG, TIFF, WebP, AVIF, OpenEXR, DPX, Cineon, Radiance HDR, camera RAW, and a long tail read in a separate process so that a damaged file cannot take the viewer down.
 - **Out of the way.** The image fills the window; the rest is a key, a click on the window's sides, the gallery or the right-click menu away, in 37 languages.
 
-> Status: **0.8**. The color pipeline, HDR output, format coverage and the viewer are in place and tested on every build; installers, signed packages and a pixel value readout come next. The [plan](docs/PLAN.md) has the details.
+> Status: **0.9**. The color pipeline, HDR output, format coverage and the viewer are in place and tested on every build; installers, signed packages and a pixel value readout come next. The [plan](docs/PLAN.md) has the details.
 
 ## Download
 
@@ -44,7 +44,7 @@ The packages are **not signed yet**:
 
 ## Using it
 
-`ImageViewer [file or folder]`, drag and drop, or *Open* from the right-click menu.
+`ImageViewer [file or folder]`, drag and drop, O, or *Open* from the right-click menu.
 
 | Key | Action |
 |---|---|
@@ -70,12 +70,14 @@ The packages are **not signed yet**:
 | F2 or Return | Rename |
 | Delete (⌘⌫ on macOS) / Ctrl+Z | Move to the trash / undo |
 | Shift+Delete (⌘⇧⌫ on macOS) | Delete permanently |
+| O / Shift+O | Open a file / open it with another application |
+| M | Minimize the window |
 | Ctrl+, | Settings |
 | V | About ImageViewer |
 | Q (or Ctrl+Q) | Quit |
 | Right-click | Menu with every command |
 
-On macOS, Ctrl is ⌘. Every shortcut can be changed in *Settings → Shortcuts*. The defaults follow one rule: single keys view and navigate, Shift + a key does that key's other command, ⌘/Ctrl does the application's own commands; none needs the fn key of a MacBook.
+On macOS, Ctrl is ⌘. Every shortcut can be changed in *Settings → Shortcuts*. The defaults follow one rule: single keys view, navigate and open, Shift + a key does that key's other command, ⌘/Ctrl does the application's other commands; none needs the fn key of a MacBook.
 
 ## How fidelity is verified
 

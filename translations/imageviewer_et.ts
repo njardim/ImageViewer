@@ -386,6 +386,15 @@
         <translation>Esiletõstu värv</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Otsi laiendeid, vorminguid ja dekoodereid</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Otsi</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerii (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Täisekraan</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Minimeeri</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Teabepaneel</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Suumi lukustus eemaldatud</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Pildivaatur, kellele võite värvid usaldada: iga pilt nii, nagu selle fail seda määratleb, SDR- ja HDR-režiimis, Windowsis, macOS-is ja Linuxis.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Pildivaatur, mida võite usaldada. Näete iga pilti täpselt nii, nagu selle fail seda määratleb, piksel piksli ja bitt biti haaval, SDR- ja HDR-režiimis, Windowsis, macOS-is ja Linuxis.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Iga pilt teisendatakse üks kord, tema enda värvikirjeldusest (ICC-profiil või CICP) lineaarsesse 16-bitisesse ujukomaruumi, ja saadetakse päris HDR-väljundisse, kui süsteemil see on. Ekraanist heledamad heledad alad toonikaardistatakse ITU-R BT.2390 järgi või lõigatakse soovi korral ära, ja vaatur ütleb alati, kumb.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>See avab kõike igapäevastest JPEG-failidest kuni JPEG XL-i, AVIF-i, TIFF-i, OpenEXR-i, DPX-i ja kaamera RAW-failideni, esitab animatsioone nende oma tempos ning isegi kõige haruldasemaid vorminguid käsitletakse turvaliselt ja isoleeritult, nii et kahjustatud fail ei saa vaaturit kokku jooksutada.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>See loeb %1 failinime laiendit, mis tuvastatakse sisu järgi: JPEG-ist, PNG-st ja TIFF-ist kuni JPEG XL-i, AVIF-i, OpenEXR-i, DPX-i ja kaamerate RAW-failideni, animatsioonid mängivad omas tempos. Kõige haruldasemad vormingud dekodeeritakse eraldi protsessis, et kahjustatud fail ei saaks vaaturit kokku jooksutada.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Täpsust testitakse igas koostes: GPU väljund loetakse tagasi ja võrreldakse SMPTE ja ITU valemitega, ka PQ- ja HLG-failidega, ning 8-bitine pilt peab 100&amp;nbsp;% juures jõudma ekraanile bitt-bitilt.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Kui hele ala on heledam, kui teie ekraan suudab näidata, ütleb ImageViewer teile, kuidas ta sellega toime tuli, selle asemel et vaikselt teie eest otsustada. Iga järku kontrollitakse selle põhjal, mida ekraan tegelikult saab, nii et näete täpselt seda, mida fail ütleb.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

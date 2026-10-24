@@ -401,6 +401,8 @@ void ViewerWindow::renameFile()
             recent[i] = target;
     });
     m_files[m_index] = target;
+    // The cache keeps only the paths it was last told to (scheduleWork): the new name among them.
+    m_cache.retain(m_settings.preload ? neighbourhood() : QStringList());
     const QString shownName = displayFileName(QFileInfo(target).fileName());
     updateTitle();
     showNotice(tr("Renamed to “%1”").arg(shownName));

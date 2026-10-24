@@ -386,6 +386,15 @@
         <translation>Barva poudarka</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Iskanje po priponah, formatih in dekodirnikih</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Iskanje</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerija (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Celozaslonski način</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Pomanjšaj</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Informacijska plošča</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Povečava je odklenjena</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Pregledovalnik slik, ki mu lahko zaupate barve: vsaka slika takšna, kot jo določa njena datoteka, v SDR in HDR, v sistemih Windows, macOS in Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Pregledovalnik slik, ki mu lahko zaupate. Vsako sliko vidite natanko takšno, kot jo določa njena datoteka, piksel za pikslom in bit za bitom, v SDR in HDR, v sistemih Windows, macOS in Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Vsaka slika se pretvori le enkrat, iz lastnega opisa barv (profil ICC ali CICP), v linearni 16-bitni prostor s plavajočo vejico in se pošlje na pravi izhod HDR povsod, kjer ga sistem ima. Svetli deli, svetlejši od zaslona, se tonsko preslikajo po ITU-R BT.2390 ali na zahtevo odrežejo, in pregledovalnik vedno pove, kaj od tega.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Odpre vse, od vsakdanjih JPEG-jev do JPEG XL, AVIF, TIFF, OpenEXR, DPX in RAW-datotek fotoaparatov, animacije predvaja v njihovem lastnem tempu, celo najredkejše formate pa obdela varno in ločeno, tako da poškodovana datoteka ne more sesuti pregledovalnika.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Bere %1 končnic datotek, prepoznanih po vsebini: od JPEG, PNG in TIFF do JPEG XL, AVIF, OpenEXR, DPX in RAW iz fotoaparatov, z animacijami, predvajanimi v lastnem ritmu. Najredkejši formati se dekodirajo v ločenem procesu, da poškodovana datoteka ne more zrušiti pregledovalnika.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Zvestoba se preizkusi ob vsaki gradnji: izhod GPE se prebere nazaj in primerja s formulami SMPTE in ITU, vključno z datotekami PQ in HLG, in 8-bitna slika pri 100&amp;nbsp;% mora priti na zaslon bit za bitom.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Ko je svetel del slike svetlejši, kot ga lahko prikaže vaš zaslon, vam ImageViewer pove, kako ga je obdelal, namesto da bi potihoma odločil namesto vas. Vsaka različica je preverjena glede na to, kar zaslon dejansko prejme, zato vidite natanko to, kar pravi datoteka.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

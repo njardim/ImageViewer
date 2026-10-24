@@ -4,6 +4,4 @@
 # scripts/update_dependencies.py adds an entry when it takes such a release, and removes it once the
 # release is past the cooldown or no longer pinned: nobody edits code for an exception, and none
 # outlives its release. scripts/audit_dependencies.py (the release gate) lets these releases through.
-graphicsmagick 1.3.49: security: fixes PICT, WPG (CVE-2026-103118) and MAT, coders of the decode worker; 1.3.48 would ship them unfixed; approved by the owner for v0.8, D-70 (2026-10-21)
-vcpkg port recipes 0699a19d0c: moves no library under the cooldown; the release before it would move back nine, libpng 1.6.59 (CVE-2026-46675) among them; approved by the owner for v0.8, D-70 (2026-10-21)
 brotli 1.2.1: security: fixes CVE-2026-111497, an out-of-bounds write in the decoder libjxl runs on JPEG XL brob boxes; 1.2.1 is 1.2.0 and that one fix (b418fa8), read in full; approved by the owner, D-76 (2026-10-23)

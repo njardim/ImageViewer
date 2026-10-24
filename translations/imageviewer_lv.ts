@@ -386,6 +386,15 @@
         <translation>Izcēluma krāsa</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Meklēt paplašinājumus, formātus un dekodētājus</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Meklēt</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Galerija (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Pilnekrāna režīms</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Minimizēt</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Informācijas panelis</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Tālummaiņa atbloķēta</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Attēlu skatītājs, kuram varat uzticēt krāsas: katrs attēls tāds, kādu to nosaka tā fails, SDR un HDR režīmā, Windows, macOS un Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Attēlu skatītājs, kuram varat uzticēties. Skatiet katru attēlu tieši tādu, kādu to nosaka tā fails, pikseli pa pikselim un bitu pa bitam, SDR un HDR režīmā, Windows, macOS un Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Katrs attēls tiek pārveidots vienreiz, no tā paša krāsu apraksta (ICC profils vai CICP), lineārā 16 bitu peldošā komata telpā un nosūtīts uz īstu HDR izvadi visur, kur sistēmā tāda ir. Gaismas, kas ir spilgtākas par ekrānu, tiek toņu kartētas ar ITU-R BT.2390 vai pēc pieprasījuma nogrieztas, un skatītājs vienmēr pasaka, kas no tā.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Tas atver visu – no ikdienas JPEG līdz JPEG XL, AVIF, TIFF, OpenEXR, DPX un kameru RAW, animācijas atskaņo to pašu tempā, un pat retākie formāti tiek apstrādāti droši un izolēti, tāpēc bojāts fails nevar apturēt skatītāju.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Tas lasa %1 failu paplašinājumus, atpazītus pēc satura: no JPEG, PNG un TIFF līdz JPEG XL, AVIF, OpenEXR, DPX un kameru RAW, ar animācijām to pašu tempā. Retākie formāti tiek atkodēti atsevišķā procesā, lai bojāts fails nevarētu nogāzt skatītāju.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Precizitāte tiek pārbaudīta katrā būvējumā: GPU izvade tiek nolasīta atpakaļ un salīdzināta ar SMPTE un ITU formulām, arī ar PQ un HLG failiem, un 8 bitu attēlam pie 100&amp;nbsp;% jānonāk ekrānā bitu pa bitam.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Kad gaišs laukums ir spilgtāks, nekā jūsu displejs spēj parādīt, ImageViewer pasaka, kā to apstrādāja, nevis klusi izlemj jūsu vietā. Katra versija tiek pārbaudīta pret to, ko ekrāns patiešām saņem, tāpēc jūs redzat tieši to, ko saka fails.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

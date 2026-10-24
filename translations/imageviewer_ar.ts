@@ -490,6 +490,15 @@
         <translation>لون التمييز</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>ابحث في الامتدادات والصيغ ومفككات الترميز</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>بحث</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>المعرض (%1)</translation>
@@ -1014,6 +1023,10 @@
         <translation>ملء الشاشة</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>تصغير</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>لوحة المعلومات</translation>
     </message>
@@ -1121,22 +1134,16 @@
         <translation>تم إلغاء قفل التكبير</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>عارض صور يمكنك أن تأتمنه على اللون: كل صورة كما يعرّفها ملفها، بنطاقي SDR وHDR، على Windows وmacOS وLinux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>عارض صور يمكنك الوثوق به. شاهد كل صورة تمامًا كما يعرّفها ملفها، بكسلًا ببكسل وبتًا ببت، بنطاقي SDR وHDR، على Windows وmacOS وLinux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>تُحوَّل كل صورة مرة واحدة فقط، من وصف ألوانها الخاص (ملف تعريف ICC أو CICP)، إلى فضاء خطي بفاصلة عائمة 16 بت، وتُرسل إلى مخرج HDR حقيقي حيثما وُجد في النظام. تُعالَج الإضاءات الأشد سطوعًا من الشاشة بتعيين النغمات وفق ITU-R BT.2390، أو تُقص عند الطلب، ويخبرك العارض دائمًا بما فعل.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>يفتح كل شيء، من صور JPEG اليومية إلى JPEG XL وAVIF وTIFF وOpenEXR وDPX وصور RAW من الكاميرات، مع تشغيل الرسوم المتحركة بإيقاعها الخاص، وحتى أندر الصيغ تُعالَج بأمان وبمعزل عن العارض، فلا يستطيع ملف تالف أن يُسقطه.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>يقرأ %1 امتداد ملف، يتعرّف عليها من محتواها: من JPEG وPNG وTIFF إلى JPEG XL وAVIF وOpenEXR وDPX وصيغ RAW للكاميرات، مع تشغيل الرسوم المتحركة بإيقاعها الخاص. تُفك ترميز الصيغ الأندر في عملية منفصلة، حتى لا يستطيع ملف تالف إسقاط العارض.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>تُختبر الدقة في كل بناء: يُقرأ خرج وحدة GPU ويُقارن بصيغ SMPTE وITU، بما في ذلك ملفات PQ وHLG، ويجب أن تصل صورة 8 بت بنسبة 100&amp;nbsp;% إلى الشاشة بتًا بتًا.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>عندما تكون منطقة ساطعة أشد سطوعًا مما تستطيع شاشتك عرضه، يخبرك ImageViewer كيف تعامل معها بدلًا من أن يقرر عنك بصمت. يُتحقَّق من كل إصدار مقابل ما تتلقاه الشاشة فعلًا، لذا فإن ما تراه هو بالضبط ما يقوله الملف.</translation>
     </message>
     <message>
         <source>Delete “%1” permanently?</source>

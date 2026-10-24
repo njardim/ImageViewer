@@ -386,6 +386,15 @@
         <translation>Dath aibhsithe</translation>
     </message>
     <message>
+        <source>Search extensions, formats and decoders</source>
+        <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
+        <translation>Cuardaigh iarmhíreanna, formáidí agus díchódóirí</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Cuardaigh</translation>
+    </message>
+    <message>
         <source>Gallery (%1)</source>
         <extracomment>%1: the key that shows and hides the gallery, e.g. &quot;G&quot;.</extracomment>
         <translation>Gailearaí (%1)</translation>
@@ -1022,6 +1031,10 @@
         <translation>Lánscáileán</translation>
     </message>
     <message>
+        <source>Minimize</source>
+        <translation>Íoslaghdaigh</translation>
+    </message>
+    <message>
         <source>Information Panel</source>
         <translation>Painéal faisnéise</translation>
     </message>
@@ -1151,22 +1164,16 @@
         <translation>Zúmáil díghlasáilte</translation>
     </message>
     <message>
-        <source>An image viewer you can trust with color: every image as its file defines it, in SDR and HDR, on Windows, macOS and Linux.</source>
-        <translation>Amharcán íomhánna ar féidir leat dath a thrust leis: gach íomhá mar a shainíonn a comhad í, in SDR agus HDR, ar Windows, macOS agus Linux.</translation>
+        <source>An image viewer you can trust. See every image exactly as its file defines it, pixel by pixel, and bit by bit, in SDR and HDR, on Windows, macOS and Linux.</source>
+        <translation>Amharcán íomhánna ar féidir leat muinín a bheith agat as. Feic gach íomhá díreach mar a shainíonn a comhad í, picteilín ar phicteilín agus giotán ar ghiotán, in SDR agus HDR, ar Windows, macOS agus Linux.</translation>
     </message>
     <message>
-        <source>Each image is converted once, from its own color description (ICC profile or CICP), into a linear 16-bit floating-point space, and sent to a real HDR output wherever the system has one. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always tells you which.</source>
-        <translation>Tiontaítear gach íomhá uair amháin, óna cur síos datha féin (próifíl ICC nó CICP), go spás líneach snámhphointe 16 ghiotán, agus seoltar í chuig fíor-aschur HDR áit ar bith a bhfuil ceann ag an gcóras. Déantar buaicsholais níos gile ná an scáileán a mhapáil le ITU-R BT.2390, nó a ghearradh má iarrann tú, agus insíonn an t-amharcán duit i gcónaí cé acu.</translation>
+        <source>It opens everything from everyday JPEGs to JPEG XL, AVIF, TIFF, OpenEXR, DPX and camera RAW, with animations played at their own pace, and even the rarest formats are securely handled in isolation, so a damaged file can’t take the viewer down.</source>
+        <translation>Osclaíonn sé gach rud, ó ghnáth-JPEGanna go JPEG XL, AVIF, TIFF, OpenEXR, DPX agus RAW ceamara, seinntear beochana ar a luas féin, agus láimhseáiltear fiú na formáidí is annamh go sábháilte agus scoite amach, ionas nach féidir le comhad damáistithe an t-amharcán a leagan.</translation>
     </message>
     <message>
-        <source>It reads %1 file name extensions, recognized by their content: from JPEG, PNG and TIFF to JPEG XL, AVIF, OpenEXR, DPX and camera RAW, with animations played at their own pace. The rarest formats are decoded in a separate process, so that a damaged file cannot take the viewer down.</source>
-        <extracomment>%1: how many file name extensions the viewer opens, e.g. &quot;134&quot;.</extracomment>
-        <translation>Léann sé %1 iarmhír ainm comhaid, aitheanta óna n-ábhar: ó JPEG, PNG agus TIFF go JPEG XL, AVIF, OpenEXR, DPX agus RAW ceamara, le beochan á seinm ar a luas féin. Díchódaítear na formáidí is annamh i bpróiseas ar leith, ionas nach féidir le comhad damáistithe an t-amharcán a leagan.</translation>
-    </message>
-    <message>
-        <source>Fidelity is tested on every build: the GPU&apos;s output is read back and compared with the SMPTE and ITU formulas, PQ and HLG files included, and an 8-bit image at 100&amp;nbsp;% must reach the screen bit for bit.</source>
-        <extracomment>&quot;&amp;nbsp;&quot; keeps &quot;100 %&quot; on one line; write it as your language writes the percentage.</extracomment>
-        <translation>Déantar an dílseacht a thástáil i ngach tógáil: léitear aschur an GPU ar ais agus cuirtear i gcomparáid é le foirmlí SMPTE agus ITU, comhaid PQ agus HLG san áireamh, agus ní mór d’íomhá 8 ngiotán ag 100&amp;nbsp;% an scáileán a bhaint amach giotán ar ghiotán.</translation>
+        <source>When a highlight is brighter than your display can show, ImageViewer tells you how it handled it instead of quietly deciding for you. Every build is checked against what the screen actually receives, so what you see is exactly what the file says.</source>
+        <translation>Nuair a bhíonn buaicsholas níos gile ná mar is féidir le do scáileán a thaispeáint, insíonn ImageViewer duit conas a láimhseáil sé é in ionad cinneadh a dhéanamh go ciúin ar do shon. Seiceáiltear gach leagan in aghaidh a bhfaigheann an scáileán i ndáiríre, ionas gurb é a fheiceann tú go díreach an rud a deir an comhad.</translation>
     </message>
     <message>
         <source>Copying the image…</source>

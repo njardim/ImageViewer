@@ -70,7 +70,7 @@ The packages are **not signed yet**:
 | F2 or Return | Rename |
 | Delete (⌘⌫ on macOS) / Ctrl+Z | Move to the trash / undo |
 | Shift+Delete (⌘⇧⌫ on macOS) | Delete permanently |
-| O / Ctrl+O | Open a file / open it with another application |
+| O / Shift+O | Open a file / open it with another application |
 | M | Minimize the window |
 | Ctrl+, | Settings |
 | V | About ImageViewer |

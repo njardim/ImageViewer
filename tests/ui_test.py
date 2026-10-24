@@ -21,7 +21,7 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      image's size within 50 % of the screen;
   7. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
-     tab replaces the first shortcut while the others stay; O opens a file, Ctrl+O another
+     tab replaces the first shortcut while the others stay; O opens a file, Shift+O another
      application, M asks the window manager to minimize the viewer (D-78);
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
      keyboard, are saved as settings (D-56); Shift+I and the overlay's checkbox in Settings are
@@ -572,8 +572,8 @@ try:
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
             focus_viewer()
-            # The owner's shortcuts (D-78): O opens a file, Ctrl+O another application, M minimizes.
-            for key, title in (("o", "Open Image"), ("ctrl+o", "Choose an Application")):
+            # The owner's shortcuts (D-78): O opens a file, Shift+O another application, M minimizes.
+            for key, title in (("o", "Open Image"), ("shift+o", "Choose an Application")):
                 xdotool("key", key)
                 dialog = find_dialog(title)
                 if not dialog:

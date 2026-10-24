@@ -361,8 +361,15 @@ jobs:
           fi
           case "$RUNNER_OS" in
             Windows) (cd "$dist" && 7z a -tzip "$GITHUB_WORKSPACE/$file" . > /dev/null) ;;
-            macOS)   hdiutil create -volname ImageViewer -srcfolder "$dist/ImageViewer.app" \
-                       -ov -format UDZO "$file" ;;
+            # On GitHub's macOS runners hdiutil now and then fails with "Resource busy" (run 209;
+            # the same commit had passed in run 208): up to five tries, further apart each time.
+            macOS)   for try in 1 2 3 4 5; do
+                       hdiutil create -volname ImageViewer -srcfolder "$dist/ImageViewer.app" \
+                         -ov -format UDZO "$file" && break
+                       [ "$try" -lt 5 ] || { echo "::error::hdiutil create failed five times"; exit 1; }
+                       echo "hdiutil create failed (try $try of 5); again in $((try * 5)) s"
+                       sleep $((try * 5))
+                     done ;;
             Linux)   tar -C "$dist" -czf "$file" . ;;
           esac
           echo "file=$file" >> "$GITHUB_OUTPUT"

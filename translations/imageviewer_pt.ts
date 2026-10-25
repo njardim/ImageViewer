@@ -274,7 +274,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Mostrar o painel de informações (%1)</translation>
     </message>
     <message>
@@ -545,6 +545,10 @@
         <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Pesquisar:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Extensão</translation>
     </message>
@@ -562,7 +566,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Mostrar a sobreposição de informação no topo (%1)</translation>
     </message>
     <message>
@@ -676,10 +680,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>A pasta não contém imagens suportadas.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>A carregar %1…</translation>
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>

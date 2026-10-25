@@ -18,28 +18,6 @@ constexpr double kSideFree = 128.0;   // left free on each side of the window
 constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
 constexpr int kHoverFade = 10;        // the hovered tile: the highlight 10 points less opaque (D-65)
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
-
-// sRGB, 8 bits, premultiplied in encoded values like every overlay texture; HDR values above SDR
-// white and colours outside sRGB are clipped, as on the clipboard (a thumbnail is a preview).
-QImage thumbnailFrom(const Image &image)
-{
-    QImage out(image.width, image.height, QImage::Format_RGBA8888_Premultiplied);
-    if (out.isNull())
-        return {};
-    const qfloat16 *src = image.pixels->data();
-    for (int y = 0; y < image.height; ++y) {
-        uchar *dst = out.scanLine(y);
-        for (int x = 0; x < image.width; ++x, src += 4, dst += 4) {
-            const float alpha = std::clamp(float(src[3]), 0.0f, 1.0f);
-            for (int c = 0; c < 3; ++c) {
-                const float straight = alpha > 0.0f ? float(src[c]) / alpha : 0.0f;
-                dst[c] = uchar(std::lround(color::linearToSrgb(std::clamp(straight, 0.0f, 1.0f)) * alpha * 255.0f));
-            }
-            dst[3] = uchar(std::lround(alpha * 255.0f));
-        }
-    }
-    return out;
-}
 } // namespace
 
 double ViewerWindow::galleryThumbnail() const
@@ -137,13 +115,18 @@ void ViewerWindow::updateGallery()
     for (int i = -kPrefetch * shown; i < (kPrefetch + 1) * shown; ++i)
         if (const int file = galleryFile(i); file >= 0)
             wanted << m_files.at(file);
+    // Missing, or decoded for a screen less sharp than this one (the window moved to a 2x screen).
+    const double dpr = devicePixelRatio();
+    const auto needed = [this, dpr](const QString &path) {
+        const auto thumbnail = m_thumbnails.constFind(path);
+        return thumbnail == m_thumbnails.cend() || (!thumbnail->image.isNull() && thumbnail->devicePixelRatio < dpr);
+    };
     m_thumbnailQueue.clear();
     for (const QString &path : std::as_const(wanted))
-        if (!m_thumbnails.contains(path) && !m_thumbnailsPending.contains(path) && !m_thumbnailQueue.contains(path))
+        if (needed(path) && !m_thumbnailsPending.contains(path) && !m_thumbnailQueue.contains(path))
             m_thumbnailQueue << path;
     startThumbnails();
 
-    const double dpr = devicePixelRatio();
     const int zoom = galleryZoom();
     const double overhang = galleryOverhang();
     const double barHeight = galleryThumbnail() + 2 * kBorder;
@@ -153,9 +136,11 @@ void ViewerWindow::updateGallery()
                       .arg(m_galleryFirst).arg(shown).arg(m_galleryHover).arg(m_index).arg(dpr)
                       .arg(m_settings.galleryOpacity).arg(zoom).arg(galleryThumbnail())
                   + m_settings.galleryHighlight.name(QColor::HexRgb);
-    for (int i = 0; i < shown; ++i) { // which file, and whether its thumbnail is there yet
+    for (int i = 0; i < shown; ++i) { // which file, and its thumbnail's sharpness, if it is there yet
         const QString &path = m_files.at(galleryFile(i));
-        key += QLatin1Char(m_thumbnails.contains(path) ? '+' : '-') + QString::number(qHash(path), 36);
+        const auto thumbnail = m_thumbnails.constFind(path);
+        key += (thumbnail == m_thumbnails.cend() ? QStringLiteral("-") : QString::number(thumbnail->devicePixelRatio))
+               + QLatin1Char(':') + QString::number(qHash(path), 36);
     }
     m_galleryRect = QRectF(QPointF(std::round((width() - logical.width()) / 2.0 * dpr),
                                    std::round((height() - galleryBottomMargin() - barHeight - overhang) * dpr)),
@@ -246,17 +231,19 @@ void ViewerWindow::decodeThumbnail(const QString &path)
     m_thumbnailsPending.insert(path);
     // Decoded at the largest size the zoom can show with the largest thumbnails, reduced in linear
     // light (decodeImage): another thumbnail size then decodes nothing again.
-    const int pixels = int(std::ceil((Settings::kGalleryThumbnailSizes.back() + Settings::kMaxGalleryEnlargement)
-                                     * devicePixelRatio()));
+    const qreal dpr = devicePixelRatio();
+    const int pixels = int(std::ceil((Settings::kGalleryThumbnailSizes.back() + Settings::kMaxGalleryEnlargement) * dpr));
     // Within the preload's pixel limit: a huge image is decoded whole before it is reduced.
     const qint64 maxPixels = m_cache.maxPreloadPixels();
-    m_thumbnailPool.start([this, path, pixels, maxPixels, generation = m_thumbnailGeneration] {
+    m_thumbnailPool.start([this, path, pixels, dpr, maxPixels, generation = m_thumbnailGeneration] {
         Thumbnail thumbnail;
+        thumbnail.devicePixelRatio = dpr;
         const QFileInfo info(path); // before decoding: a file changed meanwhile is decoded again
         thumbnail.fileSize = info.size();
         thumbnail.modified = info.lastModified();
+        // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
         if (const Image image = decodeImage(path, pixels, maxPixels, false); image.isValid())
-            thumbnail.image = thumbnailFrom(image);
+            thumbnail.image = srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied);
         QMetaObject::invokeMethod(this, [this, path, thumbnail, generation] {
             m_thumbnailsPending.remove(path);
             if (generation == m_thumbnailGeneration) // otherwise decoded before the folder changed: asked again
@@ -282,12 +269,14 @@ void ViewerWindow::thumbnailReady(const QString &path, const Thumbnail &thumbnai
     updateGallery();
 }
 
-void ViewerWindow::forgetChangedThumbnails()
+void ViewerWindow::forgetChangedThumbnails(const QHash<QString, FileStamp> &stamps)
 {
-    // The folder changed: a file written again since its thumbnail was made gets a new one.
-    m_thumbnails.removeIf([](const auto &entry) {
-        const QFileInfo info(entry.key());
-        return info.size() != entry.value().fileSize || info.lastModified() != entry.value().modified;
+    // A new listing: the thumbnails of files not in it (another folder, a file gone) go, and a
+    // file written again since its thumbnail was made gets a new one. The listing's stamps, not
+    // the disk: this runs on the interface's thread.
+    m_thumbnails.removeIf([&stamps](const auto &entry) {
+        const auto stamp = stamps.constFind(entry.key());
+        return stamp == stamps.cend() || stamp->size != entry.value().fileSize || stamp->modified != entry.value().modified;
     });
     ++m_thumbnailGeneration; // and one being decoded now may have read the file before it changed
 }

@@ -41,7 +41,7 @@ QByteArray gunzip(QByteArrayView in)
     if (inflateInit2(&z, MAX_WBITS + 16) != Z_OK) // + 16: a gzip header and trailer
         return {};
     z.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(in.data()));
-    z.avail_in = uInt(in.size()); // at most 2 GiB (readWholeFile)
+    z.avail_in = uInt(in.size()); // at most kMaxFileBytes (readWholeFile)
     QByteArray out;
     int status = Z_OK;
     for (;;) {
@@ -98,7 +98,10 @@ QString safeDataUrl(QStringView url, int nesting)
 // instruction names [code: qtsvg v6.12.0 qsvghandler.cpp:1967-1981, 4238-4262]. So no DTD (its
 // entities are expanded by the reader here, and an ATTLIST default would put back an attribute
 // taken out), no processing instruction, and no reference but "#id": an <image> keeps only an
-// embedded image (safeDataUrl). Empty when the document cannot be read or is too large.
+// embedded image (safeDataUrl). Empty when the document cannot be read or is too large. Style
+// sheets, scripts and event attributes stay: neither Qt's renderer nor resvg follows an @import
+// or runs anything [code: qtsvg v6.12.0 reads no import rule and has no script engine; usvg
+// 0.48.0 renders static SVG only, its CSS parser simplecss 0.2.2 skips every at-rule] (D-82).
 // Only the file itself may be an svgz: an SVG inside it inflated as well would multiply the work
 // at each level (a few kilobytes of gzip inflate to hundreds of megabytes, which can hold many
 // more), and browsers do not inflate a data: URL either.
@@ -233,7 +236,8 @@ bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, D
         *error = libraryError("Qt:", reader.errorString().toStdString());
         return false;
     }
-    if (!fitsInMemory(qint64(image.width()) * image.height(), 16, error))
+    // Again with the image read: a plugin may not know the size before (the limit asked for, too).
+    if (!checkDimensions(image.width(), image.height(), 4, 16, maxPixels, out, error))
         return false;
     const QColorSpace cs = image.colorSpace();
     // Keep the source precision: float formats stay float (values above 1 survive),
@@ -301,11 +305,15 @@ QColorSpace qtColorSpace(const color::Descriptor &d)
 
 class OiioImageHandler final : public QImageIOHandler {
 public:
-    static bool canRead(QIODevice *device) { return device && embeddedImageFormat(device->peek(12)) != nullptr; }
+    // Qt's own plugins look only at a readable device (a writer's device may be write-only).
+    static bool canRead(QIODevice *device)
+    {
+        return device && device->isReadable() && embeddedImageFormat(device->peek(12)) != nullptr;
+    }
 
     bool canRead() const override
     {
-        const char *format = device() ? embeddedImageFormat(device()->peek(12)) : nullptr;
+        const char *format = device() && device()->isReadable() ? embeddedImageFormat(device()->peek(12)) : nullptr;
         if (format)
             setFormat(format);
         return format != nullptr;
@@ -379,7 +387,7 @@ public:
     {
         auto *handler = new OiioImageHandler;
         handler->setDevice(device);
-        const char *detected = device ? embeddedImageFormat(device->peek(12)) : nullptr;
+        const char *detected = device && device->isReadable() ? embeddedImageFormat(device->peek(12)) : nullptr;
         handler->setFormat(format.isEmpty() && detected ? QByteArray(detected) : format);
         return handler;
     }

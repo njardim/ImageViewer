@@ -41,7 +41,8 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
     // never Alt. A key that a MacBook reaches only with fn (Home, End, Page Up and Down, the
     // F keys, forward Delete) is never a command's only shortcut. The first shortcut is the one
     // menus show, so macOS lists its own first. By the owner's choice (D-78, D-79), Open is O, and
-    // Shift+O, its second command, opens with another application.
+    // Shift+O, its second command, opens with another application; the top overlay, shown at
+    // startup, is I, and the information panel P (D-81).
 #ifdef Q_OS_MACOS
     constexpr bool mac = true;
 #else
@@ -75,8 +76,8 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::ActualSize, {K(Qt::Key_1), K(Qt::CTRL | Qt::Key_1)}, false},
         {C::FullScreen, {K(Qt::Key_F), K(Qt::Key_F11)}, false},
         {C::Minimize, {K(Qt::Key_M)}, false}, // keyboard only, in no menu (D-78)
-        {C::Info, {K(Qt::Key_I)}, false},
-        {C::InfoOverlay, {K(Qt::SHIFT | Qt::Key_I)}, false},
+        {C::Info, {K(Qt::Key_P)}, false},
+        {C::InfoOverlay, {K(Qt::Key_I)}, false},
         {C::Checkerboard, {K(Qt::Key_B)}, false},
         {C::Gallery, {K(Qt::Key_G)}, false},
         {C::RotateClockwise, {K(Qt::Key_R)}, false},
@@ -178,7 +179,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::ShowInFolder:
     case Command::OpenWithOther:
     case Command::CopyPath: return !m_image.path.isEmpty();
-    case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyBusy;
+    case Command::CopyImage: return hasImage && currentFileIsShown(); // during a copy, the next one waits (copyImage)
     case Command::Rename:
     case Command::MoveToTrash:
     case Command::DeletePermanently: return currentFileIsShown(); // also a file that failed to decode
@@ -484,8 +485,8 @@ void ViewerWindow::showOpenDialog()
 
 void ViewerWindow::toggleTopOverlay()
 {
-    // Like I for the panel, a switch (Settings::showOverlay); switched on where its mode is
-    // "never" (the default in a window), it shows there always.
+    // Like P for the panel, a switch (Settings::showOverlay); switched on where its mode is
+    // "never", it shows there always.
     const bool fullScreen = visibility() == QWindow::FullScreen;
     const bool show = topOverlayMode() == OverlayVisibility::Hidden;
     savePreference([fullScreen, show](Settings &s) {

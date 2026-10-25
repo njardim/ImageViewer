@@ -35,12 +35,13 @@ void ViewerWindow::openFile(const QString &path)
     m_direction = 1;
     if (info.isDir()) {
         const QString folder = info.absoluteFilePath();
-        listFolder(folder, [this, folder](QStringList files) {
-            if (files.isEmpty()) { // keep the current list and image
+        listFolder(folder, [this, folder](FolderListing listing) {
+            if (listing.files.isEmpty()) { // keep the current list and image
                 reportOpenFailure(tr("The folder contains no supported images."));
                 return;
             }
-            m_files = std::move(files);
+            m_files = std::move(listing.files);
+            forgetChangedThumbnails(listing.stamps); // the previous folder's
             m_galleryCentredOn = -2; // another folder: the gallery centres the image again
             m_lastDirectory = folder;
             setFolder(folder);
@@ -140,8 +141,12 @@ void ViewerWindow::scheduleWork()
             qCInfo(lcNavigation).noquote() << "shown from the cache:" << QFileInfo(current).fileName();
             showImage(std::move(*cached), limit);
         } else {
-            m_loadingMessage = tr("Loading %1…").arg(displayFileName(QFileInfo(current).fileName()));
-            m_message = m_loadingMessage;
+            // No "Loading…" message (owner, D-81): the gallery's highlight moves to the image asked
+            // for at once, and the image on screen stays until the new one replaces it.
+            if (m_awaitedPath != current) {
+                m_awaitedPath = current;
+                m_message.clear(); // the earlier request's status
+            }
             m_error.clear(); // the image that failed is no longer the one asked for
             updateOverlay();
             // A running decode (perhaps of this very file) is waited for: decodeFinished() comes back here.
@@ -149,11 +154,10 @@ void ViewerWindow::scheduleWork()
                 startDecode(current, limit, 0);
             return;
         }
-    } else if (!m_loadingMessage.isEmpty() && m_message == m_loadingMessage) {
+    } else if (!m_awaitedPath.isEmpty()) {
         // Back to the image on screen before the other one arrived (Right, Left).
-        m_message.clear();
+        m_awaitedPath.clear();
         m_error = m_image.error;
-        m_loadingMessage.clear();
         updateOverlay();
     }
     // The requested image is on screen: use the idle decode thread for its neighbours.
@@ -239,22 +243,33 @@ void ViewerWindow::showImage(Image image, int limit)
     }
     m_shownLimit = limit;
     m_imageStale = false;
-    m_loadingMessage.clear();
+    m_awaitedPath.clear();
     // Editors often save by replacing the file: watch the path again each time it is shown.
-    const QStringList watchedFiles = m_folderWatcher.files();
-    if (!watchedFiles.isEmpty())
-        m_folderWatcher.removePaths(watchedFiles);
     const QFileInfo shown(m_image.path);
-    if (shown.exists()) {
-        m_folderWatcher.addPath(m_image.path);
-        // Changed while it was being decoded (before the watch above existed): look again.
-        if (shown.size() != m_image.fileSize || shown.lastModified() != m_image.modified)
-            m_folderTimer.start();
-    }
+    watchFile(shown.exists() ? m_image.path : QString());
+    // Changed while it was being decoded (before the watch above existed): look again.
+    if (shown.exists() && (shown.size() != m_image.fileSize || shown.lastModified() != m_image.modified))
+        m_folderTimer.start();
     // At either end of a non-looping folder a side button may have nothing left to do.
     setHoverZone(zoneAt(mapFromGlobal(QCursor::pos(screen()))));
     updateOverlay();
     requestUpdate();
+}
+
+void ViewerWindow::clearShownImage()
+{
+    stopAnimation();
+    m_image = Image();
+    m_renderer.clearImage();
+}
+
+void ViewerWindow::watchFile(const QString &path)
+{
+    const QStringList watched = m_folderWatcher.files(); // the folder is among its directories
+    if (!watched.isEmpty())
+        m_folderWatcher.removePaths(watched);
+    if (!path.isEmpty())
+        m_folderWatcher.addPath(path);
 }
 
 void ViewerWindow::reloadCurrent()
@@ -275,13 +290,13 @@ void ViewerWindow::setFolder(const QString &folder)
         m_folderWatcher.addPath(m_folder);
 }
 
-void ViewerWindow::listFolder(const QString &folder, std::function<void(QStringList)> done)
+void ViewerWindow::listFolder(const QString &folder, std::function<void(FolderListing)> done)
 {
     const quint64 generation = ++m_listing;
     QtConcurrent::run(&listImages, folder, m_settings.sortBy, m_settings.sortDescending)
-        .then(this, [this, generation, done = std::move(done)](QStringList files) {
+        .then(this, [this, generation, done = std::move(done)](FolderListing listing) {
             if (generation == m_listing) // another folder or another order was asked for meanwhile
-                done(std::move(files));
+                done(std::move(listing));
         });
 }
 
@@ -290,14 +305,15 @@ void ViewerWindow::relist()
     if (m_folder.isEmpty())
         return;
     const QString folder = m_folder;
-    listFolder(folder, [this, folder](QStringList files) {
+    listFolder(folder, [this, folder](FolderListing listing) {
         if (folder == m_folder)
-            applyListing(std::move(files));
+            applyListing(std::move(listing));
     });
 }
 
-void ViewerWindow::applyListing(QStringList files)
+void ViewerWindow::applyListing(FolderListing listing)
 {
+    QStringList &files = listing.files;
     const QString current = currentPath();
     const int previousIndex = m_index;
     if (!current.isEmpty() && !files.contains(current)) {
@@ -306,15 +322,18 @@ void ViewerWindow::applyListing(QStringList files)
         const auto same = std::find_if(files.begin(), files.end(), [&name](const QString &f) {
             return QStringView(f).mid(f.lastIndexOf(QLatin1Char('/')) + 1).compare(name, kFileNameCase) == 0;
         });
-        if (same != files.end())
+        if (same != files.end()) {
+            listing.stamps.insert(current, listing.stamps.take(*same));
             *same = current;
-        // A file opened despite an unknown suffix stays in the list while it exists.
-        else if (QFileInfo::exists(current) && QFileInfo(current).absolutePath() == m_folder)
+        } else if (const QFileInfo info(current); info.exists() && info.absolutePath() == m_folder) {
+            // A file opened despite an unknown suffix stays in the list while it exists.
             files.prepend(current);
+            listing.stamps.insert(current, {info.size(), info.lastModified()});
+        }
     }
     m_files = std::move(files);
     m_galleryCentredOn = -2; // the same index may be another file now
-    forgetChangedThumbnails();
+    forgetChangedThumbnails(listing.stamps);
     const int index = current.isEmpty() ? -1 : int(m_files.indexOf(current));
     if (index >= 0) {
         m_index = index;
@@ -366,9 +385,7 @@ void ViewerWindow::removeCurrentFromList()
         return;
     }
     // Not shown until the next one arrives: the file is gone.
-    stopAnimation();
-    m_image = Image();
-    m_renderer.clearImage();
+    clearShownImage();
     const int next = std::min(m_index, int(m_files.size()) - 1);
     m_index = -1;
     restartSlideshowInterval();
@@ -378,9 +395,9 @@ void ViewerWindow::removeCurrentFromList()
 void ViewerWindow::showFolderEmpty()
 {
     m_index = -1;
-    stopAnimation();
-    m_image = Image();
-    m_renderer.clearImage();
+    if (m_slideshow) // paused, its toolbar would stay over the message
+        stopSlideshow();
+    clearShownImage();
     m_cache.clear();
     m_error = tr("No images left in this folder.");
     setHoverZone(Zone::None);

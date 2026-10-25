@@ -25,12 +25,35 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include <algorithm>
+#include <utility>
+
+#if defined(Q_OS_UNIX)
+#include <sys/stat.h>
+#endif
 
 Q_LOGGING_CATEGORY(lcFiles, "imageviewer.files", QtWarningMsg)
 
 namespace {
 
 constexpr int kMaxUndo = 50;
+
+// Whether `name`, which differs from `original`'s name in case only, names that same file: a
+// case-insensitive volume (Windows; macOS by default; an SD card's exFAT under Linux) resolves it
+// to the same file, the same device and inode, a case-sensitive one to another file or none. Not
+// QFileInfo's ==, which takes every Linux file system for case-sensitive (QTBUG-28246).
+bool sameFileByCase(const QString &name, const QString &original)
+{
+#if defined(Q_OS_UNIX)
+    const QString target = QFileInfo(original).absoluteDir().absoluteFilePath(name);
+    struct stat a {}, b {};
+    return ::stat(QFile::encodeName(target).constData(), &a) == 0 && ::stat(QFile::encodeName(original).constData(), &b) == 0
+           && a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+#else
+    Q_UNUSED(name);
+    Q_UNUSED(original);
+    return true; // NTFS and FAT are case-insensitive
+#endif
+}
 
 // Removes the trash's own record of a file that was taken back out of it, so the trash does
 // not list a file that is no longer there (freedesktop info file, Windows $I file).
@@ -115,9 +138,10 @@ QString renameProblem(const QString &name, const QString &directory, const QStri
         return QCoreApplication::translate("ViewerWindow", "This name is not allowed.");
 #endif
     const QFileInfo target(QDir(directory).absoluteFilePath(name));
-    // A change of case alone is allowed: on case-insensitive file systems the "existing" file
-    // is this one. Where both names do exist, renameFile() fails safely (rename never overwrites).
-    if (target.exists() && name.compare(QFileInfo(original).fileName(), Qt::CaseInsensitive) != 0)
+    // A change of case alone is allowed where the "existing" file is this one (a case-insensitive
+    // volume); on a case-sensitive one, a file of that name is another file (D-83).
+    if (target.exists()
+        && (name.compare(QFileInfo(original).fileName(), Qt::CaseInsensitive) != 0 || !sameFileByCase(name, original)))
         return QCoreApplication::translate("ViewerWindow", "A file with this name already exists.");
     return {};
 }
@@ -129,9 +153,9 @@ void ViewerWindow::showInFolder()
     const QString path = m_image.path;
     if (path.isEmpty() || !QFileInfo::exists(path))
         return;
-    // Arguments are passed as a list (no shell), so file names cannot inject commands.
+    // Never through a command line parsed by a shell: a file's name cannot inject commands.
 #if defined(Q_OS_WIN)
-    QProcess::startDetached(QStringLiteral("explorer.exe"), {QStringLiteral("/select,"), QDir::toNativeSeparators(path)});
+    showInExplorer(path);
 #elif defined(Q_OS_MACOS)
     QProcess::startDetached(QStringLiteral("/usr/bin/open"), {QStringLiteral("-R"), path});
 #else
@@ -170,18 +194,26 @@ void ViewerWindow::openWithOtherApplication()
 
 void ViewerWindow::copyImage()
 {
-    if (m_copyBusy || !currentFileIsShown())
+    if (!currentFileIsShown())
         return;
+    showNotice(tr("Copying the image…"));
+    if (m_copyBusy) { // another image, perhaps: the last one asked for is copied once this one is done
+        m_copyNext = m_image.path;
+        return;
+    }
+    startCopy(m_image.path);
+}
+
+void ViewerWindow::startCopy(const QString &path)
+{
     // The displayed pixels live on the GPU, possibly reduced: the preload cache's copy when it is
     // the file's full resolution, else the file decoded again at full resolution, on the decode
     // thread (after any decode already running).
-    m_copyPath = m_image.path;
-    showNotice(tr("Copying the image…"));
-    const QString path = m_copyPath;
+    m_copyPath = path;
     m_copyBusy = true;
-    if (std::optional<Image> kept = m_cache.find(path, m_shownLimit);
+    if (std::optional<Image> kept = path == m_image.path ? m_cache.find(path, m_shownLimit) : std::nullopt;
         kept && kept->width == kept->sourceWidth && kept->height == kept->sourceHeight) {
-        m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(*kept)] { return clipboardImage(image); }));
+        m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(*kept)] { return srgbImage(image); }));
         return;
     }
     m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path] { return decodeForClipboard(path); }));
@@ -191,6 +223,10 @@ void ViewerWindow::imageCopied()
 {
     QImage image = m_copyWatcher.future().takeResult();
     m_copyBusy = false;
+    if (const QString next = std::exchange(m_copyNext, QString()); !next.isEmpty() && next != m_copyPath) {
+        startCopy(next); // asked for while this one was copied: the clipboard gets the last one asked for
+        return;
+    }
     if (image.isNull()) {
         showNotice(tr("Cannot copy the image."));
         return;
@@ -411,8 +447,7 @@ void ViewerWindow::renameFile()
         kept->path = target; // renaming keeps the size and the modification time
         m_cache.insert(*kept, m_shownLimit);
     }
-    const QStringList watchedFiles = m_folderWatcher.files();
-    if (!watchedFiles.isEmpty())
-        m_folderWatcher.removePaths(watchedFiles);
-    m_folderWatcher.addPath(target);
+    if (m_thumbnails.contains(path)) // likewise its thumbnail, which the gallery would decode again
+        m_thumbnails.insert(target, m_thumbnails.take(path));
+    watchFile(target);
 }

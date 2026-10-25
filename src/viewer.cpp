@@ -114,10 +114,15 @@ ViewerWindow::~ViewerWindow()
     // application menu quits that way) and emits visibilityChanged, when this object's
     // members are already destroyed: none of the handlers below may run from here on.
     disconnect(this, nullptr, this, nullptr);
-    m_thumbnailPool.clear(); // thumbnails not started yet are not decoded
+    // Every task of the window's pools ends here, before any member goes, whatever the order of
+    // their declarations: thumbnails not started yet are not decoded, the running ones are
+    // waited for, as is the decode, the copy, the next frame and a stopped animation's trim.
+    m_thumbnailPool.clear();
+    m_thumbnailPool.waitForDone();
     m_watcher.waitForFinished();
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
+    m_framePool.waitForDone();
 }
 
 void ViewerWindow::showRestored(const SessionState &session)
@@ -267,6 +272,8 @@ void ViewerWindow::exposeEvent(QExposeEvent *)
         m_waitingForExpose = false;
         frameTimeout();
     }
+    if (std::exchange(m_slideshowWaitsForExpose, false) && m_slideshow && !m_slideshowPaused)
+        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
     requestUpdate();
 }
 

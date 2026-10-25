@@ -63,10 +63,10 @@ struct Settings {
     TitleMode titleMode = TitleMode::Name;
     int pointerHideMs = 2000;        // the pointer hides when it stays still this long; 0: never
     // Information
-    bool showInfo = true;      // the information panel (I)
-    bool showOverlay = true;   // the top overlay (Shift+I), where its mode below is not "never"
+    bool showInfo = false;     // the information panel (P)
+    bool showOverlay = true;   // the top overlay (I), where its mode below is not "never"
     OverlayVisibility overlayFullScreen = OverlayVisibility::Always;
-    OverlayVisibility overlayWindow = OverlayVisibility::Hidden;
+    OverlayVisibility overlayWindow = OverlayVisibility::Always;
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
     // The look of both information panels (D-49).
     int overlayBackgroundOpacity = 70; // percent
@@ -80,13 +80,13 @@ struct Settings {
     FolderSort sortBy = FolderSort::Name;
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
-    double slideshowSeconds = 5.0; // between images in the slideshow (E11)
+    double slideshowSeconds = 4.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
     bool slideshowToolbarAutoHide = false; // its toolbar hides while the pointer is still (D-65); the user opts in
     int slideshowToolbarHideMs = 2000;    // ...after this long
-    bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
+    bool showGallery = true;          // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
-    bool galleryZoom = true;          // the thumbnail under the pointer enlarges
+    bool galleryZoom = false;         // the thumbnail under the pointer enlarges
     int galleryOpacity = 70;          // percent, the gallery's background
     int galleryEnlargement = 50;      // logical pixels added to the thumbnail under the pointer
     QColor galleryHighlight = QColor(80, 200, 120); // sRGB, behind the current and the hovered thumbnail (emerald)
@@ -150,6 +150,10 @@ constexpr int kMaxRecentFiles = 10;
 QStringList loadRecentFiles();
 void saveRecentFiles(const QStringList &files);
 
+// The Settings dialog's tab shown when it last closed; it opens there again. Saved at once.
+int loadSettingsTab();
+void saveSettingsTab(int tab);
+
 // User-interface languages: English (the source language) and the translations that
 // ship in the executable, with their names written in the language itself (D-27, D-32).
 struct UiLanguage {
@@ -171,6 +175,10 @@ QString overlayFieldName(OverlayField field);
 // letters and Space. The viewer's matching and the Settings' conflicts use the same rule.
 QKeyCombination comparableKey(QKeyCombination combination);
 bool sameShortcut(const QKeySequence &a, const QKeySequence &b);
+
+// Text that reads left to right even in Arabic or Urdu, isolated (LRI … PDI) from the line around
+// it: an extension, a key sequence ("Ctrl+," not ",Ctrl+") (shortcuts.cpp).
+QString leftToRight(const QString &text);
 
 // A command as the Shortcuts tab lists it: its stored key, its name in the interface language
 // and its default shortcuts (the viewer's command table, D-30).
@@ -194,6 +202,7 @@ Q_SIGNALS:
 
 protected:
     void changeEvent(QEvent *event) override;
+    void done(int result) override; // OK, Cancel, Esc or the close button: remembers the tab shown
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
@@ -215,6 +224,8 @@ private:
                       const QString &dialogTitle);
     void setColor(ColorChoice &choice, const QColor &color);
     void moveOverlayField(int delta);
+    // shortcuts.cpp: the Shortcuts tab (D-52).
+    QWidget *buildShortcutsTab();
     void fillShortcutTable();
     int currentCommand() const;      // the selected row's index in m_commands; -1: none
     void refreshShortcutTexts();     // the table's shortcuts and the labels that name keys

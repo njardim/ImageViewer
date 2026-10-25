@@ -48,6 +48,7 @@ struct Thumbnail {
     QImage image;
     qint64 fileSize = -1;
     QDateTime modified;
+    qreal devicePixelRatio = 1.0; // the screen's it was decoded for: a sharper screen asks for it again
 };
 
 class QMenu;
@@ -156,13 +157,15 @@ private:
     void startDecode(const QString &path, int limit, qint64 maxPixels);
     void decodeFinished();
     void showImage(Image image, int limit);
+    void clearShownImage();             // nothing on screen: no image, no animation
+    void watchFile(const QString &path); // the one file watched, the image on screen; empty: none
     void reloadCurrent();               // decode the shown file again, keeping the view
     void setFolder(const QString &folder);
     void relist();                      // folder sorted per the settings, keeping the current file
     // Lists `folder` on a worker thread (a large folder took half a second) and hands the
     // sorted files to `done` on this thread, unless a newer listing was started meanwhile.
-    void listFolder(const QString &folder, std::function<void(QStringList)> done);
-    void applyListing(QStringList files);
+    void listFolder(const QString &folder, std::function<void(FolderListing)> done);
+    void applyListing(FolderListing listing);
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
     void showFolderEmpty();             // nothing left to show in the folder
@@ -218,7 +221,7 @@ private:
     void startThumbnails();                 // from m_thumbnailQueue, while the pool has a thread free
     void decodeThumbnail(const QString &path);
     void thumbnailReady(const QString &path, const Thumbnail &thumbnail);
-    void forgetChangedThumbnails();         // after the folder changed
+    void forgetChangedThumbnails(const QHash<QString, FileStamp> &stamps); // after a listing: other or rewritten files
     int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
     bool galleryContains(const QPointF &position) const;
     void setGalleryHover(int slot);
@@ -234,7 +237,7 @@ private:
     double topActivationHeight() const; // logical pixels
     void placeOverlays(Renderer::Frame *frame) const;
     void updateNavigationButtons();
-    void showNotice(const QString &text); // brief message in the information panel
+    void showNotice(const QString &text); // brief message, in a panel over the information panel
 
     // commands.cpp
     struct CommandInfo {
@@ -264,6 +267,7 @@ private:
     void showInFolder();
     void openWithOtherApplication();
     void copyImage();
+    void startCopy(const QString &path);
     void imageCopied();
     void copyPath();
     void renameFile();
@@ -305,7 +309,7 @@ private:
     int m_galleryHover = -1;      // slot under the pointer
     int m_galleryCentredOn = -2;  // the file the gallery last centred
     int m_galleryWheel = 0;       // wheel angle not yet turned into a step (1/8 degrees)
-    QThreadPool m_thumbnailPool;  // after what its tasks report to: destroyed (and waited for) first
+    QThreadPool m_thumbnailPool;  // two threads; waited for in ~ViewerWindow()
     QFutureWatcher<FrameResult> m_frameWatcher;
     bool m_frameBusy = false;   // as m_decodeBusy, for m_frameWatcher
     int m_frameGeneration = 0;  // changes when the animation shown changes
@@ -323,6 +327,7 @@ private:
     QTimer m_frameTimer;
     bool m_slideshow = false;
     QTimer m_slideshowTimer;
+    bool m_slideshowWaitsForExpose = false; // its timer stopped while the window was hidden
     QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
     bool m_toolbarHidden = false;
     ToolbarButton m_toolbarHover = ToolbarButton::None;
@@ -338,7 +343,8 @@ private:
     int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
     bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher
-    QString m_copyPath;
+    QString m_copyPath;                   // being copied
+    QString m_copyNext;                   // asked for while another copy ran; empty: none
     ImageCache m_cache;
     Image m_image; // metadata of the displayed image (pixels live on the GPU and in the cache)
     int m_shownLimit = 0;     // texture limit m_image was decoded at
@@ -354,9 +360,9 @@ private:
         QDateTime modified; // later took the same name in the trash
     };
     QList<TrashedFile> m_trashed; // for Undo, most recent last
-    QString m_message; // loading status, in the information panel; cleared when an image arrives
+    QString m_message; // status (an image reduced for the GPU), with the notices; cleared when an image arrives
     QString m_error;   // why no image is shown, in the middle of the window; cleared likewise
-    QString m_loadingMessage; // the "Loading…" text in m_message, while it is there
+    QString m_awaitedPath; // asked for while another image is on screen; empty: none
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
 

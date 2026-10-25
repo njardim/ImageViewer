@@ -2,58 +2,29 @@
 // OpenImageIO and composited as the APNG specification says. Split from codecs.cpp (D-41).
 #include "decoders.h"
 
-#include <QCoreApplication>
+#include <QtEndian>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstring>
 #include <vector>
 
+#include <zlib.h>
+
 namespace {
-
-quint32 bigEndian32(const unsigned char *p)
-{
-    return quint32(p[0]) << 24 | quint32(p[1]) << 16 | quint32(p[2]) << 8 | quint32(p[3]);
-}
-
-quint16 bigEndian16(const unsigned char *p)
-{
-    return quint16(quint16(p[0]) << 8 | p[1]);
-}
-
-void appendBigEndian32(QByteArray *out, quint32 v)
-{
-    const char bytes[4] = {char(v >> 24), char(v >> 16), char(v >> 8), char(v)};
-    out->append(bytes, 4);
-}
-
-// The CRC-32 of PNG chunks (ISO 3309, polynomial 0xEDB88320).
-quint32 crc32(QByteArrayView a, QByteArrayView b = {})
-{
-    static const std::array<quint32, 256> table = [] {
-        std::array<quint32, 256> t{};
-        for (quint32 n = 0; n < 256; ++n) {
-            quint32 c = n;
-            for (int k = 0; k < 8; ++k)
-                c = (c & 1) ? 0xEDB88320u ^ (c >> 1) : c >> 1;
-            t[n] = c;
-        }
-        return t;
-    }();
-    quint32 c = 0xFFFFFFFFu;
-    for (QByteArrayView part : {a, b})
-        for (char byte : part)
-            c = table[(c ^ quint8(byte)) & 0xFF] ^ (c >> 8);
-    return c ^ 0xFFFFFFFFu;
-}
 
 void appendChunk(QByteArray *png, const char type[4], QByteArrayView data)
 {
-    appendBigEndian32(png, quint32(data.size()));
+    // The chunk's CRC covers its type and data: zlib's CRC-32 is the one PNG specifies (ISO 3309).
+    const auto *bytes = reinterpret_cast<const Bytef *>(data.data());
+    const quint32 crc = quint32(crc32_z(crc32_z(0, reinterpret_cast<const Bytef *>(type), 4), bytes, std::size_t(data.size())));
+    char word[4];
+    qToBigEndian(quint32(data.size()), word);
+    png->append(word, 4);
     png->append(type, 4);
     png->append(data.data(), data.size());
-    appendBigEndian32(png, crc32(QByteArrayView(type, 4), data));
+    qToBigEndian(crc, word);
+    png->append(word, 4);
 }
 
 // Animated PNG. Each frame is rebuilt as a plain PNG (the file's own header and colour
@@ -67,18 +38,9 @@ public:
     static std::unique_ptr<ApngFrames> open(QByteArray bytes, qint64 maxPixels, Decoded *first, QString *error)
     {
         std::unique_ptr<ApngFrames> reader(new ApngFrames(std::move(bytes)));
-        if (!reader->parse(error) || reader->m_frames.size() < 2)
-            return nullptr;
-        const qint64 pixels = qint64(reader->m_width) * reader->m_height;
-        if (pixels > kMaxPixels) {
-            *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(reader->m_width).arg(reader->m_height).arg(4);
-            return nullptr;
-        }
-        if (maxPixels > 0 && pixels > maxPixels) {
-            first->overLimit = true;
-            return nullptr;
-        }
-        if (!fitsInMemory(pixels, 8, error) || !reader->next(first, &first->durationMs, error))
+        if (!reader->parse(error) || reader->m_frames.size() < 2
+            || !checkDimensions(reader->m_width, reader->m_height, 4, 8, maxPixels, first, error)
+            || !reader->next(first, &first->durationMs, error))
             return nullptr;
         return reader;
     }
@@ -158,7 +120,7 @@ private:
         bool animated = false, seenIdat = false;
         quint32 declaredFrames = 0;
         for (qsizetype pos = 8; pos + 12 <= size;) {
-            const quint32 length = bigEndian32(p + pos);
+            const quint32 length = qFromBigEndian<quint32>(p + pos);
             if (length > quint32(size - pos - 12)) { // runs past the end of the file
                 *error = damaged("APNG");
                 return false;
@@ -173,12 +135,12 @@ private:
                     return false;
                 }
                 m_ihdr = QByteArray(reinterpret_cast<const char *>(data), 13);
-                m_width = bigEndian32(data);
-                m_height = bigEndian32(data + 4);
+                m_width = qFromBigEndian<quint32>(data);
+                m_height = qFromBigEndian<quint32>(data + 4);
             } else if (std::memcmp(type, "acTL", 4) == 0 && length == 8 && !seenIdat) {
                 animated = true;
-                declaredFrames = bigEndian32(data);
-                m_plays = int(std::min<quint32>(bigEndian32(data + 4), 1000000));
+                declaredFrames = qFromBigEndian<quint32>(data);
+                m_plays = int(std::min<quint32>(qFromBigEndian<quint32>(data + 4), 1000000));
             } else if (std::memcmp(type, "fcTL", 4) == 0 && animated) {
                 Frame frame;
                 if (length != 26 || !readControl(data, &frame) || m_frames.size() >= 100000) {
@@ -190,7 +152,7 @@ private:
                 if (!animated)
                     return false; // acTL comes before the image data: a still PNG, read as such
                 // The default image is the first frame only when a frame control precedes it.
-                if (animated && m_frames.size() == 1) {
+                if (m_frames.size() == 1) {
                     m_frames.front().data << QByteArrayView(reinterpret_cast<const char *>(data), length);
                     m_firstFromIdat = true;
                 }
@@ -237,11 +199,11 @@ private:
 
     static bool readControl(const unsigned char *d, Frame *frame)
     {
-        frame->width = bigEndian32(d + 4);
-        frame->height = bigEndian32(d + 8);
-        frame->x = bigEndian32(d + 12);
-        frame->y = bigEndian32(d + 16);
-        const quint16 numerator = bigEndian16(d + 20), denominator = bigEndian16(d + 22);
+        frame->width = qFromBigEndian<quint32>(d + 4);
+        frame->height = qFromBigEndian<quint32>(d + 8);
+        frame->x = qFromBigEndian<quint32>(d + 12);
+        frame->y = qFromBigEndian<quint32>(d + 16);
+        const quint16 numerator = qFromBigEndian<quint16>(d + 20), denominator = qFromBigEndian<quint16>(d + 22);
         frame->durationMs = playableMs(1000.0 * numerator / (denominator ? denominator : 100));
         frame->dispose = d[24];
         frame->blend = d[25];
@@ -261,10 +223,8 @@ private:
     {
         QByteArray png("\x89PNG\r\n\x1a\n", 8);
         QByteArray ihdr = m_ihdr;
-        for (int i = 0; i < 4; ++i) {
-            ihdr[i] = char(frame.width >> (24 - 8 * i));
-            ihdr[4 + i] = char(frame.height >> (24 - 8 * i));
-        }
+        qToBigEndian(frame.width, ihdr.data());
+        qToBigEndian(frame.height, ihdr.data() + 4);
         appendChunk(&png, "IHDR", ihdr);
         png += m_shared;
         for (QByteArrayView part : frame.data)

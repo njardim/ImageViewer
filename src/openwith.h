@@ -21,6 +21,12 @@ bool openWith(const OpenWithApp &app, const QString &file);
 // application or program picked in a file dialog. False when cancelled or not started.
 bool openWithOther(QWindow *parent, const QString &file);
 
+#if defined(Q_OS_WIN)
+// Opens the file's folder in Explorer with the file selected (or the folder only, when the Shell
+// cannot select it). Returns at once; the Shell works on a thread of its own.
+void showInExplorer(const QString &file);
+#endif
+
 // Linux: the program and arguments openWith() starts; elsewhere empty (the system starts the app).
 QStringList openWithCommand(const OpenWithApp &app, const QString &file);
 // Linux: the program and arguments a desktop entry's Exec value, its string escapes undone,

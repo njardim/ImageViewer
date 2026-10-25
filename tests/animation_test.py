@@ -4,15 +4,18 @@
 A folder holds an animated GIF (red, green, blue frames of 400 ms, looping) and a yellow
 still image. The colour in the middle of the window shows what is on screen:
   1. the animation plays: red, green and blue follow one another;
-  2. K pauses it (the colour stays put), "." and "," step one frame forward and back,
-     K plays again;
+  2. Space pauses it (the colour stays put), Ctrl+Right and Ctrl+Left step one frame forward
+     and back, Space plays again;
   3. S starts the slideshow (1 s per image, from the settings): the yellow image follows
      by itself; Esc stops it and the image stays.
-  4. The slideshow's toolbar (D-65), 16 px below the top overlay: stop, then pause, while it
+  4. The slideshow's toolbar (D-65), 16 px below the top overlay (I): stop, then pause, while it
      runs; a click on pause holds the image and turns it into play, play goes on; with auto-hide
      off (the default) it stays; stop ends the slideshow.
   5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back;
      with auto-hide on, a still pointer hides the toolbar after 2 s and a move shows it again.
+  6. A paused slideshow whose folder empties stops, and its toolbar goes.
+  7. While the window is hidden (unmapped: Xvfb has no window manager to minimize it), the
+     slideshow shows no image; shown again, the image there gets its full time, then it goes on.
 
 usage: python3 tests/animation_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
@@ -48,8 +51,11 @@ COLOURS = {"red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255), "yello
 frames = [Image.new("RGB", (160, 120), COLOURS[c]) for c in ("red", "green", "blue")]
 frames[0].save(os.path.join(pictures, "a-anim.gif"), save_all=True, append_images=frames[1:], duration=400, loop=0)
 Image.new("RGB", (160, 120), COLOURS["yellow"]).save(os.path.join(pictures, "b-still.png"))
+# 1 s per image; neither the top overlay (its text would be white in the toolbar's band, until I
+# shows it for the gap below it) nor the gallery nor the panel.
 with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "w") as f:
-    f.write("[General]\nversion=2\n\n[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\n")
+    f.write("[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\nshowOverlay=false\n\n"
+            "[gallery]\nshow=false\n")
 
 
 def fail(message):
@@ -164,20 +170,20 @@ try:
             second = wait_for("the next frame follows by itself", {NEXT[first]})
             wait_for("and the one after it", {NEXT[second]})
 
-            # 2. K pauses; "." and "," step; K plays again.
+            # 2. Space pauses; Ctrl+Right and Ctrl+Left step; Space plays again.
             xdotool("key", "space")
             time.sleep(0.3)
             paused = colour()
             if paused not in NEXT:
-                fail(f"after K: {paused} on screen")
-            stays("K pauses the animation", paused, 1.5)
+                fail(f"after Space: {paused} on screen")
+            stays("Space pauses the animation", paused, 1.5)
             xdotool("key", "ctrl+Right")
-            wait_for("'.' shows the next frame", {NEXT[paused]})
+            wait_for("Ctrl+Right shows the next frame", {NEXT[paused]})
             stays("and it stays", NEXT[paused], 1.0)
             xdotool("key", "ctrl+Left")
-            wait_for("',' goes back a frame", {paused})
+            wait_for("Ctrl+Left goes back a frame", {paused})
             xdotool("key", "space")
-            wait_for("K plays again", {NEXT[paused]})
+            wait_for("Space plays again", {NEXT[paused]})
 
             # 3. S: the slideshow moves on by itself; Esc stops it.
             xdotool("key", "s")
@@ -199,7 +205,7 @@ try:
 
             # 16 px between the top overlay and the toolbar below it (D-60): the rows across the
             # middle hold the overlay's panel, then the window's background, then the toolbar's.
-            xdotool("key", "shift+i")
+            xdotool("key", "i")
 
             def gap_below_overlay():
                 screen = xvfb.grab(display, shot_path)
@@ -221,7 +227,7 @@ try:
             if gap is None or abs(gap - 16) > 1:
                 fail(f"{gap} px between the top overlay and the toolbar, not 16 (see {shot_path})")
             print(f"ok   16 px between the top overlay and the toolbar ({gap} px)")
-            xdotool("key", "shift+i")
+            xdotool("key", "i")
             toolbar_is("the overlay hidden again, the toolbar stays", "pause")
             xdotool("mousemove", "--sync", str(bx), str(by))
             xdotool("click", "1")
@@ -284,6 +290,58 @@ try:
             toolbar_is("a move shows it again", "pause")
             xdotool("key", "Escape")
             logged("visibility QWindow::Windowed", windowed + 1)
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 6. A paused slideshow whose folder empties (D-83): it stops, its toolbar goes with it.
+            empty = os.path.join(work, "emptied")
+            os.makedirs(empty)
+            for name, rgb in (("c1.png", COLOURS["red"]), ("c2.png", COLOURS["green"])):
+                Image.new("RGB", (160, 120), rgb).save(os.path.join(empty, name))
+            with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "a") as f:
+                f.write("\n[navigation]\nslideshowFullScreen=false\nslideshowToolbarAutoHide=false\n")
+            app = subprocess.Popen([exe, os.path.join(empty, "c1.png")], env=env, stdout=log, stderr=log)
+            wait_for("the first of two images is shown", {"red"})
+            xdotool("windowfocus", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0])
+            xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))
+            xdotool("key", "s")
+            toolbar_is("S shows the toolbar", "pause")
+            xdotool("key", "space")
+            toolbar_is("Space pauses the slideshow", "play")
+            for name in ("c1.png", "c2.png"):
+                os.remove(os.path.join(empty, name))
+            toolbar_is("the folder emptied, the paused slideshow stops and its toolbar goes", None)
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 7. Hidden, the slideshow waits (D-84): no image shown (decoded or from the cache) until
+            # the window is shown again, and the one there then stays its full second.
+            hidden = os.path.join(work, "hidden")
+            os.makedirs(hidden)
+            for name, rgb in (("h1.png", COLOURS["red"]), ("h2.png", COLOURS["green"]), ("h3.png", COLOURS["blue"])):
+                Image.new("RGB", (160, 120), rgb).save(os.path.join(hidden, name))
+            app = subprocess.Popen([exe, os.path.join(hidden, "h1.png")], env=env, stdout=log, stderr=log)
+            wait_for("the first of three images is shown", {"red"})
+            window = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
+            xdotool("windowfocus", "--sync", window)
+            xdotool("key", "s")
+            wait_for("S: the slideshow goes on", {"green"})
+
+            def images_shown():
+                with open(log_path, encoding="utf-8", errors="replace") as f:
+                    text = f.read()
+                return text.count("decoded for display:") + text.count("shown from the cache:")
+            xdotool("windowunmap", "--sync", window)
+            time.sleep(0.5)  # an image on its way when the window went
+            before = images_shown()
+            time.sleep(3.0)
+            if images_shown() != before:
+                fail(f"the hidden window's slideshow showed {images_shown() - before} images in 3 s")
+            print("ok   hidden, the slideshow shows no image for 3 s")
+            xdotool("windowmap", "--sync", window)
+            back = wait_for("the window shown again", {"red", "green", "blue"})
+            stays("the image there gets its full time", back, 0.5)
+            wait_for("then the slideshow goes on", {NEXT[back]})
             xdotool("key", "q")
             app.wait(15)
         finally:

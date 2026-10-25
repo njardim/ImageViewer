@@ -241,6 +241,10 @@
         <translation>Alb</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Căutare:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizat…</translation>
     </message>
@@ -429,7 +433,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Afișează panoul de informații (%1)</translation>
     </message>
     <message>
@@ -644,7 +648,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Afișează suprapunerea de informații în partea de sus (%1)</translation>
     </message>
     <message>
@@ -689,10 +693,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>Folderul nu conține imagini acceptate.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>Se încarcă %1…</translation>
     </message>
     <message>
         <source>No images left in this folder.</source>

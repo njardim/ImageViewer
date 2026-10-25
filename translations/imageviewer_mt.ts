@@ -241,6 +241,10 @@
         <translation>Abjad</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Fittex:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizzat…</translation>
     </message>
@@ -429,7 +433,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Uri l-pannell tal-informazzjoni (%1)</translation>
     </message>
     <message>
@@ -644,7 +648,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Uri l-overlay tal-informazzjoni fin-naħa ta&apos; fuq (%1)</translation>
     </message>
     <message>
@@ -689,10 +693,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>Il-folder ma fihx immaġni appoġġjati.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>Qed jitgħabba %1…</translation>
     </message>
     <message>
         <source>No images left in this folder.</source>

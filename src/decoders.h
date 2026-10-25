@@ -47,6 +47,8 @@ struct Decoded {
 
 // Refuses absurd dimensions before anything else.
 inline constexpr qint64 kMaxPixels = qint64(1) << 30;
+// The largest file read into memory (readWholeFile(), the decode worker's input).
+inline constexpr qint64 kMaxFileBytes = qint64(1) << 31;
 
 // The frames of an animated file (E6), composited to full canvases and read in order; every
 // frame has the first frame's size, samples and channel layout. One user at a time.
@@ -78,6 +80,11 @@ void shutdownOpenImageIO();
 // Shared by the back ends (decoders.cpp, codecs.cpp).
 // Refuses a decode that would need more than ~60 % of physical memory (*error says why).
 bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error);
+// What every back end checks before it reads a pixel (D-38): dimensions within kMaxPixels, a
+// volume's slices included (*error otherwise, naming `channels`); the pixel limit asked for
+// (out->overLimit otherwise); fitsInMemory() for every slice. Any 32-bit dimension is safe.
+bool checkDimensions(qint64 width, qint64 height, int channels, int nativeBytesPerPixel, qint64 maxPixels, Decoded *out,
+                     QString *error, qint64 depth = 1);
 // That ~60 % of physical memory, in bytes (0 if unknown).
 qint64 decodeMemoryBudget();
 // "damaged, truncated or unsupported <format> file", for every back end.

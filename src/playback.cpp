@@ -260,6 +260,14 @@ void ViewerWindow::stopSlideshow()
 
 void ViewerWindow::slideshowTimeout()
 {
+    // Not while the window is off the screen (minimized, for one): nobody sees the images it would
+    // decode. It waits for the window to come back, and the image shown then gets its full time
+    // (exposeEvent).
+    if (!isExposed()) {
+        m_slideshowTimer.stop();
+        m_slideshowWaitsForExpose = true;
+        return;
+    }
     // Not behind a dialog or a menu: the image they act on must stay the one on screen.
     if (QGuiApplication::modalWindow() || QApplication::activePopupWidget()) {
         m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));

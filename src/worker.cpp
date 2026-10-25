@@ -27,6 +27,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QTemporaryDir>
+#include <QtEndian>
 
 #include <algorithm>
 #include <array>
@@ -60,7 +61,6 @@ namespace {
 
 constexpr char kMagic[8] = {'I', 'V', 'W', 'O', 'R', 'K', 'E', 'R'};
 constexpr int kHeaderWords = 7;
-constexpr qint64 kMaxInputBytes = qint64(1) << 31; // as readWholeFile()
 // Memory per pixel of a worker decode: GraphicsMagick's 16-bit RGBA cache and the answer in
 // the worker, the answer and its copy here (fitsInMemory() adds the conversion's 16).
 constexpr int kWorkerNativeBytesPerPixel = 8 + 8 + 8 + 8;
@@ -83,12 +83,6 @@ bool isAllowedCoder(const char *name)
     return false;
 }
 
-quint32 readWord(const QByteArray &bytes, qsizetype at)
-{
-    const auto *p = reinterpret_cast<const unsigned char *>(bytes.constData()) + at;
-    return quint32(p[0]) | quint32(p[1]) << 8 | quint32(p[2]) << 16 | quint32(p[3]) << 24;
-}
-
 constexpr qsizetype kHeaderBytes = qsizetype(sizeof kMagic) + kHeaderWords * 4;
 
 // The answer's header, checked before anything else of it is used.
@@ -102,13 +96,14 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
 {
     if (answer.size() < kHeaderBytes || std::memcmp(answer.constData(), kMagic, sizeof kMagic) != 0)
         return false;
-    a->width = readWord(answer, 8);
-    a->height = readWord(answer, 12);
-    a->channels = readWord(answer, 16);
-    a->sampleBytes = readWord(answer, 20);
-    a->bits = readWord(answer, 24);
-    a->orientation = readWord(answer, 28);
-    a->iccBytes = readWord(answer, 32);
+    const auto word = [&answer](qsizetype at) { return qFromLittleEndian<quint32>(answer.constData() + at); };
+    a->width = word(8);
+    a->height = word(12);
+    a->channels = word(16);
+    a->sampleBytes = word(20);
+    a->bits = word(24);
+    a->orientation = word(28);
+    a->iccBytes = word(32);
     // The answer is untrusted (a worker may be compromised): every field is bounded before any
     // arithmetic, which the sizes of two 32-bit words could otherwise overflow.
     if (a->width == 0 || a->height == 0 || a->width > kMaxPixels || a->height > kMaxPixels
@@ -125,9 +120,9 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
 void writeWord(std::FILE *out, quint32 v)
 {
-    const unsigned char b[4] = {static_cast<unsigned char>(v), static_cast<unsigned char>(v >> 8),
-                                static_cast<unsigned char>(v >> 16), static_cast<unsigned char>(v >> 24)};
-    std::fwrite(b, 1, 4, out);
+    unsigned char bytes[4];
+    qToLittleEndian(v, bytes);
+    std::fwrite(bytes, 1, 4, out);
 }
 
 int fail(const char *what, const ExceptionInfo &exception)
@@ -235,7 +230,7 @@ int runDecodeWorker(int argc, char **argv)
     std::vector<unsigned char> input;
     std::array<unsigned char, 65536> chunk;
     for (std::size_t n; (n = std::fread(chunk.data(), 1, chunk.size(), stdin)) > 0;) {
-        if (qint64(input.size() + n) > kMaxInputBytes) {
+        if (qint64(input.size() + n) > kMaxFileBytes) {
             std::fprintf(stderr, "file too large\n");
             return kExitFailed;
         }
@@ -285,9 +280,11 @@ int runDecodeWorker(int argc, char **argv)
     // GraphicsMagick's XCF reader returns the bottom layer on the canvas and the others as
     // the next images (its own compositing is disabled): composite them, each with its blend
     // mode and offset; hidden layers carry NoCompositeOp. Not FlattenImages(), which would
-    // put the background colour under a transparent canvas.
-    for (GmImage *layer = image->next; layer; layer = layer->next)
-        (void) CompositeImage(image, layer->compose, layer, layer->page.x, layer->page.y);
+    // put the background colour under a transparent canvas. Any other coder's next images are
+    // pages or frames (each reader stops after the first, subrange 1): never composited.
+    if (std::strcmp(coder, "XCF") == 0)
+        for (GmImage *layer = image->next; layer; layer = layer->next)
+            (void) CompositeImage(image, layer->compose, layer, layer->page.x, layer->page.y);
     if (!IsRGBCompatibleColorspace(image->colorspace) && !TransformColorspace(image, RGBColorspace)) {
         const int code = fail("colour space", image->exception);
         DestroyImageList(image);

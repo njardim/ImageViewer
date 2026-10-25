@@ -3,15 +3,19 @@
 
 Three small noise images (asymmetric, so every flip and rotation is distinguishable) are
 opened from a folder; every step waits until the expected pixels are on screen, exactly:
-  1. hovering the right edge shows the "next" button; clicking it shows the next image,
-     and the left edge goes back;
+  1. at startup the top overlay and the gallery show and the information panel does not
+     (D-81), and G hides the gallery (its thumbnails would be exact copies of the test images);
+     hovering the right edge shows the "next" button; clicking it shows the next image, and the
+     left edge goes back;
   2. H, V, R and Shift+R flip and rotate the view (compared with numpy's flips/rotations);
   3. Delete asks for confirmation, Return moves the file to the trash, the next image follows;
   4. Ctrl+Z restores it (no stale trash record); stepping to a neighbour uses the preload
-     cache (log); F2 renames; Shift+Delete always asks (Return cancels) and then deletes;
+     cache (log); F2 renames, and refuses the name of another file that differs in case only;
+     Shift+Delete always asks (Return cancels) and then deletes;
      a file created, deleted or rewritten by another program shows up, goes away or is
-     shown again (folder watching); Shift+I shows the top overlay without moving the image
-     by a pixel (E14); B shows the checkerboard behind a transparent image; Apply in the
+     shown again (folder watching); I hides and shows the top overlay without moving the image
+     by a pixel (E14); with the information panel on (P), a notice (Z) is a panel of its own
+     16 px above it (D-81); B shows the checkerboard behind a transparent image; Apply in the
      Settings saves a change while the dialog stays open, and Cancel keeps it;
   5. Q quits and the session (last file, window geometry) is in the settings file;
   6. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
@@ -24,11 +28,13 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      tab replaces the first shortcut while the others stay; O opens a file, Shift+O another
      application (D-79), M asks the window manager to minimize the viewer (D-78);
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
-     keyboard, are saved as settings (D-56); Shift+I and the overlay's checkbox in Settings are
-     one switch;
+     keyboard, are saved as settings (D-56); I and the overlay's checkbox in Settings are one
+     switch; the Settings dialog opens again on the tab it last closed on, after a restart too
+     (D-84);
   9. the title in the overlay's style with its fields (D-58); the gallery (D-60, D-65): G shows
      it, the current thumbnail on the highlight colour and the hovered one fainter, a click
-     shows a thumbnail's image, the ring past the first image, the wheel scrolls, G hides it;
+     shows a thumbnail's image, the ring past the first image, the wheel scrolls, a file saved
+     again by an editor gets a new thumbnail (D-82), G hides it;
      large thumbnails and another highlight from the settings;
  10. an unreadable file shows the warning sign in the middle (D-63).
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
@@ -71,6 +77,7 @@ for d in (pictures, config, data):
     os.makedirs(d, exist_ok=True)
 log_path = os.path.join(work, f"viewer-{rhi}.log")
 shot_path = os.path.join(work, f"screen-{rhi}.png")
+settings_file = os.path.join(config, "Cristallumnis", "ImageViewer.conf")
 
 refs = {}
 for i, name in enumerate(("a", "b", "c", "e")):
@@ -124,6 +131,23 @@ def log_text():
         return f.read()
 
 
+def stored(pattern):
+    """The settings file holds a line matching `pattern`."""
+    if not os.path.exists(settings_file):
+        return False
+    with open(settings_file, encoding="utf-8") as f:
+        return re.search(pattern, f.read()) is not None
+
+
+def overlay_visible():
+    """The top overlay's text in the band below the window's top edge."""
+    shot = grab()
+    if shot is None:
+        return False
+    band = shot[y + 8:y + 48, x + w // 2 - 150:x + w // 2 + 150]
+    return (band.min(axis=2) > 200).sum() > 30
+
+
 def find_dialog(title):
     """Window id of a visible dialog with this exact title, waiting for it."""
     found = []
@@ -149,12 +173,19 @@ def window_geometry():
 
 def focus_viewer():
     """Keyboard focus on the viewer again: without a window manager, a dialog that closes leaves
-    it on the root window with some Qt builds (seen with Qt 6.12 built from source)."""
-    for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
-        info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
-        if int(info["WIDTH"]) >= 640:  # the viewer, not a dialog
-            xdotool("windowfocus", "--sync", wid)
-            return
+    it on the root window with some Qt builds (seen with Qt 6.12 built from source). Asked again
+    until the deadline: a dialog's windows are destroyed for seconds after it is hidden (the file
+    dialog over /usr/bin, 12 to 16 s on OpenGL in CI), and an xdotool search that meets one being
+    destroyed ends with nothing found (CI run 217)."""
+    start = time.monotonic()
+    while time.monotonic() - start < DEADLINE_S:
+        for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
+            fields = xdotool("getwindowgeometry", "--shell", wid).stdout.split()
+            info = dict(line.split("=", 1) for line in fields if "=" in line)
+            if int(info.get("WIDTH", 0)) >= 640:  # the viewer, not a dialog
+                xdotool("windowfocus", "--sync", wid)
+                return
+        time.sleep(POLL_S)
     fail("viewer window not found")
 
 
@@ -240,7 +271,27 @@ try:
             wait_for("first image shown", refs["a"])
             x, y, w, h = window_geometry()
 
-            # 1. Side zones: the button appears on hover, a click navigates.
+            # 1. The defaults at startup (D-81): the top overlay shows; the gallery shows, a.png's
+            # thumbnail (the first of three, on the left) on the emerald tile of the current image,
+            # which shows above the 96 × 64 image within its 96 px square; no information panel,
+            # whose text would be the only light pixels left of the gallery.
+            wait_until("at startup the top overlay shows", overlay_visible)
+
+            def gallery_shown():
+                shot = grab()
+                if shot is None:
+                    return False
+                tile = shot[y + h - 16 - 8 - 96 + 5, x + w // 2 - 104]
+                return tile[1] > tile[0] + 40 and tile[1] > tile[2] + 20
+            wait_until("at startup the gallery shows, the current thumbnail on its emerald tile", gallery_shown)
+            shot = grab()
+            if shot is None or (shot[y + h // 2 + 40:y + h - 16, x + 16:x + 16 + 200].min(axis=2) > 200).any():
+                fail(f"the information panel shows at startup (see {shot_path})")
+            print("ok   at startup the information panel does not show")
+            xdotool("key", "g")
+            wait_until("G hides the gallery and saves it", lambda: stored(r"(?m)^show=false$"))
+
+            # Side zones: the button appears on hover, a click navigates.
             xdotool("mousemove", "--sync", str(x + w - 60), str(y + h // 2))
             start = time.monotonic()
             while True:  # the chevron is white on the dark button, in the middle of the 100 px zone
@@ -316,6 +367,25 @@ try:
                        lambda: os.path.exists(os.path.join(pictures, "d.png"))
                        and not os.path.exists(os.path.join(pictures, "c.png")))
             wait_for("the renamed image stays on screen", refs["c"])
+            # Beside another file "D.png" (a case-sensitive file system), the name "D.png" is refused
+            # in the dialog: Return does nothing (D-83). It was accepted, and the rename failed after.
+            Image.fromarray(refs["e"].astype(np.uint8)).save(os.path.join(pictures, "D.png"))
+            xdotool("key", "F2")
+            rename = find_dialog("Rename")
+            if not rename:
+                fail("F2 did not open the Rename dialog")
+            xdotool("windowfocus", "--sync", rename)
+            xdotool("type", "--delay", "50", "D")  # replaces the selected "d", keeps ".png"
+            xdotool("key", "Return")
+            time.sleep(1.0)
+            if not xdotool("search", "--onlyvisible", "--name", "^Rename$").stdout.split():
+                fail("the Rename dialog took the name of another file, D.png beside d.png")
+            print("ok   a name that is another file's but for its case is refused in the dialog")
+            xdotool("key", "Escape")
+            wait_until("Rename closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Rename$").stdout.split())
+            os.remove(os.path.join(pictures, "D.png"))
+            time.sleep(1.0)  # the folder listed again without it (changes settle in 0.3 s)
+            focus_viewer()
 
             xdotool("key", "shift+Delete")
             box = find_dialog("ImageViewer")
@@ -356,21 +426,48 @@ try:
             Image.fromarray(refs["e"].astype(np.uint8)).save(os.path.join(pictures, "b.png"))
             wait_for("an image rewritten by another program is shown again", refs["e"])
 
-            # E14: the top overlay appears without moving or changing the image.
+            # E14: the top overlay, shown by default, hides and shows again without moving or
+            # changing the image.
             screen = grab()
             before = find(screen, refs["e"]) if screen is not None else None
             if before is None:
-                fail("image not found before showing the top overlay")
+                fail("image not found before hiding the top overlay")
 
-            def overlay_shown():
+            def image_in_place():
+                shot = grab()
+                return shot is not None and find(shot, refs["e"]) == before
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            xdotool("key", "i")
+            wait_until("I hides the top overlay, the image stays exactly in place",
+                       lambda: not overlay_visible() and image_in_place())
+            xdotool("key", "i")
+            wait_until("I shows it again, the image still exactly in place",
+                       lambda: overlay_visible() and image_in_place())
+
+            # A notice is a panel of its own, 16 px above the information panel (D-60, D-81): down
+            # the window's left margin, just inside both panels' padding, the rows of their dark
+            # background (black at 70 % over #212121) come in two runs, 16 px apart.
+            def panel_runs():
                 shot = grab()
                 if shot is None:
-                    return False
-                band = shot[y + 8:y + 48, x + w // 2 - 150:x + w // 2 + 150]
-                return (band.min(axis=2) > 200).sum() > 30 and find(shot, refs["e"]) == before
-            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
-            xdotool("key", "shift+i")
-            wait_until("Shift+I shows the top overlay, the image stays exactly in place", overlay_shown)
+                    return []
+                dark = list(shot[y:y + h, x + 16 + 9].max(axis=1) < 20) + [False]
+                runs, start = [], None
+                for row, d in enumerate(dark):
+                    if d and start is None:
+                        start = row
+                    elif not d and start is not None:
+                        runs.append((start, row))
+                        start = None
+                return runs
+            xdotool("key", "p")
+            wait_until("P shows the information panel", lambda: len(panel_runs()) == 1)
+            xdotool("key", "z")
+            wait_until("Z's notice is a panel of its own, 16 px above the information panel",
+                       lambda: (lambda r: len(r) == 2 and abs(r[1][0] - r[0][1] - 16) <= 1)(panel_runs()))
+            xdotool("key", "z", "p")
+            wait_until("Z unlocks the zoom, P hides the panel, both saved",
+                       lambda: stored(r"(?m)^lockZoom=false$") and stored(r"(?m)^showInfo=false$"))
 
             # Checkerboard: a fully transparent image shows 8-pixel cells of the background
             # (#212121) and of a lighter grey, anchored to the image's top-left corner.
@@ -398,11 +495,8 @@ try:
             wait_until("B shows the checkerboard behind the transparent image", lambda: matches(0x21, 0x40))
 
             # Settings: Apply takes effect while the dialog stays open, and Cancel keeps it.
-            settings_path = os.path.join(config, "Cristallumnis", "ImageViewer.conf")
-
             def trash_confirmation_off():
-                with open(settings_path, encoding="utf-8") as f:
-                    return re.search(r"(?m)^confirmTrash=false$", f.read()) is not None
+                return stored(r"(?m)^confirmTrash=false$")
 
             def settings_open():
                 return bool(xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
@@ -430,11 +524,6 @@ try:
             if app.returncode != 0:
                 print(log_text())
                 fail(f"ImageViewer exited with code {app.returncode}")
-            settings_file = os.path.join(config, "Cristallumnis", "ImageViewer.conf")
-
-            def stored(pattern):
-                with open(settings_file, encoding="utf-8") as f:
-                    return re.search(pattern, f.read()) is not None
             store = configparser.ConfigParser(interpolation=None)
             store.read(settings_file)
             last = store.get("session", "lastFile", fallback="")
@@ -571,6 +660,7 @@ try:
             wait_until("a key recorded in the Shortcuts tab replaces the first shortcut, the others stay", stored_previous)
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            wait_until("and saves the tab it closed on (Shortcuts, the seventh)", lambda: stored(r"(?m)^settingsTab=6$"))
             focus_viewer()
             # The owner's shortcuts (D-78, D-79): O opens a file, Shift+O another application, M minimizes.
             for key, title in (("o", "Open Image"), ("shift+o", "Choose an Application")):
@@ -606,30 +696,26 @@ try:
             wait_until("T and C toggled from the keyboard are saved as settings",
                        lambda: stored(r"(?m)^toneMap=false$") and stored(r"(?m)^clipWarning=true$"))
 
-            # The top overlay's checkbox in Settings (D-58) and Shift+I are one switch: Shift+I hides
-            # the overlay (shown since the E14 check), the dialog opens with the box clear, and
-            # ticking it with Apply shows the overlay again.
-            def overlay_visible():
-                shot = grab()
-                if shot is None:
-                    return False
-                band = shot[y + 8:y + 48, x + w // 2 - 150:x + w // 2 + 150]
-                return (band.min(axis=2) > 200).sum() > 30
+            # The top overlay's checkbox in Settings (D-58) and I are one switch: I hides the overlay
+            # (shown again by the E14 check), the dialog opens with the box clear, and ticking it
+            # with Apply shows the overlay again.
             wait_until("the top overlay is shown (saved by the E14 check)", overlay_visible)
-            xdotool("key", "shift+i")
-            wait_until("Shift+I hides it and saves the switch",
+            xdotool("key", "i")
+            wait_until("I hides it and saves the switch",
                        lambda: not overlay_visible() and stored(r"(?m)^showOverlay=false$"))
             xdotool("key", "ctrl+comma")
             dialog = find_dialog("Settings")
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
-            xdotool("key", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")  # Information: past the panel's box, the overlay's
+            # It opens on Shortcuts, where it closed before the restart (D-84): three tabs on, past
+            # General and Window, Information; past the panel's box, the overlay's.
+            xdotool("key", "ctrl+Tab", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
             xdotool("click", "1")  # Apply
-            wait_until("the overlay's checkbox, cleared by Shift+I, ticked and applied, shows the overlay",
+            wait_until("the overlay's checkbox, cleared by I, ticked and applied, shows the overlay",
                        lambda: stored(r"(?m)^showOverlay=true$") and overlay_visible())
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
@@ -659,13 +745,13 @@ try:
             wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
             x, y, w, h = window_geometry()
 
-            def slot_centre(slot, thumb=96, enlargement=50):
+            def slot_centre(slot, thumb=96, enlargement=0):
                 """Screen centre of a thumbnail: `slot` from the middle one (0), for an odd count."""
                 count = (w - 2 * 128 - 8 - enlargement) // (thumb + 8)
                 count -= 1 - count % 2
                 if count < 3:
                     fail(f"a {w} px window holds only {count} thumbnails of {thumb} px")
-                # Below the bar, the margin: 16 px, or the enlarged tile's reach (50 / 2 + 3 - 8 = 20).
+                # Below the bar, the margin: 16 px, or the enlarged tile's reach (100 / 2 + 3 - 8 = 45).
                 margin = max(16, enlargement // 2 + 3 - 8)
                 return x + w // 2 + slot * (thumb + 8), y + h - margin - 8 - thumb // 2
 
@@ -683,7 +769,7 @@ try:
             hx, hy = slot_centre(2)
             xdotool("mousemove", "--sync", str(hx), str(hy))
             time.sleep(0.5)
-            hovered = tile_colour(hx, hy - 73)  # enlarged by 50 px: 146 px, about the same centre
+            hovered = tile_colour(hx, hy - 48)  # not enlarged: the zoom is off by default (D-81)
             if hovered is None or not (hovered[1] > hovered[0] + 30 and 0 < hovered[1] < current[1]):
                 fail(f"the hovered tile is {hovered}, not a fainter emerald than {tuple(current)}")
             print(f"ok   the thumbnail under the pointer sits on a fainter emerald {tuple(hovered)}")
@@ -702,6 +788,17 @@ try:
             time.sleep(0.5)
             xdotool("click", "1")
             wait_until("the wheel scrolls the gallery: two steps on, the middle shows g03.png", shown("g03.png"))
+            # An editor saves the image beside it as editors do, a new file renamed over the old one
+            # (the folder changes): the listing's size and time (D-82) give it a new thumbnail, a
+            # 96 × 72 field of the new colour around the slot's centre.
+            Image.new("RGB", (160, 120), (250, 250, 0)).save(os.path.join(gallery_dir, ".g04.tmp"), format="PNG")
+            os.replace(os.path.join(gallery_dir, ".g04.tmp"), os.path.join(gallery_dir, "g04.png"))
+            nx, ny = slot_centre(1)
+
+            def rewritten_thumbnail():
+                shot = grab()
+                return shot is not None and np.abs(shot[ny, nx] - (250, 250, 0)).max() <= 2
+            wait_until("a file saved again by an editor gets a new thumbnail", rewritten_thumbnail)
             xdotool("key", "g")
             wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
             xdotool("key", "q")
@@ -709,7 +806,7 @@ try:
 
             # Large thumbnails (128 px) in ruby, enlarged by the most (100 px), chosen in the settings.
             edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("gallery", "highlight", "#e0115f"),
-                          ("gallery", "enlargement", "100"))
+                          ("gallery", "zoom", "true"), ("gallery", "enlargement", "100"))
             app = subprocess.Popen([exe, os.path.join(gallery_dir, "g01.png")], env=env, stdout=log, stderr=log)
             wait_until("g01.png shown with the gallery", shown("g01.png"))
             xdotool("windowsize", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0],

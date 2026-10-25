@@ -274,7 +274,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>তথ্য প্যানেল দেখান (%1)</translation>
     </message>
     <message>
@@ -545,6 +545,10 @@
         <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>অনুসন্ধান:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>এক্সটেনশন</translation>
     </message>
@@ -562,7 +566,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>উপরে তথ্য ওভারলে দেখান (%1)</translation>
     </message>
     <message>
@@ -676,10 +680,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>ফোল্ডারে কোনো সমর্থিত ছবি নেই।</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>%1 লোড হচ্ছে…</translation>
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>

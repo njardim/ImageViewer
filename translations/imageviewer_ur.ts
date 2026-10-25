@@ -274,7 +274,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>معلوماتی پینل دکھائیں (%1)</translation>
     </message>
     <message>
@@ -545,6 +545,10 @@
         <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>تلاش:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>ایکسٹینشن</translation>
     </message>
@@ -562,7 +566,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>اوپر معلوماتی اوورلے دکھائیں (%1)</translation>
     </message>
     <message>
@@ -676,10 +680,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>فولڈر میں کوئی تعاون یافتہ تصویر نہیں ہے۔</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>%1 لوڈ ہو رہا ہے…</translation>
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>

@@ -1,5 +1,5 @@
 // ViewerWindow, part 3: what is drawn over the image (decision D-34). The information
-// panel (I) with every detail, the compact overlay at the top (E14), the side-zone
+// panel (P) with every detail, the compact overlay at the top (E14, I), the side-zone
 // buttons (D-31) and notices. Each is a small premultiplied texture the renderer
 // composites at SDR white, so none of them changes the viewport.
 #include "viewer.h"
@@ -197,17 +197,20 @@ void ViewerWindow::updateOverlay()
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
-    QList<Row> rows;
+    // A command's notice and the status are a panel of their own, kEdgeMargin above the
+    // information panel (D-60, D-81).
+    QList<Row> messages;
     if (!m_notice.isEmpty())
-        rows.append({QString(), m_notice});
+        messages.append({QString(), m_notice});
     if (!m_message.isEmpty())
-        rows.append({QString(), m_message});
+        messages.append({QString(), m_message});
 
+    QList<Row> rows;
     if (m_settings.showInfo && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
         // Names are shown without bidi and other format characters, as in the title: a file
         // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
-        rows.append({tr("File"), displayFileName(file.fileName()), !rows.isEmpty()});
+        rows.append({tr("File"), displayFileName(file.fileName())});
         rows.append({tr("Folder"), displayFileName(QDir::toNativeSeparators(file.absolutePath()))});
         if (const QStringList position = overlayParts({OverlayField::Position}); !position.isEmpty())
             rows.append({tr("Position"), position.constFirst()}); // as the overlay writes it (D-58)
@@ -342,18 +345,26 @@ void ViewerWindow::updateOverlay()
     const qreal dpr = devicePixelRatio();
     const QFont font = QGuiApplication::font();
     // The panel is drawn again only when what it shows changes, not on every animation frame,
-    // wheel step or resize event (each text is drawn nine times with the outline).
-    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
-                      .arg(m_settings.overlayBackgroundOpacity)
-                      .arg(m_settings.overlayTextOpacity)
-                      .arg(m_settings.overlayOutline)
-                      .arg(width())
-                      .arg(height())
-                      .arg(dpr)
-                      .arg(int(QGuiApplication::layoutDirection()))
-                      .arg(font.key());
-    for (const Row &row : std::as_const(rows))
-        key += QChar(0x1e) + row.label + QChar(0x1f) + row.value + (row.gapBefore ? u'+' : u'-');
+    // wheel step or resize event (each text is drawn nine times with the outline); with nothing
+    // to show, the key is empty whatever the window's size.
+    QString key;
+    if (!messages.isEmpty() || !rows.isEmpty()) {
+        key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|%9")
+                  .arg(m_settings.overlayBackgroundOpacity)
+                  .arg(m_settings.overlayTextOpacity)
+                  .arg(m_settings.overlayOutline)
+                  .arg(width())
+                  .arg(height())
+                  .arg(galleryReserve()) // the panel's room above the gallery
+                  .arg(dpr)
+                  .arg(int(QGuiApplication::layoutDirection()))
+                  .arg(font.key());
+        for (const QList<Row> *list : {&messages, &rows}) {
+            key += QChar(0x1d);
+            for (const Row &row : *list)
+                key += QChar(0x1e) + row.label + QChar(0x1f) + row.value + (row.gapBefore ? u'+' : u'-');
+        }
+    }
     if (key == m_panelKey) {
         updateTopOverlay();
         requestUpdate();
@@ -361,7 +372,7 @@ void ViewerWindow::updateOverlay()
     }
     m_panelKey = key;
 
-    if (rows.isEmpty()) {
+    if (messages.isEmpty() && rows.isEmpty()) {
         m_overlaySize = {};
         m_renderer.setOverlay(Renderer::InfoLayer, QImage());
         updateTopOverlay();
@@ -371,22 +382,45 @@ void ViewerWindow::updateOverlay()
 
     const QFontMetricsF metrics(font);
     const qreal padding = 10.0, columnGap = 14.0, sectionGap = 6.0, lineHeight = metrics.height() + 2.0;
-    qreal labelWidth = 0, valueWidth = 0, spanWidth = 0, height = 2 * padding - 2.0;
-    for (const Row &row : std::as_const(rows)) {
-        if (row.label.isEmpty()) {
-            spanWidth = std::max(spanWidth, metrics.horizontalAdvance(row.value));
-        } else {
-            labelWidth = std::max(labelWidth, metrics.horizontalAdvance(row.label));
-            valueWidth = std::max(valueWidth, metrics.horizontalAdvance(row.value));
+    struct Layout {
+        qreal labelWidth = 0;
+        qreal contentWidth = 0;
+        qreal height = 0; // with the padding; 0: no panel
+    };
+    // A section's gap never opens a panel.
+    const auto gapBefore = [&](const QList<Row> &list, qsizetype i) { return i > 0 && list.at(i).gapBefore; };
+    const auto measure = [&](const QList<Row> &list) {
+        Layout layout;
+        qreal valueWidth = 0, spanWidth = 0;
+        for (qsizetype i = 0; i < list.size(); ++i) {
+            const Row &row = list.at(i);
+            if (row.label.isEmpty()) {
+                spanWidth = std::max(spanWidth, metrics.horizontalAdvance(row.value));
+            } else {
+                layout.labelWidth = std::max(layout.labelWidth, metrics.horizontalAdvance(row.label));
+                valueWidth = std::max(valueWidth, metrics.horizontalAdvance(row.value));
+            }
+            layout.height += lineHeight + (gapBefore(list, i) ? sectionGap : 0.0);
         }
-        height += lineHeight + (row.gapBefore ? sectionGap : 0.0);
-    }
+        if (!list.isEmpty())
+            layout.height += 2 * padding - 2.0;
+        layout.contentWidth = std::max(spanWidth, layout.labelWidth > 0 ? layout.labelWidth + columnGap + valueWidth : 0.0);
+        return layout;
+    };
     // At most half a large window (a long folder path must not cover the image), never larger
-    // than a small one: long values are elided, rows that do not fit are left out.
+    // than a small one: long values are elided, rows that do not fit are left out. The messages
+    // come first; the information panel takes the height left, while one line fits.
     const qreal maxWidth = std::max(120.0, std::min(this->width() - 2 * kEdgeMargin, std::max(480.0, this->width() * 0.5)));
     const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kEdgeMargin - galleryReserve());
-    const qreal contentWidth = std::max(spanWidth, labelWidth > 0 ? labelWidth + columnGap + valueWidth : 0.0);
-    const QSizeF logical(std::ceil(std::min(contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(height, maxHeight)));
+    const Layout messageLayout = measure(messages), infoLayout = measure(rows);
+    const auto panelSize = [&](const Layout &layout, qreal room) {
+        return QSizeF(std::ceil(std::min(layout.contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(layout.height, room)));
+    };
+    const QSizeF messageSize = messages.isEmpty() ? QSizeF() : panelSize(messageLayout, maxHeight);
+    const qreal infoRoom = messages.isEmpty() ? maxHeight : maxHeight - messageSize.height() - kEdgeMargin;
+    const QSizeF infoSize = rows.isEmpty() || infoRoom < lineHeight + 2 * padding ? QSizeF() : panelSize(infoLayout, infoRoom);
+    const qreal between = messageSize.isEmpty() || infoSize.isEmpty() ? 0.0 : kEdgeMargin;
+    const QSizeF logical(std::max(messageSize.width(), infoSize.width()), messageSize.height() + between + infoSize.height());
 
     QImage overlay((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
     overlay.setDevicePixelRatio(dpr);
@@ -394,39 +428,50 @@ void ViewerWindow::updateOverlay()
     QPainter painter(&overlay);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(m_settings.panelBackground());
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
     painter.setFont(font);
     const QColor valueColour = m_settings.panelText(Settings::kPanelValueGrey);
     const QColor labelColour = m_settings.panelText(Settings::kPanelLabelGrey);
     const bool outline = m_settings.overlayOutline;
     // Columns are laid out left to right and mirrored for right-to-left languages; within a
-    // cell, AlignLeft is the start of the line (Qt mirrors it in right-to-left layouts).
+    // cell, AlignLeft is the start of the line (Qt mirrors it in right-to-left layouts). Both
+    // panels start at the window's edge, the left one or, right to left, the right one.
     const bool rtl = QGuiApplication::layoutDirection() == Qt::RightToLeft;
-    const qreal inner = logical.width() - 2 * padding;
-    const qreal labelColumn = std::min(labelWidth, inner / 2.0);
-    const auto cell = [&](qreal x, qreal y, qreal w) {
-        return QRectF(rtl ? logical.width() - padding - x - w : padding + x, y, w, lineHeight);
-    };
-    qreal y = padding;
-    for (const Row &row : std::as_const(rows)) {
-        y += row.gapBefore ? sectionGap : 0.0;
-        if (y + lineHeight > logical.height() - padding + 2.0)
-            break;
-        if (row.label.isEmpty()) {
-            drawPanelText(painter, cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
-                          isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)), valueColour, outline);
-        } else {
-            const qreal valueX = labelColumn + columnGap;
-            drawPanelText(painter, cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
-                          metrics.elidedText(row.label, Qt::ElideRight, labelColumn), labelColour, outline);
-            const qreal w = std::max<qreal>(0.0, inner - valueX);
-            drawPanelText(painter, cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
-                          isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)), valueColour, outline);
+    const auto paint = [&](const QList<Row> &list, const Layout &layout, const QRectF &panel) {
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(m_settings.panelBackground());
+        painter.drawRoundedRect(panel, kPanelRadius, kPanelRadius);
+        const qreal inner = panel.width() - 2 * padding;
+        const qreal labelColumn = std::min(layout.labelWidth, inner / 2.0);
+        const auto cell = [&](qreal x, qreal y, qreal w) {
+            return QRectF(rtl ? panel.right() - padding - x - w : panel.left() + padding + x, y, w, lineHeight);
+        };
+        qreal y = panel.top() + padding;
+        for (qsizetype i = 0; i < list.size(); ++i) {
+            const Row &row = list.at(i);
+            y += gapBefore(list, i) ? sectionGap : 0.0;
+            if (y + lineHeight > panel.bottom() - padding + 2.0)
+                break;
+            if (row.label.isEmpty()) {
+                drawPanelText(painter, cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
+                              isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)), valueColour, outline);
+            } else {
+                const qreal valueX = labelColumn + columnGap;
+                drawPanelText(painter, cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
+                              metrics.elidedText(row.label, Qt::ElideRight, labelColumn), labelColour, outline);
+                const qreal w = std::max<qreal>(0.0, inner - valueX);
+                drawPanelText(painter, cell(valueX, y, w), Qt::AlignLeft | Qt::AlignTop,
+                              isolated(metrics.elidedText(row.value, Qt::ElideMiddle, w)), valueColour, outline);
+            }
+            y += lineHeight;
         }
-        y += lineHeight;
-    }
+    };
+    const auto placed = [&](const QSizeF &size, qreal top) {
+        return QRectF(QPointF(rtl ? logical.width() - size.width() : 0.0, top), size);
+    };
+    if (!messageSize.isEmpty())
+        paint(messages, messageLayout, placed(messageSize, 0.0));
+    if (!infoSize.isEmpty())
+        paint(rows, infoLayout, placed(infoSize, logical.height() - infoSize.height()));
     painter.end();
 
     m_overlaySize = overlay.size();
@@ -584,17 +629,18 @@ void ViewerWindow::updateTopOverlay()
         return;
     QStringList parts;
     int nameIndex = -1; // where the file name is among the parts shown
-    // Hidden (the default in a window): nothing to paint or upload on every zoom step.
+    // Hidden: nothing to paint or upload on every zoom step.
     if (!m_image.path.isEmpty() && topOverlayMode() != OverlayVisibility::Hidden)
         parts = overlayParts(m_settings.overlayFields, &nameIndex);
     const qreal dpr = devicePixelRatio();
-    const QString key = parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6")
-                                                      .arg(m_settings.overlayBackgroundOpacity)
-                                                      .arg(m_settings.overlayTextOpacity)
-                                                      .arg(m_settings.overlayOutline)
-                                                      .arg(width())
-                                                      .arg(dpr)
-                                                      .arg(int(QGuiApplication::layoutDirection()));
+    const QString key = parts.isEmpty() ? QString() // hidden, whatever the window's size
+                                        : parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6")
+                                                                         .arg(m_settings.overlayBackgroundOpacity)
+                                                                         .arg(m_settings.overlayTextOpacity)
+                                                                         .arg(m_settings.overlayOutline)
+                                                                         .arg(width())
+                                                                         .arg(dpr)
+                                                                         .arg(int(QGuiApplication::layoutDirection()));
     if (key == m_topOverlayKey)
         return;
     m_topOverlayKey = key;

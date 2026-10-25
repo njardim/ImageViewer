@@ -244,14 +244,6 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
     // A volume (FITS cube, TIFF ImageDepth, 3D DDS texture) is read whole by read_image(): the
     // buffer holds every slice, and its first slice is shown.
     const int depth = std::max(spec.depth, 1);
-    if (w <= 0 || h <= 0 || nch <= 0 || qint64(w) * h > kMaxPixels || qint64(w) * h * depth > kMaxPixels) {
-        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(nch);
-        return false;
-    }
-    if (maxPixels > 0 && qint64(w) * h > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
 
     using Sample = Decoded::Sample;
     const OIIO::TypeDesc stored = spec.format;
@@ -277,9 +269,9 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
             alpha = c;
     const bool gray = nch < 3;
     const int readChannels = std::max(gray ? 1 : 3, alpha + 1);
-    const qint64 pixels = qint64(w) * h * depth;
-    if (!fitsInMemory(pixels, readChannels * out->sampleBytes(), error))
+    if (!checkDimensions(w, h, nch, readChannels * out->sampleBytes(), maxPixels, out, error, depth))
         return false;
+    const qint64 pixels = qint64(w) * h * depth;
     out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
     if (!in->read_image(0, 0, 0, readChannels, request, out->data.get())) {
         *error = libraryError("OpenImageIO:", in->geterror());
@@ -500,6 +492,22 @@ bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
     return false;
 }
 
+bool checkDimensions(qint64 width, qint64 height, int channels, int nativeBytesPerPixel, qint64 maxPixels, Decoded *out,
+                     QString *error, qint64 depth)
+{
+    // Each factor is bounded before it is multiplied: two 32-bit dimensions would overflow.
+    if (width <= 0 || height <= 0 || depth <= 0 || channels <= 0 || width > kMaxPixels || height > kMaxPixels
+        || depth > kMaxPixels || width * height > kMaxPixels || width * height * depth > kMaxPixels) {
+        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(width).arg(height).arg(channels);
+        return false;
+    }
+    if (maxPixels > 0 && width * height > maxPixels) {
+        out->overLimit = true;
+        return false;
+    }
+    return fitsInMemory(width * height * depth, nativeBytesPerPixel, error);
+}
+
 QString libraryError(const char *library, const std::string &message, const std::string &format)
 {
     qCInfo(lcDecode).noquote() << library << QString::fromStdString(message).trimmed();
@@ -598,10 +606,11 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error)
         *error = file.errorString();
         return false;
     }
-    if (file.size() > (qint64(1) << 31)) {
+    if (file.size() > kMaxFileBytes) {
         //: GB: gigabytes.
         *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
-                     .arg(QLocale().toString(double(file.size()) / (1 << 30), 'f', 1), QLocale().toString(2.0, 'f', 1));
+                     .arg(QLocale().toString(double(file.size()) / (1 << 30), 'f', 1),
+                          QLocale().toString(double(kMaxFileBytes) / (1 << 30), 'f', 1));
         return false;
     }
     *bytes = file.readAll();
@@ -722,11 +731,7 @@ QString decoderVersion(Decoder decoder)
     case Decoder::Apng: return QString::fromLatin1(OIIO_VERSION_STRING);
     case Decoder::Jxl: return jxlVersion();
     case Decoder::WebP: return webpVersion();
-#ifdef IMAGEVIEWER_HAVE_LIBHEIF
     case Decoder::Heif: return heifVersion();
-#else
-    case Decoder::Heif: break;
-#endif
     case Decoder::Qt: return QString::fromLatin1(qVersion());
     case Decoder::GraphicsMagick: return graphicsMagickVersion();
     case Decoder::Softimage: return QCoreApplication::applicationVersion();

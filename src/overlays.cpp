@@ -349,12 +349,13 @@ void ViewerWindow::updateOverlay()
     // to show, the key is empty whatever the window's size.
     QString key;
     if (!messages.isEmpty() || !rows.isEmpty()) {
-        key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
+        key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|%9")
                   .arg(m_settings.overlayBackgroundOpacity)
                   .arg(m_settings.overlayTextOpacity)
                   .arg(m_settings.overlayOutline)
                   .arg(width())
                   .arg(height())
+                  .arg(galleryReserve()) // the panel's room above the gallery
                   .arg(dpr)
                   .arg(int(QGuiApplication::layoutDirection()))
                   .arg(font.key());

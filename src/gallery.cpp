@@ -115,13 +115,18 @@ void ViewerWindow::updateGallery()
     for (int i = -kPrefetch * shown; i < (kPrefetch + 1) * shown; ++i)
         if (const int file = galleryFile(i); file >= 0)
             wanted << m_files.at(file);
+    // Missing, or decoded for a screen less sharp than this one (the window moved to a 2x screen).
+    const double dpr = devicePixelRatio();
+    const auto needed = [this, dpr](const QString &path) {
+        const auto thumbnail = m_thumbnails.constFind(path);
+        return thumbnail == m_thumbnails.cend() || (!thumbnail->image.isNull() && thumbnail->devicePixelRatio < dpr);
+    };
     m_thumbnailQueue.clear();
     for (const QString &path : std::as_const(wanted))
-        if (!m_thumbnails.contains(path) && !m_thumbnailsPending.contains(path) && !m_thumbnailQueue.contains(path))
+        if (needed(path) && !m_thumbnailsPending.contains(path) && !m_thumbnailQueue.contains(path))
             m_thumbnailQueue << path;
     startThumbnails();
 
-    const double dpr = devicePixelRatio();
     const int zoom = galleryZoom();
     const double overhang = galleryOverhang();
     const double barHeight = galleryThumbnail() + 2 * kBorder;
@@ -131,9 +136,11 @@ void ViewerWindow::updateGallery()
                       .arg(m_galleryFirst).arg(shown).arg(m_galleryHover).arg(m_index).arg(dpr)
                       .arg(m_settings.galleryOpacity).arg(zoom).arg(galleryThumbnail())
                   + m_settings.galleryHighlight.name(QColor::HexRgb);
-    for (int i = 0; i < shown; ++i) { // which file, and whether its thumbnail is there yet
+    for (int i = 0; i < shown; ++i) { // which file, and its thumbnail's sharpness, if it is there yet
         const QString &path = m_files.at(galleryFile(i));
-        key += QLatin1Char(m_thumbnails.contains(path) ? '+' : '-') + QString::number(qHash(path), 36);
+        const auto thumbnail = m_thumbnails.constFind(path);
+        key += (thumbnail == m_thumbnails.cend() ? QStringLiteral("-") : QString::number(thumbnail->devicePixelRatio))
+               + QLatin1Char(':') + QString::number(qHash(path), 36);
     }
     m_galleryRect = QRectF(QPointF(std::round((width() - logical.width()) / 2.0 * dpr),
                                    std::round((height() - galleryBottomMargin() - barHeight - overhang) * dpr)),
@@ -224,12 +231,13 @@ void ViewerWindow::decodeThumbnail(const QString &path)
     m_thumbnailsPending.insert(path);
     // Decoded at the largest size the zoom can show with the largest thumbnails, reduced in linear
     // light (decodeImage): another thumbnail size then decodes nothing again.
-    const int pixels = int(std::ceil((Settings::kGalleryThumbnailSizes.back() + Settings::kMaxGalleryEnlargement)
-                                     * devicePixelRatio()));
+    const qreal dpr = devicePixelRatio();
+    const int pixels = int(std::ceil((Settings::kGalleryThumbnailSizes.back() + Settings::kMaxGalleryEnlargement) * dpr));
     // Within the preload's pixel limit: a huge image is decoded whole before it is reduced.
     const qint64 maxPixels = m_cache.maxPreloadPixels();
-    m_thumbnailPool.start([this, path, pixels, maxPixels, generation = m_thumbnailGeneration] {
+    m_thumbnailPool.start([this, path, pixels, dpr, maxPixels, generation = m_thumbnailGeneration] {
         Thumbnail thumbnail;
+        thumbnail.devicePixelRatio = dpr;
         const QFileInfo info(path); // before decoding: a file changed meanwhile is decoded again
         thumbnail.fileSize = info.size();
         thumbnail.modified = info.lastModified();

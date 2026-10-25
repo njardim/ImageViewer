@@ -179,7 +179,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::ShowInFolder:
     case Command::OpenWithOther:
     case Command::CopyPath: return !m_image.path.isEmpty();
-    case Command::CopyImage: return hasImage && currentFileIsShown() && !m_copyBusy;
+    case Command::CopyImage: return hasImage && currentFileIsShown(); // during a copy, the next one waits (copyImage)
     case Command::Rename:
     case Command::MoveToTrash:
     case Command::DeletePermanently: return currentFileIsShown(); // also a file that failed to decode

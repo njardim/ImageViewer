@@ -395,6 +395,8 @@ void ViewerWindow::removeCurrentFromList()
 void ViewerWindow::showFolderEmpty()
 {
     m_index = -1;
+    if (m_slideshow) // paused, its toolbar would stay over the message
+        stopSlideshow();
     clearShownImage();
     m_cache.clear();
     m_error = tr("No images left in this folder.");

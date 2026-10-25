@@ -10,7 +10,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
   2. H, V, R and Shift+R flip and rotate the view (compared with numpy's flips/rotations);
   3. Delete asks for confirmation, Return moves the file to the trash, the next image follows;
   4. Ctrl+Z restores it (no stale trash record); stepping to a neighbour uses the preload
-     cache (log); F2 renames; Shift+Delete always asks (Return cancels) and then deletes;
+     cache (log); F2 renames, and refuses the name of another file that differs in case only;
+     Shift+Delete always asks (Return cancels) and then deletes;
      a file created, deleted or rewritten by another program shows up, goes away or is
      shown again (folder watching); I hides and shows the top overlay without moving the image
      by a pixel (E14); with the information panel on (P), a notice (Z) is a panel of its own
@@ -171,12 +172,19 @@ def window_geometry():
 
 def focus_viewer():
     """Keyboard focus on the viewer again: without a window manager, a dialog that closes leaves
-    it on the root window with some Qt builds (seen with Qt 6.12 built from source)."""
-    for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
-        info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
-        if int(info["WIDTH"]) >= 640:  # the viewer, not a dialog
-            xdotool("windowfocus", "--sync", wid)
-            return
+    it on the root window with some Qt builds (seen with Qt 6.12 built from source). Asked again
+    until the deadline: a dialog's windows are destroyed for seconds after it is hidden (the file
+    dialog over /usr/bin, 12 to 16 s on OpenGL in CI), and an xdotool search that meets one being
+    destroyed ends with nothing found (CI run 217)."""
+    start = time.monotonic()
+    while time.monotonic() - start < DEADLINE_S:
+        for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
+            fields = xdotool("getwindowgeometry", "--shell", wid).stdout.split()
+            info = dict(line.split("=", 1) for line in fields if "=" in line)
+            if int(info.get("WIDTH", 0)) >= 640:  # the viewer, not a dialog
+                xdotool("windowfocus", "--sync", wid)
+                return
+        time.sleep(POLL_S)
     fail("viewer window not found")
 
 
@@ -358,6 +366,25 @@ try:
                        lambda: os.path.exists(os.path.join(pictures, "d.png"))
                        and not os.path.exists(os.path.join(pictures, "c.png")))
             wait_for("the renamed image stays on screen", refs["c"])
+            # Beside another file "D.png" (a case-sensitive file system), the name "D.png" is refused
+            # in the dialog: Return does nothing (D-83). It was accepted, and the rename failed after.
+            Image.fromarray(refs["e"].astype(np.uint8)).save(os.path.join(pictures, "D.png"))
+            xdotool("key", "F2")
+            rename = find_dialog("Rename")
+            if not rename:
+                fail("F2 did not open the Rename dialog")
+            xdotool("windowfocus", "--sync", rename)
+            xdotool("type", "--delay", "50", "D")  # replaces the selected "d", keeps ".png"
+            xdotool("key", "Return")
+            time.sleep(1.0)
+            if not xdotool("search", "--onlyvisible", "--name", "^Rename$").stdout.split():
+                fail("the Rename dialog took the name of another file, D.png beside d.png")
+            print("ok   a name that is another file's but for its case is refused in the dialog")
+            xdotool("key", "Escape")
+            wait_until("Rename closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Rename$").stdout.split())
+            os.remove(os.path.join(pictures, "D.png"))
+            time.sleep(1.0)  # the folder listed again without it (changes settle in 0.3 s)
+            focus_viewer()
 
             xdotool("key", "shift+Delete")
             box = find_dialog("ImageViewer")

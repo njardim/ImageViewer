@@ -48,6 +48,7 @@ struct Thumbnail {
     QImage image;
     qint64 fileSize = -1;
     QDateTime modified;
+    qreal devicePixelRatio = 1.0; // the screen's it was decoded for: a sharper screen asks for it again
 };
 
 class QMenu;
@@ -266,6 +267,7 @@ private:
     void showInFolder();
     void openWithOtherApplication();
     void copyImage();
+    void startCopy(const QString &path);
     void imageCopied();
     void copyPath();
     void renameFile();
@@ -340,7 +342,8 @@ private:
     int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
     bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher
-    QString m_copyPath;
+    QString m_copyPath;                   // being copied
+    QString m_copyNext;                   // asked for while another copy ran; empty: none
     ImageCache m_cache;
     Image m_image; // metadata of the displayed image (pixels live on the GPU and in the cache)
     int m_shownLimit = 0;     // texture limit m_image was decoded at

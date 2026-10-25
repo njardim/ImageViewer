@@ -236,7 +236,8 @@ bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, D
         *error = libraryError("Qt:", reader.errorString().toStdString());
         return false;
     }
-    if (!fitsInMemory(qint64(image.width()) * image.height(), 16, error))
+    // Again with the image read: a plugin may not know the size before (the limit asked for, too).
+    if (!checkDimensions(image.width(), image.height(), 4, 16, maxPixels, out, error))
         return false;
     const QColorSpace cs = image.colorSpace();
     // Keep the source precision: float formats stay float (values above 1 survive),

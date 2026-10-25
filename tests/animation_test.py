@@ -13,6 +13,7 @@ still image. The colour in the middle of the window shows what is on screen:
      off (the default) it stays; stop ends the slideshow.
   5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back;
      with auto-hide on, a still pointer hides the toolbar after 2 s and a move shows it again.
+  6. A paused slideshow whose folder empties stops, and its toolbar goes.
 
 usage: python3 tests/animation_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
@@ -287,6 +288,27 @@ try:
             toolbar_is("a move shows it again", "pause")
             xdotool("key", "Escape")
             logged("visibility QWindow::Windowed", windowed + 1)
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 6. A paused slideshow whose folder empties (D-83): it stops, its toolbar goes with it.
+            empty = os.path.join(work, "emptied")
+            os.makedirs(empty)
+            for name, rgb in (("c1.png", COLOURS["red"]), ("c2.png", COLOURS["green"])):
+                Image.new("RGB", (160, 120), rgb).save(os.path.join(empty, name))
+            with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "a") as f:
+                f.write("\n[navigation]\nslideshowFullScreen=false\nslideshowToolbarAutoHide=false\n")
+            app = subprocess.Popen([exe, os.path.join(empty, "c1.png")], env=env, stdout=log, stderr=log)
+            wait_for("the first of two images is shown", {"red"})
+            xdotool("windowfocus", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0])
+            xdotool("mousemove", "--sync", str(centre[0]), str(centre[1] + 150))
+            xdotool("key", "s")
+            toolbar_is("S shows the toolbar", "pause")
+            xdotool("key", "space")
+            toolbar_is("Space pauses the slideshow", "play")
+            for name in ("c1.png", "c2.png"):
+                os.remove(os.path.join(empty, name))
+            toolbar_is("the folder emptied, the paused slideshow stops and its toolbar goes", None)
             xdotool("key", "q")
             app.wait(15)
         finally:

@@ -172,6 +172,10 @@ QString overlayFieldName(OverlayField field);
 QKeyCombination comparableKey(QKeyCombination combination);
 bool sameShortcut(const QKeySequence &a, const QKeySequence &b);
 
+// Text that reads left to right even in Arabic or Urdu, isolated (LRI … PDI) from the line around
+// it: an extension, a key sequence ("Ctrl+," not ",Ctrl+") (shortcuts.cpp).
+QString leftToRight(const QString &text);
+
 // A command as the Shortcuts tab lists it: its stored key, its name in the interface language
 // and its default shortcuts (the viewer's command table, D-30).
 struct ShortcutCommand {
@@ -215,6 +219,8 @@ private:
                       const QString &dialogTitle);
     void setColor(ColorChoice &choice, const QColor &color);
     void moveOverlayField(int delta);
+    // shortcuts.cpp: the Shortcuts tab (D-52).
+    QWidget *buildShortcutsTab();
     void fillShortcutTable();
     int currentCommand() const;      // the selected row's index in m_commands; -1: none
     void refreshShortcutTexts();     // the table's shortcuts and the labels that name keys

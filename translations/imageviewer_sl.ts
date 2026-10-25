@@ -241,6 +241,10 @@
         <translation>Bela</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Iskanje:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Po meri…</translation>
     </message>

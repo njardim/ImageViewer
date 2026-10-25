@@ -241,6 +241,10 @@
         <translation>Bílá</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Hledat:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Vlastní…</translation>
     </message>

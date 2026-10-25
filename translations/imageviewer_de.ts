@@ -545,6 +545,10 @@
         <translation>Pixel hervorheben, die durch Clipping oder Tone-Mapping verändert wurden (Magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Suchen:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Endung</translation>
     </message>

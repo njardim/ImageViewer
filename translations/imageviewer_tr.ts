@@ -241,6 +241,10 @@
         <translation>Beyaz</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Ara:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Özel…</translation>
     </message>

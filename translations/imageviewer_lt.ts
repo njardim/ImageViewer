@@ -241,6 +241,10 @@
         <translation>Balta</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Ieškoti:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Pasirinktinė…</translation>
     </message>

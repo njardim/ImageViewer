@@ -327,6 +327,7 @@ private:
     QTimer m_frameTimer;
     bool m_slideshow = false;
     QTimer m_slideshowTimer;
+    bool m_slideshowWaitsForExpose = false; // its timer stopped while the window was hidden
     QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
     bool m_toolbarHidden = false;
     ToolbarButton m_toolbarHover = ToolbarButton::None;

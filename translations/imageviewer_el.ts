@@ -241,6 +241,10 @@
         <translation>Λευκό</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Αναζήτηση:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Προσαρμοσμένο…</translation>
     </message>

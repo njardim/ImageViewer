@@ -241,6 +241,10 @@
         <translation>Biela</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Hľadať:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Vlastná…</translation>
     </message>

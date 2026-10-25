@@ -545,6 +545,10 @@
         <translation>Выделять пиксели, изменённые отсечением или тональной компрессией (пурпурный)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Поиск:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Расширение</translation>
     </message>

@@ -29,7 +29,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      application (D-79), M asks the window manager to minimize the viewer (D-78);
   8. a still pointer hides after 2 s and a move shows it again; T and C, toggled from the
      keyboard, are saved as settings (D-56); I and the overlay's checkbox in Settings are one
-     switch;
+     switch; the Settings dialog opens again on the tab it last closed on, after a restart too
+     (D-84);
   9. the title in the overlay's style with its fields (D-58); the gallery (D-60, D-65): G shows
      it, the current thumbnail on the highlight colour and the hovered one fainter, a click
      shows a thumbnail's image, the ring past the first image, the wheel scrolls, a file saved
@@ -659,6 +660,7 @@ try:
             wait_until("a key recorded in the Shortcuts tab replaces the first shortcut, the others stay", stored_previous)
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            wait_until("and saves the tab it closed on (Shortcuts, the seventh)", lambda: stored(r"(?m)^settingsTab=6$"))
             focus_viewer()
             # The owner's shortcuts (D-78, D-79): O opens a file, Shift+O another application, M minimizes.
             for key, title in (("o", "Open Image"), ("shift+o", "Choose an Application")):
@@ -706,7 +708,9 @@ try:
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
-            xdotool("key", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")  # Information: past the panel's box, the overlay's
+            # It opens on Shortcuts, where it closed before the restart (D-84): three tabs on, past
+            # General and Window, Information; past the panel's box, the overlay's.
+            xdotool("key", "ctrl+Tab", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))

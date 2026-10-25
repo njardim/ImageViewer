@@ -545,6 +545,10 @@
         <translation>क्लिपिंग किंवा टोन मॅपिंगमुळे बदललेले पिक्सेल हायलाइट करा (मॅजेंटा)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>शोध:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>विस्तार</translation>
     </message>

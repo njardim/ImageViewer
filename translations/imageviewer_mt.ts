@@ -241,6 +241,10 @@
         <translation>Abjad</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Fittex:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizzat…</translation>
     </message>

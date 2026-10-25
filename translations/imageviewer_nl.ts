@@ -241,6 +241,10 @@
         <translation>Wit</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Zoeken:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Aangepast…</translation>
     </message>

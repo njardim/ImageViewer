@@ -13,6 +13,7 @@
 #include <QMimeDatabase>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QThread>
 #include <QUrl>
 #include <QWindow>
 
@@ -20,6 +21,7 @@
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
+#include <shellapi.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <shobjidl.h>
@@ -533,3 +535,28 @@ bool openWithOther(QWindow *parent, const QString &file)
 #endif
 #endif
 }
+
+#if defined(Q_OS_WIN)
+void showInExplorer(const QString &file)
+{
+    // The Shell takes the path whole (explorer.exe's "/select," ends it at its first comma) and
+    // selects the file in an Explorer window that shows its folder already. On a thread of its own,
+    // with its own COM apartment: starting Explorer or reaching a slow network drive takes a while,
+    // and the viewer must not freeze meanwhile.
+    const QFileInfo info(file);
+    const QString native = QDir::toNativeSeparators(info.absoluteFilePath());
+    const QString folder = QDir::toNativeSeparators(info.absolutePath());
+    QThread *thread = QThread::create([native, folder] {
+        const ComScope com;
+        bool shown = false;
+        if (PIDLIST_ABSOLUTE item = ILCreateFromPathW(reinterpret_cast<PCWSTR>(native.utf16()))) {
+            shown = SUCCEEDED(SHOpenFolderAndSelectItems(item, 0, nullptr, 0));
+            ILFree(item);
+        }
+        if (!shown) // the folder, at least
+            ShellExecuteW(nullptr, L"open", reinterpret_cast<LPCWSTR>(folder.utf16()), nullptr, nullptr, SW_SHOWNORMAL);
+    });
+    QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    thread->start();
+}
+#endif

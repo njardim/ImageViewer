@@ -545,6 +545,10 @@
         <translation>Resaltar los píxeles alterados por recorte o mapeo de tonos (magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Buscar:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Extensión</translation>
     </message>

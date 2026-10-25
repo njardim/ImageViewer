@@ -272,6 +272,8 @@ void ViewerWindow::exposeEvent(QExposeEvent *)
         m_waitingForExpose = false;
         frameTimeout();
     }
+    if (std::exchange(m_slideshowWaitsForExpose, false) && m_slideshow && !m_slideshowPaused)
+        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
     requestUpdate();
 }
 

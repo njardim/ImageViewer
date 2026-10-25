@@ -241,6 +241,10 @@
         <translation>Hvid</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Søg:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Brugerdefineret…</translation>
     </message>

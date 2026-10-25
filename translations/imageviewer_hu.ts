@@ -241,6 +241,10 @@
         <translation>Fehér</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Keresés:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Egyéni…</translation>
     </message>

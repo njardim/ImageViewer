@@ -545,6 +545,10 @@
         <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>تلاش:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>ایکسٹینشن</translation>
     </message>

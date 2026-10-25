@@ -241,6 +241,10 @@
         <translation>Bianco</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Cerca:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizzato…</translation>
     </message>

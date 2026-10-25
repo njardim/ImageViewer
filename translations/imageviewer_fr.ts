@@ -545,6 +545,10 @@
         <translation>Mettre en évidence les pixels modifiés par l’écrêtage ou le mappage des tons (magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Rechercher :</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Extension</translation>
     </message>

@@ -370,6 +370,18 @@ void saveRecentFiles(const QStringList &files)
         store.setValue(QStringLiteral("recent/files"), files.mid(0, kMaxRecentFiles));
 }
 
+int loadSettingsTab()
+{
+    bool numeric = false;
+    const int tab = QSettings().value(QStringLiteral("session/settingsTab")).toInt(&numeric);
+    return numeric ? tab : 0; // the dialog keeps it to its tabs
+}
+
+void saveSettingsTab(int tab)
+{
+    QSettings().setValue(QStringLiteral("session/settingsTab"), tab);
+}
+
 const QList<UiLanguage> &uiLanguages()
 {
     // Sorted by the English name of the language, so the order is the same whatever the

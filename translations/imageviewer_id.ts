@@ -545,6 +545,10 @@
         <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Cari:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Ekstensi</translation>
     </message>

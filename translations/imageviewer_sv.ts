@@ -241,6 +241,10 @@
         <translation>Vit</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Sök:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Anpassad…</translation>
     </message>

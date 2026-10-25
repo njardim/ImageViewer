@@ -545,6 +545,10 @@
         <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Pesquisar:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Extensão</translation>
     </message>

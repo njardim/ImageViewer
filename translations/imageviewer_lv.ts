@@ -241,6 +241,10 @@
         <translation>Balts</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Meklēt:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Pielāgots…</translation>
     </message>

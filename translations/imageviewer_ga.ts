@@ -241,6 +241,10 @@
         <translation>Bán</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Cuardaigh:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Saincheaptha…</translation>
     </message>

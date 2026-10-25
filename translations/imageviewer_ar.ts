@@ -545,6 +545,10 @@
         <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>بحث:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>الامتداد</translation>
     </message>

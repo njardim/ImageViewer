@@ -241,6 +241,10 @@
         <translation>Biały</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Szukaj:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Niestandardowy…</translation>
     </message>

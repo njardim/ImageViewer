@@ -545,6 +545,10 @@
         <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>অনুসন্ধান:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>এক্সটেনশন</translation>
     </message>

@@ -545,6 +545,10 @@
         <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Tìm kiếm:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>Phần mở rộng</translation>
     </message>

@@ -545,6 +545,10 @@
         <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>検索：</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>拡張子</translation>
     </message>

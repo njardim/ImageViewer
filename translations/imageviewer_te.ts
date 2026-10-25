@@ -545,6 +545,10 @@
         <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>శోధన:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>ఎక్స్‌టెన్షన్</translation>
     </message>

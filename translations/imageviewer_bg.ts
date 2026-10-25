@@ -241,6 +241,10 @@
         <translation>Бяло</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Търсене:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>По избор…</translation>
     </message>

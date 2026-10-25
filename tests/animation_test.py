@@ -14,6 +14,8 @@ still image. The colour in the middle of the window shows what is on screen:
   5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back;
      with auto-hide on, a still pointer hides the toolbar after 2 s and a move shows it again.
   6. A paused slideshow whose folder empties stops, and its toolbar goes.
+  7. While the window is hidden (unmapped: Xvfb has no window manager to minimize it), the
+     slideshow shows no image; shown again, the image there gets its full time, then it goes on.
 
 usage: python3 tests/animation_test.py <ImageViewer> [vulkan|opengl]
 needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, numpy, Pillow
@@ -309,6 +311,37 @@ try:
             for name in ("c1.png", "c2.png"):
                 os.remove(os.path.join(empty, name))
             toolbar_is("the folder emptied, the paused slideshow stops and its toolbar goes", None)
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 7. Hidden, the slideshow waits (D-84): no image shown (decoded or from the cache) until
+            # the window is shown again, and the one there then stays its full second.
+            hidden = os.path.join(work, "hidden")
+            os.makedirs(hidden)
+            for name, rgb in (("h1.png", COLOURS["red"]), ("h2.png", COLOURS["green"]), ("h3.png", COLOURS["blue"])):
+                Image.new("RGB", (160, 120), rgb).save(os.path.join(hidden, name))
+            app = subprocess.Popen([exe, os.path.join(hidden, "h1.png")], env=env, stdout=log, stderr=log)
+            wait_for("the first of three images is shown", {"red"})
+            window = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
+            xdotool("windowfocus", "--sync", window)
+            xdotool("key", "s")
+            wait_for("S: the slideshow goes on", {"green"})
+
+            def images_shown():
+                with open(log_path, encoding="utf-8", errors="replace") as f:
+                    text = f.read()
+                return text.count("decoded for display:") + text.count("shown from the cache:")
+            xdotool("windowunmap", "--sync", window)
+            time.sleep(0.5)  # an image on its way when the window went
+            before = images_shown()
+            time.sleep(3.0)
+            if images_shown() != before:
+                fail(f"the hidden window's slideshow showed {images_shown() - before} images in 3 s")
+            print("ok   hidden, the slideshow shows no image for 3 s")
+            xdotool("windowmap", "--sync", window)
+            back = wait_for("the window shown again", {"red", "green", "blue"})
+            stays("the image there gets its full time", back, 0.5)
+            wait_for("then the slideshow goes on", {NEXT[back]})
             xdotool("key", "q")
             app.wait(15)
         finally:

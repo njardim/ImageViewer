@@ -4,6 +4,7 @@
 
 #include "formats.h"
 
+#include <QAction>
 #include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -107,12 +108,33 @@ QString pixels()
     return QCoreApplication::translate("SettingsDialog", " px");
 }
 
+// A magnifying glass: the system's where it has one, else drawn in `colour`, sharp at the usual
+// device pixel ratios.
+QIcon searchIcon(const QColor &colour)
+{
+    QIcon drawn;
+    for (const qreal ratio : {1.0, 1.25, 1.5, 2.0, 3.0}) {
+        QPixmap pixmap(QSize(16, 16) * ratio);
+        pixmap.setDevicePixelRatio(ratio);
+        pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(QPen(colour, 1.5, Qt::SolidLine, Qt::RoundCap));
+        painter.drawEllipse(QPointF(6.5, 6.5), 4.5, 4.5);
+        painter.drawLine(QPointF(9.8, 9.8), QPointF(14, 14));
+        painter.end();
+        drawn.addPixmap(pixmap);
+    }
+    return QIcon::fromTheme(QIcon::ThemeIcon::EditFind, drawn);
+}
+
 } // namespace
 
 SettingsDialog::SettingsDialog(const Settings &settings, std::function<QList<ShortcutCommand>()> commands)
     : m_initial(settings), m_commandsSource(std::move(commands))
 {
     buildUi();
+    m_tabs->setCurrentIndex(std::clamp(loadSettingsTab(), 0, m_tabs->count() - 1)); // where it was last closed
     setValues(settings);
     m_applied = this->settings(); // as the dialog shows them (normalised), so nothing reads as changed
     updateApplyButton();
@@ -333,9 +355,18 @@ void SettingsDialog::buildUi()
     auto *formatsSearch = new QLineEdit;
     //: Placeholder of the field that filters the table of image formats.
     formatsSearch->setPlaceholderText(tr("Search extensions, formats and decoders"));
-    formatsSearch->setAccessibleName(tr("Search"));
     formatsSearch->setClearButtonEnabled(true);
-    formatsLayout->addWidget(formatsSearch);
+    // A magnifying glass at the field's start says "search" at a glance; a click on it goes to the field.
+    QAction *searchMark = formatsSearch->addAction(searchIcon(formatsSearch->palette().color(QPalette::PlaceholderText)),
+                                                   QLineEdit::LeadingPosition);
+    searchMark->setText(tr("Search"));
+    connect(searchMark, &QAction::triggered, formatsSearch, [formatsSearch] { formatsSearch->setFocus(); });
+    auto *searchRow = new QHBoxLayout;
+    auto *searchLabel = new QLabel(tr("Search:")); // names the field for screen readers too
+    searchLabel->setBuddy(formatsSearch);
+    searchRow->addWidget(searchLabel);
+    searchRow->addWidget(formatsSearch, 1);
+    formatsLayout->addLayout(searchRow);
     auto *formatsTable = new QTableWidget(int(suffixRows.size()), 5);
     // "#" is a symbol, the same in every language: it numbers the rows.
     formatsTable->setHorizontalHeaderLabels({QStringLiteral("#"), tr("Extension"), tr("Format"), tr("Decoder"), tr("Decoder version")});
@@ -464,6 +495,12 @@ void SettingsDialog::changeEvent(QEvent *event)
         QMetaObject::invokeMethod(this, &SettingsDialog::rebuildUi, Qt::QueuedConnection);
     }
     QDialog::changeEvent(event);
+}
+
+void SettingsDialog::done(int result)
+{
+    saveSettingsTab(m_tabs->currentIndex());
+    QDialog::done(result);
 }
 
 void SettingsDialog::rebuildUi()

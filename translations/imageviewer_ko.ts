@@ -241,6 +241,10 @@
         <translation>흰색</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>검색:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>사용자 지정…</translation>
     </message>

@@ -241,6 +241,10 @@
         <translation>Alb</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Căutare:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizat…</translation>
     </message>

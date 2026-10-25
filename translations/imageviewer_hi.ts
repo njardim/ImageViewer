@@ -545,6 +545,10 @@
         <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>खोज:</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>एक्सटेंशन</translation>
     </message>

@@ -545,6 +545,10 @@
         <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>搜索：</translation>
+    </message>
+    <message>
         <source>Extension</source>
         <translation>扩展名</translation>
     </message>

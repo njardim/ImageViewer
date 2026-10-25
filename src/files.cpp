@@ -153,9 +153,9 @@ void ViewerWindow::showInFolder()
     const QString path = m_image.path;
     if (path.isEmpty() || !QFileInfo::exists(path))
         return;
-    // Arguments are passed as a list (no shell), so file names cannot inject commands.
+    // Never through a command line parsed by a shell: a file's name cannot inject commands.
 #if defined(Q_OS_WIN)
-    QProcess::startDetached(QStringLiteral("explorer.exe"), {QStringLiteral("/select,"), QDir::toNativeSeparators(path)});
+    showInExplorer(path);
 #elif defined(Q_OS_MACOS)
     QProcess::startDetached(QStringLiteral("/usr/bin/open"), {QStringLiteral("-R"), path});
 #else

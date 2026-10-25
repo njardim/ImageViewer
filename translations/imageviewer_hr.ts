@@ -241,6 +241,10 @@
         <translation>Bijela</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Pretraži:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Prilagođeno…</translation>
     </message>

@@ -241,6 +241,10 @@
         <translation>Valkoinen</translation>
     </message>
     <message>
+        <source>Search:</source>
+        <translation>Hae:</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Mukautettu…</translation>
     </message>

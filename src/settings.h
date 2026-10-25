@@ -150,6 +150,10 @@ constexpr int kMaxRecentFiles = 10;
 QStringList loadRecentFiles();
 void saveRecentFiles(const QStringList &files);
 
+// The Settings dialog's tab shown when it last closed; it opens there again. Saved at once.
+int loadSettingsTab();
+void saveSettingsTab(int tab);
+
 // User-interface languages: English (the source language) and the translations that
 // ship in the executable, with their names written in the language itself (D-27, D-32).
 struct UiLanguage {
@@ -198,6 +202,7 @@ Q_SIGNALS:
 
 protected:
     void changeEvent(QEvent *event) override;
+    void done(int result) override; // OK, Cancel, Esc or the close button: remembers the tab shown
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:

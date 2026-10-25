@@ -274,7 +274,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Hiện bảng thông tin (%1)</translation>
     </message>
     <message>
@@ -562,7 +562,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Hiện lớp phủ thông tin ở trên cùng (%1)</translation>
     </message>
     <message>
@@ -676,10 +676,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>Thư mục không chứa ảnh nào được hỗ trợ.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>Đang tải %1…</translation>
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>

@@ -181,7 +181,7 @@ void ViewerWindow::copyImage()
     m_copyBusy = true;
     if (std::optional<Image> kept = m_cache.find(path, m_shownLimit);
         kept && kept->width == kept->sourceWidth && kept->height == kept->sourceHeight) {
-        m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(*kept)] { return clipboardImage(image); }));
+        m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(*kept)] { return srgbImage(image); }));
         return;
     }
     m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path] { return decodeForClipboard(path); }));
@@ -411,8 +411,5 @@ void ViewerWindow::renameFile()
         kept->path = target; // renaming keeps the size and the modification time
         m_cache.insert(*kept, m_shownLimit);
     }
-    const QStringList watchedFiles = m_folderWatcher.files();
-    if (!watchedFiles.isEmpty())
-        m_folderWatcher.removePaths(watchedFiles);
-    m_folderWatcher.addPath(target);
+    watchFile(target);
 }

@@ -59,21 +59,6 @@ if rhi not in allowed:
 work = os.environ.get("RENDER_TEST_DIR") or tempfile.mkdtemp(prefix="imageviewer-render-")
 os.makedirs(work, exist_ok=True)
 
-WHITE_NITS = 203.0  # BT.2408 reference white = working value 1.0
-PQ_M1, PQ_M2 = 2610 / 16384, 2523 / 4096 * 128
-PQ_C1, PQ_C2, PQ_C3 = 3424 / 4096, 2413 / 4096 * 32, 2392 / 4096 * 32
-
-
-def pq_encode(nits):
-    y = np.clip(np.asarray(nits, dtype=np.float64) / 10000, 0, 1) ** PQ_M1
-    return ((PQ_C1 + PQ_C2 * y) / (1 + PQ_C3 * y)) ** PQ_M2
-
-
-def pq_decode(e):
-    p = np.clip(np.asarray(e, dtype=np.float64), 0, 1) ** (1 / PQ_M2)
-    return 10000 * (np.maximum(p - PQ_C1, 0) / (PQ_C2 - PQ_C3 * p)) ** (1 / PQ_M1)
-
-
 def srgb_decode(v):
     v = np.asarray(v, dtype=np.float64)
     return np.where(v <= 0.04045, v / 12.92, ((v + 0.055) / 1.055) ** 2.4)
@@ -81,18 +66,13 @@ def srgb_decode(v):
 
 def bt2390_knee_nits(source_nits, target_nits):
     """ITU-R BT.2390 §5.4.1 with zero black levels: KS = 1.5 * maxLum - 0.5 (PQ domain)."""
-    max_lum = pq_encode(target_nits) / pq_encode(source_nits)
-    return float(pq_decode(max(1.5 * max_lum - 0.5, 0.0) * pq_encode(source_nits)))
+    max_lum = hdr.nits_to_pq(target_nits) / hdr.nits_to_pq(source_nits)
+    return float(hdr.pq_to_nits(max(1.5 * max_lum - 0.5, 0.0) * hdr.nits_to_pq(source_nits)))
 
 
-# Linear BT.709 -> BT.2020 (ITU-R BT.2087); the PQ output is checked back in BT.709.
-BT709_TO_BT2020 = np.array([[0.6274039, 0.3292830, 0.0433131],
-                            [0.0690973, 0.9195404, 0.0113623],
-                            [0.0163914, 0.0880133, 0.8955953]])
-
-
+# The PQ output is checked back in linear BT.709 (SMPTE ST 2084 and BT.2087: hdr_corpus.py).
 def pq_decode_bt709(e):
-    return pq_decode(e) @ np.linalg.inv(BT709_TO_BT2020).T
+    return hdr.pq_to_nits(e) @ np.linalg.inv(hdr.BT709_TO_BT2020).T
 
 
 def write_pfm(path, rgb):
@@ -128,10 +108,10 @@ content_luminance = (corpus @ np.array([0.2126, 0.7152, 0.0722])).max()
 # (name, harness arguments, scale per working unit, peak and nits per output unit, decoder)
 linear = lambda v: v
 CASES = [
-    ("sdr", ["--output", "sdr"], 1.0, 1.0, WHITE_NITS, srgb_decode, True),
-    ("sdr-clip", ["--output", "sdr", "--no-tonemap"], 1.0, 1.0, WHITE_NITS, srgb_decode, False),
-    ("sdr-exposure", ["--output", "sdr", "--exposure", "-6"], 1.0, 1.0, WHITE_NITS, srgb_decode, True),
-    ("edr", ["--output", "edr", "--peak", "4"], 1.0, 4.0, WHITE_NITS, linear, True),
+    ("sdr", ["--output", "sdr"], 1.0, 1.0, hdr.REFERENCE_WHITE_NITS, srgb_decode, True),
+    ("sdr-clip", ["--output", "sdr", "--no-tonemap"], 1.0, 1.0, hdr.REFERENCE_WHITE_NITS, srgb_decode, False),
+    ("sdr-exposure", ["--output", "sdr", "--exposure", "-6"], 1.0, 1.0, hdr.REFERENCE_WHITE_NITS, srgb_decode, True),
+    ("edr", ["--output", "edr", "--peak", "4"], 1.0, 4.0, hdr.REFERENCE_WHITE_NITS, linear, True),
     ("scrgb", ["--output", "scrgb", "--white", "240", "--peak", "600"], 3.0, 7.5, 80.0, linear, True),
     ("pq", ["--output", "pq", "--white", "203", "--peak", "1000"], 203.0, 1000.0, 1.0, pq_decode_bt709, True),
     ("pq-clip", ["--output", "pq", "--peak", "1000", "--no-tonemap"], 203.0, 1000.0, 1.0, pq_decode_bt709, False),
@@ -255,7 +235,7 @@ try:
         brightness = np.maximum(reference.max(axis=-1, keepdims=True), 0.05)
         for case, args, to_nits, limit in (
                 ("H1 decoded light", ["--output", "edr", "--peak", "100", "--no-tonemap"],
-                 lambda raw: raw @ hdr.BT709_TO_BT2020.T * WHITE_NITS, 1e-3),
+                 lambda raw: raw @ hdr.BT709_TO_BT2020.T * hdr.REFERENCE_WHITE_NITS, 1e-3),
                 ("H2 on a 10,000-nit PQ output", ["--output", "pq", "--white", "203", "--peak", "10000"],
                  hdr.pq_to_nits, 1e-3)):
             pfm = os.path.join(work, f"{rhi}-{name}-{case[:2]}.pfm")

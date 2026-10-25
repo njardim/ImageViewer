@@ -274,7 +274,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>जानकारी पैनल दिखाएँ (%1)</translation>
     </message>
     <message>
@@ -562,7 +562,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>शीर्ष पर जानकारी ओवरले दिखाएँ (%1)</translation>
     </message>
     <message>
@@ -676,10 +676,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>फ़ोल्डर में कोई समर्थित छवि नहीं है।</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>%1 लोड किया जा रहा है…</translation>
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>

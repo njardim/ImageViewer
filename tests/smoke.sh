@@ -100,7 +100,9 @@ for f in anim.gif anim.webp anim.jxl anim.png; do
     check "$f" 'frame px: +1\.000 0\.000 0\.000 \| 0\.000 1\.000 0\.000 \| 0\.000 0\.000 1\.000$' "animation: every frame's colour"
 done
 # APNG (0.5 review): a first frame smaller than the canvas after a default image left out of the
-# animation (legal), and a 70 KB XMP chunk before acTL, past the 64 KiB detection reads.
+# animation (legal), and a 70 KB XMP chunk before acTL, past the 64 KiB detection reads. A header
+# of 4294967295 x 4294967295 (D-81): its pixel count overflowed 64 bits and passed every limit, and
+# the first frame, at row 100000, was written far outside a 4-byte canvas (a crash).
 apngs="$(mktemp -d)"
 python3 - "$data/anim.png" "$apngs" <<'PY'
 import struct, sys, zlib
@@ -116,6 +118,10 @@ png += chunk(b'IDAT', raw(4, 4, (0, 0, 255, 255))) + frame(2, 2, 1, 1, (255, 0, 
 open(sys.argv[2] + '/subrect.png', 'wb').write(png + chunk(b'IEND', b''))
 src = open(sys.argv[1], 'rb').read()
 open(sys.argv[2] + '/xmp70k.png', 'wb').write(src[:33] + chunk(b'iTXt', b'XML:com.adobe.xmp\0\0\0\0\0' + b' ' * 70000) + src[33:])
+seq[0] = 0
+png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 0xffffffff, 0xffffffff, 8, 6, 0, 0, 0)) + chunk(b'acTL', struct.pack('>II', 2, 0))
+png += chunk(b'IDAT', raw(1, 1, (0, 0, 255, 255))) + frame(1, 1, 0, 100000, (255, 0, 0, 255)) + frame(1, 1, 0, 0, (0, 255, 0, 255))
+open(sys.argv[2] + '/overflow.png', 'wb').write(png + chunk(b'IEND', b''))
 PY
 while read -r name count; do
     if "$exe" --info "$apngs/$name" 2>/dev/null | grep -Eq "^frames: +$count,"; then
@@ -128,6 +134,14 @@ done <<'CASES'
 subrect.png 2
 xmp70k.png 3
 CASES
+code=0
+"$exe" --info "$apngs/overflow.png" >"$apngs/overflow.out" 2>/dev/null || code=$?
+if [ "$code" = 1 ] && grep -q 'invalid dimensions (4294967295' "$apngs/overflow.out"; then
+    echo "ok   overflow.png: an APNG of 4294967295 × 4294967295 is refused"
+else
+    echo "FAIL overflow.png: exit $code, expected 1 with \"invalid dimensions\""
+    failures=$((failures + 1))
+fi
 rm -rf "$apngs"
 # AVIF image sequences (libheif 1.23 track API; CI requires it, local builds against an older
 # distribution libheif skip these): the same three frames, Pillow 12.3 at quality 100, which

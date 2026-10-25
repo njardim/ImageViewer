@@ -27,22 +27,6 @@
 
 namespace {
 
-#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-bool checkSize(qint64 width, qint64 height, int bytesPerPixel, qint64 maxPixels, Decoded *out, QString *error)
-{
-    const qint64 pixels = width * height;
-    if (width <= 0 || height <= 0 || pixels > kMaxPixels) {
-        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(width).arg(height).arg(4);
-        return false;
-    }
-    if (maxPixels > 0 && pixels > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
-    return fitsInMemory(pixels, bytesPerPixel, error);
-}
-#endif
-
 #if defined(Q_OS_MACOS)
 // CoreFoundation objects released when they go out of scope.
 template <typename Ref>
@@ -146,8 +130,8 @@ bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QStri
     // The size before decoding, so that an image over the limit is not decoded; then the
     // decoded image's own size, which is what is drawn.
     const auto properties = owned(CGImageSourceCopyPropertiesAtIndex(source.get(), 0, nullptr));
-    if (!checkSize(intProperty(properties.get(), kCGImagePropertyPixelWidth, 0),
-                   intProperty(properties.get(), kCGImagePropertyPixelHeight, 0), 16, maxPixels, out, error))
+    if (!checkDimensions(intProperty(properties.get(), kCGImagePropertyPixelWidth, 0),
+                         intProperty(properties.get(), kCGImagePropertyPixelHeight, 0), 4, 16, maxPixels, out, error))
         return false;
     const auto image = owned(CGImageSourceCreateImageAtIndex(source.get(), 0, nullptr));
     const auto target = owned(CGColorSpaceCreateWithName(kCGColorSpaceExtendedLinearSRGB));
@@ -156,7 +140,7 @@ bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QStri
         return false;
     }
     const qint64 width = qint64(CGImageGetWidth(image.get())), height = qint64(CGImageGetHeight(image.get()));
-    if (!checkSize(width, height, 16, maxPixels, out, error))
+    if (!checkDimensions(width, height, 4, 16, maxPixels, out, error))
         return false;
     const std::size_t rowBytes = std::size_t(width) * 4 * sizeof(float);
     out->data.reset(new unsigned char[rowBytes * std::size_t(height)]);
@@ -207,7 +191,7 @@ bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QStri
         *error = isMissingCodec(result) ? missingHevcMessage() : damaged("HEIC");
         return false;
     }
-    if (!checkSize(width, height, 4, maxPixels, out, error))
+    if (!checkDimensions(width, height, 4, 4, maxPixels, out, error))
         return false;
     // The embedded profile, if any; the pipeline converts from it.
     UINT contexts = 0;

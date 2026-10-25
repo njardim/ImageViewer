@@ -140,8 +140,12 @@ void ViewerWindow::scheduleWork()
             qCInfo(lcNavigation).noquote() << "shown from the cache:" << QFileInfo(current).fileName();
             showImage(std::move(*cached), limit);
         } else {
-            m_loadingMessage = tr("Loading %1…").arg(displayFileName(QFileInfo(current).fileName()));
-            m_message = m_loadingMessage;
+            // No "Loading…" message (owner, D-81): the gallery's highlight moves to the image asked
+            // for at once, and the image on screen stays until the new one replaces it.
+            if (m_awaitedPath != current) {
+                m_awaitedPath = current;
+                m_message.clear(); // the earlier request's status
+            }
             m_error.clear(); // the image that failed is no longer the one asked for
             updateOverlay();
             // A running decode (perhaps of this very file) is waited for: decodeFinished() comes back here.
@@ -149,11 +153,10 @@ void ViewerWindow::scheduleWork()
                 startDecode(current, limit, 0);
             return;
         }
-    } else if (!m_loadingMessage.isEmpty() && m_message == m_loadingMessage) {
+    } else if (!m_awaitedPath.isEmpty()) {
         // Back to the image on screen before the other one arrived (Right, Left).
-        m_message.clear();
+        m_awaitedPath.clear();
         m_error = m_image.error;
-        m_loadingMessage.clear();
         updateOverlay();
     }
     // The requested image is on screen: use the idle decode thread for its neighbours.
@@ -239,22 +242,33 @@ void ViewerWindow::showImage(Image image, int limit)
     }
     m_shownLimit = limit;
     m_imageStale = false;
-    m_loadingMessage.clear();
+    m_awaitedPath.clear();
     // Editors often save by replacing the file: watch the path again each time it is shown.
-    const QStringList watchedFiles = m_folderWatcher.files();
-    if (!watchedFiles.isEmpty())
-        m_folderWatcher.removePaths(watchedFiles);
     const QFileInfo shown(m_image.path);
-    if (shown.exists()) {
-        m_folderWatcher.addPath(m_image.path);
-        // Changed while it was being decoded (before the watch above existed): look again.
-        if (shown.size() != m_image.fileSize || shown.lastModified() != m_image.modified)
-            m_folderTimer.start();
-    }
+    watchFile(shown.exists() ? m_image.path : QString());
+    // Changed while it was being decoded (before the watch above existed): look again.
+    if (shown.exists() && (shown.size() != m_image.fileSize || shown.lastModified() != m_image.modified))
+        m_folderTimer.start();
     // At either end of a non-looping folder a side button may have nothing left to do.
     setHoverZone(zoneAt(mapFromGlobal(QCursor::pos(screen()))));
     updateOverlay();
     requestUpdate();
+}
+
+void ViewerWindow::clearShownImage()
+{
+    stopAnimation();
+    m_image = Image();
+    m_renderer.clearImage();
+}
+
+void ViewerWindow::watchFile(const QString &path)
+{
+    const QStringList watched = m_folderWatcher.files(); // the folder is among its directories
+    if (!watched.isEmpty())
+        m_folderWatcher.removePaths(watched);
+    if (!path.isEmpty())
+        m_folderWatcher.addPath(path);
 }
 
 void ViewerWindow::reloadCurrent()
@@ -366,9 +380,7 @@ void ViewerWindow::removeCurrentFromList()
         return;
     }
     // Not shown until the next one arrives: the file is gone.
-    stopAnimation();
-    m_image = Image();
-    m_renderer.clearImage();
+    clearShownImage();
     const int next = std::min(m_index, int(m_files.size()) - 1);
     m_index = -1;
     restartSlideshowInterval();
@@ -378,9 +390,7 @@ void ViewerWindow::removeCurrentFromList()
 void ViewerWindow::showFolderEmpty()
 {
     m_index = -1;
-    stopAnimation();
-    m_image = Image();
-    m_renderer.clearImage();
+    clearShownImage();
     m_cache.clear();
     m_error = tr("No images left in this folder.");
     setHoverZone(Zone::None);

@@ -44,11 +44,18 @@ const QColor kBackgroundPresets[] = {QColor(0x00, 0x00, 0x00), QColor(0x21, 0x21
 const QColor kHighlightPresets[] = {QColor(224, 17, 95), QColor(80, 200, 120), QColor(30, 100, 220),
                                     QColor(255, 215, 0), QColor(235, 242, 255)};
 
-// An extension, shown isolated left to right (LRI … PDI) and sorted without those marks: with
-// them, ".avif" + PDI sorted after ".avifs".
+// Text that reads left to right even in Arabic or Urdu, isolated (LRI … PDI) from the line
+// around it: an extension, a key sequence ("Ctrl+," not ",Ctrl+").
+QString leftToRight(const QString &text)
+{
+    return QChar(0x2066) + text + QChar(0x2069);
+}
+
+// An extension, shown left to right and sorted without the isolation marks: with them, ".avif"
+// + PDI sorted after ".avifs".
 class ExtensionItem final : public QTableWidgetItem {
 public:
-    explicit ExtensionItem(const QString &suffix) : QTableWidgetItem(QChar(0x2066) + suffix + QChar(0x2069))
+    explicit ExtensionItem(const QString &suffix) : QTableWidgetItem(leftToRight(suffix))
     {
         setData(Qt::UserRole, suffix);
     }
@@ -641,10 +648,9 @@ bool SettingsDialog::eventFilter(QObject *watched, QEvent *event)
 }
 
 namespace {
-// A key sequence in a line of text: left to right even in Arabic or Urdu ("Ctrl+," not ",Ctrl+").
 QString isolatedShortcut(const QKeySequence &sequence)
 {
-    return QChar(0x2066) + sequence.toString(QKeySequence::NativeText) + QChar(0x2069); // LRI … PDI
+    return leftToRight(sequence.toString(QKeySequence::NativeText));
 }
 } // namespace
 
@@ -695,9 +701,9 @@ void SettingsDialog::refreshShortcutTexts()
         const QList<QKeySequence> list = m_shortcuts.value(QString::fromLatin1(command));
         return list.isEmpty() ? QStringLiteral("—") : isolatedShortcut(list.first());
     };
-    //: %1: the keyboard shortcut, e.g. "I".
+    //: %1: the keyboard shortcut, e.g. "P".
     m_showInfo->setText(tr("Show the information panel (%1)").arg(keyName("Info")));
-    //: %1: the keyboard shortcut, e.g. "Shift+I".
+    //: %1: the keyboard shortcut, e.g. "I".
     m_showOverlay->setText(tr("Show the information overlay at the top (%1)").arg(keyName("InfoOverlay")));
     //: %1: the key that shows and hides the gallery, e.g. "G".
     m_galleryBox->setTitle(tr("Gallery (%1)").arg(keyName("Gallery")));

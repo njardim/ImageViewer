@@ -128,11 +128,11 @@ private:
 // Without `animate`, an animation is read as its first frame only (a thumbnail, the clipboard).
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true);
 
-// The image for the clipboard: 16-bit sRGB, straight alpha. HDR values above SDR white and
-// colours outside sRGB are clipped (the clipboard formats other applications read are SDR).
-// A null image when `image` is not valid.
-QImage clipboardImage(const Image &image);
-// `path` decoded at full resolution, for the clipboard (clipboardImage).
+// The image as 16-bit sRGB, straight alpha, for the clipboard and the gallery's thumbnails. HDR
+// values above SDR white and colours outside sRGB are clipped (the clipboard formats other
+// applications read are SDR; a thumbnail is a preview). A null image when `image` is not valid.
+QImage srgbImage(const Image &image);
+// `path` decoded at full resolution, for the clipboard (srgbImage).
 QImage decodeForClipboard(const QString &path);
 
 // Stops the decoders' own worker threads. Called once, after the last decode has finished

@@ -49,22 +49,10 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import audit_dependencies as audit  # noqa: E402
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PORTS = os.path.join(ROOT, "packaging", "vcpkg", "ports")
-MIN_RELEASE_AGE_DAYS = audit.MIN_RELEASE_AGE_DAYS
-
-# Overlay ports fetched by git: name, repository, stable tag pattern (its groups are the version).
-GIT_PORTS = [
-    ("openimageio", "https://github.com/AcademySoftwareFoundation/OpenImageIO", r"v(\d+)\.(\d+)\.(\d+)\.(\d+)"),
-    ("libheif", "https://github.com/strukturag/libheif", r"v(\d+)\.(\d+)\.(\d+)"),
-    ("aom", "https://aomedia.googlesource.com/aom", r"v(\d+)\.(\d+)\.(\d+)"),
-    ("expat", "https://github.com/libexpat/libexpat", r"R_(\d+)_(\d+)_(\d+)"),
-    ("minizip-ng", "https://github.com/zlib-ng/minizip-ng", r"(\d+)\.(\d+)\.(\d+)"),
-    ("openjph", "https://github.com/aous72/OpenJPH", r"(\d+)\.(\d+)\.(\d+)"),
-    ("libraw", "https://github.com/LibRaw/LibRaw", r"(\d+)\.(\d+)\.(\d+)"),
-    ("openjpeg", "https://github.com/uclouvain/openjpeg", r"v(\d+)\.(\d+)\.(\d+)"),
-    ("brotli", "https://github.com/google/brotli", r"v(\d+)\.(\d+)\.(\d+)"),
-]
+# Shared with the audit (D-67): the paths, the cooldown, the overlay ports fetched by git
+# (audit.COMMIT_PORTS: repository and tag template), reading and fetching.
+ROOT, PORTS, MIN_RELEASE_AGE_DAYS = audit.ROOT, audit.PORTS, audit.MIN_RELEASE_AGE_DAYS
+read, fetch = audit.read, audit.fetch
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
 VCPKG = audit.VCPKG
 
@@ -78,34 +66,13 @@ SENSITIVE = [
 ]
 
 
-def read(path):
-    with open(path, encoding="utf-8") as f:
-        return f.read()
-
-
 def write(path, text):
     with open(path, "w", encoding="utf-8") as f:
         f.write(text)
 
 
-fetch = audit.fetch
-
-
 def git(*args, cwd=None):
-    return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True).stdout
-
-
-def stable_tags(url, pattern):
-    """{version tuple: (tag, commit)} for the tags matching the pattern; annotated tags peeled."""
-    tags = {}
-    for line in git("ls-remote", "--tags", url).splitlines():
-        commit, ref = line.split("\t")
-        name = ref.removeprefix("refs/tags/")
-        name = name.removesuffix("^{}")
-        match = re.fullmatch(pattern, name)
-        if match:  # an annotated tag's peeled line ("^{}", the commit) comes after the tag object's
-            tags[tuple(int(g) for g in match.groups())] = (name, commit)
-    return tags
+    return audit.run("git", *args, cwd=cwd)
 
 
 def version_tuple(text):
@@ -214,7 +181,7 @@ def prune_exceptions(apply, report):
     audit finds them with the pins as they are now: none outlives its release."""
     check = audit.Report()
     baseline_commit = json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
-    audit.cooldown(baseline_commit, baseline_at(baseline_commit), check)
+    audit.cooldown(baseline_commit, audit.baseline_versions(baseline_commit), check)
     if not check.stale:
         return
     report.notes.append("Expired cooldown exceptions, removed from packaging/cooldown-exceptions.txt: "
@@ -285,11 +252,11 @@ def check_patches(port, url, tag, apply, report):
         write(portfile, text)
 
 
-def update_git_port(port, url, pattern, apply, report):
+def update_git_port(port, url, templates, apply, report):
     manifest = os.path.join(PORTS, port, "vcpkg.json")
     pinned = json.loads(read(manifest))["version"]
     current = version_tuple(pinned)
-    tags = stable_tags(url, pattern)
+    tags = audit.release_tags(url, templates, port)
     overall = max(tags) if tags else current
     held = f" ({as_text(overall)} is a new major version: for a person)" if overall[:1] > current[:1] else ""
     candidates = sorted(v for v in tags if v > current and v[:1] == current[:1])
@@ -381,17 +348,12 @@ def update_tarball_port(port, releases, archive, apply, report):
             record_exception([f"{port} {new}"], "security: fixes " + ", ".join(report.exceptions[port][1]))
 
 
-def baseline_at(commit):
-    data = json.loads(fetch(f"https://raw.githubusercontent.com/microsoft/vcpkg/{commit}/versions/baseline.json"))
-    return {port: entry["baseline"] for port, entry in data["default"].items()}
-
-
 def update_vcpkg_baseline(apply, report):
     """The newest vcpkg release newer than the baseline whose own tag and every library it moves
     (of those the packages ship) are past the cooldown."""
     path = os.path.join(ROOT, "vcpkg.json")
     baseline = json.loads(read(path))["builtin-baseline"]
-    tags = stable_tags(VCPKG, r"(\d{4})\.(\d{2})\.(\d{2})")
+    tags = audit.release_tags(VCPKG, "{v}")
     # The baseline may be a commit between two releases: only releases it is an ancestor of are
     # newer. Asked of git (commits only, no trees or files) rather than GitHub's API.
     recent = sorted(tags)[-6:]
@@ -404,13 +366,13 @@ def update_vcpkg_baseline(apply, report):
     if not candidates:
         report.row("vcpkg baseline (every other port)", baseline[:10], latest, "up to date")
         return
-    pinned = baseline_at(baseline)
+    pinned = audit.baseline_versions(baseline)
     shipped = audit.BASELINE_PORTS
     moves = {}
 
     def moved(version):
         if version not in moves:
-            new = baseline_at(tags[version][1])
+            new = audit.baseline_versions(tags[version][1])
             moves[version] = {p: (pinned.get(p), new[p]) for p in shipped if p in new and new[p] != pinned.get(p)}
         return moves[version]
 
@@ -472,7 +434,7 @@ def update_qt(apply, report):
     pin = os.path.join(ROOT, "packaging", "qt-version.txt")
     pinned = read(pin).strip()
     current = version_tuple(pinned)
-    tags = stable_tags("https://github.com/qt/qtbase", r"v(\d+)\.(\d+)\.(\d+)")
+    tags = audit.release_tags("https://github.com/qt/qtbase", "v{v}")
     overall = max(tags) if tags else current
     held = f" ({as_text(overall)}: a new minor version, for a person — the private QRhi API may change)" \
         if overall[:2] > current[:2] else ""
@@ -507,7 +469,8 @@ def main():
         report.notes.append(f"**Cooldown lowered to {MIN_RELEASE_AGE_DAYS} days** (packaging/cooldown-days.txt; the "
                             f"policy is {audit.POLICY_DAYS}, D-67): releases younger than {audit.POLICY_DAYS} days "
                             f"are taken. Set it back to {audit.POLICY_DAYS} once the release that needed it is out.")
-    checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report)) for p, u, t in GIT_PORTS]
+    checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report))
+              for p, (u, t) in audit.COMMIT_PORTS.items()]
     checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
                ("Qt", lambda: update_qt(args.apply, report)),

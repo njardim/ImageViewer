@@ -18,28 +18,6 @@ constexpr double kSideFree = 128.0;   // left free on each side of the window
 constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
 constexpr int kHoverFade = 10;        // the hovered tile: the highlight 10 points less opaque (D-65)
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
-
-// sRGB, 8 bits, premultiplied in encoded values like every overlay texture; HDR values above SDR
-// white and colours outside sRGB are clipped, as on the clipboard (a thumbnail is a preview).
-QImage thumbnailFrom(const Image &image)
-{
-    QImage out(image.width, image.height, QImage::Format_RGBA8888_Premultiplied);
-    if (out.isNull())
-        return {};
-    const qfloat16 *src = image.pixels->data();
-    for (int y = 0; y < image.height; ++y) {
-        uchar *dst = out.scanLine(y);
-        for (int x = 0; x < image.width; ++x, src += 4, dst += 4) {
-            const float alpha = std::clamp(float(src[3]), 0.0f, 1.0f);
-            for (int c = 0; c < 3; ++c) {
-                const float straight = alpha > 0.0f ? float(src[c]) / alpha : 0.0f;
-                dst[c] = uchar(std::lround(color::linearToSrgb(std::clamp(straight, 0.0f, 1.0f)) * alpha * 255.0f));
-            }
-            dst[3] = uchar(std::lround(alpha * 255.0f));
-        }
-    }
-    return out;
-}
 } // namespace
 
 double ViewerWindow::galleryThumbnail() const
@@ -255,8 +233,9 @@ void ViewerWindow::decodeThumbnail(const QString &path)
         const QFileInfo info(path); // before decoding: a file changed meanwhile is decoded again
         thumbnail.fileSize = info.size();
         thumbnail.modified = info.lastModified();
+        // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
         if (const Image image = decodeImage(path, pixels, maxPixels, false); image.isValid())
-            thumbnail.image = thumbnailFrom(image);
+            thumbnail.image = srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied);
         QMetaObject::invokeMethod(this, [this, path, thumbnail, generation] {
             m_thumbnailsPending.remove(path);
             if (generation == m_thumbnailGeneration) // otherwise decoded before the folder changed: asked again

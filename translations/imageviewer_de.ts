@@ -274,7 +274,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Informationsbereich anzeigen (%1)</translation>
     </message>
     <message>
@@ -562,7 +562,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Informationseinblendung oben anzeigen (%1)</translation>
     </message>
     <message>
@@ -676,10 +676,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>Der Ordner enthält keine unterstützten Bilder.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>%1 wird geladen…</translation>
     </message>
     <message>
         <source>Reducing the image to fit the GPU (at most %1 px)…</source>

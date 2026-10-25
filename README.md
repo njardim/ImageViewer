@@ -34,9 +34,9 @@ The packages are **not signed yet**:
 - **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, FITS, camera RAW (LibRaw) and more. GIMP XCF, PCX, Apple PICT, MIFF, DICOM and other rare formats are read by GraphicsMagick in a separate process with a list of allowed decoders, limits and a time-out. *Settings → Image Formats* (or `ImageViewer --formats`) lists every extension with its decoder and version. HEIC is decoded by the operating system (macOS; Windows with Microsoft's HEIF and HEVC extensions); ImageViewer ships no HEVC decoder.
 - **Animation:** GIF, WebP, APNG, JPEG XL and AVIF sequences play with their own timing and loop count; pause and step frame by frame.
 - **Viewing:** zoom at the cursor and an exact 100 % (one image pixel per screen pixel); fit to the window, its width or its height, fill it, or actual size, a mode that stays for the next images, and Lock Zoom to keep any zoom; rotate and mirror; full screen; a checkerboard behind transparent areas; the window can take the size of the image.
-- **Gallery:** the folder's thumbnails along the bottom (G), small, medium or large, the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls.
+- **Gallery:** the folder's thumbnails along the bottom (G), small, medium or large, optionally the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls.
 - **Slideshow:** through the folder at the pace you set, optionally in full screen, with its own toolbar (stop, pause and play) that can hide while the pointer is still.
-- **Information:** a panel (I) with everything about the file, the image, its color, its peak luminance, the camera (EXIF), the view and the output; a compact line at the top (Shift+I) with the fields you choose; neither ever moves the image, and both stay legible over any image, in SDR and HDR.
+- **Information:** a compact line at the top (I) with the fields you choose; a panel (P) with everything about the file, the image, its color, its peak luminance, the camera (EXIF), the view and the output; neither ever moves the image, and both stay legible over any image, in SDR and HDR.
 - **Navigation:** folders sorted by name (natural order), date or size; previous and next by keyboard, mouse side buttons or the window's sides; the neighbours loaded in advance; the folder watched, so files changed by other programs show up at once; optional looping.
 - **Files:** copy the image (16-bit) or its path, rename, move to the trash and undo, delete permanently, recent files, show in the file manager, open with another application.
 - **Settings:** with Apply, for everything above, including every keyboard shortcut.
@@ -59,7 +59,7 @@ The packages are **not signed yet**:
 | F, F11, double-click | Full screen |
 | R / Shift+R | Rotate clockwise / counterclockwise |
 | Shift+W / Shift+H | Mirror horizontally / vertically |
-| I / Shift+I | Information panel / overlay at the top |
+| I / P | Information overlay at the top / information panel |
 | B | Checkerboard behind transparent areas |
 | Space / Ctrl+← / Ctrl+→ (⌘ on macOS) | Pause the running slideshow, otherwise the animation / previous frame / next frame |
 | S / Esc | Start or stop the slideshow / stop it (or its toolbar's buttons) |

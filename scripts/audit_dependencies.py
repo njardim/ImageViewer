@@ -295,9 +295,9 @@ def age_days(when):
     return (datetime.datetime.now(datetime.timezone.utc) - when).total_seconds() / 86400
 
 
-def baseline_versions():
-    """{port: version} at the manifest's builtin-baseline."""
-    baseline = json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
+def baseline_versions(commit=None):
+    """{port: version} at a vcpkg commit, by default the manifest's builtin-baseline."""
+    baseline = commit or json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
     data = json.loads(fetch(f"https://raw.githubusercontent.com/microsoft/vcpkg/{baseline}/versions/baseline.json"))
     return {port: entry["baseline"] for port, entry in data["default"].items()}
 

@@ -6,6 +6,7 @@
 
 #include <QImageReader>
 #include <QSet>
+#include <QtEndian>
 
 #include <algorithm>
 #include <cstring>
@@ -25,18 +26,12 @@ bool startsWithBytes(QByteArrayView head, std::initializer_list<unsigned char> m
     return std::equal(magic.begin(), magic.end(), reinterpret_cast<const unsigned char *>(head.data()) + at);
 }
 
-quint32 bigEndian32(QByteArrayView head, qsizetype at)
-{
-    const auto *p = reinterpret_cast<const unsigned char *>(head.data()) + at;
-    return quint32(p[0]) << 24 | quint32(p[1]) << 16 | quint32(p[2]) << 8 | quint32(p[3]);
-}
-
 // ISO base media file (HEIF, AVIF): the "ftyp" box lists a major brand and compatible ones.
 bool hasBrand(QByteArrayView head, std::initializer_list<const char *> brands)
 {
     if (head.size() < 16 || !startsWith(head, "ftyp", 4))
         return false;
-    const qsizetype boxEnd = std::min<qsizetype>(head.size(), bigEndian32(head, 0));
+    const qsizetype boxEnd = std::min<qsizetype>(head.size(), qFromBigEndian<quint32>(head.data()));
     for (qsizetype at = 8; at + 4 <= boxEnd; at += at == 8 ? 8 : 4) // skip the minor version after the major brand
         for (const char *brand : brands)
             if (startsWith(head, brand, at))
@@ -91,7 +86,7 @@ bool isApng(QByteArrayView h)
             return true;
         if (startsWith(h, "IDAT", at + 4))
             return false;
-        const quint32 length = bigEndian32(h, at);
+        const quint32 length = qFromBigEndian<quint32>(h.data() + at);
         if (quint64(length) + 12 > quint64(h.size() - at))
             break;
         at += qsizetype(length) + 12;
@@ -126,8 +121,8 @@ bool isIconDirectory(QByteArrayView h, unsigned char type)
     if (!startsWithBytes(h, {0x00, 0x00, type, 0x00}) || h.size() < 22)
         return false;
     const auto *p = reinterpret_cast<const unsigned char *>(h.data());
-    const unsigned count = unsigned(p[4]) | unsigned(p[5]) << 8;
-    const quint32 offset = quint32(p[18]) | quint32(p[19]) << 8 | quint32(p[20]) << 16 | quint32(p[21]) << 24;
+    const unsigned count = qFromLittleEndian<quint16>(p + 4);
+    const quint32 offset = qFromLittleEndian<quint32>(p + 18);
     return count >= 1 && p[9] == 0 && offset >= 6 + 16 * count;
 }
 bool isIco(QByteArrayView h) { return isIconDirectory(h, 0x01); }

@@ -4,8 +4,6 @@
 // still image comes from libheif too: OpenImageIO reads no ICC profile from HEIF files.
 #include "decoders.h"
 
-#include <QCoreApplication>
-
 #include <algorithm>
 #include <cstring>
 #include <memory>
@@ -222,16 +220,7 @@ private:
             *error = invalid;
             return false;
         }
-        const qint64 pixels = qint64(w) * h;
-        if (w == 0 || h == 0 || pixels > kMaxPixels) {
-            *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(4);
-            return false;
-        }
-        if (maxPixels > 0 && pixels > maxPixels) {
-            first->overLimit = true;
-            return false;
-        }
-        if (!fitsInMemory(pixels, 8, error))
+        if (!checkDimensions(w, h, 4, 8, maxPixels, first, error))
             return false;
         // The depth of the coded samples, from the first frame as coded: asking libheif for
         // 16-bit RGB would turn an 8-bit file into 10-bit samples.

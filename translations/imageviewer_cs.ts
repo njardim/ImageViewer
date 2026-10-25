@@ -429,7 +429,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Zobrazit informační panel (%1)</translation>
     </message>
     <message>
@@ -644,7 +644,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>Zobrazit informační překrytí nahoře (%1)</translation>
     </message>
     <message>
@@ -689,10 +689,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>Složka neobsahuje žádné podporované obrázky.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>Načítání %1…</translation>
     </message>
     <message>
         <source>No images left in this folder.</source>

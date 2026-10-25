@@ -422,10 +422,10 @@ Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, boo
 
 QImage decodeForClipboard(const QString &path)
 {
-    return clipboardImage(decodeImage(path, 0, 0, false));
+    return srgbImage(decodeImage(path, 0, 0, false));
 }
 
-QImage clipboardImage(const Image &image)
+QImage srgbImage(const Image &image)
 {
     if (!image.isValid())
         return {};

@@ -4,11 +4,11 @@
 A folder holds an animated GIF (red, green, blue frames of 400 ms, looping) and a yellow
 still image. The colour in the middle of the window shows what is on screen:
   1. the animation plays: red, green and blue follow one another;
-  2. K pauses it (the colour stays put), "." and "," step one frame forward and back,
-     K plays again;
+  2. Space pauses it (the colour stays put), Ctrl+Right and Ctrl+Left step one frame forward
+     and back, Space plays again;
   3. S starts the slideshow (1 s per image, from the settings): the yellow image follows
      by itself; Esc stops it and the image stays.
-  4. The slideshow's toolbar (D-65), 16 px below the top overlay: stop, then pause, while it
+  4. The slideshow's toolbar (D-65), 16 px below the top overlay (I): stop, then pause, while it
      runs; a click on pause holds the image and turns it into play, play goes on; with auto-hide
      off (the default) it stays; stop ends the slideshow.
   5. With "Start the slideshow in full screen", S fills the screen and Esc gives the window back;
@@ -48,8 +48,11 @@ COLOURS = {"red": (255, 0, 0), "green": (0, 255, 0), "blue": (0, 0, 255), "yello
 frames = [Image.new("RGB", (160, 120), COLOURS[c]) for c in ("red", "green", "blue")]
 frames[0].save(os.path.join(pictures, "a-anim.gif"), save_all=True, append_images=frames[1:], duration=400, loop=0)
 Image.new("RGB", (160, 120), COLOURS["yellow"]).save(os.path.join(pictures, "b-still.png"))
+# 1 s per image; neither the top overlay (its text would be white in the toolbar's band, until I
+# shows it for the gap below it) nor the gallery nor the panel.
 with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "w") as f:
-    f.write("[General]\nversion=2\n\n[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\n")
+    f.write("[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\nshowOverlay=false\n\n"
+            "[gallery]\nshow=false\n")
 
 
 def fail(message):
@@ -164,20 +167,20 @@ try:
             second = wait_for("the next frame follows by itself", {NEXT[first]})
             wait_for("and the one after it", {NEXT[second]})
 
-            # 2. K pauses; "." and "," step; K plays again.
+            # 2. Space pauses; Ctrl+Right and Ctrl+Left step; Space plays again.
             xdotool("key", "space")
             time.sleep(0.3)
             paused = colour()
             if paused not in NEXT:
-                fail(f"after K: {paused} on screen")
-            stays("K pauses the animation", paused, 1.5)
+                fail(f"after Space: {paused} on screen")
+            stays("Space pauses the animation", paused, 1.5)
             xdotool("key", "ctrl+Right")
-            wait_for("'.' shows the next frame", {NEXT[paused]})
+            wait_for("Ctrl+Right shows the next frame", {NEXT[paused]})
             stays("and it stays", NEXT[paused], 1.0)
             xdotool("key", "ctrl+Left")
-            wait_for("',' goes back a frame", {paused})
+            wait_for("Ctrl+Left goes back a frame", {paused})
             xdotool("key", "space")
-            wait_for("K plays again", {NEXT[paused]})
+            wait_for("Space plays again", {NEXT[paused]})
 
             # 3. S: the slideshow moves on by itself; Esc stops it.
             xdotool("key", "s")
@@ -199,7 +202,7 @@ try:
 
             # 16 px between the top overlay and the toolbar below it (D-60): the rows across the
             # middle hold the overlay's panel, then the window's background, then the toolbar's.
-            xdotool("key", "shift+i")
+            xdotool("key", "i")
 
             def gap_below_overlay():
                 screen = xvfb.grab(display, shot_path)
@@ -221,7 +224,7 @@ try:
             if gap is None or abs(gap - 16) > 1:
                 fail(f"{gap} px between the top overlay and the toolbar, not 16 (see {shot_path})")
             print(f"ok   16 px between the top overlay and the toolbar ({gap} px)")
-            xdotool("key", "shift+i")
+            xdotool("key", "i")
             toolbar_is("the overlay hidden again, the toolbar stays", "pause")
             xdotool("mousemove", "--sync", str(bx), str(by))
             xdotool("click", "1")

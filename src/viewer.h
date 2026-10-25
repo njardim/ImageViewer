@@ -156,6 +156,8 @@ private:
     void startDecode(const QString &path, int limit, qint64 maxPixels);
     void decodeFinished();
     void showImage(Image image, int limit);
+    void clearShownImage();             // nothing on screen: no image, no animation
+    void watchFile(const QString &path); // the one file watched, the image on screen; empty: none
     void reloadCurrent();               // decode the shown file again, keeping the view
     void setFolder(const QString &folder);
     void relist();                      // folder sorted per the settings, keeping the current file
@@ -234,7 +236,7 @@ private:
     double topActivationHeight() const; // logical pixels
     void placeOverlays(Renderer::Frame *frame) const;
     void updateNavigationButtons();
-    void showNotice(const QString &text); // brief message in the information panel
+    void showNotice(const QString &text); // brief message, in a panel over the information panel
 
     // commands.cpp
     struct CommandInfo {
@@ -354,9 +356,9 @@ private:
         QDateTime modified; // later took the same name in the trash
     };
     QList<TrashedFile> m_trashed; // for Undo, most recent last
-    QString m_message; // loading status, in the information panel; cleared when an image arrives
+    QString m_message; // status (an image reduced for the GPU), with the notices; cleared when an image arrives
     QString m_error;   // why no image is shown, in the middle of the window; cleared likewise
-    QString m_loadingMessage; // the "Loading…" text in m_message, while it is there
+    QString m_awaitedPath; // asked for while another image is on screen; empty: none
     QString m_notice;  // confirmation of a command; disappears after a few seconds
     QTimer m_noticeTimer;
 

@@ -41,7 +41,7 @@ QByteArray gunzip(QByteArrayView in)
     if (inflateInit2(&z, MAX_WBITS + 16) != Z_OK) // + 16: a gzip header and trailer
         return {};
     z.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(in.data()));
-    z.avail_in = uInt(in.size()); // at most 2 GiB (readWholeFile)
+    z.avail_in = uInt(in.size()); // at most kMaxFileBytes (readWholeFile)
     QByteArray out;
     int status = Z_OK;
     for (;;) {

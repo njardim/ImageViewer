@@ -4,6 +4,7 @@
 #include "decoders.h"
 
 #include <QCoreApplication>
+#include <QtEndian>
 
 #include <algorithm>
 #include <cstring>
@@ -167,16 +168,6 @@ private:
         if (m_haveInfo)
             return true;
         m_info = info;
-        const qint64 pixels = qint64(info.xsize) * info.ysize;
-        if (info.xsize == 0 || info.ysize == 0 || pixels > kMaxPixels) {
-            *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)")
-                         .arg(info.xsize).arg(info.ysize).arg(info.num_color_channels);
-            return false;
-        }
-        if (m_maxPixels > 0 && pixels > m_maxPixels) {
-            out->overLimit = true;
-            return false;
-        }
         using Sample = Decoded::Sample;
         // Lossy files are coded in XYB: libjxl turns them into the original colour space when
         // it can describe it, and otherwise into linear sRGB, which 8 or 16-bit integers would
@@ -188,6 +179,9 @@ private:
         out->gray = info.num_color_channels == 1;
         const bool alpha = info.alpha_bits > 0;
         out->channels = (out->gray ? 1 : 3) + (alpha ? 1 : 0);
+        if (!checkDimensions(info.xsize, info.ysize, int(info.num_color_channels), out->channels * out->sampleBytes(),
+                             m_maxPixels, out, error))
+            return false;
         out->alphaIndex = alpha ? out->channels - 1 : -1;
         out->sourceChannels = int(info.num_color_channels + info.num_extra_channels);
         out->bits = int(info.bits_per_sample);
@@ -200,7 +194,7 @@ private:
                                  : out->sample == Sample::F16 ? JXL_TYPE_FLOAT16
                                                               : JXL_TYPE_FLOAT;
         m_format = {uint32_t(out->channels), type, JXL_NATIVE_ENDIAN, 0};
-        return fitsInMemory(pixels, out->channels * out->sampleBytes(), error);
+        return true;
     }
 
     void readColour(Decoded *out)
@@ -231,8 +225,7 @@ private:
         m_exif.resize(m_exif.size() - JxlDecoderReleaseBoxBuffer(m_dec.get()));
         m_readingExif = false;
         if (m_exif.size() > 4) { // a 4-byte offset, then the TIFF header
-            const std::size_t offset = std::size_t(m_exif[0]) << 24 | std::size_t(m_exif[1]) << 16
-                                       | std::size_t(m_exif[2]) << 8 | m_exif[3];
+            const std::size_t offset = qFromBigEndian<quint32>(m_exif.data());
             if (offset < m_exif.size() - 4) // orientation comes from the codestream; EXIF's is ignored
                 out->camera = cameraFromExif(QByteArrayView(m_exif.data() + 4 + offset, qsizetype(m_exif.size() - 4 - offset)), nullptr);
         }
@@ -411,16 +404,7 @@ private:
         const int w = int(WebPDemuxGetI(demux.get(), WEBP_FF_CANVAS_WIDTH));
         const int h = int(WebPDemuxGetI(demux.get(), WEBP_FF_CANVAS_HEIGHT));
         const uint32_t flags = WebPDemuxGetI(demux.get(), WEBP_FF_FORMAT_FLAGS);
-        const qint64 pixels = qint64(w) * h;
-        if (w <= 0 || h <= 0 || pixels > kMaxPixels) {
-            *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(4);
-            return false;
-        }
-        if (maxPixels > 0 && pixels > maxPixels) {
-            first->overLimit = true;
-            return false;
-        }
-        if (!fitsInMemory(pixels, 4, error))
+        if (!checkDimensions(w, h, 4, 4, maxPixels, first, error))
             return false;
         WebPChunkIterator chunk;
         if ((flags & ICCP_FLAG) && WebPDemuxGetChunk(demux.get(), "ICCP", 1, &chunk)) {
@@ -487,12 +471,8 @@ bool decodeSoftimage(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QS
         *error = invalid;
         return false;
     }
-    const int w = p[92] << 8 | p[93];
-    const int h = p[94] << 8 | p[95];
-    if (w <= 0 || h <= 0) {
-        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(4);
-        return false;
-    }
+    const int w = qFromBigEndian<quint16>(p + 92);
+    const int h = qFromBigEndian<quint16>(p + 94);
     struct Packet {
         int encoding;
         int channels[4]; // destination channels, R G B A order
@@ -520,15 +500,7 @@ bool decodeSoftimage(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QS
         alpha = alpha || (q[3] & 0x10);
         packets.push_back(packet);
     }
-    if (qint64(w) * h > kMaxPixels) { // the limit of every decoder (D-38)
-        *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(w).arg(h).arg(alpha ? 4 : 3);
-        return false;
-    }
-    if (maxPixels > 0 && qint64(w) * h > maxPixels) {
-        out->overLimit = true;
-        return false;
-    }
-    if (!fitsInMemory(qint64(w) * h, 4, error))
+    if (!checkDimensions(w, h, alpha ? 4 : 3, 4, maxPixels, out, error))
         return false;
 
     const int channels = alpha ? 4 : 3;
@@ -564,7 +536,7 @@ bool decodeSoftimage(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QS
                             *error = invalid;
                             return false;
                         }
-                        run = p[at] << 8 | p[at + 1];
+                        run = qFromBigEndian<quint16>(p + at);
                         at += 2;
                     } else {
                         run = c - 127;

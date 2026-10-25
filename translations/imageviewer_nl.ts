@@ -429,7 +429,7 @@
     </message>
     <message>
         <source>Show the information panel (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;P&quot;.</extracomment>
         <translation>Het informatiepaneel tonen (%1)</translation>
     </message>
     <message>
@@ -644,7 +644,7 @@
     </message>
     <message>
         <source>Show the information overlay at the top (%1)</source>
-        <extracomment>%1: the keyboard shortcut, e.g. &quot;Shift+I&quot;.</extracomment>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;I&quot;.</extracomment>
         <translation>De informatie-overlay bovenaan tonen (%1)</translation>
     </message>
     <message>
@@ -689,10 +689,6 @@
     <message>
         <source>The folder contains no supported images.</source>
         <translation>De map bevat geen ondersteunde afbeeldingen.</translation>
-    </message>
-    <message>
-        <source>Loading %1…</source>
-        <translation>%1 laden…</translation>
     </message>
     <message>
         <source>No images left in this folder.</source>

@@ -63,10 +63,10 @@ struct Settings {
     TitleMode titleMode = TitleMode::Name;
     int pointerHideMs = 2000;        // the pointer hides when it stays still this long; 0: never
     // Information
-    bool showInfo = true;      // the information panel (I)
-    bool showOverlay = true;   // the top overlay (Shift+I), where its mode below is not "never"
+    bool showInfo = false;     // the information panel (P)
+    bool showOverlay = true;   // the top overlay (I), where its mode below is not "never"
     OverlayVisibility overlayFullScreen = OverlayVisibility::Always;
-    OverlayVisibility overlayWindow = OverlayVisibility::Hidden;
+    OverlayVisibility overlayWindow = OverlayVisibility::Always;
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
     // The look of both information panels (D-49).
     int overlayBackgroundOpacity = 70; // percent
@@ -80,13 +80,13 @@ struct Settings {
     FolderSort sortBy = FolderSort::Name;
     bool sortDescending = false;
     bool preload = true;       // decode the next and previous images in advance (D-33)
-    double slideshowSeconds = 5.0; // between images in the slideshow (E11)
+    double slideshowSeconds = 4.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
     bool slideshowToolbarAutoHide = false; // its toolbar hides while the pointer is still (D-65); the user opts in
     int slideshowToolbarHideMs = 2000;    // ...after this long
-    bool showGallery = false;         // the thumbnails at the bottom (G, D-60)
+    bool showGallery = true;          // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
-    bool galleryZoom = true;          // the thumbnail under the pointer enlarges
+    bool galleryZoom = false;         // the thumbnail under the pointer enlarges
     int galleryOpacity = 70;          // percent, the gallery's background
     int galleryEnlargement = 50;      // logical pixels added to the thumbnail under the pointer
     QColor galleryHighlight = QColor(80, 200, 120); // sRGB, behind the current and the hovered thumbnail (emerald)

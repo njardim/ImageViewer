@@ -355,19 +355,30 @@ ENTRY
     printf '[Desktop Entry]\nType=Application\nName=Shell Dash\nExec=sh - %%f\nMimeType=image/png;\n' >"$apps/shelldash.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Shell Rcfile\nExec=bash --rcfile %%f\nMimeType=image/png;\n' >"$apps/shellrcfile.desktop"
     printf '[Desktop Entry]\nType=Application\nName=Shell Run\nExec=sh /opt/run.sh %%f\nMimeType=image/png;\n' >"$apps/shellrun.desktop"
+    # Every argument holding the file counts, not only the first ("env %u sh %f": the second is the
+    # shell's script, D-82); and the program is never the file itself.
+    printf '[Desktop Entry]\nType=Application\nName=Shell Second\nExec=env %%u sh %%f\nMimeType=image/png;\n' >"$apps/shellsecond.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Program File\nExec=%%f\nMimeType=image/png;\n' >"$apps/programfile.desktop"
     printf '[Default Applications]\nimage/png=beta.desktop\n[Removed Associations]\nimage/png=sub-removed.desktop\n' >"$xdg/config/mimeapps.list"
     png="$data/alpha8.png"
     url="file://$(cd "$data" && pwd)/alpha8.png"
     file="$(cd "$data" && pwd)/alpha8.png"
-    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s\nShell\tshell.desktop\t\nShell Dash\tshelldash.desktop\t\nShell Data\tshelldata.desktop\tsh|-c|viewer "$1"|sh|%s\nShell File\tshellfile.desktop\t\nShell Option\tshelloption.desktop\t\nShell Option Code\tshelloptioncode.desktop\t\nShell Plus\tshellplus.desktop\t\nShell Rcfile\tshellrcfile.desktop\t\nShell Run\tshellrun.desktop\tsh|/opt/run.sh|%s\nShell Script\tshellscript.desktop\t\nShell Word\tshellword.desktop\t' "$url" "$file" "$file" "$file")"
+    expected="$(printf 'Beta PT\tbeta.desktop\t/opt/beta app/beta|--title=Beta PT|%s\nAlpha Viewer\talpha.desktop\t/usr/bin/alpha|--open|a\\b $1|x|y|%s\nProgram File\tprogramfile.desktop\t\nShell\tshell.desktop\t\nShell Dash\tshelldash.desktop\t\nShell Data\tshelldata.desktop\tsh|-c|viewer "$1"|sh|%s\nShell File\tshellfile.desktop\t\nShell Option\tshelloption.desktop\t\nShell Option Code\tshelloptioncode.desktop\t\nShell Plus\tshellplus.desktop\t\nShell Rcfile\tshellrcfile.desktop\t\nShell Run\tshellrun.desktop\tsh|/opt/run.sh|%s\nShell Script\tshellscript.desktop\t\nShell Second\tshellsecond.desktop\t\nShell Word\tshellword.desktop\t' "$url" "$file" "$file" "$file")"
     listed="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
               LC_ALL=pt_PT.UTF-8 LANG=pt_PT.UTF-8 "$exe" --open-with "$png" 2>/dev/null || true)"
+    # An image named like a shell is not taken for one: "--file=%f" with a file named "sh" stays.
+    rm -rf "$apps" "$xdg/config/mimeapps.list" && mkdir -p "$apps"
+    printf '[Desktop Entry]\nType=Application\nName=Embedded\nExec=viewer --file=%%f\nMimeType=image/png;\n' >"$apps/embedded.desktop"
+    mkdir "$xdg/named" && cp "$png" "$xdg/named/sh"
+    named="$(XDG_DATA_HOME="$xdg/data" XDG_DATA_DIRS="$xdg/dirs" XDG_CONFIG_HOME="$xdg/config" XDG_CONFIG_DIRS="$xdg/dirs" \
+             "$exe" --open-with "$xdg/named/sh" 2>/dev/null || true)"
+    named_expected="$(printf 'Embedded\tembedded.desktop\tviewer|--file=%s' "$xdg/named/sh")"
     rm -rf "$xdg"
-    if [ "$listed" = "$expected" ]; then
-        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes (never inside quotes, a shell's word, its script or an option's argument)"
+    if [ "$listed" = "$expected" ] && [ "$named" = "$named_expected" ]; then
+        echo "ok   Open With: desktop entries, default first, Exec escapes, quoting and field codes (never inside quotes, a shell's word, its script or an option's argument, nor the program; a file named sh is no shell)"
     else
-        echo "FAIL Open With: got"; printf '%s\n' "$listed" | sed 's/^/     /'
-        echo "     expected"; printf '%s\n' "$expected" | sed 's/^/     /'
+        echo "FAIL Open With: got"; printf '%s\n' "$listed" "$named" | sed 's/^/     /'
+        echo "     expected"; printf '%s\n' "$expected" "$named_expected" | sed 's/^/     /'
         failures=$((failures + 1))
     fi
     ;;

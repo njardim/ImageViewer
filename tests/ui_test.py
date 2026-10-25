@@ -31,7 +31,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      switch;
   9. the title in the overlay's style with its fields (D-58); the gallery (D-60, D-65): G shows
      it, the current thumbnail on the highlight colour and the hovered one fainter, a click
-     shows a thumbnail's image, the ring past the first image, the wheel scrolls, G hides it;
+     shows a thumbnail's image, the ring past the first image, the wheel scrolls, a file saved
+     again by an editor gets a new thumbnail (D-82), G hides it;
      large thumbnails and another highlight from the settings;
  10. an unreadable file shows the warning sign in the middle (D-63).
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
@@ -756,6 +757,17 @@ try:
             time.sleep(0.5)
             xdotool("click", "1")
             wait_until("the wheel scrolls the gallery: two steps on, the middle shows g03.png", shown("g03.png"))
+            # An editor saves the image beside it as editors do, a new file renamed over the old one
+            # (the folder changes): the listing's size and time (D-82) give it a new thumbnail, a
+            # 96 × 72 field of the new colour around the slot's centre.
+            Image.new("RGB", (160, 120), (250, 250, 0)).save(os.path.join(gallery_dir, ".g04.tmp"), format="PNG")
+            os.replace(os.path.join(gallery_dir, ".g04.tmp"), os.path.join(gallery_dir, "g04.png"))
+            nx, ny = slot_centre(1)
+
+            def rewritten_thumbnail():
+                shot = grab()
+                return shot is not None and np.abs(shot[ny, nx] - (250, 250, 0)).max() <= 2
+            wait_until("a file saved again by an editor gets a new thumbnail", rewritten_thumbnail)
             xdotool("key", "g")
             wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
             xdotool("key", "q")

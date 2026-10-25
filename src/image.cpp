@@ -133,23 +133,43 @@ std::vector<qfloat16> orient(const std::vector<qfloat16> &src, int &w, int &h, i
     return out;
 }
 
-// Box-filters a premultiplied linear half-float buffer by an integer factor.
+// Box-filters a premultiplied linear half-float buffer by an integer factor (every gallery
+// thumbnail, and an image over the GPU's texture limit). Row by row: each source row is turned
+// into floats at once (Qt's vectorized conversion), each box's part of it summed in float over
+// at most kBlock pixels, so that the error stays far below a half float's precision whatever
+// the factor, and those sums gathered in double; the last column and row of boxes may be
+// narrower, each divided by its own area.
 std::vector<qfloat16> downscale(const std::vector<qfloat16> &src, int &w, int &h, int factor)
 {
+    constexpr int kBlock = 256;
     const int sw = w, sh = h;
     const int ow = (sw + factor - 1) / factor, oh = (sh + factor - 1) / factor;
     std::vector<qfloat16> out(std::size_t(ow) * oh * 4);
     forEachRange(std::size_t(oh), 16, [&](const Range &rows) {
+        std::vector<float> line(std::size_t(sw) * 4);
+        std::vector<double> sums(std::size_t(ow) * 4);
         for (int oy = int(rows.begin); oy < int(rows.end); ++oy) {
-            for (int ox = 0; ox < ow; ++ox) {
-                double acc[4] = {0, 0, 0, 0};
-                int n = 0;
-                for (int y = oy * factor; y < std::min(sh, (oy + 1) * factor); ++y)
-                    for (int x = ox * factor; x < std::min(sw, (ox + 1) * factor); ++x, ++n)
+            std::fill(sums.begin(), sums.end(), 0.0);
+            const int y0 = oy * factor, y1 = std::min(sh, y0 + factor);
+            for (int y = y0; y < y1; ++y) {
+                qFloatFromFloat16(line.data(), src.data() + std::size_t(y) * sw * 4, qsizetype(sw) * 4);
+                for (int ox = 0; ox < ow; ++ox) {
+                    const int x1 = std::min(sw, (ox + 1) * factor);
+                    for (int x = ox * factor; x < x1; x += kBlock) {
+                        float s[4] = {0, 0, 0, 0};
+                        const float *p = line.data() + std::size_t(x) * 4;
+                        for (const float *end = line.data() + std::size_t(std::min(x1, x + kBlock)) * 4; p < end; p += 4)
+                            for (int c = 0; c < 4; ++c)
+                                s[c] += p[c];
                         for (int c = 0; c < 4; ++c)
-                            acc[c] += float(src[(std::size_t(y) * sw + x) * 4 + c]);
+                            sums[std::size_t(ox) * 4 + c] += s[c];
+                    }
+                }
+            }
+            for (int ox = 0; ox < ow; ++ox) {
+                const double area = double(y1 - y0) * (std::min(sw, (ox + 1) * factor) - ox * factor);
                 for (int c = 0; c < 4; ++c)
-                    out[(std::size_t(oy) * ow + ox) * 4 + c] = qfloat16(float(acc[c] / n));
+                    out[(std::size_t(oy) * ow + ox) * 4 + c] = qfloat16(float(sums[std::size_t(ox) * 4 + c] / area));
             }
         }
     });
@@ -177,13 +197,13 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     std::vector<Range> ranges;
     forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
         const std::size_t n = range.end - range.begin;
-        std::vector<float> rgba(n * 4);
-        expand(dec, range.begin, range.end, rgba.data());
-        converter.apply(rgba.data(), n);
+        const std::unique_ptr<float[]> rgba(new float[n * 4]); // not zero-filled: expand() writes every value
+        expand(dec, range.begin, range.end, rgba.get());
+        converter.apply(rgba.get(), n);
         constexpr float kHalfMax = 65504.0f;
         float maxComponent = 0.0f, maxLuminance = 0.0f;
         for (std::size_t i = 0; i < n * 4; i += 4) {
-            float *p = rgba.data() + i;
+            float *p = rgba.get() + i;
             const float a = std::isfinite(p[3]) ? std::clamp(p[3], 0.0f, 1.0f) : 1.0f;
             p[3] = a;
             for (int c = 0; c < 3; ++c)
@@ -200,7 +220,7 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
             for (int c = 0; c < 3; ++c)
                 p[c] *= a;
         }
-        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.data(), qsizetype(n * 4));
+        qFloatToFloat16(pixels.data() + range.begin * 4, rgba.get(), qsizetype(n * 4));
         range.max = maxComponent;
         range.maxLuminance = maxLuminance;
     }, &ranges);

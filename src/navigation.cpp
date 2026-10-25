@@ -35,12 +35,13 @@ void ViewerWindow::openFile(const QString &path)
     m_direction = 1;
     if (info.isDir()) {
         const QString folder = info.absoluteFilePath();
-        listFolder(folder, [this, folder](QStringList files) {
-            if (files.isEmpty()) { // keep the current list and image
+        listFolder(folder, [this, folder](FolderListing listing) {
+            if (listing.files.isEmpty()) { // keep the current list and image
                 reportOpenFailure(tr("The folder contains no supported images."));
                 return;
             }
-            m_files = std::move(files);
+            m_files = std::move(listing.files);
+            forgetChangedThumbnails(listing.stamps); // the previous folder's
             m_galleryCentredOn = -2; // another folder: the gallery centres the image again
             m_lastDirectory = folder;
             setFolder(folder);
@@ -289,13 +290,13 @@ void ViewerWindow::setFolder(const QString &folder)
         m_folderWatcher.addPath(m_folder);
 }
 
-void ViewerWindow::listFolder(const QString &folder, std::function<void(QStringList)> done)
+void ViewerWindow::listFolder(const QString &folder, std::function<void(FolderListing)> done)
 {
     const quint64 generation = ++m_listing;
     QtConcurrent::run(&listImages, folder, m_settings.sortBy, m_settings.sortDescending)
-        .then(this, [this, generation, done = std::move(done)](QStringList files) {
+        .then(this, [this, generation, done = std::move(done)](FolderListing listing) {
             if (generation == m_listing) // another folder or another order was asked for meanwhile
-                done(std::move(files));
+                done(std::move(listing));
         });
 }
 
@@ -304,14 +305,15 @@ void ViewerWindow::relist()
     if (m_folder.isEmpty())
         return;
     const QString folder = m_folder;
-    listFolder(folder, [this, folder](QStringList files) {
+    listFolder(folder, [this, folder](FolderListing listing) {
         if (folder == m_folder)
-            applyListing(std::move(files));
+            applyListing(std::move(listing));
     });
 }
 
-void ViewerWindow::applyListing(QStringList files)
+void ViewerWindow::applyListing(FolderListing listing)
 {
+    QStringList &files = listing.files;
     const QString current = currentPath();
     const int previousIndex = m_index;
     if (!current.isEmpty() && !files.contains(current)) {
@@ -320,15 +322,18 @@ void ViewerWindow::applyListing(QStringList files)
         const auto same = std::find_if(files.begin(), files.end(), [&name](const QString &f) {
             return QStringView(f).mid(f.lastIndexOf(QLatin1Char('/')) + 1).compare(name, kFileNameCase) == 0;
         });
-        if (same != files.end())
+        if (same != files.end()) {
+            listing.stamps.insert(current, listing.stamps.take(*same));
             *same = current;
-        // A file opened despite an unknown suffix stays in the list while it exists.
-        else if (QFileInfo::exists(current) && QFileInfo(current).absolutePath() == m_folder)
+        } else if (const QFileInfo info(current); info.exists() && info.absolutePath() == m_folder) {
+            // A file opened despite an unknown suffix stays in the list while it exists.
             files.prepend(current);
+            listing.stamps.insert(current, {info.size(), info.lastModified()});
+        }
     }
     m_files = std::move(files);
     m_galleryCentredOn = -2; // the same index may be another file now
-    forgetChangedThumbnails();
+    forgetChangedThumbnails(listing.stamps);
     const int index = current.isEmpty() ? -1 : int(m_files.indexOf(current));
     if (index >= 0) {
         m_index = index;

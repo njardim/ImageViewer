@@ -98,7 +98,10 @@ QString safeDataUrl(QStringView url, int nesting)
 // instruction names [code: qtsvg v6.12.0 qsvghandler.cpp:1967-1981, 4238-4262]. So no DTD (its
 // entities are expanded by the reader here, and an ATTLIST default would put back an attribute
 // taken out), no processing instruction, and no reference but "#id": an <image> keeps only an
-// embedded image (safeDataUrl). Empty when the document cannot be read or is too large.
+// embedded image (safeDataUrl). Empty when the document cannot be read or is too large. Style
+// sheets, scripts and event attributes stay: neither Qt's renderer nor resvg follows an @import
+// or runs anything [code: qtsvg v6.12.0 reads no import rule and has no script engine; usvg
+// 0.48.0 renders static SVG only, its CSS parser simplecss 0.2.2 skips every at-rule] (D-82).
 // Only the file itself may be an svgz: an SVG inside it inflated as well would multiply the work
 // at each level (a few kilobytes of gzip inflate to hundreds of megabytes, which can hold many
 // more), and browsers do not inflate a data: URL either.
@@ -301,11 +304,15 @@ QColorSpace qtColorSpace(const color::Descriptor &d)
 
 class OiioImageHandler final : public QImageIOHandler {
 public:
-    static bool canRead(QIODevice *device) { return device && embeddedImageFormat(device->peek(12)) != nullptr; }
+    // Qt's own plugins look only at a readable device (a writer's device may be write-only).
+    static bool canRead(QIODevice *device)
+    {
+        return device && device->isReadable() && embeddedImageFormat(device->peek(12)) != nullptr;
+    }
 
     bool canRead() const override
     {
-        const char *format = device() ? embeddedImageFormat(device()->peek(12)) : nullptr;
+        const char *format = device() && device()->isReadable() ? embeddedImageFormat(device()->peek(12)) : nullptr;
         if (format)
             setFormat(format);
         return format != nullptr;
@@ -379,7 +386,7 @@ public:
     {
         auto *handler = new OiioImageHandler;
         handler->setDevice(device);
-        const char *detected = device ? embeddedImageFormat(device->peek(12)) : nullptr;
+        const char *detected = device && device->isReadable() ? embeddedImageFormat(device->peek(12)) : nullptr;
         handler->setFormat(format.isEmpty() && detected ? QByteArray(detected) : format);
         return handler;
     }

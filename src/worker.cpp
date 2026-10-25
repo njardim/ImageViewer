@@ -280,9 +280,11 @@ int runDecodeWorker(int argc, char **argv)
     // GraphicsMagick's XCF reader returns the bottom layer on the canvas and the others as
     // the next images (its own compositing is disabled): composite them, each with its blend
     // mode and offset; hidden layers carry NoCompositeOp. Not FlattenImages(), which would
-    // put the background colour under a transparent canvas.
-    for (GmImage *layer = image->next; layer; layer = layer->next)
-        (void) CompositeImage(image, layer->compose, layer, layer->page.x, layer->page.y);
+    // put the background colour under a transparent canvas. Any other coder's next images are
+    // pages or frames (each reader stops after the first, subrange 1): never composited.
+    if (std::strcmp(coder, "XCF") == 0)
+        for (GmImage *layer = image->next; layer; layer = layer->next)
+            (void) CompositeImage(image, layer->compose, layer, layer->page.x, layer->page.y);
     if (!IsRGBCompatibleColorspace(image->colorspace) && !TransformColorspace(image, RGBColorspace)) {
         const int code = fail("colour space", image->exception);
         DestroyImageList(image);

@@ -163,8 +163,8 @@ private:
     void relist();                      // folder sorted per the settings, keeping the current file
     // Lists `folder` on a worker thread (a large folder took half a second) and hands the
     // sorted files to `done` on this thread, unless a newer listing was started meanwhile.
-    void listFolder(const QString &folder, std::function<void(QStringList)> done);
-    void applyListing(QStringList files);
+    void listFolder(const QString &folder, std::function<void(FolderListing)> done);
+    void applyListing(FolderListing listing);
     void refreshFolder();               // after a change on disk
     void removeCurrentFromList();       // the file is gone: the next one takes its place
     void showFolderEmpty();             // nothing left to show in the folder
@@ -220,7 +220,7 @@ private:
     void startThumbnails();                 // from m_thumbnailQueue, while the pool has a thread free
     void decodeThumbnail(const QString &path);
     void thumbnailReady(const QString &path, const Thumbnail &thumbnail);
-    void forgetChangedThumbnails();         // after the folder changed
+    void forgetChangedThumbnails(const QHash<QString, FileStamp> &stamps); // after a listing: other or rewritten files
     int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
     bool galleryContains(const QPointF &position) const;
     void setGalleryHover(int slot);
@@ -307,7 +307,7 @@ private:
     int m_galleryHover = -1;      // slot under the pointer
     int m_galleryCentredOn = -2;  // the file the gallery last centred
     int m_galleryWheel = 0;       // wheel angle not yet turned into a step (1/8 degrees)
-    QThreadPool m_thumbnailPool;  // after what its tasks report to: destroyed (and waited for) first
+    QThreadPool m_thumbnailPool;  // two threads; waited for in ~ViewerWindow()
     QFutureWatcher<FrameResult> m_frameWatcher;
     bool m_frameBusy = false;   // as m_decodeBusy, for m_frameWatcher
     int m_frameGeneration = 0;  // changes when the animation shown changes

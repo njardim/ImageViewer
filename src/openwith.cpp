@@ -278,7 +278,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
         }
         QString expanded;
         bool dropped = false; // an argument made only of a code without a value disappears
-        const bool givenBefore = fileGiven;
+        bool holds = false;   // this argument holds the file or its URL (every one that does, not only the first)
         for (qsizetype i = 0; i < argument.size(); ++i) {
             if (argument.at(i) != QLatin1Char('%') || i + 1 == argument.size()) {
                 expanded += argument.at(i);
@@ -291,7 +291,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
                 if (hadQuotes.at(a))
                     return {}; // sh -c "viewer %f" would run a file named $(cmd).png (D-53)
                 expanded += file;
-                fileGiven = true;
+                fileGiven = holds = true;
                 embedded = embedded || argument.size() != 2;
                 break;
             case 'u':
@@ -299,7 +299,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
                 if (hadQuotes.at(a))
                     return {};
                 expanded += url;
-                fileGiven = true;
+                fileGiven = holds = true;
                 embedded = embedded || argument.size() != 2;
                 break;
             case 'c': expanded += name; break;
@@ -309,10 +309,11 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
         }
         if (!dropped) {
             command << expanded;
-            holdsFile << (fileGiven && !givenBefore);
+            holdsFile << holds;
         }
     }
-    if (command.isEmpty())
+    // The program itself is never the file ("Exec=%f" would run the image).
+    if (command.isEmpty() || holdsFile.constFirst())
         return {};
     if (!fileGiven) {
         command << file;
@@ -325,8 +326,14 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
                                        QStringLiteral("zsh"), QStringLiteral("ksh"), QStringLiteral("mksh"),
                                        QStringLiteral("fish"), QStringLiteral("csh"), QStringLiteral("tcsh"),
                                        QStringLiteral("busybox")};
-    const auto isShell = [](const QString &argument) { return shells.contains(QFileInfo(argument).fileName()); };
-    if (qsizetype s = std::find_if(command.cbegin(), command.cend(), isShell) - command.cbegin(); s < command.size()) {
+    // The file is never taken for the shell, whatever its name (an image named "sh").
+    const auto isShell = [&command, &holdsFile](qsizetype k) {
+        return !holdsFile.at(k) && shells.contains(QFileInfo(command.at(k)).fileName());
+    };
+    qsizetype s = 0;
+    while (s < command.size() && !isShell(s))
+        ++s;
+    if (s < command.size()) {
         if (embedded)
             return {};
         // Nor may the file be what that shell runs (the first one; "busybox sh" is sh, and a later
@@ -337,8 +344,7 @@ QStringList desktopEntryCommand(const QString &exec, const QString &file, const 
         // d, f or T in a group of short ones (sh, bash, zsh, fish, mksh) and a long one without
         // '='. Where a shell takes none, a command is refused, never allowed: the file follows
         // the first operand only as data ($0, $1...).
-        if (QFileInfo(command.at(s)).fileName() == QLatin1String("busybox") && s + 1 < command.size()
-            && isShell(command.at(s + 1)))
+        if (QFileInfo(command.at(s)).fileName() == QLatin1String("busybox") && s + 1 < command.size() && isShell(s + 1))
             ++s;
         static const QString takesArgument = QStringLiteral("oOCdfT");
         qsizetype i = s + 1;

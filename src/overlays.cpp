@@ -345,20 +345,24 @@ void ViewerWindow::updateOverlay()
     const qreal dpr = devicePixelRatio();
     const QFont font = QGuiApplication::font();
     // The panel is drawn again only when what it shows changes, not on every animation frame,
-    // wheel step or resize event (each text is drawn nine times with the outline).
-    QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
-                      .arg(m_settings.overlayBackgroundOpacity)
-                      .arg(m_settings.overlayTextOpacity)
-                      .arg(m_settings.overlayOutline)
-                      .arg(width())
-                      .arg(height())
-                      .arg(dpr)
-                      .arg(int(QGuiApplication::layoutDirection()))
-                      .arg(font.key());
-    for (const QList<Row> *list : {&messages, &rows}) {
-        key += QChar(0x1d);
-        for (const Row &row : *list)
-            key += QChar(0x1e) + row.label + QChar(0x1f) + row.value + (row.gapBefore ? u'+' : u'-');
+    // wheel step or resize event (each text is drawn nine times with the outline); with nothing
+    // to show, the key is empty whatever the window's size.
+    QString key;
+    if (!messages.isEmpty() || !rows.isEmpty()) {
+        key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8")
+                  .arg(m_settings.overlayBackgroundOpacity)
+                  .arg(m_settings.overlayTextOpacity)
+                  .arg(m_settings.overlayOutline)
+                  .arg(width())
+                  .arg(height())
+                  .arg(dpr)
+                  .arg(int(QGuiApplication::layoutDirection()))
+                  .arg(font.key());
+        for (const QList<Row> *list : {&messages, &rows}) {
+            key += QChar(0x1d);
+            for (const Row &row : *list)
+                key += QChar(0x1e) + row.label + QChar(0x1f) + row.value + (row.gapBefore ? u'+' : u'-');
+        }
     }
     if (key == m_panelKey) {
         updateTopOverlay();
@@ -628,13 +632,14 @@ void ViewerWindow::updateTopOverlay()
     if (!m_image.path.isEmpty() && topOverlayMode() != OverlayVisibility::Hidden)
         parts = overlayParts(m_settings.overlayFields, &nameIndex);
     const qreal dpr = devicePixelRatio();
-    const QString key = parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6")
-                                                      .arg(m_settings.overlayBackgroundOpacity)
-                                                      .arg(m_settings.overlayTextOpacity)
-                                                      .arg(m_settings.overlayOutline)
-                                                      .arg(width())
-                                                      .arg(dpr)
-                                                      .arg(int(QGuiApplication::layoutDirection()));
+    const QString key = parts.isEmpty() ? QString() // hidden, whatever the window's size
+                                        : parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6")
+                                                                         .arg(m_settings.overlayBackgroundOpacity)
+                                                                         .arg(m_settings.overlayTextOpacity)
+                                                                         .arg(m_settings.overlayOutline)
+                                                                         .arg(width())
+                                                                         .arg(dpr)
+                                                                         .arg(int(QGuiApplication::layoutDirection()));
     if (key == m_topOverlayKey)
         return;
     m_topOverlayKey = key;

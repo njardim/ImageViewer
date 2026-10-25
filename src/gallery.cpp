@@ -261,12 +261,14 @@ void ViewerWindow::thumbnailReady(const QString &path, const Thumbnail &thumbnai
     updateGallery();
 }
 
-void ViewerWindow::forgetChangedThumbnails()
+void ViewerWindow::forgetChangedThumbnails(const QHash<QString, FileStamp> &stamps)
 {
-    // The folder changed: a file written again since its thumbnail was made gets a new one.
-    m_thumbnails.removeIf([](const auto &entry) {
-        const QFileInfo info(entry.key());
-        return info.size() != entry.value().fileSize || info.lastModified() != entry.value().modified;
+    // A new listing: the thumbnails of files not in it (another folder, a file gone) go, and a
+    // file written again since its thumbnail was made gets a new one. The listing's stamps, not
+    // the disk: this runs on the interface's thread.
+    m_thumbnails.removeIf([&stamps](const auto &entry) {
+        const auto stamp = stamps.constFind(entry.key());
+        return stamp == stamps.cend() || stamp->size != entry.value().fileSize || stamp->modified != entry.value().modified;
     });
     ++m_thumbnailGeneration; // and one being decoded now may have read the file before it changed
 }

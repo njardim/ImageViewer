@@ -546,7 +546,7 @@
     </message>
     <message>
         <source>Search:</source>
-        <translation>Rechercher :</translation>
+        <translation>Rechercher&#xa0;:</translation>
     </message>
     <message>
         <source>Extension</source>

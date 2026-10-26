@@ -253,6 +253,25 @@
         <translation>Achtergrond:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Klein</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Middel</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Groot</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Lettergrootte:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Een dambordpatroon tonen achter transparante gebieden</translation>
     </message>

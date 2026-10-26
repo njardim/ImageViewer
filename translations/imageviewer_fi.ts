@@ -253,6 +253,25 @@
         <translation>Tausta:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Pieni</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Keskikokoinen</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Suuri</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Fonttikoko:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Näytä shakkiruudukko läpinäkyvien alueiden takana</translation>
     </message>

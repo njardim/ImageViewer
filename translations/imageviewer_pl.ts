@@ -253,6 +253,25 @@
         <translation>Tło:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Mały</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Średni</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Duży</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Rozmiar czcionki:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Pokaż szachownicę za przezroczystymi obszarami</translation>
     </message>

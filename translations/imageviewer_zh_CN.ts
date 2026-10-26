@@ -337,6 +337,25 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>小</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>中</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>大</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>字体大小：</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>适合窗口</translation>
     </message>

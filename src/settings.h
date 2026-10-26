@@ -44,11 +44,14 @@ enum class FitMode { Window, Width, Height, Fill, Actual }; // Actual: 100 %
 enum class WindowFit { Never, FirstImage, EveryImage };
 // What the title bar shows (D-51, D-58): the top overlay's fields, or a fixed set in its style.
 enum class TitleMode { Overlay, Name, Details, Everything };
+// The interface's text (D-85): the system's size, 2 or 4 pixels larger.
+enum class FontSize { Small, Medium, Large };
 
 // Preferences the user sets (Settings dialog and a few toggles that persist).
 struct Settings {
     // General
     QString language;          // empty: follow the system; otherwise a code from uiLanguages()
+    FontSize fontSize = FontSize::Small; // dialogs, menus and the panels over the image
     bool confirmTrash = true;  // ask before moving a file to the trash
     bool reopenLastImage = false;
     // Window
@@ -252,6 +255,7 @@ private:
     QPushButton *m_apply = nullptr;
 
     QComboBox *m_language = nullptr;
+    QComboBox *m_fontSize = nullptr;
     QCheckBox *m_confirmTrash = nullptr;
     QCheckBox *m_reopenLast = nullptr;
     ColorChoice m_background;

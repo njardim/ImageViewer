@@ -337,6 +337,25 @@
         <translation> ث</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>صغير</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>متوسط</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>كبير</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>حجم الخط:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>ملاءمة النافذة</translation>
     </message>

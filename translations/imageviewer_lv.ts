@@ -253,6 +253,25 @@
         <translation>Fons:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Mazs</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Vidējs</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Liels</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Fonta lielums:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Rādīt rūtiņu rakstu aiz caurspīdīgiem apgabaliem</translation>
     </message>

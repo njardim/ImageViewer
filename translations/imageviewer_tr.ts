@@ -253,6 +253,25 @@
         <translation>Arka plan:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Küçük</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Orta</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Büyük</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Yazı tipi boyutu:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Saydam alanların arkasında dama deseni göster</translation>
     </message>

@@ -337,6 +337,25 @@
         <translation> s</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Pequeño</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Mediano</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Grande</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Tamaño de letra:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Ajustar a la ventana</translation>
     </message>

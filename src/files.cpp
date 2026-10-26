@@ -255,6 +255,7 @@ void ViewerWindow::moveToTrash()
     const QString name = displayFileName(QFileInfo(path).fileName());
     if (m_settings.confirmTrash) {
         QMessageBox box;
+        box.setOption(QMessageBox::Option::DontUseNativeDialog); // ours, as every component (D-86)
         box.setTextFormat(Qt::PlainText); // a file name is never markup
         box.setIcon(QMessageBox::Question);
         box.setWindowTitle(QStringLiteral("ImageViewer"));
@@ -312,6 +313,7 @@ void ViewerWindow::deletePermanently()
     const QString name = displayFileName(QFileInfo(path).fileName());
     // Always asked, whatever the trash setting: this cannot be undone.
     QMessageBox box;
+    box.setOption(QMessageBox::Option::DontUseNativeDialog); // ours, as every component (D-86)
     box.setTextFormat(Qt::PlainText); // a file name is never markup
     box.setIcon(QMessageBox::Warning);
     box.setWindowTitle(QStringLiteral("ImageViewer"));

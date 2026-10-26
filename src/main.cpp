@@ -1,3 +1,4 @@
+#include "appearance.h"
 #include "decoders.h"
 #include "formats.h"
 #include "image.h"
@@ -577,6 +578,7 @@ int main(int argc, char *argv[])
     // The interface only: --info and --render output stays English (tests parse it).
     const Settings settings = Settings::load();
     applyLanguage(settings.language);
+    applyAppearance(settings.fontSize); // before the first widget (D-86)
 
     ViewerWindow window(vulkan);
     FileOpenFilter fileOpenFilter(&window);

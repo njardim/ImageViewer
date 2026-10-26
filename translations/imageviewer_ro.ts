@@ -253,6 +253,25 @@
         <translation>Fundal:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Mică</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Medie</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Mare</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Mărimea fontului:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Afișează un model în carouri în spatele zonelor transparente</translation>
     </message>

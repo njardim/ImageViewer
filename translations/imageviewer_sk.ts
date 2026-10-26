@@ -253,6 +253,25 @@
         <translation>Pozadie:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Malá</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Stredná</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Veľká</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Veľkosť písma:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Zobraziť šachovnicu za priehľadnými oblasťami</translation>
     </message>

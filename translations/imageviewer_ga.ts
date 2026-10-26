@@ -253,6 +253,25 @@
         <translation>Cúlra:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Beag</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Meánach</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Mór</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Méid an chló:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Taispeáin clár fichille taobh thiar de limistéir thrédhearcacha</translation>
     </message>

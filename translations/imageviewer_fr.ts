@@ -337,6 +337,25 @@
         <translation>&#xa0;s</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Petite</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Moyenne</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Grande</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Taille de police&#xa0;:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Ajuster à la fenêtre</translation>
     </message>

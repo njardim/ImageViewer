@@ -253,6 +253,25 @@
         <translation>Háttér:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Kicsi</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Közepes</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Nagy</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Betűméret:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Sakktábla megjelenítése az átlátszó területek mögött</translation>
     </message>

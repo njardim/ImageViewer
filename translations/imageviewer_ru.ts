@@ -337,6 +337,25 @@
         <translation> с</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Маленький</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Средний</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Большой</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Размер шрифта:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>По размеру окна</translation>
     </message>

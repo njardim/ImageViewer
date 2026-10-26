@@ -2,6 +2,8 @@
 // side zones and the pointer. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "appearance.h"
+
 #include <QApplication>
 #include <QCursor>
 #include <QFileInfo>
@@ -169,9 +171,13 @@ void ViewerWindow::saveSession() const
 {
     SessionState session;
     session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
-    const bool fullScreen = windowStates().testFlag(Qt::WindowFullScreen);
+    // Closed while minimized (from the taskbar or the Dock), it opens again as it was before.
+    Qt::WindowStates states = windowStates();
+    if (states.testFlag(Qt::WindowMinimized))
+        states |= m_statesBeforeMinimize;
+    const bool fullScreen = states.testFlag(Qt::WindowFullScreen);
     session.fullScreen = fullScreen && !m_slideshowLeavesFullScreen; // the slideshow's own ends with it
-    session.maximized = fullScreen ? m_maximizedBeforeFullScreen : windowStates().testFlag(Qt::WindowMaximized);
+    session.maximized = fullScreen ? m_maximizedBeforeFullScreen : states.testFlag(Qt::WindowMaximized);
     session.lastFile = m_image.path;
     session.lastDirectory = m_lastDirectory;
     session.save(); // preferences are saved when they change, never here (U2)
@@ -199,6 +205,17 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Close:
         saveSession();
         break;
+    case QEvent::WindowStateChange: {
+        const Qt::WindowStates before = static_cast<QWindowStateChangeEvent *>(e)->oldState();
+        if (windowStates().testFlag(Qt::WindowMinimized)) {
+            if (!before.testFlag(Qt::WindowMinimized)) // also minimized by the title bar, the taskbar, the Dock
+                m_statesBeforeMinimize |= before & (Qt::WindowFullScreen | Qt::WindowMaximized);
+        } else if (before.testFlag(Qt::WindowMinimized)) {
+            // Once the platform has finished bringing the window back: never from inside its notice.
+            QMetaObject::invokeMethod(this, &ViewerWindow::returnFromMinimized, Qt::QueuedConnection);
+        }
+        break;
+    }
     case QEvent::Enter:
         pointerActive();
         break;
@@ -268,12 +285,7 @@ void ViewerWindow::exposeEvent(QExposeEvent *)
         return;
     if (!m_rendererReady && !m_rendererFailed)
         initializeRenderer();
-    if (m_waitingForExpose) { // an animation waited while the window was hidden
-        m_waitingForExpose = false;
-        frameTimeout();
-    }
-    if (std::exchange(m_slideshowWaitsForExpose, false) && m_slideshow && !m_slideshowPaused)
-        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+    resumeOnScreen();
     requestUpdate();
 }
 
@@ -285,7 +297,9 @@ void ViewerWindow::initializeRenderer()
         // Not from inside expose/paint (a nested event loop in the platform's paint callback):
         // report once control is back in the event loop, then exit with an error status.
         QMetaObject::invokeMethod(this, [error] {
-            QMessageBox::critical(nullptr, QStringLiteral("ImageViewer"), error);
+            QMessageBox box(QMessageBox::Critical, QStringLiteral("ImageViewer"), error);
+            box.setOption(QMessageBox::Option::DontUseNativeDialog); // ours, as every component (D-86)
+            box.exec();
             QCoreApplication::exit(1);
         }, Qt::QueuedConnection);
         return;
@@ -419,13 +433,12 @@ void ViewerWindow::setFit(FitMode mode)
 
 void ViewerWindow::resetPan()
 {
-    // Pushed past the edge and clamped back: the image's top, or its start in reading order.
+    // Centred, with equal margins on both sides even where they lie outside the window (the
+    // owner's choice for Fit to Height, D-85); a width-fitted page, pushed past the edge and
+    // clamped back, from its top.
     m_pan = {};
     if (m_fit == FitMode::Width)
         m_pan.setY(std::numeric_limits<double>::max());
-    else if (m_fit == FitMode::Height)
-        m_pan.setX(QGuiApplication::layoutDirection() == Qt::RightToLeft ? std::numeric_limits<double>::lowest()
-                                                                          : std::numeric_limits<double>::max());
     clampPan();
 }
 
@@ -650,6 +663,8 @@ void ViewerWindow::applySettings(const Settings &settings)
         if (!m_image.path.isEmpty())
             m_imageStale = true;
     }
+    if (settings.fontSize != previous.fontSize)
+        applyFontSize(settings.fontSize); // the panels follow below: their keys hold the font
     if (settings.pointerHideMs != previous.pointerHideMs)
         pointerActive();
     if (m_slideshow && !m_slideshowPaused && settings.slideshowSeconds != previous.slideshowSeconds)
@@ -745,4 +760,26 @@ void ViewerWindow::leaveFullScreen()
         showMaximized();
     else
         showNormal();
+}
+
+void ViewerWindow::minimize()
+{
+    // Minimized on top of its other states, which are remembered: macOS must leave full screen to
+    // minimize, and gives back a normal window (returnFromMinimized).
+    m_statesBeforeMinimize = windowStates() & (Qt::WindowFullScreen | Qt::WindowMaximized);
+    setWindowStates(windowStates() | Qt::WindowMinimized);
+}
+
+void ViewerWindow::returnFromMinimized()
+{
+    if (windowStates().testFlag(Qt::WindowMinimized)) // minimized again meanwhile: it waits for that return
+        return;
+    // Where the platform gave back less (macOS: a normal window), the window takes its state again;
+    // m_maximizedBeforeFullScreen still says where leaving full screen goes.
+    const Qt::WindowStates before = std::exchange(m_statesBeforeMinimize, Qt::WindowNoState);
+    if (before.testFlag(Qt::WindowFullScreen) && !windowStates().testFlag(Qt::WindowFullScreen))
+        showFullScreen();
+    else if (before.testFlag(Qt::WindowMaximized) && windowStates() == Qt::WindowNoState)
+        showMaximized();
+    resumeOnScreen();
 }

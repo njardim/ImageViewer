@@ -75,6 +75,7 @@ qt_add_executable(imageviewer
     src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/gallery.cpp src/input.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp src/settingsdialog.cpp src/shortcuts.cpp
+    src/appearance.h src/appearance.cpp
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp

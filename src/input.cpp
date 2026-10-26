@@ -38,12 +38,10 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
         showContextMenu(e->globalPosition().toPoint());
         return;
     case Qt::BackButton: // mouse side buttons: the commands, so they stop where the keys do
-        if (isCommandEnabled(Command::Previous))
-            execute(Command::Previous);
+        run(Command::Previous);
         return;
     case Qt::ForwardButton:
-        if (isCommandEnabled(Command::Next))
-            execute(Command::Next);
+        run(Command::Next);
         return;
     case Qt::LeftButton:
         break;
@@ -110,7 +108,7 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
     const Zone pressed = std::exchange(m_pressZone, Zone::None);
     const Zone released = zoneAt(e->position());
     if (pressed != Zone::None && !m_pressMoved && released == pressed)
-        step(pressed == Zone::Next ? +1 : -1);
+        run(pressed == Zone::Next ? Command::Next : Command::Previous);
     // Refresh unconditionally: the button loses its pressed look even when the zone is unchanged.
     m_hoverZone = released;
     updateCursor();
@@ -143,7 +141,7 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
     // click of the pair is still a click on the side, never a request for full screen.
     if (inSideStrip(e->position()))
         return;
-    toggleFullScreen();
+    run(Command::FullScreen);
 }
 
 void ViewerWindow::wheelEvent(QWheelEvent *e)

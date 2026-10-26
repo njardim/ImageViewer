@@ -337,6 +337,25 @@
         <translation> सेकंद</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>लहान</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>मध्यम</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>मोठा</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>फॉन्ट आकार:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>विंडोमध्ये बसवा</translation>
     </message>

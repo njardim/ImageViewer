@@ -38,6 +38,8 @@ constexpr std::pair<TitleMode, const char *> kTitleModes[] = {{TitleMode::Overla
                                                               {TitleMode::Name, "name"},
                                                               {TitleMode::Details, "details"},
                                                               {TitleMode::Everything, "everything"}};
+constexpr std::pair<FontSize, const char *> kFontSizes[] = {
+    {FontSize::Small, "small"}, {FontSize::Medium, "medium"}, {FontSize::Large, "large"}};
 
 template <typename Enum, std::size_t N>
 const char *keyOf(const std::pair<Enum, const char *> (&table)[N], Enum value)
@@ -145,6 +147,7 @@ Settings Settings::load()
     s.language = store.value(QStringLiteral("app/language")).toString();
     if (!s.language.isEmpty() && !isKnownLanguage(s.language))
         s.language.clear();
+    s.fontSize = fromKey(kFontSizes, store.value(QStringLiteral("app/fontSize")).toString(), defaults.fontSize);
     s.confirmTrash = boolValue(store, QStringLiteral("app/confirmTrash"), defaults.confirmTrash);
     s.reopenLastImage = boolValue(store, QStringLiteral("app/reopenLastImage"), defaults.reopenLastImage);
 
@@ -274,6 +277,7 @@ void Settings::save() const
 {
     QSettings store;
     store.setValue(QStringLiteral("app/language"), language);
+    store.setValue(QStringLiteral("app/fontSize"), QString::fromLatin1(keyOf(kFontSizes, fontSize)));
     store.setValue(QStringLiteral("app/confirmTrash"), confirmTrash);
     store.setValue(QStringLiteral("app/reopenLastImage"), reopenLastImage);
     store.setValue(QStringLiteral("window/background"), background.name(QColor::HexRgb));

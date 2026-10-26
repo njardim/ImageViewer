@@ -253,6 +253,25 @@
         <translation>Sfond:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Żgħir</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Medju</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Kbir</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Daqs tat-tipa:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Uri mudell ta&apos; skakkiera wara ż-żoni trasparenti</translation>
     </message>

@@ -253,6 +253,25 @@
         <translation>Ozadje:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Majhna</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Srednja</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Velika</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Velikost pisave:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Prikaži šahovnico za prosojnimi območji</translation>
     </message>

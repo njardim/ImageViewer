@@ -337,6 +337,25 @@
         <translation> detik</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Kecil</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Sedang</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Besar</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Ukuran huruf:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Sesuaikan dengan jendela</translation>
     </message>

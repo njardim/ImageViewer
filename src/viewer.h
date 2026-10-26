@@ -104,6 +104,8 @@ private:
     void render();
     void toggleFullScreen();
     void leaveFullScreen(); // back to maximized or normal, whichever it was
+    void minimize();
+    void returnFromMinimized(); // full screen or maximized again, as before minimize()
     void applySettings(const Settings &settings);
     // Sets one preference changed outside the Settings dialog (a toggle) and saves it into the
     // stored preferences rather than saving all of this instance's: another instance may have
@@ -120,7 +122,7 @@ private:
     void zoomAt(double factor, const QPointF &devicePos);
     void chooseFit(FitMode mode); // a command: the mode stays for the next images (D-65)
     void setFit(FitMode mode);
-    void resetPan();      // centred; a width-fitted image from its top, a height-fitted one from its start
+    void resetPan();      // centred; a width-fitted image from its top
     bool canPan() const;  // the image is larger than the window
     void clampPan();
     void matchWindowToImage(); // the window at the image's size, within Settings::windowFitPercent of the screen
@@ -182,6 +184,8 @@ private:
         Animation::Frame frame;
         QString error;
     };
+    bool onScreen() const; // exposed and not minimized: what is drawn is seen
+    void resumeOnScreen(); // what waited for the window to come back goes on
     void startAnimation();
     void stopAnimation();
     void requestFrame(int index);
@@ -251,7 +255,8 @@ private:
     QString commandText(Command command) const;
     bool isCommandEnabled(Command command) const;
     bool isCommandChecked(Command command, bool *checkable) const;
-    void execute(Command command);
+    void run(Command command);     // every way of giving a command comes here: keys, menus, mouse
+    void execute(Command command); // run()'s work, once the command is enabled
     bool executeShortcut(QKeyEvent *e); // true when a command took the key
     void addCommand(QMenu *menu, Command command);
     void showContextMenu(const QPoint &globalPos);
@@ -323,11 +328,11 @@ private:
     bool m_slideshowPaused = false;
     bool m_slideshowLeavesFullScreen = false; // it entered full screen (Settings::slideshowFullScreen)
     int m_loopsDone = 0;
-    bool m_waitingForExpose = false; // nothing is drawn while the window is hidden
+    bool m_frameWaitsForScreen = false; // nothing is drawn while the window is off the screen
     QTimer m_frameTimer;
     bool m_slideshow = false;
     QTimer m_slideshowTimer;
-    bool m_slideshowWaitsForExpose = false; // its timer stopped while the window was hidden
+    bool m_slideshowWaitsForScreen = false; // its timer stopped while the window was off the screen
     QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
     bool m_toolbarHidden = false;
     ToolbarButton m_toolbarHover = ToolbarButton::None;
@@ -386,6 +391,8 @@ private:
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
     bool m_maximizedBeforeFullScreen = false;
+    Qt::WindowStates m_statesBeforeMinimize; // full screen or maximized: given back by returnFromMinimized()
+    std::function<void()> m_menuChoice; // what the context menu chose: run once the menu is gone
 
     bool m_dragging = false;
     QPointF m_dragOrigin;

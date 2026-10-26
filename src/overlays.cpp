@@ -634,13 +634,14 @@ void ViewerWindow::updateTopOverlay()
         parts = overlayParts(m_settings.overlayFields, &nameIndex);
     const qreal dpr = devicePixelRatio();
     const QString key = parts.isEmpty() ? QString() // hidden, whatever the window's size
-                                        : parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6")
+                                        : parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6|%7")
                                                                          .arg(m_settings.overlayBackgroundOpacity)
                                                                          .arg(m_settings.overlayTextOpacity)
                                                                          .arg(m_settings.overlayOutline)
                                                                          .arg(width())
                                                                          .arg(dpr)
-                                                                         .arg(int(QGuiApplication::layoutDirection()));
+                                                                         .arg(int(QGuiApplication::layoutDirection()))
+                                                                         .arg(QGuiApplication::font().key());
     if (key == m_topOverlayKey)
         return;
     m_topOverlayKey = key;

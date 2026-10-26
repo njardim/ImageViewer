@@ -16,13 +16,16 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      shown again (folder watching); I hides and shows the top overlay without moving the image
      by a pixel (E14); with the information panel on (P), a notice (Z) is a panel of its own
      16 px above it (D-81); B shows the checkerboard behind a transparent image; Apply in the
-     Settings saves a change while the dialog stays open, and Cancel keeps it;
+     Settings saves a change while the dialog stays open, and Cancel keeps it; Font size Large
+     enlarges the top overlay's text (D-85); Open… chosen in the context menu, which runs once
+     the menu is gone, opens the file dialog (D-85);
   5. Q quits and the session (last file, window geometry) is in the settings file;
   6. zoom modes, zoom lock and the title bar (D-51), read from the window title with every
      detail on: fit to the window, U (a user shortcut for Fit to Width, D-52) fits the width,
      1 is 100 %, Z keeps it for the next image; the mode chosen last stays for the next
-     images and is saved, a zoom by hand lasts for its image (D-65); the window takes an
-     image's size within 50 % of the screen;
+     images and is saved, a zoom by hand lasts for its image (D-65); H centres a wide image,
+     its two halves meeting in the middle of the window (D-85); the window takes an image's
+     size within 50 % of the screen;
   7. shortcuts (D-52): an unknown key name in the settings leaves the defaults, Shift+1 runs
      the command bound to "!" before Actual Size ("1"), and a key recorded in the Shortcuts
      tab replaces the first shortcut while the others stay; O opens a file, Shift+O another
@@ -505,7 +508,7 @@ try:
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
-            xdotool("key", "Tab", "Tab", "space")  # past the language list: "Confirm before…" off
+            xdotool("key", "Tab", "Tab", "Tab", "space")  # past the language and font size lists: "Confirm before…" off
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
@@ -517,6 +520,44 @@ try:
             wait_until("Cancel closes the Settings dialog", lambda: not settings_open())
             if not trash_confirmation_off():
                 fail("Cancel undid what Apply had applied")
+
+            # Font size (General, after Language, D-85) enlarges the text over the image as well.
+            def overlay_text_height():
+                shot = grab()
+                band = shot[y:y + 80, x + w // 2 - 300:x + w // 2 + 300]
+                rows = np.nonzero((band.min(axis=2) > 200).any(axis=1))[0]
+                return int(rows.max() - rows.min() + 1) if rows.size else 0
+            small_text = overlay_text_height()
+            xdotool("key", "ctrl+comma")
+            dialog = find_dialog("Settings")
+            if not dialog:
+                fail("Ctrl+, did not open the Settings dialog again")
+            xdotool("windowfocus", "--sync", dialog)
+            xdotool("key", "Tab", "Tab", "End")  # Font size: Large
+            info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
+            xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
+                    str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
+            xdotool("click", "1")  # Apply
+            wait_until("Font size Large is saved", lambda: stored(r"(?m)^fontSize=large$"))
+            xdotool("key", "Escape")
+            wait_until("the Settings dialog closes", lambda: not settings_open())
+            wait_until("... and the top overlay's text has grown with it", lambda: overlay_text_height() > small_text > 0)
+
+            # A context menu's choice runs once the menu is gone, from the event loop, as a key's
+            # command does (D-85): its first item, Open…, opens the file dialog.
+            focus_viewer()
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            xdotool("click", "3")
+            time.sleep(1)
+            xdotool("key", "Down", "Return")
+            dialog = find_dialog("Open Image")
+            if not dialog:
+                fail("Open… in the context menu did not open the file dialog")
+            print("ok   Open… in the context menu opens the file dialog")
+            xdotool("windowfocus", "--sync", dialog)
+            xdotool("key", "Escape")
+            wait_until("the file dialog closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Open Image$").stdout.split())
+            focus_viewer()
 
             # 5. Quit (Q, D-55); the session is saved.
             xdotool("key", "q")
@@ -570,7 +611,8 @@ try:
                     return m is not None and abs(float(m.group(1)) - want) <= 0.06
                 return check
 
-            edit_settings(("window", "title", "everything"), ("shortcuts", "FitWidth", "U"))  # D-52
+            edit_settings(("window", "title", "everything"), ("shortcuts", "FitWidth", "U"),  # D-52
+                          ("app", "fontSize", "small"))
             app = subprocess.Popen([exe, os.path.join(zoom_dir, "big1.png")], env=env, stdout=log, stderr=log)
             fit = lambda w, h: round(min(w / 2400, h / 1800, 1.0) * 100, 1)
             wait_until("the title shows the name, position, size, file size and fitted zoom", title_zoom("big1.png", fit))
@@ -598,6 +640,34 @@ try:
                        title_zoom("big1.png", lambda w, h: round(min(w / 2400, 1.0) * 100, 1)))
             xdotool("key", "0")  # back to Fit to Window for the sections below
             wait_until("Fit to Window is saved", lambda: stored(r"(?m)^fitMode=window$"))
+            xdotool("key", "q")
+            app.wait(15)
+
+            # Fit to Height centres the image (D-85): equal margins on both sides, even outside the
+            # window. Alone in its folder, the image has no navigation buttons over its edges.
+            wide_dir = os.path.join(work, "wide")
+            os.makedirs(wide_dir)
+            wide = Image.new("RGB", (4000, 1000), (200, 60, 30))
+            wide.paste((30, 60, 200), (2000, 0, 4000, 1000))
+            wide.save(os.path.join(wide_dir, "wide.png"))
+            app = subprocess.Popen([exe, os.path.join(wide_dir, "wide.png")], env=env, stdout=log, stderr=log)
+            wait_until("wide.png fits the window", title_zoom("wide.png", lambda w, h: round(min(w / 4000, h / 1000, 1.0) * 100, 1)))
+            xdotool("key", "h")
+            wait_until("H fits the height", title_zoom("wide.png", lambda w, h: round(min(h / 1000, 1.0) * 100, 1)))
+
+            def halves_meet_in_the_middle():
+                wx, wy, ww, wh = window_geometry()
+                row = grab()[wy + wh // 2, wx:wx + ww].astype(int)
+                red = (row[:, 0] > 150) & (row[:, 2] < 80)
+                blue = (row[:, 2] > 150) & (row[:, 0] < 80)
+                if not red[0] or not blue[-1]:
+                    return False
+                red_end, blue_start = int(np.argmin(red)), int(np.argmax(blue))  # one blended column at most between
+                return (red[:red_end].all() and blue[blue_start:].all() and blue_start - red_end <= 1
+                        and abs(red_end - ww // 2) <= 1)
+            wait_until("... centred: its halves meet in the middle of the window", halves_meet_in_the_middle)
+            xdotool("key", "0")
+            wait_until("Fit to Window is saved again", lambda: stored(r"(?m)^fitMode=window$"))
             xdotool("key", "q")
             app.wait(15)
 

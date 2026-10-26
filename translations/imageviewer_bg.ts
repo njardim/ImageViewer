@@ -253,6 +253,25 @@
         <translation>Фон:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Малък</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Среден</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Голям</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Размер на шрифта:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Показване на шахматна дъска зад прозрачните области</translation>
     </message>

@@ -2,6 +2,7 @@
 // the values to the viewer, which applies them at once.
 #include "settings.h"
 
+#include "appearance.h"
 #include "formats.h"
 
 #include <QAction>
@@ -108,26 +109,6 @@ QString pixels()
     return QCoreApplication::translate("SettingsDialog", " px");
 }
 
-// A magnifying glass: the system's where it has one, else drawn in `colour`, sharp at the usual
-// device pixel ratios.
-QIcon searchIcon(const QColor &colour)
-{
-    QIcon drawn;
-    for (const qreal ratio : {1.0, 1.25, 1.5, 2.0, 3.0}) {
-        QPixmap pixmap(QSize(16, 16) * ratio);
-        pixmap.setDevicePixelRatio(ratio);
-        pixmap.fill(Qt::transparent);
-        QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setPen(QPen(colour, 1.5, Qt::SolidLine, Qt::RoundCap));
-        painter.drawEllipse(QPointF(6.5, 6.5), 4.5, 4.5);
-        painter.drawLine(QPointF(9.8, 9.8), QPointF(14, 14));
-        painter.end();
-        drawn.addPixmap(pixmap);
-    }
-    return QIcon::fromTheme(QIcon::ThemeIcon::EditFind, drawn);
-}
-
 } // namespace
 
 SettingsDialog::SettingsDialog(const Settings &settings, std::function<QList<ShortcutCommand>()> commands)
@@ -161,6 +142,11 @@ void SettingsDialog::buildUi()
     translationNote->setWordWrap(true);
     translationNote->setForegroundRole(QPalette::PlaceholderText); // secondary, but still read by screen readers
     generalForm->addRow(QString(), translationNote);
+    m_fontSize = new QComboBox; // D-85: the system's size, then 2 and 4 pixels more
+    m_fontSize->addItem(tr("Small", "font size"), int(FontSize::Small));
+    m_fontSize->addItem(tr("Medium", "font size"), int(FontSize::Medium));
+    m_fontSize->addItem(tr("Large", "font size"), int(FontSize::Large));
+    generalForm->addRow(tr("Font size:"), m_fontSize);
     m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
     generalForm->addRow(m_confirmTrash);
     m_reopenLast = new QCheckBox(tr("Reopen the last image at startup"));
@@ -523,6 +509,7 @@ void SettingsDialog::rebuildUi()
 void SettingsDialog::setValues(const Settings &settings)
 {
     m_language->setCurrentIndex(std::max(0, m_language->findData(settings.language)));
+    m_fontSize->setCurrentIndex(std::max(0, m_fontSize->findData(int(settings.fontSize))));
     m_confirmTrash->setChecked(settings.confirmTrash);
     m_reopenLast->setChecked(settings.reopenLastImage);
     setColor(m_background, settings.background);
@@ -655,6 +642,7 @@ Settings SettingsDialog::settings() const
 {
     Settings s = m_initial;
     s.language = m_language->currentData().toString();
+    s.fontSize = FontSize(m_fontSize->currentData().toInt());
     s.confirmTrash = m_confirmTrash->isChecked();
     s.reopenLastImage = m_reopenLast->isChecked();
     s.background = m_background.color;

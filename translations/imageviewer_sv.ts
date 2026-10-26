@@ -253,6 +253,25 @@
         <translation>Bakgrund:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Liten</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Medel</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Stor</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Teckenstorlek:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Visa ett rutmönster bakom genomskinliga områden</translation>
     </message>

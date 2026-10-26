@@ -337,6 +337,25 @@
         <translation> সেকেন্ড</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>ছোট</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>মাঝারি</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>বড়</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>ফন্টের আকার:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>উইন্ডোর মাপে ফিট করুন</translation>
     </message>

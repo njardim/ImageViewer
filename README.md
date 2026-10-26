@@ -39,7 +39,8 @@ The packages are **not signed yet**:
 - **Information:** a compact line at the top (I) with the fields you choose; a panel (P) with everything about the file, the image, its color, its peak luminance, the camera (EXIF), the view and the output; neither ever moves the image, and both stay legible over any image, in SDR and HDR.
 - **Navigation:** folders sorted by name (natural order), date or size; previous and next by keyboard, mouse side buttons or the window's sides; the neighbours loaded in advance; the folder watched, so files changed by other programs show up at once; optional looping.
 - **Files:** copy the image (16-bit) or its path, rename, move to the trash and undo, delete permanently, recent files, show in the file manager, open with another application.
-- **Settings:** with Apply, for everything above, including every keyboard shortcut.
+- **Settings:** with Apply, for everything above, including every keyboard shortcut and the size of the interface's text.
+- **One look on every system:** the same controls, icons and colors on Windows, macOS and Linux, light or dark as the system is; the system's own file dialogs and window frames.
 - **37 languages:** English, the most spoken languages (简体中文, हिन्दी, Español, العربية, Français, বাংলা, Português, Bahasa Indonesia, اردو, Русский, Deutsch, 日本語, मराठी, Tiếng Việt, తెలుగు), 한국어, Italiano, Türkçe and every official language of the European Union. All but English are machine translations awaiting review by native speakers; [corrections are welcome](CONTRIBUTING.md#translations).
 
 ## Using it

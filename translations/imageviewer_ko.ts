@@ -253,6 +253,25 @@
         <translation>배경:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>작게</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>보통</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>크게</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>글꼴 크기:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>투명 영역 뒤에 체크무늬 표시</translation>
     </message>

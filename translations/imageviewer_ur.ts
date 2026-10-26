@@ -337,6 +337,25 @@
         <translation> سیکنڈ</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>چھوٹا</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>درمیانہ</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>بڑا</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>فونٹ کا سائز:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>ونڈو میں فٹ کریں</translation>
     </message>

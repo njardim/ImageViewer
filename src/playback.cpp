@@ -46,7 +46,7 @@ void ViewerWindow::stopAnimation()
     m_readyFrame.reset();
     m_frameDue = false;
     m_wantedFrame = -1;
-    m_waitingForExpose = false;
+    m_frameWaitsForScreen = false;
 }
 
 void ViewerWindow::requestFrame(int index)
@@ -93,10 +93,29 @@ void ViewerWindow::frameDecoded()
         presentFrame(*m_readyFrame);
 }
 
+bool ViewerWindow::onScreen() const
+{
+    // Exposed is not enough: Qt's Windows plugin counts any WM_PAINT as an exposure, and the owner
+    // saw the slideshow of a minimized window go on there.
+    return isExposed() && !windowStates().testFlag(Qt::WindowMinimized);
+}
+
+void ViewerWindow::resumeOnScreen()
+{
+    // The window is seen again (exposed, or no longer minimized): the animation goes on, and
+    // the slideshow, whose image then gets its full time.
+    if (!onScreen())
+        return;
+    if (std::exchange(m_frameWaitsForScreen, false))
+        frameTimeout();
+    if (std::exchange(m_slideshowWaitsForScreen, false) && m_slideshow && !m_slideshowPaused)
+        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+}
+
 void ViewerWindow::frameTimeout()
 {
-    if (!isExposed()) { // minimised or hidden: nothing to draw, nothing to decode
-        m_waitingForExpose = true;
+    if (!onScreen()) { // minimized or hidden: nothing to draw, nothing to decode
+        m_frameWaitsForScreen = true;
         return;
     }
     m_frameDue = true;
@@ -262,10 +281,10 @@ void ViewerWindow::slideshowTimeout()
 {
     // Not while the window is off the screen (minimized, for one): nobody sees the images it would
     // decode. It waits for the window to come back, and the image shown then gets its full time
-    // (exposeEvent).
-    if (!isExposed()) {
+    // (resumeOnScreen).
+    if (!onScreen()) {
         m_slideshowTimer.stop();
-        m_slideshowWaitsForExpose = true;
+        m_slideshowWaitsForScreen = true;
         return;
     }
     // Not behind a dialog or a menu: the image they act on must stay the one on screen.
@@ -305,10 +324,9 @@ void ViewerWindow::setToolbarHover(ToolbarButton button)
 
 void ViewerWindow::toolbarClicked(ToolbarButton button)
 {
-    if (button == ToolbarButton::PlayPause) {
-        toggleSlideshowPause();
-    } else if (button == ToolbarButton::Stop) {
-        stopSlideshow();
-        showNotice(tr("Slideshow stopped"));
-    }
+    // The toolbar shows only during a slideshow: Space and S, as the keys give them.
+    if (button == ToolbarButton::PlayPause)
+        run(Command::PlayPause);
+    else if (button == ToolbarButton::Stop)
+        run(Command::Slideshow);
 }

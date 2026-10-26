@@ -23,6 +23,7 @@
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
 
 #include <algorithm>
+#include <utility>
 
 void makeTransient(QWidget &widget, QWindow *parent)
 {
@@ -234,6 +235,13 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     }
 }
 
+void ViewerWindow::run(Command command)
+{
+    // One way in for every command, however it is given (D-85): the same checks, the same work.
+    if (isCommandEnabled(command))
+        execute(command);
+}
+
 void ViewerWindow::execute(Command command)
 {
     const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
@@ -273,8 +281,7 @@ void ViewerWindow::execute(Command command)
     case Command::LockZoom: toggleLockZoom(); break;
     case Command::ActualSize: chooseFit(FitMode::Actual); break;
     case Command::FullScreen: toggleFullScreen(); break;
-    // Minimized on top of its other states: restored, a full-screen or maximized window comes back so.
-    case Command::Minimize: setWindowStates(windowStates() | Qt::WindowMinimized); break;
+    case Command::Minimize: minimize(); break;
     case Command::Info: toggleInfo(); break;
     case Command::InfoOverlay: toggleTopOverlay(); break;
     case Command::Checkerboard: toggleCheckerboard(); break;
@@ -326,10 +333,8 @@ bool ViewerWindow::executeShortcut(QKeyEvent *e)
                 if (shortcut.count() != 1 || comparableKey(shortcut[0]) != pressed)
                     continue;
                 // Holding a toggle must not flip it back and forth, nor a held Delete trash a folder.
-                if (!e->isAutoRepeat() || info.repeats) {
-                    if (isCommandEnabled(info.command))
-                        execute(info.command);
-                }
+                if (!e->isAutoRepeat() || info.repeats)
+                    run(info.command);
                 return true;
             }
         }
@@ -349,7 +354,7 @@ void ViewerWindow::addCommand(QMenu *menu, Command command)
     action->setCheckable(checkable);
     action->setChecked(checked);
     action->setEnabled(isCommandEnabled(command));
-    connect(action, &QAction::triggered, this, [this, command] { execute(command); });
+    connect(action, &QAction::triggered, this, [this, command] { m_menuChoice = [this, command] { run(command); }; });
 }
 
 void ViewerWindow::showContextMenu(const QPoint &globalPos)
@@ -370,7 +375,7 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
         // A file name is never markup: Qt would render "<font size=7>…" in a plain tooltip.
         action->setToolTip(QStringLiteral("<p style='white-space:pre'>%1</p>")
                                .arg(displayFileName(QDir::toNativeSeparators(file)).toHtmlEscaped()));
-        connect(action, &QAction::triggered, this, [this, file] { openFile(file); });
+        connect(action, &QAction::triggered, this, [this, file] { m_menuChoice = [this, file] { openFile(file); }; });
     }
     if (!recent->isEmpty())
         recent->addSeparator();
@@ -388,8 +393,10 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
             QString label = app.name;
             label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
             connect(openWithMenu->addAction(label), &QAction::triggered, this, [this, app, file] {
-                if (!openWith(app, file))
-                    showNotice(tr("Cannot start “%1”.").arg(app.name));
+                m_menuChoice = [this, app, file] {
+                    if (!openWith(app, file))
+                        showNotice(tr("Cannot start “%1”.").arg(app.name));
+                };
             });
         }
         if (apps.isEmpty())
@@ -448,7 +455,7 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     go->addSeparator();
     addCommand(go, Command::Previous);
     addCommand(go, Command::Next);
-    go->addSeparator();    
+    go->addSeparator();
     addCommand(go, Command::PlayPause);
     addCommand(go, Command::PreviousFrame);
     addCommand(go, Command::NextFrame);
@@ -463,7 +470,12 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
 
     makeTransient(menu, this);
     cancelPress(); // the menu takes the release of a left press held meanwhile
+    m_menuChoice = nullptr;
     menu.exec(globalPos);
+    // What was chosen runs once the menu is gone, from the event loop, as a key's command does
+    // (D-85): run from inside the menu's own events, a dialog lost the focus on macOS.
+    if (std::function<void()> choice = std::exchange(m_menuChoice, nullptr))
+        QMetaObject::invokeMethod(this, std::move(choice), Qt::QueuedConnection);
 }
 
 void ViewerWindow::showOpenDialog()

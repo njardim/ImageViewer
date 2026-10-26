@@ -253,6 +253,25 @@
         <translation>Φόντο:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Μικρό</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Μεσαίο</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Μεγάλο</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Μέγεθος γραμματοσειράς:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Εμφάνιση σκακιέρας πίσω από τις διαφανείς περιοχές</translation>
     </message>

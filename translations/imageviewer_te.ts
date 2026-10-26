@@ -337,6 +337,25 @@
         <translation> సెకన్లు</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>చిన్నది</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>మధ్యస్థం</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>పెద్దది</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>ఫాంట్ పరిమాణం:</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>విండోకు సరిపోయేలా చేయి</translation>
     </message>

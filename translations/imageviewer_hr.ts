@@ -253,6 +253,25 @@
         <translation>Pozadina:</translation>
     </message>
     <message>
+        <source>Small</source>
+        <comment>font size</comment>
+        <translation>Mala</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <comment>font size</comment>
+        <translation>Srednja</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <comment>font size</comment>
+        <translation>Velika</translation>
+    </message>
+    <message>
+        <source>Font size:</source>
+        <translation>Veličina fonta:</translation>
+    </message>
+    <message>
         <source>Show a checkerboard behind transparent areas</source>
         <translation>Prikaži šahovnicu iza prozirnih područja</translation>
     </message>

@@ -829,20 +829,29 @@ try:
                 """The highlight above a thumbnail: 160 × 120 fills 96 × 72, the tile shows above it."""
                 shot = grab()
                 return shot[top + 5, centre_x] if shot is not None else None
+
+            def emerald_at(opacity):
+                """Emerald at `opacity` % over the gallery's bar (black at 70 % over the #212121 background)."""
+                bar = 0x21 * (1 - round(70 * 2.55) / 255)
+                a = round(opacity * 2.55) / 255
+                return [c * a + bar * (1 - a) for c in (80, 200, 120)]
+
+            def near(colour, expected):
+                return colour is not None and all(abs(int(c) - e) <= 3 for c, e in zip(colour, expected))
             mx, my = slot_centre(0)
             xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))  # off the gallery
             time.sleep(0.5)
             current = tile_colour(mx, my - 48)
-            if current is None or not (current[1] > current[0] + 40 and current[1] > current[2] + 20):
-                fail(f"the current thumbnail's tile is {current}, not emerald")
-            print(f"ok   the current thumbnail sits on an emerald tile {tuple(current)}")
+            if not near(current, emerald_at(70)):
+                fail(f"the current thumbnail's tile is {current}, not emerald at 70 %")
+            print(f"ok   the current thumbnail sits on an emerald tile at 70 % {tuple(int(c) for c in current)}")
             hx, hy = slot_centre(2)
             xdotool("mousemove", "--sync", str(hx), str(hy))
             time.sleep(0.5)
             hovered = tile_colour(hx, hy - 48)  # not enlarged: the zoom is off by default (D-81)
-            if hovered is None or not (hovered[1] > hovered[0] + 30 and 0 < hovered[1] < current[1]):
-                fail(f"the hovered tile is {hovered}, not a fainter emerald than {tuple(current)}")
-            print(f"ok   the thumbnail under the pointer sits on a fainter emerald {tuple(hovered)}")
+            if not near(hovered, emerald_at(50)):  # 20 points fainter (D-85)
+                fail(f"the hovered tile is {hovered}, not emerald at 50 %")
+            print(f"ok   the thumbnail under the pointer sits on emerald at 50 % {tuple(int(c) for c in hovered)}")
             xdotool("click", "1")
             wait_until("a click on a thumbnail two to the right shows g03.png", shown("g03.png"))
             xdotool("key", "Home")

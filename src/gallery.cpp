@@ -16,7 +16,7 @@ namespace {
 constexpr double kBorder = 8.0;       // between thumbnails and around them
 constexpr double kSideFree = 128.0;   // left free on each side of the window
 constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
-constexpr int kHoverFade = 10;        // the hovered tile: the highlight 10 points less opaque (D-65)
+constexpr int kHoverFade = 20;        // the hovered tile: the highlight 20 points less opaque, 50 % by default (D-85)
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
 } // namespace
 

@@ -2,6 +2,7 @@
 // copy, rename, move to the trash and back, delete. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "appearance.h"
 #include "openwith.h"
 
 #include <QApplication>
@@ -255,9 +256,8 @@ void ViewerWindow::moveToTrash()
     const QString name = displayFileName(QFileInfo(path).fileName());
     if (m_settings.confirmTrash) {
         QMessageBox box;
-        box.setOption(QMessageBox::Option::DontUseNativeDialog); // ours, as every component (D-86)
         box.setTextFormat(Qt::PlainText); // a file name is never markup
-        box.setIcon(QMessageBox::Question);
+        setMessageIcon(box, QMessageBox::Question); // ours, in the system's own box (D-86)
         box.setWindowTitle(QStringLiteral("ImageViewer"));
 #if defined(Q_OS_WIN)
         box.setText(tr("Move “%1” to the Recycle Bin?").arg(name));
@@ -313,9 +313,8 @@ void ViewerWindow::deletePermanently()
     const QString name = displayFileName(QFileInfo(path).fileName());
     // Always asked, whatever the trash setting: this cannot be undone.
     QMessageBox box;
-    box.setOption(QMessageBox::Option::DontUseNativeDialog); // ours, as every component (D-86)
     box.setTextFormat(Qt::PlainText); // a file name is never markup
-    box.setIcon(QMessageBox::Warning);
+    setMessageIcon(box, QMessageBox::Warning); // ours, in the system's own box (D-86)
     box.setWindowTitle(QStringLiteral("ImageViewer"));
     box.setText(tr("Delete “%1” permanently?").arg(name));
     box.setInformativeText(tr("The file does not go to the trash and cannot be restored."));

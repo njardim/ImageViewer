@@ -18,7 +18,8 @@ void applyFontSize(FontSize size);
 // what is sized in pixels around text (the About dialog's text column).
 qreal fontScale();
 
-// Our sign for a message box's `icon`, 64 logical pixels, in the system's own box.
+// Our sign for a message box's `icon`, 64 logical pixels, in the system's own box; centred against
+// the text beside it where the box is Qt's own (Windows, Linux).
 void setMessageIcon(QMessageBox &box, QMessageBox::Icon icon);
 
 // A magnifying glass in `colour`, for search fields.

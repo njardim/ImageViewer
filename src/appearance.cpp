@@ -4,8 +4,11 @@
 #include "appearance.h"
 
 #include <QApplication>
+#include <QEvent>
 #include <QFont>
 #include <QFontInfo>
+#include <QLabel>
+#include <QLayout>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
@@ -173,6 +176,26 @@ public:
     }
 };
 
+// Centres a message box's sign against the text beside it (the owner, 2026-10-27), where Qt keeps
+// it at the top: on every show, as the box lays itself out again whenever its text, informative
+// text or checkbox changes `[code: qmessagebox.cpp setupLayout()]`. macOS's own box places its
+// sign itself.
+class CentredSign final : public QObject {
+public:
+    using QObject::QObject;
+
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Show) {
+            auto *box = static_cast<QWidget *>(watched);
+            if (auto *sign = box->findChild<QLabel *>(QStringLiteral("qt_msgboxex_icon_label"), Qt::FindDirectChildrenOnly);
+                sign && box->layout())
+                box->layout()->setAlignment(sign, Qt::AlignLeft | Qt::AlignVCenter);
+        }
+        return false;
+    }
+};
+
 // The system's fonts: the application's, and those it gives some widget classes of their own
 // (on macOS menus, tooltips, lists and table headers). The class names are those Qt fills from
 // the system's theme `[code: qapplication.cpp initializeWidgetFontHash()]`.
@@ -250,6 +273,7 @@ void setMessageIcon(QMessageBox &box, QMessageBox::Icon icon)
     // Windows' sound for warnings and errors.
     box.setIcon(icon);
 #endif
+    box.installEventFilter(new CentredSign(&box)); // also for a box of Qt's own on macOS (rich text)
 }
 
 QIcon searchIcon(const QColor &colour)

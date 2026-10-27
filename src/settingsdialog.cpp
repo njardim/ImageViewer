@@ -119,7 +119,7 @@ SettingsDialog::SettingsDialog(const Settings &settings, std::function<QList<Sho
     setValues(settings);
     m_applied = this->settings(); // as the dialog shows them (normalised), so nothing reads as changed
     updateApplyButton();
-    resize(sizeHint() + QSize(100, 0)); // room for the longer labels of some languages
+    resize(sizeHint() + QSize(qRound(100 * fontScale()), 0)); // room for the longer labels of some languages, at every font size (D-89)
 }
 
 void SettingsDialog::buildUi()

@@ -5,6 +5,7 @@
 
 #include <QApplication>
 #include <QFont>
+#include <QFontInfo>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
@@ -65,11 +66,11 @@ QIcon clearIcon(const QColor &colour)
     });
 }
 
-// The message boxes' signs, in fixed colours that read on light and dark windows: 32 logical
-// pixels in Windows' and Linux's boxes, 64 in macOS's.
+// The message boxes' signs, in fixed colours that read on light and dark windows, 64 logical
+// pixels in every box (the owner, 2026-10-27), drawn on a 32-pixel grid.
 QIcon questionIcon()
 {
-    return drawnIcon(32, {32, 64}, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(kAccent);
         p.drawEllipse(QPointF(16, 16), 15, 15);
@@ -88,7 +89,7 @@ QIcon questionIcon()
 
 QIcon informationIcon()
 {
-    return drawnIcon(32, {32, 64}, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(kAccent);
         p.drawEllipse(QPointF(16, 16), 15, 15);
@@ -101,7 +102,7 @@ QIcon informationIcon()
 
 QIcon warningIcon()
 {
-    return drawnIcon(32, {32, 64}, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         // A wide round-joined pen of the fill's colour rounds the triangle's corners.
         p.setPen(roundPen(kWarning, 3));
         p.setBrush(kWarning);
@@ -117,7 +118,7 @@ QIcon warningIcon()
 
 QIcon criticalIcon()
 {
-    return drawnIcon(32, {32, 64}, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(kCritical);
         p.drawEllipse(QPointF(16, 16), 15, 15);
@@ -156,6 +157,13 @@ public:
         }
     }
 
+    int pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const override
+    {
+        if (metric == PM_MessageBoxIconSize) // macOS's size on every system (the owner, 2026-10-27)
+            return 64;
+        return QProxyStyle::pixelMetric(metric, option, widget);
+    }
+
     int styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                   QStyleHintReturn *data) const override
     {
@@ -173,17 +181,20 @@ struct SystemFonts {
     QList<std::pair<QByteArray, QFont>> classes;
 };
 
-SystemFonts systemFonts()
+const SystemFonts &systemFonts()
 {
-    SystemFonts fonts{QApplication::font(), {}};
-    for (const char *name : {"QMenu", "QMenuBar", "QMenuItem", "QMessageBox", "QLabel", "QTipLabel", "QTitleBar",
-                             "QStatusBar", "QMdiSubWindowTitleBar", "QDockWidgetTitle", "QPushButton", "QCheckBox",
-                             "QRadioButton", "QToolButton", "QAbstractItemView", "QListView", "QHeaderView",
-                             "QListBox", "QComboMenuItem", "QComboLineEdit", "QSmallFont", "QMiniFont"}) {
-        const QFont font = QApplication::font(name); // the application's where the class has none
-        if (font != fonts.application)
-            fonts.classes.append({QByteArray(name), font});
-    }
+    static const SystemFonts fonts = [] { // read before the first change (applyAppearance())
+        SystemFonts read{QApplication::font(), {}};
+        for (const char *name : {"QMenu", "QMenuBar", "QMenuItem", "QMessageBox", "QLabel", "QTipLabel", "QTitleBar",
+                                 "QStatusBar", "QMdiSubWindowTitleBar", "QDockWidgetTitle", "QPushButton", "QCheckBox",
+                                 "QRadioButton", "QToolButton", "QAbstractItemView", "QListView", "QHeaderView",
+                                 "QListBox", "QComboMenuItem", "QComboLineEdit", "QSmallFont", "QMiniFont"}) {
+            const QFont font = QApplication::font(name); // the application's where the class has none
+            if (font != read.application)
+                read.classes.append({QByteArray(name), font});
+        }
+        return read;
+    }();
     return fonts;
 }
 
@@ -201,7 +212,7 @@ void applyFontSize(FontSize size)
 {
     // Small is the system's own fonts, untouched; Medium and Large add 2 and 4 pixels (the
     // owner's choice, D-85) to each of them, on whatever unit the system gave it in.
-    static const SystemFonts system = systemFonts(); // read before the first change
+    const SystemFonts &system = systemFonts();
     static FontSize applied = FontSize::Small;
     if (size == applied)
         return;
@@ -221,6 +232,11 @@ void applyFontSize(FontSize size)
     QApplication::setFont(grown(system.application));
     for (const auto &[name, font] : system.classes)
         QApplication::setFont(grown(font), name.constData());
+}
+
+qreal fontScale()
+{
+    return qreal(QFontInfo(QApplication::font()).pixelSize()) / std::max(1, QFontInfo(systemFonts().application).pixelSize());
 }
 
 void setMessageIcon(QMessageBox &box, QMessageBox::Icon icon)

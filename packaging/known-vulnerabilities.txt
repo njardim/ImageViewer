@@ -8,6 +8,7 @@ CVE-2026-76844 zlib: out of reach: gzwrite after a failed write; the packages on
 CVE-2026-85091 zlib: out of reach: gz_vacate under gzwrite/gzprintf; the packages only inflate (2026-10-21)
 OSV-2026-1068 libjpeg-turbo: out of reach: jpeg_abort under tj3Compress8, the compressor; the packages only decode (2026-10-21)
 CVE-2026-6192 openjpeg: out of reach: opj_pi_initialise_encode, the encoder; the packages only decode (2026-10-21)
+CVE-2026-107080 openjpeg: out of reach: opj_dwt_encode_and_deinterleave_v, called only by opj_dwt_encode under opj_tcd_encode_tile, the encoder (v2.5.4 dwt.c, tcd.c); the packages only decode (2026-10-27)
 CVE-2026-113351 expat: out of reach: XML_ParserReset, which OpenColorIO 2.6.0, expat's only user here, never calls (it creates a parser per document) (2026-10-21)
 CVE-2026-115506 expat: accepted by the owner until upstream's release passes the cooldown (fix merged in libexpat PR #1433, in no release yet), D-77: a denial of service (seconds of CPU in entity expansion), no memory write; expat parses only the XML OpenColorIO 2.6.0 reads for a colour configuration, and our code never calls OpenColorIO (2026-10-23)
 OSV-2026-958 libraw: out of reach: LibRaw::fbdd runs only when fbdd_noiserd > 0, which OpenImageIO 3.2.1.1 never sets (LibRaw's default 0) (2026-10-21)

@@ -2,6 +2,7 @@
 // the context menu, and the dialogs. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include "appearance.h"
 #include "openwith.h"
 
 #include "formats.h"
@@ -554,12 +555,15 @@ void ViewerWindow::showAbout()
     QDialog dialog;
     dialog.setWindowTitle(tr("About ImageViewer"));
     auto *layout = new QGridLayout(&dialog);
-    // The application's icon (D-66), 256 × 256 logical pixels, sharp at any device pixel ratio.
+    // The application's icon (D-66), 192 × 192 logical pixels with 8 around it (the owner,
+    // 2026-10-27), sharp at any device pixel ratio.
+    constexpr int kLogo = 192, kLogoMargin = 8;
     auto *logo = new QLabel;
-    logo->setFixedSize(256, 256);
+    logo->setContentsMargins(kLogoMargin, kLogoMargin, kLogoMargin, kLogoMargin);
+    logo->setFixedSize(kLogo + 2 * kLogoMargin, kLogo + 2 * kLogoMargin);
     const qreal dpr = devicePixelRatio();
     QPixmap icon(QStringLiteral(":/imageviewer.png"));
-    icon = icon.scaled(QSize(256, 256) * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    icon = icon.scaled(QSize(kLogo, kLogo) * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     icon.setDevicePixelRatio(dpr);
     logo->setPixmap(icon);
     layout->addWidget(logo, 0, 0, Qt::AlignVCenter);
@@ -584,7 +588,7 @@ void ViewerWindow::showAbout()
     text->setTextInteractionFlags(Qt::TextBrowserInteraction);
     text->setOpenExternalLinks(true);
     text->setWordWrap(true);
-    text->setMinimumWidth(500);
+    text->setMinimumWidth(qRound(500 * fontScale())); // as wide for its text at every font size (D-89)
     layout->addWidget(text, 0, 1, Qt::AlignTop);
     auto *buttons = new QDialogButtonBox;
     connect(buttons->addButton(tr("OK"), QDialogButtonBox::AcceptRole), &QPushButton::clicked, &dialog, &QDialog::accept);

@@ -9,8 +9,10 @@ and fails when:
   - a port is under a GPL/AGPL licence with no LGPL or permissive alternative
     (an SPDX "OR" with an acceptable branch is fine, "AND" needs every part);
   - a port that must never ship is installed (FORBIDDEN, docs/PLAN.md §5).
-Ports without a declared licence are listed as warnings. Standard library only,
-so it runs unchanged on the Windows, macOS and Linux runners.
+Ports without a declared licence are listed as warnings. vcpkg's own build helpers
+(vcpkg-cmake, vcpkg-make, ...), which CMakeLists.txt leaves out of the packages, are
+listed as such when vcpkg's record of their files shows no binary (bin/, lib/). Standard
+library only, so it runs unchanged on the Windows, macOS and Linux runners.
 """
 import json
 import os
@@ -28,6 +30,20 @@ UNKNOWN = {"NOASSERTION", "NONE", "LicenseRef-vcpkg-null"}
 # Ports whose vcpkg port declares no licence, checked by hand against share/<port>/copyright.
 # Pinned to the reviewed version: a new version is a warning again until re-checked.
 REVIEWED = {}
+
+
+def build_helper(installed, triplet, port):
+    """True for a vcpkg-* port whose installed files (vcpkg/info/<port>_<version>_<triplet>.list)
+    hold no library or program: scripts and data for the build, never shipped (vcpkg-make also
+    installs two Automake scripts under GPL-2.0-or-later, run only while building)."""
+    if not port.startswith("vcpkg-"):
+        return False
+    lists = list((installed / "vcpkg" / "info").glob(f"{port}_*_{triplet}.list"))
+    if not lists:
+        return False
+    binaries = tuple(f"{triplet}/{d}/" for d in ("bin", "lib", "debug/bin", "debug/lib"))
+    return not any(line.strip().startswith(binaries)
+                   for path in lists for line in path.read_text(encoding="utf-8").splitlines())
 
 
 class ExpressionError(ValueError):
@@ -103,7 +119,8 @@ def port_licence(spdx_path):
 def main():
     if len(sys.argv) != 2:
         sys.exit(__doc__.strip().splitlines()[2])
-    share = Path(sys.argv[1]) / "share"
+    tree = Path(sys.argv[1])
+    share = tree / "share"
     annotate = os.environ.get("GITHUB_ACTIONS") == "true"
     errors, warnings, rows = [], [], []
 
@@ -126,6 +143,9 @@ def main():
             continue
         if licence is None and port in REVIEWED and version.split("#")[0] == REVIEWED[port][0]:
             licence = REVIEWED[port][1]
+        if licence is None and build_helper(tree.parent, tree.name, port):
+            rows.append((port, "(build helper)", "not shipped"))
+            continue
         if licence is None:
             rows.append((port, "(not declared)", "check by hand"))
             warnings.append(f"{port}: licence not declared in the port, check share/{port}/copyright by hand")

@@ -1,43 +1,51 @@
-// The interface's look (decision D-86): one widget style (Qt's Fusion) with our palette and our own
-// icons on Windows, macOS and Linux, and the user's font size (D-85). The systems keep what does
-// more than look: their file dialogs, window frames, button order and typeface (it carries the
-// scripts of the 36 languages, which no single bundled font does).
+// The interface's icons (decision D-86) and the user's font size (D-85). Our icons are the same on
+// Windows, macOS and Linux; everything else keeps each system's own look: its widget style, its
+// palette (light or dark, as the system says), its windows and dialogs, its typeface.
 #include "appearance.h"
 
 #include <QApplication>
+#include <QEvent>
 #include <QFont>
+#include <QFontInfo>
+#include <QLabel>
+#include <QLayout>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
 #include <QPixmap>
 #include <QProxyStyle>
 #include <QScreen>
-#include <QStyleFactory>
-#include <QStyleHints>
+#include <QStyle>
 #include <QWidget>
 
+#include <algorithm>
 #include <functional>
+#include <initializer_list>
+#include <utility>
 
 namespace {
 
-// The accent: the sapphire of the gallery's presets, on which white text keeps 5.4:1.
-const QColor kAccent(30, 100, 220);
+const QColor kAccent(30, 100, 220); // the sapphire of the gallery's presets
 const QColor kWarning(245, 166, 35);
 const QColor kCritical(220, 53, 69);
 
-// Drawn in a square of `size` logical pixels at the usual device pixel ratios: sharp on any screen.
-QIcon drawnIcon(int size, const std::function<void(QPainter &)> &draw)
+// Drawn on a grid of `design` pixels, at each of `sizes` logical pixels and the usual device
+// pixel ratios: sharp on any screen.
+QIcon drawnIcon(int design, std::initializer_list<int> sizes, const std::function<void(QPainter &)> &draw)
 {
     QIcon icon;
-    for (const qreal ratio : {1.0, 1.25, 1.5, 2.0, 3.0}) {
-        QPixmap pixmap(QSize(size, size) * ratio);
-        pixmap.setDevicePixelRatio(ratio);
-        pixmap.fill(Qt::transparent);
-        QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing);
-        draw(painter);
-        painter.end();
-        icon.addPixmap(pixmap);
+    for (const int size : sizes) {
+        for (const qreal ratio : {1.0, 1.25, 1.5, 2.0, 3.0}) {
+            QPixmap pixmap(QSize(size, size) * ratio);
+            pixmap.setDevicePixelRatio(ratio);
+            pixmap.fill(Qt::transparent);
+            QPainter painter(&pixmap);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.scale(qreal(size) / design, qreal(size) / design);
+            draw(painter);
+            painter.end();
+            icon.addPixmap(pixmap);
+        }
     }
     return icon;
 }
@@ -50,7 +58,7 @@ QPen roundPen(const QColor &colour, qreal width)
 // The empty-field button of line edits: a cross cut out of a disc.
 QIcon clearIcon(const QColor &colour)
 {
-    return drawnIcon(16, [colour](QPainter &p) {
+    return drawnIcon(16, {16}, [colour](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(colour);
         p.drawEllipse(QPointF(8, 8), 6.5, 6.5);
@@ -61,10 +69,11 @@ QIcon clearIcon(const QColor &colour)
     });
 }
 
-// The message boxes' signs, 32 logical pixels, in fixed colours that read on both palettes.
+// The message boxes' signs, in fixed colours that read on light and dark windows, 64 logical
+// pixels in every box (the owner, 2026-10-27), drawn on a 32-pixel grid.
 QIcon questionIcon()
 {
-    return drawnIcon(32, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(kAccent);
         p.drawEllipse(QPointF(16, 16), 15, 15);
@@ -83,7 +92,7 @@ QIcon questionIcon()
 
 QIcon informationIcon()
 {
-    return drawnIcon(32, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(kAccent);
         p.drawEllipse(QPointF(16, 16), 15, 15);
@@ -96,7 +105,7 @@ QIcon informationIcon()
 
 QIcon warningIcon()
 {
-    return drawnIcon(32, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         // A wide round-joined pen of the fill's colour rounds the triangle's corners.
         p.setPen(roundPen(kWarning, 3));
         p.setBrush(kWarning);
@@ -112,7 +121,7 @@ QIcon warningIcon()
 
 QIcon criticalIcon()
 {
-    return drawnIcon(32, [](QPainter &p) {
+    return drawnIcon(32, {64}, [](QPainter &p) {
         p.setPen(Qt::NoPen);
         p.setBrush(kCritical);
         p.drawEllipse(QPointF(16, 16), 15, 15);
@@ -122,22 +131,40 @@ QIcon criticalIcon()
     });
 }
 
-// Fusion draws every control; the icons it would take from the system are ours.
+QIcon messageIcon(QMessageBox::Icon icon)
+{
+    switch (icon) {
+    case QMessageBox::Question: return questionIcon();
+    case QMessageBox::Information: return informationIcon();
+    case QMessageBox::Warning: return warningIcon();
+    case QMessageBox::Critical: return criticalIcon();
+    case QMessageBox::NoIcon: break;
+    }
+    return {};
+}
+
+// The system's own style (or the one named by -style or QT_STYLE_OVERRIDE), with our icons where
+// it would take the system's.
 class AppStyle final : public QProxyStyle {
 public:
-    AppStyle() : QProxyStyle(QStyleFactory::create(QStringLiteral("Fusion"))) {}
-
     QIcon standardIcon(StandardPixmap icon, const QStyleOption *option, const QWidget *widget) const override
     {
         switch (icon) {
         case SP_LineEditClearButton:
             return clearIcon((widget ? widget->palette() : QApplication::palette()).color(QPalette::PlaceholderText));
-        case SP_MessageBoxQuestion: return questionIcon();
-        case SP_MessageBoxInformation: return informationIcon();
-        case SP_MessageBoxWarning: return warningIcon();
-        case SP_MessageBoxCritical: return criticalIcon();
+        case SP_MessageBoxQuestion: return messageIcon(QMessageBox::Question);
+        case SP_MessageBoxInformation: return messageIcon(QMessageBox::Information);
+        case SP_MessageBoxWarning: return messageIcon(QMessageBox::Warning);
+        case SP_MessageBoxCritical: return messageIcon(QMessageBox::Critical);
         default: return QProxyStyle::standardIcon(icon, option, widget);
         }
+    }
+
+    int pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const override
+    {
+        if (metric == PM_MessageBoxIconSize) // macOS's size on every system (the owner, 2026-10-27)
+            return 64;
+        return QProxyStyle::pixelMetric(metric, option, widget);
     }
 
     int styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
@@ -149,51 +176,49 @@ public:
     }
 };
 
-QPalette palette(bool dark)
-{
-    // Neutral greys, the accent for selections and links; text keeps at least 4.5:1 on its ground.
-    struct Greys {
-        QColor window, base, alternate, button, text, placeholder, light, midlight, mid, darker, shadow,
-            disabledText, link, visited;
-    };
-    const Greys g = dark ? Greys{{40, 40, 40}, {28, 28, 28}, {36, 36, 36}, {52, 52, 52}, {232, 232, 232},
-                                 {150, 150, 150}, {75, 75, 75}, {62, 62, 62}, {45, 45, 45}, {22, 22, 22},
-                                 {10, 10, 10}, {120, 120, 120}, {110, 165, 255}, {170, 140, 255}}
-                         : Greys{{240, 240, 240}, {255, 255, 255}, {245, 245, 245}, {240, 240, 240}, {24, 24, 24},
-                                 {115, 115, 115}, {255, 255, 255}, {227, 227, 227}, {190, 190, 190}, {160, 160, 160},
-                                 {105, 105, 105}, {160, 160, 160}, kAccent, {110, 60, 190}};
-    QPalette p;
-    p.setColor(QPalette::Window, g.window);
-    p.setColor(QPalette::WindowText, g.text);
-    p.setColor(QPalette::Base, g.base);
-    p.setColor(QPalette::AlternateBase, g.alternate);
-    p.setColor(QPalette::Text, g.text);
-    p.setColor(QPalette::PlaceholderText, g.placeholder);
-    p.setColor(QPalette::Button, g.button);
-    p.setColor(QPalette::ButtonText, g.text);
-    p.setColor(QPalette::BrightText, dark ? QColor(255, 110, 110) : QColor(200, 0, 0));
-    p.setColor(QPalette::ToolTipBase, g.button);
-    p.setColor(QPalette::ToolTipText, g.text);
-    p.setColor(QPalette::Light, g.light);
-    p.setColor(QPalette::Midlight, g.midlight);
-    p.setColor(QPalette::Mid, g.mid);
-    p.setColor(QPalette::Dark, g.darker);
-    p.setColor(QPalette::Shadow, g.shadow);
-    p.setColor(QPalette::Highlight, kAccent);
-    p.setColor(QPalette::HighlightedText, Qt::white);
-    p.setColor(QPalette::Accent, kAccent);
-    p.setColor(QPalette::Link, g.link);
-    p.setColor(QPalette::LinkVisited, g.visited);
-    for (const QPalette::ColorRole role : {QPalette::WindowText, QPalette::Text, QPalette::ButtonText})
-        p.setColor(QPalette::Disabled, role, g.disabledText);
-    p.setColor(QPalette::Disabled, QPalette::Highlight, g.mid);
-    return p;
-}
+// Centres a message box's sign against the text beside it (the owner, 2026-10-27), where Qt keeps
+// it at the top: on every show, as the box lays itself out again whenever its text, informative
+// text or checkbox changes `[code: qmessagebox.cpp setupLayout()]`. macOS's own box places its
+// sign itself.
+class CentredSign final : public QObject {
+public:
+    using QObject::QObject;
 
-void applyPalette()
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Show) {
+            auto *box = static_cast<QWidget *>(watched);
+            if (auto *sign = box->findChild<QLabel *>(QStringLiteral("qt_msgboxex_icon_label"), Qt::FindDirectChildrenOnly);
+                sign && box->layout())
+                box->layout()->setAlignment(sign, Qt::AlignLeft | Qt::AlignVCenter);
+        }
+        return false;
+    }
+};
+
+// The system's fonts: the application's, and those it gives some widget classes of their own
+// (on macOS menus, tooltips, lists and table headers). The class names are those Qt fills from
+// the system's theme `[code: qapplication.cpp initializeWidgetFontHash()]`.
+struct SystemFonts {
+    QFont application;
+    QList<std::pair<QByteArray, QFont>> classes;
+};
+
+const SystemFonts &systemFonts()
 {
-    // A system that does not say (some Linux desktops) gets the light one, as its own controls are.
-    QApplication::setPalette(palette(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark));
+    static const SystemFonts fonts = [] { // read before the first change (applyAppearance())
+        SystemFonts read{QApplication::font(), {}};
+        for (const char *name : {"QMenu", "QMenuBar", "QMenuItem", "QMessageBox", "QLabel", "QTipLabel", "QTitleBar",
+                                 "QStatusBar", "QMdiSubWindowTitleBar", "QDockWidgetTitle", "QPushButton", "QCheckBox",
+                                 "QRadioButton", "QToolButton", "QAbstractItemView", "QListView", "QHeaderView",
+                                 "QListBox", "QComboMenuItem", "QComboLineEdit", "QSmallFont", "QMiniFont"}) {
+            const QFont font = QApplication::font(name); // the application's where the class has none
+            if (font != read.application)
+                read.classes.append({QByteArray(name), font});
+        }
+        return read;
+    }();
+    return fonts;
 }
 
 } // namespace
@@ -201,34 +226,59 @@ void applyPalette()
 void applyAppearance(FontSize size)
 {
     QApplication::setStyle(new AppStyle); // the application owns it
-    applyPalette();
-    QObject::connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, qApp, &applyPalette);
-    // After the style: setting one gives back the system's own fonts of some widget classes (on
-    // macOS buttons, labels, lists, menus), which the font size then replaces with its own.
+    // After the style: setting one gives back the system's fonts of the widget classes, which
+    // the font size reads first.
     applyFontSize(size);
 }
 
 void applyFontSize(FontSize size)
 {
-    // Small is the system's own size; Medium and Large add 2 and 4 pixels (the owner's choice,
-    // D-85), on whatever unit the system gave it in. Every widget class takes it, as on the
-    // systems that give them no fonts of their own.
-    static const QFont system = QGuiApplication::font(); // read before the first change
+    // Small is the system's own fonts, untouched; Medium and Large add 2 and 4 pixels (the
+    // owner's choice, D-85) to each of them, on whatever unit the system gave it in.
+    const SystemFonts &system = systemFonts();
+    static FontSize applied = FontSize::Small;
+    if (size == applied)
+        return;
+    applied = size;
     const int extra = size == FontSize::Large ? 4 : size == FontSize::Medium ? 2 : 0;
-    QFont font = system;
-    if (system.pixelSize() > 0) {
-        font.setPixelSize(system.pixelSize() + extra);
-    } else {
-        const QScreen *screen = QGuiApplication::primaryScreen();
-        const qreal dpi = screen ? screen->logicalDotsPerInchY() : 96.0;
-        font.setPointSizeF(system.pointSizeF() + extra * 72.0 / dpi);
-    }
-    QApplication::setFont(font); // the widgets', and the panels' over the image (QGuiApplication::font())
+    const QScreen *screen = QGuiApplication::primaryScreen();
+    const qreal dpi = screen ? screen->logicalDotsPerInchY() : 96.0;
+    const auto grown = [extra, dpi](QFont font) {
+        if (font.pixelSize() > 0)
+            font.setPixelSize(font.pixelSize() + extra);
+        else
+            font.setPointSizeF(font.pointSizeF() + extra * 72.0 / dpi);
+        return font;
+    };
+    // The widgets', and the panels' over the image (QGuiApplication::font()); it clears the
+    // classes' fonts, which follow.
+    QApplication::setFont(grown(system.application));
+    for (const auto &[name, font] : system.classes)
+        QApplication::setFont(grown(font), name.constData());
+}
+
+qreal fontScale()
+{
+    return qreal(QFontInfo(QApplication::font()).pixelSize()) / std::max(1, QFontInfo(systemFonts().application).pixelSize());
+}
+
+void setMessageIcon(QMessageBox &box, QMessageBox::Icon icon)
+{
+#if defined(Q_OS_MACOS)
+    // macOS's own box (NSAlert) shows the system's sign for a standard icon, and a picture as it is.
+    const int size = box.style()->pixelMetric(QStyle::PM_MessageBoxIconSize, nullptr, &box);
+    box.setIconPixmap(messageIcon(icon).pixmap(QSize(size, size), std::max(box.devicePixelRatio(), 2.0)));
+#else
+    // Qt's own box, whose sign comes from the style (AppStyle); the standard icon also keeps
+    // Windows' sound for warnings and errors.
+    box.setIcon(icon);
+#endif
+    box.installEventFilter(new CentredSign(&box)); // also for a box of Qt's own on macOS (rich text)
 }
 
 QIcon searchIcon(const QColor &colour)
 {
-    return drawnIcon(16, [colour](QPainter &p) {
+    return drawnIcon(16, {16}, [colour](QPainter &p) {
         p.setPen(roundPen(colour, 1.6));
         p.setBrush(Qt::NoBrush);
         p.drawEllipse(QPointF(6.75, 6.75), 4.75, 4.75);

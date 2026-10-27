@@ -297,8 +297,8 @@ void ViewerWindow::initializeRenderer()
         // Not from inside expose/paint (a nested event loop in the platform's paint callback):
         // report once control is back in the event loop, then exit with an error status.
         QMetaObject::invokeMethod(this, [error] {
-            QMessageBox box(QMessageBox::Critical, QStringLiteral("ImageViewer"), error);
-            box.setOption(QMessageBox::Option::DontUseNativeDialog); // ours, as every component (D-86)
+            QMessageBox box(QMessageBox::NoIcon, QStringLiteral("ImageViewer"), error);
+            setMessageIcon(box, QMessageBox::Critical); // ours, in the system's own box (D-86)
             box.exec();
             QCoreApplication::exit(1);
         }, Qt::QueuedConnection);

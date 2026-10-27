@@ -1,18 +1,26 @@
-// The interface's look (decision D-86): every component drawn by the application, the same on
-// Windows, macOS and Linux, rather than left to each system.
+// The interface's icons (decision D-86): ours, the same on Windows, macOS and Linux, inside each
+// system's own widgets, windows and dialogs; and the user's font size (D-85).
 #pragma once
 
 #include "settings.h"
 
 #include <QColor>
 #include <QIcon>
+#include <QMessageBox>
 
-// One widget style with our palette, light or dark as the system's colour scheme (and again
-// whenever it changes), and the user's font size (D-85). Called once at startup, before any
-// widget exists.
+// The system's own widget style with our icons in it, and the user's font size. Called once at
+// startup, before any widget exists.
 void applyAppearance(FontSize size);
 // The font size alone, when the user changes it.
 void applyFontSize(FontSize size);
+
+// The interface's text against the system's own size: 1 at Small, more at Medium and Large. For
+// what is sized in pixels around text (the About dialog's text column).
+qreal fontScale();
+
+// Our sign for a message box's `icon`, 64 logical pixels, in the system's own box; centred against
+// the text beside it where the box is Qt's own (Windows, Linux).
+void setMessageIcon(QMessageBox &box, QMessageBox::Icon icon);
 
 // A magnifying glass in `colour`, for search fields.
 QIcon searchIcon(const QColor &colour);

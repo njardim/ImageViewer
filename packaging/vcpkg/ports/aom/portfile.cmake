@@ -4,7 +4,7 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL "https://aomedia.googlesource.com/aom"
-    REF 44d0a57786f432d933ff64b653347c66f4d0fa1d # v3.15.1
+    REF af3dc9aadc793c1b00edc003e3fc19a44fdeb574 # v3.15.2
     FETCH_REF "v${VERSION}"
     HEAD_REF main
     PATCHES

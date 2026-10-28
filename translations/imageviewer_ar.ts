@@ -60,10 +60,6 @@
         <translation>%1 (بيانات تعريف الملف، عبر Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>لا يتم فك ترميز SVG إلا في الواجهة الرسومية</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>ملف %1 تالف أو مقطوع أو غير مدعوم</translation>
     </message>

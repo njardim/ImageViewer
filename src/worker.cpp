@@ -30,6 +30,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QTemporaryDir>
+#include <QThread>
 #include <QtEndian>
 
 #include <algorithm>
@@ -282,12 +283,13 @@ int runDecodeWorker(int argc, char **argv)
             std::fprintf(stderr, "invalid SVG request\n");
             return kWorkerUsage;
         }
-        input.erase(input.begin(), input.begin() + std::ptrdiff_t(kSvgRequestBytes));
-        if (input.empty()) {
+        if (input.size() == kSvgRequestBytes) {
             std::fprintf(stderr, "empty file\n");
             return kWorkerFailed;
         }
-        return runSvgWorker(input, qint64(limit), VectorSize{int(side), fill == 1});
+        const QByteArrayView file(reinterpret_cast<const char *>(input.data()) + kSvgRequestBytes,
+                                  qsizetype(input.size() - kSvgRequestBytes));
+        return runSvgWorker(file, qint64(limit), VectorSize{int(side), fill == 1});
     }
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
     // GraphicsMagick looks for its configuration files (delegates.mgk, log.mgk) around the
@@ -415,7 +417,9 @@ WorkerProcess takeSvgWorker()
 
 void prepareSvgWorker()
 {
-    if (QCoreApplication *app = QCoreApplication::instance(); app && app->inherits("QGuiApplication"))
+    // The viewer's decoding threads only, never the main thread (a console mode, the --render harness).
+    if (QCoreApplication *app = QCoreApplication::instance();
+        app && app->inherits("QGuiApplication") && QThread::currentThread() != app->thread())
         t_spareSvgWorker = startSvgWorker();
 }
 
@@ -557,6 +561,13 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
     }
     if (!tooLarge.isEmpty()) {
         *error = tooLarge;
+        return false;
+    }
+    // The SVG renderer past its memory limit (svg.cpp): Rust's own message, then the worker ends.
+    if (svg && messages.contains("memory allocation of")
+        && (worker.exitStatus() != QProcess::NormalExit || worker.exitCode() != kWorkerDecoded)) {
+        qCWarning(lcWorker) << "decode worker out of its memory limit:" << path;
+        *error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
         return false;
     }
     if (broken || worker.exitStatus() != QProcess::NormalExit) {

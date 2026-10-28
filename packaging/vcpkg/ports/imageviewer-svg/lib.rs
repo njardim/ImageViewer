@@ -3,8 +3,10 @@
 //! Why our own layer and not resvg's C API: resvg's C API builds `usvg::Options::default()`, whose
 //! image resolver reads any file an `<image>` names (on Windows, `\\server\share` too, which hands
 //! the user's credentials to that server), and an `assert` or `unwrap` there aborts the process.
-//! Here the resolver accepts embedded data only, every call catches a panic and returns a code,
-//! and the caller sees six plain C functions that another renderer could implement as well.
+//! Here the resolver accepts embedded data only, every call catches a panic and returns a code, the
+//! memory resvg allocates has a limit (a document can declare a filter region many times its canvas,
+//! and resvg allocates its layers whole), and the caller sees seven plain C functions that another
+//! renderer could implement as well.
 //!
 //! Everything of resvg's API used below, the list to check at an update (an update whose API
 //! differs fails to compile in its own CI, so the pinned release stays in use):
@@ -18,14 +20,87 @@
 //! `iv_svg_renderer()`.
 
 use resvg::{tiny_skia, usvg};
+use std::alloc::{GlobalAlloc, Layout, System};
 use std::ffi::c_char;
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 const CONTRACT_VERSION: i32 = 1; // IV_SVG_CONTRACT_VERSION
 const OK: i32 = 0;
 const BAD_ARGUMENT: i32 = 1;
 const UNREADABLE: i32 = 2;
 const FAILED: i32 = 3;
+
+/// The memory of everything in this library (resvg's, its crates', Rust's own), counted against
+/// `iv_svg_limit_memory()`; the application's C++ allocates through its own allocator. Past the
+/// limit an allocation fails and Rust ends the process ("memory allocation of N bytes failed"):
+/// a global allocator may not unwind, so there is no error code to return from there.
+struct Limited;
+
+static LIMIT: AtomicUsize = AtomicUsize::new(usize::MAX);
+static USED: AtomicUsize = AtomicUsize::new(0);
+
+fn reserve(bytes: usize) -> bool {
+    let before = USED.fetch_add(bytes, Ordering::Relaxed);
+    if before.saturating_add(bytes) <= LIMIT.load(Ordering::Relaxed) {
+        return true;
+    }
+    USED.fetch_sub(bytes, Ordering::Relaxed);
+    false
+}
+
+fn release(bytes: usize) {
+    USED.fetch_sub(bytes, Ordering::Relaxed);
+}
+
+// SAFETY: every call forwards to the system allocator with the same layout; the counter only adds
+// a condition before an allocation.
+unsafe impl GlobalAlloc for Limited {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        if !reserve(layout.size()) {
+            return std::ptr::null_mut();
+        }
+        let pointer = unsafe { System.alloc(layout) };
+        if pointer.is_null() {
+            release(layout.size());
+        }
+        pointer
+    }
+
+    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+        if !reserve(layout.size()) {
+            return std::ptr::null_mut();
+        }
+        let pointer = unsafe { System.alloc_zeroed(layout) };
+        if pointer.is_null() {
+            release(layout.size());
+        }
+        pointer
+    }
+
+    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {
+        unsafe { System.dealloc(pointer, layout) };
+        release(layout.size());
+    }
+
+    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, size: usize) -> *mut u8 {
+        if size > layout.size() && !reserve(size - layout.size()) {
+            return std::ptr::null_mut();
+        }
+        let moved = unsafe { System.realloc(pointer, layout, size) };
+        if moved.is_null() {
+            if size > layout.size() {
+                release(size - layout.size());
+            }
+        } else if size < layout.size() {
+            release(layout.size() - size);
+        }
+        moved
+    }
+}
+
+#[global_allocator]
+static ALLOCATOR: Limited = Limited;
 
 /// A parsed document (`iv_svg` in the header).
 pub struct Document {
@@ -45,6 +120,12 @@ pub extern "C" fn iv_svg_contract_version() -> i32 {
 #[unsafe(no_mangle)]
 pub extern "C" fn iv_svg_renderer() -> *const c_char {
     concat!("resvg ", env!("CARGO_PKG_VERSION"), "\0").as_ptr().cast()
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn iv_svg_limit_memory(bytes: u64) -> i32 {
+    LIMIT.store(usize::try_from(bytes).unwrap_or(usize::MAX), Ordering::Relaxed);
+    OK
 }
 
 /// # Safety

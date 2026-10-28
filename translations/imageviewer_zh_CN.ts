@@ -60,10 +60,6 @@
         <translation>%1（文件元数据，通过 Qt 读取）</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG 仅在图形界面中解码</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>已损坏、不完整或不受支持的 %1 文件</translation>
     </message>

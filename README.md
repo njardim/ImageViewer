@@ -31,7 +31,7 @@ The packages are **not signed yet**:
 
 - **Color management:** ICC v2 and v4 profiles (LittleCMS, or an exact matrix/curve path), CICP (BT.709, BT.2020, Display P3; sRGB, BT.1886, gamma, linear, PQ, HLG; narrow or full range) with priority over an embedded ICC, OpenImageIO's color spaces (ACES included) and EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images; alpha composited in linear light.
 - **HDR:** scRGB (Windows), EDR (macOS) and HDR10/PQ output; PQ in absolute nits; BT.2390 tone mapping only when an image exceeds the display, exposure in half stops, and a highlight for clipped or tone-mapped pixels.
-- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, FITS, camera RAW (LibRaw) and more. GIMP XCF, PCX, Apple PICT, MIFF, DICOM and other rare formats are read by GraphicsMagick in a separate process with a list of allowed decoders, limits and a time-out. *Settings → Image Formats* (or `ImageViewer --formats`) lists every extension with its decoder and version. HEIC is decoded by the operating system (macOS; Windows with Microsoft's HEIF and HEVC extensions); ImageViewer ships no HEVC decoder.
+- **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, FITS, camera RAW (LibRaw) and more. GIMP XCF, PCX, Apple PICT, MIFF, DICOM and other rare formats are read by GraphicsMagick in a separate process with a list of allowed decoders, limits and a time-out. SVG and SVGZ are drawn by resvg, in a separate process too, with filters, masks, clip paths, CSS and text, and nothing outside the file is ever read. *Settings → Image Formats* (or `ImageViewer --formats`) lists every extension with its decoder and version. HEIC is decoded by the operating system (macOS; Windows with Microsoft's HEIF and HEVC extensions); ImageViewer ships no HEVC decoder.
 - **Animation:** GIF, WebP, APNG, JPEG XL and AVIF sequences play with their own timing and loop count; pause and step frame by frame.
 - **Viewing:** zoom at the cursor and an exact 100 % (one image pixel per screen pixel); fit to the window, its width or its height, fill it, or actual size, a mode that stays for the next images, and Lock Zoom to keep any zoom; rotate and mirror; full screen; a checkerboard behind transparent areas; the window can take the size of the image.
 - **Gallery:** the folder's thumbnails along the bottom (G), small, medium or large, optionally the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls.
@@ -94,7 +94,7 @@ Every change is built and tested on Windows, macOS and Linux; the on-screen and 
 
 ## Building from source
 
-The dependencies are Qt 6.12 (official binaries) and OpenImageIO, LittleCMS, libjxl, libwebp, libheif, GraphicsMagick and their codecs (from vcpkg, using the manifest `vcpkg.json`).
+The dependencies are Qt 6.12 (official binaries) and OpenImageIO, LittleCMS, libjxl, libwebp, libheif, GraphicsMagick, resvg and their codecs (from vcpkg, using the manifest `vcpkg.json`). resvg, the SVG renderer, is built with Rust: rustup installs the version `packaging/vcpkg/ports/imageviewer-svg/rust-toolchain.toml` pins.
 
 ```
 cmake --preset <windows|macos|linux> -DCMAKE_PREFIX_PATH=<Qt 6.12 directory>   # needs VCPKG_ROOT
@@ -102,7 +102,7 @@ cmake --build --preset <windows|macos|linux>
 tests/smoke.sh <executable>
 ```
 
-To develop on Linux without vcpkg, run `scripts/build-qt-linux.sh` (builds Qt from source) and use the `linux-system` preset. `CLAUDE.md` describes the full test set and the rules for working on the code.
+To develop on Linux without vcpkg, run `scripts/build-qt-linux.sh` (builds Qt from source) and `scripts/build-svg.sh` (the SVG renderer), and use the `linux-system` preset. `CLAUDE.md` describes the full test set and the rules for working on the code.
 
 Command-line tools for diagnosis:
 - `ImageViewer --info <file>` prints what the color pipeline sees.

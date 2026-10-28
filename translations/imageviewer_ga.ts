@@ -60,10 +60,6 @@
         <translation>%1 (meiteashonraí an chomhaid, trí Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>Ní dhéantar SVG a dhíchódú ach sa chomhéadan grafach</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>comhad %1 atá damáistithe, teasctha nó gan tacaíocht</translation>
     </message>

@@ -4,6 +4,7 @@
 # patch's "Fixes:" line answers it (docs/PLAN.md section 15). Any other known vulnerability is "not
 # assessed": the release gate refuses the release and the weekly audit opens an issue until a patch
 # or a line here answers it. The audit names the lines that no longer apply.
+# A crate of the SVG renderer (D-90) is named "crate/<name>", Rust's standard library "rust".
 CVE-2026-76844 zlib: out of reach: gzwrite after a failed write; the packages only inflate (2026-10-21)
 CVE-2026-85091 zlib: out of reach: gz_vacate under gzwrite/gzprintf; the packages only inflate (2026-10-21)
 OSV-2026-1068 libjpeg-turbo: out of reach: jpeg_abort under tj3Compress8, the compressor; the packages only decode (2026-10-21)
@@ -18,3 +19,5 @@ OSV-2022-725 libjxl: accepted, not verified: OSS-Fuzz entry of 2022 (WriteToU8St
 OSV-2023-1129 libheif: accepted, not verified: OSS-Fuzz entry of 2023 (HeifPixelImage::overlay, a read) with no fixed commit recorded; re-assess when OSV records a fix (2026-10-21)
 OSV-2026-564 libjxl: accepted: use of uninitialised values in decoded pixels (no write); no fix upstream yet (2026-10-21)
 OSV-2026-711 libjxl: accepted: use of uninitialised values in multiply blending (no write); no fix upstream yet (2026-10-21)
+CVE-2026-117610 expat: out of reach: a NULL dereference in an external entity subparser, which OpenColorIO 2.6.0, expat's only user here, never creates (no XML_SetExternalEntityRefHandler; its parsers read the CDL, CTF/CLF and Iridas look files a colour configuration names), and our code never calls OpenColorIO (2026-10-28)
+CVE-2026-118370 expat: out of reach: needs a multi-gigabyte document with a start tag of over 2^30 attributes, and expat parses only the LUT files an OpenColorIO 2.6.0 configuration names (the built-in one names none; $OCIO is the user's own), never a file the viewer is asked to open; our code never calls OpenColorIO (2026-10-28)

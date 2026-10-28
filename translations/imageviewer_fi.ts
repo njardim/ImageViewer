@@ -60,10 +60,6 @@
         <translation>%1 (tiedoston metatiedot, Qt:n kautta)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG puretaan vain graafisessa käyttöliittymässä</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>vioittunut, katkennut tai tukematon %1-tiedosto</translation>
     </message>

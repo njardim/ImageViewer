@@ -60,10 +60,6 @@
         <translation>%1 (ఫైల్ మెటాడేటా, Qt ద్వారా)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG గ్రాఫికల్ ఇంటర్‌ఫేస్‌లో మాత్రమే డీకోడ్ అవుతుంది</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>పాడైన, అసంపూర్ణమైన లేదా మద్దతు లేని %1 ఫైల్</translation>
     </message>

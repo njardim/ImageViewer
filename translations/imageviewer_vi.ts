@@ -60,10 +60,6 @@
         <translation>%1 (siêu dữ liệu tệp, qua Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG chỉ được giải mã trong giao diện đồ họa</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>tệp %1 bị hỏng, bị cắt cụt hoặc không được hỗ trợ</translation>
     </message>

@@ -1,6 +1,6 @@
 /* ImageViewer's SVG renderer contract (decision D-90).
  *
- * The application draws SVG only through these five functions. Any renderer can stand behind
+ * The application draws SVG only through these seven functions. Any renderer can stand behind
  * them: today resvg, through lib.rs beside this file. Replacing it means another implementation
  * of this header and its port (packaging/vcpkg/ports/), and nothing in the application.
  *
@@ -8,7 +8,9 @@
  * - nothing outside the document is read: no file, no network; an embedded image is a data: URL
  *   (PNG, JPEG, GIF, WebP or SVG) or nothing. The only files read are the system's fonts, and only
  *   when the caller asks for them;
- * - no function aborts the process or lets an error escape: each returns a code;
+ * - no function aborts the process or lets an error escape: each returns a code; the one exception
+ *   is the memory limit (iv_svg_limit_memory), past which the process ends with a message naming
+ *   memory on standard error, as the decode worker is meant to;
  * - the functions may be called from one thread at a time (the decode worker has one).
  *
  * The caller (src/svg.cpp, in the decode worker, D-38) gives the document already inflated (never
@@ -40,6 +42,12 @@ int iv_svg_contract_version(void);
 
 /* The renderer's name and version, for Settings > Image Formats, e.g. "resvg 0.48.1". */
 const char *iv_svg_renderer(void);
+
+/* From now on the renderer's own memory (the document, the layers it draws through) stays within
+ * `bytes` in all: an allocation past it ends the process, writing "memory allocation of <n> bytes
+ * failed" on standard error. A document may declare a filter region many times its canvas, and the
+ * renderer would allocate it. The caller's own buffers (the pixels it passes) do not count. */
+int iv_svg_limit_memory(uint64_t bytes);
 
 /* Parses `size` bytes of SVG (UTF-8 XML). With `load_fonts` non-zero, the system's fonts are
  * loaded first, for the document's text; without, text is not drawn. On IV_SVG_OK, *out is the

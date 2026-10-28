@@ -11,7 +11,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 // Decoder output before colour conversion: interleaved samples in their native type.
 struct Decoded {
@@ -151,8 +150,8 @@ int writeWorkerAnswer(const WorkerAnswer &answer, const unsigned char *icc, cons
 bool svgAvailable();
 // The renderer's name and version, e.g. "resvg 0.48.1"; empty when the build has none.
 QString svgRenderer();
-// The worker's SVG mode: `input` is the file, an svgz inflated here. Returns the exit code.
-int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, VectorSize vector);
+// The worker's SVG mode: `file` is the file's bytes, an svgz inflated here. Returns the exit code.
+int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector);
 
 // syscodecs.cpp: the operating system's HEIC decoder (D-39).
 // What to do when the system has no HEVC decoder (Windows: the Microsoft Store extensions).

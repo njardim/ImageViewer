@@ -277,10 +277,26 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         echo "FAIL SVG worker: a render past 30 s ($took s): $said"
         failures=$((failures + 1))
     fi
+    # A filter region 25 times its canvas (resvg allocates such a layer whole): the renderer's memory
+    # limit ends the worker at once, and the viewer says so (it took 2 GiB and 30 s before, D-90).
+    bomb="$(mktemp -d)/region.svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
+    started=$(date +%s)
+    said="$("$exe" --info "$bomb" 2>/dev/null || true)"
+    took=$(($(date +%s) - started))
+    rm -rf "$(dirname "$bomb")"
+    if grep -q 'Not enough memory to decode the image' <<<"$said" && [ "$took" -lt 20 ]; then
+        echo "ok   SVG worker: a filter region past the renderer's memory limit refused (${took} s)"
+    else
+        echo "FAIL SVG worker: a filter region past the memory limit ($took s): $said"
+        failures=$((failures + 1))
+    fi
     # What starting a worker costs on this machine (its libraries load): a record, not a check.
-    started=$(date +%s%N)
+    # Milliseconds from Perl, which every runner has (macOS's date knows no %N).
+    now_ms() { perl -MTime::HiRes=time -e 'printf "%d\n", time * 1000'; }
+    started=$(now_ms)
     for _ in 1 2 3 4 5 6 7 8 9 10; do "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || true; done
-    echo "info SVG worker: a start costs $((($(date +%s%N) - started) / 10000000)) ms here"
+    echo "info SVG worker: a start costs $((($(now_ms) - started) / 10)) ms here"
 elif [ -n "${CI:-}" ]; then
     echo "FAIL svg: no SVG renderer in this build"
     failures=$((failures + 1))

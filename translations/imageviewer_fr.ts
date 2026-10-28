@@ -60,10 +60,6 @@
         <translation>%1 (métadonnées du fichier, via Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>les fichiers SVG ne sont décodés que dans l’interface graphique</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>fichier %1 endommagé, tronqué ou non pris en charge</translation>
     </message>

@@ -17,7 +17,6 @@
 #include <cstdio>
 #include <memory>
 #include <new>
-#include <vector>
 
 #ifdef IMAGEVIEWER_HAVE_SVG
 #include <imageviewer_svg.h>
@@ -176,7 +175,7 @@ QString svgRenderer()
 #endif
 }
 
-int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, VectorSize vector)
+int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector)
 {
 #ifdef IMAGEVIEWER_HAVE_SVG
     if (!svgAvailable()) {
@@ -184,12 +183,22 @@ int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, Vect
         return kWorkerFailed;
     }
     bool hasText = false;
-    const QByteArray xml = safeSvg(QByteArrayView(reinterpret_cast<const char *>(input.data()), qsizetype(input.size())),
-                                   0, &hasText);
+    const QByteArray xml = safeSvg(file, 0, &hasText);
     if (xml.isEmpty()) {
         std::fprintf(stderr, "not well-formed XML, or more than %lld MiB\n", static_cast<long long>(kMaxSvgBytes >> 20));
         return kWorkerFailed;
     }
+    // The renderer's own memory: a document can declare a filter region many times its canvas, and
+    // resvg allocates such a layer whole (a 3000 px SVG reached 2 GiB). 16 times what it reads, or
+    // draws, at least 512 MiB (the owner's artwork drawn at 2048 px needs about 200), never more than
+    // this machine's decode budget; past it the worker ends, and the viewer says so (D-90).
+    const auto limitMemory = [](qint64 bytes) {
+        qint64 limit = std::max<qint64>(qint64(512) << 20, 16 * bytes);
+        if (const qint64 budget = decodeMemoryBudget(); budget > 0)
+            limit = std::min(limit, budget);
+        iv_svg_limit_memory(uint64_t(limit));
+    };
+    limitMemory(xml.size());
     iv_svg *parsed = nullptr;
     // The system's fonts only for a document with text: loading them is most of what a small
     // document costs (D-90 (3)).
@@ -199,7 +208,7 @@ int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, Vect
         std::fprintf(stderr, "the renderer could not read the document (%d)\n", status);
         return kWorkerFailed;
     }
-    const std::unique_ptr<iv_svg, void (*)(iv_svg *)> svg(parsed, iv_svg_free);
+    std::unique_ptr<iv_svg, void (*)(iv_svg *)> svg(parsed, iv_svg_free);
     double documentWidth = 0.0, documentHeight = 0.0;
     if (iv_svg_size(svg.get(), &documentWidth, &documentHeight) != IV_SVG_OK || !(documentWidth > 0.0)
         || !(documentHeight > 0.0) || documentWidth > double(kMaxPixels) || documentHeight > double(kMaxPixels)) {
@@ -213,6 +222,7 @@ int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, Vect
     const qint64 width = pixels(documentWidth * scale), height = pixels(documentHeight * scale);
     if (width > kMaxPixels || height > kMaxPixels || width * height > maxPixels)
         return kWorkerOverLimit; // each side within 2^30 first: the product fits
+    limitMemory(std::max<qint64>(width * height * 4, xml.size()));
     std::unique_ptr<uint8_t[]> rgba(new (std::nothrow) uint8_t[std::size_t(width * height) * 4]);
     if (!rgba)
         return kWorkerOverLimit;
@@ -230,9 +240,13 @@ int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, Vect
     answer.associatedAlpha = true; // the renderer's pixels as they are: image.cpp divides in float
     answer.documentWidth = quint32(pixels(documentWidth));
     answer.documentHeight = quint32(pixels(documentHeight));
-    return writeWorkerAnswer(answer, nullptr, rgba.get());
+    const int code = writeWorkerAnswer(answer, nullptr, rgba.get());
+    // The worker exits now and the viewer waits for that: the system frees the document faster than
+    // its destructors would.
+    static_cast<void>(svg.release());
+    return code;
 #else
-    Q_UNUSED(input);
+    Q_UNUSED(file);
     Q_UNUSED(maxPixels);
     Q_UNUSED(vector);
     std::fprintf(stderr, "built without an SVG renderer\n");

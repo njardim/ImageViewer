@@ -60,10 +60,6 @@
         <translation>%1 (faila metadati, izmantojot Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG tiek dekodēts tikai grafiskajā saskarnē</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>bojāts, saīsināts vai neatbalstīts %1 fails</translation>
     </message>

@@ -60,10 +60,6 @@
         <translation>%1 (filmetadata, via Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG avkodas endast i det grafiska gränssnittet</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>skadad, avkortad eller ej stödd %1-fil</translation>
     </message>

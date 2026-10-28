@@ -33,6 +33,10 @@
     {
       "$comment": "The long tail in the decode worker (D-38). Overlay port (packaging/vcpkg/ports/graphicsmagick): 1.3.49, no delegate libraries.",
       "name": "graphicsmagick"
+    },
+    {
+      "$comment": "SVG in the decode worker (D-90): ImageViewer's renderer contract implemented with resvg, an overlay port (packaging/vcpkg/ports/imageviewer-svg): resvg 0.48.1 and its crates, built with the Rust its rust-toolchain.toml pins.",
+      "name": "imageviewer-svg"
     }
   ],
   "vcpkg-configuration": {

@@ -103,11 +103,24 @@ jobs:
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
           aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
-          # Only what we use (qttools: lupdate/lrelease for the UI translations; qtsvg: the SVG
-          # image plugin). Run 2: py7zr rejected a path in the qtsvg archive of Qt 6.11; run 3:
-          # parallel external 7-Zip extractions raced.
-          archives: qtbase qttools qtsvg d3dcompiler_47 opengl32sw
+          # Only what we use (qttools: lupdate/lrelease for the UI translations; SVG is resvg's, D-90).
+          # Run 3: parallel external 7-Zip extractions raced.
+          archives: qtbase qttools d3dcompiler_47 opengl32sw
           cache: true
+
+      # The Rust that builds the SVG renderer (D-90): the version the port pins, installed by the runner's
+      # rustup (which checks every download against the release's manifest). vcpkg's build environment
+      # on Windows keeps only the variables it is told to: cargo needs rustup's two homes.
+      - name: Rust (the version packaging/vcpkg/ports/imageviewer-svg pins)
+        shell: bash
+        run: |
+          rust="$(sed -n 's/^channel = "\([0-9.]*\)"$/\1/p' packaging/vcpkg/ports/imageviewer-svg/rust-toolchain.toml)"
+          [[ "$rust" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::no pinned Rust version in rust-toolchain.toml"; exit 1; }
+          rustup toolchain install "$rust" --profile minimal --no-self-update
+          cargo_home="${CARGO_HOME:-$HOME/.cargo}"; rustup_home="${RUSTUP_HOME:-$HOME/.rustup}"
+          if [ "$RUNNER_OS" = Windows ]; then cargo_home="$(cygpath -w "$cargo_home")"; rustup_home="$(cygpath -w "$rustup_home")"; fi
+          { echo "CARGO_HOME=$cargo_home"; echo "RUSTUP_HOME=$rustup_home"; echo "VCPKG_KEEP_ENV_VARS=CARGO_HOME;RUSTUP_HOME"; } >> "$GITHUB_ENV"
+          rustup run "$rust" rustc --version
 
       - name: vcpkg
         id: vcpkg
@@ -192,25 +205,30 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
-      # Qt reads only the formats the registry gives it (D-67, D-68): SVG, ICNS, ICO (.cur) and WBMP
-      # through these plugins, XPM and XBM built in. Its other image plugins decode with Qt's own
-      # copies of libjpeg, libtiff and libwebp, which the audit does not follow, and an SVG (a data:
-      # URI) or an icon hands an embedded image to any plugin that recognises it. They are held back
-      # from the tests and the deploy step, which reads Qt's plugin folder only then (after Configure:
-      # Qt's CMake package checks that every plugin it names exists), and put back afterwards, so
-      # that the cached Qt stays whole. The package step checks the result.
+      # Qt reads only the formats the registry gives it (D-67, D-68): ICNS, ICO (.cur) and WBMP through
+      # these plugins, XPM and XBM built in; SVG is resvg's (D-90). Its other image plugins decode with
+      # Qt's own copies of libjpeg, libtiff and libwebp, which the audit does not follow, and an icon
+      # hands an embedded image to any plugin that recognises it; Qt's SVG plugins (the image format
+      # and the icon engine) would bring QtSvg back. They are held back from the tests and the deploy
+      # step, which reads Qt's plugin folder only then (after Configure: Qt's CMake package checks that
+      # every plugin it names exists), and put back afterwards, so that the cached Qt stays whole. The
+      # package step checks the result.
       - name: Hold back the Qt image plugins the registry does not use
         shell: bash
         run: |
           root="$QT_ROOT_DIR"; [ "$RUNNER_OS" = Windows ] && root="$(cygpath -u "$root")"
           dir="$root/plugins/imageformats"
           [ -d "$dir" ] || { echo "::error::$dir not found"; exit 1; }
-          mkdir -p "$RUNNER_TEMP/qt-imageformats"
+          mkdir -p "$RUNNER_TEMP/qt-imageformats" "$RUNNER_TEMP/qt-iconengines"
           for f in "$dir"/*; do
             case "$(basename "$f")" in
-              *qsvg.*|*qsvgd.*|*qicns.*|*qicnsd.*|*qico.*|*qicod.*|*qwbmp.*|*qwbmpd.*) ;;
+              *qicns.*|*qicnsd.*|*qico.*|*qicod.*|*qwbmp.*|*qwbmpd.*) ;;
               *) echo "held back: $(basename "$f")"; mv "$f" "$RUNNER_TEMP/qt-imageformats/" ;;
             esac
+          done
+          for f in "$root/plugins/iconengines"/*svg*; do
+            [ -e "$f" ] || continue
+            echo "held back: $(basename "$f")"; mv "$f" "$RUNNER_TEMP/qt-iconengines/"
           done
 
       # Every tr() string must be in the .ts files (update_translations was run), and releases
@@ -283,7 +301,7 @@ jobs:
           RENDER_TEST_DIR: ${{ runner.temp }}/render-test
         run: |
           py=python3; [ "$RUNNER_OS" = Windows ] && py=python
-          "$py" -m pip install --quiet --only-binary=:all: numpy==2.5.3
+          "$py" -m pip install --quiet --only-binary=:all: numpy==2.5.3 pillow==12.3.0
           status=0
           "$py" tests/render_test.py "$EXE" || status=$?
           if [ "$status" -eq 4 ] && [ "$RUNNER_OS" = macOS ]; then
@@ -324,6 +342,9 @@ jobs:
           [ -d "$RUNNER_TEMP/qt-imageformats" ] || exit 0
           root="$QT_ROOT_DIR"; [ "$RUNNER_OS" = Windows ] && root="$(cygpath -u "$root")"
           find "$RUNNER_TEMP/qt-imageformats" -mindepth 1 -maxdepth 1 -exec mv {} "$root/plugins/imageformats/" \;
+          if [ -d "$RUNNER_TEMP/qt-iconengines" ]; then
+            find "$RUNNER_TEMP/qt-iconengines" -mindepth 1 -maxdepth 1 -exec mv {} "$root/plugins/iconengines/" \;
+          fi
 
       - name: Package
         id: package
@@ -348,11 +369,15 @@ jobs:
           if find "$dist" \( -iname '*x265*' -o -iname '*de265*' \) | grep .; then
             echo "::error::HEVC codec files in the package"; exit 1
           fi
-          # Only the Qt image plugins the registry uses (D-67, "Qt image plugins" above).
+          # Only the Qt image plugins the registry uses (D-67, "Qt image plugins" above), and no Qt SVG:
+          # SVG is resvg's, compiled in, its licences shipped (D-90).
           plugins="$(find "$dist" -path '*/imageformats/*' -type f)"
-          extra="$(printf '%s\n' "$plugins" | grep -Ev '(qsvg|qicns|qico|qwbmp)d?\.[^/]*$' || true)"
+          extra="$(printf '%s\n' "$plugins" | grep -Ev '(qicns|qico|qwbmp)d?\.[^/]*$' || true)"
           [ -z "$extra" ] || { echo "::error::Qt image plugins the registry does not use: $extra"; exit 1; }
-          printf '%s\n' "$plugins" | grep -Eq 'qsvgd?\.[^/]*$' || { echo "::error::no SVG image plugin in the package"; exit 1; }
+          if find "$dist" \( -iname '*Qt6Svg*' -o -iname 'QtSvg*' -o -iname '*qsvg*' \) | grep .; then
+            echo "::error::Qt SVG in the package (above)"; exit 1
+          fi
+          [ -s "$docs/third-party/imageviewer-svg.txt" ] || { echo "::error::the SVG renderer's licences are missing"; exit 1; }
           # MSVC runtime is deployed app-locally (no vc_redist installer).
           if [ "$RUNNER_OS" = Windows ]; then
             for f in vcruntime140.dll vcruntime140_1.dll msvcp140.dll; do

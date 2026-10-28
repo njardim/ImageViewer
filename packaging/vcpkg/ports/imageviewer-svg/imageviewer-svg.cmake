@@ -48,6 +48,22 @@ function(imageviewer_svg_build SOURCE_DIR BUILD_DIR PREFIX CARGO)
     # build, and the crates are fetched from crates.io and checked against Cargo.lock's checksums.
     set(ENV{CARGO_HOME} "${BUILD_DIR}/cargo-home")
     set(ENV{CARGO_TARGET_DIR} "${BUILD_DIR}/target")
+    # The build's own directories out of the library (panic messages name their source files): no
+    # path of the machine that built it, and the same bytes from any build directory.
+    string(ASCII 31 separator) # CARGO_ENCODED_RUSTFLAGS: one flag per field, spaces allowed
+    set(flags "")
+    foreach(pair "${BUILD_DIR}/cargo-home=/cargo" "${SOURCE_DIR}=/resvg")
+        string(REPLACE "=" ";" parts "${pair}")
+        list(GET parts 0 from)
+        list(GET parts 1 to)
+        file(TO_NATIVE_PATH "${from}" native)
+        foreach(prefix IN ITEMS "${from}" "${native}")
+            list(APPEND flags "--remap-path-prefix=${prefix}=${to}")
+        endforeach()
+    endforeach()
+    list(REMOVE_DUPLICATES flags)
+    string(REPLACE ";" "${separator}" flags "${flags}")
+    set(ENV{CARGO_ENCODED_RUSTFLAGS} "${flags}")
     if(DEFINED VCPKG_OSX_DEPLOYMENT_TARGET)
         set(ENV{MACOSX_DEPLOYMENT_TARGET} "${VCPKG_OSX_DEPLOYMENT_TARGET}")
     endif()

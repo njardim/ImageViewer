@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 // Decoder output before colour conversion: interleaved samples in their native type.
 struct Decoded {
@@ -31,6 +32,10 @@ struct Decoded {
     CameraInfo camera;
     bool overLimit = false;        // larger than the pixel limit asked for: nothing was read
     int durationMs = 0;            // how long this frame is shown, in an animation
+    // A vector image's own size (an SVG's, in CSS pixels) when it was drawn at another (D-90): the
+    // panel and the zoom speak of the document's size. 0: the same as width and height.
+    int documentWidth = 0;
+    int documentHeight = 0;
 
     int sampleBytes() const
     {
@@ -66,13 +71,21 @@ public:
     virtual int loopCount() const = 0;
 };
 
+// The size a vector image (SVG) is drawn at, on its longer side (D-90): its own size, made smaller
+// to fit `maxSide` (the GPU's largest texture); with `fill`, exactly `maxSide` (a thumbnail, drawn
+// at its own size rather than reduced or enlarged afterwards). 0: its own size.
+struct VectorSize {
+    int maxSide = 0;
+    bool fill = false;
+};
+
 // Detects the format (formats.h) and decodes with its back end, then with the general ones
 // (OpenImageIO, Qt) if that fails. With `maxPixels` > 0 a larger source is not read
 // (out->overLimit). False with *error set (the first back end's reason) on failure.
 // For an animated file, *frames (when given) receives the reader of the frames after the
 // first, and out->durationMs the first frame's display time.
 bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error,
-                std::unique_ptr<FrameReader> *frames = nullptr);
+                std::unique_ptr<FrameReader> *frames = nullptr, VectorSize vector = {});
 
 // Stops OpenImageIO's worker threads (see shutdownDecoders()).
 void shutdownOpenImageIO();
@@ -114,12 +127,32 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error);
 // OpenImageIO on a file in memory; `name` only tells it the format (e.g. "frame.png").
 bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error, qint64 maxPixels = 0);
 
-// worker.cpp: GraphicsMagick in the decode worker process (D-38).
+// worker.cpp: the decode worker process (D-38), for GraphicsMagick and SVG (svg.cpp).
 bool graphicsMagickAvailable();
 // The `--decode-worker` mode of the executable (main.cpp starts it before anything else).
 int runDecodeWorker(int argc, char **argv);
-// Decodes `path` in a worker process with the format's coder; never crashes the caller.
-bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error);
+// Decodes `path` in a worker process: GraphicsMagick's coder for the format, or the SVG renderer
+// at the size `vector` asks for. Never crashes the caller.
+bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
+                    VectorSize vector = {});
+// The worker's exit codes: decoded, not decoded (the reason on standard error), bad arguments,
+// over the pixel limit asked for (or out of memory).
+inline constexpr int kWorkerDecoded = 0, kWorkerFailed = 1, kWorkerUsage = 2, kWorkerOverLimit = 3;
+// The worker's answer on standard output (worker.cpp has its layout). `icc` holds iccBytes bytes,
+// `pixels` width x height x channels samples. Returns the exit code.
+struct WorkerAnswer {
+    quint32 width = 0, height = 0, channels = 0, sampleBytes = 0, bits = 0, orientation = 1, iccBytes = 0;
+    bool associatedAlpha = false;                // colour multiplied by alpha already
+    quint32 documentWidth = 0, documentHeight = 0; // Decoded::documentWidth, documentHeight
+};
+int writeWorkerAnswer(const WorkerAnswer &answer, const unsigned char *icc, const unsigned char *pixels);
+
+// svg.cpp: SVG through the renderer behind imageviewer_svg.h (D-90), in the decode worker only.
+bool svgAvailable();
+// The renderer's name and version, e.g. "resvg 0.48.1"; empty when the build has none.
+QString svgRenderer();
+// The worker's SVG mode: `input` is the file, an svgz inflated here. Returns the exit code.
+int runSvgWorker(const std::vector<unsigned char> &input, qint64 maxPixels, VectorSize vector);
 
 // syscodecs.cpp: the operating system's HEIC decoder (D-39).
 // What to do when the system has no HEVC decoder (Windows: the Microsoft Store extensions).
@@ -136,8 +169,8 @@ bool describeHeifStill(QByteArrayView bytes, color::Descriptor *d);
 bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                         std::unique_ptr<FrameReader> *frames);
 
-// qtimage.cpp: the formats the registry gives to Qt, each through its own plugin only; an SVG
-// from memory, without what would make Qt read outside it (D-71).
+// qtimage.cpp: the formats the registry gives to Qt (Apple icons, cursors, XPM, XBM, WBMP), each
+// through its own plugin only.
 bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error);
 
 // codecs.cpp: libjxl, libwebp and Softimage PIC (D-45), which parse the file from memory; APNG

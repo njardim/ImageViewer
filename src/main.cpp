@@ -388,7 +388,7 @@ int renderHarness(const QString &path, const RenderOptions &opt, QVulkanInstance
 // Qt's plugins from this Qt's own plugin directory and the application's only, never from a
 // directory in QT_PLUGIN_PATH (D-68): Qt asks a plugin library before OiioImagePlugin, a static
 // one [code: qtbase v6.12.0 qfactoryloader.cpp, metaData()], so one of Qt's other image plugins
-// there would decode what SVG, icon and cursor files embed. Called once the application exists:
+// there would decode what icon and cursor files embed. Called once the application exists:
 // the platform's plugins, loaded with it, are not affected.
 void ignorePluginPathVariable()
 {

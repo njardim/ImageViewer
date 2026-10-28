@@ -1,17 +1,20 @@
-// The decode worker (decision D-38): the long tail of formats goes to GraphicsMagick, which
-// runs only in a separate process, `ImageViewer --decode-worker <CODER> <max pixels>`. The
-// viewer sends the file's bytes on standard input; the worker answers with the pixels on
-// standard output. The worker keeps only the coders of the registry (no delegates, no
-// external programs, no pseudo-formats), has pixel, memory and read limits, and is killed
-// when it takes too long. A crash there means "cannot open this file", never a crash of
+// The decode worker (decisions D-38, D-90): what must not run in the viewer's own process runs in
+// a separate one, `ImageViewer --decode-worker <CODER> <max pixels>` for the long tail of formats
+// (GraphicsMagick) and `ImageViewer --decode-worker SVG` for SVG (svg.cpp). The viewer sends the
+// file's bytes on standard input, for SVG after a request (kSvgRequest, the limits: so that a
+// worker started ahead of its decode serves any SVG); the worker answers with the pixels on
+// standard output. GraphicsMagick keeps only the coders of the registry (no delegates,
+// no external programs, no pseudo-formats) and has pixel, memory and read limits; every worker is
+// killed when it takes too long. A crash there means "cannot open this file", never a crash of
 // the viewer.
 //
 // Answer on standard output, all integers 32-bit little endian:
 //   "IVWORKER" (8 bytes), width, height, channels (3 or 4), bytes per sample (1 or 2),
-//   significant bits, EXIF orientation (1-8), ICC profile size, then the profile and the
-//   interleaved RGB(A) samples, straight alpha, rows from the top, native byte order.
-// Exit codes: 0 decoded, 1 not decoded (reason on standard error), 2 bad arguments,
-// 3 over the pixel limit asked for.
+//   significant bits, EXIF orientation (1-8), ICC profile size, flags (bit 0: associated alpha),
+//   the document's width and height (a vector image's own size; 0: width and height), then the
+//   profile and the interleaved RGB(A) samples, rows from the top, native byte order.
+// Exit codes: kWorkerDecoded, kWorkerFailed (reason on standard error), kWorkerUsage,
+// kWorkerOverLimit (decoders.h).
 #if defined(_WIN32) && !defined(NOMINMAX)
 #define NOMINMAX // std::min and std::max, not the macros of windows.h (GraphicsMagick includes it)
 #endif
@@ -36,6 +39,8 @@
 #include <cstring>
 #include <filesystem>
 #include <memory>
+#include <new>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -60,14 +65,20 @@ Q_LOGGING_CATEGORY(lcWorker, "imageviewer.worker")
 namespace {
 
 constexpr char kMagic[8] = {'I', 'V', 'W', 'O', 'R', 'K', 'E', 'R'};
-constexpr int kHeaderWords = 7;
+constexpr int kHeaderWords = 10;
+// An SVG request on standard input, before the file: "IVSVGREQ", the pixel limit (64 bits), the
+// side and fill of VectorSize (32 bits each), all little endian.
+constexpr char kSvgRequest[8] = {'I', 'V', 'S', 'V', 'G', 'R', 'E', 'Q'};
+constexpr std::size_t kSvgRequestBytes = sizeof kSvgRequest + 8 + 4 + 4;
 // Memory per pixel of a worker decode: GraphicsMagick's 16-bit RGBA cache and the answer in
 // the worker, the answer and its copy here (fitsInMemory() adds the conversion's 16).
 constexpr int kWorkerNativeBytesPerPixel = 8 + 8 + 8 + 8;
-constexpr qint64 kWorkerBytesPerPixel = kWorkerNativeBytesPerPixel + 16;
+// An SVG: the renderer's pixmap and two of its layers (a group with a filter, a mask) in the
+// worker, the answer and its copy here.
+constexpr int kSvgNativeBytesPerPixel = 4 + 8 + 4 + 4;
+constexpr qint64 kConversionBytesPerPixel = 16;
 constexpr qint64 kMaxIccBytes = qint64(1) << 26;
 constexpr int kTimeoutMs = 30000;
-constexpr int kExitDecoded = 0, kExitFailed = 1, kExitUsage = 2, kExitOverLimit = 3;
 
 // The coders the worker keeps: the registry's GraphicsMagick formats (formats.cpp), by name.
 // Everything else GraphicsMagick has (PostScript through Ghostscript, MSL, MVG, TXT, URL,
@@ -86,8 +97,7 @@ bool isAllowedCoder(const char *name)
 constexpr qsizetype kHeaderBytes = qsizetype(sizeof kMagic) + kHeaderWords * 4;
 
 // The answer's header, checked before anything else of it is used.
-struct Answer {
-    quint32 width = 0, height = 0, channels = 0, sampleBytes = 0, bits = 0, orientation = 1, iccBytes = 0;
+struct Answer : WorkerAnswer {
     qint64 dataBytes = 0;
     qint64 totalBytes() const { return kHeaderBytes + qint64(iccBytes) + dataBytes; }
 };
@@ -104,10 +114,16 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
     a->bits = word(24);
     a->orientation = word(28);
     a->iccBytes = word(32);
+    const quint32 flags = word(36);
+    a->associatedAlpha = (flags & 1) != 0;
+    a->documentWidth = word(40);
+    a->documentHeight = word(44);
     // The answer is untrusted (a worker may be compromised): every field is bounded before any
     // arithmetic, which the sizes of two 32-bit words could otherwise overflow.
     if (a->width == 0 || a->height == 0 || a->width > kMaxPixels || a->height > kMaxPixels
-        || (a->channels != 3 && a->channels != 4) || (a->sampleBytes != 1 && a->sampleBytes != 2))
+        || (a->channels != 3 && a->channels != 4) || (a->sampleBytes != 1 && a->sampleBytes != 2) || flags > 1
+        || a->documentWidth > kMaxPixels || a->documentHeight > kMaxPixels
+        || (a->documentWidth == 0) != (a->documentHeight == 0))
         return false;
     // Each side at most 2^30: their product fits, but not times 8 (2^30 x 2^30 x 4 x 2 overflowed).
     const qint64 pixels = qint64(a->width) * a->height;
@@ -117,7 +133,6 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
     return a->bits > 0 && a->bits <= 16 && a->iccBytes <= kMaxIccBytes;
 }
 
-#ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
 void writeWord(std::FILE *out, quint32 v)
 {
     unsigned char bytes[4];
@@ -125,11 +140,12 @@ void writeWord(std::FILE *out, quint32 v)
     std::fwrite(bytes, 1, 4, out);
 }
 
+#ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
 int fail(const char *what, const ExceptionInfo &exception)
 {
     std::fprintf(stderr, "%s: %s%s%s\n", what, exception.reason ? exception.reason : "unknown error",
                  exception.description ? " " : "", exception.description ? exception.description : "");
-    return kExitFailed;
+    return kWorkerFailed;
 }
 
 // Over the limits this decode was given (its pixels, the memory they need), rather than a
@@ -197,6 +213,19 @@ const char *keepOnlyAllowedCoders()
 
 } // namespace
 
+int writeWorkerAnswer(const WorkerAnswer &answer, const unsigned char *icc, const unsigned char *pixels)
+{
+    std::fwrite(kMagic, 1, sizeof kMagic, stdout);
+    for (quint32 word : {answer.width, answer.height, answer.channels, answer.sampleBytes, answer.bits,
+                         answer.orientation, answer.iccBytes, quint32(answer.associatedAlpha ? 1 : 0),
+                         answer.documentWidth, answer.documentHeight})
+        writeWord(stdout, word);
+    if (answer.iccBytes)
+        std::fwrite(icc, 1, answer.iccBytes, stdout);
+    std::fwrite(pixels, 1, std::size_t(answer.width) * answer.height * answer.channels * answer.sampleBytes, stdout);
+    return std::fflush(stdout) == 0 && !std::ferror(stdout) ? kWorkerDecoded : kWorkerFailed;
+}
+
 bool graphicsMagickAvailable()
 {
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
@@ -217,28 +246,48 @@ int runDecodeWorker(int argc, char **argv)
     const rlimit noCore{0, 0};
     setrlimit(RLIMIT_CORE, &noCore);
 #endif
-    if (argc != 4 || !isAllowedCoder(argv[2])) {
-        std::fprintf(stderr, "usage: ImageViewer --decode-worker <coder> <max pixels>\n");
-        return kExitUsage;
+    const bool svg = argc == 3 && std::strcmp(argv[2], "SVG") == 0;
+    if (!svg && (argc != 4 || !isAllowedCoder(argv[2]))) {
+        std::fprintf(stderr, "usage: ImageViewer --decode-worker <coder> <max pixels>\n"
+                             "       ImageViewer --decode-worker SVG (the request on standard input)\n");
+        return kWorkerUsage;
     }
     const char *coder = argv[2];
-    const long long maxPixels = std::atoll(argv[3]);
-    if (maxPixels <= 0 || maxPixels > kMaxPixels) {
+    const long long maxPixels = svg ? 0 : std::atoll(argv[3]);
+    if (!svg && (maxPixels <= 0 || maxPixels > kMaxPixels)) {
         std::fprintf(stderr, "invalid pixel limit\n");
-        return kExitUsage;
+        return kWorkerUsage;
     }
     std::vector<unsigned char> input;
     std::array<unsigned char, 65536> chunk;
     for (std::size_t n; (n = std::fread(chunk.data(), 1, chunk.size(), stdin)) > 0;) {
         if (qint64(input.size() + n) > kMaxFileBytes) {
             std::fprintf(stderr, "file too large\n");
-            return kExitFailed;
+            return kWorkerFailed;
         }
         input.insert(input.end(), chunk.begin(), chunk.begin() + std::ptrdiff_t(n));
     }
-    if (input.empty()) {
+    if (input.empty() && !svg) {
         std::fprintf(stderr, "empty file\n");
-        return kExitFailed;
+        return kWorkerFailed;
+    }
+    if (svg) {
+        if (input.size() < kSvgRequestBytes || std::memcmp(input.data(), kSvgRequest, sizeof kSvgRequest) != 0) {
+            std::fprintf(stderr, "no SVG request\n");
+            return kWorkerUsage;
+        }
+        const quint64 limit = qFromLittleEndian<quint64>(input.data() + 8);
+        const quint32 side = qFromLittleEndian<quint32>(input.data() + 16), fill = qFromLittleEndian<quint32>(input.data() + 20);
+        if (limit == 0 || limit > quint64(kMaxPixels) || side > quint32(kMaxPixels) || fill > 1) {
+            std::fprintf(stderr, "invalid SVG request\n");
+            return kWorkerUsage;
+        }
+        input.erase(input.begin(), input.begin() + std::ptrdiff_t(kSvgRequestBytes));
+        if (input.empty()) {
+            std::fprintf(stderr, "empty file\n");
+            return kWorkerFailed;
+        }
+        return runSvgWorker(input, qint64(limit), VectorSize{int(side), fill == 1});
     }
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
     // GraphicsMagick looks for its configuration files (delegates.mgk, log.mgk) around the
@@ -248,7 +297,7 @@ int runDecodeWorker(int argc, char **argv)
     InitializeMagick(std::filesystem::exists(client) ? client.c_str() : argv[0]);
     if (const char *why = keepOnlyAllowedCoders()) {
         std::fprintf(stderr, "cannot restrict the coders and delegates: %s\n", why);
-        return kExitFailed;
+        return kWorkerFailed;
     }
     // Pixels as asked, 16-bit RGBA in memory at most, nothing on disk.
     SetMagickResourceLimit(PixelsResource, maxPixels);
@@ -273,7 +322,7 @@ int runDecodeWorker(int argc, char **argv)
     GmImage *image = BlobToImage(info, input.data(), input.size(), &exception);
     DestroyImageInfo(info);
     if (!image) {
-        const int code = overLimit(exception) ? kExitOverLimit : fail("not decoded", exception);
+        const int code = overLimit(exception) ? kWorkerOverLimit : fail("not decoded", exception);
         DestroyExceptionInfo(&exception);
         return code;
     }
@@ -297,7 +346,7 @@ int runDecodeWorker(int argc, char **argv)
     const std::size_t sampleBytes = wide ? 2 : 1;
     if (width == 0 || height == 0 || qint64(width) * qint64(height) > maxPixels) {
         DestroyImageList(image);
-        return kExitOverLimit;
+        return kWorkerOverLimit;
     }
     std::vector<unsigned char> pixels(std::size_t(width) * height * std::size_t(channels) * sampleBytes);
     if (!DispatchImage(image, 0, 0, width, height, alpha ? "RGBA" : "RGB", wide ? ShortPixel : CharPixel, pixels.data(),
@@ -311,26 +360,69 @@ int runDecodeWorker(int argc, char **argv)
     const unsigned char *icc = GetImageProfile(image, "ICM", &iccBytes);
     if (!icc || qint64(iccBytes) > kMaxIccBytes)
         iccBytes = 0;
-    const int orientation = int(image->orientation) >= 1 && int(image->orientation) <= 8 ? int(image->orientation) : 1;
-    std::fwrite(kMagic, 1, sizeof kMagic, stdout);
-    for (quint32 word : {quint32(width), quint32(height), quint32(channels), quint32(sampleBytes),
-                         quint32(std::min<unsigned>(image->depth, 16)), quint32(orientation), quint32(iccBytes)})
-        writeWord(stdout, word);
-    if (iccBytes)
-        std::fwrite(icc, 1, iccBytes, stdout);
-    std::fwrite(pixels.data(), 1, pixels.size(), stdout);
+    WorkerAnswer answer;
+    answer.width = quint32(width);
+    answer.height = quint32(height);
+    answer.channels = quint32(channels);
+    answer.sampleBytes = quint32(sampleBytes);
+    answer.bits = std::min<unsigned>(image->depth, 16);
+    answer.orientation = int(image->orientation) >= 1 && int(image->orientation) <= 8 ? quint32(image->orientation) : 1;
+    answer.iccBytes = quint32(iccBytes);
+    const int code = writeWorkerAnswer(answer, icc, pixels.data());
     DestroyImageList(image);
     DestroyExceptionInfo(&exception);
-    return std::fflush(stdout) == 0 ? kExitDecoded : kExitFailed;
+    return code;
 #else
     Q_UNUSED(coder);
     std::fprintf(stderr, "built without GraphicsMagick\n");
-    return kExitFailed;
+    return kWorkerFailed;
 #endif
 }
 
-bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error)
+namespace {
+
+// The SVG worker each decoding thread keeps started ahead of its next SVG (D-90): starting the
+// executable costs more than drawing most documents (its libraries load), and a process that starts
+// while the thread waits costs the decode nothing. Every document still has a process of its own:
+// a spare serves one request, then the next is started. Only in the graphical viewer (a console mode
+// decodes one file and exits). Destroyed with its thread: the decode pools' threads exit with the
+// window, or after QThreadPool's idle timeout.
+struct StopWorker {
+    void operator()(QProcess *worker) const
+    {
+        worker->kill();
+        worker->waitForFinished(1000);
+        delete worker;
+    }
+};
+using WorkerProcess = std::unique_ptr<QProcess, StopWorker>;
+thread_local WorkerProcess t_spareSvgWorker;
+
+WorkerProcess startSvgWorker()
 {
+    WorkerProcess worker(new QProcess);
+    worker->setProgram(QCoreApplication::applicationFilePath());
+    worker->setArguments({QStringLiteral("--decode-worker"), QStringLiteral("SVG")});
+    worker->start();
+    return worker;
+}
+
+WorkerProcess takeSvgWorker()
+{
+    WorkerProcess worker = std::move(t_spareSvgWorker);
+    return worker && worker->state() != QProcess::NotRunning ? std::move(worker) : startSvgWorker();
+}
+
+void prepareSvgWorker()
+{
+    if (QCoreApplication *app = QCoreApplication::instance(); app && app->inherits("QGuiApplication"))
+        t_spareSvgWorker = startSvgWorker();
+}
+
+bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
+               VectorSize vector)
+{
+    const bool svg = format.decoder == Decoder::Svg;
     QByteArray bytes;
     if (!readWholeFile(path, &bytes, error))
         return false;
@@ -340,51 +432,72 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     }
     // The pixels asked for, within what this machine's memory can take (checked again with
     // the real size as soon as the answer's header arrives).
+    const int nativeBytesPerPixel = svg ? kSvgNativeBytesPerPixel : kWorkerNativeBytesPerPixel;
     const qint64 budget = decodeMemoryBudget();
     qint64 limit = maxPixels > 0 ? std::min(maxPixels, kMaxPixels) : kMaxPixels;
     if (budget > 0)
-        limit = std::max<qint64>(1, std::min(limit, budget / kWorkerBytesPerPixel));
-    QProcess worker;
-    // The worker sees no GraphicsMagick settings of the user's environment (configuration
-    // paths, debug logging, coder stability), only the arguments.
-    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
-    for (const QString &key : environment.keys())
-        if (key.startsWith(QLatin1String("MAGICK_"), Qt::CaseInsensitive))
-            environment.remove(key);
-    // A private, empty working directory (QTemporaryDir: owner only), removed afterwards with
-    // whatever the worker left there:
-    // - coders that look for companion files by a relative name (CUT's palette) find nothing;
-    // - GraphicsMagick's temporary files (MAT and DICOM copy data to disk) land here and
-    //   go, even when the worker crashes or is stopped;
-    // - "bin/ImageViewer", an empty file, is the client path GraphicsMagick searches for
-    //   its configuration (delegates.mgk names external programs), as is HOME (~/.magick).
-    const QTemporaryDir sandbox;
-    QFile client(sandbox.path() + QStringLiteral("/bin/ImageViewer"));
-    if (!sandbox.isValid() || !QDir(sandbox.path()).mkdir(QStringLiteral("bin")) || !client.open(QIODevice::WriteOnly)) {
-        *error = damaged(format.name);
-        return false;
+        limit = std::max<qint64>(1, std::min(limit, budget / (nativeBytesPerPixel + kConversionBytesPerPixel)));
+    WorkerProcess process;
+    std::optional<QTemporaryDir> sandbox; // GraphicsMagick only
+    QByteArray request;
+    if (svg) {
+        // The SVG renderer reads nothing but the document and, for its text, the system's fonts
+        // (the user's own ones and fontconfig's settings through HOME): the environment as it is.
+        process = takeSvgWorker();
+        request.resize(qsizetype(kSvgRequestBytes));
+        std::memcpy(request.data(), kSvgRequest, sizeof kSvgRequest);
+        qToLittleEndian(quint64(limit), request.data() + 8);
+        qToLittleEndian(quint32(std::max(vector.maxSide, 0)), request.data() + 16);
+        qToLittleEndian(quint32(vector.fill ? 1 : 0), request.data() + 20);
+    } else {
+        process.reset(new QProcess);
+        QProcess &worker = *process;
+        // The worker sees no GraphicsMagick settings of the user's environment (configuration
+        // paths, debug logging, coder stability), only the arguments.
+        QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+        for (const QString &key : environment.keys())
+            if (key.startsWith(QLatin1String("MAGICK_"), Qt::CaseInsensitive))
+                environment.remove(key);
+        // A private, empty working directory (QTemporaryDir: owner only), removed afterwards with
+        // whatever the worker left there:
+        // - coders that look for companion files by a relative name (CUT's palette) find nothing;
+        // - GraphicsMagick's temporary files (MAT and DICOM copy data to disk) land here and
+        //   go, even when the worker crashes or is stopped;
+        // - "bin/ImageViewer", an empty file, is the client path GraphicsMagick searches for
+        //   its configuration (delegates.mgk names external programs), as is HOME (~/.magick).
+        sandbox.emplace();
+        QFile client(sandbox->path() + QStringLiteral("/bin/ImageViewer"));
+        if (!sandbox->isValid() || !QDir(sandbox->path()).mkdir(QStringLiteral("bin")) || !client.open(QIODevice::WriteOnly)) {
+            *error = damaged(format.name);
+            return false;
+        }
+        client.close();
+        worker.setWorkingDirectory(sandbox->path());
+        const QString place = QDir::toNativeSeparators(sandbox->path());
+        for (const char *variable : {"MAGICK_TMPDIR", "TMPDIR", "TMP", "TEMP", "HOME", "MAGICK_CODER_MODULE_PATH"})
+            environment.insert(QString::fromLatin1(variable), place);
+        worker.setProcessEnvironment(environment);
+        worker.setArguments({QStringLiteral("--decode-worker"), QString::fromLatin1(format.id).toUpper(), QString::number(limit)});
+        worker.setProgram(QCoreApplication::applicationFilePath());
+        worker.start();
     }
-    client.close();
-    worker.setWorkingDirectory(sandbox.path());
-    const QString place = QDir::toNativeSeparators(sandbox.path());
-    for (const char *variable : {"MAGICK_TMPDIR", "TMPDIR", "TMP", "TEMP", "HOME", "MAGICK_CODER_MODULE_PATH"})
-        environment.insert(QString::fromLatin1(variable), place);
-    worker.setProcessEnvironment(environment);
-    worker.setProgram(QCoreApplication::applicationFilePath());
-    worker.setArguments({QStringLiteral("--decode-worker"), QString::fromLatin1(format.id).toUpper(), QString::number(limit)});
-    worker.start();
+    QProcess &worker = *process;
     if (!worker.waitForStarted(kTimeoutMs)) {
         qCWarning(lcWorker) << "decode worker did not start:" << worker.errorString();
         *error = damaged(format.name);
         return false;
     }
+    if (!request.isEmpty())
+        worker.write(request);
     worker.write(bytes);
     worker.closeWriteChannel();
     bytes.clear();
 
-    // The header comes first and says how much follows: anything else, or more, means a
-    // broken worker, which is stopped.
-    QByteArray answer;
+    // The header comes first and says how much follows: anything else, or more, means a broken
+    // worker, which is stopped. The pixels are read straight into the decoded image's buffer.
+    QByteArray head; // the header, then the ICC profile
+    std::unique_ptr<unsigned char[]> data;
+    qint64 got = 0;
     QByteArray messages;
     Answer a;
     QString tooLarge;
@@ -392,19 +505,33 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
     QElapsedTimer clock;
     clock.start();
     const auto collect = [&] {
-        answer += worker.readAllStandardOutput();
         const QByteArray said = worker.readAllStandardError(); // always drained: QProcess would keep it all
         if (messages.size() < 4096)
             messages += said.left(4096 - messages.size());
-        if (!haveHeader && answer.size() >= kHeaderBytes) {
-            haveHeader = parseHeader(answer, limit, &a);
-            broken = !haveHeader;
-            // The real size is known: no use waiting for an image this machine cannot take.
-            if (haveHeader && !fitsInMemory(qint64(a.width) * a.height, kWorkerNativeBytesPerPixel, &tooLarge))
-                broken = true;
+        while (worker.bytesAvailable() > 0 && !broken) {
+            if (!haveHeader) {
+                head += worker.read(kHeaderBytes - head.size());
+                if (head.size() < kHeaderBytes)
+                    continue;
+                haveHeader = parseHeader(head, limit, &a);
+                // The real size is known: no use waiting for an image this machine cannot take.
+                broken = !haveHeader || !fitsInMemory(qint64(a.width) * a.height, nativeBytesPerPixel, &tooLarge);
+                if (!broken) {
+                    data.reset(new (std::nothrow) unsigned char[std::size_t(a.dataBytes)]);
+                    if (!data)
+                        tooLarge = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
+                    broken = !data;
+                }
+            } else if (head.size() < kHeaderBytes + qint64(a.iccBytes)) {
+                head += worker.read(kHeaderBytes + qint64(a.iccBytes) - head.size());
+            } else if (got < a.dataBytes) {
+                const qint64 n = worker.read(reinterpret_cast<char *>(data.get()) + got, a.dataBytes - got);
+                broken = n < 0;
+                got += std::max<qint64>(n, 0);
+            } else {
+                broken = true; // more than the header announced
+            }
         }
-        if (haveHeader && answer.size() > a.totalBytes())
-            broken = true;
     };
     while (worker.state() != QProcess::NotRunning && !broken) {
         const qint64 left = kTimeoutMs - clock.elapsed();
@@ -438,7 +565,7 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
         *error = damaged(format.name);
         return false;
     }
-    if (worker.exitCode() == kExitOverLimit) {
+    if (worker.exitCode() == kWorkerOverLimit) {
         // Over the pixels asked for (preloading skips it), or over this machine's memory.
         if (maxPixels > 0)
             out->overLimit = true;
@@ -446,30 +573,44 @@ bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels,
             *error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
         return false;
     }
-    if (worker.exitCode() != kExitDecoded || !haveHeader || answer.size() != a.totalBytes()) {
+    if (worker.exitCode() != kWorkerDecoded || !haveHeader || head.size() != kHeaderBytes + qint64(a.iccBytes)
+        || got != a.dataBytes) {
         qCInfo(lcWorker) << format.name << "not decoded:" << worker.exitCode() << messages.trimmed();
         *error = damaged(format.name);
         return false;
     }
-    const qint64 pixels = qint64(a.width) * a.height;
-    if (!fitsInMemory(pixels, int(a.channels * a.sampleBytes), error))
-        return false;
     out->width = int(a.width);
     out->height = int(a.height);
     out->sample = a.sampleBytes == 2 ? Decoded::Sample::U16 : Decoded::Sample::U8;
     out->channels = int(a.channels);
     out->sourceChannels = int(a.channels);
     out->alphaIndex = a.channels == 4 ? 3 : -1;
+    out->associatedAlpha = a.associatedAlpha && out->alphaIndex >= 0;
     out->bits = int(a.bits);
     out->orientation = a.orientation >= 1 && a.orientation <= 8 ? int(a.orientation) : 1;
-    out->codec = QStringLiteral("GraphicsMagick %1 (worker)").arg(QString::fromLatin1(format.id).toUpper());
+    out->documentWidth = int(a.documentWidth);
+    out->documentHeight = int(a.documentHeight);
+    out->codec = svg ? svgRenderer() + QStringLiteral(" (worker)")
+                     : QStringLiteral("GraphicsMagick %1 (worker)").arg(QString::fromLatin1(format.id).toUpper());
     if (a.iccBytes > 0)
-        describeIcc(answer.mid(kHeaderBytes, a.iccBytes), &out->colour);
+        describeIcc(head.sliced(kHeaderBytes), &out->colour);
     else
-        assumeDefault(false, &out->colour);
-    out->data.reset(new unsigned char[std::size_t(a.dataBytes)]);
-    std::memcpy(out->data.get(), answer.constData() + kHeaderBytes + a.iccBytes, std::size_t(a.dataBytes));
+        assumeDefault(false, &out->colour); // SVG: its colours are sRGB
+    out->data = std::move(data);
     return true;
+}
+
+} // namespace
+
+bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
+                    VectorSize vector)
+{
+    if (format.decoder == Decoder::Svg) {
+        const bool decoded = runWorker(format, path, maxPixels, out, error, vector);
+        prepareSvgWorker(); // for the next SVG on this thread
+        return decoded;
+    }
+    return runWorker(format, path, maxPixels, out, error, vector);
 }
 
 QString graphicsMagickVersion()

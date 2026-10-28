@@ -16,8 +16,9 @@ enum class Decoder {
     Apng,        // animated PNG: frames rebuilt as PNGs for OpenImageIO, composited here
     Softimage,   // our own Softimage PIC reader (D-45): OpenImageIO's crashes on damaged files
     Heif,        // libheif's track API: AVIF image sequences (stills go through OpenImageIO)
-    Qt,          // QImageReader plugins (ICNS, XPM, SVG...)
+    Qt,          // QImageReader plugins (ICNS, XPM, cursors...)
     GraphicsMagick, // the long tail, in the decode worker process (worker.cpp); coder = id in upper case
+    Svg,         // the SVG renderer behind imageviewer_svg.h (resvg, D-90), in the decode worker (svg.cpp)
     System,      // the operating system's decoders (D-39): HEIC through ImageIO (macOS) or WIC (Windows)
 };
 
@@ -60,8 +61,8 @@ bool oiioMayRead(const Format &format);
 bool oiioMayReadContent(QByteArrayView head);
 
 // The format of an image a document embeds (an SVG's data: URL, an icon's entry), by its
-// signature: "png", "jpeg", "gif" or "webp", the Qt formats OiioImagePlugin reads (qtimage.cpp,
-// D-71); nullptr for anything else.
+// signature: "png", "jpeg", "gif" or "webp": what an SVG may embed (svg.cpp) and what
+// OiioImagePlugin reads for Qt (qtimage.cpp, D-71); nullptr for anything else.
 const char *embeddedImageFormat(QByteArrayView head);
 
 // How many bytes detectFormat() wants from the start of the file.

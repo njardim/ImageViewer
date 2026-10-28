@@ -1,0 +1,6 @@
+# The Rust that builds the SVG renderer (D-90): the newest stable release past the cooldown (D-67),
+# at least resvg's rust-version. CI installs this one; rustup uses it wherever cargo runs here.
+# In the port, so that a new toolchain changes vcpkg's hash and rebuilds the library.
+[toolchain]
+channel = "1.99.0"
+profile = "minimal"

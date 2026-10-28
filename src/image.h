@@ -123,10 +123,13 @@ private:
 };
 
 // Decodes `path`. Images larger than `maxTextureSize` on either axis are reduced
-// with a box filter in linear light (tiling arrives in Phase 2). With `maxPixels` > 0,
-// a source of more pixels is not decoded (overPixelLimit), judged from the header.
-// Without `animate`, an animation is read as its first frame only (a thumbnail, the clipboard).
-Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true);
+// with a box filter in linear light (tiling arrives in Phase 2); a vector image (SVG) is drawn
+// at that size directly, and with `fillVector` at exactly that size (a thumbnail: sharp at any
+// thumbnail size up to it, D-90). With `maxPixels` > 0, a source of more pixels is not decoded
+// (overPixelLimit), judged from the header. Without `animate`, an animation is read as its first
+// frame only (a thumbnail, the clipboard).
+Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true,
+                  bool fillVector = false);
 
 // The image as 16-bit sRGB, straight alpha, for the clipboard and the gallery's thumbnails. HDR
 // values above SDR white and colours outside sRGB are clipped (the clipboard formats other

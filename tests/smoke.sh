@@ -253,6 +253,40 @@ for f in pic-truncated.svg pic-truncated.dcm; do
         failures=$((failures + 1))
     fi
 done
+# SVG (D-90): the renderer behind imageviewer_svg.h (resvg) in the decode worker, without a display.
+if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
+    check orange.svg 'codec: +resvg [0-9.]+ \(worker\)' "SVG drawn by resvg in the decode worker"
+    check orange.svg 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "SVG colour sRGB (255, 128, 0)"
+    check orange.svgz 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "svgz inflated before the renderer"
+    check text.svg 'pixel\[0,0\]: +1 1 1 a=1' "SVG text drawn with the system's fonts"
+    check IV_claude_v5_mix_v1.svg 'size: +1024x1024' "the owner's SVG (17 filters, 13 masks) at its own size"
+    # A worker given no request refuses it (exit 2), and a render past the worker's 30 s ends there:
+    # the viewer says why and goes on (D-38).
+    code=0
+    "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || code=$?
+    if [ "$code" = 2 ]; then echo "ok   SVG worker: no request, refused"; else echo "FAIL SVG worker: exit $code without a request, expected 2"; failures=$((failures + 1)); fi
+    slow="$(mktemp -d)/slow.svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10"/><feGaussianBlur stdDeviation="40"/></filter><rect width="8000" height="8000" filter="url(#n)"/><rect width="8000" height="8000" filter="url(#n)" opacity="0.5"/></svg>\n' >"$slow"
+    started=$(date +%s)
+    said="$("$exe" --info "$slow" 2>/dev/null || true)"
+    took=$(($(date +%s) - started))
+    rm -rf "$(dirname "$slow")"
+    if grep -q 'took longer than 30 s and was stopped' <<<"$said" && [ "$took" -lt 45 ]; then
+        echo "ok   SVG worker: a render past 30 s stopped (${took} s), the viewer says why"
+    else
+        echo "FAIL SVG worker: a render past 30 s ($took s): $said"
+        failures=$((failures + 1))
+    fi
+    # What starting a worker costs on this machine (its libraries load): a record, not a check.
+    started=$(date +%s%N)
+    for _ in 1 2 3 4 5 6 7 8 9 10; do "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || true; done
+    echo "info SVG worker: a start costs $((($(date +%s%N) - started) / 10000000)) ms here"
+elif [ -n "${CI:-}" ]; then
+    echo "FAIL svg: no SVG renderer in this build"
+    failures=$((failures + 1))
+else
+    echo "skip svg: no SVG renderer in this build (scripts/build-svg.sh)"
+fi
 check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
 check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
 
@@ -263,15 +297,6 @@ check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]*
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; decoder="$(echo "$decoder" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
-    if [ "$id" = svg ]; then
-        if [ "$available" != yes ] && [ -n "${CI:-}" ]; then
-            echo "FAIL svg: not in this build (Qt's SVG image plugin missing)"
-            failures=$((failures + 1))
-        else
-            echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
-        fi
-        continue
-    fi
     if [ "$available" != yes ] && [ -z "${CI:-}" ]; then
         echo "skip $id: not in this build ($test)"
     elif [ "$available" != yes ]; then

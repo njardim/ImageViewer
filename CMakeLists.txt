@@ -49,7 +49,8 @@ qt_standard_project_setup(
 )
 
 find_package(OpenImageIO CONFIG REQUIRED)
-# svgz, inflated before Qt sees the SVG (qtimage.cpp, D-71); the zlib OpenImageIO ships with.
+# svgz, inflated in the decode worker before the renderer sees the SVG (svg.cpp, D-71), and the APNG
+# reader's CRC; the zlib OpenImageIO ships with.
 find_package(ZLIB REQUIRED)
 
 # Little CMS: CMake config from vcpkg, pkg-config elsewhere (e.g. Linux distributions).
@@ -79,7 +80,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
+    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp src/svg.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
     src/openwith.h src/openwith.cpp
@@ -127,12 +128,6 @@ target_link_libraries(imageviewer PRIVATE
     lcms2::lcms2
     ZLIB::ZLIB
 )
-if(APPLE)
-    # SVG is read by Qt's image plugin; macdeployqt copies that plugin only into bundles
-    # whose executable links QtSvg (the 0.4 macOS package had no SVG support without this).
-    find_package(Qt6 6.12 REQUIRED COMPONENTS Svg)
-    target_link_libraries(imageviewer PRIVATE Qt6::Svg)
-endif()
 if(JXL_INCLUDE_DIR AND JXL_LIBRARY AND JXL_THREADS_LIBRARY)
     target_include_directories(imageviewer PRIVATE ${JXL_INCLUDE_DIR})
     target_link_libraries(imageviewer PRIVATE ${JXL_LIBRARY} ${JXL_THREADS_LIBRARY})
@@ -180,6 +175,16 @@ if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERS
     message(STATUS "Decode worker: GraphicsMagick ${GRAPHICSMAGICK_VERSION} ${GRAPHICSMAGICK_LIBRARY}")
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
     message(FATAL_ERROR "GraphicsMagick 1.3.49 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
+endif()
+# SVG (svg.cpp, D-90): ImageViewer's SVG renderer, the contract imageviewer_svg.h implemented with resvg
+# (overlay port packaging/vcpkg/ports/imageviewer-svg; locally scripts/build-svg.sh). Without it, no SVG.
+find_package(imageviewer-svg CONFIG QUIET)
+if(TARGET imageviewer::svg)
+    target_link_libraries(imageviewer PRIVATE imageviewer::svg)
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_SVG)
+    message(STATUS "SVG: ${imageviewer-svg_RENDERER}")
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "ImageViewer's SVG renderer (imageviewer-svg) not found")
 endif()
 # HEIC through the system's decoders (D-39, syscodecs.cpp).
 if(APPLE)

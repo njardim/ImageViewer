@@ -1,0 +1,15 @@
+# ImageViewer's SVG renderer (D-90): the contract imageviewer_svg.h, implemented with resvg
+# @IV_SVG_VERSION@ (written by imageviewer-svg.cmake). find_package(imageviewer-svg CONFIG) gives
+# the static library as imageviewer::svg, with the system libraries it needs.
+get_filename_component(_imageviewer_svg_prefix "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+if(NOT TARGET imageviewer::svg)
+    add_library(imageviewer::svg STATIC IMPORTED)
+    set_target_properties(imageviewer::svg PROPERTIES
+        IMPORTED_LOCATION "${_imageviewer_svg_prefix}/lib/@IV_SVG_LIBRARY@"
+        INTERFACE_INCLUDE_DIRECTORIES "${_imageviewer_svg_prefix}/include"
+        INTERFACE_LINK_LIBRARIES "@IV_SVG_NATIVE_LIBS@"
+    )
+endif()
+set(imageviewer-svg_VERSION "@IV_SVG_VERSION@")
+set(imageviewer-svg_RENDERER "resvg @IV_SVG_VERSION@")
+unset(_imageviewer_svg_prefix)

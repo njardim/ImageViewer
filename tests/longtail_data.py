@@ -15,9 +15,13 @@ The other test files of the registry were written by tools from the same 6x4 ora
   alpha8.png (straight alpha, which oiiotool would premultiply); transparent.gif, noloop.gif and
   loop2.gif (no loop count, and a count of 2).
 - cjxl 0.7, `cjxl camera.jpg camera.jxl` (lossless recompression, EXIF in a Brotli box).
+- IV_claude_v5_mix_v1.svg: the owner's artwork (D-79, D-90), its comments in English; its
+  rendering by Chromium 153 at 1024 px, reduced to 256 px (IV_claude_v5_mix_v1.chromium.png),
+  is what tests/render_test.py compares the viewer's with.
 
 usage: python3 tests/longtail_data.py <output directory>
 """
+import gzip
 import os
 import struct
 import sys
@@ -201,8 +205,16 @@ def png_gamma():
 
 
 def svg():
-    write("orange.svg", b'<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4">'
-                        b'<rect width="6" height="4" fill="#ff8000"/></svg>\n')
+    orange = (b'<svg xmlns="http://www.w3.org/2000/svg" width="6" height="4">'
+              b'<rect width="6" height="4" fill="#ff8000"/></svg>\n')
+    write("orange.svg", orange)
+    # The same as svgz: gzip with no name and no time, so the file is the same at every run.
+    write("orange.svgz", gzip.compress(orange, compresslevel=9, mtime=0))
+    # Text, drawn with the system's fonts (D-90): a full block (U+2588) large enough to cover the
+    # first pixel, in whichever font has it (the renderer falls back to any font that does).
+    write("text.svg", '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">'
+                      '<text x="-20" y="80" font-family="monospace" font-size="160" fill="#ffffff">\u2588</text>'
+                      '</svg>\n'.encode())
 
 
 for make in (xcf, dicom, tim, cut, macpaint, pix, softimage, cursor, fits, ppm, png_gamma, svg):

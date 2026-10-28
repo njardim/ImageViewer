@@ -1,0 +1,268 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1024 1024" width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
+     style="display:block;max-width:100vw;max-height:100vh" role="img" aria-label="IV">
+<!--
+  IV — icon in 3 layers + a diffuse layer, drawn on a 1024 × 1024 grid (viewBox).
+  The SVG fits the window (width/height 100 %, aspect ratio kept, centred).
+
+  Painting order (bottom to top):
+    LAYER 0   orange | blue background split 50/50, bevel at the edge, coarse grain
+    LAYER 1   translucent white glass panel (shadow, frosted glass, top band, rim)
+    LAYER 1b  very diffuse white, between the panel and the letters
+    LAYER 2   glass letters "IV": shadows + bottom layer (rim) + top layer (face)
+    GRAIN     fine grain over the panel and the letters
+
+  Central trick: every colour of the letters is drawn as a copy of layer 0's orange | blue
+  split (polygons with the same diagonal line), so every effect stays
+  orange on the orange side and blue on the blue side.
+-->
+  <defs>
+    <!-- =========================================================================
+         GEOMETRY
+         ========================================================================= -->
+    <!-- Outer outline of layer 0: a 1024 square with superelliptic corners (radius 207) -->
+    <path id="iv-outer" d="M817,0C830.62,0 845.47,0.75 857.81,2.23C870.16,3.71 880.58,5.95 891.06,8.9C901.54,11.84 911.38,15.53 920.7,19.89C930.03,24.25 938.82,29.34 947.01,35.05C955.2,40.76 962.85,47.17 969.84,54.16C976.83,61.15 983.24,68.8 988.95,76.99C994.66,85.18 999.75,93.97 1004.11,103.3C1008.47,112.62 1012.16,122.46 1015.1,132.94C1018.05,143.42 1020.29,153.84 1021.77,166.19C1023.25,178.53 1024,193.38 1024,207L1024,817C1024,830.62 1023.25,845.47 1021.77,857.81C1020.29,870.16 1018.05,880.58 1015.1,891.06C1012.16,901.54 1008.47,911.38 1004.11,920.7C999.75,930.03 994.66,938.82 988.95,947.01C983.24,955.2 976.83,962.85 969.84,969.84C962.85,976.83 955.2,983.24 947.01,988.95C938.82,994.66 930.03,999.75 920.7,1004.11C911.38,1008.47 901.54,1012.16 891.06,1015.1C880.58,1018.05 870.16,1020.29 857.81,1021.77C845.47,1023.25 830.62,1024 817,1024L207,1024C193.38,1024 178.53,1023.25 166.19,1021.77C153.84,1020.29 143.42,1018.05 132.94,1015.1C122.46,1012.16 112.62,1008.47 103.3,1004.11C93.97,999.75 85.18,994.66 76.99,988.95C68.8,983.24 61.15,976.83 54.16,969.84C47.17,962.85 40.76,955.2 35.05,947.01C29.34,938.82 24.25,930.03 19.89,920.7C15.53,911.38 11.84,901.54 8.9,891.06C5.95,880.58 3.71,870.16 2.23,857.81C0.75,845.47 0,830.62 0,817L0,207C0,193.38 0.75,178.53 2.23,166.19C3.71,153.84 5.95,143.42 8.9,132.94C11.84,122.46 15.53,112.62 19.89,103.3C24.25,93.97 29.34,85.18 35.05,76.99C40.76,68.8 47.17,61.15 54.16,54.16C61.15,47.17 68.8,40.76 76.99,35.05C85.18,29.34 93.97,24.25 103.3,19.89C112.62,15.53 122.46,11.84 132.94,8.9C143.42,5.95 153.84,3.71 166.19,2.23C178.53,0.75 193.38,0 207,0Z"/>
+    <!-- Layer 1 (panel): the same shape, inset 91 px all round (concentric corners, radius 116) -->
+    <path id="iv-panel" d="M817,91C824.63,91 832.95,91.42 839.87,92.25C846.79,93.08 852.63,94.34 858.5,95.98C864.37,97.63 869.89,99.7 875.11,102.14C880.34,104.59 885.27,107.44 889.86,110.64C894.44,113.84 898.73,117.43 902.65,121.35C906.57,125.27 910.16,129.56 913.36,134.14C916.56,138.73 919.41,143.66 921.86,148.89C924.3,154.11 926.37,159.63 928.02,165.5C929.66,171.37 930.92,177.21 931.75,184.13C932.58,191.05 933,199.37 933,207L933,817C933,824.63 932.58,832.95 931.75,839.87C930.92,846.79 929.66,852.63 928.02,858.5C926.37,864.37 924.3,869.89 921.86,875.11C919.41,880.34 916.56,885.27 913.36,889.86C910.16,894.44 906.57,898.73 902.65,902.65C898.73,906.57 894.44,910.16 889.86,913.36C885.27,916.56 880.34,919.41 875.11,921.86C869.89,924.3 864.37,926.37 858.5,928.02C852.63,929.66 846.79,930.92 839.87,931.75C832.95,932.58 824.63,933 817,933L207,933C199.37,933 191.05,932.58 184.13,931.75C177.21,930.92 171.37,929.66 165.5,928.02C159.63,926.37 154.11,924.3 148.89,921.86C143.66,919.41 138.73,916.56 134.14,913.36C129.56,910.16 125.27,906.57 121.35,902.65C117.43,898.73 113.84,894.44 110.64,889.86C107.44,885.27 104.59,880.34 102.14,875.11C99.7,869.89 97.63,864.37 95.98,858.5C94.34,852.63 93.08,846.79 92.25,839.87C91.42,832.95 91,824.63 91,817L91,207C91,199.37 91.42,191.05 92.25,184.13C93.08,177.21 94.34,171.37 95.98,165.5C97.63,159.63 99.7,154.11 102.14,148.89C104.59,143.66 107.44,138.73 110.64,134.14C113.84,129.56 117.43,125.27 121.35,121.35C125.27,117.43 129.56,113.84 134.14,110.64C138.73,107.44 143.66,104.59 148.89,102.14C154.11,99.7 159.63,97.63 165.5,95.98C171.37,94.34 177.21,93.08 184.13,92.25C191.05,91.42 199.37,91 207,91Z"/>
+    <!-- Layer 1b: the same shape, reduced again in the layer0→layer1 proportion -->
+    <path id="iv-diffuse" d="M817,165.83C819.71,165.83 822.66,165.98 825.12,166.27C827.57,166.57 829.65,167.01 831.73,167.6C833.82,168.18 835.77,168.91 837.63,169.78C839.48,170.65 841.23,171.66 842.86,172.8C844.49,173.93 846.01,175.21 847.4,176.6C848.79,177.99 850.07,179.51 851.2,181.14C852.34,182.77 853.35,184.52 854.22,186.37C855.09,188.23 855.82,190.18 856.4,192.27C856.99,194.35 857.43,196.43 857.73,198.88C858.02,201.34 858.17,204.29 858.17,207L858.17,817C858.17,819.71 858.02,822.66 857.73,825.12C857.43,827.57 856.99,829.65 856.4,831.73C855.82,833.82 855.09,835.77 854.22,837.63C853.35,839.48 852.34,841.23 851.2,842.86C850.07,844.49 848.79,846.01 847.4,847.4C846.01,848.79 844.49,850.07 842.86,851.2C841.23,852.34 839.48,853.35 837.63,854.22C835.77,855.09 833.82,855.82 831.73,856.4C829.65,856.99 827.57,857.43 825.12,857.73C822.66,858.02 819.71,858.17 817,858.17L207,858.17C204.29,858.17 201.34,858.02 198.88,857.73C196.43,857.43 194.35,856.99 192.27,856.4C190.18,855.82 188.23,855.09 186.37,854.22C184.52,853.35 182.77,852.34 181.14,851.2C179.51,850.07 177.99,848.79 176.6,847.4C175.21,846.01 173.93,844.49 172.8,842.86C171.66,841.23 170.65,839.48 169.78,837.63C168.91,835.77 168.18,833.82 167.6,831.73C167.01,829.65 166.57,827.57 166.27,825.12C165.98,822.66 165.83,819.71 165.83,817L165.83,207C165.83,204.29 165.98,201.34 166.27,198.88C166.57,196.43 167.01,194.35 167.6,192.27C168.18,190.18 168.91,188.23 169.78,186.37C170.65,184.52 171.66,182.77 172.8,181.14C173.93,179.51 175.21,177.99 176.6,176.6C177.99,175.21 179.51,173.93 181.14,172.8C182.77,171.66 184.52,170.65 186.37,169.78C188.23,168.91 190.18,168.18 192.27,167.6C194.35,167.01 196.43,166.57 198.88,166.27C201.34,165.98 204.29,165.83 207,165.83Z"/>
+    <!-- Letters — BOTTOM layer (full outline): I + V, corners of radius 10, the V's point of radius 1.5 -->
+    <path id="iv-glyphs" d="M218,266L324,266A10,10 0 0 1 334,276L334,748A10,10 0 0 1 324,758L218,758A10,10 0 0 1 208,748L208,276A10,10 0 0 1 218,266ZM408.63,266L513.43,266A10,10 0 0 1 522.86,272.68L632.58,584.75A1.5,1.5 0 0 0 635.42,584.75L745.14,272.68A10,10 0 0 1 754.57,266L859.37,266A10,10 0 0 1 868.8,279.32L702.85,751.32A10,10 0 0 1 693.42,758L574.58,758A10,10 0 0 1 565.15,751.32L399.2,279.32A10,10 0 0 1 408.63,266Z"/>
+    <!-- Letters — TOP layer (face): outline inset 14 px, same radii -->
+    <path id="iv-faces" d="M232,280L310,280A10,10 0 0 1 320,290L320,734A10,10 0 0 1 310,744L232,744A10,10 0 0 1 222,734L222,290A10,10 0 0 1 232,280ZM428.39,280L503.51,280A10,10 0 0 1 512.94,286.68L632.58,626.96A1.5,1.5 0 0 0 635.42,626.96L755.06,286.68A10,10 0 0 1 764.49,280L839.61,280A10,10 0 0 1 849.04,293.32L692.93,737.32A10,10 0 0 1 683.5,744L584.5,744A10,10 0 0 1 575.07,737.32L418.96,293.32A10,10 0 0 1 428.39,280Z"/>
+    <clipPath id="iv-clipOuter"><use href="#iv-outer" xlink:href="#iv-outer"/></clipPath>
+    <clipPath id="iv-clipPanel"><use href="#iv-panel" xlink:href="#iv-panel"/></clipPath>
+    <clipPath id="iv-clipGlyphs"><use href="#iv-glyphs" xlink:href="#iv-glyphs"/></clipPath>
+
+    <!-- =========================================================================
+         LAYER 0 — COLOURS
+         Dividing line: x = 512 + 0.375·(512 − y), through the centre → 50 % / 50 % of the area.
+         Orange polygon: 0,0 704,0 320,1024 0,1024   |   blue polygon: 704,0 1024,0 1024,1024 320,1024
+         ========================================================================= -->
+    <!-- Orange gradient (vertical, light at the top → dark at the bottom) -->
+    <linearGradient id="iv-gOrange" gradientUnits="userSpaceOnUse" x1="512" y1="-212.08" x2="512" y2="1236.08"><stop offset="0.15" stop-color="#F8A668"/><stop offset="0.38" stop-color="#F28951"/><stop offset="0.57" stop-color="#EB683E"/><stop offset="0.72" stop-color="#E35431"/><stop offset="0.85" stop-color="#D4452D"/></linearGradient>
+    <!-- Blue gradient (tilted 77°, light at the top → dark at the bottom) -->
+    <linearGradient id="iv-gBlue" gradientUnits="userSpaceOnUse" x1="349.12" y1="-193.52" x2="674.88" y2="1217.52"><stop offset="0.15" stop-color="#6BB4E6"/><stop offset="0.37" stop-color="#5D9FD6"/><stop offset="0.57" stop-color="#4480C3"/><stop offset="0.77" stop-color="#295EAD"/><stop offset="0.88" stop-color="#235CB0"/></linearGradient>
+    <!-- Orange | blue split (reused by layer 0, the panel's glass and the letters' body) -->
+    <g id="iv-split"><polygon points="0,0 704,0 320,1024 0,1024" fill="url(#iv-gOrange)"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="url(#iv-gBlue)"/></g>
+    <!-- The same split in deep tones: darkening of layer 0's edge (bevel) -->
+    <g id="iv-vEdgeDeep"><polygon points="0,0 704,0 320,1024 0,1024" fill="#A52600"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#00317F"/></g>
+    <!-- Layer 0 bevel, dark part: a narrow band along the outer edge (width 9, blur 2.2) -->
+    <mask id="iv-mEdgeDeep" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <use href="#iv-outer" xlink:href="#iv-outer" fill="none" stroke="#fff" stroke-width="9" filter="url(#iv-rimBlur)"/></mask>
+    <filter id="iv-rimBlur" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <!-- Layer 0 bevel, light ridge just inside the edge; stronger at the top (0.55) than at the sides (0.13–0.2) -->
+    <linearGradient id="iv-gRidge" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1024"><stop offset="0" stop-color="#fff" stop-opacity="0.55"/><stop offset="0.2" stop-color="#fff" stop-opacity="0.13"/><stop offset="1" stop-color="#fff" stop-opacity="0.2"/></linearGradient>
+    <filter id="iv-ridgeBlur" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="2.4"/></filter>
+
+    <!-- =========================================================================
+         GRAIN — fractal noise split into dark and light dots (neutral mean)
+         Grain size = baseFrequency (smaller = coarser grain). The Dark/Light pairs must have the same value.
+         Intensity = opacity of the iv-grain-* groups further down.
+         ========================================================================= -->
+    <!-- Coarse grain of layer 0 -->
+    <filter id="iv-grain0Dark" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.42" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1 0 0 0 0.5"/></filter>
+    <filter id="iv-grain0Light" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.42" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1 0 0 0 -0.5"/></filter>
+    <!-- Fine grain of layer 1, the top band and the letters -->
+    <filter id="iv-grainDark" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1 0 0 0 0.5"/></filter>
+    <filter id="iv-grainLight" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1 0 0 0 -0.5"/></filter>
+
+    <!-- =========================================================================
+         LAYER 1 — GLASS PANEL
+         ========================================================================= -->
+    <!-- Panel shadow: contact line (blur 1.4, offset 0.55/1.5, 50 %) +
+         soft shadow (blur 7, offset 2.22/6, 30 %). Slope dx/dy = 24/65, the same as the letters'. -->
+    <filter id="iv-panelShadow" x="-10%" y="-10%" width="120%" height="125%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.4"/><feOffset dx="0.55" dy="1.5" result="c"/>
+      <feFlood flood-color="#1B1430" flood-opacity="0.5"/><feComposite in2="c" operator="in" result="contact"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7"/><feOffset dx="2.22" dy="6" result="s"/>
+      <feFlood flood-color="#1B1430" flood-opacity="0.3"/><feComposite in2="s" operator="in" result="soft"/>
+      <feMerge><feMergeNode in="soft"/><feMergeNode in="contact"/></feMerge>
+    </filter>
+    <!-- Frosted glass: layer 0 seen through the panel, blurred (stdDeviation 16) -->
+    <filter id="iv-frost" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="16"/></filter>
+    <!-- White veil of the glass: white at 48 % at the top → bluish grey at 35 % at the bottom -->
+    <linearGradient id="iv-gFrost" gradientUnits="userSpaceOnUse" x1="0" y1="91" x2="0" y2="933">
+      <stop offset="0" stop-color="#F4F8F7" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#B7C5D5" stop-opacity="0.35"/>
+    </linearGradient>
+    <!-- Top band of the panel: fades from y=91 to y≈276 (~22 % of the panel's height) -->
+    <linearGradient id="iv-gPanelTop" gradientUnits="userSpaceOnUse" x1="0" y1="91" x2="0" y2="276.24"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="0.35" stop-color="#fff" stop-opacity="0.45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="iv-mPanelTop" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="url(#iv-gPanelTop)"/></mask>
+    <!-- Panel rim: a white line, stronger at the top and bottom than in the middle -->
+    <linearGradient id="iv-gRim" gradientUnits="userSpaceOnUse" x1="0" y1="91" x2="0" y2="933">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.95"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.85"/></linearGradient>
+    <filter id="iv-glow4" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="4"/></filter>
+
+    <!-- =========================================================================
+         LAYER 1b — DIFFUSE WHITE
+         ========================================================================= -->
+    <filter id="iv-diffuseBlur" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><feGaussianBlur stdDeviation="45"/></filter>
+
+    <!-- =========================================================================
+         LAYER 2 — LETTERS: SHADOWS
+         ========================================================================= -->
+    <!-- Mask of the letters' shadow = large shadow (blur 28, offset 24/65, 75 %)
+         + medium shadow (blur 8, offset 5/10, 12 %) + contact line (blur 1.2, offset 1/2, 45 %) -->
+    <filter id="iv-glyphShadow" x="-20%" y="-15%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="28"/><feOffset dx="24" dy="65" result="a1o"/><feFlood flood-color="#fff" flood-opacity="0.75"/><feComposite in2="a1o" operator="in" result="a1"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/><feOffset dx="5" dy="10" result="a2o"/><feFlood flood-color="#fff" flood-opacity="0.12"/><feComposite in2="a2o" operator="in" result="a2"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/><feOffset dx="1" dy="2" result="a3o"/><feFlood flood-color="#fff" flood-opacity="0.45"/><feComposite in2="a3o" operator="in" result="a3"/>
+      <feMerge><feMergeNode in="a1"/><feMergeNode in="a2"/><feMergeNode in="a3"/></feMerge>
+    </filter>
+    <mask id="iv-mShadow" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><use href="#iv-glyphs" xlink:href="#iv-glyphs" fill="#fff" filter="url(#iv-glyphShadow)"/></mask>
+    <!-- Shadow colour: dark orange / blue (layer 0's split, blurred 16, no offset) -->
+    <g id="iv-vShadow"><g filter="url(#iv-frost)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#C43C1C"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#1F64C4"/></g></g>
+
+    <!-- =========================================================================
+         LAYER 2 — LETTERS: GLASS COLOURS
+         Each colour is the orange | blue split (orange colour / blue colour), blurred 18 px
+         and shifted 16 px to the right (refraction).
+         ========================================================================= -->
+    <filter id="iv-refract" filterUnits="userSpaceOnUse" x="150" y="200" width="790" height="620" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18"/></filter>
+    <!-- Light veil of the top layer (face) -->
+    <g id="iv-vFace"><g filter="url(#iv-refract)"><g transform="translate(16,0)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#FFE8DA"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#C6ECFF"/></g></g></g>
+    <!-- Saturated colour of the bottom layer (rim) -->
+    <g id="iv-vBand"><g filter="url(#iv-refract)"><g transform="translate(16,0)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#EA6E45"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#3B78D9"/></g></g></g>
+    <!-- Shading of the top edges -->
+    <g id="iv-vShade"><g filter="url(#iv-refract)"><g transform="translate(16,0)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#B4507A"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#1424C0"/></g></g></g>
+    <!-- Light of the right edges and of the inner edges -->
+    <g id="iv-vLight"><g filter="url(#iv-refract)"><g transform="translate(16,0)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#FFDDB8"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#DDFFFF"/></g></g></g>
+    <!-- Body colour rising from the bottom (bright orange / blue) -->
+    <g id="iv-vBody"><g filter="url(#iv-refract)"><g transform="translate(16,0)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#FF6A30"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#62A8DE"/></g></g></g>
+    <!-- Glow from below: yellow / cyan -->
+    <g id="iv-vGlow"><g filter="url(#iv-refract)"><g transform="translate(16,0)"><polygon points="0,0 704,0 320,1024 0,1024" fill="#FFD24A"/><polygon points="704,0 1024,0 1024,1024 320,1024" fill="#A6FAFF"/></g></g></g>
+
+    <!-- =========================================================================
+         LAYER 2 — LETTERS: EFFECT MASKS
+         ========================================================================= -->
+    <filter id="iv-soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="3.5"/></filter>
+    <filter id="iv-glow2" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="2"/></filter>
+    <!-- Top layer (face), with soft edges (blur 3.5). In the V the white is at 55 % (#8C8C8C) to let more blue show. -->
+    <mask id="iv-mFace" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <g filter="url(#iv-soft)"><path d="M232,280L310,280A10,10 0 0 1 320,290L320,734A10,10 0 0 1 310,744L232,744A10,10 0 0 1 222,734L222,290A10,10 0 0 1 232,280Z" fill="#fff"/><path d="M428.39,280L503.51,280A10,10 0 0 1 512.94,286.68L632.58,626.96A1.5,1.5 0 0 0 635.42,626.96L755.06,286.68A10,10 0 0 1 764.49,280L839.61,280A10,10 0 0 1 849.04,293.32L692.93,737.32A10,10 0 0 1 683.5,744L584.5,744A10,10 0 0 1 575.07,737.32L418.96,293.32A10,10 0 0 1 428.39,280Z" fill="#8C8C8C"/></g></mask>
+    <!-- Intensity of the face's veil along the height: 60 % at the top → 50 % in the middle → 0 at the bottom -->
+    <linearGradient id="iv-gFaceA" gradientUnits="userSpaceOnUse" x1="0" y1="266" x2="0" y2="758"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="iv-mFaceA" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="url(#iv-gFaceA)"/></mask>
+    <!-- Bottom layer (rim) = full outline minus the face -->
+    <mask id="iv-mBand" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <use href="#iv-glyphs" xlink:href="#iv-glyphs" fill="#fff"/>
+      <use href="#iv-faces" xlink:href="#iv-faces" fill="#000" filter="url(#iv-soft)"/></mask>
+    <!-- Bands along the top / right / bottom edges: the outline minus a shifted copy (dx/dy), blurred -->
+    <filter id="iv-fTop" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feOffset in="SourceAlpha" dx="0" dy="9" result="o"/><feComposite in="SourceAlpha" in2="o" operator="out" result="e"/><feGaussianBlur in="e" stdDeviation="3" result="b"/><feComposite in="b" in2="SourceAlpha" operator="in" result="m"/><feFlood flood-color="#fff"/><feComposite in2="m" operator="in"/></filter>
+    <filter id="iv-fRight" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feOffset in="SourceAlpha" dx="-11" dy="0" result="o"/><feComposite in="SourceAlpha" in2="o" operator="out" result="e"/><feGaussianBlur in="e" stdDeviation="3" result="b"/><feComposite in="b" in2="SourceAlpha" operator="in" result="m"/><feFlood flood-color="#fff"/><feComposite in2="m" operator="in"/></filter>
+    <filter id="iv-fBottom" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feOffset in="SourceAlpha" dx="0" dy="-12" result="o"/><feComposite in="SourceAlpha" in2="o" operator="out" result="e"/><feGaussianBlur in="e" stdDeviation="2.5" result="b"/><feComposite in="b" in2="SourceAlpha" operator="in" result="m"/><feFlood flood-color="#fff"/><feComposite in2="m" operator="in"/></filter>
+    <mask id="iv-mTop" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><use href="#iv-glyphs" xlink:href="#iv-glyphs" fill="#fff" filter="url(#iv-fTop)"/></mask>
+    <mask id="iv-mRight" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><use href="#iv-glyphs" xlink:href="#iv-glyphs" fill="#fff" filter="url(#iv-fRight)"/></mask>
+    <mask id="iv-mBottom" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><use href="#iv-glyphs" xlink:href="#iv-glyphs" fill="#fff" filter="url(#iv-fBottom)"/></mask>
+    <!-- Light of the right edge along the height: 60 % at the top → 100 % from 15 % on -->
+    <linearGradient id="iv-gLightA" gradientUnits="userSpaceOnUse" x1="0" y1="266" x2="0" y2="758"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="0.15" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="1"/></linearGradient>
+    <mask id="iv-mLightA" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="url(#iv-gLightA)"/></mask>
+    <!-- Body colour: none in the top 30 % → 70 % at the bottom -->
+    <linearGradient id="iv-gGlowA" gradientUnits="userSpaceOnUse" x1="0" y1="266" x2="0" y2="758"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.3" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0.7"/></linearGradient>
+    <mask id="iv-mGlowA" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="url(#iv-gGlowA)"/></mask>
+    <!-- Glow of the rim in the bottom half: 0 down to the middle → 90 % at the bottom -->
+    <linearGradient id="iv-gEdgeLow" gradientUnits="userSpaceOnUse" x1="0" y1="266" x2="0" y2="758"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0.9"/></linearGradient>
+    <mask id="iv-mEdgeLow" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><rect width="1024" height="1024" fill="url(#iv-gEdgeLow)"/></mask>
+    <!-- Light of the inner edges: outline of the V's notch (stronger near the point) + right edge of the I -->
+    <linearGradient id="iv-gNotch" gradientUnits="userSpaceOnUse" x1="0" y1="266" x2="0" y2="588.77"><stop offset="0" stop-color="#fff" stop-opacity="0.1"/><stop offset="0.45" stop-color="#fff" stop-opacity="0.35"/><stop offset="1" stop-color="#fff" stop-opacity="1"/></linearGradient>
+    <mask id="iv-mInner" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <path d="M520.51,272L634,588.77L747.49,272" fill="none" stroke="url(#iv-gNotch)" stroke-width="7" stroke-linejoin="miter" stroke-miterlimit="12" filter="url(#iv-glow2)"/>
+      <path d="M334,274L334,750" fill="none" stroke="#fff" stroke-width="7" filter="url(#iv-glow2)"/></mask>
+  </defs>
+
+  <!-- =====================================================================================
+       LAYER 0 — BACKGROUND
+       ===================================================================================== -->
+  <g id="iv-layer0" clip-path="url(#iv-clipOuter)">
+    <!-- Colours: orange | blue, 50/50 -->
+    <use href="#iv-split" xlink:href="#iv-split"/>
+    <!-- Bevel, light ridge (width 22, blur 2.4) -->
+    <use href="#iv-outer" xlink:href="#iv-outer" fill="none" stroke="url(#iv-gRidge)" stroke-width="22" filter="url(#iv-ridgeBlur)"/>
+    <!-- Bevel, dark edge (intensity 0.6) -->
+    <g mask="url(#iv-mEdgeDeep)" opacity="0.6"><use href="#iv-vEdgeDeep" xlink:href="#iv-vEdgeDeep"/></g>
+    <!-- GRAIN layer 0 — intensity: opacity (0.26 → σ ≈ 3.9); grain: baseFrequency of iv-grain0Dark/Light (0.42) -->
+    <g id="iv-grain-layer0" opacity="0.26"><rect width="1024" height="1024" filter="url(#iv-grain0Dark)"/><rect width="1024" height="1024" filter="url(#iv-grain0Light)"/></g>
+  </g>
+
+  <!-- =====================================================================================
+       LAYER 1 — TRANSLUCENT WHITE GLASS PANEL
+       ===================================================================================== -->
+  <g id="iv-layer1">
+    <!-- Panel shadow over layer 0 -->
+    <g clip-path="url(#iv-clipOuter)"><use href="#iv-panel" xlink:href="#iv-panel" filter="url(#iv-panelShadow)"/></g>
+    <g clip-path="url(#iv-clipPanel)">
+      <!-- Frosted glass: layer 0 blurred -->
+      <g filter="url(#iv-frost)"><use href="#iv-split" xlink:href="#iv-split"/></g>
+      <!-- White veil -->
+      <rect width="1024" height="1024" fill="url(#iv-gFrost)"/>
+      <!-- Top band: extra white (opacity 0.14) + its own grain, both fading downwards -->
+      <g id="iv-layer1-top" mask="url(#iv-mPanelTop)">
+        <rect width="1024" height="1024" fill="#fff" opacity="0.14"/>
+        <!-- GRAIN top band — intensity: opacity (0.3 → σ ≈ 3.5 (the same noise pattern as layer 1, so it adds to it) near the top, added to layer 1's); grain: iv-grainDark/Light (0.65) -->
+        <g id="iv-grain-layer1-top" opacity="0.3"><rect width="1024" height="1024" filter="url(#iv-grainDark)"/><rect width="1024" height="1024" filter="url(#iv-grainLight)"/></g>
+      </g>
+      <!-- Inner glow along the rim (30 %, width 22, blur 4) -->
+      <use href="#iv-panel" xlink:href="#iv-panel" fill="none" stroke="#fff" stroke-opacity="0.3" stroke-width="22" filter="url(#iv-glow4)"/>
+      <!-- White rim (width 5) -->
+      <use href="#iv-panel" xlink:href="#iv-panel" fill="none" stroke="url(#iv-gRim)" stroke-width="5"/>
+    </g>
+  </g>
+
+  <!-- =====================================================================================
+       LAYER 1b — VERY DIFFUSE WHITE (opacity 0.2, blur 45), under the letters
+       ===================================================================================== -->
+  <g id="iv-layer1b" clip-path="url(#iv-clipPanel)">
+    <use href="#iv-diffuse" xlink:href="#iv-diffuse" fill="#fff" opacity="0.2" filter="url(#iv-diffuseBlur)"/>
+  </g>
+
+  <!-- =====================================================================================
+       LAYER 2 — GLASS LETTERS "IV" (layer 0's colours)
+       ===================================================================================== -->
+  <g id="iv-layer2">
+    <!-- Shadows of the letters over the panel -->
+    <g clip-path="url(#iv-clipPanel)" mask="url(#iv-mShadow)"><use href="#iv-vShadow" xlink:href="#iv-vShadow"/></g>
+
+    <!-- Everything that follows is clipped by the letters' outline -->
+    <g clip-path="url(#iv-clipGlyphs)">
+      <!-- Body: layer 0 seen through the letters (blur 18, refraction 16 px) -->
+      <g filter="url(#iv-refract)"><g transform="translate(16,0)"><use href="#iv-split" xlink:href="#iv-split"/></g></g>
+      <!-- TOP layer (face): light veil -->
+      <g mask="url(#iv-mFace)"><g mask="url(#iv-mFaceA)"><use href="#iv-vFace" xlink:href="#iv-vFace"/></g></g>
+      <!-- BOTTOM layer (rim): saturated colour (intensity 0.45) -->
+      <g mask="url(#iv-mBand)" opacity="0.45"><use href="#iv-vBand" xlink:href="#iv-vBand"/></g>
+      <!-- Top edges: shading (intensity 0.4) -->
+      <g mask="url(#iv-mTop)" opacity="0.4"><use href="#iv-vShade" xlink:href="#iv-vShade"/></g>
+      <!-- Right edges: light -->
+      <g mask="url(#iv-mRight)"><g mask="url(#iv-mLightA)"><use href="#iv-vLight" xlink:href="#iv-vLight"/></g></g>
+      <!-- Body colour rising from the bottom -->
+      <g mask="url(#iv-mGlowA)"><use href="#iv-vBody" xlink:href="#iv-vBody"/></g>
+      <!-- Rim: glow in the bottom half -->
+      <g mask="url(#iv-mBand)"><g mask="url(#iv-mEdgeLow)"><use href="#iv-vGlow" xlink:href="#iv-vGlow"/></g></g>
+      <!-- Bottom edge: yellow / cyan glow -->
+      <g mask="url(#iv-mBottom)"><use href="#iv-vGlow" xlink:href="#iv-vGlow"/></g>
+      <!-- Inner edges (the V's notch, the right side of the I): light (intensity 0.9) -->
+      <g mask="url(#iv-mInner)" opacity="0.9"><use href="#iv-vLight" xlink:href="#iv-vLight"/></g>
+      <!-- Soft white line around the face (30 %) -->
+      <use href="#iv-faces" xlink:href="#iv-faces" fill="none" stroke="#fff" stroke-opacity="0.3" stroke-width="1.6" filter="url(#iv-soft)"/>
+      <!-- White line along the letters' outer outline (45 %) -->
+      <use href="#iv-glyphs" xlink:href="#iv-glyphs" fill="none" stroke="#fff" stroke-opacity="0.45" stroke-width="2.4"/>
+    </g>
+  </g>
+
+  <!-- =====================================================================================
+       FINE GRAIN over the panel and the letters — intensity: opacity (0.2 → σ ≈ 3.0); grain: iv-grainDark/Light (0.65)
+       ===================================================================================== -->
+  <g id="iv-grain-layer1" clip-path="url(#iv-clipPanel)" opacity="0.2"><rect width="1024" height="1024" filter="url(#iv-grainDark)"/><rect width="1024" height="1024" filter="url(#iv-grainLight)"/></g>
+</svg>

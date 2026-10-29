@@ -5,14 +5,18 @@
 //! the user's credentials to that server), and an `assert` or `unwrap` there aborts the process.
 //! Here the resolver accepts embedded data only, every call catches a panic and returns a code, the
 //! memory resvg allocates has a limit (a document can declare a filter region many times its canvas,
-//! and resvg allocates its layers whole), and the caller sees seven plain C functions that another
-//! renderer could implement as well.
+//! and resvg allocates its layers whole), the generic font families are installed fonts (fontdb may
+//! name fonts the system does not have, and the text then vanishes), and the caller sees seven plain
+//! C functions that another renderer could implement as well.
 //!
 //! Everything of resvg's API used below, the list to check at an update (an update whose API
 //! differs fails to compile in its own CI, so the pinned release stays in use):
 //! - `usvg::Options`: `default()`, `resources_dir`, `image_href_resolver`, `fontdb_mut()`
 //! - `usvg::ImageHrefResolver { resolve_data, resolve_string }` and its `default_data_resolver()`
-//! - `usvg::fontdb::Database::load_system_fonts()`
+//! - `usvg::fontdb::Database`: `load_system_fonts()`, `faces()` (`families`, `style`, `weight`,
+//!   `monospaced`), `family_name()`, `set_serif_family()` and the four other generic families
+//! - Linux: `fontconfig_parser::FontConfig` (`merge_config()`, `aliases`), the crate fontdb reads the
+//!   system's font configuration with, at the version resvg's own lock holds
 //! - `usvg::Tree::from_data()`, `Tree::size()`
 //! - `resvg::render()`, `tiny_skia::PixmapMut::from_bytes()`, `tiny_skia::Transform::from_row()`
 //!
@@ -107,6 +111,95 @@ pub struct Document {
     tree: usvg::Tree,
 }
 
+/// The generic font families (serif, sans-serif, monospace, cursive, fantasy), each named after an
+/// installed font, so that a document's text is drawn whenever the system has a font. fontdb names
+/// each after the first family that the last of fontconfig's aliases for it prefers, installed or
+/// not [code: fontdb 0.24.0 lib.rs load_fontconfig()]: on Ubuntu 24.04 those are 65-nonlatin.conf's
+/// "Nachlieli" and "Miriam Mono", seldom installed, and text in them was not drawn at all. Here,
+/// where fontconfig configures the fonts, each is the first installed family in the order fontconfig
+/// itself tries them (as browsers ask it); elsewhere fontdb's own (Arial, Times New Roman, Courier
+/// New...) while installed; failing both, an installed upright face of normal weight (monospaced for
+/// monospace), or any face.
+fn settle_generic_families(db: &mut usvg::fontdb::Database) {
+    use usvg::fontdb::{Database, Family, Style, Weight};
+    let installed = |db: &Database, name: &str| db.faces().any(|face| face.families.iter().any(|(f, _)| f == name));
+    #[cfg(all(unix, not(any(target_os = "macos", target_os = "android"))))]
+    let configured = {
+        let config = fontconfig();
+        move |generic: &str| fontconfig_order(&config, generic)
+    };
+    #[cfg(not(all(unix, not(any(target_os = "macos", target_os = "android")))))]
+    let configured = |_: &str| Vec::<String>::new();
+    for (family, generic) in [
+        (Family::Serif, "serif"),
+        (Family::SansSerif, "sans-serif"),
+        (Family::Monospace, "monospace"),
+        (Family::Cursive, "cursive"),
+        (Family::Fantasy, "fantasy"),
+    ] {
+        let mut candidates = configured(generic);
+        candidates.push(db.family_name(&family).to_owned());
+        let monospace = family == Family::Monospace;
+        let Some(name) = candidates.into_iter().find(|name| installed(db, name)).or_else(|| {
+            let faces = || db.faces().filter(|face| !face.families.is_empty() && (!monospace || face.monospaced));
+            faces()
+                .find(|face| face.style == Style::Normal && face.weight == Weight::NORMAL)
+                .or_else(|| faces().next())
+                .or_else(|| db.faces().find(|face| !face.families.is_empty()))
+                .map(|face| face.families[0].0.clone())
+        }) else {
+            return; // no font at all
+        };
+        match family {
+            Family::Serif => db.set_serif_family(name),
+            Family::SansSerif => db.set_sans_serif_family(name),
+            Family::Monospace => db.set_monospace_family(name),
+            Family::Cursive => db.set_cursive_family(name),
+            _ => db.set_fantasy_family(name),
+        }
+    }
+}
+
+/// The font configuration fontdb has just read: the same files, in its order [code: fontdb 0.24.0
+/// lib.rs load_fontconfig()].
+#[cfg(all(unix, not(any(target_os = "macos", target_os = "android"))))]
+fn fontconfig() -> fontconfig_parser::FontConfig {
+    use std::path::{Path, PathBuf};
+    let mut config = fontconfig_parser::FontConfig::default();
+    if let Ok(file) = std::env::var("FONTCONFIG_FILE") {
+        let _ = config.merge_config(Path::new(&file));
+        return config;
+    }
+    let user = std::env::var("XDG_CONFIG_HOME")
+        .map(PathBuf::from)
+        .or_else(|_| std::env::var("HOME").map(|home| Path::new(&home).join(".config")));
+    let read_global = match user {
+        Ok(directory) => config.merge_config(&directory.join("fontconfig/fonts.conf")).is_err(),
+        Err(_) => true,
+    };
+    if read_global {
+        let _ = config.merge_config(Path::new("/etc/fonts/local.conf"));
+    }
+    let _ = config.merge_config(Path::new("/etc/fonts/fonts.conf"));
+    config
+}
+
+/// The families fontconfig tries for `generic`, in its order: every alias's preferred families in
+/// the configuration's order (each goes just before the generic name), then the accepted ones (each
+/// just after it: the last alias's first), then the defaults (at the end of the list, in order).
+#[cfg(all(unix, not(any(target_os = "macos", target_os = "android"))))]
+fn fontconfig_order(config: &fontconfig_parser::FontConfig, generic: &str) -> Vec<String> {
+    let aliases: Vec<_> = config
+        .aliases
+        .iter()
+        .filter(|alias| alias.alias.trim().to_lowercase().replace(' ', "-") == generic)
+        .collect();
+    let mut order: Vec<String> = aliases.iter().flat_map(|alias| alias.prefer.iter().cloned()).collect();
+    order.extend(aliases.iter().rev().flat_map(|alias| alias.accept.iter().cloned()));
+    order.extend(aliases.iter().flat_map(|alias| alias.default.iter().cloned()));
+    order
+}
+
 /// Runs `body`, turning a panic into `FAILED`: nothing unwinds into C.
 fn guarded(body: impl FnOnce() -> i32) -> i32 {
     catch_unwind(AssertUnwindSafe(body)).unwrap_or(FAILED)
@@ -148,6 +241,7 @@ pub unsafe extern "C" fn iv_svg_parse(data: *const u8, size: usize, load_fonts: 
         };
         if load_fonts != 0 {
             options.fontdb_mut().load_system_fonts();
+            settle_generic_families(options.fontdb_mut());
         }
         match usvg::Tree::from_data(bytes, &options) {
             Ok(tree) => {

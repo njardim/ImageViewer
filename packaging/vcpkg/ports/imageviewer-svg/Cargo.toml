@@ -21,6 +21,12 @@ crate-type = ["staticlib"]
 # inflates it within its own limit.
 resvg = { path = "../crates/resvg", version = "=0.48.1", default-features = false, features = ["text", "system-fonts", "memmap-fonts", "raster-images"] }
 
+# Linux: the reader of the system's font configuration that fontdb (resvg's font database) uses,
+# for the generic families fontdb leaves uninstalled (lib.rs, settle_generic_families()). Already
+# built into resvg there: its version comes from resvg's own lock, as fontdb asks for it.
+[target.'cfg(all(unix, not(any(target_os = "macos", target_os = "android"))))'.dependencies]
+fontconfig-parser = { version = "0.5", default-features = false }
+
 # Its own workspace: resvg's does not list this crate.
 [workspace]
 

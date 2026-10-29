@@ -259,6 +259,25 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
     check orange.svg 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "SVG colour sRGB (255, 128, 0)"
     check orange.svgz 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "svgz inflated before the renderer"
     check text.svg 'pixel\[0,0\]: +1 1 1 a=1' "SVG text drawn with the system's fonts"
+    if [ -f /etc/fonts/fonts.conf ]; then
+        # The system's font configuration, then aliases for monospace and serif (resvg's last resort)
+        # that prefer fonts nobody has: fontdb named the generic families after them and drew no text,
+        # as on Ubuntu 24.04, whose 65-nonlatin.conf prefers "Miriam Mono" and "Frank Ruehl" (CI run
+        # 237). The text still drawn: each generic family is the first installed in fontconfig's order.
+        fc="$(mktemp -d)"
+        printf '<?xml version="1.0"?>\n<fontconfig><include ignore_missing="yes">/etc/fonts/fonts.conf</include>%s%s</fontconfig>\n' \
+            '<alias><family>monospace</family><prefer><family>No Such Font Mono</family></prefer></alias>' \
+            '<alias><family>serif</family><prefer><family>No Such Font Serif</family></prefer></alias>' >"$fc/fonts.conf"
+        said="$(FONTCONFIG_FILE="$fc/fonts.conf" "$exe" --info "$data/text.svg" 2>/dev/null || true)"
+        rm -rf "$fc"
+        if grep -Eq 'pixel\[0,0\]: +1 1 1 a=1' <<<"$said"; then
+            echo "ok   text.svg: SVG text drawn when fontconfig prefers a font that is not installed"
+        else
+            echo "FAIL text.svg: no SVG text when fontconfig prefers a font that is not installed"
+            echo "$said" | sed 's/^/     /'
+            failures=$((failures + 1))
+        fi
+    fi
     check IV_claude_v5_mix_v1.svg 'size: +1024x1024' "the owner's SVG (17 filters, 13 masks) at its own size"
     # A worker given no request refuses it (exit 2), and a render past the worker's 30 s ends there:
     # the viewer says why and goes on (D-38).

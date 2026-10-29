@@ -103,9 +103,10 @@ jobs:
           arch: win64_msvc2022_64
           modules: qtshadertools qtimageformats
           aqtsource: git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7
-          # Only what we use (qttools: lupdate/lrelease for the UI translations; SVG is resvg's, D-90).
-          # Run 3: parallel external 7-Zip extractions raced.
-          archives: qtbase qttools d3dcompiler_47 opengl32sw
+          # Only what we use (qttools: lupdate/lrelease for the UI translations; qtsvg: the QtSvg library
+          # every package carries, D-90 (12); SVG images are resvg's). Run 2: py7zr rejected a path in
+          # the qtsvg archive of Qt 6.11; run 3: parallel external 7-Zip extractions raced.
+          archives: qtbase qttools qtsvg d3dcompiler_47 opengl32sw
           cache: true
 
       # The Rust that builds the SVG renderer (D-90): the version the port pins, installed by the runner's
@@ -209,10 +210,10 @@ jobs:
       # these plugins, XPM and XBM built in; SVG is resvg's (D-90). Its other image plugins decode with
       # Qt's own copies of libjpeg, libtiff and libwebp, which the audit does not follow, and an icon
       # hands an embedded image to any plugin that recognises it; Qt's SVG plugins (the image format
-      # and the icon engine) would bring QtSvg back. They are held back from the tests and the deploy
-      # step, which reads Qt's plugin folder only then (after Configure: Qt's CMake package checks that
-      # every plugin it names exists), and put back afterwards, so that the cached Qt stays whole. The
-      # package step checks the result.
+      # and the icon engine) would read SVG beside resvg (QtSvg itself ships, D-90 (12)). They are held
+      # back from the tests and the deploy step, which reads Qt's plugin folder only then (after
+      # Configure: Qt's CMake package checks that every plugin it names exists), and put back
+      # afterwards, so that the cached Qt stays whole. The package step checks the result.
       - name: Hold back the Qt image plugins the registry does not use
         shell: bash
         run: |
@@ -369,14 +370,17 @@ jobs:
           if find "$dist" \( -iname '*x265*' -o -iname '*de265*' \) | grep .; then
             echo "::error::HEVC codec files in the package"; exit 1
           fi
-          # Only the Qt image plugins the registry uses (D-67, "Qt image plugins" above), and no Qt SVG:
-          # SVG is resvg's, compiled in, its licences shipped (D-90).
+          # Only the Qt image plugins the registry uses (D-67, "Qt image plugins" above), and none of Qt's
+          # SVG plugins: SVG is resvg's, compiled in, its licences shipped (D-90). QtSvg itself in every
+          # package alike, for the window decoration Qt draws on GNOME under Wayland (D-90 (12)).
           plugins="$(find "$dist" -path '*/imageformats/*' -type f)"
           extra="$(printf '%s\n' "$plugins" | grep -Ev '(qicns|qico|qwbmp)d?\.[^/]*$' || true)"
           [ -z "$extra" ] || { echo "::error::Qt image plugins the registry does not use: $extra"; exit 1; }
-          if find "$dist" \( -iname '*Qt6Svg*' -o -iname 'QtSvg*' -o -iname '*qsvg*' \) | grep .; then
-            echo "::error::Qt SVG in the package (above)"; exit 1
+          if find "$dist" -iname '*qsvg*' | grep .; then
+            echo "::error::Qt's SVG plugins in the package (above)"; exit 1
           fi
+          find "$dist" \( -name 'Qt6Svg.dll' -o -name 'libQt6Svg.so.6' -o -path '*/QtSvg.framework/*' \) | grep -q . \
+            || { echo "::error::no QtSvg in the package (D-90 (12))"; exit 1; }
           [ -s "$docs/third-party/imageviewer-svg.txt" ] || { echo "::error::the SVG renderer's licences are missing"; exit 1; }
           # MSVC runtime is deployed app-locally (no vc_redist installer).
           if [ "$RUNNER_OS" = Windows ]; then

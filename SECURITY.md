@@ -58,7 +58,9 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
 - **Release gate.** A release is published only when the audit is clean.
 - **Only audited code reads images.** Qt reads only ICNS, cursors, WBMP, XPM and XBM; the PNG, JPEG,
   GIF and WebP images inside them are decoded by OpenImageIO with the audited libraries, never by
-  Qt's own copies, and the packages carry no other Qt image plugin and no Qt SVG (D-68, D-71, D-90).
+  Qt's own copies, and the packages carry no other Qt image plugin and none of Qt's SVG plugins (D-68, D-71, D-90). The QtSvg
+  library itself ships, in every package alike, for the window decoration Qt draws on GNOME under Wayland,
+  which reads only the system's icon theme; nothing the user opens reaches it (D-90 (12)).
 - **An SVG is read in a separate process and reads nothing outside itself.** SVG is drawn by resvg
   in the decode worker, never in the viewer's own process: a crash there, or 30 seconds, ends there.
   Before it is drawn, every reference to another file (an image beside it or at any path, a network

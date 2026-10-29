@@ -128,6 +128,14 @@ target_link_libraries(imageviewer PRIVATE
     lcms2::lcms2
     ZLIB::ZLIB
 )
+if(APPLE)
+    # QtSvg in every package, though nothing of ours calls it (D-90 (12), the owner): Linux's draws
+    # the window decoration Qt uses on GNOME under Wayland ("adwaita"), and every system ships the
+    # same Qt. macdeployqt copies a framework only into bundles whose executable links it; Windows
+    # asks windeployqt for it below. Its SVG image and icon plugins never ship (build.yml).
+    find_package(Qt6 6.12 REQUIRED COMPONENTS Svg)
+    target_link_libraries(imageviewer PRIVATE Qt6::Svg)
+endif()
 if(JXL_INCLUDE_DIR AND JXL_LIBRARY AND JXL_THREADS_LIBRARY)
     target_include_directories(imageviewer PRIVATE ${JXL_INCLUDE_DIR})
     target_link_libraries(imageviewer PRIVATE ${JXL_LIBRARY} ${JXL_THREADS_LIBRARY})
@@ -262,8 +270,9 @@ if(APPLE AND DEFINED VCPKG_INSTALLED_DIR)
 endif()
 if(WIN32)
     # MSVC runtime DLLs go next to ImageViewer.exe (app-local) instead of the
-    # vc_redist installer that windeployqt would add.
-    list(APPEND deploy_options NO_COMPILER_RUNTIME)
+    # vc_redist installer that windeployqt would add. --svg: QtSvg, which nothing of ours
+    # links, in every package alike (D-90 (12), above).
+    list(APPEND deploy_options NO_COMPILER_RUNTIME DEPLOY_TOOL_OPTIONS --svg)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})
     include(InstallRequiredSystemLibraries)
 endif()

@@ -186,8 +186,9 @@ TARBALL_PORTS = {
     "graphicsmagick": ("hg", "https://foss.heptapod.net/graphicsmagick/graphicsmagick",
                        "GraphicsMagick-{v_}"),
 }
-# Qt's modules in the packages, at packaging/qt-version.txt.
-QT_MODULES = ["qtbase", "qtimageformats", "qtwayland"]
+# Qt's modules in the packages, at packaging/qt-version.txt. qtsvg: the library alone, for the window
+# decoration Qt draws on GNOME under Wayland, in every package alike (D-90 (12)); never its plugins.
+QT_MODULES = ["qtbase", "qtsvg", "qtimageformats", "qtwayland"]
 # Not libraries: vcpkg's build helpers, and our own manifest.
 NOT_SHIPPED = re.compile(r"^(vcpkg-.*|imageviewer)$")
 

@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -68,9 +69,10 @@ namespace {
 constexpr char kMagic[8] = {'I', 'V', 'W', 'O', 'R', 'K', 'E', 'R'};
 constexpr int kHeaderWords = 10;
 // An SVG request on standard input, before the file: "IVSVGREQ", the pixel limit (64 bits), the
-// side and fill of VectorSize (32 bits each), all little endian.
+// side and fill of DecodeOptions (32 bits each), its scale (an IEEE double) and its area's left,
+// top (signed), width and height (32 bits each), all little endian.
 constexpr char kSvgRequest[8] = {'I', 'V', 'S', 'V', 'G', 'R', 'E', 'Q'};
-constexpr std::size_t kSvgRequestBytes = sizeof kSvgRequest + 8 + 4 + 4;
+constexpr std::size_t kSvgRequestBytes = sizeof kSvgRequest + 8 + 4 + 4 + 8 + 4 * 4;
 // Memory per pixel of a worker decode: GraphicsMagick's 16-bit RGBA cache and the answer in
 // the worker, the answer and its copy here (fitsInMemory() adds the conversion's 16).
 constexpr int kWorkerNativeBytesPerPixel = 8 + 8 + 8 + 8;
@@ -279,7 +281,13 @@ int runDecodeWorker(int argc, char **argv)
         }
         const quint64 limit = qFromLittleEndian<quint64>(input.data() + 8);
         const quint32 side = qFromLittleEndian<quint32>(input.data() + 16), fill = qFromLittleEndian<quint32>(input.data() + 20);
-        if (limit == 0 || limit > quint64(kMaxPixels) || side > quint32(kMaxPixels) || fill > 1) {
+        const double scale = std::bit_cast<double>(qFromLittleEndian<quint64>(input.data() + 24));
+        const qint32 left = qFromLittleEndian<qint32>(input.data() + 32), top = qFromLittleEndian<qint32>(input.data() + 36);
+        const quint32 width = qFromLittleEndian<quint32>(input.data() + 40), height = qFromLittleEndian<quint32>(input.data() + 44);
+        const bool area = scale > 0.0;
+        if (limit == 0 || limit > quint64(kMaxPixels) || side > quint32(kMaxPixels) || fill > 1
+            || !(scale >= 0.0 && scale <= double(kMaxPixels))
+            || (area && (width == 0 || height == 0 || width > quint32(kMaxPixels) || height > quint32(kMaxPixels)))) {
             std::fprintf(stderr, "invalid SVG request\n");
             return kWorkerUsage;
         }
@@ -289,7 +297,14 @@ int runDecodeWorker(int argc, char **argv)
         }
         const QByteArrayView file(reinterpret_cast<const char *>(input.data()) + kSvgRequestBytes,
                                   qsizetype(input.size() - kSvgRequestBytes));
-        return runSvgWorker(file, qint64(limit), VectorSize{int(side), fill == 1});
+        DecodeOptions options;
+        options.maxSide = int(side);
+        options.fill = fill == 1;
+        if (area) {
+            options.scale = scale;
+            options.area = QRect(left, top, int(width), int(height));
+        }
+        return runSvgWorker(file, qint64(limit), options);
     }
 #ifdef IMAGEVIEWER_HAVE_GRAPHICSMAGICK
     // GraphicsMagick looks for its configuration files (delegates.mgk, log.mgk) around the
@@ -424,7 +439,7 @@ void prepareSvgWorker()
 }
 
 bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
-               VectorSize vector)
+               DecodeOptions options)
 {
     const bool svg = format.decoder == Decoder::Svg;
     QByteArray bytes;
@@ -451,8 +466,14 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
         request.resize(qsizetype(kSvgRequestBytes));
         std::memcpy(request.data(), kSvgRequest, sizeof kSvgRequest);
         qToLittleEndian(quint64(limit), request.data() + 8);
-        qToLittleEndian(quint32(std::max(vector.maxSide, 0)), request.data() + 16);
-        qToLittleEndian(quint32(vector.fill ? 1 : 0), request.data() + 20);
+        qToLittleEndian(quint32(std::max(options.maxSide, 0)), request.data() + 16);
+        qToLittleEndian(quint32(options.fill ? 1 : 0), request.data() + 20);
+        const bool area = options.scale > 0.0 && !options.area.isEmpty();
+        qToLittleEndian(std::bit_cast<quint64>(area ? options.scale : 0.0), request.data() + 24);
+        qToLittleEndian(qint32(area ? options.area.left() : 0), request.data() + 32);
+        qToLittleEndian(qint32(area ? options.area.top() : 0), request.data() + 36);
+        qToLittleEndian(quint32(area ? options.area.width() : 0), request.data() + 40);
+        qToLittleEndian(quint32(area ? options.area.height() : 0), request.data() + 44);
     } else {
         process.reset(new QProcess);
         QProcess &worker = *process;
@@ -505,7 +526,7 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
     QByteArray messages;
     Answer a;
     QString tooLarge;
-    bool haveHeader = false, broken = false, timedOut = false;
+    bool haveHeader = false, broken = false, timedOut = false, cancelled = false;
     QElapsedTimer clock;
     clock.start();
     const auto collect = [&] {
@@ -537,18 +558,28 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
             }
         }
     };
+    // A decode that may be cancelled looks at its flag every 20 ms (D-93).
+    const qint64 step = options.cancel ? 20 : 1000;
     while (worker.state() != QProcess::NotRunning && !broken) {
+        if (options.cancel && options.cancel->load(std::memory_order_relaxed)) {
+            cancelled = true;
+            break;
+        }
         const qint64 left = kTimeoutMs - clock.elapsed();
         if (left <= 0) {
             timedOut = true;
             break;
         }
-        worker.waitForReadyRead(int(std::min<qint64>(left, 1000)));
+        worker.waitForReadyRead(int(std::min(left, step)));
         collect();
     }
     if (worker.state() != QProcess::NotRunning) {
         worker.kill();
         worker.waitForFinished(5000);
+    }
+    if (cancelled) {
+        *error = QStringLiteral("cancelled"); // never shown: the caller asked for it
+        return false;
     }
     if (!broken)
         collect();
@@ -599,6 +630,7 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
     out->associatedAlpha = a.associatedAlpha && out->alphaIndex >= 0;
     out->bits = int(a.bits);
     out->orientation = a.orientation >= 1 && a.orientation <= 8 ? int(a.orientation) : 1;
+    out->vector = svg;
     out->documentWidth = int(a.documentWidth);
     out->documentHeight = int(a.documentHeight);
     out->codec = svg ? svgRenderer() + QStringLiteral(" (worker)")
@@ -614,14 +646,14 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
 } // namespace
 
 bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
-                    VectorSize vector)
+                    DecodeOptions options)
 {
     if (format.decoder == Decoder::Svg) {
-        const bool decoded = runWorker(format, path, maxPixels, out, error, vector);
+        const bool decoded = runWorker(format, path, maxPixels, out, error, options);
         prepareSvgWorker(); // for the next SVG on this thread
         return decoded;
     }
-    return runWorker(format, path, maxPixels, out, error, vector);
+    return runWorker(format, path, maxPixels, out, error, options);
 }
 
 QString graphicsMagickVersion()

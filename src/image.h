@@ -9,6 +9,7 @@
 #include <QFloat16>
 #include <QImage>
 #include <QLocale>
+#include <QRect>
 #include <QString>
 #include <QStringList>
 
@@ -56,6 +57,7 @@ struct Image {
     int sourceBits = 0; // bits per channel of the stored data
     bool sourceFloat = false;
     bool hasAlpha = false;
+    bool vector = false; // an SVG: the viewer draws it again at the zoom shown (D-93)
     int orientation = 1; // EXIF orientation that was applied (1 = none)
     color::Descriptor colour;
     float maxComponent = 0.0f; // brightest RGB component in working units (1.0 = SDR white)
@@ -128,8 +130,13 @@ private:
 // thumbnail size up to it, D-90). With `maxPixels` > 0, a source of more pixels is not decoded
 // (overPixelLimit), judged from the header. Without `animate`, an animation is read as its first
 // frame only (a thumbnail, the clipboard).
+// Setting `cancel` stops a decode in a worker process (SVG, GraphicsMagick); its result is then
+// to be dropped (D-93).
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true,
-                  bool fillVector = false);
+                  bool fillVector = false, const std::atomic_bool *cancel = nullptr);
+// Only `area` of a vector image (SVG), in pixels of the document drawn at `scale`: the zoom's
+// detail (D-93). `cancel` as for decodeImage().
+Image decodeVectorArea(const QString &path, double scale, QRect area, const std::atomic_bool *cancel);
 
 // The image as 16-bit sRGB, straight alpha, for the clipboard and the gallery's thumbnails. HDR
 // values above SDR white and colours outside sRGB are clipped (the clipboard formats other

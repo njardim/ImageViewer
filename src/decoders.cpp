@@ -429,7 +429,7 @@ int oiioFrameDurationMs(const OIIO::ImageSpec &spec)
 }
 
 bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint64 maxPixels, Decoded *out,
-                QString *error, std::unique_ptr<FrameReader> *frames, VectorSize vector)
+                QString *error, std::unique_ptr<FrameReader> *frames, DecodeOptions options)
 {
     switch (decoder) {
     case Decoder::Jxl:
@@ -455,7 +455,7 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     case Decoder::Svg:
         if (!format)
             break;
-        return decodeInWorker(*format, path, maxPixels, out, error, vector);
+        return decodeInWorker(*format, path, maxPixels, out, error, options);
     case Decoder::OpenImageIO: break;
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
@@ -641,7 +641,7 @@ bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QStr
 }
 
 bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames,
-                VectorSize vector)
+                DecodeOptions options)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -671,10 +671,14 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
         if (frames)
             frames->reset();
         QString why;
-        if (decodeWith(decoder, path, format, maxPixels, out, &why, frames, vector))
+        if (decodeWith(decoder, path, format, maxPixels, out, &why, frames, options))
             return true;
         if (out->overLimit)
             return false;
+        if (options.cancel && options.cancel->load(std::memory_order_relaxed)) {
+            *error = QStringLiteral("cancelled"); // never shown: the caller asked for it
+            return false;
+        }
         if (firstError.isEmpty())
             firstError = why;
     }

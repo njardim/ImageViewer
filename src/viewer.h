@@ -32,7 +32,9 @@
 #include <QTimer>
 #include <QWindow>
 
+#include <atomic>
 #include <functional>
+#include <memory>
 #include <optional>
 
 // What is drawn over the image (panels, overlay, gallery) keeps kEdgeMargin from the window's
@@ -158,6 +160,21 @@ private:
     void scheduleWork();                // show from the cache, else decode; then preload
     void startDecode(const QString &path, int limit, qint64 maxPixels);
     void decodeFinished();
+    // The zoom's detail (D-93, navigation.cpp): a vector image (SVG) enlarged on screen is drawn
+    // again by the decode worker at the zoom shown, for the part of it in the window, and replaces
+    // the enlarged image there; a change of the view asks for another once it settles.
+    struct Detail {
+        QString path;       // the image it is drawn from
+        double scale = 0.0; // device pixels per pixel of the document
+        QRect area;         // pixels of the document drawn at `scale`
+        QRectF rect;        // the same part in the image's texture coordinates
+        bool operator==(const Detail &) const = default;
+    };
+    std::optional<Detail> wantedDetail() const;
+    void updateDetail(); // at every frame: the view may have changed
+    void startDetail();
+    void detailFinished();
+    void dropDetail(); // another image, or the same one again
     void showImage(Image image, int limit);
     void clearShownImage();             // nothing on screen: no image, no animation
     void watchFile(const QString &path); // the one file watched, the image on screen; empty: none
@@ -345,6 +362,17 @@ private:
     bool m_decodeBusy = false;
     int m_jobLimit = 0;                   // texture limit of the running decode
     int m_jobGeneration = 0;              // ...and the m_decodeGeneration it started in
+    QString m_jobPath;                    // ...its file
+    // ...set when its image is no longer wanted: a decode in a worker process ends at once (D-93)
+    std::shared_ptr<std::atomic_bool> m_jobCancel;
+    QThreadPool m_detailPool; // the zoom's detail, beside the decodes
+    QFutureWatcher<Image> m_detailWatcher;
+    QTimer m_detailTimer; // a view that has stopped changing gets its detail
+    bool m_detailBusy = false;
+    std::shared_ptr<std::atomic_bool> m_detailCancel;
+    Detail m_detailJob;                    // what the running job draws
+    Detail m_detail;                       // what the renderer has; no path: none
+    std::optional<Detail> m_detailWanted; // what the view last asked for
     int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
     bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher

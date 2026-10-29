@@ -18,8 +18,9 @@
 //! - Linux: `fontconfig_parser::FontConfig` (`merge_config()`, `aliases`), the crate fontdb reads the
 //!   system's font configuration with, at the version resvg's own lock holds
 //! - `usvg::Tree::from_data()`, `Tree::size()`, `Tree::root()`, `Group::children()`, `Group::filters()`,
-//!   `Node::subroots()`, `filter::Filter::primitives()`, `filter::Primitive::kind()` and
-//!   `filter::Turbulence::stitch_tiles()`
+//!   `Group::abs_transform()`, `Node::subroots()`, `filter::Filter::primitives()`,
+//!   `filter::Primitive::kind()`, `filter::Turbulence::stitch_tiles()` and the sizes of
+//!   `filter::GaussianBlur`, `DropShadow`, `Offset`, `Morphology` and `DisplacementMap`
 //! - `resvg::render()`, `tiny_skia::PixmapMut::from_bytes()`, `tiny_skia::Transform::from_row()`
 //!
 //! The crate's version is the resvg release it wraps (Cargo.toml pins it), and names it in
@@ -121,6 +122,44 @@ pub struct Document {
     /// `feImage`, stitched `feTurbulence`), which resvg would compute whole for every band, and
     /// differently for a band than for the whole (it bounds such a region by the canvas drawn).
     bands: bool,
+    /// How far its filters reach at most, in pixels at scale 1 (`reach()`).
+    reach: f32,
+}
+
+/// An estimate of how far the filters in `group` and below reach, in pixels at scale 1: a band
+/// draws its filtered layers that far beyond its rows, so bands much shorter than that would each
+/// compute most of the others' work again, and hold as much memory.
+fn reach(group: &usvg::Group) -> f32 {
+    use usvg::filter::Kind;
+    let (sx, sy) = group.abs_transform().get_scale();
+    let mut reach = group
+        .filters()
+        .iter()
+        .map(|filter| {
+            let blur = |x: usvg::PositiveF32, y: usvg::PositiveF32| 4.0 * x.get().max(y.get());
+            let offset = |dx: f32, dy: f32| dx.abs().max(dy.abs());
+            let total: f32 = filter
+                .primitives()
+                .iter()
+                .map(|primitive| match primitive.kind() {
+                    Kind::GaussianBlur(fe) => blur(fe.std_dev_x(), fe.std_dev_y()),
+                    Kind::DropShadow(fe) => blur(fe.std_dev_x(), fe.std_dev_y()) + offset(fe.dx(), fe.dy()),
+                    Kind::Offset(fe) => offset(fe.dx(), fe.dy()),
+                    Kind::Morphology(fe) => fe.radius_x().get().max(fe.radius_y().get()),
+                    Kind::DisplacementMap(fe) => fe.scale().abs() / 2.0,
+                    _ => 0.0,
+                })
+                .sum();
+            total * sx.max(sy)
+        })
+        .fold(0.0, f32::max);
+    for node in group.children() {
+        if let usvg::Node::Group(child) = node {
+            reach = reach.max(self::reach(child));
+        }
+        node.subroots(|root| reach = reach.max(self::reach(root)));
+    }
+    reach
 }
 
 /// Whether no filter in `group`, its descendants, masks, clip paths, patterns and embedded
@@ -282,9 +321,9 @@ pub unsafe extern "C" fn iv_svg_parse(data: *const u8, size: usize, load_fonts: 
         }
         match usvg::Tree::from_data(bytes, &options) {
             Ok(tree) => {
-                let bands = local_filters(tree.root());
+                let (bands, reach) = (local_filters(tree.root()), reach(tree.root()));
                 // SAFETY: `out` is writable (checked above for null).
-                unsafe { *out = Box::into_raw(Box::new(Document { tree, bands })) };
+                unsafe { *out = Box::into_raw(Box::new(Document { tree, bands, reach })) };
                 OK
             }
             Err(_) => UNREADABLE,
@@ -335,7 +374,13 @@ pub unsafe extern "C" fn iv_svg_render(svg: *const Document, scale: f64, left: f
         let transform = |top: f64| tiny_skia::Transform::from_row(scale, 0.0, 0.0, scale, -left, -(top as f32));
         // Horizontal bands, one per thread: each a part of `pixels` of its own, drawn as the whole
         // would draw it (resvg draws a filtered layer only within reach of the band, patch D-93).
-        let threads = THREADS.load(Ordering::Relaxed).min((height / MIN_BAND_ROWS).max(1) as usize);
+        // None shorter than half the filters' reach: each would repeat more than twice its own work.
+        let reach = f64::from(document.reach) * scale as f64;
+        let by_reach = if reach >= 1.0 { (2.0 * f64::from(height) / reach) as usize } else { usize::MAX };
+        let threads = THREADS
+            .load(Ordering::Relaxed)
+            .min((height / MIN_BAND_ROWS).max(1) as usize)
+            .min(by_reach.max(1));
         if !document.bands || threads < 2 {
             resvg::render(&document.tree, transform(top), &mut pixmap);
             return OK;

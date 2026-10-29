@@ -934,6 +934,48 @@ try:
             wait_until("an unreadable file shows the warning sign in the middle", warning_in_the_middle)
             xdotool("key", "q")
             app.wait(15)
+
+            # 11. The zoom's detail (D-93): an SVG enlarged on screen is drawn again at the zoom
+            # shown, in every orientation. A line a quarter of a pixel wide, on the left half of the
+            # image, is a light grey at 100 %; at 931 % the enlarged image keeps that grey, and the
+            # detail draws it black and 2 px wide, where the view turns and mirrors it.
+            line_dir = os.path.join(work, "line")
+            os.makedirs(line_dir)
+            line = os.path.join(line_dir, "line.svg")
+            with open(line, "w") as f:
+                f.write('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">'
+                        '<rect width="200" height="200" fill="#fff"/>'
+                        '<path d="M20 100.5H100" stroke="#000" stroke-width="0.25"/></svg>')
+            app = subprocess.Popen([exe, line], env=env, stdout=log, stderr=log)
+            wait_until("the SVG shown", lambda: grab() is not None and "line.svg" in viewer()[0])
+            x, y, w, h = window_geometry()
+            cx, cy = x + w // 2, y + h // 2
+
+            def sides():
+                """The darkest pixel left, right, above and below the window's centre."""
+                shot = grab()
+                if shot is None:
+                    return None
+                s = shot.min(axis=2).astype(int)
+                return (s[cy - 5:cy + 6, cx - 80:cx - 10].min(), s[cy - 5:cy + 6, cx + 10:cx + 80].min(),
+                        s[cy - 80:cy - 10, cx - 4:cx + 5].min(), s[cy + 10:cy + 80, cx - 4:cx + 5].min())
+            xdotool("key", "1")
+            wait_until("at 100 % the line is a light grey", lambda: (s := sides()) and 150 < s[0] < 230)
+            for _ in range(10):
+                xdotool("key", "plus")
+            wait_until("at 931 % the detail draws the line black, on the left", lambda: sides() == (0, 255, 255, 255))
+            rows = (grab().min(axis=2)[cy - 10:cy + 11, cx - 40] < 128).sum()
+            if not 2 <= rows <= 3:
+                fail(f"the line is {rows} px wide at 931 %, not 2.3 (see {shot_path})")
+            for keys, want, where in ((("r",), (255, 255, 0, 255), "turned clockwise, above"),
+                                      (("shift+h",), (255, 255, 255, 0), "flipped, below"),
+                                      (("shift+r",), (255, 0, 255, 255), "turned back, on the right")):
+                xdotool("key", *keys)
+                wait_until(f"the detail follows the view: {where}", lambda: sides() == want)
+            xdotool("key", "1")
+            wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
+            xdotool("key", "q")
+            app.wait(15)
         finally:
             if app.poll() is None:
                 app.terminate()

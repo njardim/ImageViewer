@@ -176,7 +176,7 @@ QString svgRenderer()
 #endif
 }
 
-int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector)
+int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
 {
 #ifdef IMAGEVIEWER_HAVE_SVG
     if (!svgAvailable()) {
@@ -219,18 +219,24 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector)
         std::fprintf(stderr, "invalid document size\n");
         return kWorkerFailed;
     }
-    // Its own size; within the side asked for, or (a thumbnail) exactly that side.
+    // Its own size; within the side asked for, or (a thumbnail) exactly that side; or an area of it
+    // at a scale (the zoom's detail, D-93).
     const double longest = std::max(documentWidth, documentHeight);
-    const double scale = vector.maxSide > 0 && (vector.fill || longest > vector.maxSide) ? vector.maxSide / longest : 1.0;
     const auto pixels = [](double side) { return std::max<qint64>(1, qint64(std::ceil(side - 1e-6))); };
-    const qint64 width = pixels(documentWidth * scale), height = pixels(documentHeight * scale);
+    const bool area = options.scale > 0.0;
+    const double scale = area ? options.scale
+                       : options.maxSide > 0 && (options.fill || longest > options.maxSide) ? options.maxSide / longest
+                                                                                            : 1.0;
+    const qint64 width = area ? options.area.width() : pixels(documentWidth * scale);
+    const qint64 height = area ? options.area.height() : pixels(documentHeight * scale);
     if (width > kMaxPixels || height > kMaxPixels || width * height > maxPixels)
         return kWorkerOverLimit; // each side within 2^30 first: the product fits
     limitMemory(std::max<qint64>(width * height * 4, xml.size()));
     std::unique_ptr<uint8_t[]> rgba(new (std::nothrow) uint8_t[std::size_t(width * height) * 4]);
     if (!rgba)
         return kWorkerOverLimit;
-    if (const int status = iv_svg_render(svg.get(), scale, 0.0, 0.0, uint32_t(width), uint32_t(height), rgba.get());
+    if (const int status = iv_svg_render(svg.get(), scale, area ? options.area.left() : 0.0, area ? options.area.top() : 0.0,
+                                         uint32_t(width), uint32_t(height), rgba.get());
         status != IV_SVG_OK) {
         std::fprintf(stderr, "the renderer failed (%d)\n", status);
         return kWorkerFailed;
@@ -252,7 +258,7 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector)
 #else
     Q_UNUSED(file);
     Q_UNUSED(maxPixels);
-    Q_UNUSED(vector);
+    Q_UNUSED(options);
     std::fprintf(stderr, "built without an SVG renderer\n");
     return kWorkerFailed;
 #endif

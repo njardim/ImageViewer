@@ -54,6 +54,11 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     setMinimumSize(kMinWindowSize);
     m_renderer.setOutputPreference(m_settings.output);
     m_decodePool.setMaxThreadCount(1);
+    m_detailPool.setMaxThreadCount(1);
+    m_detailTimer.setSingleShot(true);
+    m_detailTimer.setInterval(150);
+    connect(&m_detailTimer, &QTimer::timeout, this, &ViewerWindow::startDetail);
+    connect(&m_detailWatcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::detailFinished);
     m_recent = loadRecentFiles();
     m_noticeTimer.setSingleShot(true);
     connect(&m_noticeTimer, &QTimer::timeout, this, [this] {
@@ -121,7 +126,11 @@ ViewerWindow::~ViewerWindow()
     // waited for, as is the decode, the copy, the next frame and a stopped animation's trim.
     m_thumbnailPool.clear();
     m_thumbnailPool.waitForDone();
+    for (const auto &cancel : {m_jobCancel, m_detailCancel}) // a decode in a worker process ends at once
+        if (cancel)
+            cancel->store(true, std::memory_order_relaxed);
     m_watcher.waitForFinished();
+    m_detailWatcher.waitForFinished();
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
     m_framePool.waitForDone();
@@ -513,6 +522,7 @@ void ViewerWindow::render()
 {
     if (!m_rendererReady)
         return;
+    updateDetail();
     Renderer::Frame frame = imageFrame();
     if (m_image.width > 0) {
         frame.imageRect = imageRect();
@@ -520,6 +530,10 @@ void ViewerWindow::render()
         frame.mirrored = m_mirrored;
         const double zoom = currentZoom();
         frame.nearest = zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6; // decision D-P09
+        // The detail while it is not smaller on screen than drawn (it has no mipmaps): zooming in,
+        // it is enlarged until the next one arrives; zooming out, the image takes over.
+        frame.detail = !m_detail.path.isEmpty() && m_detail.path == m_image.path && m_image.sourceWidth > 0
+                       && m_detail.scale <= zoom * m_image.width / m_image.sourceWidth * 1.0001;
         if (frame.checkerboard) { // cells of 8 logical pixels, whatever the zoom
             const double cell = 8.0 * devicePixelRatio();
             frame.checkerCells[0] = float(m_image.width * zoom / cell);

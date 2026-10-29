@@ -25,6 +25,7 @@ layout(std140, binding = 0) uniform Params {
     vec4 uvMap;     // xy: texture coordinates at imageRect's top-left; zw: their change per pixel along x
     vec4 uvMapY;    // xy: their change per pixel along y; z: target height in pixels
     vec4 layers[7]; // overlay rectangles, device pixels (width 0: absent), in drawing order
+    vec4 detailRect; // the zoom's detail in the image's texture coordinates: x, y, width, height (width 0: none)
 };
 
 layout(binding = 1) uniform sampler2D tex; // the image
@@ -35,6 +36,7 @@ layout(binding = 5) uniform sampler2D overlay3;
 layout(binding = 6) uniform sampler2D overlay4;
 layout(binding = 7) uniform sampler2D overlay5;
 layout(binding = 8) uniform sampler2D overlay6;
+layout(binding = 9) uniform sampler2D detail; // the zoom's detail: part of the image drawn again at the scale shown
 
 const int MODE_SDR = 0;
 const int MODE_SCRGB = 1;
@@ -82,7 +84,13 @@ const mat3 BT2020_TO_BT709 = mat3(1.6604910, -0.1245505, -0.0181507,
 // What the image shows at texture coordinates `uv`: linear, output units, before the encoding.
 vec3 displayed(vec2 uv)
 {
+    // The image; where the zoom's detail covers it, the detail (D-93). Both are read on every
+    // pixel, so the image's mipmaps get well-defined derivatives.
     vec4 texel = texture(tex, uv);
+    vec2 duv = (uv - detailRect.xy) / max(detailRect.zw, vec2(1e-9));
+    vec4 fine = texture(detail, duv);
+    if (detailRect.z > 0.0 && all(greaterThanEqual(duv, vec2(0.0))) && all(lessThanEqual(duv, vec2(1.0))))
+        texel = fine;
     float alpha = texel.a;
     vec3 rgb = alpha > 0.0 ? texel.rgb / alpha : vec3(0.0);
     rgb *= adjust.x * adjust.y;

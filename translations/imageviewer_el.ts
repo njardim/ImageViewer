@@ -60,10 +60,6 @@
         <translation>%1 (μεταδεδομένα αρχείου, μέσω Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>Το SVG αποκωδικοποιείται μόνο στη γραφική διεπαφή</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>κατεστραμμένο, περικομμένο ή μη υποστηριζόμενο αρχείο %1</translation>
     </message>

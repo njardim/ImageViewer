@@ -9,7 +9,10 @@ What is pinned, and where:
   release archive and its SHA-512);
 - every other vcpkg port through the manifest's builtin-baseline (a vcpkg release tag's commit);
 - Qt in packaging/qt-version.txt (read by .github/workflows/build.yml, whose files the workflow's
-  token may not change) and packaging/licenses/Qt.txt.
+  token may not change) and packaging/licenses/Qt.txt;
+- the SVG renderer (D-90, packaging/vcpkg/ports/imageviewer-svg): resvg as an overlay port (a tag's
+  commit), the crate's version and Cargo.lock with it (the lock regenerated from the new tag's own
+  Cargo.lock and checked to hold nothing else), and the Rust that builds it (rust-toolchain.toml).
 
 Policy:
 - Libraries move within their major version; Qt only to the latest patch release of its minor
@@ -283,7 +286,75 @@ def update_git_port(port, url, templates, apply, report):
         update_manifest_comment(port, pinned, new)
         if port in report.exceptions:
             record_exception([f"{port} {new}"], "security: fixes " + ", ".join(report.exceptions[port][1]))
+        if port == "imageviewer-svg":
+            update_svg_crate(pinned, new, url, tag, report)
     check_patches(port, url, tag, apply, report)
+
+
+def update_svg_crate(old, new, url, tag, report):
+    """The SVG renderer's crate after resvg moved from `old` to `new` (D-90): its version and the pin on
+    resvg in Cargo.toml, and Cargo.lock regenerated from the tag's own Cargo.lock (cargo keeps the tag's
+    versions and leaves out what the crate does not use), then checked to hold no crate, version or
+    checksum the tag's lock does not. Whether lib.rs still compiles against the new resvg is the
+    update's own CI build: a release whose API changed fails there, and main keeps the pinned one."""
+    import shutil
+    import tomllib  # Python 3.11
+    port = os.path.join(PORTS, "imageviewer-svg")
+    manifest = os.path.join(port, "Cargo.toml")
+    write(manifest, read(manifest).replace(f'version = "{old}"', f'version = "{new}"')
+                                  .replace(f'version = "={old}"', f'version = "={new}"'))
+    with tempfile.TemporaryDirectory() as work:
+        source = os.path.join(work, "resvg")
+        git("clone", "--quiet", "--depth", "1", "--branch", tag, url, source)
+        crate = os.path.join(source, "imageviewer-svg")
+        os.makedirs(crate)
+        for name in ("Cargo.toml", "lib.rs"):  # not rust-toolchain.toml: any recent cargo resolves the same
+            shutil.copy(os.path.join(port, name), crate)
+        shutil.copy(os.path.join(source, "Cargo.lock"), os.path.join(crate, "Cargo.lock"))
+        audit.run("cargo", "metadata", "--format-version", "1", cwd=crate)  # prunes the lock to this crate
+        with open(os.path.join(source, "Cargo.lock"), "rb") as f:
+            theirs = {(p["name"], p["version"]): p.get("checksum") for p in tomllib.load(f)["package"]}
+        with open(os.path.join(crate, "Cargo.lock"), "rb") as f:
+            ours = tomllib.load(f)["package"]
+        foreign = [f"{p['name']} {p['version']}" for p in ours
+                   if "source" in p and theirs.get((p["name"], p["version"]), "missing") != p.get("checksum")]
+        if foreign:
+            raise RuntimeError(f"imageviewer-svg: the regenerated Cargo.lock holds crates the {tag} lock does not: "
+                               + ", ".join(foreign) + " (a dependency the port's Cargo.toml names itself, such as "
+                               "fontconfig-parser, must ask for a version resvg's own lock holds)")
+        shutil.copy(os.path.join(crate, "Cargo.lock"), os.path.join(port, "Cargo.lock"))
+        needed = re.search(r'^rust-version = "([\d.]+)"', read(os.path.join(source, "crates", "resvg", "Cargo.toml")), re.M)
+        if needed and version_tuple(needed.group(1)) > version_tuple(audit.rust_version()):
+            report.notes.append(f"resvg {new} needs Rust {needed.group(1)}, newer than the pinned "
+                                f"{audit.rust_version()}: the build fails until the toolchain moves.")
+    report.review.append(f"- **imageviewer-svg**: Cargo.toml and Cargo.lock follow resvg {new} (only the crates of its "
+                         f"own lock); lib.rs uses the resvg API listed at its top: read the changelog for those.")
+
+
+def update_rust(apply, report):
+    """The Rust release that builds the SVG renderer (D-90): the newest stable release past the
+    cooldown. Its standard library is compiled into the program."""
+    pin = os.path.join(PORTS, "imageviewer-svg", "rust-toolchain.toml")
+    pinned = audit.rust_version()
+    current = version_tuple(pinned)
+    tags = {v: tag for v, tag in audit.release_tags(audit.RUST, "{v}").items() if len(v) == 3 and v[0] == 1}
+    overall = max(tags) if tags else current
+    candidates = sorted(v for v in tags if v > current)
+    vulnerable_now = fixable(tags.get(current, (None, None))[1])
+    target = choose("Rust", current, candidates, lambda v: tag_date(audit.RUST, tags[v][0]), vulnerable_now,
+                    lambda v: not (fixable(tags[v][1]) & vulnerable_now), report)
+    if target is None:
+        report.row("Rust", pinned, as_text(overall), "held (cooldown)" if candidates else "up to date")
+        return
+    new = as_text(target)
+    report.row("Rust", pinned, as_text(overall), f"**→ {new}**")
+    report.review.append(f"- **Rust** {pinned} → {new}: read the release notes "
+                         f"(https://github.com/rust-lang/rust/blob/{new}/RELEASES.md) for changes to the standard library.")
+    report.changed = True
+    if apply:
+        write(pin, read(pin).replace(f'channel = "{pinned}"', f'channel = "{new}"'))
+        if "Rust" in report.exceptions:
+            record_exception([f"rust {new}"], "security: fixes " + ", ".join(report.exceptions["Rust"][1]))
 
 
 def update_manifest_comment(port, old, new):
@@ -471,7 +542,8 @@ def main():
                             f"are taken. Set it back to {audit.POLICY_DAYS} once the release that needed it is out.")
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report))
               for p, (u, t) in audit.COMMIT_PORTS.items()]
-    checks += [("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
+    checks += [("Rust", lambda: update_rust(args.apply, report)),
+               ("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
                ("Qt", lambda: update_qt(args.apply, report)),
                ("cooldown exceptions", lambda: prune_exceptions(args.apply, report))]

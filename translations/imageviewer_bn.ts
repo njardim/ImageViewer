@@ -60,10 +60,6 @@
         <translation>%1 (ফাইলের মেটাডেটা, Qt-এর মাধ্যমে)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG শুধু গ্রাফিক্যাল ইন্টারফেসে ডিকোড করা হয়</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>ক্ষতিগ্রস্ত, অসম্পূর্ণ বা অসমর্থিত %1 ফাইল</translation>
     </message>

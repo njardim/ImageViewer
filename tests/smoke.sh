@@ -253,6 +253,75 @@ for f in pic-truncated.svg pic-truncated.dcm; do
         failures=$((failures + 1))
     fi
 done
+# SVG (D-90): the renderer behind imageviewer_svg.h (resvg) in the decode worker, without a display.
+if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
+    check orange.svg 'codec: +resvg [0-9.]+ \(worker\)' "SVG drawn by resvg in the decode worker"
+    check orange.svg 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "SVG colour sRGB (255, 128, 0)"
+    check orange.svgz 'pixel\[0,0\]: +1 0\.215[89][0-9]* 0 a=1' "svgz inflated before the renderer"
+    check text.svg 'pixel\[0,0\]: +1 1 1 a=1' "SVG text drawn with the system's fonts"
+    if [ -f /etc/fonts/fonts.conf ]; then
+        # The system's font configuration, then aliases for monospace and serif (resvg's last resort)
+        # that prefer fonts nobody has: fontdb named the generic families after them and drew no text,
+        # as on Ubuntu 24.04, whose 65-nonlatin.conf prefers "Miriam Mono" and "Frank Ruehl" (CI run
+        # 237). The text still drawn: each generic family is the first installed in fontconfig's order.
+        fc="$(mktemp -d)"
+        printf '<?xml version="1.0"?>\n<fontconfig><include ignore_missing="yes">/etc/fonts/fonts.conf</include>%s%s</fontconfig>\n' \
+            '<alias><family>monospace</family><prefer><family>No Such Font Mono</family></prefer></alias>' \
+            '<alias><family>serif</family><prefer><family>No Such Font Serif</family></prefer></alias>' >"$fc/fonts.conf"
+        said="$(FONTCONFIG_FILE="$fc/fonts.conf" "$exe" --info "$data/text.svg" 2>/dev/null || true)"
+        rm -rf "$fc"
+        if grep -Eq 'pixel\[0,0\]: +1 1 1 a=1' <<<"$said"; then
+            echo "ok   text.svg: SVG text drawn when fontconfig prefers a font that is not installed"
+        else
+            echo "FAIL text.svg: no SVG text when fontconfig prefers a font that is not installed"
+            echo "$said" | sed 's/^/     /'
+            failures=$((failures + 1))
+        fi
+    fi
+    check IV_claude_v5_mix_v1.svg 'size: +1024x1024' "the owner's SVG (17 filters, 13 masks) at its own size"
+    # A worker given no request refuses it (exit 2), and a render past the worker's 30 s ends there:
+    # the viewer says why and goes on (D-38).
+    code=0
+    "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || code=$?
+    if [ "$code" = 2 ]; then echo "ok   SVG worker: no request, refused"; else echo "FAIL SVG worker: exit $code without a request, expected 2"; failures=$((failures + 1)); fi
+    slow="$(mktemp -d)/slow.svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10"/><feGaussianBlur stdDeviation="40"/></filter><rect width="8000" height="8000" filter="url(#n)"/><rect width="8000" height="8000" filter="url(#n)" opacity="0.5"/></svg>\n' >"$slow"
+    started=$(date +%s)
+    said="$("$exe" --info "$slow" 2>/dev/null || true)"
+    took=$(($(date +%s) - started))
+    rm -rf "$(dirname "$slow")"
+    if grep -q 'took longer than 30 s and was stopped' <<<"$said" && [ "$took" -lt 45 ]; then
+        echo "ok   SVG worker: a render past 30 s stopped (${took} s), the viewer says why"
+    else
+        echo "FAIL SVG worker: a render past 30 s ($took s): $said"
+        failures=$((failures + 1))
+    fi
+    # A filter region 25 times its canvas (resvg allocates such a layer whole): the renderer's memory
+    # limit ends the worker at once, and the viewer says so (it took 2 GiB and 30 s before, D-90).
+    bomb="$(mktemp -d)/region.svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
+    started=$(date +%s)
+    said="$("$exe" --info "$bomb" 2>/dev/null || true)"
+    took=$(($(date +%s) - started))
+    rm -rf "$(dirname "$bomb")"
+    if grep -q 'Not enough memory to decode the image' <<<"$said" && [ "$took" -lt 20 ]; then
+        echo "ok   SVG worker: a filter region past the renderer's memory limit refused (${took} s)"
+    else
+        echo "FAIL SVG worker: a filter region past the memory limit ($took s): $said"
+        failures=$((failures + 1))
+    fi
+    # What starting a worker costs on this machine (its libraries load): a record, not a check.
+    # Milliseconds from Perl, which every runner has (macOS's date knows no %N).
+    now_ms() { perl -MTime::HiRes=time -e 'printf "%d\n", time * 1000'; }
+    started=$(now_ms)
+    for _ in 1 2 3 4 5 6 7 8 9 10; do "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || true; done
+    echo "info SVG worker: a start costs $((($(now_ms) - started) / 10)) ms here"
+elif [ -n "${CI:-}" ]; then
+    echo "FAIL svg: no SVG renderer in this build"
+    failures=$((failures + 1))
+else
+    echo "skip svg: no SVG renderer in this build (scripts/build-svg.sh)"
+fi
 check orange.hdr 'pixel\[0,0\]: +1 0\.5 0 a=1' "Radiance HDR read as linear values"
 check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]* a=1' "zfile depth value"
 
@@ -263,15 +332,6 @@ check gray.zfile 'pixel\[0,0\]: +0\.50[12][0-9]* 0\.50[12][0-9]* 0\.50[12][0-9]*
 while IFS='|' read -r id name decoder available caps extensions test; do
     id="$(echo "$id" | xargs)"; decoder="$(echo "$decoder" | xargs)"; available="$(echo "$available" | xargs)"; test="$(echo "$test" | xargs)"
     [ -z "$test" ] || [ "$id" = heic ] && continue
-    if [ "$id" = svg ]; then
-        if [ "$available" != yes ] && [ -n "${CI:-}" ]; then
-            echo "FAIL svg: not in this build (Qt's SVG image plugin missing)"
-            failures=$((failures + 1))
-        else
-            echo "skip svg: decoded only in the graphical interface (Qt lays out SVG text with its font database)"
-        fi
-        continue
-    fi
     if [ "$available" != yes ] && [ -z "${CI:-}" ]; then
         echo "skip $id: not in this build ($test)"
     elif [ "$available" != yes ]; then

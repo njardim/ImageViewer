@@ -60,10 +60,6 @@
         <translation>%1 (fájlmetaadatok, Qt-n keresztül)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>Az SVG dekódolása csak a grafikus felületen történik</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>sérült, csonka vagy nem támogatott %1-fájl</translation>
     </message>

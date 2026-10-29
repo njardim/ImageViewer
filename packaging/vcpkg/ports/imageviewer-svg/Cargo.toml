@@ -1,0 +1,38 @@
+# ImageViewer's SVG renderer (D-90): the contract of imageviewer_svg.h, implemented with resvg.
+# Built by the overlay port (portfile.cmake) inside resvg's source tree at the pinned tag, as
+# `cargo build --locked`: Cargo.lock beside this file holds only the crates of that tag's own
+# Cargo.lock, at its versions and checksums (scripts/update_dependencies.py regenerates and checks
+# it). The version is the resvg release this wraps; the dependency below pins the same.
+[package]
+name = "imageviewer-svg"
+version = "0.48.1"
+edition = "2024"
+rust-version = "1.85.0"
+license = "Apache-2.0"
+publish = false
+
+[lib]
+path = "lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+# text: SVG text; system-fonts and memmap-fonts: the system's fonts, mapped rather than read whole
+# (D-90 (3)); raster-images: the PNG, JPEG, GIF and WebP an SVG embeds. Not svgz: the caller
+# inflates it within its own limit.
+resvg = { path = "../crates/resvg", version = "=0.48.1", default-features = false, features = ["text", "system-fonts", "memmap-fonts", "raster-images"] }
+
+# Linux: the reader of the system's font configuration that fontdb (resvg's font database) uses,
+# for the generic families fontdb leaves uninstalled (lib.rs, settle_generic_families()). Already
+# built into resvg there: its version comes from resvg's own lock, as fontdb asks for it.
+[target.'cfg(all(unix, not(any(target_os = "macos", target_os = "android"))))'.dependencies]
+fontconfig-parser = { version = "0.5", default-features = false }
+
+# Its own workspace: resvg's does not list this crate.
+[workspace]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+debug = false
+panic = "unwind" # every entry point catches a panic and returns a code

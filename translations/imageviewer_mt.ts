@@ -60,10 +60,6 @@
         <translation>%1 (metadata tal-fajl, permezz ta&apos; Qt)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>L-SVG jiġi ddekodifikat biss fl-interfaċċja grafika</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>fajl %1 bil-ħsara, maqtugħ jew mhux appoġġjat</translation>
     </message>

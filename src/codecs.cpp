@@ -589,6 +589,7 @@ bool codecAvailable(Decoder decoder)
     case Decoder::Heif:
     case Decoder::Qt:
     case Decoder::GraphicsMagick:
+    case Decoder::Svg:
     case Decoder::System: break;
     }
     return false;

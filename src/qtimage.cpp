@@ -1,25 +1,18 @@
-// What Qt decodes for the viewer (decisions D-67, D-68, D-71): the formats the registry gives
-// Qt (SVG, Apple icons, cursors, XPM, XBM, WBMP), each only through its own plugin; an SVG
-// only from memory, after everything that reaches outside the document is taken out of it;
-// and the PNG, JPEG, GIF and WebP images those files embed, decoded by OpenImageIO through a
-// Qt image plugin built into the executable. Split from decoders.cpp and codecs.cpp (D-08).
+// What Qt decodes for the viewer (decisions D-67, D-68): the formats the registry gives Qt (Apple
+// icons, cursors, XPM, XBM, WBMP), each only through its own plugin; and the PNG, JPEG, GIF and
+// WebP images those files embed, decoded by OpenImageIO through a Qt image plugin built into the
+// executable. SVG is svg.cpp's (D-90). Split from decoders.cpp and codecs.cpp (D-08).
 #define QT_STATICPLUGIN // the plugin's entry point for Q_IMPORT_PLUGIN (main.cpp), not a library's
 
 #include "decoders.h"
 
-#include <QBuffer>
 #include <QColorSpace>
 #include <QCoreApplication>
 #include <QFileInfo>
-#include <QGuiApplication>
 #include <QImage>
 #include <QImageIOHandler>
 #include <QImageIOPlugin>
 #include <QImageReader>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-
-#include <zlib.h>
 
 #include <algorithm>
 #include <cstring>
@@ -29,134 +22,6 @@ namespace {
 
 using color::Descriptor;
 using color::Transfer;
-
-constexpr qsizetype kMaxSvgBytes = qsizetype(256) << 20; // the XML of one SVG document, inflated
-constexpr int kMaxSvgNesting = 4;                         // SVG images inside SVG images
-
-// An svgz file's XML, every gzip member inflated, within kMaxSvgBytes: a few kilobytes can
-// inflate to gigabytes, which Qt's own reader would allocate. Empty when damaged or larger.
-QByteArray gunzip(QByteArrayView in)
-{
-    z_stream z{};
-    if (inflateInit2(&z, MAX_WBITS + 16) != Z_OK) // + 16: a gzip header and trailer
-        return {};
-    z.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(in.data()));
-    z.avail_in = uInt(in.size()); // at most kMaxFileBytes (readWholeFile)
-    QByteArray out;
-    int status = Z_OK;
-    for (;;) {
-        if (status == Z_STREAM_END) {
-            if (z.avail_in == 0)
-                break;
-            if (inflateReset(&z) != Z_OK) { // another member follows
-                status = Z_DATA_ERROR;
-                break;
-            }
-        }
-        if (out.size() >= kMaxSvgBytes) {
-            status = Z_MEM_ERROR;
-            break;
-        }
-        const qsizetype at = out.size();
-        out.resize(std::min(kMaxSvgBytes, std::max<qsizetype>(2 * at, 1 << 16)));
-        z.next_out = reinterpret_cast<Bytef *>(out.data() + at);
-        z.avail_out = uInt(out.size() - at);
-        status = inflate(&z, Z_NO_FLUSH);
-        out.resize(out.size() - qsizetype(z.avail_out));
-        if (status != Z_OK && status != Z_STREAM_END) // a damaged or truncated stream
-            break;
-    }
-    inflateEnd(&z);
-    return status == Z_STREAM_END ? out : QByteArray();
-}
-
-QByteArray safeSvg(QByteArrayView svg, int nesting);
-
-// A data: URL of an SVG's <image> (RFC 2397, "data:[<type>][;base64],<data>"), written again
-// from the bytes decoded here, so that Qt decodes exactly what was checked: an embedded PNG,
-// JPEG, GIF or WebP, or an SVG made safe in turn; empty for anything else.
-QString safeDataUrl(QStringView url, int nesting)
-{
-    const qsizetype comma = url.indexOf(QLatin1Char(','));
-    if (comma < 0)
-        return {};
-    QByteArray bytes = QByteArray::fromPercentEncoding(url.sliced(comma + 1).toUtf8());
-    if (url.first(comma).endsWith(QLatin1String(";base64"), Qt::CaseInsensitive))
-        bytes = QByteArray::fromBase64(bytes); // lenient, as Qt's: what it decodes is what is written below
-    if (const char *format = embeddedImageFormat(bytes))
-        return QStringLiteral("data:image/%1;base64,").arg(QLatin1String(format)) + QString::fromLatin1(bytes.toBase64());
-    if (nesting >= kMaxSvgNesting)
-        return {};
-    const QByteArray svg = safeSvg(bytes, nesting + 1);
-    return svg.isEmpty() ? QString() : QStringLiteral("data:image/svg+xml;base64,") + QString::fromLatin1(svg.toBase64());
-}
-
-// The SVG document Qt is given (D-71), read and written again with nothing that makes Qt's SVG
-// renderer read outside it, as browsers show an SVG used as an image. Qt's renderer opens the
-// file an <image> names (beside the SVG, at any path, or on Windows \\server\share, where the
-// system connects and presents the user's credentials) and the style sheet an xml-stylesheet
-// instruction names [code: qtsvg v6.12.0 qsvghandler.cpp:1967-1981, 4238-4262]. So no DTD (its
-// entities are expanded by the reader here, and an ATTLIST default would put back an attribute
-// taken out), no processing instruction, and no reference but "#id": an <image> keeps only an
-// embedded image (safeDataUrl). Empty when the document cannot be read or is too large. Style
-// sheets, scripts and event attributes stay: neither Qt's renderer nor resvg follows an @import
-// or runs anything [code: qtsvg v6.12.0 reads no import rule and has no script engine; usvg
-// 0.48.0 renders static SVG only, its CSS parser simplecss 0.2.2 skips every at-rule] (D-82).
-// Only the file itself may be an svgz: an SVG inside it inflated as well would multiply the work
-// at each level (a few kilobytes of gzip inflate to hundreds of megabytes, which can hold many
-// more), and browsers do not inflate a data: URL either.
-QByteArray safeSvg(QByteArrayView svg, int nesting)
-{
-    const QByteArray xml = nesting == 0 && svg.startsWith("\x1f\x8b") ? gunzip(svg) // svgz
-                           : svg.size() <= kMaxSvgBytes ? QByteArray::fromRawData(svg.data(), svg.size()) // read in place
-                                                        : QByteArray();
-    if (xml.isEmpty())
-        return {};
-    QXmlStreamReader reader(xml);
-    reader.setNamespaceProcessing(false); // names as written, as Qt's renderer reads them
-    QByteArray out;
-    QXmlStreamWriter writer(&out);
-    while (!reader.atEnd()) {
-        switch (reader.readNext()) {
-        case QXmlStreamReader::StartDocument: writer.writeStartDocument(); break;
-        case QXmlStreamReader::EndDocument: writer.writeEndDocument(); break;
-        case QXmlStreamReader::StartElement: {
-            const QStringView name = reader.qualifiedName();
-            const bool image = name.sliced(name.lastIndexOf(QLatin1Char(':')) + 1) == QLatin1String("image");
-            writer.writeStartElement(name.toString());
-            const QXmlStreamAttributes attributes = reader.attributes();
-            for (const QXmlStreamAttribute &attribute : attributes) {
-                const QStringView key = attribute.qualifiedName();
-                QString value = attribute.value().toString();
-                if (key == QLatin1String("href") || key.endsWith(QLatin1String(":href"))) {
-                    const QStringView reference = QStringView(value).trimmed();
-                    if (image)
-                        value = reference.startsWith(QLatin1String("data:"), Qt::CaseInsensitive)
-                                    ? safeDataUrl(reference, nesting)
-                                    : QString();
-                    else if (!reference.startsWith(QLatin1Char('#')))
-                        value.clear();
-                    if (value.isEmpty())
-                        continue;
-                }
-                writer.writeAttribute(key.toString(), value);
-            }
-            break;
-        }
-        case QXmlStreamReader::EndElement: writer.writeEndElement(); break;
-        case QXmlStreamReader::Characters:
-            if (reader.isCDATA())
-                writer.writeCDATA(reader.text().toString());
-            else
-                writer.writeCharacters(reader.text().toString());
-            break;
-        default: break; // the DTD, processing instructions, entity references the reader could not expand, comments
-        }
-        if (out.size() > kMaxSvgBytes)
-            return {};
-    }
-    return reader.hasError() || writer.hasError() ? QByteArray() : out;
-}
 
 // Describes a QColorSpace that was not built from an ICC profile (PNG gAMA/cHRM/sRGB chunks).
 bool describeQtColorSpace(const QColorSpace &cs, Descriptor *d)
@@ -196,35 +61,11 @@ bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, D
         *error = QCoreApplication::translate("Image", "damaged, truncated or unsupported file");
         return false;
     }
-    const bool svg = std::strcmp(format->id, "svg") == 0;
-    // Qt's SVG reader lays out text with QFontDatabase, which aborts without a QGuiApplication
-    // (console modes such as --info run on a QCoreApplication).
-    if (svg && !qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
-        *error = QCoreApplication::translate("Image", "SVG is only decoded in the graphical interface");
-        return false;
-    }
-    QByteArray document; // an SVG, made safe (D-71), read from memory
-    QBuffer buffer(&document);
     QImageReader reader;
-    if (svg) {
-        QByteArray file;
-        if (!readWholeFile(path, &file, error))
-            return false;
-        document = safeSvg(file, 0);
-        if (document.isEmpty()) {
-            qCInfo(lcDecode).noquote() << "SVG: not well-formed XML, or more than" << (kMaxSvgBytes >> 20) << "MiB:" << path;
-            *error = damaged(format->name);
-            return false;
-        }
-        buffer.open(QIODevice::ReadOnly);
-        reader.setDevice(&buffer);
-        reader.setFormat("svg");
-    } else {
-        const QStringList suffixes = format->suffixes();
-        const QString suffix = QFileInfo(path).suffix().toLower();
-        reader.setFileName(path);
-        reader.setFormat((suffixes.contains(suffix) ? suffix : suffixes.constFirst()).toLatin1());
-    }
+    const QStringList suffixes = format->suffixes();
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    reader.setFileName(path);
+    reader.setFormat((suffixes.contains(suffix) ? suffix : suffixes.constFirst()).toLatin1());
     reader.setAutoDetectImageFormat(false);
     if (const QSize size = reader.size(); maxPixels > 0 && size.isValid() && qint64(size.width()) * size.height() > maxPixels) {
         out->overLimit = true;
@@ -270,14 +111,14 @@ bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, D
 
 namespace {
 
-// Qt decodes the images inside the files it reads for us (an SVG's data: URIs, cursors, Apple
-// icons) with its own copies of libpng, libjpeg and libwebp, which the dependency audit cannot
+// Qt decodes the images inside the files it reads for us (cursors, Apple icons) with its own
+// copies of libpng, libjpeg and libwebp, which the dependency audit cannot
 // follow and which lag the ones we ship (Qt 6.12.0: libpng 1.6.58, without the fix of
 // CVE-2026-46675); the packages carry none of Qt's other image plugins. Qt asks a plugin that
 // names the format before its own reader, for a named format and by content alike: this handler
 // decodes PNG, JPEG, GIF and WebP with OpenImageIO, through the libraries the audit follows
 // (D-68, D-71). The colour Qt's own reader would attach to the image: decodeWithQt() reads it
-// back for cursors and icons (an SVG's painter ignores it).
+// back for cursors and icons.
 QColorSpace qtColorSpace(const color::Descriptor &d)
 {
     if (d.source == color::Descriptor::Source::Icc)

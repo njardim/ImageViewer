@@ -242,7 +242,7 @@ void ViewerWindow::decodeThumbnail(const QString &path)
         thumbnail.fileSize = info.size();
         thumbnail.modified = info.lastModified();
         // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
-        if (const Image image = decodeImage(path, pixels, maxPixels, false); image.isValid())
+        if (const Image image = decodeImage(path, pixels, maxPixels, false, true); image.isValid())
             thumbnail.image = srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied);
         QMetaObject::invokeMethod(this, [this, path, thumbnail, generation] {
             m_thumbnailsPending.remove(path);

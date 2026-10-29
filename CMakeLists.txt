@@ -49,7 +49,8 @@ qt_standard_project_setup(
 )
 
 find_package(OpenImageIO CONFIG REQUIRED)
-# svgz, inflated before Qt sees the SVG (qtimage.cpp, D-71); the zlib OpenImageIO ships with.
+# svgz, inflated in the decode worker before the renderer sees the SVG (svg.cpp, D-71), and the APNG
+# reader's CRC; the zlib OpenImageIO ships with.
 find_package(ZLIB REQUIRED)
 
 # Little CMS: CMake config from vcpkg, pkg-config elsewhere (e.g. Linux distributions).
@@ -79,7 +80,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp
+    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp src/svg.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
     src/openwith.h src/openwith.cpp
@@ -128,8 +129,10 @@ target_link_libraries(imageviewer PRIVATE
     ZLIB::ZLIB
 )
 if(APPLE)
-    # SVG is read by Qt's image plugin; macdeployqt copies that plugin only into bundles
-    # whose executable links QtSvg (the 0.4 macOS package had no SVG support without this).
+    # QtSvg in every package, though nothing of ours calls it (D-90 (12), the owner): Linux's draws
+    # the window decoration Qt uses on GNOME under Wayland ("adwaita"), and every system ships the
+    # same Qt. macdeployqt copies a framework only into bundles whose executable links it; Windows
+    # asks windeployqt for it below. Its SVG image and icon plugins never ship (build.yml).
     find_package(Qt6 6.12 REQUIRED COMPONENTS Svg)
     target_link_libraries(imageviewer PRIVATE Qt6::Svg)
 endif()
@@ -180,6 +183,16 @@ if(GRAPHICSMAGICK_INCLUDE_DIR AND GRAPHICSMAGICK_LIBRARY AND GRAPHICSMAGICK_VERS
     message(STATUS "Decode worker: GraphicsMagick ${GRAPHICSMAGICK_VERSION} ${GRAPHICSMAGICK_LIBRARY}")
 elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
     message(FATAL_ERROR "GraphicsMagick 1.3.49 or later not found (decode worker; found '${GRAPHICSMAGICK_VERSION}')")
+endif()
+# SVG (svg.cpp, D-90): ImageViewer's SVG renderer, the contract imageviewer_svg.h implemented with resvg
+# (overlay port packaging/vcpkg/ports/imageviewer-svg; locally scripts/build-svg.sh). Without it, no SVG.
+find_package(imageviewer-svg CONFIG QUIET)
+if(TARGET imageviewer::svg)
+    target_link_libraries(imageviewer PRIVATE imageviewer::svg)
+    target_compile_definitions(imageviewer PRIVATE IMAGEVIEWER_HAVE_SVG)
+    message(STATUS "SVG: ${imageviewer-svg_RENDERER}")
+elseif(IMAGEVIEWER_REQUIRE_ALL_DECODERS)
+    message(FATAL_ERROR "ImageViewer's SVG renderer (imageviewer-svg) not found")
 endif()
 # HEIC through the system's decoders (D-39, syscodecs.cpp).
 if(APPLE)
@@ -257,8 +270,9 @@ if(APPLE AND DEFINED VCPKG_INSTALLED_DIR)
 endif()
 if(WIN32)
     # MSVC runtime DLLs go next to ImageViewer.exe (app-local) instead of the
-    # vc_redist installer that windeployqt would add.
-    list(APPEND deploy_options NO_COMPILER_RUNTIME)
+    # vc_redist installer that windeployqt would add. --svg: QtSvg, which nothing of ours
+    # links, in every package alike (D-90 (12), above).
+    list(APPEND deploy_options NO_COMPILER_RUNTIME DEPLOY_TOOL_OPTIONS --svg)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})
     include(InstallRequiredSystemLibraries)
 endif()

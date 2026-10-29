@@ -1,0 +1,9 @@
+{
+  "name": "imageviewer-svg",
+  "$comment": "ImageViewer overlay (docs/PLAN.md D-80, D-90): ImageViewer's SVG renderer contract (imageviewer_svg.h) implemented with resvg, at its newest release past the cooldown. resvg by git at the tag's commit; its crates from that tag's Cargo.lock (cargo build --locked). The version is resvg's. The crates' licences are in share/imageviewer-svg/crates.tsv, checked one by one by packaging/check_licences.py.",
+  "version": "0.48.1",
+  "description": "ImageViewer's SVG renderer: resvg behind a small C contract",
+  "homepage": "https://github.com/linebender/resvg",
+  "license": "Apache-2.0 OR MIT",
+  "supports": "(windows & x64 & !uwp) | (osx & arm64) | (linux & x64)"
+}

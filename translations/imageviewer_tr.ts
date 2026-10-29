@@ -60,10 +60,6 @@
         <translation>%1 (dosya üst verisi, Qt aracılığıyla)</translation>
     </message>
     <message>
-        <source>SVG is only decoded in the graphical interface</source>
-        <translation>SVG yalnızca grafik arayüzünde çözülür</translation>
-    </message>
-    <message>
         <source>damaged, truncated or unsupported %1 file</source>
         <translation>hasarlı, eksik veya desteklenmeyen %1 dosyası</translation>
     </message>

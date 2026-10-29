@@ -190,7 +190,7 @@ const QList<Format> kFormats = {
     {"zfile", "Pixar zfile", "zfile", D::OpenImageIO, CanHdr, isZfile, false, "gray.zfile"},
     {"icns", "Apple icon", "icns", D::Qt, CanAlpha, isIcns, false, "orange.icns"},
     {"xpm", "XPM", "xpm", D::Qt, CanAlpha, isXpm, false, "gm.xpm"},
-    {"svg", "SVG", "svg svgz", D::Qt, CanAlpha, isSvg, false, "orange.svg"},
+    {"svg", "SVG", "svg svgz", D::Svg, CanAlpha, isSvg, false, "orange.svg"},
     {"tiff", "TIFF", "tif tiff tx env sm vsm", D::OpenImageIO, CanHdr | CanAlpha | CanHavePages, isTiff, true, "rgb16.tif"},
     // Without a signature of their own: known by their extension.
     {"raw", "Camera RAW (LibRaw)",
@@ -234,6 +234,7 @@ const char *decoderId(Decoder d)
     case Decoder::Qt: return "Qt";
     case Decoder::System: return "system";
     case Decoder::GraphicsMagick: return "GraphicsMagick";
+    case Decoder::Svg: return "SVG renderer"; // whichever implements imageviewer_svg.h (D-90)
     }
     return "?";
 }
@@ -320,6 +321,7 @@ bool isAvailable(const Format &format)
     case Decoder::Qt: return qtFormats().contains(first);
     case Decoder::System: return systemHeicAvailable(); // HEIC is the only one so far
     case Decoder::GraphicsMagick: return graphicsMagickAvailable();
+    case Decoder::Svg: return svgAvailable();
     }
     return false;
 }

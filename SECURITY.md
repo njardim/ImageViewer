@@ -56,13 +56,20 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
   package's bill of materials names the ones built into it. Today: OpenJPH (CVE-2026-111151 and
   two upstream fixes), LibRaw (CVE-2026-111272), OpenJPEG (OSV-2025-219) and OpenImageIO (two).
 - **Release gate.** A release is published only when the audit is clean.
-- **Only audited code reads images.** Qt reads only SVG, ICNS, cursors, WBMP, XPM and XBM; the PNG,
-  JPEG, GIF and WebP images inside them are decoded by OpenImageIO with the audited libraries, never
-  by Qt's own copies, and the packages carry no other Qt image plugin (D-68, D-71).
-- **An SVG reads nothing outside itself.** Before Qt renders an SVG, every reference to another
-  file (an image beside it or at any path, a network share, a style sheet, an SVG inside it that
-  names one) is taken out, as browsers show an SVG used as an image; an svgz may inflate to at most
-  256 MiB (D-71).
+- **Only audited code reads images.** Qt reads only ICNS, cursors, WBMP, XPM and XBM; the PNG, JPEG,
+  GIF and WebP images inside them are decoded by OpenImageIO with the audited libraries, never by
+  Qt's own copies, and the packages carry no other Qt image plugin and none of Qt's SVG plugins (D-68, D-71, D-90). The QtSvg
+  library itself ships, in every package alike, for the window decoration Qt draws on GNOME under Wayland,
+  which reads only the system's icon theme; nothing the user opens reaches it (D-90 (12)).
+- **An SVG is read in a separate process and reads nothing outside itself.** SVG is drawn by resvg
+  in the decode worker, never in the viewer's own process: a crash there, or 30 seconds, ends there.
+  Before it is drawn, every reference to another file (an image beside it or at any path, a network
+  share, a style sheet, an SVG inside it that names one) is taken out, as browsers show an SVG used
+  as an image, and an svgz may inflate to at most 256 MiB (D-71); resvg is reached through our own
+  layer, which refuses to open any file an SVG names whatever got through, turns its errors into a
+  clean refusal, and caps the memory the renderer may take (an SVG can declare a filter region many
+  times its size) (D-90). resvg's crates and the Rust toolchain are audited like every other
+  library: OSV, the cooldown, licences, the bill of materials.
 - **Never below a security fix.** Each library is pinned to its newest release past the cooldown;
   when that would drop a security fix, the newer release ships as a recorded exception, approved
   by the maintainer after reading its changes (D-69).

@@ -3,9 +3,10 @@
 #
 # The cloud proxy blocks download.qt.io and GitHub release assets, so Qt 6.12 is
 # built from the GitHub source mirror into /opt/qt6 (qtbase, qtshadertools, the
-# Linguist tools of qttools, qtsvg and qtimageformats, ~25 min on 4 cores). A Qt of
+# Linguist tools of qttools and qtimageformats, ~25 min on 4 cores). A Qt of
 # another version already in /opt/qt6 is replaced. Its image plugins are the packages'
-# (D-67, D-68): SVG, ICNS, ICO and WBMP. Imaging libraries come from apt; their
+# (D-67, D-68): ICNS, ICO and WBMP (SVG is resvg's, scripts/build-svg.sh, D-90).
+# Imaging libraries come from apt; their
 # versions are older than production (vcpkg, see vcpkg.json) but sufficient to
 # compile and test.
 #
@@ -37,9 +38,9 @@ $sudo mkdir -p /usr/include/opencv4
 installed="$(sed -n 's/^set(PACKAGE_VERSION "\([0-9.]*\)")$/\1/p' "$PREFIX/lib/cmake/Qt6/Qt6ConfigVersionImpl.cmake" 2>/dev/null || true)"
 plugins="$PREFIX/plugins/imageformats"
 if [ "v$installed" != "$QT_TAG" ] || [ ! -x "$PREFIX/bin/qsb" ] || [ ! -x "$PREFIX/bin/lupdate" ] \
-    || [ ! -e "$plugins/libqsvg.so" ] || [ -e "$plugins/libqjpeg.so" ]; then
+    || [ ! -e "$plugins/libqicns.so" ]; then
     mkdir -p "$WORK" && cd "$WORK"
-    for module in qtbase qtshadertools qttools qtsvg qtimageformats; do
+    for module in qtbase qtshadertools qttools qtimageformats; do
         # A source tree of another version is cloned again.
         if [ -d "$module" ] && [ "$(git -C "$module" describe --tags --exact-match 2>/dev/null)" != "$QT_TAG" ]; then
             rm -rf "${WORK:?}/$module" "${WORK:?}/build-$module"
@@ -64,22 +65,19 @@ if [ "v$installed" != "$QT_TAG" ] || [ ! -x "$PREFIX/bin/qsb" ] || [ ! -x "$PREF
         -DFEATURE_qtattributionsscanner=OFF
     cmake --build build-qttools --parallel "$(nproc)"
     $sudo cmake --install build-qttools
-    # SVG, and ICNS and WBMP (qtimageformats). Then every other image plugin (qtbase's JPEG and GIF,
-    # qtimageformats' TGA, TIFF, WebP...) goes, with its CMake package, which would refuse a
-    # plugin file that is missing.
-    cmake -S qtsvg -B build-qtsvg -G Ninja -DCMAKE_PREFIX_PATH="$PREFIX" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
-        -DCMAKE_BUILD_TYPE=Release -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF
-    cmake --build build-qtsvg --parallel "$(nproc)"
-    $sudo cmake --install build-qtsvg
+    # ICNS and WBMP (qtimageformats).
     cmake -S qtimageformats -B build-qtimageformats -G Ninja -DCMAKE_PREFIX_PATH="$PREFIX" -DCMAKE_INSTALL_PREFIX="$PREFIX" \
         -DCMAKE_BUILD_TYPE=Release -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF
     cmake --build build-qtimageformats --parallel "$(nproc)"
     $sudo cmake --install build-qtimageformats
-    for f in "$plugins"/*; do
-        name="$(basename "$f")"; name="${name#libq}"; name="${name%.so}"
-        case "$name" in svg|icns|ico|wbmp) continue ;; esac
-        $sudo rm -f "$f"
-        $sudo find "$PREFIX/lib/cmake" -iname "Qt6Q${name}Plugin*.cmake" -delete
-    done
 fi
+# Every other image plugin (qtbase's JPEG and GIF, qtimageformats' TGA, TIFF, WebP..., and the SVG
+# plugin of a Qt installed before D-90) goes, with its CMake package, which would refuse a plugin
+# file that is missing.
+for f in "$plugins"/*; do
+    name="$(basename "$f")"; name="${name#libq}"; name="${name%.so}"
+    case "$name" in icns|ico|wbmp) continue ;; esac
+    $sudo rm -f "$f"
+    $sudo find "$PREFIX/lib/cmake" -iname "Qt6Q${name}Plugin*.cmake" -delete
+done
 echo "Qt installed in $PREFIX"

@@ -11,8 +11,10 @@ and fails when:
   - a port that must never ship is installed (FORBIDDEN, docs/PLAN.md §5).
 Ports without a declared licence are listed as warnings. vcpkg's own build helpers
 (vcpkg-cmake, vcpkg-make, ...), which CMakeLists.txt leaves out of the packages, are
-listed as such when vcpkg's record of their files shows no binary (bin/, lib/). Standard
-library only, so it runs unchanged on the Windows, macOS and Linux runners.
+listed as such when vcpkg's record of their files shows no binary (bin/, lib/). The crates
+built into the SVG renderer (share/imageviewer-svg/crates.tsv, D-90) are checked one by one
+under the same rules. Standard library only, so it runs unchanged on the Windows, macOS and
+Linux runners.
 """
 import json
 import os
@@ -51,7 +53,9 @@ class ExpressionError(ValueError):
 
 
 def acceptable(expression):
-    """True if the SPDX expression allows distribution under non-GPL terms."""
+    """True if the SPDX expression allows distribution under non-GPL terms. Cargo's older "A/B" means
+    "A OR B"."""
+    expression = re.sub(r"\s*/\s*", " OR ", expression)
     tokens = re.findall(r"\(|\)|[^\s()]+", expression)
     pos = 0
 
@@ -159,6 +163,27 @@ def main():
         if not ok:
             errors.append(f"{port}: {licence} has no LGPL or permissive option")
 
+    # The SVG renderer's crates (D-90): every one under the same rules as a port.
+    port_count, crate_count = len(rows), 0
+    crates = share / "imageviewer-svg" / "crates.tsv"
+    if (share / "imageviewer-svg").is_dir() and not crates.is_file():
+        errors.append("imageviewer-svg: no crates.tsv, the crates' licences are not checked")
+    for line in crates.read_text(encoding="utf-8").splitlines() if crates.is_file() else []:
+        name, version, licence, source = line.split("\t")
+        label = f"imageviewer-svg: {name} {version}"
+        if not licence:
+            errors.append(f"{label} declares no licence")
+            continue
+        try:
+            ok = acceptable(licence)
+        except ExpressionError as e:
+            errors.append(f"{label}: cannot parse licence: {e}")
+            continue
+        rows.append((f"  {name} {version}", licence, "ok" if ok else "GPL, not allowed"))
+        crate_count += 1
+        if not ok:
+            errors.append(f"{label}: {licence} has no LGPL or permissive option")
+
     width = max((len(r[0]) for r in rows), default=4)
     for port, licence, verdict in rows:
         print(f"{port:<{width}}  {verdict:<16}  {licence}")
@@ -168,7 +193,8 @@ def main():
         print(f"::error::licence gate: {message}" if annotate else f"error: {message}")
     if errors:
         sys.exit(1)
-    print(f"licence gate: {len(rows)} ports checked, no GPL-only licence, none of {', '.join(FORBIDDEN)}")
+    print(f"licence gate: {port_count} ports and {crate_count} crates checked, no GPL-only licence, "
+          f"none of {', '.join(FORBIDDEN)}")
 
 
 if __name__ == "__main__":

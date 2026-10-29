@@ -429,7 +429,7 @@ int oiioFrameDurationMs(const OIIO::ImageSpec &spec)
 }
 
 bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint64 maxPixels, Decoded *out,
-                QString *error, std::unique_ptr<FrameReader> *frames)
+                QString *error, std::unique_ptr<FrameReader> *frames, VectorSize vector)
 {
     switch (decoder) {
     case Decoder::Jxl:
@@ -452,9 +452,10 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     case Decoder::Qt: return decodeWithQt(path, format, maxPixels, out, error);
     case Decoder::System: return decodeSystemHeic(path, maxPixels, out, error);
     case Decoder::GraphicsMagick:
+    case Decoder::Svg:
         if (!format)
             break;
-        return decodeInWorker(*format, path, maxPixels, out, error);
+        return decodeInWorker(*format, path, maxPixels, out, error, vector);
     case Decoder::OpenImageIO: break;
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
@@ -639,7 +640,8 @@ bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QStr
     return false;
 }
 
-bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames)
+bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames,
+                VectorSize vector)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -669,7 +671,7 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
         if (frames)
             frames->reset();
         QString why;
-        if (decodeWith(decoder, path, format, maxPixels, out, &why, frames))
+        if (decodeWith(decoder, path, format, maxPixels, out, &why, frames, vector))
             return true;
         if (out->overLimit)
             return false;
@@ -711,6 +713,7 @@ QString decoderName(Decoder decoder)
     case Decoder::Heif: return QStringLiteral("libheif");
     case Decoder::Qt: return QStringLiteral("Qt");
     case Decoder::GraphicsMagick: return QStringLiteral("GraphicsMagick");
+    case Decoder::Svg: return svgRenderer().section(QLatin1Char(' '), 0, 0); // "resvg"
     case Decoder::Softimage: return QStringLiteral("ImageViewer"); // our own reader
     case Decoder::System:
 #if defined(Q_OS_MACOS)
@@ -734,6 +737,7 @@ QString decoderVersion(Decoder decoder)
     case Decoder::Heif: return heifVersion();
     case Decoder::Qt: return QString::fromLatin1(qVersion());
     case Decoder::GraphicsMagick: return graphicsMagickVersion();
+    case Decoder::Svg: return svgRenderer().section(QLatin1Char(' '), 1); // "0.48.1"
     case Decoder::Softimage: return QCoreApplication::applicationVersion();
     case Decoder::System:
 #if defined(Q_OS_MACOS)

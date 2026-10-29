@@ -29,6 +29,13 @@ Four checks, each usable alone, and the software bill of materials:
 --coverage DIR     Fails when a library installed in DIR (vcpkg's installed tree, "share/<port>")
                    is missing from this audit's list: nothing ships unaudited.
 
+The SVG renderer (D-90) is audited as three things: resvg, by the commit its overlay port pins, as
+the other libraries; every crate of the port's Cargo.lock, in OSV by its name and version and
+through the cooldown by its publication date on crates.io (the lock pins each crate's checksum,
+which cargo verifies, so no archive is compared); and the Rust toolchain whose standard library is
+compiled in, by the commit of its release tag and the tag's date. A crate's known vulnerability is
+answered as any other: by an assessment in packaging/known-vulnerabilities.txt, as "crate/<name>".
+
 Exit status: 0 clean; 1 an actionable or unassessed vulnerability, a source that does not match its
 tag, a release under the cooldown, or an unaudited library; 2 a check could not run (network, or an
 unreadable file of packaging/: cooldown-days.txt, cooldown-exceptions.txt, known-vulnerabilities.txt).
@@ -69,10 +76,15 @@ OSV = "https://api.osv.dev/v1"
 COOLDOWN_FILE = os.path.join(ROOT, "packaging", "cooldown-days.txt")
 EXCEPTIONS_FILE = os.path.join(ROOT, "packaging", "cooldown-exceptions.txt")
 KNOWN_FILE = os.path.join(ROOT, "packaging", "known-vulnerabilities.txt")
-VULNERABILITY_ID = re.compile(r"\b(?:CVE-\d{4}-\d+|OSV-\d{4}-\d+|GHSA(?:-[0-9a-z]{4}){3})\b")
+VULNERABILITY_ID = re.compile(r"\b(?:CVE-\d{4}-\d+|OSV-\d{4}-\d+|RUSTSEC-\d{4}-\d{4}|GHSA(?:-[0-9a-z]{4}){3})\b")
 POLICY_DAYS = 15  # D-67; a cooldown below it is reported, and the weekly audit opens an issue
 GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagick&limit=100"  # more: HTTP 400
 VCPKG = "https://github.com/microsoft/vcpkg"
+# The SVG renderer's crates and toolchain (D-90).
+SVG_PORT = os.path.join(PORTS, "imageviewer-svg")
+CRATES_IO = "https://crates.io/api/v1/crates"
+RUST = "https://github.com/rust-lang/rust"
+USER_AGENT = "ImageViewer-dependency-audit (https://github.com/njardim/ImageViewer)"  # crates.io asks for a contact
 
 
 
@@ -162,6 +174,8 @@ COMMIT_PORTS = {
     "openjpeg": ("https://github.com/uclouvain/openjpeg", "v{v}"),
     # A security fix ahead of vcpkg's baseline (D-76); vcpkg's port otherwise.
     "brotli": ("https://github.com/google/brotli", "v{v}"),
+    # The SVG renderer (D-90): resvg, with our crate beside it; its crates and Rust are audited apart.
+    "imageviewer-svg": ("https://github.com/linebender/resvg", "v{v}"),
 }
 # Tags that look like releases but are not (libjpeg-turbo numbers its betas x.y.90 and up).
 PRERELEASE = {"libjpeg-turbo": lambda v: v[-1] >= 90}
@@ -172,7 +186,8 @@ TARBALL_PORTS = {
     "graphicsmagick": ("hg", "https://foss.heptapod.net/graphicsmagick/graphicsmagick",
                        "GraphicsMagick-{v_}"),
 }
-# Qt's modules in the packages, at packaging/qt-version.txt.
+# Qt's modules in the packages, at packaging/qt-version.txt. qtsvg: the library alone, for the window
+# decoration Qt draws on GNOME under Wayland, in every package alike (D-90 (12)); never its plugins.
 QT_MODULES = ["qtbase", "qtsvg", "qtimageformats", "qtwayland"]
 # Not libraries: vcpkg's build helpers, and our own manifest.
 NOT_SHIPPED = re.compile(r"^(vcpkg-.*|imageviewer)$")
@@ -215,7 +230,7 @@ OPENER = urllib.request.build_opener(SameHostRedirects)
 
 
 def fetch(url, data=None):
-    headers = {"User-Agent": "ImageViewer-dependency-audit"}
+    headers = {"User-Agent": USER_AGENT}
     if data is not None:
         headers["Content-Type"] = "application/json"
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
@@ -326,6 +341,33 @@ def our_patches(port):
     return patches
 
 
+def crates():
+    """[(name, version, checksum)] of every crate from crates.io in the SVG renderer's Cargo.lock (D-90),
+    which builds resvg with `cargo build --locked`."""
+    import tomllib  # Python 3.11
+    with open(os.path.join(SVG_PORT, "Cargo.lock"), "rb") as f:
+        lock = tomllib.load(f)
+    return [(p["name"], p["version"], p.get("checksum")) for p in lock["package"]
+            if p.get("source", "").startswith("registry+")]
+
+
+def rust_version():
+    """The Rust release that builds the SVG renderer (its rust-toolchain.toml, D-90)."""
+    match = re.search(r'^channel = "(\d+\.\d+\.\d+)"$', read(os.path.join(SVG_PORT, "rust-toolchain.toml")), re.M)
+    if not match:
+        raise ValueError("packaging/vcpkg/ports/imageviewer-svg/rust-toolchain.toml: no Rust release pinned")
+    return match.group(1)
+
+
+def crate_date(name, version):
+    """When crates.io published a crate's version (set by crates.io, not by the publisher). crates.io
+    allows one request a second."""
+    import time
+    time.sleep(1)
+    data = json.loads(fetch(f"{CRATES_IO}/{urllib.parse.quote(name)}/{urllib.parse.quote(version)}"))
+    return datetime.datetime.fromisoformat(data["version"]["created_at"].replace("Z", "+00:00"))
+
+
 def release_tags(url, templates, name=""):
     """{version tuple: (tag, commit)} of every release tag matching the "|"-separated templates."""
     patterns = [re.escape(t).replace(r"\{v\}", r"(\d+(?:\.\d+)*)").replace(r"\{v_\}", r"(\d+(?:_\d+)*)")
@@ -367,20 +409,50 @@ def shipped(baseline):
         url = f"https://github.com/qt/{module}"
         libraries.append(dict(name=module, version=qt, url=url, commit=release_tag(url, "v{v}", qt)[1],
                               how="Qt (official binaries)", templates="v{v}", keep=2))
+    rust = rust_version()  # its standard library is compiled into the SVG renderer (D-90)
+    libraries.append(dict(name="rust", version=rust, url=RUST, commit=release_tag(RUST, "{v}", rust)[1],
+                          how="Rust toolchain (the SVG renderer)", templates="{v}", keep=1))
     return libraries
+
+
+def ripening(lib):
+    """The day the library's newest allowed release (lib["newest"]) passes the cooldown, or None when
+    it is past it, excepted, or cannot be dated (never a reason to wait)."""
+    version, _, tag = lib["newest"]
+    if f"{lib['name']} {version}" in COOLDOWN_EXCEPTIONS:
+        return None
+    try:
+        when = tag_date(lib["url"], tag)[0]
+    except Exception:
+        return None
+    if age_days(when) >= MIN_RELEASE_AGE_DAYS:
+        return None
+    return (when + datetime.timedelta(days=MIN_RELEASE_AGE_DAYS)).date().isoformat()
 
 
 def osv_lookup(commits):
     """{commit: [(id, CVE aliases, summary, fixed upstream)]} from OSV; withdrawn entries left out."""
     commits = list(dict.fromkeys(commits))
-    if not commits:
-        return {}
-    results = json.loads(fetch(f"{OSV}/querybatch", json.dumps({"queries": [{"commit": c} for c in commits]}).encode()))["results"]
-    details, found = {}, {}
-    for commit, result in zip(commits, results):
+    return dict(zip(commits, osv_query([{"commit": c} for c in commits])))
+
+
+def osv_crates(pinned):
+    """{(name, version): [(id, aliases, summary, fixed upstream)]} of crates from crates.io, from OSV."""
+    return dict(zip(pinned, osv_query([{"package": {"ecosystem": "crates.io", "name": n}, "version": v}
+                                       for n, v in pinned])))
+
+
+def osv_query(queries):
+    """[[(id, CVE aliases, summary, fixed upstream)] per query] from OSV's batch query; withdrawn
+    entries left out."""
+    if not queries:
+        return []
+    results = json.loads(fetch(f"{OSV}/querybatch", json.dumps({"queries": queries}).encode()))["results"]
+    details, found = {}, []
+    for query, result in zip(queries, results):
         if result.get("next_page_token"):
-            raise RuntimeError(f"OSV paginated the results of {commit}: query it alone")
-        found[commit] = []
+            raise RuntimeError(f"OSV paginated the results of {query}: query it alone")
+        found.append([])
         for vid in (v["id"] for v in result.get("vulns", [])):
             if vid not in details:
                 details[vid] = json.loads(fetch(f"{OSV}/vulns/{vid}"))
@@ -389,19 +461,22 @@ def osv_lookup(commits):
                 continue
             fixed = any("fixed" in e for a in entry.get("affected", []) for r in a.get("ranges", [])
                         for e in r.get("events", []))
-            aliases = ", ".join(a for a in entry.get("aliases", []) if a.startswith("CVE-"))
+            aliases = ", ".join(a for a in entry.get("aliases", []) if a.startswith(("CVE-", "RUSTSEC-", "GHSA-")))
             summary = (entry.get("summary") or entry.get("details", "").split("\n")[0])[:120]
-            found[commit].append((vid, aliases, summary, fixed))
+            found[-1].append((vid, aliases, summary, fixed))
     return found
 
 
 def vulnerabilities(libraries, report):
     """OSV, by commit: the pinned release, and the newest release the update policy allows. A known
     vulnerability is "actionable" when that newest release is free of it: the update must happen
-    now (D-67). Any other one is answered by a patch of ours ("Fixes:", D-73) or by an assessment
-    in packaging/known-vulnerabilities.txt, or else is "unassessed": a person must look at it
-    before a release ships. Returns (vulnerable, actionable, unassessed, unresolved), where
-    "vulnerable" means a known vulnerability that no patch of ours fixes."""
+    now (D-67), with a cooldown exception if the release is younger than the cooldown. Not when the
+    vulnerability is assessed out of our reach and that release is still under the cooldown: D-69
+    asks for an exception only for an issue we can reach, so it is taken once past the cooldown,
+    and is actionable from that day (D-92). Any other one is answered by a patch of ours ("Fixes:",
+    D-73) or by an assessment in packaging/known-vulnerabilities.txt, or else is "unassessed": a
+    person must look at it before a release ships. Returns (vulnerable, actionable, unassessed,
+    unresolved), where "vulnerable" means a known vulnerability that no patch of ours fixes."""
     unresolved = unassessed = False
     reported = set()
     for lib in libraries:
@@ -415,7 +490,7 @@ def vulnerabilities(libraries, report):
             tags = {}
         allowed = [v for v in tags if v[:lib["keep"]] == current[:lib["keep"]] and v > current]
         if allowed:
-            lib["newest"] = (".".join(map(str, max(allowed))), tags[max(allowed)][1])
+            lib["newest"] = (".".join(map(str, max(allowed))), tags[max(allowed)][1], tags[max(allowed)][0])
     found = osv_lookup([lib["commit"] for lib in libraries if lib["commit"]] +
                        [lib["newest"][1] for lib in libraries if lib["newest"]])
     vulnerable = actionable = False
@@ -452,6 +527,10 @@ def vulnerabilities(libraries, report):
             if patch:
                 state = f"patched: `{patch}`" + (f" (also fixed in {lib['newest'][0]}: the update takes it and drops "
                                                  f"the patch)" if newer is not None and vid not in newer else "")
+            elif newer is not None and vid not in newer and known and (ripens := ripening(lib)):
+                vulnerable = True
+                state = (f"assessed: {known}; fixed in {lib['newest'][0]}, under the cooldown until {ripens}: "
+                         f"taken then, and \"update now\" from that day (D-69, D-92)")
             elif newer is not None and vid not in newer:
                 vulnerable = actionable = True
                 state = f"**fixed in {lib['newest'][0]}: update now**"
@@ -467,6 +546,29 @@ def vulnerabilities(libraries, report):
                                 f"{state}. https://osv.dev/vulnerability/{vid}")
             listed.append(vid + (f" ({aliases})" if aliases else "") + (" patched" if patch else ""))
         report.rows.append(f"| {name} | {version} | `{commit[:10]}` | {how} | **{', '.join(listed)}** |")
+    # The SVG renderer's crates (D-90), by name and version: answered only by an assessment, since the
+    # lock follows resvg's release (an update of resvg, or of one crate in the lock, takes a fix).
+    pinned = [(n, v) for n, v, _ in crates()]
+    listed = []
+    for (name, version), entries in osv_crates(pinned).items():
+        library = f"crate/{name}"
+        for vid, aliases, summary, fixed in entries:
+            names = {vid, *(a.strip() for a in aliases.split(",") if a.strip())}
+            reported |= {(library, n) for n in names}
+            known = next((KNOWN_VULNERABILITIES[(library, n)] for n in names if (library, n) in KNOWN_VULNERABILITIES), None)
+            vulnerable = True
+            if known:
+                state = f"assessed: {known}"
+            else:
+                unassessed = True
+                state = ("**not assessed**: " + ("fixed upstream: update resvg, or the crate in the lock "
+                                                 "(scripts/update_dependencies.py)" if fixed else "no fix recorded")
+                         + f"; answer it with a line '{vid} {library}: ...' in packaging/known-vulnerabilities.txt")
+            report.notes.append(f"**{name} {version} (crate of the SVG renderer): {vid}**"
+                                f"{f' ({aliases})' if aliases else ''}: {summary} — {state}. https://osv.dev/vulnerability/{vid}")
+            listed.append(f"{name} {version}: {vid}")
+    report.rows.append(f"| {len(pinned)} crates of imageviewer-svg | Cargo.lock | — | crates.io, checksums in the lock | "
+                       + (f"**{', '.join(listed)}** |" if listed else "none known |"))
     if not unresolved:  # with a library unresolved, a line may only look stale
         for library, vid in sorted(set(KNOWN_VULNERABILITIES) - reported):
             report.notes.append(f"`{vid} {library}` is no longer reported for the pinned {library}: remove its line "
@@ -496,6 +598,8 @@ def release_dates(baseline_commit, baseline):
     add("vcpkg port recipes", baseline_commit[:10], lambda: (ref_date(VCPKG, baseline_commit), "commit date"))
     qt = read(os.path.join(ROOT, "packaging", "qt-version.txt")).strip()
     add("Qt", qt, lambda: tag_date("https://github.com/qt/qtbase", f"v{qt}"))
+    rust = rust_version()
+    add("rust", rust, lambda: tag_date(RUST, rust))
     return entries
 
 
@@ -525,6 +629,35 @@ def cooldown(baseline_commit, baseline, report):
             until = (when + datetime.timedelta(days=MIN_RELEASE_AGE_DAYS)).date().isoformat()
             status = f"**under the cooldown until {until}**"
         report.rows.append(f"| {name} | {version} | {when.date().isoformat()} ({how}) | {age:.0f} days | {status} |")
+    # The SVG renderer's crates (D-90): each published on crates.io at least the cooldown ago, or
+    # excepted as "crate/<name> <version>". One row for all of them, and one for each that is not.
+    newest = None
+    for name, version, _ in crates():
+        key = f"crate/{name} {version}"
+        names.add(key)
+        try:
+            when = crate_date(name, version)
+        except Exception as error:
+            undated.append(key)
+            report.rows.append(f"| {key} | {version} | ? | ? | **could not be dated**: {str(error)[:100]} |")
+            continue
+        newest = max(newest or (when, key), (when, key))
+        if age_days(when) >= MIN_RELEASE_AGE_DAYS:
+            if key in COOLDOWN_EXCEPTIONS:  # as for the libraries above: none outlives its release
+                report.stale.append(key)
+                report.notes.append(f"`{key}` is past the cooldown: its exception has expired, and "
+                                    f"scripts/update_dependencies.py removes it from packaging/cooldown-exceptions.txt.")
+            continue
+        if key in COOLDOWN_EXCEPTIONS:
+            status = f"exception: {COOLDOWN_EXCEPTIONS[key]}"
+        else:
+            ok = False
+            status = f"**under the cooldown until {(when + datetime.timedelta(days=MIN_RELEASE_AGE_DAYS)).date().isoformat()}**"
+        report.rows.append(f"| {key} | {version} | {when.date().isoformat()} (crates.io) | {age_days(when):.0f} days | {status} |")
+    if newest:
+        report.rows.append(f"| {len(crates())} crates of imageviewer-svg | Cargo.lock | newest: {newest[1]}, "
+                           f"{newest[0].date().isoformat()} (crates.io) | {age_days(newest[0]):.0f} days | "
+                           + ("ok" if age_days(newest[0]) >= MIN_RELEASE_AGE_DAYS else "see the rows above") + " |")
     for stale in sorted(set(COOLDOWN_EXCEPTIONS) - names):
         report.stale.append(stale)
         report.notes.append(f"`{stale}` is no longer pinned: scripts/update_dependencies.py removes its exception "
@@ -702,6 +835,8 @@ def sbom(installed, path, version):
                 for p in patches)
         relationships.append({"spdxElementId": "SPDXRef-imageviewer", "relationshipType": "CONTAINS",
                               "relatedSpdxElement": ident})
+        if port == "imageviewer-svg":  # resvg's crates and Rust's standard library, compiled in (D-90)
+            sbom_svg_renderer(os.path.join(share, port), ident, packages, relationships)
         for n, source in enumerate(e for e in entries if str(e.get("SPDXID", "")).startswith("SPDXRef-resource")):
             source_id = f"{ident}-source-{n}"
             packages.append({"SPDXID": source_id, "name": source.get("name", port),
@@ -728,6 +863,33 @@ def sbom(installed, path, version):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(document, f, indent=1)
     return len(packages) - 1
+
+
+def sbom_svg_renderer(share, parent, packages, relationships):
+    """The crates built into the SVG renderer (share/imageviewer-svg/crates.tsv: name, version, licence,
+    source), with their checksums from Cargo.lock, and the Rust standard library (D-90)."""
+    checksums = {(n, v): c for n, v, c in crates()}
+    rust = rust_version()
+    components = [("rust-std", rust, "MIT OR Apache-2.0", f"git+{RUST}@{rust}", None, None)]
+    with open(os.path.join(share, "crates.tsv"), encoding="utf-8") as f:
+        for line in f:
+            name, version, licence, source = line.rstrip("\n").split("\t")
+            if source != "crates.io":
+                continue  # resvg's own crates: the port's package
+            components.append((name, version, licence or "NOASSERTION", f"https://crates.io/api/v1/crates/{name}/{version}/download",
+                               checksums.get((name, version)), f"pkg:cargo/{name}@{version}"))
+    for name, version, licence, location, checksum, purl in components:
+        ident = f"{parent}-{spdx_id(name)}-{spdx_id(version)}"
+        package = {"SPDXID": ident, "name": name, "versionInfo": version, "downloadLocation": location,
+                   "licenseConcluded": licence, "licenseDeclared": licence, "copyrightText": "NOASSERTION",
+                   "filesAnalyzed": False}
+        if checksum:
+            package["checksums"] = [{"algorithm": "SHA256", "checksumValue": checksum}]
+        if purl:
+            package["externalRefs"] = [{"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl",
+                                        "referenceLocator": purl}]
+        packages.append(package)
+        relationships.append({"spdxElementId": parent, "relationshipType": "CONTAINS", "relatedSpdxElement": ident})
 
 
 class Report:

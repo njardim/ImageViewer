@@ -241,7 +241,7 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     return out;
 }
 
-Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate)
+Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, bool fillVector)
 {
     QElapsedTimer timer;
     timer.start();
@@ -255,7 +255,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     Decoded dec;
     QString error;
     std::unique_ptr<FrameReader> frames;
-    if (!decodeFile(path, maxPixels, &dec, &error, animate ? &frames : nullptr)) {
+    if (!decodeFile(path, maxPixels, &dec, &error, animate ? &frames : nullptr, VectorSize{maxTextureSize, fillVector})) {
         if (dec.overLimit) {
             result.overPixelLimit = true;
             result.error = QStringLiteral("larger than the pixel limit"); // never shown
@@ -289,6 +289,10 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     const bool swapsAxes = dec.orientation >= 5 && dec.orientation <= 8;
     result.sourceWidth = swapsAxes ? dec.height : dec.width;
     result.sourceHeight = swapsAxes ? dec.width : dec.height;
+    if (dec.documentWidth > 0) { // a vector image drawn at another size than its own (D-90)
+        result.sourceWidth = dec.documentWidth;
+        result.sourceHeight = dec.documentHeight;
+    }
     result.codec = dec.codec;
     result.sourceChannels = dec.sourceChannels;
     result.sourceBits = dec.bits;
@@ -310,9 +314,9 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
         result.animation = std::make_shared<Animation>(std::move(frames), std::move(converter), factor, result.width,
                                                        result.height, result.pixels, firstDurationMs);
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
-    qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": read " << readNs / 1000000 << " ms, convert "
-                               << (convertNs - readNs) / 1000000 << " ms" << (littleCms ? " (LittleCMS)" : "")
-                               << (result.animation ? ", animated" : "");
+    qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": " << dec.width << "x" << dec.height << ", read "
+                               << readNs / 1000000 << " ms, convert " << (convertNs - readNs) / 1000000 << " ms"
+                               << (littleCms ? " (LittleCMS)" : "") << (result.animation ? ", animated" : "");
     return result;
 }
 
@@ -421,12 +425,12 @@ bool Animation::frameLocked(int index, Frame *out, QString *error)
     }
 }
 
-Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate)
+Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, bool fillVector)
 {
     // Runs on a worker thread: an exception escaping here would be rethrown by
     // QFuture::result() on the GUI thread and terminate the application.
     try {
-        return decode(path, maxTextureSize, maxPixels, animate);
+        return decode(path, maxTextureSize, maxPixels, animate, fillVector);
     } catch (const std::bad_alloc &) {
         Image failed;
         failed.path = path;

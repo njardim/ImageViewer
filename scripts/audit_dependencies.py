@@ -621,6 +621,10 @@ def cooldown(baseline_commit, baseline, report):
             continue
         newest = max(newest or (when, key), (when, key))
         if age_days(when) >= MIN_RELEASE_AGE_DAYS:
+            if key in COOLDOWN_EXCEPTIONS:  # as for the libraries above: none outlives its release
+                report.stale.append(key)
+                report.notes.append(f"`{key}` is past the cooldown: its exception has expired, and "
+                                    f"scripts/update_dependencies.py removes it from packaging/cooldown-exceptions.txt.")
             continue
         if key in COOLDOWN_EXCEPTIONS:
             status = f"exception: {COOLDOWN_EXCEPTIONS[key]}"

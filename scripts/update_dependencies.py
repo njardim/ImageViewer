@@ -320,7 +320,8 @@ def update_svg_crate(old, new, url, tag, report):
                    if "source" in p and theirs.get((p["name"], p["version"]), "missing") != p.get("checksum")]
         if foreign:
             raise RuntimeError(f"imageviewer-svg: the regenerated Cargo.lock holds crates the {tag} lock does not: "
-                               + ", ".join(foreign))
+                               + ", ".join(foreign) + " (a dependency the port's Cargo.toml names itself, such as "
+                               "fontconfig-parser, must ask for a version resvg's own lock holds)")
         shutil.copy(os.path.join(crate, "Cargo.lock"), os.path.join(port, "Cargo.lock"))
         needed = re.search(r'^rust-version = "([\d.]+)"', read(os.path.join(source, "crates", "resvg", "Cargo.toml")), re.M)
         if needed and version_tuple(needed.group(1)) > version_tuple(audit.rust_version()):

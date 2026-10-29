@@ -1,0 +1,444 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-93): filters drawn only where they reach the visible area
+Library: resvg 0.48.1
+Fixes: none (speed: SVG filters cost as much as their whole region, linebender/resvg#790 and #1192)
+Upstream: none yet: to be proposed to linebender/resvg, linked to #1192 (ours)
+Remove when: a resvg release draws a filtered layer only within reach of the canvas and reuses equal feTurbulence results, or this patch no longer applies
+
+resvg drew every filtered group over its whole filter region, at the scale asked, however little of
+it the canvas shows: a region of the canvas cost as much as the whole document, and a zoomed-in view
+of a document with filters cost its whole area at that zoom. Here:
+- a layer is drawn only within reach of the visible area (render::Context::visible): for a filtered
+  group, the reach of its filters (filter::reach(): the box blur's exact width, offsets, morphology,
+  displacement, convolution, lighting); a filter whose result may depend on its whole region
+  (feTile, feImage, stitched feTurbulence) keeps its whole region, as before. Groups outside the
+  reach are not drawn at all, nor are layers outside the visible area (tiny-skia 0.12 drew a one-row
+  pixmap placed just above the canvas onto the canvas's first row);
+- a primitive's subregion is cleared around within its result's pixels, wherever the subregion lies
+  (it may now lie partly or wholly outside a layer drawn only in part);
+- equal feTurbulence results (same noise over the same pixels) are computed once per render
+  (filter::Cache, the four most recent): a document may use one noise in several filters.
+The pixels are those of the whole region, but for anti-aliased edges, whose coverage may differ by a
+rounding step when a layer starts elsewhere (as between any two tiles): 3 of resvg's 1,730 reference
+images differ there (filters/filter/content-outside-the-canvas-2, painting/marker/with-an-image-child,
+structure/image/preserveAspectRatio=xMidYMid-slice-on-svg).
+
+diff --git a/crates/resvg/src/clip.rs b/crates/resvg/src/clip.rs
+index 879434d..b72995d 100644
+--- a/crates/resvg/src/clip.rs
++++ b/crates/resvg/src/clip.rs
+@@ -43,6 +43,8 @@ fn draw_children(
+                 // We could use any values here. They will not be used anyway.
+                 let ctx = Context {
+                     max_bbox: tiny_skia::IntRect::from_xywh(0, 0, 1, 1).unwrap(),
++                    visible: tiny_skia::IntRect::from_xywh(0, 0, 1, 1).unwrap(),
++                    filter_cache: Default::default(),
+                 };
+ 
+                 crate::path::fill_path(path, mode, &ctx, transform, pixmap);
+diff --git a/crates/resvg/src/filter/box_blur.rs b/crates/resvg/src/filter/box_blur.rs
+index 169256c..013784b 100644
+--- a/crates/resvg/src/filter/box_blur.rs
++++ b/crates/resvg/src/filter/box_blur.rs
+@@ -34,6 +34,15 @@ pub fn apply(sigma_x: f64, sigma_y: f64, mut src: ImageRefMut) {
+ }
+ 
+ #[inline(never)]
++/// How far the blur of `sigma` reaches: a pixel of its result depends only on the pixels at most
++/// this far away.
++pub fn reach(sigma: f64) -> u32 {
++    create_box_gauss(sigma as f32)
++        .iter()
++        .map(|size| ((size - 1) / 2) as u32)
++        .sum()
++}
++
+ fn create_box_gauss(sigma: f32) -> [i32; STEPS] {
+     if sigma > 0.0 {
+         let n_float = STEPS as f32;
+diff --git a/crates/resvg/src/filter/mod.rs b/crates/resvg/src/filter/mod.rs
+index 30f8680..16a89b0 100644
+--- a/crates/resvg/src/filter/mod.rs
++++ b/crates/resvg/src/filter/mod.rs
+@@ -332,12 +332,70 @@ struct FilterResult {
+     image: Image,
+ }
+ 
++/// How far, in pixels, `filters` reach under `ts`: a pixel of their result depends only on the
++/// pixels of their input at most this far away. None when it may depend on the whole filter region:
++/// `feTile` repeats a part of it, `feImage` and stitched `feTurbulence` are fitted to it.
++pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Transform) -> Option<u32> {
++    use usvg::filter::Kind;
++
++    let (sx, sy) = ts.get_scale();
++    let scale = f64::from(sx.max(sy));
++    let blur = |x: usvg::PositiveF32, y: usvg::PositiveF32| match resolve_std_dev(x.get(), y.get(), ts) {
++        Some((x, y, true)) => f64::from(box_blur::reach(x).max(box_blur::reach(y))),
++        // The IIR blur (sigma < 2) has no end: its tail past 6 sigma is far below one level.
++        Some((x, y, false)) => 6.0 * x.max(y) + 2.0,
++        None => 0.0,
++    };
++    let offset = |dx: f32, dy: f32| f64::from(dx.abs().max(dy.abs())) * scale + 1.0;
++    let mut total = 1.0; // the rounding of regions to pixels
++    for filter in filters {
++        for primitive in filter.primitives() {
++            total += match primitive.kind() {
++                Kind::GaussianBlur(fe) => blur(fe.std_dev_x(), fe.std_dev_y()),
++                Kind::DropShadow(fe) => blur(fe.std_dev_x(), fe.std_dev_y()) + offset(fe.dx(), fe.dy()),
++                Kind::Offset(fe) => offset(fe.dx(), fe.dy()),
++                Kind::Morphology(fe) => f64::from(fe.radius_x().get().max(fe.radius_y().get())) * scale,
++                Kind::DisplacementMap(fe) => f64::from(fe.scale().abs()) / 2.0 * scale,
++                Kind::ConvolveMatrix(fe) => f64::from(fe.matrix().columns().max(fe.matrix().rows())),
++                Kind::DiffuseLighting(_) | Kind::SpecularLighting(_) => 2.0,
++                Kind::Tile(_) | Kind::Image(_) => return None,
++                Kind::Turbulence(fe) if fe.stitch_tiles() => return None,
++                _ => 0.0,
++            };
++        }
++    }
++    (total < f64::from(u32::MAX)).then(|| total.ceil() as u32)
++}
++
++/// The `feTurbulence` results computed during one render, the most recent first: a document may
++/// use the same noise over the same pixels in several filters, and noise is costly.
++#[derive(Default)]
++pub struct Cache {
++    turbulence: std::cell::RefCell<Vec<(TurbulenceKey, Rc<tiny_skia::Pixmap>)>>,
++}
++
++const CACHED_TURBULENCES: usize = 4;
++
++/// Everything an `feTurbulence` result depends on.
++#[derive(PartialEq)]
++struct TurbulenceKey {
++    offset: (f64, f64),
++    scale: (f64, f64),
++    base_frequency: (f64, f64),
++    octaves: u32,
++    seed: i32,
++    stitch: bool,
++    fractal: bool,
++    size: (u32, u32),
++}
++
+ pub fn apply(
+     filter: &usvg::filter::Filter,
+     ts: tiny_skia::Transform,
++    cache: &Cache,
+     source: &mut tiny_skia::Pixmap,
+ ) {
+-    let result = apply_inner(filter, ts, source);
++    let result = apply_inner(filter, ts, cache, source);
+     let result = result.and_then(|image| apply_to_canvas(image, source));
+ 
+     // Clear on error.
+@@ -357,6 +415,7 @@ pub fn apply(
+ fn apply_inner(
+     filter: &usvg::filter::Filter,
+     ts: usvg::Transform,
++    cache: &Cache,
+     source: &mut tiny_skia::Pixmap,
+ ) -> Result<Image, Error> {
+     let region = filter
+@@ -443,7 +502,7 @@ fn apply_inner(
+                 let input2 = get_input(fe.input2(), region, source, &results)?;
+                 apply_displacement_map(fe, region, cs, ts, input1, input2)
+             }
+-            usvg::filter::Kind::Turbulence(fe) => apply_turbulence(fe, region, cs, ts),
++            usvg::filter::Kind::Turbulence(fe) => apply_turbulence(fe, region, cs, ts, cache),
+             usvg::filter::Kind::DiffuseLighting(fe) => {
+                 let input = get_input(fe.input(), region, source, &results)?;
+                 apply_diffuse_lighting(fe, region, cs, ts, input)
+@@ -477,24 +536,19 @@ fn apply_inner(
+                 let mut pixmap = result.take()?;
+                 let w = pixmap.width() as f32;
+                 let h = pixmap.height() as f32;
+-
+-                if let Some(rect) = tiny_skia::Rect::from_xywh(0.0, 0.0, w, subregion2.y() as f32) {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+-                }
+-
+-                if let Some(rect) = tiny_skia::Rect::from_xywh(0.0, 0.0, subregion2.x() as f32, h) {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+-                }
+-
+-                if let Some(rect) = tiny_skia::Rect::from_xywh(subregion2.right() as f32, 0.0, w, h)
+-                {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+-                }
+-
+-                if let Some(rect) =
+-                    tiny_skia::Rect::from_xywh(0.0, subregion2.bottom() as f32, w, h)
+-                {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
++                // Within the pixmap: the subregion may lie partly or wholly outside it.
++                let (left, top) = (subregion2.left() as f32, subregion2.top() as f32);
++                let (right, bottom) = (subregion2.right() as f32, subregion2.bottom() as f32);
++
++                for (l, t, r, b) in [
++                    (0.0, 0.0, w, top.min(h)),
++                    (0.0, 0.0, left.min(w), h),
++                    (right.max(0.0), 0.0, w, h),
++                    (0.0, bottom.max(0.0), w, h),
++                ] {
++                    if let Some(rect) = tiny_skia::Rect::from_ltrb(l, t, r, b) {
++                        pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
++                    }
+                 }
+ 
+                 pixmap
+@@ -878,6 +932,8 @@ fn apply_image(
+ 
+     let ctx = crate::render::Context {
+         max_bbox: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++        visible: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++        filter_cache: Default::default(),
+     };
+ 
+     crate::render::render_nodes(fe.root(), &ctx, transform, &mut pixmap.as_mut());
+@@ -990,31 +1046,64 @@ fn apply_turbulence(
+     region: IntRect,
+     cs: usvg::filter::ColorInterpolation,
+     ts: usvg::Transform,
++    cache: &Cache,
+ ) -> Result<Image, Error> {
+-    let mut pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())?;
+-
+     let (sx, sy) = ts.get_scale();
+     if sx.approx_zero_ulps(4) || sy.approx_zero_ulps(4) {
++        let pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())?;
+         return Ok(Image::from_image(pixmap, cs));
+     }
+ 
++    let key = TurbulenceKey {
++        offset: (region.x() as f64 - ts.tx as f64, region.y() as f64 - ts.ty as f64),
++        scale: (sx as f64, sy as f64),
++        base_frequency: (
++            fe.base_frequency_x().get() as f64,
++            fe.base_frequency_y().get() as f64,
++        ),
++        octaves: fe.num_octaves(),
++        seed: fe.seed(),
++        stitch: fe.stitch_tiles(),
++        fractal: fe.kind() == usvg::filter::TurbulenceKind::FractalNoise,
++        size: (region.width(), region.height()),
++    };
++    let mut cached = cache.turbulence.borrow_mut();
++    if let Some(index) = cached.iter().position(|(k, _)| *k == key) {
++        let entry = cached.remove(index);
++        let image = entry.1.clone();
++        cached.insert(0, entry);
++        return Ok(Image {
++            image,
++            region: IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++            color_space: cs,
++        });
++    }
++
++    let mut pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())?;
+     turbulence::apply(
+-        region.x() as f64 - ts.tx as f64,
+-        region.y() as f64 - ts.ty as f64,
+-        sx as f64,
+-        sy as f64,
+-        fe.base_frequency_x().get() as f64,
+-        fe.base_frequency_y().get() as f64,
+-        fe.num_octaves(),
+-        fe.seed(),
+-        fe.stitch_tiles(),
+-        fe.kind() == usvg::filter::TurbulenceKind::FractalNoise,
++        key.offset.0,
++        key.offset.1,
++        key.scale.0,
++        key.scale.1,
++        key.base_frequency.0,
++        key.base_frequency.1,
++        key.octaves,
++        key.seed,
++        key.stitch,
++        key.fractal,
+         pixmap.as_image_ref_mut(),
+     );
+ 
+     multiply_alpha(pixmap.data_mut().as_rgba_mut());
+ 
+-    Ok(Image::from_image(pixmap, cs))
++    let pixmap = Rc::new(pixmap);
++    cached.truncate(CACHED_TURBULENCES - 1);
++    cached.insert(0, (key, pixmap.clone()));
++    Ok(Image {
++        image: pixmap,
++        region: IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++        color_space: cs,
++    })
+ }
+ 
+ fn apply_diffuse_lighting(
+diff --git a/crates/resvg/src/geom.rs b/crates/resvg/src/geom.rs
+index 8552708..b45b6b8 100644
+--- a/crates/resvg/src/geom.rs
++++ b/crates/resvg/src/geom.rs
+@@ -28,3 +28,17 @@ pub fn fit_to_rect(
+ 
+     tiny_skia::IntRect::from_ltrb(left, top, right, bottom)
+ }
++
++/// `r` grown by `by` on every side, within the coordinates an `IntRect` can hold.
++pub fn expand(r: tiny_skia::IntRect, by: u32) -> tiny_skia::IntRect {
++    const LIMIT: i64 = (i32::MAX / 2) as i64;
++    let by = i64::from(by);
++    let side = |v: i32, d: i64| (i64::from(v) + d).clamp(-LIMIT, LIMIT) as i32;
++    tiny_skia::IntRect::from_ltrb(
++        side(r.left(), -by),
++        side(r.top(), -by),
++        side(r.right(), by),
++        side(r.bottom(), by),
++    )
++    .unwrap_or(r)
++}
+diff --git a/crates/resvg/src/lib.rs b/crates/resvg/src/lib.rs
+index 79805f5..59dd45b 100644
+--- a/crates/resvg/src/lib.rs
++++ b/crates/resvg/src/lib.rs
+@@ -38,7 +38,11 @@ pub fn render(
+ ) {
+     let max_bbox = max_filter_bbox(pixmap.width(), pixmap.height());
+ 
+-    let ctx = render::Context { max_bbox };
++    let ctx = render::Context {
++        max_bbox,
++        visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height()).unwrap(),
++        filter_cache: Default::default(),
++    };
+     render::render_nodes(tree.root(), &ctx, transform, pixmap);
+ }
+ 
+@@ -63,7 +67,11 @@ pub fn render_node(
+ 
+     transform = transform.pre_translate(-bbox.x(), -bbox.y());
+ 
+-    let ctx = render::Context { max_bbox };
++    let ctx = render::Context {
++        max_bbox,
++        visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height()).unwrap(),
++        filter_cache: Default::default(),
++    };
+     render::render_node(node, &ctx, transform, pixmap);
+ 
+     Some(())
+diff --git a/crates/resvg/src/path.rs b/crates/resvg/src/path.rs
+index c11349a..ec6b369 100644
+--- a/crates/resvg/src/path.rs
++++ b/crates/resvg/src/path.rs
+@@ -194,7 +194,12 @@ fn render_pattern_pixmap(
+     let mut pixmap = tiny_skia::Pixmap::new(img_size.width(), img_size.height())?;
+ 
+     let transform = tiny_skia::Transform::from_scale(sx, sy);
+-    crate::render::render_nodes(pattern.root(), ctx, transform, &mut pixmap.as_mut());
++    let ctx = Context {
++        max_bbox: ctx.max_bbox,
++        visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height())?,
++        filter_cache: ctx.filter_cache.clone(),
++    };
++    crate::render::render_nodes(pattern.root(), &ctx, transform, &mut pixmap.as_mut());
+ 
+     let mut ts = tiny_skia::Transform::default();
+     ts = ts.pre_concat(pattern.transform());
+diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
+index 686e48c..6c86455 100644
+--- a/crates/resvg/src/render.rs
++++ b/crates/resvg/src/render.rs
+@@ -5,6 +5,11 @@ use crate::OptionLog;
+ 
+ pub struct Context {
+     pub max_bbox: tiny_skia::IntRect,
++    /// The part of the pixmap being drawn whose pixels are used. A layer is drawn only where it
++    /// can reach this area.
++    pub visible: tiny_skia::IntRect,
++    /// Filter results already computed during this render.
++    pub filter_cache: std::rc::Rc<crate::filter::Cache>,
+ }
+ 
+ pub fn render_nodes(
+@@ -61,6 +66,14 @@ fn render_group(
+ 
+     let bbox = group.layer_bounding_box().transform(transform)?;
+ 
++    // How far the group's filters reach: a pixel of their result depends only on the pixels at
++    // most this far away. None when it may depend on the whole filter region.
++    let reach = if group.filters().is_empty() {
++        Some(0)
++    } else {
++        crate::filter::reach(group.filters(), transform)
++    };
++
+     let mut ibbox = if group.filters().is_empty() {
+         // Convert group bbox into an integer one, expanding each side outwards by 2px
+         // to make sure that anti-aliased pixels would not be clipped.
+@@ -73,23 +86,27 @@ fn render_group(
+     } else {
+         // The bounding box for groups with filters is special and should not be expanded by 2px,
+         // because it's already acting as a clipping region.
+-        let bbox = tiny_skia::IntRect::from_xywh(
++        tiny_skia::IntRect::from_xywh(
+             bbox.x().floor() as i32,
+             bbox.y().floor() as i32,
+             bbox.width().ceil().max(1.0) as u32,
+             bbox.height().ceil().max(1.0) as u32,
+-        )?;
+-        // Make sure our filter region is not bigger than 4x the canvas size.
+-        // This is required mainly to prevent huge filter regions that would tank the performance.
+-        // It should not affect the final result in any way.
+-        crate::geom::fit_to_rect(bbox, ctx.max_bbox)?
++        )?
+     };
+ 
+-    // Make sure our layer is not bigger than 4x the canvas size.
+-    // This is required to prevent huge layers.
+-    if group.filters().is_empty() {
+-        ibbox = crate::geom::fit_to_rect(ibbox, ctx.max_bbox)?;
+-    }
++    // A layer outside the visible area changes none of its pixels: a filter draws only within its
++    // region. (tiny-skia 0.12 would also draw a one-row layer just above the pixmap onto its first
++    // row.)
++    crate::geom::fit_to_rect(ibbox, ctx.visible)?;
++
++    // The part of the layer that can change the visible pixels: all of it within reach of the
++    // visible area. A filter whose result may depend on its whole region gets its whole region,
++    // within 4x the canvas size, to prevent huge filter regions that would tank the performance.
++    let area = match reach {
++        Some(reach) => crate::geom::expand(ctx.visible, reach),
++        None => ctx.max_bbox,
++    };
++    ibbox = crate::geom::fit_to_rect(ibbox, area)?;
+ 
+     let shift_ts = {
+         // Original shift.
+@@ -108,11 +125,27 @@ fn render_group(
+     let mut sub_pixmap = tiny_skia::Pixmap::new(ibbox.width(), ibbox.height())
+         .log_none(|| log::warn!("Failed to allocate a group layer for: {:?}.", ibbox))?;
+ 
++    // The layer's own visible area, in its coordinates.
++    let layer = tiny_skia::IntRect::from_xywh(0, 0, ibbox.width(), ibbox.height())?;
++    let visible = match reach {
++        Some(reach) => crate::geom::expand(ctx.visible, reach),
++        None => ibbox,
++    }
++    .translate(-ibbox.x(), -ibbox.y())
++    .and_then(|area| crate::geom::fit_to_rect(area, layer))
++    .unwrap_or(layer);
++    let ctx = Context {
++        max_bbox: ctx.max_bbox,
++        visible,
++        filter_cache: ctx.filter_cache.clone(),
++    };
++    let ctx = &ctx;
++
+     render_nodes(group, ctx, transform, &mut sub_pixmap.as_mut());
+ 
+     if !group.filters().is_empty() {
+         for filter in group.filters() {
+-            crate::filter::apply(filter, transform, &mut sub_pixmap);
++            crate::filter::apply(filter, transform, &ctx.filter_cache, &mut sub_pixmap);
+         }
+     }
+ 

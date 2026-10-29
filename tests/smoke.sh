@@ -296,10 +296,24 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         echo "FAIL SVG worker: a render past 30 s ($took s): $said"
         failures=$((failures + 1))
     fi
-    # A filter region 25 times its canvas (resvg allocates such a layer whole): the renderer's memory
-    # limit ends the worker at once, and the viewer says so (it took 2 GiB and 30 s before, D-90).
+    # A filter region 25 times its canvas: a blur is drawn only within its reach of the canvas
+    # (D-93); it took 2 GiB and 30 s before (D-90).
+    region="$(mktemp -d)/region.svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$region"
+    started=$(date +%s)
+    said="$("$exe" --info "$region" 2>/dev/null || true)"
+    took=$(($(date +%s) - started))
+    rm -rf "$(dirname "$region")"
+    if grep -Eq 'size: +3000x3000' <<<"$said" && [ "$took" -lt 20 ]; then
+        echo "ok   SVG worker: a filter region 25 times its canvas drawn within reach of the canvas (${took} s)"
+    else
+        echo "FAIL SVG worker: a filter region 25 times its canvas ($took s): $said"
+        failures=$((failures + 1))
+    fi
+    # The same with feTile, whose result depends on its whole region: resvg allocates it whole, and
+    # the renderer's memory limit ends the worker at once; the viewer says so (D-90 (10)).
     bomb="$(mktemp -d)/region.svg"
-    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/><feTile/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
     started=$(date +%s)
     said="$("$exe" --info "$bomb" 2>/dev/null || true)"
     took=$(($(date +%s) - started))

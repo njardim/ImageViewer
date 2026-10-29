@@ -6,7 +6,7 @@
 //! Here the resolver accepts embedded data only, every call catches a panic and returns a code, the
 //! memory resvg allocates has a limit (a document can declare a filter region many times its canvas,
 //! and resvg allocates its layers whole), the generic font families are installed fonts (fontdb may
-//! name fonts the system does not have, and the text then vanishes), and the caller sees seven plain
+//! name fonts the system does not have, and the text then vanishes), and the caller sees eight plain
 //! C functions that another renderer could implement as well.
 //!
 //! Everything of resvg's API used below, the list to check at an update (an update whose API
@@ -17,7 +17,9 @@
 //!   `monospaced`), `family_name()`, `set_serif_family()` and the four other generic families
 //! - Linux: `fontconfig_parser::FontConfig` (`merge_config()`, `aliases`), the crate fontdb reads the
 //!   system's font configuration with, at the version resvg's own lock holds
-//! - `usvg::Tree::from_data()`, `Tree::size()`
+//! - `usvg::Tree::from_data()`, `Tree::size()`, `Tree::root()`, `Group::children()`, `Group::filters()`,
+//!   `Node::subroots()`, `filter::Filter::primitives()`, `filter::Primitive::kind()` and
+//!   `filter::Turbulence::stitch_tiles()`
 //! - `resvg::render()`, `tiny_skia::PixmapMut::from_bytes()`, `tiny_skia::Transform::from_row()`
 //!
 //! The crate's version is the resvg release it wraps (Cargo.toml pins it), and names it in
@@ -29,7 +31,7 @@ use std::ffi::c_char;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-const CONTRACT_VERSION: i32 = 1; // IV_SVG_CONTRACT_VERSION
+const CONTRACT_VERSION: i32 = 2; // IV_SVG_CONTRACT_VERSION
 const OK: i32 = 0;
 const BAD_ARGUMENT: i32 = 1;
 const UNREADABLE: i32 = 2;
@@ -106,9 +108,38 @@ unsafe impl GlobalAlloc for Limited {
 #[global_allocator]
 static ALLOCATOR: Limited = Limited;
 
+/// The threads a render may use (`iv_svg_limit_threads()`).
+static THREADS: AtomicUsize = AtomicUsize::new(1);
+
+/// The fewest rows a band drawn on a thread of its own has: below, a thread costs more than it saves.
+const MIN_BAND_ROWS: u32 = 32;
+
 /// A parsed document (`iv_svg` in the header).
 pub struct Document {
     tree: usvg::Tree,
+    /// Whether it may be drawn in bands: no filter of it depends on its whole region (`feTile`,
+    /// `feImage`, stitched `feTurbulence`), which resvg would compute whole for every band, and
+    /// differently for a band than for the whole (it bounds such a region by the canvas drawn).
+    bands: bool,
+}
+
+/// Whether no filter in `group`, its descendants, masks, clip paths, patterns and embedded
+/// documents depends on its whole filter region.
+fn local_filters(group: &usvg::Group) -> bool {
+    use usvg::filter::Kind;
+    let local = group.filters().iter().all(|filter| {
+        filter.primitives().iter().all(|primitive| match primitive.kind() {
+            Kind::Tile(_) | Kind::Image(_) => false,
+            Kind::Turbulence(fe) => !fe.stitch_tiles(),
+            _ => true,
+        })
+    });
+    local
+        && group.children().iter().all(|node| {
+            let mut local = !matches!(node, usvg::Node::Group(child) if !local_filters(child));
+            node.subroots(|root| local &= local_filters(root));
+            local
+        })
 }
 
 /// The generic font families (serif, sans-serif, monospace, cursive, fantasy), each named after an
@@ -216,6 +247,12 @@ pub extern "C" fn iv_svg_renderer() -> *const c_char {
 }
 
 #[unsafe(no_mangle)]
+pub extern "C" fn iv_svg_limit_threads(threads: u32) -> i32 {
+    THREADS.store(usize::try_from(threads).unwrap_or(usize::MAX).max(1), Ordering::Relaxed);
+    OK
+}
+
+#[unsafe(no_mangle)]
 pub extern "C" fn iv_svg_limit_memory(bytes: u64) -> i32 {
     LIMIT.store(usize::try_from(bytes).unwrap_or(usize::MAX), Ordering::Relaxed);
     OK
@@ -245,8 +282,9 @@ pub unsafe extern "C" fn iv_svg_parse(data: *const u8, size: usize, load_fonts: 
         }
         match usvg::Tree::from_data(bytes, &options) {
             Ok(tree) => {
+                let bands = local_filters(tree.root());
                 // SAFETY: `out` is writable (checked above for null).
-                unsafe { *out = Box::into_raw(Box::new(Document { tree })) };
+                unsafe { *out = Box::into_raw(Box::new(Document { tree, bands })) };
                 OK
             }
             Err(_) => UNREADABLE,
@@ -292,9 +330,30 @@ pub unsafe extern "C" fn iv_svg_render(svg: *const Document, scale: f64, left: f
         let Some(mut pixmap) = tiny_skia::PixmapMut::from_bytes(buffer, width, height) else {
             return BAD_ARGUMENT;
         };
-        let (scale, left, top) = (scale as f32, left as f32, top as f32);
-        let transform = tiny_skia::Transform::from_row(scale, 0.0, 0.0, scale, -left, -top);
-        resvg::render(&unsafe { &*svg }.tree, transform, &mut pixmap);
+        let document = unsafe { &*svg };
+        let (scale, left) = (scale as f32, left as f32);
+        let transform = |top: f64| tiny_skia::Transform::from_row(scale, 0.0, 0.0, scale, -left, -(top as f32));
+        // Horizontal bands, one per thread: each a part of `pixels` of its own, drawn as the whole
+        // would draw it (resvg draws a filtered layer only within reach of the band, patch D-93).
+        let threads = THREADS.load(Ordering::Relaxed).min((height / MIN_BAND_ROWS).max(1) as usize);
+        if !document.bands || threads < 2 {
+            resvg::render(&document.tree, transform(top), &mut pixmap);
+            return OK;
+        }
+        drop(pixmap);
+        let rows = height.div_ceil(threads as u32);
+        let band_bytes = rows as usize * width as usize * 4;
+        std::thread::scope(|scope| {
+            for (index, band) in buffer.chunks_mut(band_bytes).enumerate() {
+                let band_top = top + f64::from(index as u32 * rows);
+                scope.spawn(move || {
+                    let band_rows = (band.len() / (width as usize * 4)) as u32;
+                    if let Some(mut pixmap) = tiny_skia::PixmapMut::from_bytes(band, width, band_rows) {
+                        resvg::render(&document.tree, transform(band_top), &mut pixmap);
+                    }
+                });
+            }
+        }); // a panic on a band's thread comes back here, and to guarded()
         OK
     })
 }

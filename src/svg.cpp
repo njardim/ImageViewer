@@ -7,6 +7,7 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QThread>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -199,6 +200,9 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector)
         iv_svg_limit_memory(uint64_t(limit));
     };
     limitMemory(xml.size());
+    // Its bands at once on every core but two, left to the window, the GPU's driver and the system
+    // (the owner, D-93).
+    iv_svg_limit_threads(uint32_t(std::max(1, QThread::idealThreadCount() - 2)));
     iv_svg *parsed = nullptr;
     // The system's fonts only for a document with text: loading them is most of what a small
     // document costs (D-90 (3)).

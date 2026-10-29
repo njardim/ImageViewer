@@ -12,6 +12,8 @@ vcpkg_from_git(
     REF 68b14c4c3bccdb60344c777406486b54c36ec1a4 # v0.48.1
     FETCH_REF "v${VERSION}"
     HEAD_REF main
+    PATCHES
+        imageviewer-filter-area.patch # filters drawn only where they reach the canvas (D-93)
 )
 
 # rustup's cargo: CI installs the pinned toolchain (build.yml) and keeps CARGO_HOME and RUSTUP_HOME

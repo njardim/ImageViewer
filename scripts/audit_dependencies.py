@@ -415,6 +415,21 @@ def shipped(baseline):
     return libraries
 
 
+def ripening(lib):
+    """The day the library's newest allowed release (lib["newest"]) passes the cooldown, or None when
+    it is past it, excepted, or cannot be dated (never a reason to wait)."""
+    version, _, tag = lib["newest"]
+    if f"{lib['name']} {version}" in COOLDOWN_EXCEPTIONS:
+        return None
+    try:
+        when = tag_date(lib["url"], tag)[0]
+    except Exception:
+        return None
+    if age_days(when) >= MIN_RELEASE_AGE_DAYS:
+        return None
+    return (when + datetime.timedelta(days=MIN_RELEASE_AGE_DAYS)).date().isoformat()
+
+
 def osv_lookup(commits):
     """{commit: [(id, CVE aliases, summary, fixed upstream)]} from OSV; withdrawn entries left out."""
     commits = list(dict.fromkeys(commits))
@@ -455,10 +470,13 @@ def osv_query(queries):
 def vulnerabilities(libraries, report):
     """OSV, by commit: the pinned release, and the newest release the update policy allows. A known
     vulnerability is "actionable" when that newest release is free of it: the update must happen
-    now (D-67). Any other one is answered by a patch of ours ("Fixes:", D-73) or by an assessment
-    in packaging/known-vulnerabilities.txt, or else is "unassessed": a person must look at it
-    before a release ships. Returns (vulnerable, actionable, unassessed, unresolved), where
-    "vulnerable" means a known vulnerability that no patch of ours fixes."""
+    now (D-67), with a cooldown exception if the release is younger than the cooldown. Not when the
+    vulnerability is assessed out of our reach and that release is still under the cooldown: D-69
+    asks for an exception only for an issue we can reach, so it is taken once past the cooldown,
+    and is actionable from that day (D-92). Any other one is answered by a patch of ours ("Fixes:",
+    D-73) or by an assessment in packaging/known-vulnerabilities.txt, or else is "unassessed": a
+    person must look at it before a release ships. Returns (vulnerable, actionable, unassessed,
+    unresolved), where "vulnerable" means a known vulnerability that no patch of ours fixes."""
     unresolved = unassessed = False
     reported = set()
     for lib in libraries:
@@ -472,7 +490,7 @@ def vulnerabilities(libraries, report):
             tags = {}
         allowed = [v for v in tags if v[:lib["keep"]] == current[:lib["keep"]] and v > current]
         if allowed:
-            lib["newest"] = (".".join(map(str, max(allowed))), tags[max(allowed)][1])
+            lib["newest"] = (".".join(map(str, max(allowed))), tags[max(allowed)][1], tags[max(allowed)][0])
     found = osv_lookup([lib["commit"] for lib in libraries if lib["commit"]] +
                        [lib["newest"][1] for lib in libraries if lib["newest"]])
     vulnerable = actionable = False
@@ -509,6 +527,10 @@ def vulnerabilities(libraries, report):
             if patch:
                 state = f"patched: `{patch}`" + (f" (also fixed in {lib['newest'][0]}: the update takes it and drops "
                                                  f"the patch)" if newer is not None and vid not in newer else "")
+            elif newer is not None and vid not in newer and known and (ripens := ripening(lib)):
+                vulnerable = True
+                state = (f"assessed: {known}; fixed in {lib['newest'][0]}, under the cooldown until {ripens}: "
+                         f"taken then, and \"update now\" from that day (D-69, D-92)")
             elif newer is not None and vid not in newer:
                 vulnerable = actionable = True
                 state = f"**fixed in {lib['newest'][0]}: update now**"

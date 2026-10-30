@@ -835,7 +835,7 @@ Nuno's adjustments after 0.4 (D-58):
   - [x] PR #32's SVG code reviewed (D-95 (5)): a failed detail no longer asked for again without end; reduced blurs on the whole region's grid `[test: smoke.sh; local reproductions]`
   - [x] The owner's check of PR #32 on Windows and macOS (2026-10-30: "parece-me tudo ok")
   - [x] macOS: the Shortcuts tab's Shortcut and Alternative fields at the left, as the other tabs' forms (macOS's style centred that form) `[code: shortcuts.cpp; test: Linux unchanged]`
-  - [x] macOS: Settings in the application menu (D-96) `[test: run 265, quit_test.py on macOS: the bar shows the Apple and ImageViewer menus alone; Settings opens the Settings window; the close button quits, clean exit]`
+  - [x] macOS: Settings in the application menu (D-96) `[test: run 264, quit_test.py on macOS: the bar shows the Apple and ImageViewer menus alone; Settings opens the Settings window; the close button quits, clean exit]`
   - [ ] The D-35 review of the whole codebase; PR #32 marked ready
 - [ ] Before the 1.0 pull request (D-46, D-67): every dependency at its newest release past the cooldown: Rust 1.99.1 (2026-10-30), vcpkg 2026.10.16 (2026-11-04), resvg 0.49.0 (2026-11-08: our four patches rebased, or dropped where upstream took them), libheif 1.23.7 and LibRaw 0.22.3 (2026-11-10, LibRaw's CVE patch checked), OpenImageIO 3.2.2.0 (2026-11-12); the macOS check (§14)
 - [ ] After 1.0: the upstream pull requests and reports of §15.1 (the owner, D-95)

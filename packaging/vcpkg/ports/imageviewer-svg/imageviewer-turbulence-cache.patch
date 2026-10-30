@@ -1,0 +1,228 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-93): equal feTurbulence results computed once per render
+Library: resvg 0.48.1
+Fixes: none (speed: a document may use one noise in several filters, and noise is costly)
+Upstream: none yet: to be proposed to linebender/resvg (ours)
+Remove when: a resvg release reuses equal feTurbulence results within a render, or this patch no longer applies
+
+The owner's artwork draws two noises six times over its whole canvas. Equal noise over the same pixels
+(every argument of turbulence::apply equal) is computed once per render: filter::Cache keeps the four
+most recent results, in render::Context. Requires imageviewer-filter-area.patch (its Context).
+
+diff --git a/crates/resvg/src/clip.rs b/crates/resvg/src/clip.rs
+index de432c7..b72995d 100644
+--- a/crates/resvg/src/clip.rs
++++ b/crates/resvg/src/clip.rs
+@@ -44,6 +44,7 @@ fn draw_children(
+                 let ctx = Context {
+                     max_bbox: tiny_skia::IntRect::from_xywh(0, 0, 1, 1).unwrap(),
+                     visible: tiny_skia::IntRect::from_xywh(0, 0, 1, 1).unwrap(),
++                    filter_cache: Default::default(),
+                 };
+ 
+                 crate::path::fill_path(path, mode, &ctx, transform, pixmap);
+diff --git a/crates/resvg/src/filter/mod.rs b/crates/resvg/src/filter/mod.rs
+index 36353e8..16a89b0 100644
+--- a/crates/resvg/src/filter/mod.rs
++++ b/crates/resvg/src/filter/mod.rs
+@@ -367,12 +367,35 @@ pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Tr
+     (total < f64::from(u32::MAX)).then(|| total.ceil() as u32)
+ }
+ 
++/// The `feTurbulence` results computed during one render, the most recent first: a document may
++/// use the same noise over the same pixels in several filters, and noise is costly.
++#[derive(Default)]
++pub struct Cache {
++    turbulence: std::cell::RefCell<Vec<(TurbulenceKey, Rc<tiny_skia::Pixmap>)>>,
++}
++
++const CACHED_TURBULENCES: usize = 4;
++
++/// Everything an `feTurbulence` result depends on.
++#[derive(PartialEq)]
++struct TurbulenceKey {
++    offset: (f64, f64),
++    scale: (f64, f64),
++    base_frequency: (f64, f64),
++    octaves: u32,
++    seed: i32,
++    stitch: bool,
++    fractal: bool,
++    size: (u32, u32),
++}
++
+ pub fn apply(
+     filter: &usvg::filter::Filter,
+     ts: tiny_skia::Transform,
++    cache: &Cache,
+     source: &mut tiny_skia::Pixmap,
+ ) {
+-    let result = apply_inner(filter, ts, source);
++    let result = apply_inner(filter, ts, cache, source);
+     let result = result.and_then(|image| apply_to_canvas(image, source));
+ 
+     // Clear on error.
+@@ -392,6 +415,7 @@ pub fn apply(
+ fn apply_inner(
+     filter: &usvg::filter::Filter,
+     ts: usvg::Transform,
++    cache: &Cache,
+     source: &mut tiny_skia::Pixmap,
+ ) -> Result<Image, Error> {
+     let region = filter
+@@ -478,7 +502,7 @@ fn apply_inner(
+                 let input2 = get_input(fe.input2(), region, source, &results)?;
+                 apply_displacement_map(fe, region, cs, ts, input1, input2)
+             }
+-            usvg::filter::Kind::Turbulence(fe) => apply_turbulence(fe, region, cs, ts),
++            usvg::filter::Kind::Turbulence(fe) => apply_turbulence(fe, region, cs, ts, cache),
+             usvg::filter::Kind::DiffuseLighting(fe) => {
+                 let input = get_input(fe.input(), region, source, &results)?;
+                 apply_diffuse_lighting(fe, region, cs, ts, input)
+@@ -909,6 +933,7 @@ fn apply_image(
+     let ctx = crate::render::Context {
+         max_bbox: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
+         visible: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++        filter_cache: Default::default(),
+     };
+ 
+     crate::render::render_nodes(fe.root(), &ctx, transform, &mut pixmap.as_mut());
+@@ -1021,31 +1046,64 @@ fn apply_turbulence(
+     region: IntRect,
+     cs: usvg::filter::ColorInterpolation,
+     ts: usvg::Transform,
++    cache: &Cache,
+ ) -> Result<Image, Error> {
+-    let mut pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())?;
+-
+     let (sx, sy) = ts.get_scale();
+     if sx.approx_zero_ulps(4) || sy.approx_zero_ulps(4) {
++        let pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())?;
+         return Ok(Image::from_image(pixmap, cs));
+     }
+ 
++    let key = TurbulenceKey {
++        offset: (region.x() as f64 - ts.tx as f64, region.y() as f64 - ts.ty as f64),
++        scale: (sx as f64, sy as f64),
++        base_frequency: (
++            fe.base_frequency_x().get() as f64,
++            fe.base_frequency_y().get() as f64,
++        ),
++        octaves: fe.num_octaves(),
++        seed: fe.seed(),
++        stitch: fe.stitch_tiles(),
++        fractal: fe.kind() == usvg::filter::TurbulenceKind::FractalNoise,
++        size: (region.width(), region.height()),
++    };
++    let mut cached = cache.turbulence.borrow_mut();
++    if let Some(index) = cached.iter().position(|(k, _)| *k == key) {
++        let entry = cached.remove(index);
++        let image = entry.1.clone();
++        cached.insert(0, entry);
++        return Ok(Image {
++            image,
++            region: IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++            color_space: cs,
++        });
++    }
++
++    let mut pixmap = tiny_skia::Pixmap::try_create(region.width(), region.height())?;
+     turbulence::apply(
+-        region.x() as f64 - ts.tx as f64,
+-        region.y() as f64 - ts.ty as f64,
+-        sx as f64,
+-        sy as f64,
+-        fe.base_frequency_x().get() as f64,
+-        fe.base_frequency_y().get() as f64,
+-        fe.num_octaves(),
+-        fe.seed(),
+-        fe.stitch_tiles(),
+-        fe.kind() == usvg::filter::TurbulenceKind::FractalNoise,
++        key.offset.0,
++        key.offset.1,
++        key.scale.0,
++        key.scale.1,
++        key.base_frequency.0,
++        key.base_frequency.1,
++        key.octaves,
++        key.seed,
++        key.stitch,
++        key.fractal,
+         pixmap.as_image_ref_mut(),
+     );
+ 
+     multiply_alpha(pixmap.data_mut().as_rgba_mut());
+ 
+-    Ok(Image::from_image(pixmap, cs))
++    let pixmap = Rc::new(pixmap);
++    cached.truncate(CACHED_TURBULENCES - 1);
++    cached.insert(0, (key, pixmap.clone()));
++    Ok(Image {
++        image: pixmap,
++        region: IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++        color_space: cs,
++    })
+ }
+ 
+ fn apply_diffuse_lighting(
+diff --git a/crates/resvg/src/lib.rs b/crates/resvg/src/lib.rs
+index c849854..59dd45b 100644
+--- a/crates/resvg/src/lib.rs
++++ b/crates/resvg/src/lib.rs
+@@ -41,6 +41,7 @@ pub fn render(
+     let ctx = render::Context {
+         max_bbox,
+         visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height()).unwrap(),
++        filter_cache: Default::default(),
+     };
+     render::render_nodes(tree.root(), &ctx, transform, pixmap);
+ }
+@@ -69,6 +70,7 @@ pub fn render_node(
+     let ctx = render::Context {
+         max_bbox,
+         visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height()).unwrap(),
++        filter_cache: Default::default(),
+     };
+     render::render_node(node, &ctx, transform, pixmap);
+ 
+diff --git a/crates/resvg/src/path.rs b/crates/resvg/src/path.rs
+index 40b80ec..ec6b369 100644
+--- a/crates/resvg/src/path.rs
++++ b/crates/resvg/src/path.rs
+@@ -197,6 +197,7 @@ fn render_pattern_pixmap(
+     let ctx = Context {
+         max_bbox: ctx.max_bbox,
+         visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height())?,
++        filter_cache: ctx.filter_cache.clone(),
+     };
+     crate::render::render_nodes(pattern.root(), &ctx, transform, &mut pixmap.as_mut());
+ 
+diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
+index 67a5b95..6c86455 100644
+--- a/crates/resvg/src/render.rs
++++ b/crates/resvg/src/render.rs
+@@ -8,6 +8,8 @@ pub struct Context {
+     /// The part of the pixmap being drawn whose pixels are used. A layer is drawn only where it
+     /// can reach this area.
+     pub visible: tiny_skia::IntRect,
++    /// Filter results already computed during this render.
++    pub filter_cache: std::rc::Rc<crate::filter::Cache>,
+ }
+ 
+ pub fn render_nodes(
+@@ -135,6 +137,7 @@ fn render_group(
+     let ctx = Context {
+         max_bbox: ctx.max_bbox,
+         visible,
++        filter_cache: ctx.filter_cache.clone(),
+     };
+     let ctx = &ctx;
+ 
+@@ -142,7 +145,7 @@ fn render_group(
+ 
+     if !group.filters().is_empty() {
+         for filter in group.filters() {
+-            crate::filter::apply(filter, transform, &mut sub_pixmap);
++            crate::filter::apply(filter, transform, &ctx.filter_cache, &mut sub_pixmap);
+         }
+     }
+ 

@@ -1,0 +1,98 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-94): layers laid over their parents directly when source-over
+Library: resvg 0.48.1
+Fixes: none (speed: tiny-skia draws every pixmap through its high-precision pipeline)
+Upstream: none yet: to be proposed to tiny-skia (a low-precision path for an untransformed pixmap) or resvg (ours)
+Remove when: tiny-skia draws an untransformed source-over pixmap without its high-precision pipeline, or resvg composites layers so, or this patch no longer applies
+
+render::composite() lays a source-over layer onto its parent with its opacity directly (premultiplied,
+rounded to the nearest level), any other blend mode through tiny-skia as before: draw_pixmap took half
+the time of a document of large layers. The rounding differs from tiny-skia's by at most 3 levels.
+Requires the three patches before it.
+
+diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
+index 42c0f6c..53fede8 100644
+--- a/crates/resvg/src/render.rs
++++ b/crates/resvg/src/render.rs
+@@ -165,24 +165,71 @@ fn render_group(
+         crate::mask::apply(mask, ctx, transform, &mut sub_pixmap);
+     }
+ 
+-    let paint = tiny_skia::PixmapPaint {
+-        opacity: group.opacity().get(),
+-        blend_mode: convert_blend_mode(group.blend_mode()),
+-        quality: tiny_skia::FilterQuality::Nearest,
+-    };
+-
+-    pixmap.draw_pixmap(
++    composite(
++        pixmap,
+         ibbox.x(),
+         ibbox.y(),
+-        sub_pixmap.as_ref(),
+-        &paint,
+-        tiny_skia::Transform::identity(),
+-        None,
++        &sub_pixmap,
++        group.opacity().get(),
++        convert_blend_mode(group.blend_mode()),
+     );
+ 
+     Some(())
+ }
+ 
++/// Draws `layer` at (`x`, `y`) onto `pixmap`, with `opacity` and `blend_mode`: the usual case,
++/// source-over, directly (tiny-skia draws every pixmap through its high-precision pipeline, which
++/// took half the time of a document of large layers), any other mode through tiny-skia.
++fn composite(
++    pixmap: &mut tiny_skia::PixmapMut,
++    x: i32,
++    y: i32,
++    layer: &tiny_skia::Pixmap,
++    opacity: f32,
++    blend_mode: tiny_skia::BlendMode,
++) {
++    if blend_mode != tiny_skia::BlendMode::SourceOver {
++        let paint = tiny_skia::PixmapPaint {
++            opacity,
++            blend_mode,
++            quality: tiny_skia::FilterQuality::Nearest,
++        };
++        pixmap.draw_pixmap(x, y, layer.as_ref(), &paint, tiny_skia::Transform::identity(), None);
++        return;
++    }
++    let (width, height) = (pixmap.width() as i64, pixmap.height() as i64);
++    let (layer_width, layer_height) = (i64::from(layer.width()), i64::from(layer.height()));
++    let (x, y) = (i64::from(x), i64::from(y));
++    let (left, top) = (x.max(0), y.max(0));
++    let (right, bottom) = ((x + layer_width).min(width), (y + layer_height).min(height));
++    if left >= right || top >= bottom {
++        return;
++    }
++    let opacity = opacity.clamp(0.0, 1.0);
++    let count = ((right - left) * 4) as usize;
++    let source = layer.data();
++    let target = pixmap.data_mut();
++    for row in top..bottom {
++        let from = (((row - y) * layer_width + (left - x)) * 4) as usize;
++        let to = ((row * width + left) * 4) as usize;
++        let (source, target) = (&source[from..from + count], &mut target[to..to + count]);
++        for (s, d) in source.chunks_exact(4).zip(target.chunks_exact_mut(4)) {
++            if s[3] == 0 {
++                continue;
++            }
++            if s[3] == 255 && opacity == 1.0 {
++                d.copy_from_slice(s);
++                continue;
++            }
++            // Premultiplied: the source, times the opacity, over what the target keeps.
++            let keep = 1.0 - f32::from(s[3]) * opacity / 255.0;
++            for c in 0..4 {
++                d[c] = (f32::from(s[c]) * opacity + f32::from(d[c]) * keep + 0.5) as u8;
++            }
++        }
++    }
++}
++
+ /// A filtered group drawn on a layer about `factors` times smaller, exactly over the full-size one
+ /// (`ibbox`; `transform` maps to it), its filter computed there and the result enlarged back,
+ /// interpolated, within the filter's region at full resolution.

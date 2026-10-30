@@ -47,6 +47,7 @@ bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize si
     recordFrame(cb, target.get(), pipeline.get(), takeUpdates(), frame, output, transparent, transparent, after);
     m_rhi->endOffscreenFrame(); // waits for the GPU; the readback is complete afterwards
     m_pendingPixels = {};
+    m_pendingDetail = {};
     m_uploadInFlight = false;
     if (takeImageUploadFailure()) {
         *error = QStringLiteral("the image does not fit in one GPU texture");

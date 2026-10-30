@@ -22,6 +22,10 @@ mkdir -p "$WORK"
 git -C "$WORK" init -q resvg
 git -C "$WORK/resvg" fetch -q --depth 1 https://github.com/linebender/resvg "$commit"
 git -C "$WORK/resvg" checkout -q FETCH_HEAD
+# The port's patches (imageviewer-*.patch, docs/PLAN.md section 15), in the portfile's order.
+for patch in $(grep -o '[A-Za-z0-9_.-]*\.patch' "$port/portfile.cmake"); do
+    git -C "$WORK/resvg" apply --whitespace=nowarn "$port/$patch"
+done
 
 sudo=""
 [ "$(id -u)" -ne 0 ] && [ ! -w "$PREFIX" ] && sudo="sudo"

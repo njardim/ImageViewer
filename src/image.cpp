@@ -241,7 +241,7 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     return out;
 }
 
-Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, bool fillVector)
+Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, const DecodeOptions &options)
 {
     QElapsedTimer timer;
     timer.start();
@@ -255,7 +255,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     Decoded dec;
     QString error;
     std::unique_ptr<FrameReader> frames;
-    if (!decodeFile(path, maxPixels, &dec, &error, animate ? &frames : nullptr, VectorSize{maxTextureSize, fillVector})) {
+    if (!decodeFile(path, maxPixels, &dec, &error, animate ? &frames : nullptr, options)) {
         if (dec.overLimit) {
             result.overPixelLimit = true;
             result.error = QStringLiteral("larger than the pixel limit"); // never shown
@@ -294,6 +294,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
         result.sourceHeight = dec.documentHeight;
     }
     result.codec = dec.codec;
+    result.vector = dec.vector;
     result.sourceChannels = dec.sourceChannels;
     result.sourceBits = dec.bits;
     result.sourceFloat = !dec.isInteger();
@@ -425,12 +426,14 @@ bool Animation::frameLocked(int index, Frame *out, QString *error)
     }
 }
 
-Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, bool fillVector)
+namespace {
+
+Image guardedDecode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, const DecodeOptions &options)
 {
     // Runs on a worker thread: an exception escaping here would be rethrown by
     // QFuture::result() on the GUI thread and terminate the application.
     try {
-        return decode(path, maxTextureSize, maxPixels, animate, fillVector);
+        return decode(path, maxTextureSize, maxPixels, animate, options);
     } catch (const std::bad_alloc &) {
         Image failed;
         failed.path = path;
@@ -442,6 +445,28 @@ Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, boo
         failed.error = QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
         return failed;
     }
+}
+
+} // namespace
+
+Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, bool fillVector,
+                  const std::atomic_bool *cancel, QSize view)
+{
+    DecodeOptions options;
+    options.maxSide = maxTextureSize;
+    options.fill = fillVector;
+    options.view = view;
+    options.cancel = cancel;
+    return guardedDecode(path, maxTextureSize, maxPixels, animate, options);
+}
+
+Image decodeVectorArea(const QString &path, double scale, QRectF area, const std::atomic_bool *cancel)
+{
+    DecodeOptions options;
+    options.scale = scale;
+    options.area = area;
+    options.cancel = cancel;
+    return guardedDecode(path, 0, 0, false, options);
 }
 
 QImage decodeForClipboard(const QString &path)

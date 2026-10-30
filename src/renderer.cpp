@@ -32,8 +32,9 @@ struct Uniforms {
     float uvMap[4];         // texture coordinates at imageRect's top-left, their change per pixel along x
     float uvMapY[4];        // their change per pixel along y; z: target height
     float layers[Renderer::OverlayLayerCount][4]; // overlay rectangles; width 0: absent
+    float detailRect[4];    // the zoom's detail, texture coordinates; width 0: none
 };
-static_assert(sizeof(Uniforms) == 336, "uniform block must match the shaders");
+static_assert(sizeof(Uniforms) == 352, "uniform block must match the shaders");
 
 constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
 constexpr int kQuadBytes = 4 * kVertexStride;
@@ -170,6 +171,7 @@ void Renderer::releaseResources()
     drop(m_imageBindingsLinear);
     drop(m_imageBindingsNearest);
     drop(m_imageTexture);
+    drop(m_detailTexture);
     drop(m_placeholderTexture);
     m_boundImage = nullptr;
     for (OverlaySlot &slot : m_overlays) {
@@ -179,12 +181,14 @@ void Renderer::releaseResources()
     }
     drop(m_linearSampler);
     drop(m_nearestSampler);
+    drop(m_detailSampler);
     drop(m_vertices);
     drop(m_imageUniforms);
     drop(m_rhi);
     m_fallbackSurface.reset();
     m_pendingPixels = {};
-    m_imagePending = m_uploadInFlight = m_hasImage = false;
+    m_pendingDetail = {};
+    m_imagePending = m_detailPending = m_uploadInFlight = m_hasImage = false;
     m_outputDirty = true;
 }
 
@@ -262,7 +266,11 @@ bool Renderer::initialize(QString *error)
                                         QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     m_nearestSampler = m_rhi->newSampler(QRhiSampler::Nearest, QRhiSampler::Nearest, QRhiSampler::None,
                                          QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
-    const bool created = m_vertices->create() && m_imageUniforms->create() && m_linearSampler->create()
+    // The zoom's detail has no mipmaps: a sampler that reads them would make it incomplete for
+    // OpenGL, which then draws it black.
+    m_detailSampler = m_rhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
+                                        QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
+    const bool created = m_vertices->create() && m_imageUniforms->create() && m_linearSampler->create() && m_detailSampler->create()
                          && m_nearestSampler->create();
     if (!created) {
         *error = QCoreApplication::translate("Renderer", "Cannot create GPU resources.");
@@ -465,10 +473,31 @@ void Renderer::updateOutput()
 
 void Renderer::setImage(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size)
 {
+    clearDetail(); // drawn from the image it replaces
     m_pendingPixels = std::move(pixels);
     m_pendingSize = size;
     m_imagePending = true;
     m_frameUpdate = false;
+}
+
+void Renderer::setDetail(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size, QRectF rect)
+{
+    m_pendingDetail = std::move(pixels);
+    m_pendingDetailSize = size;
+    m_pendingDetailRect = rect;
+    m_detailPending = true;
+}
+
+void Renderer::clearDetail()
+{
+    m_pendingDetail = {};
+    m_detailPending = false;
+    if (m_detailTexture) { // the GPU memory back now
+        m_detailTexture->destroy();
+        m_detailTexture->deleteLater();
+        m_detailTexture = nullptr;
+        bindImageTexture(m_boundImage);
+    }
 }
 
 void Renderer::setFrame(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size)
@@ -480,6 +509,7 @@ void Renderer::setFrame(std::shared_ptr<const std::vector<qfloat16>> pixels, QSi
 
 void Renderer::clearImage()
 {
+    clearDetail();
     m_pendingPixels = {};
     m_imagePending = false;
     m_hasImage = false;
@@ -564,6 +594,34 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         }
     }
 
+    if (m_detailPending) {
+        // As a new image: the old texture goes first, a fresh object takes the pixels. No mipmaps:
+        // the detail is drawn at the scale shown, or larger while the next one is drawn.
+        m_detailPending = false;
+        if (m_detailTexture) {
+            m_detailTexture->destroy();
+            m_detailTexture->deleteLater();
+            m_detailTexture = nullptr;
+        }
+        QRhiTexture *texture = m_rhi->newTexture(QRhiTexture::RGBA16F, m_pendingDetailSize);
+        const std::size_t expected = std::size_t(std::max(0, m_pendingDetailSize.width()))
+                                     * std::size_t(std::max(0, m_pendingDetailSize.height())) * 4;
+        if (m_pendingDetail && m_pendingDetail->size() == expected && expected > 0 && texture->create()) {
+            QRhiTextureSubresourceUploadDescription level0;
+            level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingDetail->data()),
+                                                   qsizetype(m_pendingDetail->size() * sizeof(qfloat16))));
+            updates->uploadTexture(texture, QRhiTextureUploadDescription({0, 0, level0}));
+            m_detailTexture = texture;
+            m_detailRect = m_pendingDetailRect;
+            m_uploadInFlight = true; // m_pendingDetail stays alive until the frame has ended
+        } else {
+            qCWarning(lcRender) << "cannot create a detail texture of" << m_pendingDetailSize;
+            delete texture;
+            m_pendingDetail = {};
+        }
+        bindImageTexture(m_boundImage);
+    }
+
     bool newOverlayTexture = false;
     for (OverlaySlot &slot : m_overlays) {
         if (!slot.isPending)
@@ -600,6 +658,8 @@ void Renderer::bindImageTexture(QRhiTexture *texture)
         for (int layer = 0; layer < OverlayLayerCount; ++layer)
             bindings.append(QRhiShaderResourceBinding::sampledTexture(2 + layer, fragment, m_overlays[layer].texture,
                                                                       m_nearestSampler)); // sampled 1:1
+        bindings.append(QRhiShaderResourceBinding::sampledTexture(
+            2 + OverlayLayerCount, fragment, m_detailTexture ? m_detailTexture : m_placeholderTexture, m_detailSampler));
         srb->setBindings(bindings.cbegin(), bindings.cend());
         srb->create();
     }
@@ -638,6 +698,7 @@ Renderer::RenderResult Renderer::render(const Frame &frame)
     result = m_rhi->endFrame(m_swapChain);
     if (m_uploadInFlight) { // the upload has been submitted; the pixels are no longer needed
         m_pendingPixels = {};
+        m_pendingDetail = {};
         m_uploadInFlight = false;
     }
     return result == QRhi::FrameOpDeviceLost ? RenderResult::DeviceLost : RenderResult::Done;
@@ -712,6 +773,11 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
         u.uvMapY[1] = (bottomLeft[1] - topLeft[1]) / rect[3];
     }
     u.uvMapY[2] = float(outputSize.height());
+    if (frame.detail && m_detailTexture && m_hasImage) {
+        const float rect[4] = {float(m_detailRect.x()), float(m_detailRect.y()), float(m_detailRect.width()),
+                               float(m_detailRect.height())};
+        std::copy(rect, rect + 4, u.detailRect);
+    }
     for (int layer = 0; layer < OverlayLayerCount; ++layer) {
         const QRectF o = frame.overlayRects[layer];
         if (m_overlays[layer].present && !o.isEmpty()) {

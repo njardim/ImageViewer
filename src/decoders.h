@@ -7,8 +7,10 @@
 #include "image.h"
 
 #include <QLoggingCategory>
+#include <QRect>
 #include <QString>
 
+#include <atomic>
 #include <memory>
 #include <string>
 
@@ -35,6 +37,7 @@ struct Decoded {
     // panel and the zoom speak of the document's size. 0: the same as width and height.
     int documentWidth = 0;
     int documentHeight = 0;
+    bool vector = false; // drawn from a description (SVG): it can be drawn again at any scale (D-93)
 
     int sampleBytes() const
     {
@@ -70,12 +73,22 @@ public:
     virtual int loopCount() const = 0;
 };
 
-// The size a vector image (SVG) is drawn at, on its longer side (D-90): its own size, made smaller
-// to fit `maxSide` (the GPU's largest texture); with `fill`, exactly `maxSide` (a thumbnail, drawn
-// at its own size rather than reduced or enlarged afterwards). 0: its own size.
-struct VectorSize {
+// What a decode is asked for beyond its pixel limit.
+// A vector image (SVG) is drawn on its longer side at its own size (D-90), made smaller to fit
+// `maxSide` (the GPU's largest texture); with `fill`, at exactly `maxSide` (a thumbnail, drawn at
+// its own size rather than reduced or enlarged afterwards); 0: its own size. Without `fill`, never
+// larger than fits in `view` (the window, device pixels), the size it is shown at (D-94). With
+// `scale` > 0 instead, only `area` of it, in pixels of the document drawn at `scale` (the zoom's
+// detail, D-93): a whole number of pixels from an origin that may fall between two (D-94).
+// Setting `cancel` during a decode in a worker process (SVG, GraphicsMagick) ends that process,
+// and the decode fails (D-93).
+struct DecodeOptions {
     int maxSide = 0;
     bool fill = false;
+    QSize view;
+    double scale = 0.0;
+    QRectF area;
+    const std::atomic_bool *cancel = nullptr;
 };
 
 // Detects the format (formats.h) and decodes with its back end, then with the general ones
@@ -84,7 +97,7 @@ struct VectorSize {
 // For an animated file, *frames (when given) receives the reader of the frames after the
 // first, and out->durationMs the first frame's display time.
 bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error,
-                std::unique_ptr<FrameReader> *frames = nullptr, VectorSize vector = {});
+                std::unique_ptr<FrameReader> *frames = nullptr, DecodeOptions options = {});
 
 // Stops OpenImageIO's worker threads (see shutdownDecoders()).
 void shutdownOpenImageIO();
@@ -131,9 +144,12 @@ bool graphicsMagickAvailable();
 // The `--decode-worker` mode of the executable (main.cpp starts it before anything else).
 int runDecodeWorker(int argc, char **argv);
 // Decodes `path` in a worker process: GraphicsMagick's coder for the format, or the SVG renderer
-// at the size `vector` asks for. Never crashes the caller.
+// as `options` asks. Never crashes the caller.
 bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
-                    VectorSize vector = {});
+                    DecodeOptions options = {});
+// Ends this thread's SVG worker once it has had no request for 30 s (D-94): a decoding thread busy
+// with other formats keeps no idle worker; one with nothing to do ends after QThreadPool's timeout.
+void stopIdleSvgWorker();
 // The worker's exit codes: decoded, not decoded (the reason on standard error), bad arguments,
 // over the pixel limit asked for (or out of memory).
 inline constexpr int kWorkerDecoded = 0, kWorkerFailed = 1, kWorkerUsage = 2, kWorkerOverLimit = 3;
@@ -151,7 +167,7 @@ bool svgAvailable();
 // The renderer's name and version, e.g. "resvg 0.48.1"; empty when the build has none.
 QString svgRenderer();
 // The worker's SVG mode: `file` is the file's bytes, an svgz inflated here. Returns the exit code.
-int runSvgWorker(QByteArrayView file, qint64 maxPixels, VectorSize vector);
+int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options);
 
 // syscodecs.cpp: the operating system's HEIC decoder (D-39).
 // What to do when the system has no HEVC decoder (Windows: the Microsoft Store extensions).

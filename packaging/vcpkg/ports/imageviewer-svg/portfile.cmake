@@ -12,6 +12,11 @@ vcpkg_from_git(
     REF 68b14c4c3bccdb60344c777406486b54c36ec1a4 # v0.48.1
     FETCH_REF "v${VERSION}"
     HEAD_REF main
+    PATCHES # ours, each removed once a release holds it (docs/PLAN.md section 15)
+        imageviewer-filter-area.patch       # filtered layers only within reach of the view (D-93)
+        imageviewer-turbulence-cache.patch  # equal noise computed once (D-93)
+        imageviewer-reduced-blur.patch      # large blurs at a reduced resolution (D-94)
+        imageviewer-direct-composite.patch  # source-over layers laid directly (D-94)
 )
 
 # rustup's cargo: CI installs the pinned toolchain (build.yml) and keeps CARGO_HOME and RUSTUP_HOME

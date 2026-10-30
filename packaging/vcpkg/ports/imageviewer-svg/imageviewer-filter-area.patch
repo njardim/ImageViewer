@@ -1,0 +1,300 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-93): filtered layers drawn only within reach of the view
+Library: resvg 0.48.1
+Fixes: none (speed: a filtered layer cost its whole filter region, linebender/resvg#790 and #1192)
+Upstream: none yet: to be proposed to linebender/resvg, linked to #1192 (ours)
+Remove when: a resvg release draws a filtered layer only within reach of the canvas, or this patch no longer applies
+
+resvg drew every filtered group over its whole filter region at the scale asked, however little of it
+the canvas shows: a part of the canvas cost as much as the whole, and a zoomed-in view its whole area
+at that zoom. Here a layer is drawn only within reach of the visible area (render::Context::visible):
+for a filtered group, the reach of its filters (filter::reach(): the box blur's exact width, offsets,
+morphology, displacement, convolution, lighting); a filter whose result may depend on its whole region
+(feTile, feImage, stitched feTurbulence) keeps its whole region, as before. Groups and layers outside
+the visible area are not drawn: tiny-skia 0.12 drew a one-row pixmap placed just above the canvas onto
+the canvas's first row. A primitive's subregion is cleared within its result's pixels wherever it lies
+(it may lie partly or wholly outside a layer drawn in part). The pixels are those of the whole region
+but for anti-aliased edges, whose coverage may move by a rounding step when a layer starts elsewhere
+(tiny-skia's, as for a shape drawn on a canvas that starts elsewhere; lighting and convolution, which
+read an edge's slope, enlarge that step): 3 of resvg's 1,730 reference tests differ there.
+
+diff --git a/crates/resvg/src/clip.rs b/crates/resvg/src/clip.rs
+index 879434d..de432c7 100644
+--- a/crates/resvg/src/clip.rs
++++ b/crates/resvg/src/clip.rs
+@@ -43,6 +43,7 @@ fn draw_children(
+                 // We could use any values here. They will not be used anyway.
+                 let ctx = Context {
+                     max_bbox: tiny_skia::IntRect::from_xywh(0, 0, 1, 1).unwrap(),
++                    visible: tiny_skia::IntRect::from_xywh(0, 0, 1, 1).unwrap(),
+                 };
+ 
+                 crate::path::fill_path(path, mode, &ctx, transform, pixmap);
+diff --git a/crates/resvg/src/filter/box_blur.rs b/crates/resvg/src/filter/box_blur.rs
+index 169256c..013784b 100644
+--- a/crates/resvg/src/filter/box_blur.rs
++++ b/crates/resvg/src/filter/box_blur.rs
+@@ -34,6 +34,15 @@ pub fn apply(sigma_x: f64, sigma_y: f64, mut src: ImageRefMut) {
+ }
+ 
+ #[inline(never)]
++/// How far the blur of `sigma` reaches: a pixel of its result depends only on the pixels at most
++/// this far away.
++pub fn reach(sigma: f64) -> u32 {
++    create_box_gauss(sigma as f32)
++        .iter()
++        .map(|size| ((size - 1) / 2) as u32)
++        .sum()
++}
++
+ fn create_box_gauss(sigma: f32) -> [i32; STEPS] {
+     if sigma > 0.0 {
+         let n_float = STEPS as f32;
+diff --git a/crates/resvg/src/filter/mod.rs b/crates/resvg/src/filter/mod.rs
+index 30f8680..36353e8 100644
+--- a/crates/resvg/src/filter/mod.rs
++++ b/crates/resvg/src/filter/mod.rs
+@@ -332,6 +332,41 @@ struct FilterResult {
+     image: Image,
+ }
+ 
++/// How far, in pixels, `filters` reach under `ts`: a pixel of their result depends only on the
++/// pixels of their input at most this far away. None when it may depend on the whole filter region:
++/// `feTile` repeats a part of it, `feImage` and stitched `feTurbulence` are fitted to it.
++pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Transform) -> Option<u32> {
++    use usvg::filter::Kind;
++
++    let (sx, sy) = ts.get_scale();
++    let scale = f64::from(sx.max(sy));
++    let blur = |x: usvg::PositiveF32, y: usvg::PositiveF32| match resolve_std_dev(x.get(), y.get(), ts) {
++        Some((x, y, true)) => f64::from(box_blur::reach(x).max(box_blur::reach(y))),
++        // The IIR blur (sigma < 2) has no end: its tail past 6 sigma is far below one level.
++        Some((x, y, false)) => 6.0 * x.max(y) + 2.0,
++        None => 0.0,
++    };
++    let offset = |dx: f32, dy: f32| f64::from(dx.abs().max(dy.abs())) * scale + 1.0;
++    let mut total = 1.0; // the rounding of regions to pixels
++    for filter in filters {
++        for primitive in filter.primitives() {
++            total += match primitive.kind() {
++                Kind::GaussianBlur(fe) => blur(fe.std_dev_x(), fe.std_dev_y()),
++                Kind::DropShadow(fe) => blur(fe.std_dev_x(), fe.std_dev_y()) + offset(fe.dx(), fe.dy()),
++                Kind::Offset(fe) => offset(fe.dx(), fe.dy()),
++                Kind::Morphology(fe) => f64::from(fe.radius_x().get().max(fe.radius_y().get())) * scale,
++                Kind::DisplacementMap(fe) => f64::from(fe.scale().abs()) / 2.0 * scale,
++                Kind::ConvolveMatrix(fe) => f64::from(fe.matrix().columns().max(fe.matrix().rows())),
++                Kind::DiffuseLighting(_) | Kind::SpecularLighting(_) => 2.0,
++                Kind::Tile(_) | Kind::Image(_) => return None,
++                Kind::Turbulence(fe) if fe.stitch_tiles() => return None,
++                _ => 0.0,
++            };
++        }
++    }
++    (total < f64::from(u32::MAX)).then(|| total.ceil() as u32)
++}
++
+ pub fn apply(
+     filter: &usvg::filter::Filter,
+     ts: tiny_skia::Transform,
+@@ -477,24 +512,19 @@ fn apply_inner(
+                 let mut pixmap = result.take()?;
+                 let w = pixmap.width() as f32;
+                 let h = pixmap.height() as f32;
+-
+-                if let Some(rect) = tiny_skia::Rect::from_xywh(0.0, 0.0, w, subregion2.y() as f32) {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+-                }
+-
+-                if let Some(rect) = tiny_skia::Rect::from_xywh(0.0, 0.0, subregion2.x() as f32, h) {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+-                }
+-
+-                if let Some(rect) = tiny_skia::Rect::from_xywh(subregion2.right() as f32, 0.0, w, h)
+-                {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
+-                }
+-
+-                if let Some(rect) =
+-                    tiny_skia::Rect::from_xywh(0.0, subregion2.bottom() as f32, w, h)
+-                {
+-                    pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
++                // Within the pixmap: the subregion may lie partly or wholly outside it.
++                let (left, top) = (subregion2.left() as f32, subregion2.top() as f32);
++                let (right, bottom) = (subregion2.right() as f32, subregion2.bottom() as f32);
++
++                for (l, t, r, b) in [
++                    (0.0, 0.0, w, top.min(h)),
++                    (0.0, 0.0, left.min(w), h),
++                    (right.max(0.0), 0.0, w, h),
++                    (0.0, bottom.max(0.0), w, h),
++                ] {
++                    if let Some(rect) = tiny_skia::Rect::from_ltrb(l, t, r, b) {
++                        pixmap.fill_rect(rect, &paint, tiny_skia::Transform::identity(), None);
++                    }
+                 }
+ 
+                 pixmap
+@@ -878,6 +908,7 @@ fn apply_image(
+ 
+     let ctx = crate::render::Context {
+         max_bbox: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
++        visible: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
+     };
+ 
+     crate::render::render_nodes(fe.root(), &ctx, transform, &mut pixmap.as_mut());
+diff --git a/crates/resvg/src/geom.rs b/crates/resvg/src/geom.rs
+index 8552708..b45b6b8 100644
+--- a/crates/resvg/src/geom.rs
++++ b/crates/resvg/src/geom.rs
+@@ -28,3 +28,17 @@ pub fn fit_to_rect(
+ 
+     tiny_skia::IntRect::from_ltrb(left, top, right, bottom)
+ }
++
++/// `r` grown by `by` on every side, within the coordinates an `IntRect` can hold.
++pub fn expand(r: tiny_skia::IntRect, by: u32) -> tiny_skia::IntRect {
++    const LIMIT: i64 = (i32::MAX / 2) as i64;
++    let by = i64::from(by);
++    let side = |v: i32, d: i64| (i64::from(v) + d).clamp(-LIMIT, LIMIT) as i32;
++    tiny_skia::IntRect::from_ltrb(
++        side(r.left(), -by),
++        side(r.top(), -by),
++        side(r.right(), by),
++        side(r.bottom(), by),
++    )
++    .unwrap_or(r)
++}
+diff --git a/crates/resvg/src/lib.rs b/crates/resvg/src/lib.rs
+index 79805f5..c849854 100644
+--- a/crates/resvg/src/lib.rs
++++ b/crates/resvg/src/lib.rs
+@@ -38,7 +38,10 @@ pub fn render(
+ ) {
+     let max_bbox = max_filter_bbox(pixmap.width(), pixmap.height());
+ 
+-    let ctx = render::Context { max_bbox };
++    let ctx = render::Context {
++        max_bbox,
++        visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height()).unwrap(),
++    };
+     render::render_nodes(tree.root(), &ctx, transform, pixmap);
+ }
+ 
+@@ -63,7 +66,10 @@ pub fn render_node(
+ 
+     transform = transform.pre_translate(-bbox.x(), -bbox.y());
+ 
+-    let ctx = render::Context { max_bbox };
++    let ctx = render::Context {
++        max_bbox,
++        visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height()).unwrap(),
++    };
+     render::render_node(node, &ctx, transform, pixmap);
+ 
+     Some(())
+diff --git a/crates/resvg/src/path.rs b/crates/resvg/src/path.rs
+index c11349a..40b80ec 100644
+--- a/crates/resvg/src/path.rs
++++ b/crates/resvg/src/path.rs
+@@ -194,7 +194,11 @@ fn render_pattern_pixmap(
+     let mut pixmap = tiny_skia::Pixmap::new(img_size.width(), img_size.height())?;
+ 
+     let transform = tiny_skia::Transform::from_scale(sx, sy);
+-    crate::render::render_nodes(pattern.root(), ctx, transform, &mut pixmap.as_mut());
++    let ctx = Context {
++        max_bbox: ctx.max_bbox,
++        visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height())?,
++    };
++    crate::render::render_nodes(pattern.root(), &ctx, transform, &mut pixmap.as_mut());
+ 
+     let mut ts = tiny_skia::Transform::default();
+     ts = ts.pre_concat(pattern.transform());
+diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
+index 686e48c..67a5b95 100644
+--- a/crates/resvg/src/render.rs
++++ b/crates/resvg/src/render.rs
+@@ -5,6 +5,9 @@ use crate::OptionLog;
+ 
+ pub struct Context {
+     pub max_bbox: tiny_skia::IntRect,
++    /// The part of the pixmap being drawn whose pixels are used. A layer is drawn only where it
++    /// can reach this area.
++    pub visible: tiny_skia::IntRect,
+ }
+ 
+ pub fn render_nodes(
+@@ -61,6 +64,14 @@ fn render_group(
+ 
+     let bbox = group.layer_bounding_box().transform(transform)?;
+ 
++    // How far the group's filters reach: a pixel of their result depends only on the pixels at
++    // most this far away. None when it may depend on the whole filter region.
++    let reach = if group.filters().is_empty() {
++        Some(0)
++    } else {
++        crate::filter::reach(group.filters(), transform)
++    };
++
+     let mut ibbox = if group.filters().is_empty() {
+         // Convert group bbox into an integer one, expanding each side outwards by 2px
+         // to make sure that anti-aliased pixels would not be clipped.
+@@ -73,23 +84,27 @@ fn render_group(
+     } else {
+         // The bounding box for groups with filters is special and should not be expanded by 2px,
+         // because it's already acting as a clipping region.
+-        let bbox = tiny_skia::IntRect::from_xywh(
++        tiny_skia::IntRect::from_xywh(
+             bbox.x().floor() as i32,
+             bbox.y().floor() as i32,
+             bbox.width().ceil().max(1.0) as u32,
+             bbox.height().ceil().max(1.0) as u32,
+-        )?;
+-        // Make sure our filter region is not bigger than 4x the canvas size.
+-        // This is required mainly to prevent huge filter regions that would tank the performance.
+-        // It should not affect the final result in any way.
+-        crate::geom::fit_to_rect(bbox, ctx.max_bbox)?
++        )?
+     };
+ 
+-    // Make sure our layer is not bigger than 4x the canvas size.
+-    // This is required to prevent huge layers.
+-    if group.filters().is_empty() {
+-        ibbox = crate::geom::fit_to_rect(ibbox, ctx.max_bbox)?;
+-    }
++    // A layer outside the visible area changes none of its pixels: a filter draws only within its
++    // region. (tiny-skia 0.12 would also draw a one-row layer just above the pixmap onto its first
++    // row.)
++    crate::geom::fit_to_rect(ibbox, ctx.visible)?;
++
++    // The part of the layer that can change the visible pixels: all of it within reach of the
++    // visible area. A filter whose result may depend on its whole region gets its whole region,
++    // within 4x the canvas size, to prevent huge filter regions that would tank the performance.
++    let area = match reach {
++        Some(reach) => crate::geom::expand(ctx.visible, reach),
++        None => ctx.max_bbox,
++    };
++    ibbox = crate::geom::fit_to_rect(ibbox, area)?;
+ 
+     let shift_ts = {
+         // Original shift.
+@@ -108,6 +123,21 @@ fn render_group(
+     let mut sub_pixmap = tiny_skia::Pixmap::new(ibbox.width(), ibbox.height())
+         .log_none(|| log::warn!("Failed to allocate a group layer for: {:?}.", ibbox))?;
+ 
++    // The layer's own visible area, in its coordinates.
++    let layer = tiny_skia::IntRect::from_xywh(0, 0, ibbox.width(), ibbox.height())?;
++    let visible = match reach {
++        Some(reach) => crate::geom::expand(ctx.visible, reach),
++        None => ibbox,
++    }
++    .translate(-ibbox.x(), -ibbox.y())
++    .and_then(|area| crate::geom::fit_to_rect(area, layer))
++    .unwrap_or(layer);
++    let ctx = Context {
++        max_bbox: ctx.max_bbox,
++        visible,
++    };
++    let ctx = &ctx;
++
+     render_nodes(group, ctx, transform, &mut sub_pixmap.as_mut());
+ 
+     if !group.filters().is_empty() {

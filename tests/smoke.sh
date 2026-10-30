@@ -279,13 +279,83 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         fi
     fi
     check IV_claude_v5_mix_v1.svg 'size: +1024x1024' "the owner's SVG (17 filters, 13 masks) at its own size"
-    # A worker given no request refuses it (exit 2), and a render past the worker's 30 s ends there:
-    # the viewer says why and goes on (D-38).
+    # The SVG worker serves requests until its pipe closes (D-94): closed at once, it ends (exit 0);
+    # anything but a request it refuses (exit 2). A render past the worker's 30 s ends there: the
+    # viewer says why and goes on (D-38).
     code=0
     "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || code=$?
-    if [ "$code" = 2 ]; then echo "ok   SVG worker: no request, refused"; else echo "FAIL SVG worker: exit $code without a request, expected 2"; failures=$((failures + 1)); fi
+    refused=0
+    printf 'not a request at all, but long enough to be read as one: 64 bytes.' | "$exe" --decode-worker SVG >/dev/null 2>&1 || refused=$?
+    if [ "$code" = 0 ] && [ "$refused" = 2 ]; then
+        echo "ok   SVG worker: ends with its pipe, refuses what is not a request"
+    else
+        echo "FAIL SVG worker: exit $code with no request (expected 0), $refused for a bad one (expected 2)"
+        failures=$((failures + 1))
+    fi
+    # A request without a file is for the document the worker parsed last (D-95): the zoom's
+    # details of one SVG. A worker that has parsed none says so.
+    if python3 - "$exe" <<'PY'
+import struct, subprocess, sys
+svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="red"/></svg>'
+def request(file):
+    return b'IVSVGREQ' + struct.pack('<QIIdddIIIIQ', 10**6, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0, 0, len(file)) + file
+def answers(*files):
+    return subprocess.run([sys.argv[1], '--decode-worker', 'SVG'], input=b''.join(request(f) for f in files),
+                          capture_output=True, timeout=60).stdout
+held = answers(svg, b'')
+fresh = answers(b'')
+sys.exit(0 if held.count(b'IVWORKER') == 2 and b'IVSVGNOT' not in held and fresh.startswith(b'IVSVGNOT') else 1)
+PY
+    then
+        echo "ok   SVG worker: a request without a file draws the document it holds, refused when it holds none"
+    else
+        echo "FAIL SVG worker: the held document (D-95)"
+        failures=$((failures + 1))
+    fi
+    # A part of a document drawn alone, a zoom's detail or a band (D-93, D-95), has the very pixels
+    # of the whole there: filtered layers drawn only within reach, large blurs reduced on the whole
+    # region's grid. Shapes on whole pixels, whose edges no rounding moves.
+    if said="$(python3 - "$exe" 2>&1 <<'PY'
+import struct, subprocess, sys
+cases = {
+    "a large blur": '<filter id="f" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="30"/></filter><rect x="60" y="60" width="80" height="80" fill="red" filter="url(#f)"/>',
+    "a large blur, then an offset": '<filter id="f" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="30"/><feOffset dx="5" dy="3"/></filter><rect x="60" y="60" width="80" height="80" fill="red" filter="url(#f)"/>',
+    "a blur": '<filter id="f"><feGaussianBlur stdDeviation="6"/></filter><rect x="40" y="40" width="120" height="120" fill="red" filter="url(#f)"/>',
+    "a shadow": '<filter id="f"><feDropShadow dx="8" dy="6" stdDeviation="9"/></filter><rect x="50" y="50" width="100" height="80" fill="#3a8" filter="url(#f)"/>',
+    "a morphology": '<filter id="f"><feMorphology operator="dilate" radius="4"/></filter><rect x="40" y="50" width="110" height="90" fill="blue" filter="url(#f)"/>',
+    "a noise": '<filter id="f" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.03" numOctaves="3"/></filter><rect width="200" height="200" filter="url(#f)"/>',
+    "a blurred mask": '<mask id="m"><rect x="50" y="50" width="100" height="100" fill="white" filter="url(#f)"/></mask><filter id="f"><feGaussianBlur stdDeviation="12"/></filter><rect width="200" height="200" fill="purple" mask="url(#m)"/>',
+}
+areas = [(0, 0, 600, 600), (137, 91, 211, 173), (250, 223, 260, 190), (450, 7, 150, 591)]
+def request(area, file):
+    return b'IVSVGREQ' + struct.pack('<QIIdddIIIIQ', 10**8, 0, 0, 3.0, *area, 0, 0, len(file)) + file
+for name, body in cases.items():
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">{body}</svg>'.encode()
+    out = subprocess.run([sys.argv[1], '--decode-worker', 'SVG'], input=b''.join(request(a, svg if i == 0 else b'') for i, a in enumerate(areas)),
+                         capture_output=True, timeout=120).stdout
+    images, at = [], 0
+    for l, t, w, h in areas:
+        if out[at:at + 8] != b'IVWORKER':
+            sys.exit(f"{name}: not drawn")
+        words = struct.unpack('<10I', out[at + 8:at + 48])
+        at += 48 + words[6]
+        images.append(out[at:at + w * h * 4])
+        at += w * h * 4
+    for (l, t, w, h), part in zip(areas[1:], images[1:]):
+        for y in range(h):
+            if part[y * w * 4:(y + 1) * w * 4] != images[0][((t + y) * 600 + l) * 4:((t + y) * 600 + l + w) * 4]:
+                sys.exit(f"{name}: the area at {l},{t} differs from the whole on its row {y}")
+PY
+)"; then
+        echo "ok   SVG: a part drawn alone has the whole's pixels (large blurs, shadows, morphology, noise, masks)"
+    else
+        echo "FAIL SVG: a part drawn alone differs from the whole: $said"
+        failures=$((failures + 1))
+    fi
     slow="$(mktemp -d)/slow.svg"
-    printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10"/><feGaussianBlur stdDeviation="40"/></filter><rect width="8000" height="8000" filter="url(#n)"/><rect width="8000" height="8000" filter="url(#n)" opacity="0.5"/></svg>\n' >"$slow"
+    # Eight different noises over 64 million pixels: none computed twice (D-93 reuses equal ones),
+    # past 30 s on any runner.
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n1" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="1"/></filter><filter id="n2" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="2"/></filter><filter id="n3" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="3"/></filter><filter id="n4" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="4"/></filter><filter id="n5" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="5"/></filter><filter id="n6" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="6"/></filter><filter id="n7" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="7"/></filter><filter id="n8" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="8"/></filter><rect width="8000" height="8000" filter="url(#n1)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n2)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n3)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n4)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n5)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n6)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n7)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n8)" opacity="0.5"/></svg>\n' >"$slow"
     started=$(date +%s)
     said="$("$exe" --info "$slow" 2>/dev/null || true)"
     took=$(($(date +%s) - started))
@@ -296,18 +366,33 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         echo "FAIL SVG worker: a render past 30 s ($took s): $said"
         failures=$((failures + 1))
     fi
-    # A filter region 25 times its canvas (resvg allocates such a layer whole): the renderer's memory
-    # limit ends the worker at once, and the viewer says so (it took 2 GiB and 30 s before, D-90).
+    # A filter region 25 times its canvas: a blur is drawn only within its reach of the canvas
+    # (D-93); it took 2 GiB and 30 s before (D-90).
+    region="$(mktemp -d)/region.svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$region"
+    started=$(date +%s)
+    said="$("$exe" --info "$region" 2>/dev/null || true)"
+    took=$(($(date +%s) - started))
+    rm -rf "$(dirname "$region")"
+    if grep -Eq 'size: +3000x3000' <<<"$said" && [ "$took" -lt 20 ]; then
+        echo "ok   SVG worker: a filter region 25 times its canvas drawn within reach of the canvas (${took} s)"
+    else
+        echo "FAIL SVG worker: a filter region 25 times its canvas ($took s): $said"
+        failures=$((failures + 1))
+    fi
+    # With feTile, whose result depends on its whole region, resvg allocates it whole: 25 times a
+    # 6000 px canvas, 3.6 GB a layer, past the worker's memory limit (a quarter of the machine's
+    # memory at least, D-94) on the runners, or past its 30 s; the viewer says why (D-90 (10)).
     bomb="$(mktemp -d)/region.svg"
-    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="6000" height="6000"><filter id="b" filterUnits="userSpaceOnUse" x="-12000" y="-12000" width="30000" height="30000"><feGaussianBlur stdDeviation="2"/><feTile/></filter><rect width="6000" height="6000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
     started=$(date +%s)
     said="$("$exe" --info "$bomb" 2>/dev/null || true)"
     took=$(($(date +%s) - started))
     rm -rf "$(dirname "$bomb")"
-    if grep -q 'Not enough memory to decode the image' <<<"$said" && [ "$took" -lt 20 ]; then
-        echo "ok   SVG worker: a filter region past the renderer's memory limit refused (${took} s)"
+    if grep -Eq 'Not enough memory to decode the image|took longer than 30 s and was stopped' <<<"$said" && [ "$took" -lt 45 ]; then
+        echo "ok   SVG worker: a filter region 25 times its canvas, needed whole, stopped (${took} s): $(grep -Eo 'Not enough memory|took longer' <<<"$said")"
     else
-        echo "FAIL SVG worker: a filter region past the memory limit ($took s): $said"
+        echo "FAIL SVG worker: a filter region needed whole not stopped ($took s): $said"
         failures=$((failures + 1))
     fi
     # What starting a worker costs on this machine (its libraries load): a record, not a check.

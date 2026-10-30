@@ -1,6 +1,6 @@
 /* ImageViewer's SVG renderer contract (decision D-90).
  *
- * The application draws SVG only through these seven functions. Any renderer can stand behind
+ * The application draws SVG only through these eight functions. Any renderer can stand behind
  * them: today resvg, through lib.rs beside this file. Replacing it means another implementation
  * of this header and its port (packaging/vcpkg/ports/), and nothing in the application.
  *
@@ -11,7 +11,10 @@
  * - no function aborts the process or lets an error escape: each returns a code; the one exception
  *   is the memory limit (iv_svg_limit_memory), past which the process ends with a message naming
  *   memory on standard error, as the decode worker is meant to;
- * - the functions may be called from one thread at a time (the decode worker has one).
+ * - the functions may be called from one thread at a time (the decode worker has one); a render may
+ *   use threads of its own (iv_svg_limit_threads), and its pixels are those of a render on one
+ *   thread but for the rounding of anti-aliased edges (and what lighting and convolution, which
+ *   read an edge's slope, make of it).
  *
  * The caller (src/svg.cpp, in the decode worker, D-38) gives the document already inflated (never
  * gzip) and made safe (safeSvg(), D-71), and bounds the pixels it asks for. */
@@ -26,7 +29,7 @@ extern "C" {
 #endif
 
 /* Raised when a function's meaning changes; a renderer built for another version is not used. */
-#define IV_SVG_CONTRACT_VERSION 1
+#define IV_SVG_CONTRACT_VERSION 2
 
 enum iv_svg_status {
     IV_SVG_OK = 0,
@@ -43,6 +46,10 @@ int iv_svg_contract_version(void);
 /* The renderer's name and version, for Settings > Image Formats, e.g. "resvg 0.48.1". */
 const char *iv_svg_renderer(void);
 
+/* From now on a render uses at most `threads` threads (at least 1, the default): it may draw parts
+ * of the image at once, each as the whole would draw it. */
+int iv_svg_limit_threads(uint32_t threads);
+
 /* From now on the renderer's own memory (the document, the layers it draws through) stays within
  * `bytes` in all: an allocation past it ends the process, writing "memory allocation of <n> bytes
  * failed" on standard error. A document may declare a filter region many times its canvas, and the
@@ -50,8 +57,8 @@ const char *iv_svg_renderer(void);
 int iv_svg_limit_memory(uint64_t bytes);
 
 /* Parses `size` bytes of SVG (UTF-8 XML). With `load_fonts` non-zero, the system's fonts are
- * loaded first, for the document's text; without, text is not drawn. On IV_SVG_OK, *out is the
- * document, to free with iv_svg_free(). */
+ * used for the document's text (loaded on the first such call, kept for the next ones); without,
+ * text is not drawn. On IV_SVG_OK, *out is the document, to free with iv_svg_free(). */
 int iv_svg_parse(const uint8_t *data, size_t size, int load_fonts, iv_svg **out);
 
 /* The document's own size in CSS pixels (its width and height, or its viewBox's): both > 0. */

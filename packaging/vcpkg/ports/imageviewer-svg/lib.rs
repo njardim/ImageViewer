@@ -6,18 +6,21 @@
 //! Here the resolver accepts embedded data only, every call catches a panic and returns a code, the
 //! memory resvg allocates has a limit (a document can declare a filter region many times its canvas,
 //! and resvg allocates its layers whole), the generic font families are installed fonts (fontdb may
-//! name fonts the system does not have, and the text then vanishes), and the caller sees seven plain
+//! name fonts the system does not have, and the text then vanishes), and the caller sees eight plain
 //! C functions that another renderer could implement as well.
 //!
 //! Everything of resvg's API used below, the list to check at an update (an update whose API
 //! differs fails to compile in its own CI, so the pinned release stays in use):
-//! - `usvg::Options`: `default()`, `resources_dir`, `image_href_resolver`, `fontdb_mut()`
+//! - `usvg::Options`: `default()`, `resources_dir`, `image_href_resolver`, `fontdb`
 //! - `usvg::ImageHrefResolver { resolve_data, resolve_string }` and its `default_data_resolver()`
-//! - `usvg::fontdb::Database`: `load_system_fonts()`, `faces()` (`families`, `style`, `weight`,
+//! - `usvg::fontdb::Database`: `new()`, `load_system_fonts()`, `faces()` (`families`, `style`, `weight`,
 //!   `monospaced`), `family_name()`, `set_serif_family()` and the four other generic families
 //! - Linux: `fontconfig_parser::FontConfig` (`merge_config()`, `aliases`), the crate fontdb reads the
 //!   system's font configuration with, at the version resvg's own lock holds
-//! - `usvg::Tree::from_data()`, `Tree::size()`
+//! - `usvg::Tree::from_data()`, `Tree::size()`, `Tree::root()`, `Group::children()`, `Group::filters()`,
+//!   `Group::abs_transform()`, `Node::subroots()`, `filter::Filter::primitives()`,
+//!   `filter::Primitive::kind()`, `filter::Turbulence::stitch_tiles()` and the sizes of
+//!   `filter::GaussianBlur`, `DropShadow`, `Offset`, `Morphology` and `DisplacementMap`
 //! - `resvg::render()`, `tiny_skia::PixmapMut::from_bytes()`, `tiny_skia::Transform::from_row()`
 //!
 //! The crate's version is the resvg release it wraps (Cargo.toml pins it), and names it in
@@ -29,7 +32,7 @@ use std::ffi::c_char;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-const CONTRACT_VERSION: i32 = 1; // IV_SVG_CONTRACT_VERSION
+const CONTRACT_VERSION: i32 = 2; // IV_SVG_CONTRACT_VERSION
 const OK: i32 = 0;
 const BAD_ARGUMENT: i32 = 1;
 const UNREADABLE: i32 = 2;
@@ -106,9 +109,76 @@ unsafe impl GlobalAlloc for Limited {
 #[global_allocator]
 static ALLOCATOR: Limited = Limited;
 
+/// The threads a render may use (`iv_svg_limit_threads()`).
+static THREADS: AtomicUsize = AtomicUsize::new(1);
+
+/// The fewest rows a band drawn on a thread of its own has: below, a thread costs more than it saves.
+const MIN_BAND_ROWS: u32 = 32;
+
 /// A parsed document (`iv_svg` in the header).
 pub struct Document {
     tree: usvg::Tree,
+    /// Whether it may be drawn in bands: no filter of it depends on its whole region (`feTile`,
+    /// `feImage`, stitched `feTurbulence`), which resvg would compute whole for every band, and
+    /// differently for a band than for the whole (it bounds such a region by the canvas drawn).
+    bands: bool,
+    /// How far its filters reach at most, in pixels at scale 1 (`reach()`).
+    reach: f32,
+}
+
+/// An estimate of how far the filters in `group` and below reach, in pixels at scale 1: a band
+/// draws its filtered layers that far beyond its rows, so bands much shorter than that would each
+/// compute most of the others' work again, and hold as much memory.
+fn reach(group: &usvg::Group) -> f32 {
+    use usvg::filter::Kind;
+    let (sx, sy) = group.abs_transform().get_scale();
+    let mut reach = group
+        .filters()
+        .iter()
+        .map(|filter| {
+            let blur = |x: usvg::PositiveF32, y: usvg::PositiveF32| 4.0 * x.get().max(y.get());
+            let offset = |dx: f32, dy: f32| dx.abs().max(dy.abs());
+            let total: f32 = filter
+                .primitives()
+                .iter()
+                .map(|primitive| match primitive.kind() {
+                    Kind::GaussianBlur(fe) => blur(fe.std_dev_x(), fe.std_dev_y()),
+                    Kind::DropShadow(fe) => blur(fe.std_dev_x(), fe.std_dev_y()) + offset(fe.dx(), fe.dy()),
+                    Kind::Offset(fe) => offset(fe.dx(), fe.dy()),
+                    Kind::Morphology(fe) => fe.radius_x().get().max(fe.radius_y().get()),
+                    Kind::DisplacementMap(fe) => fe.scale().abs() / 2.0,
+                    _ => 0.0,
+                })
+                .sum();
+            total * sx.max(sy)
+        })
+        .fold(0.0, f32::max);
+    for node in group.children() {
+        if let usvg::Node::Group(child) = node {
+            reach = reach.max(self::reach(child));
+        }
+        node.subroots(|root| reach = reach.max(self::reach(root)));
+    }
+    reach
+}
+
+/// Whether no filter in `group`, its descendants, masks, clip paths, patterns and embedded
+/// documents depends on its whole filter region.
+fn local_filters(group: &usvg::Group) -> bool {
+    use usvg::filter::Kind;
+    let local = group.filters().iter().all(|filter| {
+        filter.primitives().iter().all(|primitive| match primitive.kind() {
+            Kind::Tile(_) | Kind::Image(_) => false,
+            Kind::Turbulence(fe) => !fe.stitch_tiles(),
+            _ => true,
+        })
+    });
+    local
+        && group.children().iter().all(|node| {
+            let mut local = !matches!(node, usvg::Node::Group(child) if !local_filters(child));
+            node.subroots(|root| local &= local_filters(root));
+            local
+        })
 }
 
 /// The generic font families (serif, sans-serif, monospace, cursive, fantasy), each named after an
@@ -200,6 +270,20 @@ fn fontconfig_order(config: &fontconfig_parser::FontConfig, generic: &str) -> Ve
     order
 }
 
+/// The system's fonts, loaded on the first document with text and kept for the next ones: the
+/// worker serves one document after another (D-94).
+fn system_fonts() -> std::sync::Arc<usvg::fontdb::Database> {
+    static FONTS: std::sync::OnceLock<std::sync::Arc<usvg::fontdb::Database>> = std::sync::OnceLock::new();
+    FONTS
+        .get_or_init(|| {
+            let mut db = usvg::fontdb::Database::new();
+            db.load_system_fonts();
+            settle_generic_families(&mut db);
+            std::sync::Arc::new(db)
+        })
+        .clone()
+}
+
 /// Runs `body`, turning a panic into `FAILED`: nothing unwinds into C.
 fn guarded(body: impl FnOnce() -> i32) -> i32 {
     catch_unwind(AssertUnwindSafe(body)).unwrap_or(FAILED)
@@ -213,6 +297,12 @@ pub extern "C" fn iv_svg_contract_version() -> i32 {
 #[unsafe(no_mangle)]
 pub extern "C" fn iv_svg_renderer() -> *const c_char {
     concat!("resvg ", env!("CARGO_PKG_VERSION"), "\0").as_ptr().cast()
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn iv_svg_limit_threads(threads: u32) -> i32 {
+    THREADS.store(usize::try_from(threads).unwrap_or(usize::MAX).max(1), Ordering::Relaxed);
+    OK
 }
 
 #[unsafe(no_mangle)]
@@ -240,13 +330,13 @@ pub unsafe extern "C" fn iv_svg_parse(data: *const u8, size: usize, load_fonts: 
             resolve_string: Box::new(|_, _| None),
         };
         if load_fonts != 0 {
-            options.fontdb_mut().load_system_fonts();
-            settle_generic_families(options.fontdb_mut());
+            options.fontdb = system_fonts();
         }
         match usvg::Tree::from_data(bytes, &options) {
             Ok(tree) => {
+                let (bands, reach) = (local_filters(tree.root()), reach(tree.root()));
                 // SAFETY: `out` is writable (checked above for null).
-                unsafe { *out = Box::into_raw(Box::new(Document { tree })) };
+                unsafe { *out = Box::into_raw(Box::new(Document { tree, bands, reach })) };
                 OK
             }
             Err(_) => UNREADABLE,
@@ -292,9 +382,36 @@ pub unsafe extern "C" fn iv_svg_render(svg: *const Document, scale: f64, left: f
         let Some(mut pixmap) = tiny_skia::PixmapMut::from_bytes(buffer, width, height) else {
             return BAD_ARGUMENT;
         };
-        let (scale, left, top) = (scale as f32, left as f32, top as f32);
-        let transform = tiny_skia::Transform::from_row(scale, 0.0, 0.0, scale, -left, -top);
-        resvg::render(&unsafe { &*svg }.tree, transform, &mut pixmap);
+        let document = unsafe { &*svg };
+        let (scale, left) = (scale as f32, left as f32);
+        let transform = |top: f64| tiny_skia::Transform::from_row(scale, 0.0, 0.0, scale, -left, -(top as f32));
+        // Horizontal bands, one per thread: each a part of `pixels` of its own, drawn as the whole
+        // would draw it (resvg draws a filtered layer only within reach of the band, patch D-93).
+        // None shorter than half the filters' reach: each would repeat more than twice its own work.
+        let reach = f64::from(document.reach) * scale as f64;
+        let by_reach = if reach >= 1.0 { (2.0 * f64::from(height) / reach) as usize } else { usize::MAX };
+        let threads = THREADS
+            .load(Ordering::Relaxed)
+            .min((height / MIN_BAND_ROWS).max(1) as usize)
+            .min(by_reach.max(1));
+        if !document.bands || threads < 2 {
+            resvg::render(&document.tree, transform(top), &mut pixmap);
+            return OK;
+        }
+        drop(pixmap);
+        let rows = height.div_ceil(threads as u32);
+        let band_bytes = rows as usize * width as usize * 4;
+        std::thread::scope(|scope| {
+            for (index, band) in buffer.chunks_mut(band_bytes).enumerate() {
+                let band_top = top + f64::from(index as u32 * rows);
+                scope.spawn(move || {
+                    let band_rows = (band.len() / (width as usize * 4)) as u32;
+                    if let Some(mut pixmap) = tiny_skia::PixmapMut::from_bytes(band, width, band_rows) {
+                        resvg::render(&document.tree, transform(band_top), &mut pixmap);
+                    }
+                });
+            }
+        }); // a panic on a band's thread comes back here, and to guarded()
         OK
     })
 }

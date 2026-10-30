@@ -56,6 +56,9 @@ QWidget *SettingsDialog::buildShortcutsTab()
     };
     m_shortcutEdit = sequenceEdit();
     m_alternativeEdit = sequenceEdit();
+    // At the left, as the other tabs' forms: macOS's style centres a form whose fields keep their
+    // size; elsewhere this is the style's own alignment.
+    editForm->setFormAlignment(Qt::AlignLeft | Qt::AlignTop);
     editForm->addRow(tr("Shortcut:"), m_shortcutEdit);
     editForm->addRow(tr("Alternative:"), m_alternativeEdit);
     shortcutsLayout->addLayout(editForm);

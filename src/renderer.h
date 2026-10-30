@@ -84,6 +84,8 @@ public:
         bool checkerboard = false;
         float checkerCells[2] = {0.0f, 0.0f};
         float checkerColour[3] = {0.0f, 0.0f, 0.0f};
+        // The zoom's detail (setDetail()) over the part of the image it covers (D-93).
+        bool detail = false;
     };
 
     // The output-stage parameters the shader receives for the image layer.
@@ -111,6 +113,11 @@ public:
     // Another frame of the image shown (same size): uploaded into the same texture.
     void setFrame(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size);
     void clearImage();
+    // The zoom's detail (D-93): `rect` of the image (texture coordinates, 0 to 1) drawn again at the
+    // scale shown, `size` pixels in the image's layout. Drawn instead of the image there while a
+    // frame asks for it (Frame::detail), through the same output stage. A new image clears it.
+    void setDetail(std::shared_ptr<const std::vector<qfloat16>> pixels, QSize size, QRectF rect);
+    void clearDetail();
     void setOverlay(int layer, const QImage &overlay); // RGBA8888_Premultiplied, device pixels; null hides
     void setOutputPreference(OutputPreference preference);
 
@@ -160,8 +167,10 @@ private:
     QRhiBuffer *m_imageUniforms = nullptr;
     QRhiSampler *m_linearSampler = nullptr;
     QRhiSampler *m_nearestSampler = nullptr;
+    QRhiSampler *m_detailSampler = nullptr;
     QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
     QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
+    QRhiTexture *m_detailTexture = nullptr;      // the zoom's detail; null when there is none
     QRhiTexture *m_boundImage = nullptr;         // the image texture or the placeholder
     QRhiShaderResourceBindings *m_imageBindingsLinear = nullptr;
     QRhiShaderResourceBindings *m_imageBindingsNearest = nullptr;
@@ -180,6 +189,11 @@ private:
 
     std::shared_ptr<const std::vector<qfloat16>> m_pendingPixels;
     QSize m_pendingSize;
+    std::shared_ptr<const std::vector<qfloat16>> m_pendingDetail; // as m_pendingPixels, for the detail
+    QSize m_pendingDetailSize;
+    QRectF m_pendingDetailRect;
+    QRectF m_detailRect; // what m_detailTexture covers, texture coordinates
+    bool m_detailPending = false;
     bool m_imagePending = false;
     bool m_uploadInFlight = false; // m_pendingPixels back an upload until the frame ends
     bool m_hasImage = false;

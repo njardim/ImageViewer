@@ -19,6 +19,7 @@ layout(std140, binding = 0) uniform Params {
     vec4 uvMap;
     vec4 uvMapY;
     vec4 layers[7];
+    vec4 detailRect;
 };
 
 out gl_PerVertex { vec4 gl_Position; };

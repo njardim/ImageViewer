@@ -16,6 +16,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
+#include <QMenuBar>
 #include <QMessageBox>
 #include <QMetaEnum>
 #include <QPixmap>
@@ -356,6 +357,20 @@ void ViewerWindow::addCommand(QMenu *menu, Command command)
     action->setChecked(checked);
     action->setEnabled(isCommandEnabled(command));
     connect(action, &QAction::triggered, this, [this, command] { m_menuChoice = [this, command] { run(command); }; });
+}
+
+void ViewerWindow::installApplicationMenu()
+{
+#ifdef Q_OS_MACOS
+    // Settings in the application menu, with ⌘, where Mac users look for it (the owner, D-96): the
+    // application's menu bar (no parent: every window's), whose one menu Qt moves the action out of
+    // by its role, and hides once empty. Nothing else changes: the menu bar is no window, so closing
+    // the viewer's window still quits. Through run(), once the menu is gone (D-85).
+    m_menuBar = std::make_unique<QMenuBar>();
+    QAction *settings = m_menuBar->addMenu(QString())->addAction(commandText(Command::Settings));
+    settings->setMenuRole(QAction::PreferencesRole);
+    connect(settings, &QAction::triggered, this, [this] { run(Command::Settings); }, Qt::QueuedConnection);
+#endif
 }
 
 void ViewerWindow::showContextMenu(const QPoint &globalPos)

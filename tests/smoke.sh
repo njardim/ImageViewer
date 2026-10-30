@@ -293,7 +293,9 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         failures=$((failures + 1))
     fi
     slow="$(mktemp -d)/slow.svg"
-    printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10"/><feGaussianBlur stdDeviation="40"/></filter><rect width="8000" height="8000" filter="url(#n)"/><rect width="8000" height="8000" filter="url(#n)" opacity="0.5"/></svg>\n' >"$slow"
+    # Eight different noises over 64 million pixels: none computed twice (D-93 reuses equal ones),
+    # past 30 s on any runner.
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n1" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="1"/></filter><filter id="n2" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="2"/></filter><filter id="n3" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="3"/></filter><filter id="n4" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="4"/></filter><filter id="n5" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="5"/></filter><filter id="n6" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="6"/></filter><filter id="n7" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="7"/></filter><filter id="n8" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10" seed="8"/></filter><rect width="8000" height="8000" filter="url(#n1)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n2)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n3)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n4)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n5)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n6)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n7)" opacity="0.5"/><rect width="8000" height="8000" filter="url(#n8)" opacity="0.5"/></svg>\n' >"$slow"
     started=$(date +%s)
     said="$("$exe" --info "$slow" 2>/dev/null || true)"
     took=$(($(date +%s) - started))
@@ -318,11 +320,11 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         echo "FAIL SVG worker: a filter region 25 times its canvas ($took s): $said"
         failures=$((failures + 1))
     fi
-    # The same with feTile, whose result depends on its whole region: resvg allocates it whole (up to
-    # 25 times the canvas), and the worker is stopped by its memory limit (a quarter of this
-    # machine's memory at least, D-94) or by its 30 s; the viewer says why (D-90 (10)).
+    # With feTile, whose result depends on its whole region, resvg allocates it whole: 25 times a
+    # 6000 px canvas, 3.6 GB a layer, past the worker's memory limit (a quarter of the machine's
+    # memory at least, D-94) on the runners, or past its 30 s; the viewer says why (D-90 (10)).
     bomb="$(mktemp -d)/region.svg"
-    printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/><feTile/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="6000" height="6000"><filter id="b" filterUnits="userSpaceOnUse" x="-12000" y="-12000" width="30000" height="30000"><feGaussianBlur stdDeviation="2"/><feTile/></filter><rect width="6000" height="6000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
     started=$(date +%s)
     said="$("$exe" --info "$bomb" 2>/dev/null || true)"
     took=$(($(date +%s) - started))

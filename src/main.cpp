@@ -42,7 +42,6 @@
 #include <rhi/qrhi.h>
 #endif
 
-
 // The reader of the PNG, JPEG, GIF and WebP images inside the files Qt reads for us, in place of
 // Qt's own (qtimage.cpp, D-68, D-71).
 Q_IMPORT_PLUGIN(OiioImagePlugin)

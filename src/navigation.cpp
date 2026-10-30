@@ -507,7 +507,7 @@ void ViewerWindow::updateDetail()
 void ViewerWindow::startDetail()
 {
     // A running job ends first (stopped if no longer wanted); detailFinished() comes back here.
-    if (m_detailBusy || !m_detailWanted || *m_detailWanted == m_detail)
+    if (m_detailBusy || !m_detailWanted || *m_detailWanted == m_detail || *m_detailWanted == m_detailFailed)
         return;
     m_detailBusy = true;
     m_detailJob = *m_detailWanted;
@@ -521,16 +521,20 @@ void ViewerWindow::detailFinished()
 {
     Image detail = m_detailWatcher.future().takeResult();
     m_detailBusy = false;
-    const bool cancelled = m_detailCancel->load(std::memory_order_relaxed);
-    if (!cancelled && detail.isValid() && m_detailJob.path == m_image.path && detail.width == qRound(m_detailJob.area.width())
-        && detail.height == qRound(m_detailJob.area.height())) {
+    if (m_detailCancel->load(std::memory_order_relaxed)) {
+        // stopped: no longer what the view shows
+    } else if (detail.isValid() && m_detailJob.path == m_image.path && detail.width == qRound(m_detailJob.area.width())
+               && detail.height == qRound(m_detailJob.area.height())) {
         qCInfo(lcNavigation).noquote() << "detail drawn:" << QFileInfo(m_detailJob.path).fileName() << m_detailJob.area
                                        << "at" << m_detailJob.scale << "in" << qRound(detail.decodeMs) << "ms";
         m_renderer.setDetail(detail.pixels, QSize(detail.width, detail.height), m_detailJob.rect);
         m_detail = m_detailJob;
         requestUpdate();
-    } else if (!cancelled && !detail.isValid()) {
+    } else {
+        // Past its memory or 30 s, asked for again it would only fail again: the enlarged image stays
+        // until the view changes.
         qCInfo(lcNavigation).noquote() << "no detail for" << QFileInfo(m_detailJob.path).fileName() << detail.error;
+        m_detailFailed = m_detailJob;
     }
     if (!m_detailTimer.isActive())
         startDetail(); // the view changed while this one was drawn, and has settled
@@ -542,6 +546,7 @@ void ViewerWindow::dropDetail()
         m_detailCancel->store(true, std::memory_order_relaxed);
     m_detailTimer.stop();
     m_detail = {};
+    m_detailFailed = {};
     m_detailWanted.reset();
     m_renderer.clearDetail();
 }

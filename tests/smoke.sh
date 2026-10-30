@@ -312,6 +312,46 @@ PY
         echo "FAIL SVG worker: the held document (D-95)"
         failures=$((failures + 1))
     fi
+    # A part of a document drawn alone, a zoom's detail or a band (D-93, D-95), has the very pixels
+    # of the whole there: filtered layers drawn only within reach, large blurs reduced on the whole
+    # region's grid. Shapes on whole pixels, whose edges no rounding moves.
+    if said="$(python3 - "$exe" 2>&1 <<'PY'
+import struct, subprocess, sys
+cases = {
+    "a large blur": '<filter id="f" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="30"/></filter><rect x="60" y="60" width="80" height="80" fill="red" filter="url(#f)"/>',
+    "a large blur, then an offset": '<filter id="f" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="30"/><feOffset dx="5" dy="3"/></filter><rect x="60" y="60" width="80" height="80" fill="red" filter="url(#f)"/>',
+    "a blur": '<filter id="f"><feGaussianBlur stdDeviation="6"/></filter><rect x="40" y="40" width="120" height="120" fill="red" filter="url(#f)"/>',
+    "a shadow": '<filter id="f"><feDropShadow dx="8" dy="6" stdDeviation="9"/></filter><rect x="50" y="50" width="100" height="80" fill="#3a8" filter="url(#f)"/>',
+    "a morphology": '<filter id="f"><feMorphology operator="dilate" radius="4"/></filter><rect x="40" y="50" width="110" height="90" fill="blue" filter="url(#f)"/>',
+    "a noise": '<filter id="f" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.03" numOctaves="3"/></filter><rect width="200" height="200" filter="url(#f)"/>',
+    "a blurred mask": '<mask id="m"><rect x="50" y="50" width="100" height="100" fill="white" filter="url(#f)"/></mask><filter id="f"><feGaussianBlur stdDeviation="12"/></filter><rect width="200" height="200" fill="purple" mask="url(#m)"/>',
+}
+areas = [(0, 0, 600, 600), (137, 91, 211, 173), (250, 223, 260, 190), (450, 7, 150, 591)]
+def request(area, file):
+    return b'IVSVGREQ' + struct.pack('<QIIdddIIIIQ', 10**8, 0, 0, 3.0, *area, 0, 0, len(file)) + file
+for name, body in cases.items():
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">{body}</svg>'.encode()
+    out = subprocess.run([sys.argv[1], '--decode-worker', 'SVG'], input=b''.join(request(a, svg if i == 0 else b'') for i, a in enumerate(areas)),
+                         capture_output=True, timeout=120).stdout
+    images, at = [], 0
+    for l, t, w, h in areas:
+        if out[at:at + 8] != b'IVWORKER':
+            sys.exit(f"{name}: not drawn")
+        words = struct.unpack('<10I', out[at + 8:at + 48])
+        at += 48 + words[6]
+        images.append(out[at:at + w * h * 4])
+        at += w * h * 4
+    for (l, t, w, h), part in zip(areas[1:], images[1:]):
+        for y in range(h):
+            if part[y * w * 4:(y + 1) * w * 4] != images[0][((t + y) * 600 + l) * 4:((t + y) * 600 + l + w) * 4]:
+                sys.exit(f"{name}: the area at {l},{t} differs from the whole on its row {y}")
+PY
+)"; then
+        echo "ok   SVG: a part drawn alone has the whole's pixels (large blurs, shadows, morphology, noise, masks)"
+    else
+        echo "FAIL SVG: a part drawn alone differs from the whole: $said"
+        failures=$((failures + 1))
+    fi
     slow="$(mktemp -d)/slow.svg"
     # Eight different noises over 64 million pixels: none computed twice (D-93 reuses equal ones),
     # past 30 s on any runner.

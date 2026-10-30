@@ -10,10 +10,10 @@ the time of a document of large layers. The rounding differs from tiny-skia's by
 Requires the three patches before it.
 
 diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
-index 42c0f6c..53fede8 100644
+index 13c7037..9978287 100644
 --- a/crates/resvg/src/render.rs
 +++ b/crates/resvg/src/render.rs
-@@ -165,24 +165,71 @@ fn render_group(
+@@ -180,24 +180,71 @@ fn render_group(
          crate::mask::apply(mask, ctx, transform, &mut sub_pixmap);
      }
  
@@ -93,6 +93,6 @@ index 42c0f6c..53fede8 100644
 +    }
 +}
 +
- /// A filtered group drawn on a layer about `factors` times smaller, exactly over the full-size one
- /// (`ibbox`; `transform` maps to it), its filter computed there and the result enlarged back,
- /// interpolated, within the filter's region at full resolution.
+ /// A filtered group drawn on a layer `factors` times smaller, over the full-size one (`ibbox`, part of
+ /// `whole`, the filter's region; `transform` maps to it), its filter computed there and the result
+ /// enlarged back, interpolated, within the filter's region at full resolution.

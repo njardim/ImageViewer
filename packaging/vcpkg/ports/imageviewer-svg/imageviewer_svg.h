@@ -13,7 +13,8 @@
  *   memory on standard error, as the decode worker is meant to;
  * - the functions may be called from one thread at a time (the decode worker has one); a render may
  *   use threads of its own (iv_svg_limit_threads), and its pixels are those of a render on one
- *   thread but for the rounding of anti-aliased edges.
+ *   thread but for the rounding of anti-aliased edges (and what lighting and convolution, which
+ *   read an edge's slope, make of it).
  *
  * The caller (src/svg.cpp, in the decode worker, D-38) gives the document already inflated (never
  * gzip) and made safe (safeSvg(), D-71), and bounds the pixels it asks for. */

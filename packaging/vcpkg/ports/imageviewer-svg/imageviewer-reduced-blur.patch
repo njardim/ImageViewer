@@ -4,19 +4,32 @@ Fixes: none (speed: a blur's cost grows with its sigma in pixels, and so with th
 Upstream: none yet: to be proposed to linebender/resvg (ours)
 Remove when: a resvg release blurs large sigmas at a reduced resolution, or this patch no longer applies
 
-A blur whose sigma passes 4 pixels is computed on a copy reduced about 2^n times on that axis (each
-reduced pixel the mean of the area it covers, edges on the region's), with a sigma of at most 4 there,
-and enlarged back with bilinear interpolation (filter::blur()); a lone such blur of the whole region, on
-a group with no clip path or mask, draws the group itself on the reduced layer, enlarged within the
-filter region at full resolution (filter::reduction(), render::render_reduced()). The owner's artwork:
-1.84 levels from Chromium (1.75 exact); resvg's references with blurs: at most 19 levels on a few pixels,
-1.5 on average. Requires imageviewer-filter-area.patch and imageviewer-turbulence-cache.patch (their
-Context and reach).
+A blur whose sigma passes 4 pixels is computed on a copy reduced 2^n times on that axis, with a sigma
+of at most 4 there, and enlarged back with bilinear interpolation (filter::blur()); a lone such blur of
+the whole region, on a group with no clip path or mask, draws the group itself on the reduced layer,
+enlarged within the filter region at full resolution (filter::reduction(), render::render_reduced()).
+Each reduced pixel is the mean of the 2^n pixels it covers on a grid that starts at the whole filter
+region's origin (outside the region: transparent), and a layer drawn in part starts on that grid, so
+that a part of a document drawn alone (a band, a zoom's detail; imageviewer-filter-area.patch) has the
+whole's pixels; filter::reach() counts the reduced pixels and the interpolation (blur_reach()). The
+owner's artwork: 1.88 levels from Chromium on average (1.75 exact); resvg's reference tests: 74 of
+1,730 differ, the blurs by at most 20 levels, 3.1 on average over the pixels that differ by more than
+one. Requires imageviewer-filter-area.patch and imageviewer-turbulence-cache.patch (their Context and
+reach).
 
 diff --git a/crates/resvg/src/filter/mod.rs b/crates/resvg/src/filter/mod.rs
-index 16a89b0..f7b32bf 100644
+index 16a89b0..b3fd412 100644
 --- a/crates/resvg/src/filter/mod.rs
 +++ b/crates/resvg/src/filter/mod.rs
+@@ -341,7 +341,7 @@ pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Tr
+     let (sx, sy) = ts.get_scale();
+     let scale = f64::from(sx.max(sy));
+     let blur = |x: usvg::PositiveF32, y: usvg::PositiveF32| match resolve_std_dev(x.get(), y.get(), ts) {
+-        Some((x, y, true)) => f64::from(box_blur::reach(x).max(box_blur::reach(y))),
++        Some((x, y, true)) => f64::from(blur_reach(x).max(blur_reach(y))),
+         // The IIR blur (sigma < 2) has no end: its tail past 6 sigma is far below one level.
+         Some((x, y, false)) => 6.0 * x.max(y) + 2.0,
+         None => 0.0,
 @@ -367,6 +367,30 @@ pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Tr
      (total < f64::from(u32::MAX)).then(|| total.ceil() as u32)
  }
@@ -48,7 +61,42 @@ index 16a89b0..f7b32bf 100644
  /// The `feTurbulence` results computed during one render, the most recent first: a document may
  /// use the same noise over the same pixels in several filters, and noise is costly.
  #[derive(Default)]
-@@ -650,11 +674,7 @@ fn apply_drop_shadow(
+@@ -429,7 +453,11 @@ fn apply_inner(
+     // the buffer we actually render into.
+     let source_rect =
+         IntRect::from_xywh(0, 0, source.width(), source.height()).ok_or(Error::InvalidRegion)?;
++    let whole = region;
+     let region = crate::geom::fit_to_rect(region, source_rect).ok_or(Error::InvalidRegion)?;
++    // Where the source starts within the whole region (a layer drawn in part, patch filter-area): a
++    // reduced blur's grid starts at the whole region's origin wherever the layer does (blur()).
++    let origin = (region.x().abs_diff(whole.x()), region.y().abs_diff(whole.y()));
+ 
+     let mut results: Vec<FilterResult> = Vec::new();
+ 
+@@ -459,12 +487,12 @@ fn apply_inner(
+             }
+             usvg::filter::Kind::DropShadow(fe) => {
+                 let input = get_input(fe.input(), region, source, &results)?;
+-                apply_drop_shadow(fe, cs, ts, input)
++                apply_drop_shadow(fe, cs, ts, origin, input)
+             }
+             usvg::filter::Kind::Flood(fe) => apply_flood(fe, region),
+             usvg::filter::Kind::GaussianBlur(fe) => {
+                 let input = get_input(fe.input(), region, source, &results)?;
+-                apply_blur(fe, cs, ts, input)
++                apply_blur(fe, cs, ts, origin, input)
+             }
+             usvg::filter::Kind::Offset(fe) => {
+                 let input = get_input(fe.input(), region, source, &results)?;
+@@ -636,6 +664,7 @@ fn apply_drop_shadow(
+     fe: &usvg::filter::DropShadow,
+     cs: usvg::filter::ColorInterpolation,
+     ts: usvg::Transform,
++    origin: (u32, u32),
+     input: Image,
+ ) -> Result<Image, Error> {
+     let (dx, dy) = match scale_coordinates(fe.dx(), fe.dy(), ts) {
+@@ -650,11 +679,7 @@ fn apply_drop_shadow(
      if let Some((std_dx, std_dy, use_box_blur)) =
          resolve_std_dev(fe.std_dev_x().get(), fe.std_dev_y().get(), ts)
      {
@@ -57,15 +105,23 @@ index 16a89b0..f7b32bf 100644
 -        } else {
 -            iir_blur::apply(std_dx, std_dy, shadow_pixmap.as_image_ref_mut());
 -        }
-+        blur(&mut shadow_pixmap, std_dx, std_dy, use_box_blur);
++        blur(&mut shadow_pixmap, std_dx, std_dy, use_box_blur, origin);
      }
  
      // flood
-@@ -709,14 +729,121 @@ fn apply_blur(
+@@ -700,6 +725,7 @@ fn apply_blur(
+     fe: &usvg::filter::GaussianBlur,
+     cs: usvg::filter::ColorInterpolation,
+     ts: usvg::Transform,
++    origin: (u32, u32),
+     input: Image,
+ ) -> Result<Image, Error> {
+     let (std_dx, std_dy, use_box_blur) =
+@@ -709,14 +735,110 @@ fn apply_blur(
          };
  
      let mut pixmap = input.into_color_space(cs)?.take()?;
-+    blur(&mut pixmap, std_dx, std_dy, use_box_blur);
++    blur(&mut pixmap, std_dx, std_dy, use_box_blur, origin);
 +    Ok(Image::from_image(pixmap, cs))
 +}
 +
@@ -79,31 +135,28 @@ index 16a89b0..f7b32bf 100644
 +    }
 +    factor
 +}
- 
-+/// The source pixels each of `cells` cells averages, `size` pixels spread evenly over them: (pixel,
-+/// weight) pairs, the weights of a cell summing to 1.
-+fn spans(size: usize, cells: usize) -> Vec<Vec<(usize, f32)>> {
-+    let scale = size as f64 / cells as f64;
-+    (0..cells)
-+        .map(|i| {
-+            let (start, end) = (i as f64 * scale, (i + 1) as f64 * scale);
-+            (start.floor() as usize..(end.ceil() as usize).min(size))
-+                .map(|p| (p, ((end.min(p as f64 + 1.0) - start.max(p as f64)) / scale) as f32))
-+                .filter(|&(_, weight)| weight > 0.0)
-+                .collect()
-+        })
-+        .collect()
-+}
 +
-+/// Blurs `pixmap`; a large sigma on a copy reduced by about blur_reduction() on each axis, its
-+/// edges on the pixmap's (each reduced pixel the mean of the area it covers), enlarged back with
-+/// bilinear interpolation: the result differs from the exact one by much less than what the blur
-+/// spreads, at a fraction of the work.
-+fn blur(pixmap: &mut tiny_skia::Pixmap, std_dx: f64, std_dy: f64, use_box_blur: bool) {
++/// How far the box blur of `sigma` pixels reaches (box_blur::reach()); reduced (blur()), through the
++/// reduced pixels each `factor` pixels wide and the interpolation between two of them.
++fn blur_reach(sigma: f64) -> u32 {
++    match blur_reduction(sigma) {
++        1 => box_blur::reach(sigma),
++        factor => (box_blur::reach(sigma / f64::from(factor)) + 2).saturating_mul(factor),
++    }
++}
+ 
++/// Blurs `pixmap`, whose first pixel lies `origin` pixels from its whole region's; a large sigma on a
++/// copy reduced blur_reduction() times on each axis, enlarged back with bilinear interpolation: the
++/// result differs from the exact one by much less than what the blur spreads, at a fraction of the
++/// work. Each reduced pixel is the mean of the pixels it covers on a grid that starts at the whole
++/// region's origin (outside the region: transparent), so that a part of the region drawn alone (a
++/// band, a detail, patch filter-area) gets the very pixels of the whole within reach (blur_reach()).
++fn blur(pixmap: &mut tiny_skia::Pixmap, std_dx: f64, std_dy: f64, use_box_blur: bool, origin: (u32, u32)) {
 +    let (width, height) = (pixmap.width() as usize, pixmap.height() as usize);
-+    let cells = |size: usize, sigma: f64| ((size as f64 / f64::from(blur_reduction(sigma))).round() as usize).clamp(1, size);
-+    let (small_width, small_height) = (cells(width, std_dx), cells(height, std_dy));
-+    let small = if small_width < width || small_height < height {
++    let (factor_x, factor_y) = (blur_reduction(std_dx) as usize, blur_reduction(std_dy) as usize);
++    let (phase_x, phase_y) = (origin.0 as usize % factor_x, origin.1 as usize % factor_y);
++    let (small_width, small_height) = ((width + phase_x).div_ceil(factor_x), (height + phase_y).div_ceil(factor_y));
++    let small = if factor_x * factor_y > 1 {
 +        tiny_skia::Pixmap::new(small_width as u32, small_height as u32)
 +    } else {
 +        None
@@ -116,36 +169,28 @@ index 16a89b0..f7b32bf 100644
 +        }
 +        return;
 +    };
-+    let (scale_x, scale_y) = (width as f64 / small_width as f64, height as f64 / small_height as f64);
 +
-+    // Reduced: each pixel the mean of the area it covers (premultiplied values), a row's columns
-+    // first, then the rows.
-+    let (columns, rows) = (spans(width, small_width), spans(height, small_height));
++    // Reduced: the sums of each reduced pixel's rows, then their mean (premultiplied values).
++    let cell_of: Vec<usize> = (0..width).map(|x| (x + phase_x) / factor_x).collect();
++    let count = (factor_x * factor_y) as u64;
 +    let source = pixmap.data();
-+    let (mut line, mut sums) = (vec![0f32; small_width * 4], vec![0f32; small_width * 4]);
-+    for (small_y, row_span) in rows.iter().enumerate() {
-+        sums.fill(0.0);
-+        for &(y, weight_y) in row_span {
-+            let row = &source[y * width * 4..(y + 1) * width * 4];
-+            for (cell, column_span) in line.chunks_exact_mut(4).zip(&columns) {
-+                cell.fill(0.0);
-+                for &(x, weight_x) in column_span {
-+                    for c in 0..4 {
-+                        cell[c] += f32::from(row[x * 4 + c]) * weight_x;
-+                    }
++    let mut sums = vec![0u64; small_width * 4];
++    for (small_y, target) in small.data_mut().chunks_exact_mut(small_width * 4).enumerate() {
++        sums.fill(0);
++        let rows = (small_y * factor_y).saturating_sub(phase_y)..((small_y + 1) * factor_y - phase_y).min(height);
++        for y in rows {
++            for (pixel, &cell) in source[y * width * 4..(y + 1) * width * 4].chunks_exact(4).zip(&cell_of) {
++                for c in 0..4 {
++                    sums[cell * 4 + c] += u64::from(pixel[c]);
 +                }
 +            }
-+            for (sum, value) in sums.iter_mut().zip(&line) {
-+                *sum += value * weight_y;
-+            }
 +        }
-+        let target = &mut small.data_mut()[small_y * small_width * 4..(small_y + 1) * small_width * 4];
-+        for (value, sum) in target.iter_mut().zip(&sums) {
-+            *value = (sum + 0.5).min(255.0) as u8;
++        for (value, &sum) in target.iter_mut().zip(&sums) {
++            *value = ((sum + count / 2) / count).min(255) as u8;
 +        }
 +    }
 +
-+    let (sigma_x, sigma_y) = (std_dx / scale_x, std_dy / scale_y);
++    let (sigma_x, sigma_y) = (std_dx / factor_x as f64, std_dy / factor_y as f64);
      if use_box_blur {
 -        box_blur::apply(std_dx, std_dy, pixmap.as_image_ref_mut());
 +        box_blur::apply(sigma_x, sigma_y, small.as_image_ref_mut());
@@ -156,18 +201,18 @@ index 16a89b0..f7b32bf 100644
  
 -    Ok(Image::from_image(pixmap, cs))
 +    // Back to full size, interpolated between the reduced pixels' centres.
-+    let taps = |position: usize, scale: f64, size: usize| {
-+        let at = ((position as f64 + 0.5) / scale - 0.5).max(0.0);
++    let taps = |position: usize, phase: usize, factor: usize, size: usize| {
++        let at = (((position + phase) as f64 + 0.5) / factor as f64 - 0.5).max(0.0);
 +        let first = (at as usize).min(size - 1);
 +        (first, (first + 1).min(size - 1), (at - first as f64).min(1.0) as f32)
 +    };
 +    // The rows first (between two reduced rows), then the columns.
-+    let columns: Vec<_> = (0..width).map(|x| taps(x, scale_x, small_width)).collect();
++    let columns: Vec<_> = (0..width).map(|x| taps(x, phase_x, factor_x, small_width)).collect();
 +    let small = small.data();
 +    let target = pixmap.data_mut();
 +    let mut line = vec![0f32; small_width * 4];
 +    for y in 0..height {
-+        let (top, bottom, fy) = taps(y, scale_y, small_height);
++        let (top, bottom, fy) = taps(y, phase_y, factor_y, small_height);
 +        let (top, bottom) = (
 +            &small[top * small_width * 4..(top + 1) * small_width * 4],
 +            &small[bottom * small_width * 4..(bottom + 1) * small_width * 4],
@@ -187,43 +232,67 @@ index 16a89b0..f7b32bf 100644
  
  fn apply_offset(
 diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
-index 6c86455..42c0f6c 100644
+index 6c86455..13c7037 100644
 --- a/crates/resvg/src/render.rs
 +++ b/crates/resvg/src/render.rs
-@@ -122,6 +122,14 @@ fn render_group(
+@@ -106,8 +106,27 @@ fn render_group(
+         Some(reach) => crate::geom::expand(ctx.visible, reach),
+         None => ctx.max_bbox,
+     };
++    let whole = ibbox;
+     ibbox = crate::geom::fit_to_rect(ibbox, area)?;
+ 
++    // A large blur on a smaller layer (filter::reduction()), unless a clip path or a mask must cut
++    // the layer at its own resolution; the layer starts on the whole layer's grid of reduced pixels,
++    // so that a part drawn alone (a band, a detail) gets the very pixels of the whole within reach.
++    let reduced = if group.clip_path().is_none() && group.mask().is_none() {
++        crate::filter::reduction(group.filters(), transform)
++    } else {
++        None
++    };
++    if let Some((factor_x, factor_y)) = reduced {
++        let snap = |cut: i32, whole: i32, factor: u32| whole + (cut - whole) / factor as i32 * factor as i32;
++        ibbox = tiny_skia::IntRect::from_ltrb(
++            snap(ibbox.left(), whole.left(), factor_x),
++            snap(ibbox.top(), whole.top(), factor_y),
++            ibbox.right(),
++            ibbox.bottom(),
++        )?;
++    }
++
+     let shift_ts = {
+         // Original shift.
+         let mut dx = bbox.x();
+@@ -122,6 +141,10 @@ fn render_group(
  
      let transform = shift_ts.pre_concat(transform);
  
-+    // A large blur on a smaller layer (filter::reduction()): unless a clip path or a mask must cut
-+    // the layer at its own resolution.
-+    if group.clip_path().is_none() && group.mask().is_none() {
-+        if let Some(factors) = crate::filter::reduction(group.filters(), transform) {
-+            return render_reduced(group, ctx, transform, ibbox, reach, factors, pixmap);
-+        }
++    if let Some(factors) = reduced {
++        return render_reduced(group, ctx, transform, ibbox, whole, reach, factors, pixmap);
 +    }
 +
      let mut sub_pixmap = tiny_skia::Pixmap::new(ibbox.width(), ibbox.height())
          .log_none(|| log::warn!("Failed to allocate a group layer for: {:?}.", ibbox))?;
  
-@@ -175,6 +183,73 @@ fn render_group(
+@@ -175,6 +198,90 @@ fn render_group(
      Some(())
  }
  
-+/// A filtered group drawn on a layer about `factors` times smaller, exactly over the full-size one
-+/// (`ibbox`; `transform` maps to it), its filter computed there and the result enlarged back,
-+/// interpolated, within the filter's region at full resolution.
++/// A filtered group drawn on a layer `factors` times smaller, over the full-size one (`ibbox`, part of
++/// `whole`, the filter's region; `transform` maps to it), its filter computed there and the result
++/// enlarged back, interpolated, within the filter's region at full resolution.
 +fn render_reduced(
 +    group: &usvg::Group,
 +    ctx: &Context,
 +    transform: tiny_skia::Transform,
 +    ibbox: tiny_skia::IntRect,
++    whole: tiny_skia::IntRect,
 +    reach: Option<u32>,
 +    factors: (u32, u32),
 +    pixmap: &mut tiny_skia::PixmapMut,
 +) -> Option<()> {
-+    let cells = |size: u32, factor: u32| ((f64::from(size) / f64::from(factor)).round() as u32).clamp(1, size);
-+    let (width, height) = (cells(ibbox.width(), factors.0), cells(ibbox.height(), factors.1));
-+    let (sx, sy) = (width as f32 / ibbox.width() as f32, height as f32 / ibbox.height() as f32);
++    let (width, height) = (ibbox.width().div_ceil(factors.0), ibbox.height().div_ceil(factors.1));
++    let (sx, sy) = (1.0 / factors.0 as f32, 1.0 / factors.1 as f32);
 +    let small_ts = tiny_skia::Transform::from_scale(sx, sy).pre_concat(transform);
 +    let mut small = tiny_skia::Pixmap::new(width, height)
 +        .log_none(|| log::warn!("Failed to allocate a group layer for: {:?}.", ibbox))?;
@@ -249,6 +318,23 @@ index 6c86455..42c0f6c 100644
 +        filter_cache: ctx.filter_cache.clone(),
 +    };
 +    render_nodes(group, &small_ctx, small_ts, &mut small.as_mut());
++    // The last column and row only as far as the filter's region: past its edge the group is
++    // transparent, as on the full-size layer (a mask of the region would weigh them the same).
++    let inside = |start: i32, cells: u32, factor: u32, region_end: i32| {
++        let last = start + ((cells - 1) * factor) as i32;
++        let part = (region_end - last) as f32 / factor as f32;
++        (part < 1.0).then_some(part.max(0.0))
++    };
++    let weigh = |pixel: &mut [u8], part: f32| pixel.iter_mut().for_each(|v| *v = (f32::from(*v) * part + 0.5) as u8);
++    let line = width as usize * 4;
++    if let Some(part) = inside(ibbox.left(), width, factors.0, whole.right()) {
++        small.data_mut().chunks_exact_mut(line).for_each(|row| weigh(&mut row[line - 4..], part));
++    }
++    if let Some(part) = inside(ibbox.top(), height, factors.1, whole.bottom()) {
++        let data = small.data_mut();
++        let last = data.len() - line;
++        weigh(&mut data[last..], part);
++    }
 +    for filter in group.filters() {
 +        crate::filter::apply(filter, small_ts, &ctx.filter_cache, &mut small);
 +    }

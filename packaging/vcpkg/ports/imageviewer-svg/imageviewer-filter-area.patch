@@ -13,8 +13,9 @@ morphology, displacement, convolution, lighting); a filter whose result may depe
 the visible area are not drawn: tiny-skia 0.12 drew a one-row pixmap placed just above the canvas onto
 the canvas's first row. A primitive's subregion is cleared within its result's pixels wherever it lies
 (it may lie partly or wholly outside a layer drawn in part). The pixels are those of the whole region
-but for anti-aliased edges, whose coverage may move by a rounding step when a layer starts elsewhere:
-3 of resvg's 1,730 reference tests differ there.
+but for anti-aliased edges, whose coverage may move by a rounding step when a layer starts elsewhere
+(tiny-skia's, as for a shape drawn on a canvas that starts elsewhere; lighting and convolution, which
+read an edge's slope, enlarge that step): 3 of resvg's 1,730 reference tests differ there.
 
 diff --git a/crates/resvg/src/clip.rs b/crates/resvg/src/clip.rs
 index 879434d..de432c7 100644

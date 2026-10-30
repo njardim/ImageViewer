@@ -378,6 +378,7 @@ private:
     Detail m_detailJob;                    // what the running job draws
     Detail m_detail;                       // what the renderer has; no path: none
     std::optional<Detail> m_detailWanted; // what the view last asked for
+    Detail m_detailFailed;                 // not asked for again while the view stays
     int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
     bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher

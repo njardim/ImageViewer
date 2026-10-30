@@ -1023,13 +1023,24 @@ try:
             app.wait(30)
             session = log_text()[before:]
             starts = session.count("SVG worker started")
-            late = [int(m) for m in re.findall(r"the event loop answered (\d+) ms late", log_text()[settled:])]
             if not 1 <= starts <= 4:  # the decode thread, the detail's, the gallery's two
                 fail(f"{starts} SVG workers started for 7 documents and their thumbnails, at most 4 expected")
             print(f"ok   7 SVGs and their thumbnails: {starts} SVG workers started, one per decoding thread")
-            if late and max(late) > 250:
-                fail(f"the interface did not answer for {max(late)} ms while SVGs were read ({late})")
-            print(f"ok   the interface answered throughout (event loop late by at most {max(late, default=0)} ms)")
+            # A late tick is the GPU's when render() named a frame as long just before it: llvmpipe
+            # (OpenGL on the runners) compiles shader variants and makes mipmaps on the GUI thread.
+            # Anything else that held the event loop up is ours, and fails.
+            ours, frames, frame = [], [], 0
+            for kind, ms in re.findall(r"(a frame took|the event loop answered) (\d+) ms", log_text()[settled:]):
+                if kind == "a frame took":
+                    frame = max(frame, int(ms))
+                    frames.append(int(ms))
+                    continue
+                if int(ms) > 250 and frame < int(ms) - 60:
+                    ours.append(int(ms))
+                frame = 0
+            if ours:
+                fail(f"the interface did not answer for {max(ours)} ms while SVGs were read, outside drawing ({ours})")
+            print(f"ok   the interface answered throughout: no stall but frames drawn ({frames or 'none'} ms)")
         finally:
             if app.poll() is None:
                 app.terminate()

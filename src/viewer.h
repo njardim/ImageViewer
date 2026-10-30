@@ -32,6 +32,8 @@
 #include <QTimer>
 #include <QWindow>
 
+#include <QLoggingCategory>
+
 #include <atomic>
 #include <functional>
 #include <memory>
@@ -60,6 +62,9 @@ class QWidget;
 // Dialogs and menus are widgets; the viewer is a QWindow. Parenting their native window
 // keeps them above it, centred on it and, on Wayland, positioned at all.
 void makeTransient(QWidget &widget, QWindow *parent);
+
+// The interface's response times, for the tests (D-94): main.cpp's event-loop ticks, render()'s long frames.
+Q_DECLARE_LOGGING_CATEGORY(lcLatency)
 
 class ViewerWindow : public QWindow {
     Q_OBJECT

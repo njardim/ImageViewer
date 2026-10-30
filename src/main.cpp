@@ -42,7 +42,6 @@
 #include <rhi/qrhi.h>
 #endif
 
-Q_LOGGING_CATEGORY(lcLatency, "imageviewer.latency")
 
 // The reader of the PNG, JPEG, GIF and WebP images inside the files Qt reads for us, in place of
 // Qt's own (qtimage.cpp, D-68, D-71).
@@ -594,7 +593,8 @@ int main(int argc, char *argv[])
     else if (settings.reopenLastImage && !session.lastFile.isEmpty() && QFileInfo::exists(session.lastFile))
         window.openFile(session.lastFile);
     // For the tests (D-94): a tick every 20 ms, and a message when the event loop answers one more
-    // than 100 ms late, that is, when the interface did not respond. Only with the category on.
+    // than 100 ms late, that is, when the interface did not respond; render() names its own long
+    // frames. Only with the category on.
     QTimer heartbeat;
     QElapsedTimer sinceTick;
     if (lcLatency().isDebugEnabled()) {

@@ -2,6 +2,9 @@
 // side zones and the pointer. See viewer.h for the other parts.
 #include "viewer.h"
 
+#include <QElapsedTimer>
+#include <QScopeGuard>
+
 #include "appearance.h"
 
 #include <QApplication>
@@ -21,6 +24,7 @@
 #include <utility>
 
 Q_LOGGING_CATEGORY(lcView, "imageviewer.view", QtWarningMsg)
+Q_LOGGING_CATEGORY(lcLatency, "imageviewer.latency")
 
 namespace {
 constexpr int kDefaultMaxTexture = 16384;
@@ -522,6 +526,13 @@ void ViewerWindow::render()
 {
     if (!m_rendererReady)
         return;
+    QElapsedTimer frameTime;
+    if (lcLatency().isDebugEnabled())
+        frameTime.start();
+    const auto timeFrame = qScopeGuard([&frameTime] {
+        if (frameTime.isValid() && frameTime.elapsed() > 100)
+            qCDebug(lcLatency) << "a frame took" << frameTime.elapsed() << "ms";
+    });
     updateDetail();
     Renderer::Frame frame = imageFrame();
     if (m_image.width > 0) {

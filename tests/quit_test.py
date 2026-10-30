@@ -9,6 +9,9 @@ crash report for it. Two rounds: right after the image appears (a preload is usu
 decoding) and after the application has gone idle. A failing round is run again under lldb,
 which prints every thread's backtrace at the crash. A viewer still running after a quit
 that was sent fails too; only a machine that refuses every route skips the test.
+In the idle round, first the application menu: it holds Settings (D-96), which opens the
+Settings window, and the menu bar shows no other menu; then the window's close button, which
+must quit the viewer as before.
 
 Meant for CI machines: macOS keeps preferences in cfprefsd, which no environment variable
 redirects, so the viewer runs with the user's own preferences and saves its session there.
@@ -47,8 +50,46 @@ def osascript(script):
     return result.returncode == 0, (result.stdout + result.stderr).strip()
 
 
-def quit_routes(pid):
+def check_application_menu(pid):
+    """The application menu's Settings (D-96): None when this machine lets no script read the menu
+    bar, otherwise a failure, or "" when it opens the Settings window and the bar has no other menu."""
+    process = f'tell application "System Events" to tell (first process whose unix id is {pid})\n'
+    item = ('(first menu item of menu 1 of menu bar item 2 of menu bar 1 '
+            'whose name starts with "Settings" or name starts with "Preferences")')
+    ok, menus = osascript(process + "set frontmost to true\nname of every menu bar item of menu bar 1\nend tell")
+    if not ok:
+        print(f"application menu not readable: {menus}")
+        return None
+    if menus.split(", ") != ["Apple", "ImageViewer"]:
+        return f"the menu bar shows {menus!r}, not the Apple and ImageViewer menus alone"
+    ok, output = osascript(process + f"click {item}\nend tell")
+    if not ok:
+        return f"no Settings in the application menu: {output}"
+    for _ in range(20):
+        time.sleep(0.5)
+        ok, windows = osascript(process + "name of every window\nend tell")
+        if ok and "Settings" in windows.split(", "):
+            break
+    else:
+        return f"the application menu's Settings opened no Settings window (windows: {windows!r})"
+    osascript(process + "key code 53\nend tell")  # Escape closes it
+    for _ in range(20):
+        time.sleep(0.5)
+        ok, windows = osascript(process + "name of every window\nend tell")
+        if ok and "Settings" not in windows.split(", "):
+            print("application menu: Settings opens the Settings window")
+            return ""
+    return "the Settings window did not close on Escape"
+
+
+def quit_routes(pid, close_button):
     process = f"(first process whose unix id is {pid})"
+    if close_button:  # the window's red button quits the viewer (the owner, D-96)
+        yield "close button", (
+            f'tell application "System Events" to tell {process}\n'
+            "set frontmost to true\n"
+            'click (first button of window 1 whose subrole is "AXCloseButton")\n'
+            "end tell")
     yield "application menu", (
         f'tell application "System Events" to tell {process}\n'
         "set frontmost to true\n"
@@ -91,9 +132,15 @@ def run_round(label, settle_s, debugger=False):
             print(open(log_path, encoding="utf-8", errors="replace").read())
             return f"{label}: the image was not shown within {DEADLINE_S} s (exit code {app.returncode})"
         time.sleep(settle_s)
+        close_button = label == "idle"
+        if close_button and (failure := check_application_menu(pid)):
+            app.kill()
+            app.wait()
+            print(open(log_path, encoding="utf-8", errors="replace").read())
+            return f"{label}: {failure}"
         used = None
         sent = []
-        for route, script in quit_routes(pid):
+        for route, script in quit_routes(pid, close_button):
             ok, output = osascript(script)
             print(f"{label}: {route}: {'sent' if ok else 'refused: ' + output}")
             if not ok:
@@ -105,6 +152,10 @@ def run_round(label, settle_s, debugger=False):
                 break
             except subprocess.TimeoutExpired:
                 print(f"{label}: still running {EXIT_S} s after {route}")
+                if route == "close button":
+                    app.kill()
+                    app.wait()
+                    return f"{label}: closing the window did not quit the viewer"
         if used is None:
             app.kill()
             app.wait()

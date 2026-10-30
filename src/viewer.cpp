@@ -3,6 +3,7 @@
 #include "viewer.h"
 
 #include <QElapsedTimer>
+#include <QMenuBar>
 #include <QScopeGuard>
 
 #include "appearance.h"
@@ -64,6 +65,7 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     connect(&m_detailTimer, &QTimer::timeout, this, &ViewerWindow::startDetail);
     connect(&m_detailWatcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::detailFinished);
     m_recent = loadRecentFiles();
+    installApplicationMenu();
     m_noticeTimer.setSingleShot(true);
     connect(&m_noticeTimer, &QTimer::timeout, this, [this] {
         m_notice.clear();

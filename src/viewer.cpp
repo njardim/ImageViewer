@@ -4,6 +4,7 @@
 
 #include <QElapsedTimer>
 #include <QMenuBar>
+#include <QTranslator>
 #include <QScopeGuard>
 
 #include "appearance.h"
@@ -685,6 +686,7 @@ void ViewerWindow::applySettings(const Settings &settings)
     m_settings.save();
     if (settings.language != previous.language) {
         applyLanguage(settings.language);
+        translateApplicationMenu();
         // Descriptions are composed while decoding: decode again for the new language,
         // including a decode still running (its result is dropped when it arrives).
         ++m_decodeGeneration;

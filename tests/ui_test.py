@@ -989,6 +989,10 @@ try:
             # 12. A folder of SVGs (D-94): each decoding thread starts one SVG worker and keeps it,
             # rather than one process per document; the interface answers throughout (the latency
             # log: the event loop more than 100 ms late), the owner's artwork with 17 filters too.
+            # The window opens on a PNG of the folder, larger than the window (drawn interpolated, as
+            # an SVG always is), and the measure starts once it is up: its first frames build the
+            # renderer's pipelines on the GUI thread, and llvmpipe compiles each sampling it meets
+            # (half a second to two, a PNG's as an SVG's), which is not reading SVGs.
             svg_dir = os.path.join(work, "svgs")
             os.makedirs(svg_dir)
             for i in range(6):
@@ -998,11 +1002,13 @@ try:
                             f'<circle cx="400" cy="300" r="{60 + 30 * i}" fill="#fc0"/></svg>')
             shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "IV_claude_v5_mix_v1.svg"),
                         os.path.join(svg_dir, "s6.svg"))
+            Image.new("RGB", (2400, 1800), (40, 90, 150)).save(os.path.join(svg_dir, "a.png"))
             before = len(log_text())
-            app = subprocess.Popen([exe, os.path.join(svg_dir, "s0.svg")], env=env, stdout=log, stderr=log)
-            wait_until("the first SVG of the folder shown", lambda: "decoded for display: s0.svg" in log_text()[before:])
-            settled = len(log_text())  # the window's start (the renderer's pipelines) is not the SVGs'
-            for name in ("s1", "s2", "s3", "s4", "s5", "s6"):
+            app = subprocess.Popen([exe, os.path.join(svg_dir, "a.png")], env=env, stdout=log, stderr=log)
+            wait_until("the folder's PNG shown", lambda: "decoded for display: a.png" in log_text()[before:])
+            time.sleep(3)  # the window's first frames (its pipelines) are done
+            settled = len(log_text())
+            for name in ("s0", "s1", "s2", "s3", "s4", "s5", "s6"):
                 xdotool("key", "Right")
                 wait_until(f"{name}.svg shown", lambda name=name: re.search(rf"(decoded for display|shown from the cache): {name}\.svg",
                                                                           log_text()[settled:]) is not None)

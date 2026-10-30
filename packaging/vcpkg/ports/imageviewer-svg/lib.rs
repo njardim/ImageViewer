@@ -11,9 +11,9 @@
 //!
 //! Everything of resvg's API used below, the list to check at an update (an update whose API
 //! differs fails to compile in its own CI, so the pinned release stays in use):
-//! - `usvg::Options`: `default()`, `resources_dir`, `image_href_resolver`, `fontdb_mut()`
+//! - `usvg::Options`: `default()`, `resources_dir`, `image_href_resolver`, `fontdb`
 //! - `usvg::ImageHrefResolver { resolve_data, resolve_string }` and its `default_data_resolver()`
-//! - `usvg::fontdb::Database`: `load_system_fonts()`, `faces()` (`families`, `style`, `weight`,
+//! - `usvg::fontdb::Database`: `new()`, `load_system_fonts()`, `faces()` (`families`, `style`, `weight`,
 //!   `monospaced`), `family_name()`, `set_serif_family()` and the four other generic families
 //! - Linux: `fontconfig_parser::FontConfig` (`merge_config()`, `aliases`), the crate fontdb reads the
 //!   system's font configuration with, at the version resvg's own lock holds
@@ -270,6 +270,20 @@ fn fontconfig_order(config: &fontconfig_parser::FontConfig, generic: &str) -> Ve
     order
 }
 
+/// The system's fonts, loaded on the first document with text and kept for the next ones: the
+/// worker serves one document after another (D-94).
+fn system_fonts() -> std::sync::Arc<usvg::fontdb::Database> {
+    static FONTS: std::sync::OnceLock<std::sync::Arc<usvg::fontdb::Database>> = std::sync::OnceLock::new();
+    FONTS
+        .get_or_init(|| {
+            let mut db = usvg::fontdb::Database::new();
+            db.load_system_fonts();
+            settle_generic_families(&mut db);
+            std::sync::Arc::new(db)
+        })
+        .clone()
+}
+
 /// Runs `body`, turning a panic into `FAILED`: nothing unwinds into C.
 fn guarded(body: impl FnOnce() -> i32) -> i32 {
     catch_unwind(AssertUnwindSafe(body)).unwrap_or(FAILED)
@@ -316,8 +330,7 @@ pub unsafe extern "C" fn iv_svg_parse(data: *const u8, size: usize, load_fonts: 
             resolve_string: Box::new(|_, _| None),
         };
         if load_fonts != 0 {
-            options.fontdb_mut().load_system_fonts();
-            settle_generic_families(options.fontdb_mut());
+            options.fontdb = system_fonts();
         }
         match usvg::Tree::from_data(bytes, &options) {
             Ok(tree) => {

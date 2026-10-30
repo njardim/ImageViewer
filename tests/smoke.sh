@@ -279,11 +279,19 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         fi
     fi
     check IV_claude_v5_mix_v1.svg 'size: +1024x1024' "the owner's SVG (17 filters, 13 masks) at its own size"
-    # A worker given no request refuses it (exit 2), and a render past the worker's 30 s ends there:
-    # the viewer says why and goes on (D-38).
+    # The SVG worker serves requests until its pipe closes (D-94): closed at once, it ends (exit 0);
+    # anything but a request it refuses (exit 2). A render past the worker's 30 s ends there: the
+    # viewer says why and goes on (D-38).
     code=0
     "$exe" --decode-worker SVG </dev/null >/dev/null 2>&1 || code=$?
-    if [ "$code" = 2 ]; then echo "ok   SVG worker: no request, refused"; else echo "FAIL SVG worker: exit $code without a request, expected 2"; failures=$((failures + 1)); fi
+    refused=0
+    printf 'not a request at all, but long enough to be read as one: 64 bytes.' | "$exe" --decode-worker SVG >/dev/null 2>&1 || refused=$?
+    if [ "$code" = 0 ] && [ "$refused" = 2 ]; then
+        echo "ok   SVG worker: ends with its pipe, refuses what is not a request"
+    else
+        echo "FAIL SVG worker: exit $code with no request (expected 0), $refused for a bad one (expected 2)"
+        failures=$((failures + 1))
+    fi
     slow="$(mktemp -d)/slow.svg"
     printf '<svg xmlns="http://www.w3.org/2000/svg" width="8000" height="8000"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.9" numOctaves="10"/><feGaussianBlur stdDeviation="40"/></filter><rect width="8000" height="8000" filter="url(#n)"/><rect width="8000" height="8000" filter="url(#n)" opacity="0.5"/></svg>\n' >"$slow"
     started=$(date +%s)
@@ -310,18 +318,19 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         echo "FAIL SVG worker: a filter region 25 times its canvas ($took s): $said"
         failures=$((failures + 1))
     fi
-    # The same with feTile, whose result depends on its whole region: resvg allocates it whole, and
-    # the renderer's memory limit ends the worker at once; the viewer says so (D-90 (10)).
+    # The same with feTile, whose result depends on its whole region: resvg allocates it whole (up to
+    # 25 times the canvas), and the worker is stopped by its memory limit (a quarter of this
+    # machine's memory at least, D-94) or by its 30 s; the viewer says why (D-90 (10)).
     bomb="$(mktemp -d)/region.svg"
     printf '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3000"><filter id="b" filterUnits="userSpaceOnUse" x="-6000" y="-6000" width="15000" height="15000"><feGaussianBlur stdDeviation="2"/><feTile/></filter><rect width="3000" height="3000" fill="#f80" filter="url(#b)"/></svg>\n' >"$bomb"
     started=$(date +%s)
     said="$("$exe" --info "$bomb" 2>/dev/null || true)"
     took=$(($(date +%s) - started))
     rm -rf "$(dirname "$bomb")"
-    if grep -q 'Not enough memory to decode the image' <<<"$said" && [ "$took" -lt 20 ]; then
-        echo "ok   SVG worker: a filter region past the renderer's memory limit refused (${took} s)"
+    if grep -Eq 'Not enough memory to decode the image|took longer than 30 s and was stopped' <<<"$said" && [ "$took" -lt 45 ]; then
+        echo "ok   SVG worker: a filter region 25 times its canvas, needed whole, stopped (${took} s): $(grep -Eo 'Not enough memory|took longer' <<<"$said")"
     else
-        echo "FAIL SVG worker: a filter region past the memory limit ($took s): $said"
+        echo "FAIL SVG worker: a filter region needed whole not stopped ($took s): $said"
         failures=$((failures + 1))
     fi
     # What starting a worker costs on this machine (its libraries load): a record, not a check.

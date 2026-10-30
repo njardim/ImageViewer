@@ -450,16 +450,17 @@ Image guardedDecode(const QString &path, int maxTextureSize, qint64 maxPixels, b
 } // namespace
 
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, bool fillVector,
-                  const std::atomic_bool *cancel)
+                  const std::atomic_bool *cancel, QSize view)
 {
     DecodeOptions options;
     options.maxSide = maxTextureSize;
     options.fill = fillVector;
+    options.view = view;
     options.cancel = cancel;
     return guardedDecode(path, maxTextureSize, maxPixels, animate, options);
 }
 
-Image decodeVectorArea(const QString &path, double scale, QRect area, const std::atomic_bool *cancel)
+Image decodeVectorArea(const QString &path, double scale, QRectF area, const std::atomic_bool *cancel)
 {
     DecodeOptions options;
     options.scale = scale;

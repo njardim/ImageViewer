@@ -190,11 +190,13 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
         return kWorkerFailed;
     }
     // The renderer's own memory: a document can declare a filter region many times its canvas, and
-    // resvg allocates such a layer whole (a 3000 px SVG reached 2 GiB). 16 times what it reads, or
-    // draws, at least 512 MiB (the owner's artwork drawn at 2048 px needs about 200), never more than
-    // this machine's decode budget; past it the worker ends, and the viewer says so (D-90).
+    // resvg allocates such a layer whole (a 3000 px SVG reached 2 GiB; D-93 draws layers only within
+    // reach of the view, but a filter that needs its whole region still gets it). 16 times what it
+    // reads, or draws, at least a quarter of this machine's memory (a deep zoom into large blurs
+    // takes gigabytes, the owner, D-94), never more than its decode budget; past it the worker
+    // ends, and the viewer says so (D-90).
     const auto limitMemory = [](qint64 bytes) {
-        qint64 limit = std::max<qint64>(qint64(512) << 20, 16 * bytes);
+        qint64 limit = std::max<qint64>(std::max(qint64(512) << 20, physicalMemoryBytes() / 4), 16 * bytes);
         if (const qint64 budget = decodeMemoryBudget(); budget > 0)
             limit = std::min(limit, budget);
         iv_svg_limit_memory(uint64_t(limit));
@@ -224,11 +226,13 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
     const double longest = std::max(documentWidth, documentHeight);
     const auto pixels = [](double side) { return std::max<qint64>(1, qint64(std::ceil(side - 1e-6))); };
     const bool area = options.scale > 0.0;
-    const double scale = area ? options.scale
-                       : options.maxSide > 0 && (options.fill || longest > options.maxSide) ? options.maxSide / longest
-                                                                                            : 1.0;
-    const qint64 width = area ? options.area.width() : pixels(documentWidth * scale);
-    const qint64 height = area ? options.area.height() : pixels(documentHeight * scale);
+    double scale = options.maxSide > 0 && (options.fill || longest > options.maxSide) ? options.maxSide / longest : 1.0;
+    if (!options.fill && options.view.width() > 0 && options.view.height() > 0) // no larger than shown
+        scale = std::min({scale, options.view.width() / documentWidth, options.view.height() / documentHeight});
+    if (area)
+        scale = options.scale;
+    const qint64 width = area ? qRound64(options.area.width()) : pixels(documentWidth * scale);
+    const qint64 height = area ? qRound64(options.area.height()) : pixels(documentHeight * scale);
     if (width > kMaxPixels || height > kMaxPixels || width * height > maxPixels)
         return kWorkerOverLimit; // each side within 2^30 first: the product fits
     limitMemory(std::max<qint64>(width * height * 4, xml.size()));
@@ -250,11 +254,7 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
     answer.associatedAlpha = true; // the renderer's pixels as they are: image.cpp divides in float
     answer.documentWidth = quint32(pixels(documentWidth));
     answer.documentHeight = quint32(pixels(documentHeight));
-    const int code = writeWorkerAnswer(answer, nullptr, rgba.get());
-    // The worker exits now and the viewer waits for that: the system frees the document faster than
-    // its destructors would.
-    static_cast<void>(svg.release());
-    return code;
+    return writeWorkerAnswer(answer, nullptr, rgba.get()); // the next request follows (D-94)
 #else
     Q_UNUSED(file);
     Q_UNUSED(maxPixels);

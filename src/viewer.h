@@ -166,7 +166,7 @@ private:
     struct Detail {
         QString path;       // the image it is drawn from
         double scale = 0.0; // device pixels per pixel of the document
-        QRect area;         // pixels of the document drawn at `scale`
+        QRectF area;        // pixels of the document drawn at `scale`, on the screen's pixel grid
         QRectF rect;        // the same part in the image's texture coordinates
         bool operator==(const Detail &) const = default;
     };

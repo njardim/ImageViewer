@@ -10,6 +10,7 @@
 #include <QByteArrayView>
 #include <QCommandLineParser>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
 #include <QFileOpenEvent>
@@ -17,6 +18,7 @@
 #include <QLibraryInfo>
 #include <QPainter>
 #include <QScopeGuard>
+#include <QTimer>
 #include <QtPlugin>
 
 #include <cstring>
@@ -39,6 +41,8 @@
 #include <QVulkanInstance>
 #include <rhi/qrhi.h>
 #endif
+
+Q_LOGGING_CATEGORY(lcLatency, "imageviewer.latency")
 
 // The reader of the PNG, JPEG, GIF and WebP images inside the files Qt reads for us, in place of
 // Qt's own (qtimage.cpp, D-68, D-71).
@@ -589,5 +593,17 @@ int main(int argc, char *argv[])
         window.openFile(files.first());
     else if (settings.reopenLastImage && !session.lastFile.isEmpty() && QFileInfo::exists(session.lastFile))
         window.openFile(session.lastFile);
+    // For the tests (D-94): a tick every 20 ms, and a message when the event loop answers one more
+    // than 100 ms late, that is, when the interface did not respond. Only with the category on.
+    QTimer heartbeat;
+    QElapsedTimer sinceTick;
+    if (lcLatency().isDebugEnabled()) {
+        QObject::connect(&heartbeat, &QTimer::timeout, [&sinceTick] {
+            if (const qint64 late = sinceTick.restart() - 20; late > 100)
+                qCDebug(lcLatency) << "the event loop answered" << late << "ms late";
+        });
+        sinceTick.start();
+        heartbeat.start(20);
+    }
     return app->exec();
 }

@@ -643,6 +643,7 @@ bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QStr
 bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *error, std::unique_ptr<FrameReader> *frames,
                 DecodeOptions options)
 {
+    stopIdleSvgWorker();
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         *error = file.errorString();

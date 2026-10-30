@@ -529,7 +529,9 @@ void ViewerWindow::render()
         frame.quarterTurns = m_quarterTurns;
         frame.mirrored = m_mirrored;
         const double zoom = currentZoom();
-        frame.nearest = zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6; // decision D-P09
+        // Without interpolation from 200 % (D-P09), to see an image's pixels; never for an SVG, which
+        // has none: it is interpolated until its detail arrives (the owner, D-94).
+        frame.nearest = !m_image.vector && (zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6);
         // The detail while it is not smaller on screen than drawn (it has no mipmaps): zooming in,
         // it is enlarged until the next one arrives; zooming out, the image takes over.
         frame.detail = !m_detail.path.isEmpty() && m_detail.path == m_image.path && m_image.sourceWidth > 0

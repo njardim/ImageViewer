@@ -131,12 +131,13 @@ private:
 // (overPixelLimit), judged from the header. Without `animate`, an animation is read as its first
 // frame only (a thumbnail, the clipboard).
 // Setting `cancel` stops a decode in a worker process (SVG, GraphicsMagick); its result is then
-// to be dropped (D-93).
+// to be dropped (D-93). A vector image is drawn no larger than fits in `view` (the window, device
+// pixels: the size it is shown at, D-94).
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true,
-                  bool fillVector = false, const std::atomic_bool *cancel = nullptr);
+                  bool fillVector = false, const std::atomic_bool *cancel = nullptr, QSize view = {});
 // Only `area` of a vector image (SVG), in pixels of the document drawn at `scale`: the zoom's
 // detail (D-93). `cancel` as for decodeImage().
-Image decodeVectorArea(const QString &path, double scale, QRect area, const std::atomic_bool *cancel);
+Image decodeVectorArea(const QString &path, double scale, QRectF area, const std::atomic_bool *cancel);
 
 // The image as 16-bit sRGB, straight alpha, for the clipboard and the gallery's thumbnails. HDR
 // values above SDR white and colours outside sRGB are clipped (the clipboard formats other

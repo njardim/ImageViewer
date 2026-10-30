@@ -186,8 +186,10 @@ void ViewerWindow::startDecode(const QString &path, int limit, qint64 maxPixels)
     m_jobGeneration = m_decodeGeneration;
     m_jobPath = path;
     m_jobCancel = std::make_shared<std::atomic_bool>(false);
-    m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, limit, maxPixels, cancel = m_jobCancel] {
-        return decodeImage(path, limit, maxPixels, true, false, cancel.get());
+    // An SVG is drawn no larger than the window shows it (D-94).
+    m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, limit, maxPixels, cancel = m_jobCancel,
+                                                          view = deviceSize().toSize()] {
+        return decodeImage(path, limit, maxPixels, true, false, cancel.get(), view);
     }));
 }
 
@@ -449,11 +451,12 @@ std::optional<ViewerWindow::Detail> ViewerWindow::wantedDetail() const
         return std::nullopt;
     // The window's part of the image, in the image's texture coordinates: the view turns the image
     // clockwise by quarter turns after mirroring it (Renderer::recordFrame).
+    const int turns = ((m_quarterTurns % 4) + 4) % 4;
     double u0 = 1.0, v0 = 1.0, u1 = 0.0, v1 = 0.0;
     for (const QPointF corner : {visible.topLeft(), visible.bottomRight()}) {
         const double x = (corner.x() - shown.left()) / shown.width(), y = (corner.y() - shown.top()) / shown.height();
         double u = x, v = y;
-        switch (((m_quarterTurns % 4) + 4) % 4) {
+        switch (turns) {
         case 1: u = y, v = 1.0 - x; break;
         case 2: u = 1.0 - x, v = 1.0 - y; break;
         case 3: u = 1.0 - y, v = x; break;
@@ -466,11 +469,18 @@ std::optional<ViewerWindow::Detail> ViewerWindow::wantedDetail() const
     // The document at the zoom shown: one of its pixels per device pixel.
     const double scale = zoom * m_image.width / m_image.sourceWidth;
     const double width = m_image.sourceWidth * scale, height = m_image.sourceHeight * scale;
-    const QRect area = QRect(QPoint(int(std::floor(u0 * width)), int(std::floor(v0 * height))),
-                             QPoint(int(std::ceil(u1 * width)) - 1, int(std::ceil(v1 * height)) - 1))
-                           .intersected(QRect(0, 0, int(std::ceil(width)), int(std::ceil(height))));
+    // On the screen's pixel grid, so that each of its pixels lands on one: the image's left and top
+    // are whole device pixels (imageRect()), so an axis the view runs backwards has its pixels from
+    // the far edge, a fraction of a pixel off the near one.
+    const bool backwardsU = (turns == 2 || turns == 3) != m_mirrored, backwardsV = turns == 1 || turns == 2;
+    const double shiftU = backwardsU ? width - std::floor(width) : 0.0;
+    const double shiftV = backwardsV ? height - std::floor(height) : 0.0;
+    const double left = std::max(std::floor(u0 * width - shiftU), 0.0), top = std::max(std::floor(v0 * height - shiftV), 0.0);
+    const double right = std::min(std::ceil(u1 * width - shiftU), std::floor(width - shiftU));
+    const double bottom = std::min(std::ceil(v1 * height - shiftV), std::floor(height - shiftV));
+    const QRectF area(left + shiftU, top + shiftV, right - left, bottom - top);
     const int maxSide = m_renderer.maxTextureSize();
-    if (area.isEmpty() || area.width() > maxSide || area.height() > maxSide)
+    if (area.width() < 1.0 || area.height() < 1.0 || area.width() > maxSide || area.height() > maxSide)
         return std::nullopt;
     const QRectF rect(area.x() / width, area.y() / height, area.width() / width, area.height() / height);
     return Detail{m_image.path, scale, area, rect};
@@ -512,10 +522,10 @@ void ViewerWindow::detailFinished()
     Image detail = m_detailWatcher.future().takeResult();
     m_detailBusy = false;
     const bool cancelled = m_detailCancel->load(std::memory_order_relaxed);
-    if (!cancelled && detail.isValid() && m_detailJob.path == m_image.path && detail.width == m_detailJob.area.width()
-        && detail.height == m_detailJob.area.height()) {
-        qCInfo(lcNavigation).noquote() << "detail drawn:" << QFileInfo(m_detailJob.path).fileName() << detail.width << "x"
-                                       << detail.height << "px in" << qRound(detail.decodeMs) << "ms";
+    if (!cancelled && detail.isValid() && m_detailJob.path == m_image.path && detail.width == qRound(m_detailJob.area.width())
+        && detail.height == qRound(m_detailJob.area.height())) {
+        qCInfo(lcNavigation).noquote() << "detail drawn:" << QFileInfo(m_detailJob.path).fileName() << m_detailJob.area
+                                       << "at" << m_detailJob.scale << "in" << qRound(detail.decodeMs) << "ms";
         m_renderer.setDetail(detail.pixels, QSize(detail.width, detail.height), m_detailJob.rect);
         m_detail = m_detailJob;
         requestUpdate();

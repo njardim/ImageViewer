@@ -56,8 +56,8 @@ int iv_svg_limit_threads(uint32_t threads);
 int iv_svg_limit_memory(uint64_t bytes);
 
 /* Parses `size` bytes of SVG (UTF-8 XML). With `load_fonts` non-zero, the system's fonts are
- * loaded first, for the document's text; without, text is not drawn. On IV_SVG_OK, *out is the
- * document, to free with iv_svg_free(). */
+ * used for the document's text (loaded on the first such call, kept for the next ones); without,
+ * text is not drawn. On IV_SVG_OK, *out is the document, to free with iv_svg_free(). */
 int iv_svg_parse(const uint8_t *data, size_t size, int load_fonts, iv_svg **out);
 
 /* The document's own size in CSS pixels (its width and height, or its viewBox's): both > 0. */

@@ -181,6 +181,7 @@ void Renderer::releaseResources()
     }
     drop(m_linearSampler);
     drop(m_nearestSampler);
+    drop(m_detailSampler);
     drop(m_vertices);
     drop(m_imageUniforms);
     drop(m_rhi);
@@ -265,7 +266,11 @@ bool Renderer::initialize(QString *error)
                                         QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     m_nearestSampler = m_rhi->newSampler(QRhiSampler::Nearest, QRhiSampler::Nearest, QRhiSampler::None,
                                          QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
-    const bool created = m_vertices->create() && m_imageUniforms->create() && m_linearSampler->create()
+    // The zoom's detail has no mipmaps: a sampler that reads them would make it incomplete for
+    // OpenGL, which then draws it black.
+    m_detailSampler = m_rhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
+                                        QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
+    const bool created = m_vertices->create() && m_imageUniforms->create() && m_linearSampler->create() && m_detailSampler->create()
                          && m_nearestSampler->create();
     if (!created) {
         *error = QCoreApplication::translate("Renderer", "Cannot create GPU resources.");
@@ -654,8 +659,7 @@ void Renderer::bindImageTexture(QRhiTexture *texture)
             bindings.append(QRhiShaderResourceBinding::sampledTexture(2 + layer, fragment, m_overlays[layer].texture,
                                                                       m_nearestSampler)); // sampled 1:1
         bindings.append(QRhiShaderResourceBinding::sampledTexture(
-            2 + OverlayLayerCount, fragment, m_detailTexture ? m_detailTexture : m_placeholderTexture,
-            srb == m_imageBindingsLinear ? m_linearSampler : m_nearestSampler));
+            2 + OverlayLayerCount, fragment, m_detailTexture ? m_detailTexture : m_placeholderTexture, m_detailSampler));
         srb->setBindings(bindings.cbegin(), bindings.cend());
         srb->create();
     }

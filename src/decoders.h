@@ -76,15 +76,18 @@ public:
 // What a decode is asked for beyond its pixel limit.
 // A vector image (SVG) is drawn on its longer side at its own size (D-90), made smaller to fit
 // `maxSide` (the GPU's largest texture); with `fill`, at exactly `maxSide` (a thumbnail, drawn at
-// its own size rather than reduced or enlarged afterwards); 0: its own size. With `scale` > 0
-// instead, only `area` of it, in pixels of the document drawn at `scale` (the zoom's detail, D-93).
+// its own size rather than reduced or enlarged afterwards); 0: its own size. Without `fill`, never
+// larger than fits in `view` (the window, device pixels), the size it is shown at (D-94). With
+// `scale` > 0 instead, only `area` of it, in pixels of the document drawn at `scale` (the zoom's
+// detail, D-93): a whole number of pixels from an origin that may fall between two (D-94).
 // Setting `cancel` during a decode in a worker process (SVG, GraphicsMagick) ends that process,
 // and the decode fails (D-93).
 struct DecodeOptions {
     int maxSide = 0;
     bool fill = false;
+    QSize view;
     double scale = 0.0;
-    QRect area;
+    QRectF area;
     const std::atomic_bool *cancel = nullptr;
 };
 
@@ -144,6 +147,9 @@ int runDecodeWorker(int argc, char **argv);
 // as `options` asks. Never crashes the caller.
 bool decodeInWorker(const Format &format, const QString &path, qint64 maxPixels, Decoded *out, QString *error,
                     DecodeOptions options = {});
+// Ends this thread's SVG worker once it has had no request for 30 s (D-94): a decoding thread busy
+// with other formats keeps no idle worker; one with nothing to do ends after QThreadPool's timeout.
+void stopIdleSvgWorker();
 // The worker's exit codes: decoded, not decoded (the reason on standard error), bad arguments,
 // over the pixel limit asked for (or out of memory).
 inline constexpr int kWorkerDecoded = 0, kWorkerFailed = 1, kWorkerUsage = 2, kWorkerOverLimit = 3;

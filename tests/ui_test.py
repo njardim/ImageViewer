@@ -957,8 +957,8 @@ try:
                 if shot is None:
                     return None
                 s = shot.min(axis=2).astype(int)
-                return (s[cy - 5:cy + 6, cx - 80:cx - 10].min(), s[cy - 5:cy + 6, cx + 10:cx + 80].min(),
-                        s[cy - 80:cy - 10, cx - 4:cx + 5].min(), s[cy + 10:cy + 80, cx - 4:cx + 5].min())
+                return (s[cy - 8:cy + 9, cx - 80:cx - 10].min(), s[cy - 8:cy + 9, cx + 10:cx + 80].min(),
+                        s[cy - 80:cy - 10, cx - 8:cx + 9].min(), s[cy + 10:cy + 80, cx - 8:cx + 9].min())
             xdotool("key", "1")
             wait_until("at 100 % the line is a light grey", lambda: (s := sides()) and 150 < s[0] < 230)
             for _ in range(10):
@@ -972,10 +972,52 @@ try:
                                       (("shift+r",), (255, 0, 255, 255), "turned back, on the right")):
                 xdotool("key", *keys)
                 wait_until(f"the detail follows the view: {where}", lambda: sides() == want)
+                # On the screen's pixel grid whatever the turn (D-94): across the line (2.3 px wide), at
+                # most four pixels short of white, one of them black; half a pixel off, the
+                # interpolation would spread it over five, none black.
+                shot = grab().min(axis=2).astype(int)
+                across = shot[cy - 40, cx - 12:cx + 13] if where.endswith("above") else (
+                    shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
+                grey = [int(v) for v in across if v < 250]
+                if not (1 <= len(grey) <= 4 and min(grey) == 0):
+                    fail(f"{where}: the line is not sharp across: {grey} (see {shot_path})")
             xdotool("key", "1")
             wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
             xdotool("key", "q")
             app.wait(15)
+
+            # 12. A folder of SVGs (D-94): each decoding thread starts one SVG worker and keeps it,
+            # rather than one process per document; the interface answers throughout (the latency
+            # log: the event loop more than 100 ms late), the owner's artwork with 17 filters too.
+            svg_dir = os.path.join(work, "svgs")
+            os.makedirs(svg_dir)
+            for i in range(6):
+                with open(os.path.join(svg_dir, f"s{i}.svg"), "w") as f:
+                    f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">'
+                            f'<rect width="800" height="600" fill="#{40 * i:02x}6090"/>'
+                            f'<circle cx="400" cy="300" r="{60 + 30 * i}" fill="#fc0"/></svg>')
+            shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "IV_claude_v5_mix_v1.svg"),
+                        os.path.join(svg_dir, "s6.svg"))
+            before = len(log_text())
+            app = subprocess.Popen([exe, os.path.join(svg_dir, "s0.svg")], env=env, stdout=log, stderr=log)
+            wait_until("the first SVG of the folder shown", lambda: "decoded for display: s0.svg" in log_text()[before:])
+            settled = len(log_text())  # the window's start (the renderer's pipelines) is not the SVGs'
+            for name in ("s1", "s2", "s3", "s4", "s5", "s6"):
+                xdotool("key", "Right")
+                wait_until(f"{name}.svg shown", lambda name=name: re.search(rf"(decoded for display|shown from the cache): {name}\.svg",
+                                                                          log_text()[settled:]) is not None)
+            time.sleep(1)
+            xdotool("key", "q")
+            app.wait(30)
+            session = log_text()[before:]
+            starts = session.count("SVG worker started")
+            late = [int(m) for m in re.findall(r"the event loop answered (\d+) ms late", log_text()[settled:])]
+            if not 1 <= starts <= 4:  # the decode thread, the detail's, the gallery's two
+                fail(f"{starts} SVG workers started for 7 documents and their thumbnails, at most 4 expected")
+            print(f"ok   7 SVGs and their thumbnails: {starts} SVG workers started, one per decoding thread")
+            if late and max(late) > 250:
+                fail(f"the interface did not answer for {max(late)} ms while SVGs were read ({late})")
+            print(f"ok   the interface answered throughout (event loop late by at most {max(late, default=0)} ms)")
         finally:
             if app.poll() is None:
                 app.terminate()

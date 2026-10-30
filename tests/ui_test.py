@@ -972,15 +972,21 @@ try:
                                       (("shift+r",), (255, 0, 255, 255), "turned back, on the right")):
                 xdotool("key", *keys)
                 wait_until(f"the detail follows the view: {where}", lambda: sides() == want)
+
                 # On the screen's pixel grid whatever the turn (D-94): across the line (2.3 px wide), at
                 # most four pixels short of white, one of them black; half a pixel off, the
-                # interpolation would spread it over five, none black.
-                shot = grab().min(axis=2).astype(int)
-                across = shot[cy - 40, cx - 12:cx + 13] if where.endswith("above") else (
-                    shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
-                grey = [int(v) for v in across if v < 250]
-                if not (1 <= len(grey) <= 4 and min(grey) == 0):
-                    fail(f"{where}: the line is not sharp across: {grey} (see {shot_path})")
+                # interpolation spreads it over five, none black. The detail drawn before the turn,
+                # turned by the shader, shows until the one drawn for the new view arrives.
+                def sharp(where=where):
+                    shot = grab()
+                    if shot is None:
+                        return False
+                    shot = shot.min(axis=2).astype(int)
+                    across = shot[cy - 40, cx - 12:cx + 13] if where.endswith("above") else (
+                        shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
+                    grey = [int(v) for v in across if v < 250]
+                    return 1 <= len(grey) <= 4 and min(grey) == 0
+                wait_until(f"... and sharp on the screen's pixel grid", sharp)
             xdotool("key", "1")
             wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
             xdotool("key", "q")

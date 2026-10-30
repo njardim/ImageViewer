@@ -9,9 +9,9 @@ crash report for it. Two rounds: right after the image appears (a preload is usu
 decoding) and after the application has gone idle. A failing round is run again under lldb,
 which prints every thread's backtrace at the crash. A viewer still running after a quit
 that was sent fails too; only a machine that refuses every route skips the test.
-In the idle round, first the application menu: it holds Settings (D-96), which opens the
-Settings window, and the menu bar shows no other menu; then the window's close button, which
-must quit the viewer as before.
+In the idle round, first the application menu (D-96): About ImageViewer, a separator,
+Settings… (our words, not Qt's "Preferences..."), a separator; each opens its window; and the
+menu bar shows no other menu. Then the window's close button, which must quit the viewer as before.
 
 Meant for CI machines: macOS keeps preferences in cfprefsd, which no environment variable
 redirects, so the viewer runs with the user's own preferences and saves its session there.
@@ -51,35 +51,42 @@ def osascript(script):
 
 
 def check_application_menu(pid):
-    """The application menu's Settings (D-96): None when this machine lets no script read the menu
-    bar, otherwise a failure, or "" when it opens the Settings window and the bar has no other menu."""
+    """The application menu (D-96): None when this machine lets no script read the menu bar,
+    otherwise a failure, or "" when it reads About ImageViewer, a separator, Settings…, a separator,
+    each item opens its window, and the bar has no other menu."""
     process = f'tell application "System Events" to tell (first process whose unix id is {pid})\n'
-    item = ('(first menu item of menu 1 of menu bar item 2 of menu bar 1 '
-            'whose name starts with "Settings" or name starts with "Preferences")')
+    app_menu = "menu 1 of menu bar item 2 of menu bar 1"
     ok, menus = osascript(process + "set frontmost to true\nname of every menu bar item of menu bar 1\nend tell")
     if not ok:
         print(f"application menu not readable: {menus}")
         return None
     if menus.split(", ") != ["Apple", "ImageViewer"]:
         return f"the menu bar shows {menus!r}, not the Apple and ImageViewer menus alone"
-    ok, output = osascript(process + f"click {item}\nend tell")
-    if not ok:
-        return f"no Settings in the application menu: {output}"
-    for _ in range(20):
-        time.sleep(0.5)
-        ok, windows = osascript(process + "name of every window\nend tell")
-        if ok and "Settings" in windows.split(", "):
-            break
-    else:
-        return f"the application menu's Settings opened no Settings window (windows: {windows!r})"
-    osascript(process + "key code 53\nend tell")  # Escape closes it
-    for _ in range(20):
-        time.sleep(0.5)
-        ok, windows = osascript(process + "name of every window\nend tell")
-        if ok and "Settings" not in windows.split(", "):
-            print("application menu: Settings opens the Settings window")
-            return ""
-    return "the Settings window did not close on Escape"
+    ok, names = osascript(process + f"name of every menu item of {app_menu}\nend tell")
+    items = names.split(", ") if ok else []
+    if items[:4] != ["About ImageViewer", "missing value", "Settings…", "missing value"]:
+        return f"the application menu begins {items[:4]!r}, not About ImageViewer, a separator, Settings…, a separator"
+    for item, title in (("About ImageViewer", "About ImageViewer"), ("Settings…", "Settings")):
+        ok, output = osascript(process + f'click menu item "{item}" of {app_menu}\nend tell')
+        if not ok:
+            return f"the application menu's {item} could not be chosen: {output}"
+        for _ in range(20):
+            time.sleep(0.5)
+            ok, windows = osascript(process + "name of every window\nend tell")
+            if ok and title in windows.split(", "):
+                break
+        else:
+            return f"the application menu's {item} opened no {title} window (windows: {windows!r})"
+        osascript(process + "key code 53\nend tell")  # Escape closes it
+        for _ in range(20):
+            time.sleep(0.5)
+            ok, windows = osascript(process + "name of every window\nend tell")
+            if ok and title not in windows.split(", "):
+                break
+        else:
+            return f"the {title} window did not close on Escape"
+        print(f"application menu: {item} opens the {title} window")
+    return ""
 
 
 def quit_routes(pid, close_button):

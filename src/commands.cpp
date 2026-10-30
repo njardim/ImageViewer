@@ -22,6 +22,7 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QStandardPaths>
+#include <QTranslator>
 #include <QtGui/private/qkeymapper_p.h> // the layout's alternatives for a key press, as QShortcut uses
 
 #include <algorithm>
@@ -346,7 +347,16 @@ bool ViewerWindow::executeShortcut(QKeyEvent *e)
 
 void ViewerWindow::addCommand(QMenu *menu, Command command)
 {
-    QAction *action = menu->addAction(commandText(command));
+    QString text = commandText(command);
+#ifdef Q_OS_MACOS
+    // A space after every label: keep it (the owner, D-97). Qt's macOS style draws a one-key shortcut
+    // (V, B) in a field as wide as the font's widest glyph, ending at the menu's edge, while the menu
+    // keeps for its shortcuts only the widest one's own width; in a menu of one-key shortcuts the
+    // longest label then runs into its key ("About ImageViewerV"). Every label, since which one is
+    // the longest depends on the language; in code, not in the translations.
+    text += QLatin1Char(' ');
+#endif
+    QAction *action = menu->addAction(text);
     if (const QList<QKeySequence> shortcuts = shortcutsFor(command); !shortcuts.isEmpty()) {
         action->setShortcuts(shortcuts);
         action->setShortcutVisibleInContextMenu(true);
@@ -359,17 +369,70 @@ void ViewerWindow::addCommand(QMenu *menu, Command command)
     connect(action, &QAction::triggered, this, [this, command] { m_menuChoice = [this, command] { run(command); }; });
 }
 
+#ifdef Q_OS_MACOS
+namespace {
+
+// Qt names the application menu's About and Settings items itself, in English ("About %1",
+// "Preferences..."), through QCoreApplication::translate() in the contexts "QMenuBar" and
+// "MAC_APPLICATION_MENU" (qcocoamenuitem.mm): this translator answers with our own translations of
+// those two commands, the context menu's, in the language shown (the owner, D-96). Installed after
+// the application's catalogs, so asked before them.
+class ApplicationMenuTranslator : public QTranslator
+{
+public:
+    QString about;    // "About %1": the application's name, which Qt puts in, as %1
+    QString settings; // "Settings…"
+
+    bool isEmpty() const override { return false; }
+    QString translate(const char *context, const char *source, const char *, int) const override
+    {
+        if (qstrcmp(context, "MAC_APPLICATION_MENU") != 0 && qstrcmp(context, "QMenuBar") != 0)
+            return {};
+        if (qstrcmp(source, "About %1") == 0)
+            return about;
+        if (qstrcmp(source, "Preferences...") == 0)
+            return settings;
+        return {};
+    }
+};
+
+} // namespace
+#endif
+
 void ViewerWindow::installApplicationMenu()
 {
 #ifdef Q_OS_MACOS
-    // Settings in the application menu, with ⌘, where Mac users look for it (the owner, D-96): the
-    // application's menu bar (no parent: every window's), whose one menu Qt moves the action out of
-    // by its role, and hides once empty. Nothing else changes: the menu bar is no window, so closing
-    // the viewer's window still quits. Through run(), once the menu is gone (D-85).
+    // About ImageViewer and Settings… (⌘,) in the application menu, where Mac users look for them,
+    // each with a separator after it, the menu's own (the owner, D-96): the application's menu bar
+    // (no parent: every window's), whose one menu Qt moves the actions out of by their roles, and
+    // hides once empty. Nothing else changes: the menu bar is no window, so closing the viewer's
+    // window still quits. Through run(), once the menu is gone (D-85).
     m_menuBar = std::make_unique<QMenuBar>();
-    QAction *settings = m_menuBar->addMenu(QString())->addAction(commandText(Command::Settings));
-    settings->setMenuRole(QAction::PreferencesRole);
-    connect(settings, &QAction::triggered, this, [this] { run(Command::Settings); }, Qt::QueuedConnection);
+    QMenu *menu = m_menuBar->addMenu(QString());
+    m_aboutAction = menu->addAction(QString());
+    m_aboutAction->setMenuRole(QAction::AboutRole);
+    connect(m_aboutAction, &QAction::triggered, this, [this] { run(Command::About); }, Qt::QueuedConnection);
+    m_settingsAction = menu->addAction(QString());
+    m_settingsAction->setMenuRole(QAction::PreferencesRole);
+    connect(m_settingsAction, &QAction::triggered, this, [this] { run(Command::Settings); }, Qt::QueuedConnection);
+    m_menuTranslator = std::make_unique<ApplicationMenuTranslator>();
+    translateApplicationMenu();
+#endif
+}
+
+void ViewerWindow::translateApplicationMenu()
+{
+#ifdef Q_OS_MACOS
+    if (!m_menuTranslator)
+        return;
+    auto *translator = static_cast<ApplicationMenuTranslator *>(m_menuTranslator.get());
+    translator->about = commandText(Command::About).replace(QStringLiteral("ImageViewer"), QStringLiteral("%1"));
+    translator->settings = commandText(Command::Settings);
+    QCoreApplication::removeTranslator(translator);
+    QCoreApplication::installTranslator(translator); // after applyLanguage()'s catalogs: asked first
+    // A new text makes Qt name the items again, through the translator.
+    m_aboutAction->setText(commandText(Command::About));
+    m_settingsAction->setText(commandText(Command::Settings));
 #endif
 }
 

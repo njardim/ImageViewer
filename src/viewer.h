@@ -57,6 +57,7 @@ struct Thumbnail {
 
 class QMenu;
 class QMenuBar;
+class QTranslator;
 class QVulkanInstance;
 class QWidget;
 
@@ -283,7 +284,8 @@ private:
     bool executeShortcut(QKeyEvent *e); // true when a command took the key
     void addCommand(QMenu *menu, Command command);
     void showContextMenu(const QPoint &globalPos);
-    void installApplicationMenu(); // macOS: Settings in the application menu (D-96)
+    void installApplicationMenu();   // macOS: About and Settings in the application menu (D-96)
+    void translateApplicationMenu(); // ... named in the language shown
     void showOpenDialog();
     void toggleTopOverlay();
     void toggleCheckerboard();
@@ -375,6 +377,8 @@ private:
     QThreadPool m_detailPool; // the zoom's detail, beside the decodes
     QFutureWatcher<Image> m_detailWatcher;
     std::unique_ptr<QMenuBar> m_menuBar; // macOS: the application's menu bar (installApplicationMenu())
+    std::unique_ptr<QTranslator> m_menuTranslator; // macOS: its About and Settings in our words
+    QAction *m_aboutAction = nullptr, *m_settingsAction = nullptr;
     QTimer m_detailTimer; // a view that has stopped changing gets its detail
     bool m_detailBusy = false;
     std::shared_ptr<std::atomic_bool> m_detailCancel;

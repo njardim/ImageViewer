@@ -159,7 +159,7 @@ jobs:
             8. Update `docs/PLAN.md` (§1, §2, §9, §13/§14 as applicable) to record the change.
             9. Stage your changes and commit with a DCO sign-off (`git commit -s -m "..."`) on branch `gemini/issue-${{ env.ISSUE_NUMBER }}`. Never rewrite its history (no rebase, amend, reset or force) and never switch to another branch.
             10. Do not push and do not open a pull request: you cannot, and the workflow does both from your commits once you finish, for the owner to review and merge. If the issue asks only for an analysis, or says not to open a pull request yet, make no commit at all.
-            11. Write your reply to the owner, in the issue's language, to the file `${{ runner.temp }}/gemini-reply.md` (also named by the environment variable `REPLY_FILE`): what you found or did, the tests you ran and their results, and anything left for the owner to decide. The workflow posts it on Issue #${{ env.ISSUE_NUMBER }} and in the pull request.
+            11. Write your reply to the owner, in the issue's language, to the file named by the environment variable `REPLY_FILE` (`$REPLY_FILE`), with `run_shell_command` and a quoted here-document (`cat > "$REPLY_FILE" <<'REPLY_END'`, the reply, then a line `REPLY_END`): the file lies outside the repository, where `write_file` refuses to write. The reply holds what you found or did, the tests you ran and their results, and anything left for the owner to decide. The workflow posts it on Issue #${{ env.ISSUE_NUMBER }} and in the pull request.
 
       - name: Hand over the commits and the reply
         if: always()
@@ -170,7 +170,13 @@ jobs:
           out="$RUNNER_TEMP/gemini-out"
           rm -rf "$out" # nothing the agent may have left there goes into the artifact
           mkdir -p "$out"
-          [ -f "$REPLY_FILE" ] && cp "$REPLY_FILE" "$out/reply.md"
+          # The agent's reply; when it wrote none (D-98), its last answer, which the action keeps
+          # from the CLI's output in gemini-artifacts/stdout.log (written after the agent ended).
+          if [ -s "$REPLY_FILE" ]; then
+            cp "$REPLY_FILE" "$out/reply.md"
+          elif ! jq -er '.response // empty' gemini-artifacts/stdout.log > "$out/reply.md" 2> /dev/null; then
+            rm -f "$out/reply.md"
+          fi
           # A bundle is data: the publish job fetches it and runs nothing from it.
           if [ -n "$BASE" ] && [ "$(git rev-parse HEAD)" != "$BASE" ]; then
             git bundle create "$out/commits.bundle" "$BASE..HEAD"

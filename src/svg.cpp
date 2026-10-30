@@ -176,17 +176,30 @@ QString svgRenderer()
 #endif
 }
 
+#ifdef IMAGEVIEWER_HAVE_SVG
+namespace {
+
+// The document the worker read last, kept for the next request without a file (D-95): the zoom's
+// details of one SVG come one after another, and each would read, make safe and parse it again.
+struct HeldDocument {
+    std::unique_ptr<iv_svg, void (*)(iv_svg *)> svg{nullptr, iv_svg_free};
+    double width = 0.0, height = 0.0;
+    qint64 xmlBytes = 0;
+};
+HeldDocument &heldDocument()
+{
+    static HeldDocument held;
+    return held;
+}
+
+} // namespace
+#endif
+
 int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
 {
 #ifdef IMAGEVIEWER_HAVE_SVG
     if (!svgAvailable()) {
         std::fprintf(stderr, "the SVG renderer implements another contract\n");
-        return kWorkerFailed;
-    }
-    bool hasText = false;
-    const QByteArray xml = safeSvg(file, 0, &hasText);
-    if (xml.isEmpty()) {
-        std::fprintf(stderr, "not well-formed XML, or more than %lld MiB\n", static_cast<long long>(kMaxSvgBytes >> 20));
         return kWorkerFailed;
     }
     // The renderer's own memory: a document can declare a filter region many times its canvas, and
@@ -201,26 +214,44 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
             limit = std::min(limit, budget);
         iv_svg_limit_memory(uint64_t(limit));
     };
-    limitMemory(xml.size());
     // Its bands at once on every core but two, left to the window, the GPU's driver and the system
     // (the owner, D-93).
     iv_svg_limit_threads(uint32_t(std::max(1, QThread::idealThreadCount() - 2)));
-    iv_svg *parsed = nullptr;
-    // The system's fonts only for a document with text: loading them is most of what a small
-    // document costs (D-90 (3)).
-    if (const int status = iv_svg_parse(reinterpret_cast<const uint8_t *>(xml.constData()), std::size_t(xml.size()),
-                                        hasText ? 1 : 0, &parsed);
-        status != IV_SVG_OK) {
-        std::fprintf(stderr, "the renderer could not read the document (%d)\n", status);
-        return kWorkerFailed;
+    HeldDocument &held = heldDocument();
+    if (file.isEmpty()) { // the document held: the viewer sends none when it knows the worker has it
+        if (!held.svg) {
+            std::fprintf(stderr, "no document held\n");
+            return kWorkerFailed;
+        }
+    } else {
+        held = HeldDocument(); // the new document, or none
+        bool hasText = false;
+        const QByteArray xml = safeSvg(file, 0, &hasText);
+        if (xml.isEmpty()) {
+            std::fprintf(stderr, "not well-formed XML, or more than %lld MiB\n", static_cast<long long>(kMaxSvgBytes >> 20));
+            return kWorkerFailed;
+        }
+        limitMemory(xml.size());
+        iv_svg *parsed = nullptr;
+        // The system's fonts only for a document with text: loading them is most of what a small
+        // document costs (D-90 (3)).
+        if (const int status = iv_svg_parse(reinterpret_cast<const uint8_t *>(xml.constData()), std::size_t(xml.size()),
+                                            hasText ? 1 : 0, &parsed);
+            status != IV_SVG_OK) {
+            std::fprintf(stderr, "the renderer could not read the document (%d)\n", status);
+            return kWorkerFailed;
+        }
+        HeldDocument document;
+        document.svg.reset(parsed);
+        document.xmlBytes = xml.size();
+        if (iv_svg_size(parsed, &document.width, &document.height) != IV_SVG_OK || !(document.width > 0.0)
+            || !(document.height > 0.0) || document.width > double(kMaxPixels) || document.height > double(kMaxPixels)) {
+            std::fprintf(stderr, "invalid document size\n");
+            return kWorkerFailed;
+        }
+        held = std::move(document);
     }
-    std::unique_ptr<iv_svg, void (*)(iv_svg *)> svg(parsed, iv_svg_free);
-    double documentWidth = 0.0, documentHeight = 0.0;
-    if (iv_svg_size(svg.get(), &documentWidth, &documentHeight) != IV_SVG_OK || !(documentWidth > 0.0)
-        || !(documentHeight > 0.0) || documentWidth > double(kMaxPixels) || documentHeight > double(kMaxPixels)) {
-        std::fprintf(stderr, "invalid document size\n");
-        return kWorkerFailed;
-    }
+    const double documentWidth = held.width, documentHeight = held.height;
     // Its own size; within the side asked for, or (a thumbnail) exactly that side; or an area of it
     // at a scale (the zoom's detail, D-93).
     const double longest = std::max(documentWidth, documentHeight);
@@ -235,11 +266,11 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
     const qint64 height = area ? qRound64(options.area.height()) : pixels(documentHeight * scale);
     if (width > kMaxPixels || height > kMaxPixels || width * height > maxPixels)
         return kWorkerOverLimit; // each side within 2^30 first: the product fits
-    limitMemory(std::max<qint64>(width * height * 4, xml.size()));
+    limitMemory(std::max<qint64>(width * height * 4, held.xmlBytes));
     std::unique_ptr<uint8_t[]> rgba(new (std::nothrow) uint8_t[std::size_t(width * height) * 4]);
     if (!rgba)
         return kWorkerOverLimit;
-    if (const int status = iv_svg_render(svg.get(), scale, area ? options.area.left() : 0.0, area ? options.area.top() : 0.0,
+    if (const int status = iv_svg_render(held.svg.get(), scale, area ? options.area.left() : 0.0, area ? options.area.top() : 0.0,
                                          uint32_t(width), uint32_t(height), rgba.get());
         status != IV_SVG_OK) {
         std::fprintf(stderr, "the renderer failed (%d)\n", status);

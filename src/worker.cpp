@@ -22,9 +22,11 @@
 #include "decoders.h"
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
+#include <QFileInfo>
 #include <QLocale>
 #include <QLoggingCategory>
 #include <QProcess>
@@ -72,7 +74,8 @@ constexpr int kHeaderWords = 10;
 // The SVG worker serves requests one after another on standard input (D-94): "IVSVGREQ", the pixel
 // limit (64 bits), the side and fill of DecodeOptions (32 bits each), its scale and its area's left
 // and top (IEEE doubles), the area's width and height, its view's width and height (32 bits each)
-// and the file's size (64 bits), all little endian; then the file. Each answer is the decoded image
+// and the file's size (64 bits), all little endian; then the file. A size of 0: the document of the
+// worker's last request, kept parsed (D-95). Each answer is the decoded image
 // (kMagic first) or "IVSVGNOT" and the reason's code (32 bits, the worker's exit codes), with the
 // reason on standard error.
 constexpr char kSvgRequest[8] = {'I', 'V', 'S', 'V', 'G', 'R', 'E', 'Q'};
@@ -272,8 +275,7 @@ int serveSvgRequests()
             || !(scale >= 0.0 && scale <= double(kMaxPixels)) || !(std::abs(left) <= double(kMaxPixels))
             || !(std::abs(top) <= double(kMaxPixels))
             || (area && (width == 0 || height == 0 || width > quint32(kMaxPixels) || height > quint32(kMaxPixels)))
-            || viewWidth > quint32(kMaxPixels) || viewHeight > quint32(kMaxPixels) || fileBytes == 0
-            || fileBytes > quint64(kMaxFileBytes)) {
+            || viewWidth > quint32(kMaxPixels) || viewHeight > quint32(kMaxPixels) || fileBytes > quint64(kMaxFileBytes)) {
             std::fprintf(stderr, "invalid SVG request\n");
             return kWorkerUsage;
         }
@@ -461,6 +463,9 @@ struct StopWorker {
 using WorkerProcess = std::unique_ptr<QProcess, StopWorker>;
 thread_local WorkerProcess t_svgWorker;
 thread_local QElapsedTimer t_svgWorkerIdle; // since its last answer (stopIdleSvgWorker())
+// The SHA-256 of the document the thread's SVG worker holds parsed, once it has answered with its
+// image: the next request for the same bytes, a zoom's detail, sends none (D-95).
+thread_local QByteArray t_svgWorkerDocument;
 constexpr qint64 kSvgWorkerIdleMs = 30000;
 
 // Windows shows its busy cursor for two seconds after it starts a program with a window, until that
@@ -485,6 +490,7 @@ WorkerProcess takeSvgWorker()
     worker->setProgram(QCoreApplication::applicationFilePath());
     worker->setArguments({QStringLiteral("--decode-worker"), QStringLiteral("SVG")});
     worker->start();
+    t_svgWorkerDocument.clear();
     qCInfo(lcWorker) << "SVG worker started";
     return worker;
 }
@@ -518,11 +524,17 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
         limit = std::max<qint64>(1, std::min(limit, budget / (nativeBytesPerPixel + kConversionBytesPerPixel)));
     WorkerProcess process;
     std::optional<QTemporaryDir> sandbox; // GraphicsMagick only
-    QByteArray request;
+    QByteArray request, document;
     if (svg) {
         // The SVG renderer reads nothing but the document and, for its text, the system's fonts
         // (the user's own ones and fontconfig's settings through HOME): the environment as it is.
         process = takeSvgWorker();
+        document = QCryptographicHash::hash(bytes, QCryptographicHash::Sha256);
+        if (document == t_svgWorkerDocument) {
+            bytes.clear(); // a size of 0: the one it holds
+            qCInfo(lcWorker) << "SVG document held by its worker:" << QFileInfo(path).fileName();
+        }
+        t_svgWorkerDocument.clear(); // until this request's image arrives
         request.resize(qsizetype(kSvgRequestBytes));
         request.fill('\0');
         std::memcpy(request.data(), kSvgRequest, sizeof kSvgRequest);
@@ -655,6 +667,8 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
         collect();
     }
     if (complete()) {
+        if (!notDecoded)
+            t_svgWorkerDocument = document;
         keepSvgWorker(std::move(process)); // healthy: it serves the thread's next SVG
     } else if (worker.state() != QProcess::NotRunning) {
         worker.kill();

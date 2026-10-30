@@ -292,6 +292,26 @@ if "$exe" --formats 2>/dev/null | grep -q "^ *svg | .* | yes | "; then
         echo "FAIL SVG worker: exit $code with no request (expected 0), $refused for a bad one (expected 2)"
         failures=$((failures + 1))
     fi
+    # A request without a file is for the document the worker parsed last (D-95): the zoom's
+    # details of one SVG. A worker that has parsed none says so.
+    if python3 - "$exe" <<'PY'
+import struct, subprocess, sys
+svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="40" height="30"><rect width="40" height="30" fill="red"/></svg>'
+def request(file):
+    return b'IVSVGREQ' + struct.pack('<QIIdddIIIIQ', 10**6, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0, 0, len(file)) + file
+def answers(*files):
+    return subprocess.run([sys.argv[1], '--decode-worker', 'SVG'], input=b''.join(request(f) for f in files),
+                          capture_output=True, timeout=60).stdout
+held = answers(svg, b'')
+fresh = answers(b'')
+sys.exit(0 if held.count(b'IVWORKER') == 2 and b'IVSVGNOT' not in held and fresh.startswith(b'IVSVGNOT') else 1)
+PY
+    then
+        echo "ok   SVG worker: a request without a file draws the document it holds, refused when it holds none"
+    else
+        echo "FAIL SVG worker: the held document (D-95)"
+        failures=$((failures + 1))
+    fi
     slow="$(mktemp -d)/slow.svg"
     # Eight different noises over 64 million pixels: none computed twice (D-93 reuses equal ones),
     # past 30 s on any runner.

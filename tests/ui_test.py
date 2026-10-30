@@ -946,6 +946,7 @@ try:
                 f.write('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">'
                         '<rect width="200" height="200" fill="#fff"/>'
                         '<path d="M20 100.5H100" stroke="#000" stroke-width="0.25"/></svg>')
+            before = len(log_text())
             app = subprocess.Popen([exe, line], env=env, stdout=log, stderr=log)
             wait_until("the SVG shown", lambda: grab() is not None and "line.svg" in viewer()[0])
             x, y, w, h = window_geometry()
@@ -987,6 +988,9 @@ try:
                     grey = [int(v) for v in across if v < 250]
                     return 1 <= len(grey) <= 4 and min(grey) == 0
                 wait_until(f"... and sharp on the screen's pixel grid", sharp)
+            # The details after the first draw the document their worker holds, sent once (D-95).
+            if 'SVG document held by its worker: "line.svg"' not in log_text()[before:]:
+                fail("each detail sent and parsed the SVG again")
             xdotool("key", "1")
             wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
             xdotool("key", "q")

@@ -1,5 +1,5 @@
-// ViewerWindow, part 1: the window, rendering, view state (zoom, pan, rotation, exposure), the
-// side zones and the pointer. See viewer.h for the other parts.
+// ViewerWindow, part 1: the window, rendering, view state (zoom, pan, rotation, exposure). See
+// viewer.h for the other parts.
 #include "viewer.h"
 
 #include <QElapsedTimer>
@@ -372,27 +372,35 @@ double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
     if (image.isEmpty() || view.isEmpty())
         return 1.0;
     const double width = view.width() / image.width(), height = view.height() / image.height();
+    // 100 % and "Enlarge small images" are the file's own size, not the texture's: an SVG is drawn no
+    // larger than the window (D-94), and an image too large for the GPU is reduced.
+    const double natural = naturalZoom();
     double zoom = 1.0;
     switch (mode) {
     case FitMode::Window: zoom = std::min(width, height); break;
     case FitMode::Width: zoom = width; break;
     case FitMode::Height: zoom = height; break;
     case FitMode::Fill: zoom = std::max(width, height); break;
-    case FitMode::Actual: return 1.0;
+    case FitMode::Actual: return natural;
     }
     if (!m_settings.enlargeSmallImages)
-        zoom = std::min(zoom, 1.0);
-    return std::clamp(zoom, kMinZoom, kMaxZoom);
+        zoom = std::min(zoom, natural);
+    return std::clamp(zoom, kMinZoom * natural, kMaxZoom * natural);
 }
 
 double ViewerWindow::currentZoom() const
 {
-    return m_fit ? fitZoom(*m_fit) : m_zoom;
+    return m_fit ? fitZoom(*m_fit) : m_zoom * naturalZoom();
+}
+
+double ViewerWindow::naturalZoom() const
+{
+    return m_image.sourceWidth > 0 && m_image.width > 0 ? double(m_image.sourceWidth) / m_image.width : 1.0;
 }
 
 double ViewerWindow::shownZoom() const
 {
-    return m_image.sourceWidth > 0 ? currentZoom() * m_image.width / m_image.sourceWidth : currentZoom();
+    return currentZoom() / naturalZoom(); // exactly 1 at 100 %
 }
 
 QRectF ViewerWindow::imageRect() const
@@ -407,14 +415,16 @@ QRectF ViewerWindow::imageRect() const
 
 void ViewerWindow::zoomAt(double factor, const QPointF &devicePos)
 {
-    const double from = currentZoom();
-    const double to = std::clamp(from * factor, kMinZoom, kMaxZoom);
+    const double from = currentZoom(), natural = naturalZoom();
+    const double to = std::clamp(from * factor, kMinZoom * natural, kMaxZoom * natural);
     if (to == from || m_image.width == 0)
         return;
     const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0 + m_pan;
     const QPointF newCentre = devicePos - (devicePos - centre) * (to / from);
     m_pan = newCentre - QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
-    m_zoom = std::abs(to - 1.0) < 1e-3 ? 1.0 : to; // snap to exact 100 %
+    // Kept as the file's zoom, so that a locked zoom (Z) shows the next image at the same per cent.
+    const double shown = to / natural;
+    m_zoom = std::abs(shown - 1.0) < 1e-3 ? 1.0 : shown; // snap to exact 100 %
     m_fit.reset();
     clampPan();
     updateOverlay();
@@ -429,7 +439,7 @@ void ViewerWindow::chooseFit(FitMode mode)
         savePreference([mode](Settings &s) { s.fitMode = mode; });
     if (mode == FitMode::Actual && m_image.width > 0) {
         // 100 % about the window's centre, which keeps the point under it.
-        m_pan /= currentZoom();
+        m_pan *= fitZoom(FitMode::Actual) / currentZoom();
         m_fit = mode;
         clampPan();
         updateOverlay();
@@ -475,7 +485,7 @@ void ViewerWindow::matchWindowToImage()
     const QSizeF room = QSizeF(available.width() - frame.left() - frame.right(),
                                available.height() - frame.top() - frame.bottom())
                         * (m_settings.windowFitPercent / 100.0);
-    QSizeF size = displayedImageSize() / devicePixelRatio();
+    QSizeF size = displayedImageSize() * naturalZoom() / devicePixelRatio();
     size *= std::min({1.0, room.width() / size.width(), room.height() / size.height()});
     // Rounded up: at a fractional device pixel ratio the window must hold every image pixel.
     const QSize logical(int(std::ceil(size.width() - 1e-6)), int(std::ceil(size.height() - 1e-6)));
@@ -548,8 +558,8 @@ void ViewerWindow::render()
         frame.nearest = !m_image.vector && (zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6);
         // The detail while it is not smaller on screen than drawn (it has no mipmaps): zooming in,
         // it is enlarged until the next one arrives; zooming out, the image takes over.
-        frame.detail = !m_detail.path.isEmpty() && m_detail.path == m_image.path && m_image.sourceWidth > 0
-                       && m_detail.scale <= zoom * m_image.width / m_image.sourceWidth * 1.0001;
+        frame.detail = !m_detail.path.isEmpty() && m_detail.path == m_image.path
+                       && m_detail.scale <= shownZoom() * 1.0001;
         if (frame.checkerboard) { // cells of 8 logical pixels, whatever the zoom
             const double cell = 8.0 * devicePixelRatio();
             frame.checkerCells[0] = float(m_image.width * zoom / cell);
@@ -617,58 +627,6 @@ void ViewerWindow::recoverFromDeviceLoss()
         scheduleWork();
     }
     requestUpdate();
-}
-
-double ViewerWindow::sideZoneWidth() const
-{
-    if (!m_settings.sideZones || m_files.size() < 2)
-        return 0.0;
-    // Narrow windows keep a middle for panning and double-clicks.
-    return std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
-}
-
-bool ViewerWindow::inSideStrip(const QPointF &position) const
-{
-    const double zone = sideZoneWidth();
-    return zone > 0.0 && position.y() >= 0 && position.y() < height()
-           && ((position.x() >= 0 && position.x() < zone) || (position.x() < width() && position.x() >= width() - zone));
-}
-
-ViewerWindow::Zone ViewerWindow::zoneAt(const QPointF &position) const
-{
-    if (!inSideStrip(position))
-        return Zone::None;
-    if (position.x() < sideZoneWidth())
-        return hasNeighbour(-1) ? Zone::Previous : Zone::None;
-    return hasNeighbour(+1) ? Zone::Next : Zone::None;
-}
-
-void ViewerWindow::setHoverZone(Zone zone)
-{
-    if (zone == m_hoverZone)
-        return;
-    m_hoverZone = zone;
-    updateCursor();
-    updateNavigationButtons();
-}
-
-void ViewerWindow::pointerActive()
-{
-    if (m_pointerHidden) {
-        m_pointerHidden = false;
-        updateCursor();
-    }
-    if (m_settings.pointerHideMs > 0)
-        m_pointerTimer.start(m_settings.pointerHideMs);
-    else
-        m_pointerTimer.stop();
-    showSlideshowToolbar();
-}
-
-void ViewerWindow::updateCursor()
-{
-    const bool onButton = m_hoverZone != Zone::None || m_toolbarHover != ToolbarButton::None;
-    setCursor(m_pointerHidden ? Qt::BlankCursor : onButton ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }
 
 void ViewerWindow::savePreference(const std::function<void(Settings &)> &change)

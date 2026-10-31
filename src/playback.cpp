@@ -68,7 +68,9 @@ void ViewerWindow::requestFrame(int index)
 void ViewerWindow::frameDecoded()
 {
     m_frameBusy = false;
-    const FrameResult result = m_frameWatcher.result();
+    // Moved out: result() would copy it, and the future would keep the frame's pixels alive until
+    // the next frame of an animation, which may never come.
+    const FrameResult result = m_frameWatcher.future().takeResult();
     if (result.generation != m_frameGeneration || result.requested != m_wantedFrame) {
         requestFrame(m_wantedFrame); // another animation, or another frame wanted meanwhile
         return;

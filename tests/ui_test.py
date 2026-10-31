@@ -67,6 +67,9 @@ DEADLINE_S = 60
 POLL_S = 0.3
 
 exe = os.path.abspath(sys.argv[1])
+svg_renderer = re.search(r"^ *svg \| .* \| yes \| ", subprocess.run(
+    [exe, "--formats"], env=dict(os.environ, QT_QPA_PLATFORM="offscreen"), capture_output=True, text=True,
+    encoding="utf-8", errors="replace", timeout=120).stdout, re.MULTILINE) is not None
 rhi = sys.argv[2] if len(sys.argv) > 2 else "vulkan"
 work = os.environ.get("UI_TEST_DIR") or tempfile.mkdtemp(prefix="imageviewer-ui-")
 home = os.path.join(work, "home")
@@ -935,116 +938,138 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
-            # 11. The zoom's detail (D-93): an SVG enlarged on screen is drawn again at the zoom
-            # shown, in every orientation. A line a quarter of a pixel wide, on the left half of the
-            # image, is a light grey at 100 %; at 931 % the enlarged image keeps that grey, and the
-            # detail draws it black and 2 px wide, where the view turns and mirrors it.
-            line_dir = os.path.join(work, "line")
-            os.makedirs(line_dir)
-            line = os.path.join(line_dir, "line.svg")
-            with open(line, "w") as f:
-                f.write('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">'
-                        '<rect width="200" height="200" fill="#fff"/>'
-                        '<path d="M20 100.5H100" stroke="#000" stroke-width="0.25"/></svg>')
-            before = len(log_text())
-            app = subprocess.Popen([exe, line], env=env, stdout=log, stderr=log)
-            wait_until("the SVG shown", lambda: grab() is not None and "line.svg" in viewer()[0])
-            x, y, w, h = window_geometry()
-            cx, cy = x + w // 2, y + h // 2
+            # 11 and 12 need the SVG renderer (scripts/build-svg.sh): a build without it skips them,
+            # CI ($CI set) fails instead.
+            if not svg_renderer:
+                if os.environ.get("CI"):
+                    fail("no SVG renderer in this build")
+                print("skip 11 and 12: no SVG renderer in this build (scripts/build-svg.sh)")
+            else:
+                # 11. The zoom's detail (D-93): an SVG enlarged on screen is drawn again at the zoom
+                # shown, in every orientation. A line a quarter of a pixel wide, on the left half of the
+                # image, is a light grey at 100 %; at 931 % the enlarged image keeps that grey, and the
+                # detail draws it black and 2 px wide, where the view turns and mirrors it.
+                line_dir = os.path.join(work, "line")
+                os.makedirs(line_dir)
+                line = os.path.join(line_dir, "line.svg")
+                with open(line, "w") as f:
+                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">'
+                            '<rect width="200" height="200" fill="#fff"/>'
+                            '<path d="M20 100.5H100" stroke="#000" stroke-width="0.25"/></svg>')
+                before = len(log_text())
+                app = subprocess.Popen([exe, line], env=env, stdout=log, stderr=log)
+                wait_until("the SVG shown", lambda: grab() is not None and "line.svg" in viewer()[0])
+                x, y, w, h = window_geometry()
+                cx, cy = x + w // 2, y + h // 2
 
-            def sides():
-                """The darkest pixel left, right, above and below the window's centre."""
-                shot = grab()
-                if shot is None:
-                    return None
-                s = shot.min(axis=2).astype(int)
-                return (s[cy - 8:cy + 9, cx - 80:cx - 10].min(), s[cy - 8:cy + 9, cx + 10:cx + 80].min(),
-                        s[cy - 80:cy - 10, cx - 8:cx + 9].min(), s[cy + 10:cy + 80, cx - 8:cx + 9].min())
-            xdotool("key", "1")
-            wait_until("at 100 % the line is a light grey", lambda: (s := sides()) and 150 < s[0] < 230)
-            for _ in range(10):
-                xdotool("key", "plus")
-            wait_until("at 931 % the detail draws the line black, on the left", lambda: sides() == (0, 255, 255, 255))
-            rows = (grab().min(axis=2)[cy - 10:cy + 11, cx - 40] < 128).sum()
-            if not 2 <= rows <= 3:
-                fail(f"the line is {rows} px wide at 931 %, not 2.3 (see {shot_path})")
-            for keys, want, where in ((("r",), (255, 255, 0, 255), "turned clockwise, above"),
-                                      (("shift+h",), (255, 255, 255, 0), "flipped, below"),
-                                      (("shift+r",), (255, 0, 255, 255), "turned back, on the right")):
-                xdotool("key", *keys)
-                wait_until(f"the detail follows the view: {where}", lambda: sides() == want)
-
-                # On the screen's pixel grid whatever the turn (D-94): across the line (2.3 px wide), at
-                # most four pixels short of white, one of them black; half a pixel off, the
-                # interpolation spreads it over five, none black. The detail drawn before the turn,
-                # turned by the shader, shows until the one drawn for the new view arrives.
-                def sharp(where=where):
+                def sides():
+                    """The darkest pixel left, right, above and below the window's centre."""
                     shot = grab()
                     if shot is None:
-                        return False
-                    shot = shot.min(axis=2).astype(int)
-                    across = shot[cy - 40, cx - 12:cx + 13] if where.endswith("above") else (
-                        shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
-                    grey = [int(v) for v in across if v < 250]
-                    return 1 <= len(grey) <= 4 and min(grey) == 0
-                wait_until(f"... and sharp on the screen's pixel grid", sharp)
-            # The details after the first draw the document their worker holds, sent once (D-95).
-            if 'SVG document held by its worker: "line.svg"' not in log_text()[before:]:
-                fail("each detail sent and parsed the SVG again")
-            xdotool("key", "1")
-            wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
-            xdotool("key", "q")
-            app.wait(15)
+                        return None
+                    s = shot.min(axis=2).astype(int)
+                    return (s[cy - 8:cy + 9, cx - 80:cx - 10].min(), s[cy - 8:cy + 9, cx + 10:cx + 80].min(),
+                            s[cy - 80:cy - 10, cx - 8:cx + 9].min(), s[cy + 10:cy + 80, cx - 8:cx + 9].min())
+                xdotool("key", "1")
+                wait_until("at 100 % the line is a light grey", lambda: (s := sides()) and 150 < s[0] < 230)
+                for _ in range(10):
+                    xdotool("key", "plus")
+                wait_until("at 931 % the detail draws the line black, on the left", lambda: sides() == (0, 255, 255, 255))
+                rows = (grab().min(axis=2)[cy - 10:cy + 11, cx - 40] < 128).sum()
+                if not 2 <= rows <= 3:
+                    fail(f"the line is {rows} px wide at 931 %, not 2.3 (see {shot_path})")
+                for keys, want, where in ((("r",), (255, 255, 0, 255), "turned clockwise, above"),
+                                          (("shift+h",), (255, 255, 255, 0), "flipped, below"),
+                                          (("shift+r",), (255, 0, 255, 255), "turned back, on the right")):
+                    xdotool("key", *keys)
+                    wait_until(f"the detail follows the view: {where}", lambda: sides() == want)
 
-            # 12. A folder of SVGs (D-94): each decoding thread starts one SVG worker and keeps it,
-            # rather than one process per document; the interface answers throughout (the latency
-            # log: the event loop more than 100 ms late), the owner's artwork with 17 filters too.
-            # The window opens on a PNG of the folder, larger than the window (drawn interpolated, as
-            # an SVG always is), and the measure starts once it is up: its first frames build the
-            # renderer's pipelines on the GUI thread, and llvmpipe compiles each sampling it meets
-            # (half a second to two, a PNG's as an SVG's), which is not reading SVGs.
-            svg_dir = os.path.join(work, "svgs")
-            os.makedirs(svg_dir)
-            for i in range(6):
-                with open(os.path.join(svg_dir, f"s{i}.svg"), "w") as f:
-                    f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">'
-                            f'<rect width="800" height="600" fill="#{40 * i:02x}6090"/>'
-                            f'<circle cx="400" cy="300" r="{60 + 30 * i}" fill="#fc0"/></svg>')
-            shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "IV_claude_v5_mix_v1.svg"),
-                        os.path.join(svg_dir, "s6.svg"))
-            Image.new("RGB", (2400, 1800), (40, 90, 150)).save(os.path.join(svg_dir, "a.png"))
-            before = len(log_text())
-            app = subprocess.Popen([exe, os.path.join(svg_dir, "a.png")], env=env, stdout=log, stderr=log)
-            wait_until("the folder's PNG shown", lambda: "decoded for display: a.png" in log_text()[before:])
-            time.sleep(3)  # the window's first frames (its pipelines) are done
-            settled = len(log_text())
-            for name in ("s0", "s1", "s2", "s3", "s4", "s5", "s6"):
-                xdotool("key", "Right")
-                wait_until(f"{name}.svg shown", lambda name=name: re.search(rf"(decoded for display|shown from the cache): {name}\.svg",
-                                                                          log_text()[settled:]) is not None)
-            time.sleep(1)
-            xdotool("key", "q")
-            app.wait(30)
-            session = log_text()[before:]
-            starts = session.count("SVG worker started")
-            if not 1 <= starts <= 4:  # the decode thread, the detail's, the gallery's two
-                fail(f"{starts} SVG workers started for 7 documents and their thumbnails, at most 4 expected")
-            print(f"ok   7 SVGs and their thumbnails: {starts} SVG workers started, one per decoding thread")
-            # A late tick is the GPU's when render() named a frame as long just before it: llvmpipe
-            # (OpenGL on the runners) compiles shader variants and makes mipmaps on the GUI thread.
-            # Anything else that held the event loop up is ours, and fails.
-            ours, frames, frame = [], [], 0
-            for kind, ms in re.findall(r"(a frame took|the event loop answered) (\d+) ms", log_text()[settled:]):
-                if kind == "a frame took":
-                    frame = max(frame, int(ms))
-                    frames.append(int(ms))
-                    continue
-                if int(ms) > 250 and frame < int(ms) - 60:
-                    ours.append(int(ms))
-                frame = 0
-            if ours:
-                fail(f"the interface did not answer for {max(ours)} ms while SVGs were read, outside drawing ({ours})")
-            print(f"ok   the interface answered throughout: no stall but frames drawn ({frames or 'none'} ms)")
+                    # On the screen's pixel grid whatever the turn (D-94): across the line (2.3 px wide), at
+                    # most four pixels short of white, one of them black; half a pixel off, the
+                    # interpolation spreads it over five, none black. The detail drawn before the turn,
+                    # turned by the shader, shows until the one drawn for the new view arrives.
+                    def sharp(where=where):
+                        shot = grab()
+                        if shot is None:
+                            return False
+                        shot = shot.min(axis=2).astype(int)
+                        across = shot[cy - 40, cx - 12:cx + 13] if where.endswith("above") else (
+                            shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
+                        grey = [int(v) for v in across if v < 250]
+                        return 1 <= len(grey) <= 4 and min(grey) == 0
+                    wait_until(f"... and sharp on the screen's pixel grid", sharp)
+                # The details after the first draw the document their worker holds, sent once (D-95).
+                if 'SVG document held by its worker: "line.svg"' not in log_text()[before:]:
+                    fail("each detail sent and parsed the SVG again")
+                xdotool("key", "1")
+                wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
+                xdotool("key", "q")
+                app.wait(15)
+                # 100 % is the document's own size (D-99): an SVG larger than the window, drawn at the
+                # window's size (D-94), gets its detail at 1 (it was shown at the window's size, 27 %).
+                large = os.path.join(line_dir, "large.svg")
+                with open(large, "w") as f:
+                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="4000" height="3000">'
+                            '<rect width="4000" height="3000" fill="#3a6"/><circle cx="2000" cy="1500" r="900" fill="#fc0"/></svg>')
+                before = len(log_text())
+                app = subprocess.Popen([exe, large], env=env, stdout=log, stderr=log)
+                wait_until("the large SVG shown", lambda: "decoded for display: large.svg" in log_text()[before:])
+                focus_viewer()
+                xdotool("key", "1")
+                wait_until("at 100 % the large SVG's detail is drawn one document pixel per device pixel",
+                           lambda: re.search(r"detail drawn: large\.svg .* at 1 in ", log_text()[before:]))
+                xdotool("key", "q")
+                app.wait(15)
+
+                # 12. A folder of SVGs (D-94): each decoding thread starts one SVG worker and keeps it,
+                # rather than one process per document; the interface answers throughout (the latency
+                # log: the event loop more than 100 ms late), the owner's artwork with 17 filters too.
+                # The window opens on a PNG of the folder, larger than the window (drawn interpolated, as
+                # an SVG always is), and the measure starts once it is up: its first frames build the
+                # renderer's pipelines on the GUI thread, and llvmpipe compiles each sampling it meets
+                # (half a second to two, a PNG's as an SVG's), which is not reading SVGs.
+                svg_dir = os.path.join(work, "svgs")
+                os.makedirs(svg_dir)
+                for i in range(6):
+                    with open(os.path.join(svg_dir, f"s{i}.svg"), "w") as f:
+                        f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">'
+                                f'<rect width="800" height="600" fill="#{40 * i:02x}6090"/>'
+                                f'<circle cx="400" cy="300" r="{60 + 30 * i}" fill="#fc0"/></svg>')
+                shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "IV_claude_v5_mix_v1.svg"),
+                            os.path.join(svg_dir, "s6.svg"))
+                Image.new("RGB", (2400, 1800), (40, 90, 150)).save(os.path.join(svg_dir, "a.png"))
+                before = len(log_text())
+                app = subprocess.Popen([exe, os.path.join(svg_dir, "a.png")], env=env, stdout=log, stderr=log)
+                wait_until("the folder's PNG shown", lambda: "decoded for display: a.png" in log_text()[before:])
+                time.sleep(3)  # the window's first frames (its pipelines) are done
+                settled = len(log_text())
+                for name in ("s0", "s1", "s2", "s3", "s4", "s5", "s6"):
+                    xdotool("key", "Right")
+                    wait_until(f"{name}.svg shown", lambda name=name: re.search(rf"(decoded for display|shown from the cache): {name}\.svg",
+                                                                              log_text()[settled:]) is not None)
+                time.sleep(1)
+                xdotool("key", "q")
+                app.wait(30)
+                session = log_text()[before:]
+                starts = session.count("SVG worker started")
+                if not 1 <= starts <= 4:  # the decode thread, the detail's, the gallery's two
+                    fail(f"{starts} SVG workers started for 7 documents and their thumbnails, at most 4 expected")
+                print(f"ok   7 SVGs and their thumbnails: {starts} SVG workers started, one per decoding thread")
+                # A late tick is the GPU's when render() named a frame as long just before it: llvmpipe
+                # (OpenGL on the runners) compiles shader variants and makes mipmaps on the GUI thread.
+                # Anything else that held the event loop up is ours, and fails.
+                ours, frames, frame = [], [], 0
+                for kind, ms in re.findall(r"(a frame took|the event loop answered) (\d+) ms", log_text()[settled:]):
+                    if kind == "a frame took":
+                        frame = max(frame, int(ms))
+                        frames.append(int(ms))
+                        continue
+                    if int(ms) > 250 and frame < int(ms) - 60:
+                        ours.append(int(ms))
+                    frame = 0
+                if ours:
+                    fail(f"the interface did not answer for {max(ours)} ms while SVGs were read, outside drawing ({ours})")
+                print(f"ok   the interface answered throughout: no stall but frames drawn ({frames or 'none'} ms)")
         finally:
             if app.poll() is None:
                 app.terminate()

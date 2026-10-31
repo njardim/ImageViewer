@@ -480,6 +480,9 @@ void SettingsDialog::changeEvent(QEvent *event)
         m_rebuildQueued = true;
         QMetaObject::invokeMethod(this, &SettingsDialog::rebuildUi, Qt::QueuedConnection);
     }
+    // Another font size applied (D-85): measured once the widget classes' fonts have changed too.
+    if (event->type() == QEvent::FontChange && m_tabs)
+        QMetaObject::invokeMethod(this, &SettingsDialog::fitToFont, Qt::QueuedConnection);
     QDialog::changeEvent(event);
 }
 
@@ -504,6 +507,19 @@ void SettingsDialog::rebuildUi()
     m_tabs->setCurrentIndex(tab);
     m_tabs->setFocus(); // the focused widget was replaced: keep the keyboard in the dialog
     updateApplyButton();
+}
+
+void SettingsDialog::fitOverlayFields()
+{
+    // Every field visible at once: the list is short, and scrolling would hide the order.
+    m_overlayFields->setMinimumHeight(m_overlayFields->sizeHintForRow(0) * m_overlayFields->count()
+                                      + 2 * m_overlayFields->frameWidth() + 2);
+}
+
+void SettingsDialog::fitToFont()
+{
+    fitOverlayFields();
+    resize(size().expandedTo(sizeHint() + QSize(qRound(100 * fontScale()), 0))); // as when opened
 }
 
 void SettingsDialog::setValues(const Settings &settings)
@@ -540,9 +556,7 @@ void SettingsDialog::setValues(const Settings &settings)
         item->setFlags((item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled) & ~Qt::ItemIsDropEnabled);
         item->setCheckState(settings.overlayFields.contains(field) ? Qt::Checked : Qt::Unchecked);
     }
-    // Every field visible at once: the list is short, and scrolling would hide the order.
-    m_overlayFields->setMinimumHeight(m_overlayFields->sizeHintForRow(0) * m_overlayFields->count()
-                                      + 2 * m_overlayFields->frameWidth() + 2);
+    fitOverlayFields();
     m_overlayBackground->setValue(settings.overlayBackgroundOpacity);
     m_overlayText->setValue(settings.overlayTextOpacity);
     m_overlayOutline->setChecked(settings.overlayOutline);

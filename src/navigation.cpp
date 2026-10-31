@@ -467,7 +467,7 @@ std::optional<ViewerWindow::Detail> ViewerWindow::wantedDetail() const
         u0 = std::min(u0, u), u1 = std::max(u1, u), v0 = std::min(v0, v), v1 = std::max(v1, v);
     }
     // The document at the zoom shown: one of its pixels per device pixel.
-    const double scale = zoom * m_image.width / m_image.sourceWidth;
+    const double scale = shownZoom();
     const double width = m_image.sourceWidth * scale, height = m_image.sourceHeight * scale;
     // On the screen's pixel grid, so that each of its pixels lands on one: the image's left and top
     // are whole device pixels (imageRect()), so an axis the view runs backwards has its pixels from

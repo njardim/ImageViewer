@@ -214,6 +214,8 @@ private:
     void apply();
     void updateApplyButton();
     void setValues(const Settings &settings);
+    void fitOverlayFields();
+    void fitToFont(); // after another font size: the overlay's fields all shown, room for the labels
     // A row of colour swatches and "Custom…" (the window's background, the gallery's highlight).
     struct ColorChoice {
         QButtonGroup *group = nullptr; // owned by the dialog, not by a widget

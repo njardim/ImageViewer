@@ -1,6 +1,6 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
 // swapchain (decision D-09). ViewerWindow is implemented in eight files:
-//   viewer.cpp      display, view state, side zones and the pointer;
+//   viewer.cpp      display and view state;
 //   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
 //   overlays.cpp    what is drawn over the image: information panel, top overlay (D-34),
 //                   navigation buttons, the slideshow's toolbar;
@@ -8,7 +8,7 @@
 //   files.cpp       file operations: show, copy, rename, trash and undo, delete (D-41);
 //   playback.cpp    animation playback and the slideshow, its toolbar's behaviour (E6, E11, D-41);
 //   gallery.cpp     the gallery (D-60);
-//   input.cpp       the keyboard, the mouse and the wheel.
+//   input.cpp       the keyboard, the mouse and the wheel, the side zones and the pointer.
 #pragma once
 
 #include "cache.h"
@@ -125,8 +125,9 @@ private:
     QSizeF deviceSize() const;
     QSizeF displayedImageSize() const; // after view rotation
     double fitZoom(FitMode mode, QSizeF view = {}) const; // in `view` (default: the window's device size)
-    double currentZoom() const;
-    double shownZoom() const; // of the file's own pixels: a texture reduced for the GPU has fewer
+    double currentZoom() const; // of the texture: device pixels per texel
+    double naturalZoom() const; // the texture's zoom at 100 %: the file's own pixels one per device pixel
+    double shownZoom() const;   // of the file's own pixels: a texture drawn smaller has fewer (D-94)
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
     void chooseFit(FitMode mode); // a command: the mode stays for the next images (D-65)
@@ -138,12 +139,13 @@ private:
     Renderer::Frame imageFrame() const; // colour-related fields of the current frame
     int textureLimit(const QString &path) const; // longest side the GPU texture may have
     void recoverFromDeviceLoss();
+    QRectF zoneButtonRect(Zone zone) const;      // device pixels (overlays.cpp)
+    // input.cpp
     double sideZoneWidth() const;                // logical pixels; 0 without side zones
     bool inSideStrip(const QPointF &position) const; // over a side zone, even one with nothing to do
     Zone zoneAt(const QPointF &position) const;  // logical pixels
-    QRectF zoneButtonRect(Zone zone) const;      // device pixels
     void setHoverZone(Zone zone);
-    void cancelPress();   // input.cpp: a press whose release goes elsewhere clicks nothing
+    void cancelPress();   // a press whose release goes elsewhere clicks nothing
     void pointerActive(); // shows the pointer again and restarts its hiding timer
     void updateCursor();
 
@@ -414,7 +416,7 @@ private:
 
     // The zoom follows the window in this mode (D-51); without one, it is m_zoom.
     std::optional<FitMode> m_fit = m_settings.fitMode; // the first image follows the setting, locked or not
-    double m_zoom = 1.0; // device pixels per image pixel when not fitting
+    double m_zoom = 1.0; // device pixels per pixel of the file (shownZoom()) when not fitting
     bool m_windowMatched = false; // the window took the first image's size (WindowFit::FirstImage)
     QPointF m_pan;       // offset of the image centre from the window centre, device pixels
     QSizeF m_laidOutIn;  // the device size m_pan was last laid out in (resizeEvent)

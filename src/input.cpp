@@ -1,6 +1,7 @@
 // ViewerWindow, part 8: the keyboard, the mouse and the wheel (D-08: split from viewer.cpp).
 // Keys run commands (D-30); the mouse pans, clicks the side zones (D-31) and the gallery (D-60);
-// the wheel zooms, or scrolls the gallery under the pointer.
+// the wheel zooms, or scrolls the gallery under the pointer. The side zones and the pointer's
+// cursor and hiding live here too.
 #include "viewer.h"
 
 #include <QGuiApplication>
@@ -10,6 +11,7 @@
 #include <QStyleHints>
 #include <QWheelEvent>
 
+#include <algorithm>
 #include <cmath>
 #include <utility>
 
@@ -175,4 +177,56 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     const double steps = e->angleDelta().y() / 120.0;
     if (steps != 0.0)
         zoomAt(std::pow(kZoomStep, steps), e->position() * devicePixelRatio());
+}
+
+double ViewerWindow::sideZoneWidth() const
+{
+    if (!m_settings.sideZones || m_files.size() < 2)
+        return 0.0;
+    // Narrow windows keep a middle for panning and double-clicks.
+    return std::min<double>(m_settings.sideZoneWidth, width() / 4.0);
+}
+
+bool ViewerWindow::inSideStrip(const QPointF &position) const
+{
+    const double zone = sideZoneWidth();
+    return zone > 0.0 && position.y() >= 0 && position.y() < height()
+           && ((position.x() >= 0 && position.x() < zone) || (position.x() < width() && position.x() >= width() - zone));
+}
+
+ViewerWindow::Zone ViewerWindow::zoneAt(const QPointF &position) const
+{
+    if (!inSideStrip(position))
+        return Zone::None;
+    if (position.x() < sideZoneWidth())
+        return hasNeighbour(-1) ? Zone::Previous : Zone::None;
+    return hasNeighbour(+1) ? Zone::Next : Zone::None;
+}
+
+void ViewerWindow::setHoverZone(Zone zone)
+{
+    if (zone == m_hoverZone)
+        return;
+    m_hoverZone = zone;
+    updateCursor();
+    updateNavigationButtons();
+}
+
+void ViewerWindow::pointerActive()
+{
+    if (m_pointerHidden) {
+        m_pointerHidden = false;
+        updateCursor();
+    }
+    if (m_settings.pointerHideMs > 0)
+        m_pointerTimer.start(m_settings.pointerHideMs);
+    else
+        m_pointerTimer.stop();
+    showSlideshowToolbar();
+}
+
+void ViewerWindow::updateCursor()
+{
+    const bool onButton = m_hoverZone != Zone::None || m_toolbarHover != ToolbarButton::None;
+    setCursor(m_pointerHidden ? Qt::BlankCursor : onButton ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }

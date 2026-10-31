@@ -372,8 +372,8 @@ double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
     if (image.isEmpty() || view.isEmpty())
         return 1.0;
     const double width = view.width() / image.width(), height = view.height() / image.height();
-    // 100 % and "Enlarge small images" are the file's own size, not the texture's: an SVG is drawn no
-    // larger than the window (D-94), and an image too large for the GPU is reduced.
+    // 100 % and "Enlarge small images" are an SVG's own size, not its texture's, which is drawn no
+    // larger than the window (D-94).
     const double natural = naturalZoom();
     double zoom = 1.0;
     switch (mode) {
@@ -393,14 +393,24 @@ double ViewerWindow::currentZoom() const
     return m_fit ? fitZoom(*m_fit) : m_zoom * naturalZoom();
 }
 
+double ViewerWindow::sourceScale() const
+{
+    // An SVG's, exactly as drawn: its sides rounded up to whole texels give the scale of neither.
+    if (m_image.vector && m_image.documentScale > 0.0)
+        return 1.0 / m_image.documentScale;
+    return m_image.sourceWidth > 0 && m_image.width > 0 ? double(m_image.sourceWidth) / m_image.width : 1.0;
+}
+
 double ViewerWindow::naturalZoom() const
 {
-    return m_image.sourceWidth > 0 && m_image.width > 0 ? double(m_image.sourceWidth) / m_image.width : 1.0;
+    // An SVG's detail draws the document at any zoom (D-93). An image reduced for the GPU has no more
+    // pixels than its texture's: enlarged, they would only pass for the image's own at 100 %.
+    return m_image.vector ? sourceScale() : 1.0;
 }
 
 double ViewerWindow::shownZoom() const
 {
-    return currentZoom() / naturalZoom(); // exactly 1 at 100 %
+    return currentZoom() / sourceScale(); // exactly 1 at an SVG's 100 %
 }
 
 QRectF ViewerWindow::imageRect() const
@@ -408,8 +418,18 @@ QRectF ViewerWindow::imageRect() const
     const QSizeF size = displayedImageSize() * currentZoom();
     const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0 + m_pan;
     QRectF r(centre - QPointF(size.width(), size.height()) / 2.0, size);
-    // Whole-pixel origin: at 100 % every texel lands exactly on one device pixel.
-    r.moveTopLeft(QPointF(std::round(r.left()), std::round(r.top())));
+    // Whole-pixel origin: at 100 % every texel lands exactly on one device pixel. An SVG's is the
+    // corner its document starts at, wherever the view turns and mirrors it (after mirroring, the
+    // view turns clockwise: Renderer::recordFrame): its texture's last texels are rarely whole, and
+    // at a whole zoom the document's pixels then land on the screen's (D-94).
+    QPointF origin = r.topLeft();
+    if (m_image.vector) {
+        const int turns = ((m_quarterTurns % 4) + 4) % 4;
+        const bool right = turns == 1 || (turns == 0 && m_mirrored) || (turns == 2 && !m_mirrored);
+        const bool bottom = turns == 2 || (turns == 1 && m_mirrored) || (turns == 3 && !m_mirrored);
+        origin = QPointF(right ? r.right() : r.left(), bottom ? r.bottom() : r.top());
+    }
+    r.translate(QPointF(std::round(origin.x()), std::round(origin.y())) - origin);
     return r;
 }
 
@@ -422,9 +442,9 @@ void ViewerWindow::zoomAt(double factor, const QPointF &devicePos)
     const QPointF centre = QPointF(deviceSize().width(), deviceSize().height()) / 2.0 + m_pan;
     const QPointF newCentre = devicePos - (devicePos - centre) * (to / from);
     m_pan = newCentre - QPointF(deviceSize().width(), deviceSize().height()) / 2.0;
-    // Kept as the file's zoom, so that a locked zoom (Z) shows the next image at the same per cent.
-    const double shown = to / natural;
-    m_zoom = std::abs(shown - 1.0) < 1e-3 ? 1.0 : shown; // snap to exact 100 %
+    // Kept over 100 %, so that a locked zoom (Z) shows an SVG drawn at another size at the same per cent.
+    const double relative = to / natural;
+    m_zoom = std::abs(relative - 1.0) < 1e-3 ? 1.0 : relative; // snap to exact 100 %
     m_fit.reset();
     clampPan();
     updateOverlay();

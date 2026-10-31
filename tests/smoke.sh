@@ -337,8 +337,8 @@ for name, body in cases.items():
     for l, t, w, h in areas:
         if out[at:at + 8] != b'IVWORKER':
             sys.exit(f"{name}: not drawn")
-        words = struct.unpack('<10I', out[at + 8:at + 48])
-        at += 48 + words[6]
+        words = struct.unpack('<12I', out[at + 8:at + 56])
+        at += 56 + words[6]
         images.append(out[at:at + w * h * 4])
         at += w * h * 4
     for (l, t, w, h), part in zip(areas[1:], images[1:]):

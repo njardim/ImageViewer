@@ -126,8 +126,9 @@ private:
     QSizeF displayedImageSize() const; // after view rotation
     double fitZoom(FitMode mode, QSizeF view = {}) const; // in `view` (default: the window's device size)
     double currentZoom() const; // of the texture: device pixels per texel
-    double naturalZoom() const; // the texture's zoom at 100 %: the file's own pixels one per device pixel
-    double shownZoom() const;   // of the file's own pixels: a texture drawn smaller has fewer (D-94)
+    double sourceScale() const; // the file's pixels per texel: above 1 for a texture drawn smaller
+    double naturalZoom() const; // the texture's zoom at 100 %: an SVG's own pixels one per device pixel (D-94)
+    double shownZoom() const;   // of the file's own pixels (the overlay's per cent)
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
     void chooseFit(FitMode mode); // a command: the mode stays for the next images (D-65)
@@ -416,7 +417,7 @@ private:
 
     // The zoom follows the window in this mode (D-51); without one, it is m_zoom.
     std::optional<FitMode> m_fit = m_settings.fitMode; // the first image follows the setting, locked or not
-    double m_zoom = 1.0; // device pixels per pixel of the file (shownZoom()) when not fitting
+    double m_zoom = 1.0; // when not fitting: the zoom over naturalZoom(), 1 at 100 %
     bool m_windowMatched = false; // the window took the first image's size (WindowFit::FirstImage)
     QPointF m_pan;       // offset of the image centre from the window centre, device pixels
     QSizeF m_laidOutIn;  // the device size m_pan was last laid out in (resizeEvent)

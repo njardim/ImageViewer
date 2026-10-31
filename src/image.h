@@ -58,6 +58,7 @@ struct Image {
     bool sourceFloat = false;
     bool hasAlpha = false;
     bool vector = false; // an SVG: the viewer draws it again at the zoom shown (D-93)
+    double documentScale = 0.0; // an SVG: texels per pixel of the document, as drawn (D-94); 0: none
     int orientation = 1; // EXIF orientation that was applied (1 = none)
     color::Descriptor colour;
     float maxComponent = 0.0f; // brightest RGB component in working units (1.0 = SDR white)

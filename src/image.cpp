@@ -300,6 +300,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     if (dec.documentWidth > 0) { // a vector image drawn at another size than its own (D-90)
         result.sourceWidth = dec.documentWidth;
         result.sourceHeight = dec.documentHeight;
+        result.documentScale = dec.documentScale / factor;
     }
     result.codec = dec.codec;
     result.vector = dec.vector;

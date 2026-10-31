@@ -1005,19 +1005,40 @@ try:
                 wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
                 xdotool("key", "q")
                 app.wait(15)
-                # 100 % is the document's own size (D-99): an SVG larger than the window, drawn at the
-                # window's size (D-94), gets its detail at 1 (it was shown at the window's size, 27 %).
+                # 100 % is the document's own size (D-99), sharp in every turn and mirror: an SVG larger
+                # than the window, drawn at the window's size (D-94), gets its detail at 1, and its lines
+                # one pixel wide are black on white. It was shown at 27 %; at 100 % (its sides rounded
+                # up to whole texels) the detail was squeezed off the screen's pixel grid, mirrored too.
                 large = os.path.join(line_dir, "large.svg")
                 with open(large, "w") as f:
-                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="4000" height="3000">'
-                            '<rect width="4000" height="3000" fill="#3a6"/><circle cx="2000" cy="1500" r="900" fill="#fc0"/></svg>')
+                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="4001" height="3001">'
+                            '<rect width="4001" height="3001" fill="#fff"/>'
+                            + "".join(f'<rect y="{v}" width="4001" height="1"/>' for v in range(5, 3001, 10))
+                            + "".join(f'<rect x="{u}" width="1" height="3001"/>' for u in range(5, 4001, 10)) + '</svg>')
                 before = len(log_text())
                 app = subprocess.Popen([exe, large], env=env, stdout=log, stderr=log)
                 wait_until("the large SVG shown", lambda: "decoded for display: large.svg" in log_text()[before:])
                 focus_viewer()
-                xdotool("key", "1")
-                wait_until("at 100 % the large SVG's detail is drawn one document pixel per device pixel",
-                           lambda: re.search(r"detail drawn: large\.svg .* at 1 in ", log_text()[before:]))
+
+                def lines_sharp():
+                    shot = grab()
+                    if shot is None:
+                        return False
+                    x, y, w, h = window_geometry()
+                    middle = shot[y + h // 4:y + 3 * h // 4, x + w // 4:x + 3 * w // 4].astype(int).max(axis=2)
+                    return not ((middle > 20) & (middle < 235)).any() and (middle <= 20).mean() > 0.1
+                def details_at_100():
+                    return len(re.findall(r"detail drawn: large\.svg .* at 1 in ", log_text()[before:]))
+                drawn = 0  # the first may come before 1 is pressed: 100 % may be the zoom kept (D-65)
+                for keys in ([], ["shift+w"], ["r"]):
+                    for key in keys:
+                        xdotool("key", key)
+                    xdotool("key", "1")
+                    what = "at 100 %" + (" after " + " ".join(keys) if keys else "")
+                    wait_until(f"{what} the large SVG's detail is drawn one document pixel per device pixel",
+                               lambda: details_at_100() > drawn)
+                    wait_until(f"{what} its lines one pixel wide are sharp", lines_sharp)
+                    drawn = details_at_100()
                 xdotool("key", "q")
                 app.wait(15)
 

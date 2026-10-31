@@ -37,6 +37,7 @@ struct Decoded {
     // panel and the zoom speak of the document's size. 0: the same as width and height.
     int documentWidth = 0;
     int documentHeight = 0;
+    double documentScale = 0.0; // and the scale it was drawn at: texels per document pixel
     bool vector = false; // drawn from a description (SVG): it can be drawn again at any scale (D-93)
 
     int sampleBytes() const
@@ -159,6 +160,7 @@ struct WorkerAnswer {
     quint32 width = 0, height = 0, channels = 0, sampleBytes = 0, bits = 0, orientation = 1, iccBytes = 0;
     bool associatedAlpha = false;                // colour multiplied by alpha already
     quint32 documentWidth = 0, documentHeight = 0; // Decoded::documentWidth, documentHeight
+    double documentScale = 0.0;                    // Decoded::documentScale
 };
 int writeWorkerAnswer(const WorkerAnswer &answer, const unsigned char *icc, const unsigned char *pixels);
 

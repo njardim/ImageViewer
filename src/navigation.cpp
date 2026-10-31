@@ -466,19 +466,17 @@ std::optional<ViewerWindow::Detail> ViewerWindow::wantedDetail() const
             u = 1.0 - u;
         u0 = std::min(u0, u), u1 = std::max(u1, u), v0 = std::min(v0, v), v1 = std::max(v1, v);
     }
-    // The document at the zoom shown: one of its pixels per device pixel.
-    const double scale = zoom * m_image.width / m_image.sourceWidth;
-    const double width = m_image.sourceWidth * scale, height = m_image.sourceHeight * scale;
-    // On the screen's pixel grid, so that each of its pixels lands on one: the image's left and top
-    // are whole device pixels (imageRect()), so an axis the view runs backwards has its pixels from
-    // the far edge, a fraction of a pixel off the near one.
-    const bool backwardsU = (turns == 2 || turns == 3) != m_mirrored, backwardsV = turns == 1 || turns == 2;
-    const double shiftU = backwardsU ? width - std::floor(width) : 0.0;
-    const double shiftV = backwardsV ? height - std::floor(height) : 0.0;
-    const double left = std::max(std::floor(u0 * width - shiftU), 0.0), top = std::max(std::floor(v0 * height - shiftV), 0.0);
-    const double right = std::min(std::ceil(u1 * width - shiftU), std::floor(width - shiftU));
-    const double bottom = std::min(std::ceil(v1 * height - shiftV), std::floor(height - shiftV));
-    const QRectF area(left + shiftU, top + shiftV, right - left, bottom - top);
+    // The document at the zoom shown, from its corner. The detail's pixels are counted on the image as
+    // shown, the texture's extent: its document rarely fills its last texel, and counted on the
+    // document's sides the detail was squeezed by that fraction, off the screen's pixel grid. That
+    // corner is on whole device pixels in every turn and mirror (imageRect()), so whole pixels from it
+    // are the screen's.
+    const double scale = shownZoom();
+    const double width = m_image.width * zoom, height = m_image.height * zoom;
+    const double left = std::max(std::floor(u0 * width), 0.0), top = std::max(std::floor(v0 * height), 0.0);
+    const double right = std::min(std::ceil(u1 * width), std::floor(width));
+    const double bottom = std::min(std::ceil(v1 * height), std::floor(height));
+    const QRectF area(left, top, right - left, bottom - top);
     const int maxSide = m_renderer.maxTextureSize();
     if (area.width() < 1.0 || area.height() < 1.0 || area.width() > maxSide || area.height() > maxSide)
         return std::nullopt;

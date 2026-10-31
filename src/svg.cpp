@@ -285,6 +285,7 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
     answer.associatedAlpha = true; // the renderer's pixels as they are: image.cpp divides in float
     answer.documentWidth = quint32(pixels(documentWidth));
     answer.documentHeight = quint32(pixels(documentHeight));
+    answer.documentScale = scale; // exact: the document's sides, rounded up above, rarely fill whole texels
     return writeWorkerAnswer(answer, nullptr, rgba.get()); // the next request follows (D-94)
 #else
     Q_UNUSED(file);

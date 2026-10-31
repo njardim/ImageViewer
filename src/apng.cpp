@@ -90,7 +90,11 @@ public:
     bool rewind(QString *) override
     {
         m_next = 0;
+        // The canvas is made again by the first frame: both let go of their memory.
         m_saved.clear();
+        m_saved.shrink_to_fit();
+        m_canvas.clear();
+        m_canvas.shrink_to_fit();
         return true;
     }
 

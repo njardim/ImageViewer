@@ -226,7 +226,7 @@ void ViewerWindow::updateOverlay()
                              + dot
                              + tr("%1 MP").arg(locale.toString(double(m_image.sourceWidth) * m_image.sourceHeight / 1e6,
                                                                'f', 1));
-        if (m_image.width != m_image.sourceWidth)
+        if (m_image.width != m_image.sourceWidth && !m_image.vector) // an SVG is drawn at the size shown (D-94)
             dimensions += dot + tr("reduced to %1 × %2 for the GPU")
                                     .arg(locale.toString(m_image.width), locale.toString(m_image.height));
         rows.append({tr("Dimensions"), dimensions, true});

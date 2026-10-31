@@ -33,6 +33,14 @@ namespace {
 using color::Descriptor;
 using color::Transfer;
 
+// What a decode that threw reports: a library's own exception, or memory it could not get.
+QString exceptionError(const std::exception &e)
+{
+    if (dynamic_cast<const std::bad_alloc *>(&e))
+        return QCoreApplication::translate("Image", "Not enough memory to decode the image.");
+    return QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
+}
+
 // Runs fn(range) for consecutive ranges of [0, count) on the global thread pool.
 struct Range {
     std::size_t begin;
@@ -292,6 +300,7 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     if (dec.documentWidth > 0) { // a vector image drawn at another size than its own (D-90)
         result.sourceWidth = dec.documentWidth;
         result.sourceHeight = dec.documentHeight;
+        result.documentScale = dec.documentScale / factor;
     }
     result.codec = dec.codec;
     result.vector = dec.vector;
@@ -345,10 +354,8 @@ bool Animation::frame(int index, Frame *out, QString *error)
     // application, as in decodeImage().
     try {
         return frameLocked(index, out, error);
-    } catch (const std::bad_alloc &) {
-        *error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
     } catch (const std::exception &e) {
-        *error = QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
+        *error = exceptionError(e);
     }
     return false;
 }
@@ -357,7 +364,13 @@ void Animation::trim()
 {
     const std::lock_guard<std::mutex> lock(m_mutex);
     m_kept.resize(1);
+    m_kept.shrink_to_fit();
     m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
+    // Played again, it starts from its first frame: the reader goes back to it now, and lets go of
+    // what it decoded (a canvas, a decoder's frames). Failing, the next frame asked for tries again.
+    QString why;
+    if (m_reader->rewind(&why))
+        m_next = 0;
 }
 
 bool Animation::frameLocked(int index, Frame *out, QString *error)
@@ -383,10 +396,12 @@ bool Animation::frameLocked(int index, Frame *out, QString *error)
                 *error = why;
                 return false;
             }
-            // Past the last frame: the count is known now, and playback goes on from the first.
+            // Past the last frame: the count is known now, and playback goes on from the first,
+            // which is kept. A reader that cannot go back to it is asked again with the next frame
+            // (index < m_next), which then fails, rather than read on from where it is.
             m_count = std::max(1, m_next);
-            m_reader->rewind(&why);
-            m_next = 0;
+            if (m_reader->rewind(&why))
+                m_next = 0;
             *out = m_kept.front();
             return true;
         }
@@ -434,15 +449,10 @@ Image guardedDecode(const QString &path, int maxTextureSize, qint64 maxPixels, b
     // QFuture::result() on the GUI thread and terminate the application.
     try {
         return decode(path, maxTextureSize, maxPixels, animate, options);
-    } catch (const std::bad_alloc &) {
-        Image failed;
-        failed.path = path;
-        failed.error = QCoreApplication::translate("Image", "Not enough memory to decode the image.");
-        return failed;
     } catch (const std::exception &e) {
         Image failed;
         failed.path = path;
-        failed.error = QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
+        failed.error = exceptionError(e);
         return failed;
     }
 }

@@ -11,8 +11,9 @@
 // Answer on standard output, all integers 32-bit little endian:
 //   "IVWORKER" (8 bytes), width, height, channels (3 or 4), bytes per sample (1 or 2),
 //   significant bits, EXIF orientation (1-8), ICC profile size, flags (bit 0: associated alpha),
-//   the document's width and height (a vector image's own size; 0: width and height), then the
-//   profile and the interleaved RGB(A) samples, rows from the top, native byte order.
+//   the document's width and height (a vector image's own size; 0: width and height), the scale it
+//   was drawn at (texels per document pixel, an IEEE double in two words, low first; 0: none), then
+//   the profile and the interleaved RGB(A) samples, rows from the top, native byte order.
 // Exit codes (an SVG answer's reason codes too): kWorkerDecoded, kWorkerFailed (reason on standard
 // error), kWorkerUsage, kWorkerOverLimit (decoders.h).
 #if defined(_WIN32) && !defined(NOMINMAX)
@@ -70,7 +71,7 @@ Q_LOGGING_CATEGORY(lcWorker, "imageviewer.worker")
 namespace {
 
 constexpr char kMagic[8] = {'I', 'V', 'W', 'O', 'R', 'K', 'E', 'R'};
-constexpr int kHeaderWords = 10;
+constexpr int kHeaderWords = 12;
 // The SVG worker serves requests one after another on standard input (D-94): "IVSVGREQ", the pixel
 // limit (64 bits), the side and fill of DecodeOptions (32 bits each), its scale and its area's left
 // and top (IEEE doubles), the area's width and height, its view's width and height (32 bits each)
@@ -129,12 +130,14 @@ bool parseHeader(const QByteArray &answer, qint64 limit, Answer *a)
     a->associatedAlpha = (flags & 1) != 0;
     a->documentWidth = word(40);
     a->documentHeight = word(44);
+    a->documentScale = std::bit_cast<double>(quint64(word(48)) | quint64(word(52)) << 32);
     // The answer is untrusted (a worker may be compromised): every field is bounded before any
     // arithmetic, which the sizes of two 32-bit words could otherwise overflow.
     if (a->width == 0 || a->height == 0 || a->width > kMaxPixels || a->height > kMaxPixels
         || (a->channels != 3 && a->channels != 4) || (a->sampleBytes != 1 && a->sampleBytes != 2) || flags > 1
         || a->documentWidth > kMaxPixels || a->documentHeight > kMaxPixels
-        || (a->documentWidth == 0) != (a->documentHeight == 0))
+        || (a->documentWidth == 0) != (a->documentHeight == 0)
+        || !(a->documentScale == 0.0 || (a->documentScale >= 0x1p-40 && a->documentScale <= 0x1p40))) // NaN too
         return false;
     // Each side at most 2^30: their product fits, but not times 8 (2^30 x 2^30 x 4 x 2 overflowed).
     const qint64 pixels = qint64(a->width) * a->height;
@@ -226,10 +229,11 @@ const char *keepOnlyAllowedCoders()
 
 int writeWorkerAnswer(const WorkerAnswer &answer, const unsigned char *icc, const unsigned char *pixels)
 {
+    const quint64 scaleBits = std::bit_cast<quint64>(answer.documentScale);
     std::fwrite(kMagic, 1, sizeof kMagic, stdout);
     for (quint32 word : {answer.width, answer.height, answer.channels, answer.sampleBytes, answer.bits,
                          answer.orientation, answer.iccBytes, quint32(answer.associatedAlpha ? 1 : 0),
-                         answer.documentWidth, answer.documentHeight})
+                         answer.documentWidth, answer.documentHeight, quint32(scaleBits), quint32(scaleBits >> 32)})
         writeWord(stdout, word);
     if (answer.iccBytes)
         std::fwrite(icc, 1, answer.iccBytes, stdout);
@@ -729,6 +733,7 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
     out->vector = svg;
     out->documentWidth = int(a.documentWidth);
     out->documentHeight = int(a.documentHeight);
+    out->documentScale = a.documentScale;
     out->codec = svg ? svgRenderer() + QStringLiteral(" (worker)")
                      : QStringLiteral("GraphicsMagick %1 (worker)").arg(QString::fromLatin1(format.id).toUpper());
     if (a.iccBytes > 0)

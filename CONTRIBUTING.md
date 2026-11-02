@@ -28,10 +28,11 @@ See [Building from source](README.md#building-from-source). Before opening a pul
 
 - `tests/smoke.sh <executable>`: decoding and color, no display needed;
 - `tests/fuzz_smoke.py <executable>`: every test file, corrupted in many ways, must decode or fail cleanly;
-- `tests/render_test.py`, `tests/screen_test.py`, `tests/ui_test.py` and `tests/animation_test.py <executable> [vulkan|opengl]`: GPU output, on-screen pixels, interaction, animation and slideshow (Linux, under Xvfb);
+- `build/<preset>/imageviewer_tests`: unit tests of the gallery, the slideshow's clock and the zoom's detail of an SVG, no display needed;
+- `tests/render_test.py`, `tests/screen_test.py`, `tests/ui_test.py`, `tests/ui_views_test.py` and `tests/animation_test.py <executable> [vulkan|opengl]`: GPU output, on-screen pixels, interaction (the window, then the gallery and SVG on screen), animation and slideshow (Linux, under Xvfb);
 - `tests/check_translations.py`: translations.
 
-CI runs the smoke tests, the fuzz smoke test and the output harness on Windows, macOS and Linux, the on-screen, interaction, animation and translation checks on Linux, and a quit test (`tests/quit_test.py`) on macOS.
+CI runs the unit tests, the smoke tests, the fuzz smoke test and the output harness on Windows, macOS and Linux, the on-screen, interaction, animation and translation checks on Linux, and a quit test (`tests/quit_test.py`) on macOS.
 
 ## Translations
 

@@ -206,6 +206,14 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
+      # The window's parts with state of their own (D-102): the gallery's thumbnails and layout, the
+      # slideshow's clock, the zoom's detail of an SVG, each driven alone (tests/unit_tests.cpp).
+      - name: Unit tests
+        shell: bash
+        run: |
+          tests="build/$PRESET/imageviewer_tests"; [ "$RUNNER_OS" = Windows ] && tests="$tests.exe"
+          QT_QPA_PLATFORM=offscreen "$tests"
+
       # Qt reads only the formats the registry gives it (D-67, D-68): ICNS, ICO (.cur) and WBMP through
       # these plugins, XPM and XBM built in; SVG is resvg's (D-90). Its other image plugins decode with
       # Qt's own copies of libjpeg, libtiff and libwebp, which the audit does not follow, and an icon
@@ -296,6 +304,8 @@ jobs:
         run: |
           python3 tests/ui_test.py "$EXE" vulkan
           UI_TEST_DIR="$UI_TEST_DIR-opengl" python3 tests/ui_test.py "$EXE" opengl
+          UI_TEST_DIR="$UI_TEST_DIR-views" python3 tests/ui_views_test.py "$EXE" vulkan
+          UI_TEST_DIR="$UI_TEST_DIR-views-opengl" python3 tests/ui_views_test.py "$EXE" opengl
           ANIMATION_TEST_DIR="$UI_TEST_DIR-animation" python3 tests/animation_test.py "$EXE" vulkan
           ANIMATION_TEST_DIR="$UI_TEST_DIR-animation-opengl" python3 tests/animation_test.py "$EXE" opengl
 
@@ -510,7 +520,7 @@ jobs:
   # D-67: a release ships only libraries with no known vulnerability fixed in a release we may
   # take and none that is neither patched by us nor assessed (packaging/known-vulnerabilities.txt,
   # D-73), built from sources that match their tags, and as old as the cooldown at the tagged
-  # commit (packaging/cooldown-days.txt: 15 days unless the owner lowered it for this release)
+  # commit (packaging/cooldown-days.txt: 12 days unless the owner lowered it for this release)
   # or a recorded security exception (packaging/cooldown-exceptions.txt). Checked while the
   # packages build; the release waits for it.
   supply-chain:

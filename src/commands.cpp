@@ -193,8 +193,8 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::Next: return hasNeighbour(+1);
     case Command::First:
     case Command::Last: return m_files.size() > 1;
-    case Command::Slideshow: return m_slideshow || m_files.size() > 1; // a running one can always be stopped
-    case Command::PlayPause: return m_slideshow || m_animation != nullptr; // the slideshow first
+    case Command::Slideshow: return m_slideshow.running() || m_files.size() > 1; // a running one can always be stopped
+    case Command::PlayPause: return m_slideshow.running() || m_animation != nullptr; // the slideshow first
     case Command::PreviousFrame:
     case Command::NextFrame: return m_animation != nullptr;
     case Command::ZoomIn:
@@ -232,8 +232,8 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::Gallery: return m_settings.showGallery;
     case Command::ToneMap: return m_settings.toneMap;
     case Command::ClipWarning: return m_settings.clipWarning;
-    case Command::PlayPause: return m_slideshow ? m_slideshowPaused : m_animationPaused;
-    case Command::Slideshow: return m_slideshow;
+    case Command::PlayPause: return m_slideshow.running() ? m_slideshow.paused() : m_animationPaused;
+    case Command::Slideshow: return m_slideshow.running();
     default: *checkable = false; return false;
     }
 }
@@ -267,12 +267,12 @@ void ViewerWindow::execute(Command command)
     case Command::Next: step(+1); break;
     case Command::First:
         m_direction = 1;
-        restartSlideshowInterval();
+        m_slideshow.restart();
         startLoading(0);
         break;
     case Command::Last:
         m_direction = -1;
-        restartSlideshowInterval();
+        m_slideshow.restart();
         startLoading(int(m_files.size()) - 1);
         break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
@@ -298,7 +298,7 @@ void ViewerWindow::execute(Command command)
     case Command::ExposureReset: resetExposure(); break;
     case Command::ToneMap: toggleToneMap(); break;
     case Command::ClipWarning: toggleClipWarning(); break;
-    case Command::PlayPause: m_slideshow ? toggleSlideshowPause() : togglePause(); break;
+    case Command::PlayPause: m_slideshow.running() ? toggleSlideshowPause() : togglePause(); break;
     case Command::PreviousFrame: stepFrame(-1); break;
     case Command::NextFrame: stepFrame(+1); break;
     case Command::Slideshow: toggleSlideshow(); break;

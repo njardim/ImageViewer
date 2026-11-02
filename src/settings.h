@@ -127,7 +127,11 @@ struct Settings {
     static constexpr int kMaxToolbarHideMs = 10000;
 
     // The six fields of ImageGlass issue #2475 (E14).
-    static QList<OverlayField> defaultOverlayFields();
+    static QList<OverlayField> defaultOverlayFields() // in the header: a Settings needs nothing else to be made (the unit tests)
+    {
+        return {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,
+                OverlayField::Zoom, OverlayField::ColorSpace, OverlayField::Modified};
+    }
     static const QList<OverlayField> &allOverlayFields();
 
     static Settings load(); // invalid or out-of-range stored values fall back to the defaults

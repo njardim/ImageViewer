@@ -42,8 +42,8 @@ void ViewerWindow::openFile(const QString &path)
                 return;
             }
             m_files = std::move(listing.files);
-            forgetChangedThumbnails(listing.stamps); // the previous folder's
-            m_galleryCentredOn = -2; // another folder: the gallery centres the image again
+            m_gallery.forgetChanged(listing.stamps); // the previous folder's
+            m_gallery.recentre(); // another folder: the gallery centres the image again
             m_lastDirectory = folder;
             setFolder(folder);
             startLoading(0);
@@ -52,7 +52,7 @@ void ViewerWindow::openFile(const QString &path)
     }
     // The image first; the rest of its folder follows from the background listing.
     m_files = {info.absoluteFilePath()};
-    m_galleryCentredOn = -2;
+    m_gallery.recentre();
     m_index = -1;
     m_lastDirectory = info.absolutePath();
     setFolder(m_lastDirectory);
@@ -103,7 +103,7 @@ void ViewerWindow::step(int delta)
     const int n = int(m_files.size());
     const int target = ((m_index + delta) % n + n) % n;
     m_direction = delta > 0 ? 1 : -1;
-    restartSlideshowInterval();
+    m_slideshow.restart();
     startLoading(target);
 }
 
@@ -224,7 +224,7 @@ void ViewerWindow::decodeFinished()
 
 void ViewerWindow::showImage(Image image, int limit)
 {
-    dropDetail(); // drawn from the image this one replaces
+    m_details.drop(image.path); // drawn from the image this one replaces
     // The same file again (smaller texture, device loss, language, changed on disk) keeps
     // the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
@@ -259,8 +259,8 @@ void ViewerWindow::showImage(Image image, int limit)
     m_imageStale = false;
     m_awaitedPath.clear();
     // A slideshow's interval runs from the image's arrival, not from the step that asked for it.
-    if (!m_slideshowWaitsForScreen)
-        restartSlideshowInterval();
+    if (!m_slideshow.waitsForScreen())
+        m_slideshow.restart();
     // Editors often save by replacing the file: watch the path again each time it is shown.
     const QFileInfo shown(m_image.path);
     watchFile(shown.exists() ? m_image.path : QString());
@@ -276,6 +276,7 @@ void ViewerWindow::showImage(Image image, int limit)
 void ViewerWindow::clearShownImage()
 {
     stopAnimation();
+    m_details.drop(QString()); // a detail being drawn has no image to go to
     m_image = Image();
     m_renderer.clearImage();
 }
@@ -349,8 +350,8 @@ void ViewerWindow::applyListing(FolderListing listing)
         }
     }
     m_files = std::move(files);
-    m_galleryCentredOn = -2; // the same index may be another file now
-    forgetChangedThumbnails(listing.stamps);
+    m_gallery.recentre(); // the same index may be another file now
+    m_gallery.forgetChanged(listing.stamps);
     const int index = current.isEmpty() ? -1 : int(m_files.indexOf(current));
     if (index >= 0) {
         m_index = index;
@@ -361,7 +362,7 @@ void ViewerWindow::applyListing(FolderListing listing)
     } else {
         // The current file is gone: the next one takes its place, or the last one.
         m_index = -1;
-        restartSlideshowInterval();
+        m_slideshow.restart();
         startLoading(std::clamp(previousIndex, 0, int(m_files.size()) - 1));
     }
     updateOverlay();
@@ -405,14 +406,14 @@ void ViewerWindow::removeCurrentFromList()
     clearShownImage();
     const int next = std::min(m_index, int(m_files.size()) - 1);
     m_index = -1;
-    restartSlideshowInterval();
+    m_slideshow.restart();
     startLoading(next);
 }
 
 void ViewerWindow::showFolderEmpty()
 {
     m_index = -1;
-    if (m_slideshow) // paused, its toolbar would stay over the message
+    if (m_slideshow.running()) // paused, its toolbar would stay over the message
         stopSlideshow();
     clearShownImage();
     m_cache.clear();
@@ -439,115 +440,61 @@ void ViewerWindow::editRecentFiles(const std::function<void(QStringList &)> &edi
     saveRecentFiles(m_recent);
 }
 
-std::optional<ViewerWindow::Detail> ViewerWindow::wantedDetail() const
-{
-    // An SVG enlarged on screen (its texture is drawn at its own size, or smaller to fit the GPU).
-    if (!m_image.vector || m_image.width <= 0 || !m_image.error.isEmpty() || m_image.sourceWidth <= 0
-        || m_image.sourceHeight <= 0 || !m_rendererReady)
-        return std::nullopt;
-    const double zoom = currentZoom();
-    if (zoom <= 1.0 + 1e-3)
-        return std::nullopt;
-    const QRectF shown = imageRect();
-    const QRectF visible = shown.intersected(QRectF(QPointF(0, 0), deviceSize()));
-    if (visible.isEmpty())
-        return std::nullopt;
-    // The window's part of the image, in the image's texture coordinates: the view turns the image
-    // clockwise by quarter turns after mirroring it (Renderer::recordFrame).
-    const int turns = ((m_quarterTurns % 4) + 4) % 4;
-    double u0 = 1.0, v0 = 1.0, u1 = 0.0, v1 = 0.0;
-    for (const QPointF corner : {visible.topLeft(), visible.bottomRight()}) {
-        const double x = (corner.x() - shown.left()) / shown.width(), y = (corner.y() - shown.top()) / shown.height();
-        double u = x, v = y;
-        switch (turns) {
-        case 1: u = y, v = 1.0 - x; break;
-        case 2: u = 1.0 - x, v = 1.0 - y; break;
-        case 3: u = 1.0 - y, v = x; break;
-        default: break;
-        }
-        if (m_mirrored)
-            u = 1.0 - u;
-        u0 = std::min(u0, u), u1 = std::max(u1, u), v0 = std::min(v0, v), v1 = std::max(v1, v);
-    }
-    // The document at the zoom shown, from its corner. The detail's pixels are counted on the image as
-    // shown, the texture's extent: its document rarely fills its last texel, and counted on the
-    // document's sides the detail was squeezed by that fraction, off the screen's pixel grid. That
-    // corner is on whole device pixels in every turn and mirror (imageRect()), so whole pixels from it
-    // are the screen's.
-    const double scale = shownZoom();
-    const double width = m_image.width * zoom, height = m_image.height * zoom;
-    const double left = std::max(std::floor(u0 * width), 0.0), top = std::max(std::floor(v0 * height), 0.0);
-    const double right = std::min(std::ceil(u1 * width), std::floor(width));
-    const double bottom = std::min(std::ceil(v1 * height), std::floor(height));
-    const QRectF area(left, top, right - left, bottom - top);
-    const int maxSide = m_renderer.maxTextureSize();
-    if (area.width() < 1.0 || area.height() < 1.0 || area.width() > maxSide || area.height() > maxSide)
-        return std::nullopt;
-    const QRectF rect(area.x() / width, area.y() / height, area.width() / width, area.height() / height);
-    return Detail{m_image.path, scale, area, rect};
-}
-
 void ViewerWindow::updateDetail()
 {
-    std::optional<Detail> wanted = wantedDetail();
-    if (wanted == m_detailWanted)
-        return; // the same view
-    if (m_detailBusy && wanted != m_detailJob)
-        m_detailCancel->store(true, std::memory_order_relaxed); // no longer what the view shows
-    if (wanted && *wanted != m_detail)
-        m_detailTimer.start(); // again: once the view stops changing
-    else
-        m_detailTimer.stop();
-    if (!wanted && !m_detail.path.isEmpty()) { // the image's own pixels are enough: the GPU memory back
-        m_detail = {};
-        m_renderer.clearDetail();
+    // The view, as the zoom's detail sees it (vectorDetailFor()): computed only for an SVG enlarged
+    // on screen.
+    DetailView view;
+    view.path = m_image.path;
+    view.vector = m_image.vector;
+    view.valid = m_image.error.isEmpty() && m_rendererReady;
+    view.texture = QSizeF(m_image.width, m_image.height);
+    view.source = QSizeF(m_image.sourceWidth, m_image.sourceHeight);
+    if (view.vector && view.valid && m_image.width > 0 && m_image.height > 0) {
+        view.zoom = currentZoom();
+        view.shownZoom = shownZoom();
+        view.imageRect = imageRect();
     }
-    m_detailWanted = std::move(wanted);
+    view.window = deviceSize();
+    view.quarterTurns = m_quarterTurns;
+    view.mirrored = m_mirrored;
+    view.maxTextureSize = m_renderer.maxTextureSize();
+    m_details.want(vectorDetailFor(view));
 }
 
-void ViewerWindow::startDetail()
+void ViewerWindow::detailDrawn(const VectorDetail &detail, const Image &image)
 {
-    // A running job ends first (stopped if no longer wanted); detailFinished() comes back here.
-    if (m_detailBusy || !m_detailWanted || *m_detailWanted == m_detail || *m_detailWanted == m_detailFailed)
+    qCInfo(lcNavigation).noquote() << "detail drawn:" << QFileInfo(detail.path).fileName() << detail.area
+                                   << "at" << detail.scale << "in" << qRound(image.decodeMs) << "ms";
+    m_renderer.setDetail(image.pixels, QSize(image.width, image.height), detail.rect);
+    requestUpdate();
+}
+
+void ViewerWindow::detailFailed(const VectorDetail &detail, const QString &error)
+{
+    qCInfo(lcNavigation).noquote() << "no detail for" << QFileInfo(detail.path).fileName() << error;
+}
+
+void ViewerWindow::updateGallery()
+{
+    if (!m_rendererReady)
         return;
-    m_detailBusy = true;
-    m_detailJob = *m_detailWanted;
-    m_detailCancel = std::make_shared<std::atomic_bool>(false);
-    m_detailWatcher.setFuture(QtConcurrent::run(&m_detailPool, [job = m_detailJob, cancel = m_detailCancel] {
-        return decodeVectorArea(job.path, job.scale, job.area, cancel.get());
-    }));
+    m_gallery.update({QSizeF(width(), height()), devicePixelRatio(), m_index, m_cache.maxPreloadPixels()});
 }
 
-void ViewerWindow::detailFinished()
+void ViewerWindow::galleryClicked(int slot)
 {
-    Image detail = m_detailWatcher.future().takeResult();
-    m_detailBusy = false;
-    if (m_detailCancel->load(std::memory_order_relaxed)) {
-        // stopped: no longer what the view shows
-    } else if (detail.isValid() && m_detailJob.path == m_image.path && detail.width == qRound(m_detailJob.area.width())
-               && detail.height == qRound(m_detailJob.area.height())) {
-        qCInfo(lcNavigation).noquote() << "detail drawn:" << QFileInfo(m_detailJob.path).fileName() << m_detailJob.area
-                                       << "at" << m_detailJob.scale << "in" << qRound(detail.decodeMs) << "ms";
-        m_renderer.setDetail(detail.pixels, QSize(detail.width, detail.height), m_detailJob.rect);
-        m_detail = m_detailJob;
-        requestUpdate();
-    } else {
-        // Past its memory or 30 s, asked for again it would only fail again: the enlarged image stays
-        // until the view changes.
-        qCInfo(lcNavigation).noquote() << "no detail for" << QFileInfo(m_detailJob.path).fileName() << detail.error;
-        m_detailFailed = m_detailJob;
-    }
-    if (!m_detailTimer.isActive())
-        startDetail(); // the view changed while this one was drawn, and has settled
+    const int index = m_gallery.fileAt(slot);
+    if (index < 0 || index == m_index)
+        return;
+    m_direction = index > m_index ? 1 : -1;
+    m_slideshow.restart();
+    startLoading(index);
 }
 
-void ViewerWindow::dropDetail()
+void ViewerWindow::toggleGallery()
 {
-    if (m_detailBusy)
-        m_detailCancel->store(true, std::memory_order_relaxed);
-    m_detailTimer.stop();
-    m_detail = {};
-    m_detailFailed = {};
-    m_detailWanted.reset();
-    m_renderer.clearDetail();
+    savePreference([on = !m_settings.showGallery](Settings &s) { s.showGallery = on; });
+    m_gallery.recentre();    // centre on the current image when it shows again
+    updateOverlay();         // the information panel moves above the gallery, or back
 }

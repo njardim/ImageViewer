@@ -448,11 +448,7 @@ void ViewerWindow::renameFile()
         m_textureCapPath = target; // it still needs the reduced size it was shown at
     m_image.path = target;
     // So is an SVG's detail (D-93): drawn, wanted, failed or being drawn, it shows the same document.
-    for (Detail *detail : {&m_detail, &m_detailJob, &m_detailFailed})
-        if (detail->path == path)
-            detail->path = target;
-    if (m_detailWanted && m_detailWanted->path == path)
-        m_detailWanted->path = target;
+    m_details.rename(path, target);
     editRecentFiles([&path, &target](QStringList &recent) {
         if (const qsizetype i = recent.indexOf(path); i >= 0)
             recent[i] = target;
@@ -468,7 +464,6 @@ void ViewerWindow::renameFile()
         kept->path = target; // renaming keeps the size and the modification time
         m_cache.insert(*kept, m_shownLimit);
     }
-    if (m_thumbnails.contains(path)) // likewise its thumbnail, which the gallery would decode again
-        m_thumbnails.insert(target, m_thumbnails.take(path));
+    m_gallery.rename(path, target); // likewise its thumbnail, which the gallery would decode again
     watchFile(target);
 }

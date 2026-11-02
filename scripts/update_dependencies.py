@@ -21,7 +21,7 @@ Policy:
   compromised or broken release is found and withdrawn upstream before it reaches us. The age is
   GitHub's release date where there is one, the upload date of a release archive, or else the tag's
   own date. A vcpkg baseline is as young as the youngest library it moves. The number of days is
-  packaging/cooldown-days.txt (15; lowered by the owner to take the latest releases sooner, 0 for
+  packaging/cooldown-days.txt (12; lowered by the owner to take the latest releases sooner, 0 for
   every latest release).
 - Security exception (D-67): when the pinned version has a known vulnerability (OSV) and no release
   old enough fixes it, the oldest younger release that does is taken, and marked for a person to
@@ -51,11 +51,12 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import audit_dependencies as audit  # noqa: E402
+import supply_chain  # noqa: E402  what both scripts share (D-102)
 
 # Shared with the audit (D-67): the paths, the cooldown, the overlay ports fetched by git
 # (audit.COMMIT_PORTS: repository and tag template), reading and fetching.
-ROOT, PORTS, MIN_RELEASE_AGE_DAYS = audit.ROOT, audit.PORTS, audit.MIN_RELEASE_AGE_DAYS
-read, fetch = audit.read, audit.fetch
+ROOT, PORTS, MIN_RELEASE_AGE_DAYS = supply_chain.ROOT, supply_chain.PORTS, audit.MIN_RELEASE_AGE_DAYS
+read, fetch = supply_chain.read, supply_chain.fetch
 GM_ARCHIVE = "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/{0}/GraphicsMagick-{0}.tar.xz"
 VCPKG = audit.VCPKG
 
@@ -75,7 +76,7 @@ def write(path, text):
 
 
 def git(*args, cwd=None):
-    return audit.run("git", *args, cwd=cwd)
+    return supply_chain.run("git", *args, cwd=cwd)
 
 
 def version_tuple(text):
@@ -86,7 +87,7 @@ def as_text(version):
     return ".".join(str(part) for part in version)
 
 
-tag_date, github_repository, age_days = audit.tag_date, audit.github_repository, audit.age_days
+tag_date, github_repository, age_days = supply_chain.tag_date, supply_chain.github_repository, supply_chain.age_days
 
 
 def ripe(when):
@@ -108,7 +109,7 @@ def fixable(commit, port=None):
     if not commit:
         return set()
     skip = answered(port) if port else set()
-    return {vid for vid, aliases, _, fixed in audit.osv_lookup([commit]).get(commit, [])
+    return {vid for vid, aliases, _, fixed in supply_chain.osv_lookup([commit]).get(commit, [])
             if fixed and not ({vid, *(a.strip() for a in aliases.split(",") if a.strip())} & skip)}
 
 
@@ -176,13 +177,13 @@ def record_exception(entries, reason):
     reason = re.sub(r"[^\x20-\x7e]+", " ", reason).strip()
     lines = "".join(f"{entry}: {reason} ({audit.datetime.date.today().isoformat()})\n" for entry in entries
                     if entry not in audit.COOLDOWN_EXCEPTIONS)
-    write(audit.EXCEPTIONS_FILE, read(audit.EXCEPTIONS_FILE) + lines)
+    write(supply_chain.EXCEPTIONS_FILE, read(supply_chain.EXCEPTIONS_FILE) + lines)
 
 
 def prune_exceptions(apply, report):
     """Removes the exceptions whose release is past the cooldown or no longer pinned (D-73), as the
     audit finds them with the pins as they are now: none outlives its release."""
-    check = audit.Report()
+    check = supply_chain.Report()
     baseline_commit = json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
     audit.cooldown(baseline_commit, audit.baseline_versions(baseline_commit), check)
     if not check.stale:
@@ -191,9 +192,9 @@ def prune_exceptions(apply, report):
                         + ", ".join(f"`{key}`" for key in check.stale) + ".")
     report.changed = True  # a pull request, even when no pin moved
     if apply:
-        keep = [line for line in read(audit.EXCEPTIONS_FILE).splitlines(keepends=True)
+        keep = [line for line in read(supply_chain.EXCEPTIONS_FILE).splitlines(keepends=True)
                 if line.lstrip().startswith("#") or line.partition(": ")[0].strip() not in check.stale]
-        write(audit.EXCEPTIONS_FILE, "".join(keep))
+        write(supply_chain.EXCEPTIONS_FILE, "".join(keep))
 
 
 def review_changes(name, url, old_tag, new_tag, report):
@@ -227,7 +228,7 @@ def check_patches(port, url, tag, apply, report):
     with tempfile.TemporaryDirectory() as source:
         git("clone", "--quiet", "--depth", "1", "--branch", tag, url, source)
         commit = git("rev-parse", "HEAD", cwd=source).strip()
-        still = {vid for vid, aliases, _, _ in audit.osv_lookup([commit]).get(commit, [])
+        still = {vid for vid, aliases, _, _ in supply_chain.osv_lookup([commit]).get(commit, [])
                  for vid in (vid, *(a.strip() for a in aliases.split(",") if a.strip()))}
         for patch in dict.fromkeys(patches):
             path = os.path.join(PORTS, port, patch)
@@ -311,7 +312,7 @@ def update_svg_crate(old, new, url, tag, report):
         for name in ("Cargo.toml", "lib.rs"):  # not rust-toolchain.toml: any recent cargo resolves the same
             shutil.copy(os.path.join(port, name), crate)
         shutil.copy(os.path.join(source, "Cargo.lock"), os.path.join(crate, "Cargo.lock"))
-        audit.run("cargo", "metadata", "--format-version", "1", cwd=crate)  # prunes the lock to this crate
+        supply_chain.run("cargo", "metadata", "--format-version", "1", cwd=crate)  # prunes the lock to this crate
         with open(os.path.join(source, "Cargo.lock"), "rb") as f:
             theirs = {(p["name"], p["version"]): p.get("checksum") for p in tomllib.load(f)["package"]}
         with open(os.path.join(crate, "Cargo.lock"), "rb") as f:
@@ -324,9 +325,9 @@ def update_svg_crate(old, new, url, tag, report):
                                "fontconfig-parser, must ask for a version resvg's own lock holds)")
         shutil.copy(os.path.join(crate, "Cargo.lock"), os.path.join(port, "Cargo.lock"))
         needed = re.search(r'^rust-version = "([\d.]+)"', read(os.path.join(source, "crates", "resvg", "Cargo.toml")), re.M)
-        if needed and version_tuple(needed.group(1)) > version_tuple(audit.rust_version()):
+        if needed and version_tuple(needed.group(1)) > version_tuple(supply_chain.rust_version()):
             report.notes.append(f"resvg {new} needs Rust {needed.group(1)}, newer than the pinned "
-                                f"{audit.rust_version()}: the build fails until the toolchain moves.")
+                                f"{supply_chain.rust_version()}: the build fails until the toolchain moves.")
     report.review.append(f"- **imageviewer-svg**: Cargo.toml and Cargo.lock follow resvg {new} (only the crates of its "
                          f"own lock); lib.rs uses the resvg API listed at its top: read the changelog for those.")
 
@@ -335,13 +336,13 @@ def update_rust(apply, report):
     """The Rust release that builds the SVG renderer (D-90): the newest stable release past the
     cooldown. Its standard library is compiled into the program."""
     pin = os.path.join(PORTS, "imageviewer-svg", "rust-toolchain.toml")
-    pinned = audit.rust_version()
+    pinned = supply_chain.rust_version()
     current = version_tuple(pinned)
-    tags = {v: tag for v, tag in audit.release_tags(audit.RUST, "{v}").items() if len(v) == 3 and v[0] == 1}
+    tags = {v: tag for v, tag in audit.release_tags(supply_chain.RUST, "{v}").items() if len(v) == 3 and v[0] == 1}
     overall = max(tags) if tags else current
     candidates = sorted(v for v in tags if v > current)
     vulnerable_now = fixable(tags.get(current, (None, None))[1])
-    target = choose("Rust", current, candidates, lambda v: tag_date(audit.RUST, tags[v][0]), vulnerable_now,
+    target = choose("Rust", current, candidates, lambda v: tag_date(supply_chain.RUST, tags[v][0]), vulnerable_now,
                     lambda v: not (fixable(tags[v][1]) & vulnerable_now), report)
     if target is None:
         report.row("Rust", pinned, as_text(overall), "held (cooldown)" if candidates else "up to date")
@@ -379,7 +380,7 @@ def update_tarball_port(port, releases, archive, apply, report):
     candidates = sorted(v for v in versions if v > current and v[:1] == current[:1])
 
     def commit_of(version):
-        return audit.release_tag(repository, template, as_text(version))[1] if kind == "git" else None
+        return supply_chain.release_tag(repository, template, as_text(version))[1] if kind == "git" else None
     vulnerable_now = fixable(commit_of(current), port)
     target = choose(port, current, candidates, lambda v: (versions[v], "archive upload date"), vulnerable_now,
                     lambda v: not (fixable(commit_of(v)) & vulnerable_now), report)
@@ -396,8 +397,8 @@ def update_tarball_port(port, releases, archive, apply, report):
         with open(path, "wb") as f:
             f.write(fetch(url))
         sha512 = audit.sha512_of(path)
-    check = audit.Report()
-    tag = audit.release_tag(repository, template, new)[0] if kind == "git" else template.format(v_=new.replace(".", "_"))
+    check = supply_chain.Report()
+    tag = supply_chain.release_tag(repository, template, new)[0] if kind == "git" else template.format(v_=new.replace(".", "_"))
     if not audit.compare_tarball(port, new, url, sha512, kind, repository, tag, check):
         report.row(port, pinned, as_text(overall), f"**{new} refused: its archive does not match `{tag}`**")
         report.notes += check.notes
@@ -405,7 +406,7 @@ def update_tarball_port(port, releases, archive, apply, report):
     report.row(port, pinned, as_text(overall), f"**→ {new}** (archive identical to `{tag}`)")
     report.changed = True
     if kind == "git":
-        old_tag = audit.release_tag(repository, template, pinned)[0]
+        old_tag = supply_chain.release_tag(repository, template, pinned)[0]
         review_changes(port, repository, old_tag, tag, report)
     else:
         report.review.append(f"- **{port}** {pinned} → {new}: read the NEWS of {new} ({repository}); the archive "
@@ -451,14 +452,14 @@ def update_vcpkg_baseline(apply, report):
         when, how = tag_date(VCPKG, tags[version][0])
         for port, (_, new) in moved(version).items():
             url, template = shipped[port]
-            tag = audit.release_tag(url, template, new)[0]
+            tag = supply_chain.release_tag(url, template, new)[0]
             port_when, port_how = tag_date(url, tag)
             if port_when > when:
                 when, how = port_when, f"{port} {new}, {port_how}"
         return when, how
 
-    commits = {p: audit.release_tag(url, t, pinned[p])[1] for p, (url, t) in shipped.items() if p in pinned}
-    found = audit.osv_lookup(c for c in commits.values() if c)
+    commits = {p: supply_chain.release_tag(url, t, pinned[p])[1] for p, (url, t) in shipped.items() if p in pinned}
+    found = supply_chain.osv_lookup(c for c in commits.values() if c)
     vulnerable_now = {f"{p}:{vid}" for p, c in commits.items() for vid, aliases, _, fixed in found.get(c, [])
                       if fixed and not ({vid, *(a.strip() for a in aliases.split(",") if a.strip())} & answered(p))}
 
@@ -468,7 +469,7 @@ def update_vcpkg_baseline(apply, report):
             port, vid = item.split(":", 1)
             if port in moved(version):
                 url, template = shipped[port]
-                still |= {f"{port}:{v}" for v in fixable(audit.release_tag(url, template, moved(version)[port][1])[1])}
+                still |= {f"{port}:{v}" for v in fixable(supply_chain.release_tag(url, template, moved(version)[port][1])[1])}
             else:
                 still.add(item)
         return not (still & vulnerable_now)
@@ -489,8 +490,8 @@ def update_vcpkg_baseline(apply, report):
             report.review.append(f"- **{port}** {new}: new in the packages; read it whole.")
             continue
         try:
-            review_changes(port, url, audit.release_tag(url, template, old)[0],
-                           audit.release_tag(url, template, new)[0], report)
+            review_changes(port, url, supply_chain.release_tag(url, template, old)[0],
+                           supply_chain.release_tag(url, template, new)[0], report)
         except subprocess.CalledProcessError:
             report.review.append(f"- **{port}** {old} → {new}: could not list its changes ({url}); review by hand.")
     report.changed = True
@@ -543,7 +544,7 @@ def main():
     checks = [(p, lambda p=p, u=u, t=t: update_git_port(p, u, t, args.apply, report))
               for p, (u, t) in audit.COMMIT_PORTS.items()]
     checks += [("Rust", lambda: update_rust(args.apply, report)),
-               ("graphicsmagick", lambda: update_tarball_port("graphicsmagick", audit.gm_releases, GM_ARCHIVE, args.apply, report)),
+               ("graphicsmagick", lambda: update_tarball_port("graphicsmagick", supply_chain.gm_releases, GM_ARCHIVE, args.apply, report)),
                ("vcpkg baseline", lambda: update_vcpkg_baseline(args.apply, report)),
                ("Qt", lambda: update_qt(args.apply, report)),
                ("cooldown exceptions", lambda: prune_exceptions(args.apply, report))]

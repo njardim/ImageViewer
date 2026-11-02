@@ -110,12 +110,6 @@ bool isKnownLanguage(const QString &code)
 
 } // namespace
 
-QList<OverlayField> Settings::defaultOverlayFields()
-{
-    return {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,
-            OverlayField::Zoom, OverlayField::ColorSpace, OverlayField::Modified};
-}
-
 const QList<OverlayField> &Settings::allOverlayFields()
 {
     static const QList<OverlayField> all = {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,

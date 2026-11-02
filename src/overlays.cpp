@@ -355,7 +355,7 @@ void ViewerWindow::updateOverlay()
                   .arg(m_settings.overlayOutline)
                   .arg(width())
                   .arg(height())
-                  .arg(galleryReserve()) // the panel's room above the gallery
+                  .arg(m_gallery.reserve()) // the panel's room above the gallery
                   .arg(dpr)
                   .arg(int(QGuiApplication::layoutDirection()))
                   .arg(font.key());
@@ -411,7 +411,7 @@ void ViewerWindow::updateOverlay()
     // than a small one: long values are elided, rows that do not fit are left out. The messages
     // come first; the information panel takes the height left, while one line fits.
     const qreal maxWidth = std::max(120.0, std::min(this->width() - 2 * kEdgeMargin, std::max(480.0, this->width() * 0.5)));
-    const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kEdgeMargin - galleryReserve());
+    const qreal maxHeight = std::max(lineHeight + 2 * padding, this->height() - 2 * kEdgeMargin - m_gallery.reserve());
     const Layout messageLayout = measure(messages), infoLayout = measure(rows);
     const auto panelSize = [&](const Layout &layout, qreal room) {
         return QSizeF(std::ceil(std::min(layout.contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(layout.height, room)));
@@ -694,8 +694,8 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
     const double margin = kEdgeMargin * dpr;
-    if (!m_gallerySize.isEmpty())
-        frame->overlayRects[Renderer::GalleryLayer] = m_galleryRect;
+    if (m_gallery.visible())
+        frame->overlayRects[Renderer::GalleryLayer] = m_gallery.rect();
     if (!m_messageSize.isEmpty())
         frame->overlayRects[Renderer::MessageLayer] =
             QRectF(QPointF(std::round((deviceSize().width() - m_messageSize.width()) / 2.0),
@@ -706,7 +706,7 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
                              ? deviceSize().width() - margin - m_overlaySize.width()
                              : margin;
         frame->overlayRects[Renderer::InfoLayer] =
-            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - galleryReserve() * dpr - m_overlaySize.height())),
+            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_gallery.reserve() * dpr - m_overlaySize.height())),
                    QSizeF(m_overlaySize));
     }
     if (topOverlayVisible())
@@ -749,7 +749,7 @@ void ViewerWindow::updateSlideshowToolbar()
 {
     if (!m_rendererReady)
         return;
-    if (!m_slideshow || m_toolbarHidden) {
+    if (!m_slideshow.running() || m_toolbarHidden) {
         if (!m_toolbarSize.isEmpty()) {
             m_toolbarSize = QSize();
             m_toolbarKey.clear();
@@ -762,11 +762,11 @@ void ViewerWindow::updateSlideshowToolbar()
     const QColor background = m_settings.panelBackground();
     const int hover = int(m_toolbarHover) - 1, press = int(m_toolbarPress) - 1; // -1: none
     const QString key = QStringLiteral("%1|%2|%3|%4|%5")
-                            .arg(m_slideshowPaused).arg(hover).arg(press).arg(dpr).arg(background.alpha());
+                            .arg(m_slideshow.paused()).arg(hover).arg(press).arg(dpr).arg(background.alpha());
     if (key == m_toolbarKey)
         return;
     m_toolbarKey = key;
-    const QImage image = slideshowToolbar(m_slideshowPaused, hover, press, dpr, background);
+    const QImage image = slideshowToolbar(m_slideshow.paused(), hover, press, dpr, background);
     m_toolbarSize = image.size();
     m_renderer.setOverlay(Renderer::SlideshowLayer, image);
     requestUpdate();

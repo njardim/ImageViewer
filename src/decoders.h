@@ -208,11 +208,13 @@ bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QStrin
 bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error);
 
 // codecs.cpp: libjxl, libwebp and Softimage PIC (D-45), which parse the file from memory; APNG
-// is handed to apng.cpp. A CMYK JPEG with a CMYK ICC profile is read here too, through libjpeg-turbo
-// (OpenImageIO converts CMYK to RGB itself, without the profile; D-100).
+// is handed to apng.cpp.
 bool codecAvailable(Decoder decoder);
 bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                  std::unique_ptr<FrameReader> *frames);
+
+// jpeg.cpp: a CMYK JPEG with a CMYK ICC profile, its ink read through libjpeg-turbo (OpenImageIO
+// converts CMYK to RGB itself, without the profile; D-100).
 bool decodeCmykJpeg(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QString *error);
 
 // apng.cpp: animated PNG; a PNG without animation control is read as a plain PNG.

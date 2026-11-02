@@ -34,12 +34,8 @@ opened from a folder; every step waits until the expected pixels are on screen, 
      keyboard, are saved as settings (D-56); I and the overlay's checkbox in Settings are one
      switch; the Settings dialog opens again on the tab it last closed on, after a restart too
      (D-84);
-  9. the title in the overlay's style with its fields (D-58); the gallery (D-60, D-65): G shows
-     it, the current thumbnail on the highlight colour and the hovered one fainter, a click
-     shows a thumbnail's image, the ring past the first image, the wheel scrolls, a file saved
-     again by an editor gets a new thumbnail (D-82), G hides it;
-     large thumbnails and another highlight from the settings;
- 10. an unreadable file shows the warning sign in the middle (D-63).
+The gallery, an unreadable file's warning sign and an SVG's detail and workers are
+tests/ui_views_test.py's (D-102); the harness both share is tests/ui_driver.py.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
 
@@ -48,43 +44,21 @@ needs: Xvfb, xdotool, xwd (x11-apps), ImageMagick `convert`, libXfixes, numpy, P
 env:   UI_TEST_DIR  where to keep the files, the log and the last screenshot (default: a temp dir)
 """
 import configparser
-import ctypes
-import ctypes.util
 import os
 import re
-import shutil
-import subprocess
 import sys
-import tempfile
-import threading
 import time
 
 import numpy as np
 from PIL import Image
 
-import xvfb
-
-DEADLINE_S = 60
-POLL_S = 0.3
-
-exe = os.path.abspath(sys.argv[1])
-svg_renderer = re.search(r"^ *svg \| .* \| yes \| ", subprocess.run(
-    [exe, "--formats"], env=dict(os.environ, QT_QPA_PLATFORM="offscreen"), capture_output=True, text=True,
-    encoding="utf-8", errors="replace", timeout=120).stdout, re.MULTILINE) is not None
-rhi = sys.argv[2] if len(sys.argv) > 2 else "vulkan"
-work = os.environ.get("UI_TEST_DIR") or tempfile.mkdtemp(prefix="imageviewer-ui-")
-home = os.path.join(work, "home")
-pictures = os.path.join(home, "pictures")
-config = os.path.join(work, "config")
-data = os.path.join(home, ".local", "share")
-# A reused UI_TEST_DIR must not carry an earlier run's settings or trash into this one.
-for d in (home, config, os.path.join(work, "zoom"), os.path.join(work, "gallery")):
-    shutil.rmtree(d, ignore_errors=True)
-for d in (pictures, config, data):
-    os.makedirs(d, exist_ok=True)
-log_path = os.path.join(work, f"viewer-{rhi}.log")
-shot_path = os.path.join(work, f"screen-{rhi}.png")
-settings_file = os.path.join(config, "Cristallumnis", "ImageViewer.conf")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from ui_driver import (  # noqa: E402  the harness (D-102); it reads the command line
+    DEADLINE_S, POLL_S, data, edit_settings, fail, find, find_dialog, focus_viewer, grab, launch, log_path,
+    log_text, open_xfixes, pictures, rhi, server, settings_file, shot_path, stored, viewer, wait_for,
+    wait_until, watch_iconify, window_geometry, work, xdotool,
+)
+import xvfb  # noqa: E402
 
 refs = {}
 for i, name in enumerate(("a", "b", "c", "e")):
@@ -92,58 +66,6 @@ for i, name in enumerate(("a", "b", "c", "e")):
     if name != "e":  # e.png is created later, by "another program"
         Image.fromarray(pixels).save(os.path.join(pictures, f"{name}.png"))
     refs[name] = pixels.astype(int)
-
-
-def grab():
-    return xvfb.grab(display, shot_path)
-
-
-def find(screen, ref):
-    """Top-left of an exact copy of `ref` on the screen, or None."""
-    h, w = ref.shape[:2]
-    ys, xs = np.nonzero(np.all(screen[: screen.shape[0] - h + 1, : screen.shape[1] - w + 1] == ref[0, 0], axis=2))
-    for y, x in zip(ys, xs):
-        if np.array_equal(screen[y:y + h, x:x + w], ref):
-            return int(x), int(y)
-    return None
-
-
-def wait_for(what, ref):
-    start = time.monotonic()
-    while time.monotonic() - start < DEADLINE_S:
-        if app.poll() is not None:
-            fail(f"{what}: ImageViewer exited with code {app.returncode}")
-        screen = grab()
-        if screen is not None and find(screen, ref) is not None:
-            print(f"ok   {what} ({time.monotonic() - start:.1f} s)")
-            return
-        time.sleep(POLL_S)
-    fail(f"{what}: not on screen after {DEADLINE_S} s (see {shot_path})")
-
-
-def wait_until(what, condition):
-    start = time.monotonic()
-    while time.monotonic() - start < DEADLINE_S:
-        if app.poll() is not None:
-            fail(f"{what}: ImageViewer exited with code {app.returncode}")
-        if condition():
-            print(f"ok   {what} ({time.monotonic() - start:.1f} s)")
-            return
-        time.sleep(POLL_S)
-    fail(f"{what}: not after {DEADLINE_S} s (see {shot_path} and {log_path})")
-
-
-def log_text():
-    with open(log_path, encoding="utf-8", errors="replace") as f:
-        return f.read()
-
-
-def stored(pattern):
-    """The settings file holds a line matching `pattern`."""
-    if not os.path.exists(settings_file):
-        return False
-    with open(settings_file, encoding="utf-8") as f:
-        return re.search(pattern, f.read()) is not None
 
 
 def overlay_visible():
@@ -155,125 +77,10 @@ def overlay_visible():
     return (band.min(axis=2) > 200).sum() > 30
 
 
-def find_dialog(title):
-    """Window id of a visible dialog with this exact title, waiting for it."""
-    found = []
-    start = time.monotonic()
-    while not found and time.monotonic() - start < DEADLINE_S:
-        found = xdotool("search", "--onlyvisible", "--name", f"^{title}$").stdout.split()
-        time.sleep(POLL_S)
-    return found[0] if found else None
-
-
-def xdotool(*args):
-    return subprocess.run(["xdotool", *args], env=env, capture_output=True, text=True, timeout=30)
-
-
-def window_geometry():
-    found = xdotool("search", "--sync", "--onlyvisible", "--name", "ImageViewer$")
-    for wid in found.stdout.split():
-        info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
-        if int(info["WIDTH"]) >= 640:  # the viewer, not a dialog
-            return int(info["X"]), int(info["Y"]), int(info["WIDTH"]), int(info["HEIGHT"])
-    fail("viewer window not found")
-
-
-def focus_viewer():
-    """Keyboard focus on the viewer again: without a window manager, a dialog that closes leaves
-    it on the root window with some Qt builds (seen with Qt 6.12 built from source). Asked again
-    until the deadline: a dialog's windows are destroyed for seconds after it is hidden (the file
-    dialog over /usr/bin, 12 to 16 s on OpenGL in CI), and an xdotool search that meets one being
-    destroyed ends with nothing found (CI run 217)."""
-    start = time.monotonic()
-    while time.monotonic() - start < DEADLINE_S:
-        for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
-            fields = xdotool("getwindowgeometry", "--shell", wid).stdout.split()
-            info = dict(line.split("=", 1) for line in fields if "=" in line)
-            if int(info.get("WIDTH", 0)) >= 640:  # the viewer, not a dialog
-                xdotool("windowfocus", "--sync", wid)
-                return
-        time.sleep(POLL_S)
-    fail("viewer window not found")
-
-
-def fail(message):
-    print(f"FAIL: {rhi}: {message}")
-    raise SystemExit(1)
-
-
-class CursorImage(ctypes.Structure):  # XFixesCursorImage
-    _fields_ = [("x", ctypes.c_short), ("y", ctypes.c_short), ("width", ctypes.c_ushort),
-                ("height", ctypes.c_ushort), ("xhot", ctypes.c_ushort), ("yhot", ctypes.c_ushort),
-                ("cursor_serial", ctypes.c_ulong), ("pixels", ctypes.POINTER(ctypes.c_ulong)),
-                ("atom", ctypes.c_ulong), ("name", ctypes.c_char_p)]
-
-
-def open_xfixes():
-    x11 = ctypes.CDLL(ctypes.util.find_library("X11") or "libX11.so.6")
-    xfixes = ctypes.CDLL(ctypes.util.find_library("Xfixes") or "libXfixes.so.3")
-    x11.XOpenDisplay.restype = ctypes.c_void_p
-    x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
-    x11.XFree.argtypes = [ctypes.c_void_p]
-    xfixes.XFixesQueryVersion.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
-    xfixes.XFixesGetCursorImage.restype = ctypes.POINTER(CursorImage)
-    xfixes.XFixesGetCursorImage.argtypes = [ctypes.c_void_p]
-    connection = x11.XOpenDisplay(display.encode())
-    major, minor = ctypes.c_int(6), ctypes.c_int(0)
-    if not connection or not xfixes.XFixesQueryVersion(connection, ctypes.byref(major), ctypes.byref(minor)):
-        fail("XFixes is not available on the X server")
-
-    def pointer_hidden():
-        """The pointer's image is blank (Qt's BlankCursor): every pixel fully transparent."""
-        image = xfixes.XFixesGetCursorImage(connection)
-        if not image:
-            fail("XFixesGetCursorImage failed")
-        c = image.contents
-        hidden = not any(c.pixels[i] >> 24 for i in range(c.width * c.height))
-        x11.XFree(image)
-        return hidden
-    return pointer_hidden
-
-
-def watch_iconify():
-    """A test of whether the viewer asked the window manager to minimize it since this call: the
-    ICCCM's WM_CHANGE_STATE message with IconicState, which Qt sends to the root window (there is
-    no window manager here to act on it)."""
-    x11 = ctypes.CDLL(ctypes.util.find_library("X11") or "libX11.so.6")
-    x11.XOpenDisplay.restype = ctypes.c_void_p
-    x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
-    x11.XDefaultRootWindow.restype = ctypes.c_ulong
-    x11.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
-    x11.XInternAtom.restype = ctypes.c_ulong
-    x11.XInternAtom.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
-    x11.XSelectInput.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_long]
-    x11.XPending.argtypes = [ctypes.c_void_p]
-    x11.XNextEvent.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-    connection = x11.XOpenDisplay(display.encode())
-    if not connection:
-        fail("cannot open the X display")
-    change_state = x11.XInternAtom(connection, b"WM_CHANGE_STATE", 0)
-    x11.XSelectInput(connection, x11.XDefaultRootWindow(connection), 1 << 17)  # StructureNotifyMask
-    x11.XPending(connection)  # sends the request
-    event = (ctypes.c_long * 24)()  # an XEvent; as XClientMessageEvent on LP64: type, ..., message_type
-                                    # at word 5, format at 6, data.l[0] at 7
-
-    def iconify_requested():
-        while x11.XPending(connection):
-            x11.XNextEvent(connection, event)
-            if event[0] & 0xFFFFFFFF == 33 and event[5] == change_state and event[7] == 3:  # ClientMessage, IconicState
-                return True
-        return False
-    return iconify_requested
-
-
-server, display = xvfb.start("1600x1000x24")
-env = dict(os.environ, DISPLAY=display, QT_QPA_PLATFORM="xcb", IMAGEVIEWER_RHI=rhi, IMAGEVIEWER_OUTPUT="sdr",
-           LC_ALL="C.UTF-8", LANGUAGE="en", HOME=home, XDG_CONFIG_HOME=config, XDG_DATA_HOME=data,
-           QT_LOGGING_RULES="imageviewer.*=true")
 app = None
 try:
     with open(log_path, "w") as log:
-        app = subprocess.Popen([exe, os.path.join(pictures, "a.png")], env=env, stdout=log, stderr=log)
+        app = launch([os.path.join(pictures, "a.png")], log)
         try:
             wait_for("first image shown", refs["a"])
             x, y, w, h = window_geometry()
@@ -583,28 +390,6 @@ try:
                                        ("small.png", (400, 300), (60, 200, 30))):
                 Image.new("RGB", size, colour).save(os.path.join(zoom_dir, name))
 
-            def set_option(text, group, key, value):
-                if re.search(rf"(?m)^\[{group}\]$", text) is None:
-                    text = text.rstrip("\n") + f"\n\n[{group}]\n"
-                section = re.search(rf"(?ms)^\[{group}\]\n.*?(?=^\[|\Z)", text)
-                body = re.sub(rf"(?m)^{key}=.*\n?", "", section.group(0))
-                return text[:section.start()] + body.replace(f"[{group}]\n", f"[{group}]\n{key}={value}\n", 1) + text[section.end():]
-
-            def edit_settings(*options):
-                with open(settings_file, encoding="utf-8") as f:
-                    text = f.read()
-                for group, key, value in options:
-                    text = set_option(text, group, key, value)
-                with open(settings_file, "w", encoding="utf-8") as f:
-                    f.write(text)
-
-            def viewer():
-                for wid in xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split():
-                    name = xdotool("getwindowname", wid).stdout.strip()
-                    info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", wid).stdout.split())
-                    return name, int(info["WIDTH"]), int(info["HEIGHT"])
-                return "", 0, 0
-
             def title_zoom(name, expected):
                 def check():
                     d = "   ·   "  # the top overlay's separator, which the title shares (D-58)
@@ -617,7 +402,7 @@ try:
 
             edit_settings(("window", "title", "everything"), ("shortcuts", "FitWidth", "U"),  # D-52
                           ("app", "fontSize", "small"))
-            app = subprocess.Popen([exe, os.path.join(zoom_dir, "big1.png")], env=env, stdout=log, stderr=log)
+            app = launch([os.path.join(zoom_dir, "big1.png")], log)
             fit = lambda w, h: round(min(w / 2400, h / 1800, 1.0) * 100, 1)
             wait_until("the title shows the name, position, size, file size and fitted zoom", title_zoom("big1.png", fit))
             xdotool("key", "u")
@@ -654,7 +439,7 @@ try:
             wide = Image.new("RGB", (4000, 1000), (200, 60, 30))
             wide.paste((30, 60, 200), (2000, 0, 4000, 1000))
             wide.save(os.path.join(wide_dir, "wide.png"))
-            app = subprocess.Popen([exe, os.path.join(wide_dir, "wide.png")], env=env, stdout=log, stderr=log)
+            app = launch([os.path.join(wide_dir, "wide.png")], log)
             wait_until("wide.png fits the window", title_zoom("wide.png", lambda w, h: round(min(w / 4000, h / 1000, 1.0) * 100, 1)))
             xdotool("key", "h")
             wait_until("H fits the height", title_zoom("wide.png", lambda w, h: round(min(h / 1000, 1.0) * 100, 1)))
@@ -677,7 +462,7 @@ try:
 
             edit_settings(("window", "matchImage", "every"), ("window", "matchImagePercent", "50"),
                           ("window", "title", "name"))
-            app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)
+            app = launch([os.path.join(zoom_dir, "small.png")], log)
             wait_until("the window takes the size of a small image (400 × 300)",
                        lambda: viewer() == ("small.png — ImageViewer", 400, 300))
             xdotool("key", "Home")
@@ -691,7 +476,7 @@ try:
             # ("!", Shift+1 on a US keyboard) is matched before the digit (Actual Size); the
             # Shortcuts tab records a key in place of the first shortcut and keeps the others.
             edit_settings(("window", "matchImage", "never"), ("shortcuts", "Next", "Foo"), ("shortcuts", "AboutQt", "!"))
-            app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)
+            app = launch([os.path.join(zoom_dir, "small.png")], log)
             wait_until("small.png shown", lambda: viewer()[0] == "small.png — ImageViewer")
             xdotool("key", "Right")
             wait_until("Right still goes to the next image when the settings name an unknown key (Next=Foo)",
@@ -756,7 +541,7 @@ try:
             # 8. The pointer and the toggles (D-56): still over the image, the pointer hides after
             # 2 s (the default) and a move shows it again; T and C are saved as settings.
             pointer_hidden = open_xfixes()
-            app = subprocess.Popen([exe, os.path.join(zoom_dir, "small.png")], env=env, stdout=log, stderr=log)
+            app = launch([os.path.join(zoom_dir, "small.png")], log)
             wait_until("small.png shown", lambda: viewer()[0] == "small.png — ImageViewer")
             x, y, w, h = window_geometry()
             xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
@@ -797,347 +582,6 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
-            # 9. The gallery (D-60, D-61, D-65). Twelve images in a 1280 px window: nine thumbnails of the
-            # default 96 px, 8 px apart, centred, the current one in the middle; navigation loops, so
-            # the gallery is a ring. A click shows a thumbnail's image, the wheel scrolls; behind the
-            # current thumbnail and the one under the pointer, the highlight colour (emerald by
-            # default; fainter under the pointer).
-            gallery_dir = os.path.join(work, "gallery")
-            os.makedirs(gallery_dir)
-            for i in range(12):
-                Image.new("RGB", (160, 120), (20 * i, 100, 200 - 15 * i)).save(os.path.join(gallery_dir, f"g{i + 1:02}.png"))
-            edit_settings(("window", "title", "overlay"))  # D-58: the overlay's fields, in its style
-            app = subprocess.Popen([exe, os.path.join(gallery_dir, "g01.png")], env=env, stdout=log, stderr=log)
-            wait_until("the title shows the overlay's fields in its style",
-                       lambda: re.fullmatch(r"g01\.png   ·   160 × 120   ·   .+ — ImageViewer", viewer()[0]) is not None)
-            shown = lambda name: lambda: viewer()[0].startswith(name + "   ·   ")
-            focus_viewer()
-            xdotool("key", "g")
-            wait_until("G shows the gallery and saves it", lambda: stored(r"(?m)^show=true$"))
-            wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
-            xdotool("windowsize", "--sync", wid, "1280", "800")  # the session left a narrower window
-            wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
-            x, y, w, h = window_geometry()
-
-            def slot_centre(slot, thumb=96, enlargement=0):
-                """Screen centre of a thumbnail: `slot` from the middle one (0), for an odd count."""
-                count = (w - 2 * 128 - 8 - enlargement) // (thumb + 8)
-                count -= 1 - count % 2
-                if count < 3:
-                    fail(f"a {w} px window holds only {count} thumbnails of {thumb} px")
-                # Below the bar, the margin: 16 px, or the enlarged tile's reach (100 / 2 + 3 - 8 = 45).
-                margin = max(16, enlargement // 2 + 3 - 8)
-                return x + w // 2 + slot * (thumb + 8), y + h - margin - 8 - thumb // 2
-
-            def tile_colour(centre_x, top):
-                """The highlight above a thumbnail: 160 × 120 fills 96 × 72, the tile shows above it."""
-                shot = grab()
-                return shot[top + 5, centre_x] if shot is not None else None
-
-            def emerald_at(opacity):
-                """Emerald at `opacity` % over the gallery's bar (black at 70 % over the #212121 background)."""
-                bar = 0x21 * (1 - round(70 * 2.55) / 255)
-                a = round(opacity * 2.55) / 255
-                return [c * a + bar * (1 - a) for c in (80, 200, 120)]
-
-            def near(colour, expected):
-                return colour is not None and all(abs(int(c) - e) <= 3 for c, e in zip(colour, expected))
-            mx, my = slot_centre(0)
-            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))  # off the gallery
-            time.sleep(0.5)
-            current = tile_colour(mx, my - 48)
-            if not near(current, emerald_at(70)):
-                fail(f"the current thumbnail's tile is {current}, not emerald at 70 %")
-            print(f"ok   the current thumbnail sits on an emerald tile at 70 % {tuple(int(c) for c in current)}")
-            hx, hy = slot_centre(2)
-            xdotool("mousemove", "--sync", str(hx), str(hy))
-            time.sleep(0.5)
-            hovered = tile_colour(hx, hy - 48)  # not enlarged: the zoom is off by default (D-81)
-            if not near(hovered, emerald_at(50)):  # 20 points fainter (D-85)
-                fail(f"the hovered tile is {hovered}, not emerald at 50 %")
-            print(f"ok   the thumbnail under the pointer sits on emerald at 50 % {tuple(int(c) for c in hovered)}")
-            xdotool("click", "1")
-            wait_until("a click on a thumbnail two to the right shows g03.png", shown("g03.png"))
-            xdotool("key", "Home")
-            wait_until("Home shows g01.png, in the middle again", shown("g01.png"))
-            lx, ly = slot_centre(-1)
-            xdotool("mousemove", "--sync", str(lx), str(ly))
-            xdotool("click", "1")
-            wait_until("left of the first image, the ring shows the last: g12.png", shown("g12.png"))
-            xdotool("key", "Home")
-            wait_until("Home shows g01.png", shown("g01.png"))
-            xdotool("mousemove", "--sync", str(mx), str(my))
-            xdotool("click", "--repeat", "2", "--delay", "100", "5")  # two wheel steps down
-            time.sleep(0.5)
-            xdotool("click", "1")
-            wait_until("the wheel scrolls the gallery: two steps on, the middle shows g03.png", shown("g03.png"))
-            # An editor saves the image beside it as editors do, a new file renamed over the old one
-            # (the folder changes): the listing's size and time (D-82) give it a new thumbnail, a
-            # 96 × 72 field of the new colour around the slot's centre.
-            Image.new("RGB", (160, 120), (250, 250, 0)).save(os.path.join(gallery_dir, ".g04.tmp"), format="PNG")
-            os.replace(os.path.join(gallery_dir, ".g04.tmp"), os.path.join(gallery_dir, "g04.png"))
-            nx, ny = slot_centre(1)
-
-            def rewritten_thumbnail():
-                shot = grab()
-                return shot is not None and np.abs(shot[ny, nx] - (250, 250, 0)).max() <= 2
-            wait_until("a file saved again by an editor gets a new thumbnail", rewritten_thumbnail)
-            xdotool("key", "g")
-            wait_until("G again hides the gallery", lambda: stored(r"(?m)^show=false$"))
-            xdotool("key", "q")
-            app.wait(15)
-
-            # A folder that keeps changing (a download beside the images, a tethered camera; D-100):
-            # every listing dropped the thumbnails being decoded, so images slower to decode (6000 px,
-            # about 1.4 s here) than the changes came (every 0.4 s, each one listed once the folder has
-            # been still for 300 ms) never got one. Now only a thumbnail of a file found changed is.
-            churn_dir = os.path.join(work, "churn")
-            os.makedirs(churn_dir)
-            rng = np.random.default_rng(7)
-            blocks = np.kron(rng.integers(0, 216, size=(8, 8, 3), dtype=np.uint8), np.ones((750, 750, 1), dtype=np.uint8))
-            blocks += rng.integers(0, 40, size=blocks.shape, dtype=np.uint8)
-            Image.fromarray(blocks).save(os.path.join(churn_dir, "c0.png"), compress_level=1)
-            del blocks
-            for i in range(1, 5):
-                shutil.copy(os.path.join(churn_dir, "c0.png"), os.path.join(churn_dir, f"c{i}.png"))
-            edit_settings(("gallery", "show", "true"))
-            stop_churn = threading.Event()
-
-            def churn():
-                n = 0
-                while not stop_churn.wait(0.4):
-                    with open(os.path.join(churn_dir, f"note-{n}.txt"), "w") as f:
-                        f.write("x")
-                    n += 1
-            threading.Thread(target=churn, daemon=True).start()
-            app = subprocess.Popen([exe, os.path.join(churn_dir, "c0.png")], env=env, stdout=log, stderr=log)
-            try:
-                wait_until("c0.png shown with the gallery", shown("c0.png"))
-                x, y, w, h = window_geometry()
-
-                def churned_thumbnails():
-                    # Five 96 px thumbnails of 8 × 8 coloured blocks, centred: drawn ones vary (a
-                    # deviation of about 60), the placeholders of thumbnails still being decoded do not
-                    # (at most 32, the current one's highlight).
-                    shot = grab()
-                    if shot is None:
-                        return False
-                    for slot in range(-2, 3):
-                        cx, cy = slot_centre(slot)
-                        if shot[cy - 30:cy + 30, cx - 30:cx + 30].std() < 45:
-                            return False
-                    return True
-                wait_until("in a folder changing every 0.4 s, every slow image gets its thumbnail", churned_thumbnails)
-            finally:
-                stop_churn.set()
-            xdotool("key", "q")
-            app.wait(15)
-
-            # Large thumbnails (128 px) in ruby, enlarged by the most (100 px), chosen in the settings.
-            edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("gallery", "highlight", "#e0115f"),
-                          ("gallery", "zoom", "true"), ("gallery", "enlargement", "100"))
-            app = subprocess.Popen([exe, os.path.join(gallery_dir, "g01.png")], env=env, stdout=log, stderr=log)
-            wait_until("g01.png shown with the gallery", shown("g01.png"))
-            xdotool("windowsize", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0],
-                    "1280", "800")
-            wait_until("the window is 1280 px wide", lambda: window_geometry()[2] == 1280)
-            x, y, w, h = window_geometry()
-            mx, my = slot_centre(0, thumb=128, enlargement=100)
-            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))
-            time.sleep(0.5)
-            current = tile_colour(mx, my - 64)
-            if current is None or not (current[0] > current[1] + 60 and current[0] > current[2] + 20):
-                fail(f"the current thumbnail's tile is {current}, not ruby")
-            print(f"ok   the highlight follows the setting: ruby {tuple(current)}")
-            rx, ry = slot_centre(1, thumb=128, enlargement=100)
-            xdotool("mousemove", "--sync", str(rx), str(ry))
-
-            def tile_at_bottom():
-                # 228 px enlarged, its tile 3 px around: it reaches past the 16 px margin, down to
-                # the window's bottom row (D-61).
-                shot = grab()
-                if shot is None:
-                    return False
-                pixel = shot[y + h - 1, rx]
-                return pixel[0] > pixel[1] + 40 and pixel[0] > pixel[2] + 10
-            wait_until("enlarged by 100 px, the hovered thumbnail's tile reaches the window's bottom", tile_at_bottom)
-            xdotool("click", "1")
-            wait_until("128 px thumbnails: a click on the next one shows g02.png", shown("g02.png"))
-            xdotool("key", "q")
-            app.wait(15)
-
-            # 10. An error (D-63): a file that cannot be read shows the warning sign in the middle
-            # of the window, its message below it; the sign's amber is drawn exactly in SDR.
-            broken = os.path.join(work, "broken.png")
-            with open(broken, "wb") as f:
-                f.write(b"\x89PNG\r\n\x1a\nnot an image")
-            app = subprocess.Popen([exe, broken], env=env, stdout=log, stderr=log)
-
-            def warning_in_the_middle():
-                screen = grab()
-                if screen is None:
-                    return False
-                x, y, w, h = window_geometry()
-                ys, xs = np.nonzero(np.all(screen[y:y + h, x:x + w] == (255, 196, 0), axis=2))
-                # The sign above the middle (the message is below it), centred across.
-                return len(xs) > 2000 and abs(xs.mean() - w / 2) < 3 and h / 2 - 160 < ys.mean() < h / 2
-            wait_until("an unreadable file shows the warning sign in the middle", warning_in_the_middle)
-            xdotool("key", "q")
-            app.wait(15)
-
-            # 11 and 12 need the SVG renderer (scripts/build-svg.sh): a build without it skips them,
-            # CI ($CI set) fails instead.
-            if not svg_renderer:
-                if os.environ.get("CI"):
-                    fail("no SVG renderer in this build")
-                print("skip 11 and 12: no SVG renderer in this build (scripts/build-svg.sh)")
-            else:
-                # 11. The zoom's detail (D-93): an SVG enlarged on screen is drawn again at the zoom
-                # shown, in every orientation. A line a quarter of a pixel wide, on the left half of the
-                # image, is a light grey at 100 %; at 931 % the enlarged image keeps that grey, and the
-                # detail draws it black and 2 px wide, where the view turns and mirrors it.
-                line_dir = os.path.join(work, "line")
-                os.makedirs(line_dir)
-                line = os.path.join(line_dir, "line.svg")
-                with open(line, "w") as f:
-                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">'
-                            '<rect width="200" height="200" fill="#fff"/>'
-                            '<path d="M20 100.5H100" stroke="#000" stroke-width="0.25"/></svg>')
-                before = len(log_text())
-                app = subprocess.Popen([exe, line], env=env, stdout=log, stderr=log)
-                wait_until("the SVG shown", lambda: grab() is not None and "line.svg" in viewer()[0])
-                x, y, w, h = window_geometry()
-                cx, cy = x + w // 2, y + h // 2
-
-                def sides():
-                    """The darkest pixel left, right, above and below the window's centre."""
-                    shot = grab()
-                    if shot is None:
-                        return None
-                    s = shot.min(axis=2).astype(int)
-                    return (s[cy - 8:cy + 9, cx - 80:cx - 10].min(), s[cy - 8:cy + 9, cx + 10:cx + 80].min(),
-                            s[cy - 80:cy - 10, cx - 8:cx + 9].min(), s[cy + 10:cy + 80, cx - 8:cx + 9].min())
-                xdotool("key", "1")
-                wait_until("at 100 % the line is a light grey", lambda: (s := sides()) and 150 < s[0] < 230)
-                for _ in range(10):
-                    xdotool("key", "plus")
-                wait_until("at 931 % the detail draws the line black, on the left", lambda: sides() == (0, 255, 255, 255))
-                rows = (grab().min(axis=2)[cy - 10:cy + 11, cx - 40] < 128).sum()
-                if not 2 <= rows <= 3:
-                    fail(f"the line is {rows} px wide at 931 %, not 2.3 (see {shot_path})")
-                for keys, want, where in ((("r",), (255, 255, 0, 255), "turned clockwise, above"),
-                                          (("shift+h",), (255, 255, 255, 0), "flipped, below"),
-                                          (("shift+r",), (255, 0, 255, 255), "turned back, on the right")):
-                    xdotool("key", *keys)
-                    wait_until(f"the detail follows the view: {where}", lambda: sides() == want)
-
-                    # On the screen's pixel grid whatever the turn (D-94): across the line (2.3 px wide), at
-                    # most four pixels short of white, one of them black; half a pixel off, the
-                    # interpolation spreads it over five, none black. The detail drawn before the turn,
-                    # turned by the shader, shows until the one drawn for the new view arrives.
-                    def sharp(where=where):
-                        shot = grab()
-                        if shot is None:
-                            return False
-                        shot = shot.min(axis=2).astype(int)
-                        across = shot[cy - 40, cx - 12:cx + 13] if where.endswith("above") else (
-                            shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
-                        grey = [int(v) for v in across if v < 250]
-                        return 1 <= len(grey) <= 4 and min(grey) == 0
-                    wait_until("... and sharp on the screen's pixel grid", sharp)
-                # The details after the first draw the document their worker holds, sent once (D-95).
-                if 'SVG document held by its worker: "line.svg"' not in log_text()[before:]:
-                    fail("each detail sent and parsed the SVG again")
-                xdotool("key", "1")
-                wait_until("back at 100 %, the image's own pixels again", lambda: (s := sides()) and 150 < s[1] < 230)
-                xdotool("key", "q")
-                app.wait(15)
-                # 100 % is the document's own size (D-99), sharp in every turn and mirror: an SVG larger
-                # than the window, drawn at the window's size (D-94), gets its detail at 1, and its lines
-                # one pixel wide are black on white. It was shown at 27 %; at 100 % (its sides rounded
-                # up to whole texels) the detail was squeezed off the screen's pixel grid, mirrored too.
-                large = os.path.join(line_dir, "large.svg")
-                with open(large, "w") as f:
-                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="4001" height="3001">'
-                            '<rect width="4001" height="3001" fill="#fff"/>'
-                            + "".join(f'<rect y="{v}" width="4001" height="1"/>' for v in range(5, 3001, 10))
-                            + "".join(f'<rect x="{u}" width="1" height="3001"/>' for u in range(5, 4001, 10)) + '</svg>')
-                before = len(log_text())
-                app = subprocess.Popen([exe, large], env=env, stdout=log, stderr=log)
-                wait_until("the large SVG shown", lambda: "decoded for display: large.svg" in log_text()[before:])
-                focus_viewer()
-
-                def lines_sharp():
-                    shot = grab()
-                    if shot is None:
-                        return False
-                    x, y, w, h = window_geometry()
-                    middle = shot[y + h // 4:y + 3 * h // 4, x + w // 4:x + 3 * w // 4].astype(int).max(axis=2)
-                    return not ((middle > 20) & (middle < 235)).any() and (middle <= 20).mean() > 0.1
-                def details_at_100():
-                    return len(re.findall(r"detail drawn: large\.svg .* at 1 in ", log_text()[before:]))
-                drawn = 0  # the first may come before 1 is pressed: 100 % may be the zoom kept (D-65)
-                for keys in ([], ["shift+w"], ["r"]):
-                    for key in keys:
-                        xdotool("key", key)
-                    xdotool("key", "1")
-                    what = "at 100 %" + (" after " + " ".join(keys) if keys else "")
-                    wait_until(f"{what} the large SVG's detail is drawn one document pixel per device pixel",
-                               lambda: details_at_100() > drawn)
-                    wait_until(f"{what} its lines one pixel wide are sharp", lines_sharp)
-                    drawn = details_at_100()
-                xdotool("key", "q")
-                app.wait(15)
-
-                # 12. A folder of SVGs (D-94): each decoding thread starts one SVG worker and keeps it,
-                # rather than one process per document; the interface answers throughout (the latency
-                # log: the event loop more than 100 ms late), the owner's artwork with 17 filters too.
-                # The window opens on a PNG of the folder, larger than the window (drawn interpolated, as
-                # an SVG always is), and the measure starts once it is up: its first frames build the
-                # renderer's pipelines on the GUI thread, and llvmpipe compiles each sampling it meets
-                # (half a second to two, a PNG's as an SVG's), which is not reading SVGs.
-                svg_dir = os.path.join(work, "svgs")
-                os.makedirs(svg_dir)
-                for i in range(6):
-                    with open(os.path.join(svg_dir, f"s{i}.svg"), "w") as f:
-                        f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">'
-                                f'<rect width="800" height="600" fill="#{40 * i:02x}6090"/>'
-                                f'<circle cx="400" cy="300" r="{60 + 30 * i}" fill="#fc0"/></svg>')
-                shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "IV_claude_v5_mix_v1.svg"),
-                            os.path.join(svg_dir, "s6.svg"))
-                Image.new("RGB", (2400, 1800), (40, 90, 150)).save(os.path.join(svg_dir, "a.png"))
-                before = len(log_text())
-                app = subprocess.Popen([exe, os.path.join(svg_dir, "a.png")], env=env, stdout=log, stderr=log)
-                wait_until("the folder's PNG shown", lambda: "decoded for display: a.png" in log_text()[before:])
-                time.sleep(3)  # the window's first frames (its pipelines) are done
-                settled = len(log_text())
-                for name in ("s0", "s1", "s2", "s3", "s4", "s5", "s6"):
-                    xdotool("key", "Right")
-                    wait_until(f"{name}.svg shown", lambda name=name: re.search(rf"(decoded for display|shown from the cache): {name}\.svg",
-                                                                              log_text()[settled:]) is not None)
-                time.sleep(1)
-                xdotool("key", "q")
-                app.wait(30)
-                session = log_text()[before:]
-                starts = session.count("SVG worker started")
-                if not 1 <= starts <= 4:  # the decode thread, the detail's, the gallery's two
-                    fail(f"{starts} SVG workers started for 7 documents and their thumbnails, at most 4 expected")
-                print(f"ok   7 SVGs and their thumbnails: {starts} SVG workers started, one per decoding thread")
-                # A late tick is the GPU's when render() named a frame as long just before it: llvmpipe
-                # (OpenGL on the runners) compiles shader variants and makes mipmaps on the GUI thread.
-                # Anything else that held the event loop up is ours, and fails.
-                ours, frames, frame = [], [], 0
-                for kind, ms in re.findall(r"(a frame took|the event loop answered) (\d+) ms", log_text()[settled:]):
-                    if kind == "a frame took":
-                        frame = max(frame, int(ms))
-                        frames.append(int(ms))
-                        continue
-                    if int(ms) > 250 and frame < int(ms) - 60:
-                        ours.append(int(ms))
-                    frame = 0
-                if ours:
-                    fail(f"the interface did not answer for {max(ours)} ms while SVGs were read, outside drawing ({ours})")
-                print(f"ok   the interface answered throughout: no stall but frames drawn ({frames or 'none'} ms)")
         finally:
             if app.poll() is None:
                 app.terminate()
@@ -1149,3 +593,4 @@ if app.returncode != 0:
     print(open(log_path, encoding="utf-8", errors="replace").read())
     fail(f"ImageViewer exited with code {app.returncode}")
 print(f"{rhi}: all interaction checks passed")
+

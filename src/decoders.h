@@ -25,6 +25,8 @@ struct Decoded {
     int alphaIndex = -1;           // channel holding alpha, -1 if none
     bool associatedAlpha = false;  // colour already multiplied by alpha (EXR, some TIFFs)
     bool gray = false;             // channel 0 is luminance
+    bool cmyk = false;             // channels 0 to 3 are cyan, magenta, yellow and black ink (an ICC CMYK source)
+    bool inkInverted = false;      // ...stored as 1 - ink (Adobe's JPEG and Photoshop's convention)
     std::unique_ptr<unsigned char[]> data; // not zero-filled: every byte is written by the reader
     int bits = 0;                  // significant bits per sample (informative)
     int orientation = 1;
@@ -86,6 +88,9 @@ public:
 struct DecodeOptions {
     int maxSide = 0;
     bool fill = false;
+    // A thumbnail: a camera RAW file's own embedded preview, when it has one of at least `maxSide`
+    // pixels on its longer side, rather than the raw data developed (the owner, D-100).
+    bool preview = false;
     QSize view;
     double scale = 0.0;
     QRectF area;
@@ -103,7 +108,7 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
 // Stops OpenImageIO's worker threads (see shutdownDecoders()).
 void shutdownOpenImageIO();
 
-// Shared by the back ends (decoders.cpp, codecs.cpp).
+// Shared by the back ends (decoders.cpp, oiio.cpp, codecs.cpp).
 // Refuses a decode that would need more than ~60 % of physical memory (*error says why).
 bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error);
 // What every back end checks before it reads a pixel (D-38): dimensions within kMaxPixels, a
@@ -130,6 +135,8 @@ QString cleanText(QString text);
 void describeIcc(const QByteArray &icc, color::Descriptor *d);
 // sRGB for integer samples, linear BT.709 for float, marked as assumed (F12).
 void assumeDefault(bool isFloat, color::Descriptor *d);
+// What a CMYK image without a usable CMYK profile is described as: converted by the textbook formula.
+QString cmykWithoutProfile();
 // A frame's display time: browsers play 10 ms or less at 100 ms; at most a minute.
 int playableMs(double ms);
 // The first frame's layout (size, samples, channels, colour) on a later frame.
@@ -137,8 +144,18 @@ void copyLayout(const Decoded &from, Decoded *to);
 std::size_t frameBytes(const Decoded &d);
 // The whole file in memory (read, not mapped: see decoders.cpp).
 bool readWholeFile(const QString &path, QByteArray *bytes, QString *error);
+
+// oiio.cpp: the OpenImageIO back end.
+// A file through OpenImageIO; with `frames`, `format` is the animated format the content was
+// recognised as (GIF), whose frames after the first go to *frames.
+bool decodeWithOiio(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error,
+                    std::unique_ptr<FrameReader> *frames = nullptr);
 // OpenImageIO on a file in memory; `name` only tells it the format (e.g. "frame.png").
 bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error, qint64 maxPixels = 0);
+// Whether this build's OpenImageIO reads HEIF from memory (3.x; 2.4 only from a file).
+bool oiioReadsHeifFromMemory();
+// A camera RAW file's embedded preview of at least `side` pixels, for a thumbnail (DecodeOptions::preview).
+bool decodeRawPreview(const QString &path, int side, qint64 maxPixels, Decoded *out);
 
 // worker.cpp: the decode worker process (D-38), for GraphicsMagick and SVG (svg.cpp).
 bool graphicsMagickAvailable();
@@ -191,10 +208,12 @@ bool decodeHeifSequence(QByteArray bytes, qint64 maxPixels, Decoded *out, QStrin
 bool decodeWithQt(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error);
 
 // codecs.cpp: libjxl, libwebp and Softimage PIC (D-45), which parse the file from memory; APNG
-// is handed to apng.cpp.
+// is handed to apng.cpp. A CMYK JPEG with a CMYK ICC profile is read here too, through libjpeg-turbo
+// (OpenImageIO converts CMYK to RGB itself, without the profile; D-100).
 bool codecAvailable(Decoder decoder);
 bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,
                  std::unique_ptr<FrameReader> *frames);
+bool decodeCmykJpeg(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QString *error);
 
 // apng.cpp: animated PNG; a PNG without animation control is read as a plain PNG.
 bool decodeApng(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,

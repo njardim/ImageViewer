@@ -235,23 +235,41 @@ void ViewerWindow::decodeThumbnail(const QString &path)
     const int pixels = int(std::ceil((Settings::kGalleryThumbnailSizes.back() + Settings::kMaxGalleryEnlargement) * dpr));
     // Within the preload's pixel limit: a huge image is decoded whole before it is reduced.
     const qint64 maxPixels = m_cache.maxPreloadPixels();
-    m_thumbnailPool.start([this, path, pixels, dpr, maxPixels, generation = m_thumbnailGeneration] {
+    m_thumbnailPool.start([this, path, pixels, dpr, maxPixels] {
         Thumbnail thumbnail;
         thumbnail.devicePixelRatio = dpr;
         const QFileInfo info(path); // before decoding: a file changed meanwhile is decoded again
         thumbnail.fileSize = info.size();
         thumbnail.modified = info.lastModified();
         // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
-        if (const Image image = decodeImage(path, pixels, maxPixels, false, true); image.isValid())
+        if (const Image image = decodeThumbnailImage(path, pixels, maxPixels); image.isValid())
             thumbnail.image = srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied);
-        QMetaObject::invokeMethod(this, [this, path, thumbnail, generation] {
-            m_thumbnailsPending.remove(path);
-            if (generation == m_thumbnailGeneration) // otherwise decoded before the folder changed: asked again
-                thumbnailReady(path, thumbnail);
-            else
-                updateGallery();
-        }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, path, thumbnail] { thumbnailArrived(path, thumbnail); }, Qt::QueuedConnection);
     });
+}
+
+void ViewerWindow::thumbnailArrived(const QString &path, const Thumbnail &thumbnail)
+{
+    m_thumbnailsPending.remove(path);
+    // Kept when it was read from the content the latest listing saw, file by file: a listing made
+    // while it was decoded drops only the thumbnails of the files it found changed (a folder that
+    // keeps changing, a download beside the images, never holds the others back). Read from other
+    // content, it is asked for again; read twice from the same, it is kept (the listing was the stale
+    // one, as on a share that reports no change). A file no longer listed is not kept.
+    const auto same = [&thumbnail](const FileStamp &stamp) {
+        return stamp.size == thumbnail.fileSize && stamp.modified == thumbnail.modified;
+    };
+    const auto listed = m_listingStamps.constFind(path);
+    const auto retried = m_thumbnailRetried.constFind(path);
+    if (listed == m_listingStamps.cend() ? m_files.contains(path)
+                                         : same(*listed) || (retried != m_thumbnailRetried.cend() && same(*retried))) {
+        m_thumbnailRetried.remove(path);
+        thumbnailReady(path, thumbnail);
+        return;
+    }
+    if (listed != m_listingStamps.cend())
+        m_thumbnailRetried.insert(path, {thumbnail.fileSize, thumbnail.modified});
+    updateGallery();
 }
 
 void ViewerWindow::thumbnailReady(const QString &path, const Thumbnail &thumbnail)
@@ -278,7 +296,9 @@ void ViewerWindow::forgetChangedThumbnails(const QHash<QString, FileStamp> &stam
         const auto stamp = stamps.constFind(entry.key());
         return stamp == stamps.cend() || stamp->size != entry.value().fileSize || stamp->modified != entry.value().modified;
     });
-    ++m_thumbnailGeneration; // and one being decoded now may have read the file before it changed
+    // One being decoded now is checked against these stamps when it arrives (thumbnailArrived()).
+    m_listingStamps = stamps;
+    m_thumbnailRetried.removeIf([&stamps](const auto &entry) { return !stamps.contains(entry.key()); });
 }
 
 int ViewerWindow::galleryIndexAt(const QPointF &position) const

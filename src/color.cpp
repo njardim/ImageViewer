@@ -105,7 +105,9 @@ cmsHPROFILE createLinearScRgbProfile()
     return profile;
 }
 
-cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
+// `cmyk`: the source is ink with alpha (CMYKA, floats), converted to RGBA with the alpha copied;
+// otherwise RGBA or gray (with three extra channels) in, RGB out, alpha left in place.
+cmsHTRANSFORM createIccTransform(const QByteArray &icc, bool cmyk, QString *error)
 {
     cmsHPROFILE in = cmsOpenProfileFromMem(icc.constData(), cmsUInt32Number(icc.size()));
     if (!in) {
@@ -114,10 +116,14 @@ cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
     }
     cmsUInt32Number inFormat = 0;
     const cmsColorSpaceSignature space = cmsGetColorSpace(in);
-    if (space == cmsSigRgbData)
+    if (cmyk) {
+        if (space == cmsSigCmykData)
+            inFormat = FLOAT_SH(1) | COLORSPACE_SH(PT_CMYK) | EXTRA_SH(1) | CHANNELS_SH(4) | BYTES_SH(4);
+    } else if (space == cmsSigRgbData) {
         inFormat = TYPE_RGBA_FLT; // alpha travels as an extra channel and is not touched
-    else if (space == cmsSigGrayData)
+    } else if (space == cmsSigGrayData) {
         inFormat = FLOAT_SH(1) | COLORSPACE_SH(PT_GRAY) | EXTRA_SH(3) | CHANNELS_SH(1) | BYTES_SH(4);
+    }
     if (!inFormat) {
         cmsCloseProfile(in);
         *error = QCoreApplication::translate("Color", "unsupported ICC color space for RGBA data");
@@ -127,8 +133,9 @@ cmsHTRANSFORM createIccTransform(const QByteArray &icc, QString *error)
     // NOOPTIMIZE keeps the float pipeline unbounded, so colours outside the
     // BT.709 gamut survive as negative / >1 scRGB values (needed for EDR/HDR).
     // NOCACHE makes cmsDoTransform safe to call from several threads.
-    cmsHTRANSFORM xf = cmsCreateTransform(in, inFormat, out, TYPE_RGB_FLT, INTENT_RELATIVE_COLORIMETRIC,
-                                          cmsFLAGS_BLACKPOINTCOMPENSATION | cmsFLAGS_NOCACHE | cmsFLAGS_NOOPTIMIZE);
+    cmsHTRANSFORM xf = cmsCreateTransform(in, inFormat, out, cmyk ? TYPE_RGBA_FLT : TYPE_RGB_FLT, INTENT_RELATIVE_COLORIMETRIC,
+                                          cmsFLAGS_BLACKPOINTCOMPENSATION | cmsFLAGS_NOCACHE | cmsFLAGS_NOOPTIMIZE
+                                              | (cmyk ? cmsFLAGS_COPY_ALPHA : 0));
     cmsCloseProfile(in);
     cmsCloseProfile(out);
     if (!xf)
@@ -192,6 +199,16 @@ QString iccDescription(const QByteArray &icc)
     const cmsUInt32Number n = cmsGetProfileInfo(profile, cmsInfoDescription, "en", "US", buffer, sizeof buffer - sizeof(wchar_t));
     cmsCloseProfile(profile);
     return n ? QString::fromWCharArray(buffer).trimmed() : QString();
+}
+
+bool isCmykProfile(const QByteArray &icc)
+{
+    cmsHPROFILE profile = icc.isEmpty() ? nullptr : cmsOpenProfileFromMem(icc.constData(), cmsUInt32Number(icc.size()));
+    if (!profile)
+        return false;
+    const bool cmyk = cmsGetColorSpace(profile) == cmsSigCmykData;
+    cmsCloseProfile(profile);
+    return cmyk;
 }
 
 float srgbToLinear(float v)
@@ -387,11 +404,16 @@ std::vector<float> buildLuts(F f)
 
 } // namespace
 
-Converter::Converter(const Descriptor &d, int integerSourceBits)
+Converter::Converter(const Descriptor &d, int integerSourceBits, bool cmyk) : m_cmyk(cmyk)
 {
+    if (cmyk) { // only through a CMYK profile, or else by the formula (applyCmyk)
+        if (d.source == Descriptor::Source::Icc)
+            m_iccTransform = createIccTransform(d.icc, true, &m_error);
+        return;
+    }
     if (d.source == Descriptor::Source::Icc) {
         if (!initMatrixShaper(d.icc, integerSourceBits))
-            m_iccTransform = createIccTransform(d.icc, &m_error);
+            m_iccTransform = createIccTransform(d.icc, false, &m_error);
         return;
     }
     m_transfer = d.transfer;
@@ -434,6 +456,11 @@ bool Converter::initMatrixShaper(const QByteArray &icc, int integerSourceBits)
         ~Close() { cmsCloseProfile(p); }
     } close{profile};
     if (qEnvironmentVariableIsSet("IMAGEVIEWER_ICC_LCMS")) // diagnostics: force LittleCMS
+        return false;
+    // A LUT for the relative colorimetric intent takes precedence over the matrix and curves (ICC.1),
+    // in the order LittleCMS reads them (D2B1, then A2B1, then A2B0): beside a LUT the matrix may be
+    // an approximation, or deliberately wrong (DisplayCAL's "swapped matrix" profiles). LittleCMS (D-23).
+    if (cmsIsTag(profile, cmsSigDToB1Tag) || cmsIsTag(profile, cmsSigAToB1Tag) || cmsIsTag(profile, cmsSigAToB0Tag))
         return false;
 
     std::array<cmsToneCurve *, 3> curves{};
@@ -494,9 +521,24 @@ float Converter::decode(int channel, float v) const
     return decodeChannel(m_transfer, m_gamma, v);
 }
 
+void Converter::applyCmyk(const float *cmyka, std::size_t pixelCount, float *rgba) const
+{
+    if (m_iccTransform && m_error.isEmpty()) {
+        cmsDoTransform(static_cast<cmsHTRANSFORM>(m_iccTransform), cmyka, rgba, cmsUInt32Number(pixelCount));
+        return;
+    }
+    // No usable CMYK profile: the textbook formula, its result taken as sRGB, as other viewers do.
+    for (std::size_t i = 0; i < pixelCount; ++i, cmyka += 5, rgba += 4) {
+        const float k = 1.0f - std::clamp(cmyka[3] / 100.0f, 0.0f, 1.0f);
+        for (int c = 0; c < 3; ++c)
+            rgba[c] = srgbToLinear((1.0f - std::clamp(cmyka[c] / 100.0f, 0.0f, 1.0f)) * k);
+        rgba[3] = cmyka[4];
+    }
+}
+
 void Converter::apply(float *rgba, std::size_t pixelCount) const
 {
-    if (!m_error.isEmpty())
+    if (!m_error.isEmpty() || m_cmyk)
         return;
     float *const end = rgba + pixelCount * 4;
     if (m_iccTransform) {

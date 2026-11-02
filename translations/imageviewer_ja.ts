@@ -40,12 +40,21 @@
         <translation>%1（デコーダーによる割り当て）</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK、カラーマネジメントなしで変換</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>リニア BT.709（仮定）</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB（仮定）</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>ファイルが大きすぎて読み込めません（%1 GB、上限 %2 GB）</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

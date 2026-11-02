@@ -221,7 +221,7 @@ private:
     void presentFrame(const Animation::Frame &frame);
     void togglePause();
     void toggleSlideshowPause();
-    void restartSlideshowInterval(); // each new image is shown a full interval
+    void restartSlideshowInterval(); // each new image is shown a full interval, from its arrival (showImage())
     void stepFrame(int delta);
     void toggleSlideshow();
     void stopSlideshow();
@@ -251,6 +251,7 @@ private:
     void updateGallery();
     void startThumbnails();                 // from m_thumbnailQueue, while the pool has a thread free
     void decodeThumbnail(const QString &path);
+    void thumbnailArrived(const QString &path, const Thumbnail &thumbnail); // from its decoding thread
     void thumbnailReady(const QString &path, const Thumbnail &thumbnail);
     void forgetChangedThumbnails(const QHash<QString, FileStamp> &stamps); // after a listing: other or rewritten files
     int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
@@ -301,7 +302,7 @@ private:
     void showInFolder();
     void openWithOtherApplication();
     void copyImage();
-    void startCopy(const QString &path);
+    void startCopy(const QString &path, int frame); // frame: of an animation, the one on screen
     void imageCopied();
     void copyPath();
     void renameFile();
@@ -333,7 +334,8 @@ private:
     QHash<QString, Thumbnail> m_thumbnails; // by path
     QSet<QString> m_thumbnailsPending; // being decoded
     QStringList m_thumbnailQueue;      // to decode next, most wanted first (updateGallery)
-    int m_thumbnailGeneration = 0; // changes when the folder does: thumbnails decoded before are dropped
+    QHash<QString, FileStamp> m_listingStamps;     // the latest listing's: a thumbnail read from other content is not kept
+    QHash<QString, FileStamp> m_thumbnailRetried;  // ...but taken when read twice from the same (the listing was the stale one)
     QList<QRectF> m_gallerySlots; // logical pixels in the gallery's texture
     QPainterPath m_galleryShape;  // likewise: its background, where the pointer is over the gallery
     QRectF m_galleryRect;         // device pixels
@@ -348,6 +350,7 @@ private:
     bool m_frameBusy = false;   // as m_decodeBusy, for m_frameWatcher
     int m_frameGeneration = 0;  // changes when the animation shown changes
     int m_frameIndex = 0;       // the frame on screen
+    PixelBuffer m_framePixels;  // ...its pixels (none for the first frame, which m_image's file gives), for the clipboard
     int m_frameDurationMs = 0;  // ...and how long it stays
     QElapsedTimer m_panelRefreshed; // while playing, the panel's frame number follows at intervals
     int m_wantedFrame = -1;     // the frame to show next; -1: none
@@ -393,7 +396,9 @@ private:
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
     bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher
     QString m_copyPath;                   // being copied
+    int m_copyFrame = 0;                  // ...that frame of it
     QString m_copyNext;                   // asked for while another copy ran; empty: none
+    int m_copyNextFrame = 0;
     ImageCache m_cache;
     Image m_image; // metadata of the displayed image (pixels live on the GPU and in the cache)
     int m_shownLimit = 0;     // texture limit m_image was decoded at

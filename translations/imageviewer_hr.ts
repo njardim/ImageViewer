@@ -40,12 +40,21 @@
         <translation>%1 (dodijelio dekoder)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, pretvoreno bez upravljanja bojama</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>linearni BT.709 (pretpostavljeno)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (pretpostavljeno)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>datoteka je prevelika za čitanje (%1 GB; najviše %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

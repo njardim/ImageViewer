@@ -40,12 +40,21 @@
         <translation>%1 (asignado por el decodificador)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, convertido sin gestión del color</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>BT.709 lineal (supuesto)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (supuesto)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>archivo demasiado grande para leerlo (%1 GB; como máximo %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

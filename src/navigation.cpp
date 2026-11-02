@@ -258,6 +258,9 @@ void ViewerWindow::showImage(Image image, int limit)
     m_shownLimit = limit;
     m_imageStale = false;
     m_awaitedPath.clear();
+    // A slideshow's interval runs from the image's arrival, not from the step that asked for it.
+    if (!m_slideshowWaitsForScreen)
+        restartSlideshowInterval();
     // Editors often save by replacing the file: watch the path again each time it is shown.
     const QFileInfo shown(m_image.path);
     watchFile(shown.exists() ? m_image.path : QString());

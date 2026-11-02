@@ -40,12 +40,21 @@
         <translation>%1 (ανατέθηκε από τον αποκωδικοποιητή)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, μετατράπηκε χωρίς διαχείριση χρωμάτων</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>γραμμικός BT.709 (κατά παραδοχή)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (κατά παραδοχή)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>το αρχείο είναι πολύ μεγάλο για ανάγνωση (%1 GB· έως %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

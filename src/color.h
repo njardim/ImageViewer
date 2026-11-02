@@ -65,6 +65,8 @@ QString transferName(Transfer t, float gamma);
 
 // Human-readable description stored in an ICC profile (empty if unreadable).
 QString iccDescription(const QByteArray &icc);
+// True for a readable ICC profile whose colour space is CMYK.
+bool isCmykProfile(const QByteArray &icc);
 
 // Scalar transfer functions (signal in [0,1] unless stated otherwise).
 float srgbToLinear(float v);  // extended: odd-symmetric for v < 0
@@ -122,13 +124,16 @@ void encodeOutput(OutputEncoding encoding, float *rgb);
 // Three paths: analytic (CICP and format attributes); ICC matrix/TRC profiles
 // (almost every camera and display profile), evaluated as per-channel curves
 // plus one 3x3 matrix, which is exact for integer sources and keeps parametric
-// curves unbounded; and LittleCMS for every other ICC profile (LUT-based, or
-// with a non-zero black point that black-point compensation would move).
+// curves unbounded; and LittleCMS for every other ICC profile (with a LUT, even
+// beside a matrix, or with a non-zero black point that black-point compensation
+// would move), CMYK profiles included.
 class Converter {
 public:
     // `integerSourceBits` (8 or 16) enables exact lookup tables for integer
     // sources whose samples were normalised to [0, 1]; pass 0 for float data.
-    Converter(const Descriptor &d, int integerSourceBits);
+    // `cmyk`: the source is ink (applyCmyk()), converted through the descriptor's CMYK
+    // profile, or, without one, by the textbook formula taken as sRGB.
+    Converter(const Descriptor &d, int integerSourceBits, bool cmyk = false);
     ~Converter();
     Converter(const Converter &) = delete;
     Converter &operator=(const Converter &) = delete;
@@ -140,6 +145,9 @@ public:
 
     // Converts straight-alpha RGBA float pixels in place; alpha is untouched.
     void apply(float *rgba, std::size_t pixelCount) const;
+    // A CMYK source: `cmyka` holds C, M, Y, K as ink in percent (0 to 100, LittleCMS's float
+    // convention) and straight alpha (0 to 1) per pixel; `rgba` receives linear scRGB, straight.
+    void applyCmyk(const float *cmyka, std::size_t pixelCount, float *rgba) const;
 
 private:
     bool initMatrixShaper(const QByteArray &icc, int integerSourceBits);
@@ -147,6 +155,7 @@ private:
 
     Transfer m_transfer = Transfer::Srgb;
     float m_gamma = 2.2f;
+    bool m_cmyk = false;
     void *m_iccTransform = nullptr;     // cmsHTRANSFORM (general ICC path)
     std::array<void *, 3> m_curves{};   // cmsToneCurve * (matrix/TRC path)
     std::vector<float> m_lut;           // 3 x 65536 entries for integer sources

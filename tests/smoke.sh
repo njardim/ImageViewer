@@ -30,6 +30,62 @@ check() { # file, extended regex expected in the --info output, description
 # Display P3 red must survive as an out-of-gamut scRGB value (unbounded ICC transform).
 check p3red16.png 'colour: +ICC: Display P3' "embedded ICC profile recognised"
 check p3red16.png 'pixel\[0,0\]: +1\.22[0-9]* -0\.04[0-9]* -0\.019' "P3 red -> scRGB (1.225, -0.042, -0.020)"
+# An RGB profile with a LUT (A2B0, A2B1: sRGB) beside a matrix whose red and green colorants are
+# swapped, as DisplayCAL's "swapped matrix" profiles: the LUT decides (ICC.1, D-23), so the orange
+# (255, 128, 0) stays orange (1, 0.2158, 0); read through the matrix it was green.
+check lut-matrix.png 'pixel\[0,0\]: +1 0\.215[89][0-9]* -?[0-9.e-]+ a=1' "an ICC LUT takes precedence over the matrix beside it"
+# CMYK with a CMYK profile (D-100): cyan ink (100, 0, 0, 0) through the profile is sRGB (0, 153, 224),
+# linear (0, 0.3185, 0.7454) (the profile's 5-point grid interpolated, as LittleCMS does); by the
+# textbook formula it was (0, 1, 1). The same ink in a JPEG (libjpeg-turbo, Adobe's inverted
+# ink), a TIFF and a Photoshop file (OpenImageIO's raw ink).
+for f in cmyk-icc.jpg cmyk-icc.tif cmyk-icc.psd; do
+    check "$f" 'colour: +ICC: Test CMYK ink model' "CMYK profile recognised"
+    check "$f" 'pixel\[0,0\]: +(-?[0-9.]+e-0[5-9]|0) 0\.31[5-9][0-9]* 0\.7[45][0-9]* a=1' "CMYK ink converted through its profile"
+done
+check cmyk-icc.jpg 'codec: +libjpeg-turbo \(CMYK\)' "a CMYK JPEG's ink read by libjpeg-turbo"
+check cmyk-noicc.jpg 'colour: +CMYK, converted without color management' "CMYK without a profile said as such"
+
+# A gallery thumbnail as the gallery decodes it (--thumbnail): an SVG drawn at the side asked for.
+thumbnail="$("$exe" --info --thumbnail 228 "$data/orange.svg" 2>/dev/null || true)"
+if grep -Eq 'size: +228x' <<<"$thumbnail"; then
+    echo "ok   orange.svg: a 228-pixel thumbnail drawn at that side"
+elif "$exe" --formats | grep -Eq '^svg \| .* \| no \|'; then
+    echo "skip orange.svg thumbnail: this build has no SVG renderer"
+else
+    echo "FAIL orange.svg: a 228-pixel thumbnail drawn at that side"
+    echo "$thumbnail" | sed 's/^/     /'
+    failures=$((failures + 1))
+fi
+
+# Camera RAW (LibRaw through OpenImageIO), when a sample is given: none is small enough, and free
+# enough, to keep here (docs/PLAN.md section 14). CI fetches one at a pinned commit, checked by its
+# SHA-256 (build.yml). Developed in full for the viewer; its embedded preview for a thumbnail
+# (the owner, D-100), where this build's OpenImageIO extracts it (3.x; 2.4 develops it).
+if [ -n "${IMAGEVIEWER_RAW_SAMPLE:-}" ]; then
+    raw="$("$exe" --info "$IMAGEVIEWER_RAW_SAMPLE" 2>/dev/null || true)"
+    preview="$("$exe" --info --thumbnail 228 "$IMAGEVIEWER_RAW_SAMPLE" 2>/dev/null || true)"
+    if grep -Eq 'codec: +OpenImageIO/raw$' <<<"$raw" && grep -Eq "size: +${IMAGEVIEWER_RAW_SIZE:-[0-9]+x[0-9]+}\$" <<<"$raw"; then
+        echo "ok   camera RAW sample: developed by LibRaw"
+    else
+        echo "FAIL camera RAW sample: developed by LibRaw"
+        echo "$raw" | sed 's/^/     /'
+        failures=$((failures + 1))
+    fi
+    # The preview turned as the developed image is (an upright photo: the camera stores both as
+    # the sensor lies, and LibRaw turns the developed one).
+    upright() { sed -nE 's/^size: +([0-9]+)x([0-9]+)$/\1 \2/p' <<<"$1" | awk '{ print ($1 < $2) ? "upright" : "lying" }'; }
+    if grep -Eq 'codec: +OpenImageIO/raw \(embedded preview\)' <<<"$preview" && grep -Eq 'size: +(2[01][0-9]|22[0-8])x[0-9]+|size: +[0-9]+x(2[01][0-9]|22[0-8])$' <<<"$preview" \
+        && [ "$(upright "$preview")" = "$(upright "$raw")" ]; then
+        echo "ok   camera RAW sample: a thumbnail from the embedded preview, turned as the image is"
+    elif [ -z "${CI:-}" ] && grep -Eq 'codec: +OpenImageIO/raw$' <<<"$preview"; then
+        echo "skip camera RAW preview: this build's OpenImageIO does not extract it (the thumbnail is developed)"
+    else
+        echo "FAIL camera RAW sample: a thumbnail from the embedded preview, turned as the image is"
+        echo "$preview" | sed 's/^/     /'
+        failures=$((failures + 1))
+    fi
+fi
+
 # Linear EXR above SDR white: the file stores premultiplied (4,4,4,0.5), i.e. colour 8 at alpha 0.5.
 # The peak that drives tone mapping is what can reach the screen: 8 at alpha 0.5 over a
 # background of at most SDR white is 0.5·8 + 0.5 = 4.5 (it was the straight 8 before 0.3).

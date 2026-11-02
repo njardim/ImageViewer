@@ -10,7 +10,7 @@ endif()
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
 # Not a cache default, so a build tree configured earlier follows the version in development.
 if(NOT IMAGEVIEWER_VERSION)
-    set(IMAGEVIEWER_VERSION "0.9-dev")
+    set(IMAGEVIEWER_VERSION "1.0-dev")
 endif()
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
@@ -49,6 +49,10 @@ qt_standard_project_setup(
 )
 
 find_package(OpenImageIO CONFIG REQUIRED)
+# CMYK JPEG with a CMYK profile (codecs.cpp, D-100): libjpeg-turbo, the JPEG library OpenImageIO
+# itself reads with (the same one, in the packages and in the audit), whose CMYK ink OpenImageIO
+# never hands over.
+find_package(JPEG REQUIRED)
 # svgz, inflated in the decode worker before the renderer sees the SVG (svg.cpp, D-71), and the APNG
 # reader's CRC; the zlib OpenImageIO ships with.
 find_package(ZLIB REQUIRED)
@@ -80,7 +84,7 @@ qt_add_executable(imageviewer
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp src/svg.cpp
+    src/decoders.h src/decoders.cpp src/oiio.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp src/svg.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
     src/openwith.h src/openwith.cpp
@@ -125,6 +129,7 @@ target_compile_definitions(imageviewer PRIVATE
 target_link_libraries(imageviewer PRIVATE
     Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent
     OpenImageIO::OpenImageIO
+    JPEG::JPEG
     lcms2::lcms2
     ZLIB::ZLIB
 )

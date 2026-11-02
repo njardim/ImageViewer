@@ -56,6 +56,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 import numpy as np
@@ -886,6 +887,52 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
+            # A folder that keeps changing (a download beside the images, a tethered camera; D-100):
+            # every listing dropped the thumbnails being decoded, so images slower to decode (6000 px,
+            # about 1.4 s here) than the changes came (every 0.4 s, each one listed once the folder has
+            # been still for 300 ms) never got one. Now only a thumbnail of a file found changed is.
+            churn_dir = os.path.join(work, "churn")
+            os.makedirs(churn_dir)
+            rng = np.random.default_rng(7)
+            blocks = np.kron(rng.integers(0, 216, size=(8, 8, 3), dtype=np.uint8), np.ones((750, 750, 1), dtype=np.uint8))
+            blocks += rng.integers(0, 40, size=blocks.shape, dtype=np.uint8)
+            Image.fromarray(blocks).save(os.path.join(churn_dir, "c0.png"), compress_level=1)
+            del blocks
+            for i in range(1, 5):
+                shutil.copy(os.path.join(churn_dir, "c0.png"), os.path.join(churn_dir, f"c{i}.png"))
+            edit_settings(("gallery", "show", "true"))
+            stop_churn = threading.Event()
+
+            def churn():
+                n = 0
+                while not stop_churn.wait(0.4):
+                    with open(os.path.join(churn_dir, f"note-{n}.txt"), "w") as f:
+                        f.write("x")
+                    n += 1
+            threading.Thread(target=churn, daemon=True).start()
+            app = subprocess.Popen([exe, os.path.join(churn_dir, "c0.png")], env=env, stdout=log, stderr=log)
+            try:
+                wait_until("c0.png shown with the gallery", shown("c0.png"))
+                x, y, w, h = window_geometry()
+
+                def churned_thumbnails():
+                    # Five 96 px thumbnails of 8 × 8 coloured blocks, centred: drawn ones vary (a
+                    # deviation of about 60), the placeholders of thumbnails still being decoded do not
+                    # (at most 32, the current one's highlight).
+                    shot = grab()
+                    if shot is None:
+                        return False
+                    for slot in range(-2, 3):
+                        cx, cy = slot_centre(slot)
+                        if shot[cy - 30:cy + 30, cx - 30:cx + 30].std() < 45:
+                            return False
+                    return True
+                wait_until("in a folder changing every 0.4 s, every slow image gets its thumbnail", churned_thumbnails)
+            finally:
+                stop_churn.set()
+            xdotool("key", "q")
+            app.wait(15)
+
             # Large thumbnails (128 px) in ruby, enlarged by the most (100 px), chosen in the settings.
             edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("gallery", "highlight", "#e0115f"),
                           ("gallery", "zoom", "true"), ("gallery", "enlargement", "100"))
@@ -997,7 +1044,7 @@ try:
                             shot[cy + 40, cx - 12:cx + 13] if where.endswith("below") else shot[cy - 12:cy + 13, cx + 40])
                         grey = [int(v) for v in across if v < 250]
                         return 1 <= len(grey) <= 4 and min(grey) == 0
-                    wait_until(f"... and sharp on the screen's pixel grid", sharp)
+                    wait_until("... and sharp on the screen's pixel grid", sharp)
                 # The details after the first draw the document their worker holds, sent once (D-95).
                 if 'SVG document held by its worker: "line.svg"' not in log_text()[before:]:
                     fail("each detail sent and parsed the SVG again")

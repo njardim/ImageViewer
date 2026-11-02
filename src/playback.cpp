@@ -43,6 +43,7 @@ void ViewerWindow::stopAnimation()
         m_framePool.start([animation = m_animation] { animation->trim(); });
     }
     m_animation.reset();
+    m_framePixels.reset();
     m_readyFrame.reset();
     m_frameDue = false;
     m_wantedFrame = -1;
@@ -148,6 +149,7 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
     m_image.maxComponent = std::max(m_image.maxComponent, shown.maxComponent);
     m_image.maxLuminance = std::max(m_image.maxLuminance, shown.maxLuminance);
     m_frameIndex = shown.index;
+    m_framePixels = shown.index > 0 ? shown.pixels : PixelBuffer();
     m_frameDurationMs = shown.durationMs;
     if (m_animationPaused) {
         m_wantedFrame = -1;
@@ -294,6 +296,10 @@ void ViewerWindow::slideshowTimeout()
         m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
         return;
     }
+    // The image asked for has not arrived yet (a decode slower than the interval): the slideshow waits
+    // for it rather than skip it, and it is shown a full interval from its arrival (showImage()).
+    if (!m_awaitedPath.isEmpty())
+        return;
     // After the last image, the first only when navigation loops (D-61).
     if (!hasNeighbour(+1)) {
         stopSlideshow();

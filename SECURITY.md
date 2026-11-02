@@ -31,7 +31,7 @@ issues that need an attacker who already controls the user's account.
 
 ## Supported versions
 
-Only the latest release receives fixes until version 1.0.
+Only the latest release receives fixes.
 
 ## How the supply chain is protected
 
@@ -50,7 +50,9 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
   their repository's tag; nothing is installed that the audit does not follow.
 - **Every known vulnerability is answered** (D-73): updated away, fixed by a patch of ours, or
   assessed by a person in `packaging/known-vulnerabilities.txt` (out of reach, with the reason, or
-  an accepted risk). A new one nobody has assessed stops the release and opens an issue.
+  an accepted risk). A new one nobody has assessed stops the release and opens an issue. An
+  assessed one whose fix is in a release still under the cooldown is taken the day that release
+  is 15 days old; until then every audit warns about it (D-92, D-100).
 - **Our patches to libraries** are `imageviewer-*.patch` files in their overlay ports, each naming
   what it fixes, its upstream fix and when it goes; `docs/PLAN.md` §15 lists them, and each
   package's bill of materials names the ones built into it. Today: OpenJPH (CVE-2026-111151 and

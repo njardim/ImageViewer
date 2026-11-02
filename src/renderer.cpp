@@ -402,7 +402,8 @@ void Renderer::refreshOutput()
         return;
     if (chooseFormat() != int(m_swapChain->format())) {
         destroySwapChainResources();
-        createSwapChainResources();
+        if (!createSwapChainResources()) // render() then reports a lost device: the viewer builds it all again
+            qCWarning(lcRender) << "cannot create the swapchain's pipeline for the new format";
     } else if (m_rhi->backend() == QRhi::Metal) {
         // AppKit re-assigns the layer's colour space on screen and profile changes;
         // createOrResize() puts the extended linear sRGB tag back.
@@ -672,6 +673,8 @@ bool Renderer::takeImageUploadFailure()
 
 Renderer::RenderResult Renderer::render(const Frame &frame)
 {
+    if (m_rhi && m_swapChain && !m_pipeline) // a new swapchain format left without a pipeline (refreshOutput())
+        return RenderResult::DeviceLost;
     if (!m_rhi || !m_swapChain || !ensureSwapChain())
         return RenderResult::NotReady;
 

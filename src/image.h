@@ -136,6 +136,10 @@ private:
 // pixels: the size it is shown at, D-94).
 Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels = 0, bool animate = true,
                   bool fillVector = false, const std::atomic_bool *cancel = nullptr, QSize view = {});
+// A gallery thumbnail: the image (its first frame) reduced to at most `side` pixels, an SVG drawn at
+// exactly that side, a camera RAW file's embedded preview when it has one of that size (the owner,
+// D-100); with `maxPixels` as for decodeImage().
+Image decodeThumbnailImage(const QString &path, int side, qint64 maxPixels);
 // Only `area` of a vector image (SVG), in pixels of the document drawn at `scale`: the zoom's
 // detail (D-93). `cancel` as for decodeImage().
 Image decodeVectorArea(const QString &path, double scale, QRectF area, const std::atomic_bool *cancel);
@@ -144,8 +148,8 @@ Image decodeVectorArea(const QString &path, double scale, QRectF area, const std
 // values above SDR white and colours outside sRGB are clipped (the clipboard formats other
 // applications read are SDR; a thumbnail is a preview). A null image when `image` is not valid.
 QImage srgbImage(const Image &image);
-// `path` decoded at full resolution, for the clipboard (srgbImage).
-QImage decodeForClipboard(const QString &path);
+// `path` decoded at full resolution, for the clipboard (srgbImage): frame `frame` of an animation.
+QImage decodeForClipboard(const QString &path, int frame = 0);
 
 // Stops the decoders' own worker threads. Called once, after the last decode has finished
 // and before the process exits: OpenImageIO requires it, and threads left to the C++

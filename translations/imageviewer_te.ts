@@ -40,12 +40,21 @@
         <translation>%1 (డీకోడర్ కేటాయించింది)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, రంగు నిర్వహణ లేకుండా మార్చబడింది</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>లీనియర్ BT.709 (ఊహించబడింది)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (ఊహించబడింది)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>ఫైల్ చదవడానికి చాలా పెద్దది (%1 GB; గరిష్ఠంగా %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

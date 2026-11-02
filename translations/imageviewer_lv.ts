@@ -40,12 +40,21 @@
         <translation>%1 (piešķīris dekoderis)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, pārveidots bez krāsu pārvaldības</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>lineārs BT.709 (pieņemts)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (pieņemts)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>fails ir pārāk liels, lai to nolasītu (%1 GB; ne vairāk kā %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

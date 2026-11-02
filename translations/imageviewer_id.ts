@@ -40,12 +40,21 @@
         <translation>%1 (ditetapkan oleh dekoder)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, dikonversi tanpa manajemen warna</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>BT.709 linear (diasumsikan)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (diasumsikan)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>file terlalu besar untuk dibaca (%1 GB; paling banyak %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

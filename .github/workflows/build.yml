@@ -250,6 +250,20 @@ jobs:
             python3 tests/check_translations.py
           fi
 
+      # A camera RAW sample for the smoke test (none is small and free enough to keep in tests/data):
+      # OpenImageIO's own test image, fetched at a pinned commit and checked by its SHA-256. A photo
+      # taken upright: LibRaw turns the developed image, and the embedded preview (3872x2592, stored
+      # as the sensor lies) must be turned the same way.
+      - name: Camera RAW sample
+        shell: bash
+        run: |
+          raw="$RUNNER_TEMP/RAW_PENTAX_K200D.PEF"
+          curl -fsSL --retry 3 -o "$raw" \
+            https://raw.githubusercontent.com/AcademySoftwareFoundation/OpenImageIO-images/d13e98f92b4e75ae7cd949cc5aa1df219560fb93/raw/RAW_PENTAX_K200D.PEF
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          "$py" -c 'import hashlib, sys; d = hashlib.sha256(open(sys.argv[1], "rb").read()).hexdigest(); sys.exit(d != "956c43997b2a33df376e5d1370ed191b7784c1cd60a0370a01f430210c548ddf")' "$raw"
+          { echo "IMAGEVIEWER_RAW_SAMPLE=$raw"; echo "IMAGEVIEWER_RAW_SIZE=2616x3896"; } >> "$GITHUB_ENV"
+
       - name: Smoke test (decode + colour pipeline)
         shell: bash
         run: tests/smoke.sh "$EXE"
@@ -515,6 +529,7 @@ jobs:
           sudo apt-get install -y -qq --no-install-recommends mercurial > /dev/null
 
       - name: Audit
+        id: audit
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -523,6 +538,12 @@ jobs:
             --report "$RUNNER_TEMP/audit.md" || status=$?
           cat "$RUNNER_TEMP/audit.md" >> "$GITHUB_STEP_SUMMARY"
           [ "$status" = 0 ] || { echo "::error::the supply-chain audit refuses this release (see the summary)"; exit 1; }
+
+      # An assessed vulnerability whose fix is still under its cooldown holds no release back, but is
+      # said (D-100); one nobody assessed refuses the release above (D-69).
+      - name: Fixes waiting for their cooldown
+        if: steps.audit.outputs.waiting == 'true'
+        run: echo "::warning::an assessed vulnerability is fixed in a release still under the cooldown; the update is due the day it ends (see the summary, D-100)"
 
   # Tags vX.Y[-suffix] (pushed, or created by publishing a release): attach the three
   # verified packages and SHA256SUMS to the release, creating it if needed (published;

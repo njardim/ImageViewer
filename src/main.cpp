@@ -69,10 +69,11 @@ private:
 
 // `imageviewer --info <file>`: decode headlessly and report what the colour
 // pipeline sees. Used by CI smoke tests and for diagnosing files.
-int printInfo(const QString &path)
+// With `thumbnail` > 0, the file decoded as the gallery does at that side (tests, diagnosis).
+int printInfo(const QString &path, int thumbnail)
 {
     QTextStream out(stdout);
-    const Image image = decodeImage(path, 0);
+    const Image image = thumbnail > 0 ? decodeThumbnailImage(path, thumbnail, 0) : decodeImage(path, 0);
     if (!image.isValid()) {
         out << "error: " << image.error << Qt::endl;
         return 1;
@@ -494,6 +495,10 @@ int main(int argc, char *argv[])
     const QCommandLineOption infoOption(QStringLiteral("info"),
                                         QStringLiteral("Decode the file, print what the colour pipeline sees, exit."));
     parser.addOption(infoOption);
+    const QCommandLineOption thumbnailOption(QStringLiteral("thumbnail"),
+                                             QStringLiteral("--info: decode as the gallery's thumbnail of this side does."),
+                                             QStringLiteral("pixels"));
+    parser.addOption(thumbnailOption);
     const QCommandLineOption formatsOption(QStringLiteral("formats"),
                                            QStringLiteral("Print the file formats each decoder of this build reads, exit."));
     parser.addOption(formatsOption);
@@ -554,8 +559,18 @@ int main(int argc, char *argv[])
         QTextStream(stderr) << "error: --info and --render need a file\n\n" << parser.helpText();
         return 2;
     }
-    if (parser.isSet(infoOption))
-        return printInfo(files.first());
+    if (parser.isSet(infoOption)) {
+        int thumbnail = 0;
+        if (parser.isSet(thumbnailOption)) {
+            bool ok = false;
+            thumbnail = parser.value(thumbnailOption).toInt(&ok);
+            if (!ok || thumbnail <= 0 || thumbnail > 16384) {
+                QTextStream(stderr) << "error: invalid number for --thumbnail: " << parser.value(thumbnailOption) << Qt::endl;
+                return 2;
+            }
+        }
+        return printInfo(files.first(), thumbnail);
+    }
 
     QVulkanInstance *vulkan = nullptr;
 #ifdef IMAGEVIEWER_VULKAN

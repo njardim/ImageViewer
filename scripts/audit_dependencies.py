@@ -8,7 +8,10 @@ Four checks, each usable alone, and the software bill of materials:
                    baseline or packaging/qt-version.txt pins) and that commit is looked up in OSV
                    (https://osv.dev: OSS-Fuzz, the CVE list and GitHub's advisories, by commit). A
                    vulnerability fixed in a release we may take is "actionable": the update must
-                   happen now, whatever the cooldown (D-67). Every other one must be answered (D-73):
+                   happen now, whatever the cooldown (D-67). One assessed (below) whose fix is in a
+                   release still under the cooldown is "waiting": a warning that holds no release
+                   back (D-100), and actionable from the day that release passes the cooldown (D-92).
+                   Every other one must be answered (D-73):
                    by a patch of ours ("Fixes:" in an imageviewer-*.patch of its overlay port) or by a
                    person's assessment in packaging/known-vulnerabilities.txt; one that is neither is
                    "unassessed". A library whose commit cannot be resolved fails.
@@ -40,8 +43,8 @@ Exit status: 0 clean; 1 an actionable or unassessed vulnerability, a source that
 tag, a release under the cooldown, or an unaudited library; 2 a check could not run (network, or an
 unreadable file of packaging/: cooldown-days.txt, cooldown-exceptions.txt, known-vulnerabilities.txt).
 The report (Markdown) goes to stdout and, with --report, to a file; with $GITHUB_OUTPUT set, the
-flags "vulnerable", "actionable", "unassessed", "mismatch", "young", "unaudited", "failed" and
-"lowered" too, and "cooldown_days".
+flags "vulnerable", "actionable", "waiting", "unassessed", "mismatch", "young", "unaudited", "failed"
+and "lowered" too, and "cooldown_days". A "waiting" fix changes no exit status: it warns.
 
 --sbom DIR FILE VERSION  Writes the SPDX 2.3 document (software bill of materials) of a package
                    built from DIR: ImageViewer, every library from vcpkg with its upstream source
@@ -471,13 +474,15 @@ def vulnerabilities(libraries, report):
     """OSV, by commit: the pinned release, and the newest release the update policy allows. A known
     vulnerability is "actionable" when that newest release is free of it: the update must happen
     now (D-67), with a cooldown exception if the release is younger than the cooldown. Not when the
-    vulnerability is assessed out of our reach and that release is still under the cooldown: D-69
-    asks for an exception only for an issue we can reach, so it is taken once past the cooldown,
-    and is actionable from that day (D-92). Any other one is answered by a patch of ours ("Fixes:",
-    D-73) or by an assessment in packaging/known-vulnerabilities.txt, or else is "unassessed": a
-    person must look at it before a release ships. Returns (vulnerable, actionable, unassessed,
-    unresolved), where "vulnerable" means a known vulnerability that no patch of ours fixes."""
-    unresolved = unassessed = False
+    vulnerability is assessed (out of our reach, or a risk the owner accepts until that release
+    passes the cooldown) and that release is still under the cooldown: D-69 asks for an exception
+    only for an issue we can reach and nobody chose to wait for, so it is taken once past the
+    cooldown, is actionable from that day (D-92), and is "waiting" until then: a warning that holds
+    no release back (D-100). Any other one is answered by a patch of ours ("Fixes:", D-73) or by an
+    assessment in packaging/known-vulnerabilities.txt, or else is "unassessed": a person must look at
+    it before a release ships. Returns (vulnerable, actionable, waiting, unassessed, unresolved),
+    where "vulnerable" means a known vulnerability that no patch of ours fixes."""
+    unresolved = unassessed = waiting = False
     reported = set()
     for lib in libraries:
         lib["newest"] = None
@@ -528,9 +533,10 @@ def vulnerabilities(libraries, report):
                 state = f"patched: `{patch}`" + (f" (also fixed in {lib['newest'][0]}: the update takes it and drops "
                                                  f"the patch)" if newer is not None and vid not in newer else "")
             elif newer is not None and vid not in newer and known and (ripens := ripening(lib)):
-                vulnerable = True
-                state = (f"assessed: {known}; fixed in {lib['newest'][0]}, under the cooldown until {ripens}: "
-                         f"taken then, and \"update now\" from that day (D-69, D-92)")
+                vulnerable = waiting = True
+                state = (f"assessed: {known}; **fixed in {lib['newest'][0]}, under the cooldown until {ripens}: the "
+                         f"update waits for it** (a warning that holds no release back, D-100), taken then, and "
+                         f"\"update now\" from that day (D-69, D-92)")
             elif newer is not None and vid not in newer:
                 vulnerable = actionable = True
                 state = f"**fixed in {lib['newest'][0]}: update now**"
@@ -573,7 +579,7 @@ def vulnerabilities(libraries, report):
         for library, vid in sorted(set(KNOWN_VULNERABILITIES) - reported):
             report.notes.append(f"`{vid} {library}` is no longer reported for the pinned {library}: remove its line "
                                 f"from packaging/known-vulnerabilities.txt.")
-    return vulnerable, actionable, unassessed, unresolved
+    return vulnerable, actionable, waiting, unassessed, unresolved
 
 
 def release_dates(baseline_commit, baseline):
@@ -916,13 +922,14 @@ def main():
     if not (args.vulnerabilities or args.sources or args.coverage or args.cooldown):
         args.vulnerabilities = args.sources = args.cooldown = True
     out = []
-    flags = {"vulnerable": False, "actionable": False, "unassessed": False, "mismatch": False, "unaudited": False,
-             "young": False, "failed": False, "lowered": MIN_RELEASE_AGE_DAYS < POLICY_DAYS}
+    flags = {"vulnerable": False, "actionable": False, "waiting": False, "unassessed": False, "mismatch": False,
+             "unaudited": False, "young": False, "failed": False, "lowered": MIN_RELEASE_AGE_DAYS < POLICY_DAYS}
     baseline_commit = json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
     baseline = {}
 
     def check_vulnerabilities(report):
-        flags["vulnerable"], flags["actionable"], flags["unassessed"], unresolved = vulnerabilities(shipped(baseline), report)
+        (flags["vulnerable"], flags["actionable"], flags["waiting"], flags["unassessed"],
+         unresolved) = vulnerabilities(shipped(baseline), report)
         flags["failed"] |= unresolved
 
     def check_sources(report):

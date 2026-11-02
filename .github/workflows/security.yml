@@ -10,9 +10,10 @@ name: security audit
 #   the owner may lower for a release) is reported here; the release workflow refuses it.
 # Weekly, and on every change to the pins. A scheduled run that finds a problem (among them a new
 # known vulnerability nobody has assessed: a person decides, a patch, the format in a separate
-# process, or an assessment) or a cooldown lowered below 15 days and not set back opens (or
-# comments on) the issue "Dependency security audit", so nothing waits for someone to look at the
-# Actions tab; vulnerabilities already answered by a patch or an assessment do not reopen it.
+# process, or an assessment), an assessed one whose fix waits for its cooldown (a warning that holds
+# no release back, D-100) or a cooldown lowered below 15 days and not set back opens (or comments on) the issue
+# "Dependency security audit", so nothing waits for someone to look at the Actions tab;
+# vulnerabilities already answered by a patch or an assessment do not reopen it.
 on:
   schedule:
     - cron: "17 5 * * 1" # Mondays, 05:17 UTC
@@ -81,7 +82,7 @@ jobs:
       - name: Issue
         if: >-
           github.event_name == 'schedule' && (steps.audit.outputs.status != '0'
-          || steps.audit.outputs.lowered == 'true')
+          || steps.audit.outputs.lowered == 'true' || steps.audit.outputs.waiting == 'true')
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -102,6 +103,7 @@ jobs:
         env:
           STATUS: ${{ steps.audit.outputs.status }}
           ACTIONABLE: ${{ steps.audit.outputs.actionable }}
+          WAITING: ${{ steps.audit.outputs.waiting }}
           UNASSESSED: ${{ steps.audit.outputs.unassessed }}
           MISMATCH: ${{ steps.audit.outputs.mismatch }}
           YOUNG: ${{ steps.audit.outputs.young }}
@@ -117,6 +119,7 @@ jobs:
           # The cooldown alone only warns here: a pin under it may be merged, not released.
           [ "$YOUNG" = true ] && echo "::warning::a pinned release is under the $DAYS-day cooldown: no release until it ends (see the summary)"
           [ "$LOWERED" = true ] && echo "::warning::the cooldown is lowered to $DAYS days (packaging/cooldown-days.txt): set it back to 15 once the release that needed it is out"
+          [ "$WAITING" = true ] && echo "::warning::an assessed vulnerability is fixed in a release still under the $DAYS-day cooldown: the update waits for it and is due the day it ends (D-100; see the summary)"
           [ "$ACTIONABLE" = true ] && echo "::error::a known vulnerability is fixed in a release we may take: update now (see the summary)"
           [ "$UNASSESSED" = true ] && echo "::error::a known vulnerability is neither patched nor assessed: answer it in packaging/known-vulnerabilities.txt or with a patch (see the summary)"
           [ "$MISMATCH" = true ] && echo "::error::a release tarball differs from its tag (see the summary)"

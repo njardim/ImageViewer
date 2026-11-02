@@ -40,12 +40,21 @@
         <translation>%1 (priskirta dekoderio)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, konvertuota be spalvų valdymo</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>tiesinis BT.709 (daroma prielaida)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (daroma prielaida)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>failas per didelis nuskaityti (%1 GB; daugiausia %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

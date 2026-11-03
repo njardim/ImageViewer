@@ -17,8 +17,8 @@
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && (m_slideshow || visibility() == QWindow::FullScreen)) {
-        if (m_slideshow) {
+    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && (m_slideshow.running() || visibility() == QWindow::FullScreen)) {
+        if (m_slideshow.running()) {
             stopSlideshow();
             showNotice(tr("Slideshow stopped"));
         }
@@ -55,8 +55,8 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
         updateSlideshowToolbar();
         return;
     }
-    if (galleryContains(e->position())) { // a thumbnail shows its image; the bar itself does nothing
-        if (const int slot = galleryIndexAt(e->position()); slot >= 0)
+    if (m_gallery.contains(e->position())) { // a thumbnail shows its image; the bar itself does nothing
+        if (const int slot = m_gallery.slotAt(e->position()); slot >= 0)
             galleryClicked(slot);
         return;
     }
@@ -79,7 +79,7 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         setToolbarHover(button);
         setHoverZone(button == ToolbarButton::None ? zoneAt(e->position()) : Zone::None);
         setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
-        setGalleryHover(galleryIndexAt(e->position()));
+        m_gallery.setHover(m_gallery.slotAt(e->position()));
         return;
     }
     if (m_pressZone != Zone::None && !m_pressMoved) {
@@ -129,7 +129,7 @@ void ViewerWindow::cancelPress()
 
 void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (e->button() != Qt::LeftButton || galleryContains(e->position()))
+    if (e->button() != Qt::LeftButton || m_gallery.contains(e->position()))
         return;
     if (toolbarButtonAt(e->position()) != ToolbarButton::None) {
         mousePressEvent(e); // quick clicks on its buttons are clicks, never full screen
@@ -153,12 +153,9 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     pointerActive();
     if (toolbarButtonAt(e->position()) != ToolbarButton::None)
         return;
-    if (galleryContains(e->position())) { // over the gallery the wheel scrolls the thumbnails
-        m_galleryWheel += e->angleDelta().y() + e->angleDelta().x();
-        if (const int steps = m_galleryWheel / 120; steps != 0) {
-            m_galleryWheel -= steps * 120;
-            scrollGallery(-steps);
-        }
+    if (m_gallery.contains(e->position())) { // over the gallery the wheel scrolls the thumbnails
+        if (const int steps = m_gallery.wheel(e->angleDelta().y() + e->angleDelta().x()); steps != 0)
+            m_gallery.scroll(-steps);
         return;
     }
     const QPointingDevice *device = e->pointingDevice();

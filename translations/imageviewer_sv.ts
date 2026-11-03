@@ -40,12 +40,21 @@
         <translation>%1 (tilldelad av avkodaren)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, konverterad utan färghantering</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>linjär BT.709 (antagen)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (antagen)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>filen är för stor för att läsas (%1 GB; högst %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

@@ -31,26 +31,28 @@ issues that need an attacker who already controls the user's account.
 
 ## Supported versions
 
-Only the latest release receives fixes until version 1.0.
+Only the latest release receives fixes.
 
 ## How the supply chain is protected
 
 Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
 
 - **Cooldown.** A new release of a library, of Qt, of vcpkg's recipes or of a GitHub Action is
-  taken only once it is 15 days old, unless it fixes a known vulnerability that cannot wait; such
+  taken only once it is 12 days old, unless it fixes a known vulnerability that cannot wait; such
   an exception is recorded in `packaging/cooldown-exceptions.txt`, its changes are read by hand,
-  and it is removed once its release is 15 days old (D-73).
+  and it is removed once its release is 12 days old (D-73, D-101).
   The libraries' cooldown is the number in `packaging/cooldown-days.txt`: the maintainer may lower
   it on `main` for a release that should take the latest releases sooner, and every such change is
-  a commit; while it is below 15 days, the weekly audit opens an issue until it is set back (D-72).
+  a commit; while it is below 12 days, the weekly audit opens an issue until it is set back (D-72).
 - **Audit** (`scripts/audit_dependencies.py`, weekly and on every change to the pins): every shipped
   library is resolved to the exact commit it is built from and looked up in
   [OSV](https://osv.dev); libraries built from release archives are compared file by file with
   their repository's tag; nothing is installed that the audit does not follow.
 - **Every known vulnerability is answered** (D-73): updated away, fixed by a patch of ours, or
   assessed by a person in `packaging/known-vulnerabilities.txt` (out of reach, with the reason, or
-  an accepted risk). A new one nobody has assessed stops the release and opens an issue.
+  an accepted risk). A new one nobody has assessed stops the release and opens an issue. An
+  assessed one whose fix is in a release still under the cooldown is taken the day that release
+  is 12 days old; until then every audit warns about it (D-92, D-100).
 - **Our patches to libraries** are `imageviewer-*.patch` files in their overlay ports, each naming
   what it fixes, its upstream fix and when it goes; `docs/PLAN.md` §15 lists them, and each
   package's bill of materials names the ones built into it. Today: OpenJPH (CVE-2026-111151 and

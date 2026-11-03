@@ -40,12 +40,21 @@
         <translation>%1(디코더가 지정)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, 색상 관리 없이 변환됨</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>선형 BT.709(가정)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB(가정)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>파일이 너무 커서 읽을 수 없음(%1 GB, 최대 %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

@@ -198,34 +198,48 @@ void ViewerWindow::copyImage()
     if (!currentFileIsShown())
         return;
     showNotice(tr("Copying the image…"));
+    const int frame = m_animation ? m_frameIndex : 0; // an animation's frame on screen
     if (m_copyBusy) { // another image, perhaps: the last one asked for is copied once this one is done
         m_copyNext = m_image.path;
+        m_copyNextFrame = frame;
         return;
     }
-    startCopy(m_image.path);
+    startCopy(m_image.path, frame);
 }
 
-void ViewerWindow::startCopy(const QString &path)
+void ViewerWindow::startCopy(const QString &path, int frame)
 {
     // The displayed pixels live on the GPU, possibly reduced: the preload cache's copy when it is
-    // the file's full resolution, else the file decoded again at full resolution, on the decode
-    // thread (after any decode already running).
+    // the file's full resolution (an animation's frame on screen likewise), else the file decoded
+    // again at full resolution, on the decode thread (after any decode already running).
     m_copyPath = path;
+    m_copyFrame = frame;
     m_copyBusy = true;
-    if (std::optional<Image> kept = path == m_image.path ? m_cache.find(path, m_shownLimit) : std::nullopt;
+    const bool whole = m_image.width == m_image.sourceWidth && m_image.height == m_image.sourceHeight && !m_image.vector;
+    if (frame > 0 && path == m_image.path && frame == m_frameIndex && m_framePixels && whole) {
+        Image shown;
+        shown.path = path;
+        shown.width = m_image.width;
+        shown.height = m_image.height;
+        shown.pixels = m_framePixels;
+        m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(shown)] { return srgbImage(image); }));
+        return;
+    }
+    if (std::optional<Image> kept = frame == 0 && path == m_image.path ? m_cache.find(path, m_shownLimit) : std::nullopt;
         kept && kept->width == kept->sourceWidth && kept->height == kept->sourceHeight) {
         m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [image = std::move(*kept)] { return srgbImage(image); }));
         return;
     }
-    m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path] { return decodeForClipboard(path); }));
+    m_copyWatcher.setFuture(QtConcurrent::run(&m_decodePool, [path, frame] { return decodeForClipboard(path, frame); }));
 }
 
 void ViewerWindow::imageCopied()
 {
     QImage image = m_copyWatcher.future().takeResult();
     m_copyBusy = false;
-    if (const QString next = std::exchange(m_copyNext, QString()); !next.isEmpty() && next != m_copyPath) {
-        startCopy(next); // asked for while this one was copied: the clipboard gets the last one asked for
+    if (const QString next = std::exchange(m_copyNext, QString());
+        !next.isEmpty() && (next != m_copyPath || m_copyNextFrame != m_copyFrame)) {
+        startCopy(next, m_copyNextFrame); // asked for while this one was copied: the clipboard gets the last one asked for
         return;
     }
     if (image.isNull()) {
@@ -434,11 +448,7 @@ void ViewerWindow::renameFile()
         m_textureCapPath = target; // it still needs the reduced size it was shown at
     m_image.path = target;
     // So is an SVG's detail (D-93): drawn, wanted, failed or being drawn, it shows the same document.
-    for (Detail *detail : {&m_detail, &m_detailJob, &m_detailFailed})
-        if (detail->path == path)
-            detail->path = target;
-    if (m_detailWanted && m_detailWanted->path == path)
-        m_detailWanted->path = target;
+    m_details.rename(path, target);
     editRecentFiles([&path, &target](QStringList &recent) {
         if (const qsizetype i = recent.indexOf(path); i >= 0)
             recent[i] = target;
@@ -454,7 +464,6 @@ void ViewerWindow::renameFile()
         kept->path = target; // renaming keeps the size and the modification time
         m_cache.insert(*kept, m_shownLimit);
     }
-    if (m_thumbnails.contains(path)) // likewise its thumbnail, which the gallery would decode again
-        m_thumbnails.insert(target, m_thumbnails.take(path));
+    m_gallery.rename(path, target); // likewise its thumbnail, which the gallery would decode again
     watchFile(target);
 }

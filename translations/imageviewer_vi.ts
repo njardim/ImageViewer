@@ -40,12 +40,21 @@
         <translation>%1 (do bộ giải mã gán)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, được chuyển đổi mà không quản lý màu</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>BT.709 tuyến tính (giả định)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (giả định)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>tệp quá lớn để đọc (%1 GB; tối đa %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

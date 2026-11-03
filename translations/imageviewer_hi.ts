@@ -40,12 +40,21 @@
         <translation>%1 (डिकोडर द्वारा निर्धारित)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, रंग प्रबंधन के बिना परिवर्तित</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>रैखिक BT.709 (मान लिया गया)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (मान लिया गया)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>फ़ाइल पढ़ने के लिए बहुत बड़ी है (%1 GB; अधिकतम %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

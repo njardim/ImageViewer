@@ -7,14 +7,18 @@
 //   commands.cpp    the command table, menus and dialogs (D-30);
 //   files.cpp       file operations: show, copy, rename, trash and undo, delete (D-41);
 //   playback.cpp    animation playback and the slideshow, its toolbar's behaviour (E6, E11, D-41);
-//   gallery.cpp     the gallery (D-60);
 //   input.cpp       the keyboard, the mouse and the wheel, the side zones and the pointer.
+// Its parts with state of their own are classes (D-102): Gallery (gallery.h), Slideshow
+// (slideshow.h, the slideshow's clock) and VectorDetails (detail.h, the zoom's detail of an SVG).
 #pragma once
 
 #include "cache.h"
+#include "detail.h"
+#include "gallery.h"
 #include "image.h"
 #include "renderer.h"
 #include "settings.h"
+#include "slideshow.h"
 
 #include <QDateTime>
 #include <QElapsedTimer>
@@ -45,15 +49,6 @@ inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
 // One step of Zoom In or Zoom Out, and of a wheel notch.
 inline constexpr double kZoomStep = 1.25;
-
-// A gallery thumbnail (D-60): sRGB, 8 bits, premultiplied; null when the file is unreadable. The
-// file's size and time say when it was written again since.
-struct Thumbnail {
-    QImage image;
-    qint64 fileSize = -1;
-    QDateTime modified;
-    qreal devicePixelRatio = 1.0; // the screen's it was decoded for: a sharper screen asks for it again
-};
 
 class QMenu;
 class QMenuBar;
@@ -170,21 +165,10 @@ private:
     void scheduleWork();                // show from the cache, else decode; then preload
     void startDecode(const QString &path, int limit, qint64 maxPixels);
     void decodeFinished();
-    // The zoom's detail (D-93, navigation.cpp): a vector image (SVG) enlarged on screen is drawn
-    // again by the decode worker at the zoom shown, for the part of it in the window, and replaces
-    // the enlarged image there; a change of the view asks for another once it settles.
-    struct Detail {
-        QString path;       // the image it is drawn from
-        double scale = 0.0; // device pixels per pixel of the document
-        QRectF area;        // pixels of the document drawn at `scale`, on the screen's pixel grid
-        QRectF rect;        // the same part in the image's texture coordinates
-        bool operator==(const Detail &) const = default;
-    };
-    std::optional<Detail> wantedDetail() const;
-    void updateDetail(); // at every frame: the view may have changed
-    void startDetail();
-    void detailFinished();
-    void dropDetail(); // another image, or the same one again
+    // The zoom's detail (D-93, m_details): the view at every frame, and what is drawn or fails.
+    void updateDetail();
+    void detailDrawn(const VectorDetail &detail, const Image &image);
+    void detailFailed(const VectorDetail &detail, const QString &error);
     void showImage(Image image, int limit);
     void clearShownImage();             // nothing on screen: no image, no animation
     void watchFile(const QString &path); // the one file watched, the image on screen; empty: none
@@ -221,11 +205,10 @@ private:
     void presentFrame(const Animation::Frame &frame);
     void togglePause();
     void toggleSlideshowPause();
-    void restartSlideshowInterval(); // each new image is shown a full interval
     void stepFrame(int delta);
     void toggleSlideshow();
     void stopSlideshow();
-    void slideshowTimeout();
+    void slideshowDue(); // m_slideshow's interval ended: the next image, or the end
     // The slideshow's toolbar (D-65): pause or play, and stop, below the top overlay.
     enum class ToolbarButton { None, Stop, PlayPause }; // left to right
     QRectF slideshowToolbarRect() const;                         // device pixels; empty when hidden
@@ -239,25 +222,9 @@ private:
     void updateOverlay();               // information panel (and the top overlay's content)
     void updateTopOverlay();
     void updateMessage();               // m_error, in the middle of the window (D-63)
-    // The gallery (gallery.cpp, D-60). Slots count from the first thumbnail shown.
-    bool galleryShown() const;
-    double galleryBottomMargin() const;     // logical pixels below the gallery's bar
-    double galleryReserve() const;          // logical pixels the gallery takes, from the window's bottom
-    int galleryCapacity() const;            // thumbnails that fit the window's width
-    double galleryThumbnail() const;        // logical pixels, the side of a thumbnail
-    int galleryZoom() const;                // logical pixels added to the thumbnail under the pointer
-    double galleryOverhang() const;         // how far its tile reaches beyond the bar, above and below
-    int galleryFile(int slot) const;        // the index in m_files shown there; -1: none
+    // The gallery (m_gallery, D-60), laid out for the window; navigation.cpp.
     void updateGallery();
-    void startThumbnails();                 // from m_thumbnailQueue, while the pool has a thread free
-    void decodeThumbnail(const QString &path);
-    void thumbnailReady(const QString &path, const Thumbnail &thumbnail);
-    void forgetChangedThumbnails(const QHash<QString, FileStamp> &stamps); // after a listing: other or rewritten files
-    int galleryIndexAt(const QPointF &position) const; // logical pixels; -1 off the thumbnails
-    bool galleryContains(const QPointF &position) const;
-    void setGalleryHover(int slot);
     void galleryClicked(int slot);
-    void scrollGallery(int steps);
     void toggleGallery();
     // The top overlay's facts for `fields`, in its order and wording; also the title's (D-58).
     QStringList overlayParts(const QList<OverlayField> &fields, int *nameIndex = nullptr) const;
@@ -301,7 +268,7 @@ private:
     void showInFolder();
     void openWithOtherApplication();
     void copyImage();
-    void startCopy(const QString &path);
+    void startCopy(const QString &path, int frame); // frame: of an animation, the one on screen
     void imageCopied();
     void copyPath();
     void renameFile();
@@ -330,38 +297,22 @@ private:
     // one is on screen; a frame is shown when both its turn has come and it is ready.
     std::shared_ptr<Animation> m_animation;
     QThreadPool m_framePool;
-    QHash<QString, Thumbnail> m_thumbnails; // by path
-    QSet<QString> m_thumbnailsPending; // being decoded
-    QStringList m_thumbnailQueue;      // to decode next, most wanted first (updateGallery)
-    int m_thumbnailGeneration = 0; // changes when the folder does: thumbnails decoded before are dropped
-    QList<QRectF> m_gallerySlots; // logical pixels in the gallery's texture
-    QPainterPath m_galleryShape;  // likewise: its background, where the pointer is over the gallery
-    QRectF m_galleryRect;         // device pixels
-    QSize m_gallerySize;          // device pixels; empty: hidden
-    QString m_galleryKey;
-    int m_galleryFirst = 0;       // the file shown in the first slot
-    int m_galleryHover = -1;      // slot under the pointer
-    int m_galleryCentredOn = -2;  // the file the gallery last centred
-    int m_galleryWheel = 0;       // wheel angle not yet turned into a step (1/8 degrees)
-    QThreadPool m_thumbnailPool;  // two threads; waited for in ~ViewerWindow()
     QFutureWatcher<FrameResult> m_frameWatcher;
     bool m_frameBusy = false;   // as m_decodeBusy, for m_frameWatcher
     int m_frameGeneration = 0;  // changes when the animation shown changes
     int m_frameIndex = 0;       // the frame on screen
+    PixelBuffer m_framePixels;  // ...its pixels (none for the first frame, which m_image's file gives), for the clipboard
     int m_frameDurationMs = 0;  // ...and how long it stays
     QElapsedTimer m_panelRefreshed; // while playing, the panel's frame number follows at intervals
     int m_wantedFrame = -1;     // the frame to show next; -1: none
     std::optional<Animation::Frame> m_readyFrame; // decoded, waiting for its turn
     bool m_frameDue = false;    // its turn has come: show it as soon as it is decoded
     bool m_animationPaused = false;
-    bool m_slideshowPaused = false;
     bool m_slideshowLeavesFullScreen = false; // it entered full screen (Settings::slideshowFullScreen)
     int m_loopsDone = 0;
     bool m_frameWaitsForScreen = false; // nothing is drawn while the window is off the screen
     QTimer m_frameTimer;
-    bool m_slideshow = false;
-    QTimer m_slideshowTimer;
-    bool m_slideshowWaitsForScreen = false; // its timer stopped while the window was off the screen
+    Slideshow m_slideshow;
     QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
     bool m_toolbarHidden = false;
     ToolbarButton m_toolbarHover = ToolbarButton::None;
@@ -377,24 +328,19 @@ private:
     QString m_jobPath;                    // ...its file
     // ...set when its image is no longer wanted: a decode in a worker process ends at once (D-93)
     std::shared_ptr<std::atomic_bool> m_jobCancel;
-    QThreadPool m_detailPool; // the zoom's detail, beside the decodes
-    QFutureWatcher<Image> m_detailWatcher;
+    VectorDetails m_details; // the zoom's detail of an SVG, drawn beside the decodes
     std::unique_ptr<QMenuBar> m_menuBar; // macOS: the application's menu bar (installApplicationMenu())
     std::unique_ptr<QTranslator> m_menuTranslator; // macOS: its About and Settings in our words
     QAction *m_aboutAction = nullptr, *m_settingsAction = nullptr;
-    QTimer m_detailTimer; // a view that has stopped changing gets its detail
-    bool m_detailBusy = false;
-    std::shared_ptr<std::atomic_bool> m_detailCancel;
-    Detail m_detailJob;                    // what the running job draws
-    Detail m_detail;                       // what the renderer has; no path: none
-    std::optional<Detail> m_detailWanted; // what the view last asked for
-    Detail m_detailFailed;                 // not asked for again while the view stays
     int m_decodeGeneration = 0;           // changes when decoded descriptions become outdated (language)
     QFutureWatcher<QImage> m_copyWatcher; // full-resolution decode for the clipboard
     bool m_copyBusy = false;              // as m_decodeBusy, for m_copyWatcher
     QString m_copyPath;                   // being copied
+    int m_copyFrame = 0;                  // ...that frame of it
     QString m_copyNext;                   // asked for while another copy ran; empty: none
+    int m_copyNextFrame = 0;
     ImageCache m_cache;
+    Gallery m_gallery; // reads m_settings and m_files, declared before it
     Image m_image; // metadata of the displayed image (pixels live on the GPU and in the cache)
     int m_shownLimit = 0;     // texture limit m_image was decoded at
     bool m_imageStale = false; // the shown image must be decoded or uploaded again

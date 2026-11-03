@@ -40,12 +40,21 @@
         <translation>%1 (حددته وحدة فك الترميز)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK، محوَّل دون إدارة الألوان</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>BT.709 خطي (مفترض)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (مفترض)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>الملف كبير جداً للقراءة (%1 غيغابايت؛ الحد الأقصى %2 غيغابايت)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

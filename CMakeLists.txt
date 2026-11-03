@@ -10,7 +10,7 @@ endif()
 # IMAGEVIEWER_BUILD (e.g. the commit) is appended for development builds.
 # Not a cache default, so a build tree configured earlier follows the version in development.
 if(NOT IMAGEVIEWER_VERSION)
-    set(IMAGEVIEWER_VERSION "0.9-dev")
+    set(IMAGEVIEWER_VERSION "1.0-dev")
 endif()
 set(IMAGEVIEWER_BUILD "" CACHE STRING "Build label appended as +label (empty for releases)")
 if(NOT IMAGEVIEWER_VERSION MATCHES "^([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.]+)?$")
@@ -49,6 +49,10 @@ qt_standard_project_setup(
 )
 
 find_package(OpenImageIO CONFIG REQUIRED)
+# CMYK JPEG with a CMYK profile (jpeg.cpp, D-100): libjpeg-turbo, the JPEG library OpenImageIO
+# itself reads with (the same one, in the packages and in the audit), whose CMYK ink OpenImageIO
+# never hands over.
+find_package(JPEG REQUIRED)
 # svgz, inflated in the decode worker before the renderer sees the SVG (svg.cpp, D-71), and the APNG
 # reader's CRC; the zlib OpenImageIO ships with.
 find_package(ZLIB REQUIRED)
@@ -73,14 +77,15 @@ find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/gallery.cpp src/input.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp
+    src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp src/settingsdialog.cpp src/shortcuts.cpp
     src/appearance.h src/appearance.cpp
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
     src/formats.h src/formats.cpp
-    src/decoders.h src/decoders.cpp src/qtimage.cpp src/codecs.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp src/svg.cpp
+    src/decoders.h src/decoders.cpp src/oiio.cpp src/qtimage.cpp src/codecs.cpp src/jpeg.cpp src/apng.cpp src/heif.cpp src/syscodecs.cpp src/worker.cpp src/svg.cpp
     src/color.h src/color.cpp
     src/folder.h src/folder.cpp
     src/openwith.h src/openwith.cpp
@@ -125,9 +130,11 @@ target_compile_definitions(imageviewer PRIVATE
 target_link_libraries(imageviewer PRIVATE
     Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent
     OpenImageIO::OpenImageIO
+    JPEG::JPEG
     lcms2::lcms2
     ZLIB::ZLIB
 )
+
 if(APPLE)
     # QtSvg in every package, though nothing of ours calls it (D-90 (12), the owner): Linux's draws
     # the window decoration Qt uses on GNOME under Wayland ("adwaita"), and every system ships the
@@ -281,3 +288,19 @@ qt_generate_deploy_app_script(TARGET imageviewer
     ${deploy_options}
 )
 install(SCRIPT ${deploy_script})
+
+# Unit tests (D-102): the window's parts with state of their own (the gallery, the slideshow's clock,
+# the zoom's detail of an SVG), each driven alone with its decoding handed in. A second executable,
+# for the tests only: never installed nor packaged. CI runs it on the three systems.
+option(IMAGEVIEWER_UNIT_TESTS "Build the unit tests (tests/unit_tests.cpp)" ON)
+if(IMAGEVIEWER_UNIT_TESTS)
+    find_package(Qt6 REQUIRED COMPONENTS Test)
+    qt_add_executable(imageviewer_tests
+        tests/unit_tests.cpp
+        src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
+    )
+    set_target_properties(imageviewer_tests PROPERTIES MACOSX_BUNDLE OFF WIN32_EXECUTABLE OFF)
+    target_include_directories(imageviewer_tests PRIVATE src)
+    target_compile_definitions(imageviewer_tests PRIVATE QT_NO_KEYWORDS)
+    target_link_libraries(imageviewer_tests PRIVATE Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent Qt6::Test)
+endif()

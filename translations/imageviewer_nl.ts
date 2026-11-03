@@ -40,12 +40,21 @@
         <translation>%1 (toegewezen door de decoder)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, omgezet zonder kleurbeheer</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>lineair BT.709 (aangenomen)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (aangenomen)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>bestand te groot om te lezen (%1 GB; hoogstens %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

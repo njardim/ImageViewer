@@ -40,12 +40,21 @@
         <translation>%1 (přiřazeno dekodérem)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, převedeno bez správy barev</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>lineární BT.709 (předpokládáno)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (předpokládáno)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>soubor je příliš velký ke čtení (%1&#xa0;GB; nejvýše %2&#xa0;GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

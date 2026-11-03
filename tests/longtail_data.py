@@ -18,6 +18,17 @@ The other test files of the registry were written by tools from the same 6x4 ora
 - IV_claude_v5_mix_v1.svg: the owner's artwork (D-79, D-90), its comments in English; its
   rendering by Chromium 153 at 1024 px, reduced to 256 px (IV_claude_v5_mix_v1.chromium.png),
   is what tests/render_test.py compares the viewer's with.
+- ICC profiles that take a LUT (D-100), built with LittleCMS 2.14's pipeline API:
+  - lut-matrix.png (Pillow 12.3, 6x4 orange): an RGB profile whose matrix and curves have the
+    red and green colorants swapped beside an A2B0/A2B1 LUT that is plain sRGB (curves, matrix,
+    curves), as DisplayCAL's "swapped matrix" profiles; the LUT must win (ICC.1).
+  - cmyk-icc.jpg and cmyk-icc.tif (Pillow 12.3: a JPEG with Adobe's marker, its ink inverted; an
+    uncompressed TIFF), cmyk-noicc.jpg (the same JPEG without a profile), cmyk-icc.psd (written
+    by hand: one 8-bit composite, uncompressed, each ink inverted as Photoshop stores it, the
+    profile as image resource 1039). Columns: cyan, magenta, yellow, 50 % black, no ink, and
+    (128, 64, 32, 16). The profile "Test CMYK ink model" (CMYK to Lab, a 5-point CLUT in A2B0
+    and A2B1) is sampled from an ink model in which cyan also absorbs 40 % of the green and
+    12 % of the blue: sRGB (0, 153, 224) for full cyan, where (1 - C)(1 - K) gives (0, 255, 255).
 
 usage: python3 tests/longtail_data.py <output directory>
 """

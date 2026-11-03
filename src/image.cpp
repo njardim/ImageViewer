@@ -95,6 +95,32 @@ void expandAs(const Decoded &dec, std::size_t begin, std::size_t end, float *dst
     }
 }
 
+// Ink of pixels [begin, end) of a CMYK source, as Converter::applyCmyk() takes it: C, M, Y and K in
+// percent, then straight alpha.
+template <typename T>
+void expandCmykAs(const Decoded &dec, std::size_t begin, std::size_t end, float *dst)
+{
+    const std::size_t stride = std::size_t(dec.channels) * sizeof(T);
+    const unsigned char *src = dec.data.get() + begin * stride;
+    for (std::size_t i = begin; i < end; ++i, src += stride, dst += 5) {
+        for (int c = 0; c < 4; ++c) {
+            const float v = std::clamp(readSample<T>(src + std::size_t(c) * sizeof(T)), 0.0f, 1.0f);
+            dst[c] = 100.0f * (dec.inkInverted ? 1.0f - v : v);
+        }
+        dst[4] = dec.alphaIndex >= 0 ? readSample<T>(src + std::size_t(dec.alphaIndex) * sizeof(T)) : 1.0f;
+    }
+}
+
+void expandCmyk(const Decoded &dec, std::size_t begin, std::size_t end, float *dst)
+{
+    switch (dec.sample) {
+    case Decoded::Sample::U8: expandCmykAs<quint8>(dec, begin, end, dst); break;
+    case Decoded::Sample::U16: expandCmykAs<quint16>(dec, begin, end, dst); break;
+    case Decoded::Sample::F16: expandCmykAs<qfloat16>(dec, begin, end, dst); break;
+    case Decoded::Sample::F32: expandCmykAs<float>(dec, begin, end, dst); break;
+    }
+}
+
 void expand(const Decoded &dec, std::size_t begin, std::size_t end, float *dst)
 {
     switch (dec.sample) {
@@ -206,8 +232,14 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
         const std::size_t n = range.end - range.begin;
         const std::unique_ptr<float[]> rgba(new float[n * 4]); // not zero-filled: expand() writes every value
-        expand(dec, range.begin, range.end, rgba.get());
-        converter.apply(rgba.get(), n);
+        if (dec.cmyk) {
+            const std::unique_ptr<float[]> cmyka(new float[n * 5]);
+            expandCmyk(dec, range.begin, range.end, cmyka.get());
+            converter.applyCmyk(cmyka.get(), n, rgba.get());
+        } else {
+            expand(dec, range.begin, range.end, rgba.get());
+            converter.apply(rgba.get(), n);
+        }
         constexpr float kHalfMax = 65504.0f;
         float maxComponent = 0.0f, maxLuminance = 0.0f;
         for (std::size_t i = 0; i < n * 4; i += 4) {
@@ -278,16 +310,18 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
 
     // Integer samples normalised to [0, 1] are exact multiples of 1/(2^n - 1).
     const int integerBits = dec.sample == Decoded::Sample::U8 ? 8 : dec.sample == Decoded::Sample::U16 ? 16 : 0;
-    auto converter = std::make_unique<color::Converter>(dec.colour, integerBits);
+    auto converter = std::make_unique<color::Converter>(dec.colour, integerBits, dec.cmyk);
     if (!converter->error().isEmpty()) {
         // An unusable embedded profile must not block viewing; fall back visibly (F12).
         const QString reason = converter->error();
         dec.colour = Descriptor();
-        dec.colour.transfer = dec.isInteger() ? Transfer::Srgb : Transfer::Linear;
+        dec.colour.transfer = dec.isInteger() || dec.cmyk ? Transfer::Srgb : Transfer::Linear;
         dec.colour.description = QCoreApplication::translate("Image", "%1 (assumed: %2)")
-                                     .arg(dec.isInteger() ? QStringLiteral("sRGB") : QStringLiteral("linear BT.709"),
+                                     .arg(dec.cmyk             ? cmykWithoutProfile()
+                                          : dec.isInteger()    ? QStringLiteral("sRGB")
+                                                               : QStringLiteral("linear BT.709"),
                                           reason);
-        converter = std::make_unique<color::Converter>(dec.colour, integerBits);
+        converter = std::make_unique<color::Converter>(dec.colour, integerBits, dec.cmyk);
     }
     const bool littleCms = converter->usesLittleCms();
 
@@ -470,6 +504,15 @@ Image decodeImage(const QString &path, int maxTextureSize, qint64 maxPixels, boo
     return guardedDecode(path, maxTextureSize, maxPixels, animate, options);
 }
 
+Image decodeThumbnailImage(const QString &path, int side, qint64 maxPixels)
+{
+    DecodeOptions options;
+    options.maxSide = side;
+    options.fill = true;
+    options.preview = true;
+    return guardedDecode(path, side, maxPixels, false, options);
+}
+
 Image decodeVectorArea(const QString &path, double scale, QRectF area, const std::atomic_bool *cancel)
 {
     DecodeOptions options;
@@ -479,9 +522,17 @@ Image decodeVectorArea(const QString &path, double scale, QRectF area, const std
     return guardedDecode(path, 0, 0, false, options);
 }
 
-QImage decodeForClipboard(const QString &path)
+QImage decodeForClipboard(const QString &path, int frame)
 {
-    return srgbImage(decodeImage(path, 0, 0, false));
+    Image image = decodeImage(path, 0, 0, frame > 0);
+    if (frame > 0 && image.isValid() && image.animation) { // the frame on screen, not the first (D-100)
+        Animation::Frame shown;
+        QString error;
+        if (!image.animation->frame(frame, &shown, &error) || !shown.pixels)
+            return {};
+        image.pixels = shown.pixels;
+    }
+    return srgbImage(image);
 }
 
 QImage srgbImage(const Image &image)

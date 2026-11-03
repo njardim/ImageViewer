@@ -29,12 +29,12 @@ The packages are **not signed yet**:
 
 ## Features
 
-- **Color management:** ICC v2 and v4 profiles (LittleCMS, or an exact matrix/curve path), CICP (BT.709, BT.2020, Display P3; sRGB, BT.1886, gamma, linear, PQ, HLG; narrow or full range) with priority over an embedded ICC, OpenImageIO's color spaces (ACES included) and EXR chromaticities; 8- and 16-bit integer and 16/32-bit floating-point images; alpha composited in linear light.
+- **Color management:** ICC v2 and v4 profiles (LittleCMS, or an exact matrix/curve path), CICP (BT.709, BT.2020, Display P3; sRGB, BT.1886, gamma, linear, PQ, HLG; narrow or full range) with priority over an embedded ICC, OpenImageIO's color spaces (ACES included) and EXR chromaticities; CMYK JPEG, TIFF and Photoshop images converted through their own CMYK profile (said as such when they carry none); 8- and 16-bit integer and 16/32-bit floating-point images; alpha composited in linear light.
 - **HDR:** scRGB (Windows), EDR (macOS) and HDR10/PQ output; PQ in absolute nits; BT.2390 tone mapping only when an image exceeds the display, exposure in half stops, and a highlight for clipped or tone-mapped pixels.
 - **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, FITS, camera RAW (LibRaw) and more. GIMP XCF, PCX, Apple PICT, MIFF, DICOM and other rare formats are read by GraphicsMagick in a separate process with a list of allowed decoders, limits and a time-out. SVG and SVGZ are drawn by resvg, in a separate process too, with filters, masks, clip paths, CSS and text, and nothing outside the file is ever read. *Settings → Image Formats* (or `ImageViewer --formats`) lists every extension with its decoder and version. HEIC is decoded by the operating system (macOS; Windows with Microsoft's HEIF and HEVC extensions); ImageViewer ships no HEVC decoder.
 - **Animation:** GIF, WebP, APNG, JPEG XL and AVIF sequences play with their own timing and loop count; pause and step frame by frame.
 - **Viewing:** zoom at the cursor and an exact 100 % (one image pixel per screen pixel); fit to the window, its width or its height, fill it, or actual size, a mode that stays for the next images, and Lock Zoom to keep any zoom; rotate and mirror; full screen; a checkerboard behind transparent areas; the window can take the size of the image.
-- **Gallery:** the folder's thumbnails along the bottom (G), small, medium or large, optionally the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls.
+- **Gallery:** the folder's thumbnails along the bottom (G; a camera RAW file's from the preview the camera embedded), small, medium or large, optionally the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls.
 - **Slideshow:** through the folder at the pace you set, optionally in full screen, with its own toolbar (stop, pause and play) that can hide while the pointer is still.
 - **Information:** a compact line at the top (I) with the fields you choose; a panel (P) with everything about the file, the image, its color, its peak luminance, the camera (EXIF), the view and the output; neither ever moves the image, and both stay legible over any image, in SDR and HDR.
 - **Navigation:** folders sorted by name (natural order), date or size; previous and next by keyboard, mouse side buttons or the window's sides; the neighbours loaded in advance; the folder watched, so files changed by other programs show up at once; optional looping.
@@ -116,7 +116,7 @@ Versions are numbered `X.Y` (for example 0.1, 0.2, 1.0), with an optional suffix
 
 Every file is treated as hostile input. Dependencies are audited against known vulnerabilities by
 the exact commit they are built from, release archives are checked against their source
-repository, a new release of a library is taken only after a 15-day cooldown, and every release
+repository, a new release of a library is taken only after a 12-day cooldown, and every release
 carries attested provenance and a bill of materials for each package. To report a
 vulnerability, see [`SECURITY.md`](SECURITY.md) (privately, never in a public issue).
 

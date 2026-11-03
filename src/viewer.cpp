@@ -37,7 +37,16 @@ constexpr float kMaxExposureEv = 16.0f;
 constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
 
-ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settings(Settings::load())
+ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
+    : m_renderer(this), m_settings(Settings::load()),
+      m_details([](const VectorDetail &job, const std::atomic_bool *cancel) {
+          return decodeVectorArea(job.path, job.scale, job.area, cancel);
+      }),
+      m_gallery(m_settings, m_files, [](const QString &path, int pixels, qint64 maxPixels) {
+          // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
+          const Image image = decodeThumbnailImage(path, pixels, maxPixels);
+          return image.isValid() ? srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied) : QImage();
+      })
 {
 #if defined(Q_OS_WIN)
     Q_UNUSED(vulkan);
@@ -60,11 +69,14 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     setMinimumSize(kMinWindowSize);
     m_renderer.setOutputPreference(m_settings.output);
     m_decodePool.setMaxThreadCount(1);
-    m_detailPool.setMaxThreadCount(1);
-    m_detailTimer.setSingleShot(true);
-    m_detailTimer.setInterval(150);
-    connect(&m_detailTimer, &QTimer::timeout, this, &ViewerWindow::startDetail);
-    connect(&m_detailWatcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::detailFinished);
+    connect(&m_details, &VectorDetails::drawn, this, &ViewerWindow::detailDrawn);
+    connect(&m_details, &VectorDetails::failed, this, &ViewerWindow::detailFailed);
+    connect(&m_details, &VectorDetails::cleared, this, [this] { m_renderer.clearDetail(); });
+    connect(&m_gallery, &Gallery::changed, this, &ViewerWindow::updateGallery);
+    connect(&m_gallery, &Gallery::textureChanged, this, [this](const QImage &image) {
+        m_renderer.setOverlay(Renderer::GalleryLayer, image);
+        requestUpdate();
+    });
     m_recent = loadRecentFiles();
     installApplicationMenu();
     m_noticeTimer.setSingleShot(true);
@@ -96,11 +108,10 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan) : m_renderer(this), m_settin
     });
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &ViewerWindow::decodeFinished);
     m_framePool.setMaxThreadCount(1);
-    m_thumbnailPool.setMaxThreadCount(2); // the gallery's thumbnails never hold up the image shown
     connect(&m_frameWatcher, &QFutureWatcher<FrameResult>::finished, this, &ViewerWindow::frameDecoded);
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
-    connect(&m_slideshowTimer, &QTimer::timeout, this, &ViewerWindow::slideshowTimeout);
+    connect(&m_slideshow, &Slideshow::due, this, &ViewerWindow::slideshowDue);
     m_toolbarTimer.setSingleShot(true);
     connect(&m_toolbarTimer, &QTimer::timeout, this, [this] {
         if (toolbarButtonAt(mapFromGlobal(QCursor::pos(screen()))) != ToolbarButton::None) {
@@ -131,13 +142,11 @@ ViewerWindow::~ViewerWindow()
     // Every task of the window's pools ends here, before any member goes, whatever the order of
     // their declarations: thumbnails not started yet are not decoded, the running ones are
     // waited for, as is the decode, the copy, the next frame and a stopped animation's trim.
-    m_thumbnailPool.clear();
-    m_thumbnailPool.waitForDone();
-    for (const auto &cancel : {m_jobCancel, m_detailCancel}) // a decode in a worker process ends at once
-        if (cancel)
-            cancel->store(true, std::memory_order_relaxed);
+    m_gallery.stop();
+    if (m_jobCancel) // a decode in a worker process ends at once, as the detail's does in stop()
+        m_jobCancel->store(true, std::memory_order_relaxed);
+    m_details.stop();
     m_watcher.waitForFinished();
-    m_detailWatcher.waitForFinished();
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
     m_framePool.waitForDone();
@@ -244,7 +253,7 @@ bool ViewerWindow::event(QEvent *e)
         m_pointerTimer.stop();
         setHoverZone(Zone::None);
         setToolbarHover(ToolbarButton::None);
-        setGalleryHover(-1);
+        m_gallery.setHover(-1);
         setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
@@ -578,8 +587,8 @@ void ViewerWindow::render()
         frame.nearest = !m_image.vector && (zoom >= 2.0 || std::abs(zoom - 1.0) < 1e-6);
         // The detail while it is not smaller on screen than drawn (it has no mipmaps): zooming in,
         // it is enlarged until the next one arrives; zooming out, the image takes over.
-        frame.detail = !m_detail.path.isEmpty() && m_detail.path == m_image.path
-                       && m_detail.scale <= shownZoom() * 1.0001;
+        const VectorDetail &detail = m_details.shown();
+        frame.detail = !detail.path.isEmpty() && detail.path == m_image.path && detail.scale <= shownZoom() * 1.0001;
         if (frame.checkerboard) { // cells of 8 logical pixels, whatever the zoom
             const double cell = 8.0 * devicePixelRatio();
             frame.checkerCells[0] = float(m_image.width * zoom / cell);
@@ -637,7 +646,7 @@ void ViewerWindow::recoverFromDeviceLoss()
     initializeRenderer();
     if (m_rendererReady) {
         m_topOverlayKey.clear(); // every overlay texture is gone too
-        m_galleryKey.clear();
+        m_gallery.invalidate();
         m_panelKey.clear();
         m_messageKey.clear();
         m_toolbarKey.clear();
@@ -676,8 +685,8 @@ void ViewerWindow::applySettings(const Settings &settings)
         applyFontSize(settings.fontSize); // the panels follow below: their keys hold the font
     if (settings.pointerHideMs != previous.pointerHideMs)
         pointerActive();
-    if (m_slideshow && !m_slideshowPaused && settings.slideshowSeconds != previous.slideshowSeconds)
-        m_slideshowTimer.start(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes the new interval
+    if (settings.slideshowSeconds != previous.slideshowSeconds)
+        m_slideshow.setInterval(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes it at once
     if (settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
         || settings.slideshowToolbarHideMs != previous.slideshowToolbarHideMs)
         showSlideshowToolbar();

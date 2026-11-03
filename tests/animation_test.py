@@ -344,6 +344,53 @@ try:
             wait_for("then the slideshow goes on", {NEXT[back]})
             xdotool("key", "q")
             app.wait(15)
+
+            # 8. Images slower to decode than the interval (SVGs with heavy filters): the slideshow waits
+            # for each one rather than skip it, and each is shown from its arrival (D-100). It skipped
+            # three of six at 0.5 s with SVGs of 1.7 s, whose decodes it stopped on moving on.
+            formats = subprocess.run([exe, "--formats"], env=dict(env, QT_QPA_PLATFORM="offscreen"), capture_output=True,
+                                     text=True).stdout
+            if not any(line.startswith("svg ") and " | yes | " in line for line in formats.splitlines()):
+                print("skip slow images in the slideshow: this build has no SVG renderer")
+            else:
+                slow = os.path.join(work, "slow")
+                os.makedirs(slow)
+                names = [f"s{i}.svg" for i in range(4)]
+                for i, name in enumerate(names):
+                    with open(os.path.join(slow, name), "w") as f:
+                        f.write('<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700">'
+                                '<filter id="f" x="0" y="0" width="1" height="1">'
+                                f'<feTurbulence type="fractalNoise" baseFrequency="0.0{i + 1}" numOctaves="10" seed="{i}"/>'
+                                + '<feMorphology operator="dilate" radius="9"/><feMorphology operator="erode" radius="8"/>' * 3
+                                + '</filter><rect width="1000" height="700" filter="url(#f)"/></svg>')
+                with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "a") as f:
+                    f.write("\n[navigation]\nslideshowSeconds=0.5\nloop=false\n")
+                with open(log_path, encoding="utf-8", errors="replace") as f:
+                    start_at = len(f.read())
+                app = subprocess.Popen([exe, os.path.join(slow, names[0])], env=env, stdout=log, stderr=log)
+
+                def shown_since():
+                    with open(log_path, encoding="utf-8", errors="replace") as f:
+                        text = f.read()[start_at:]
+                    return [line.rsplit(": ", 1)[1].strip() for line in text.splitlines()
+                            if "decoded for display: " in line or "shown from the cache: " in line]
+                deadline = time.monotonic() + 60
+                while names[0] not in shown_since() and time.monotonic() < deadline:
+                    time.sleep(POLL_S)
+                window = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
+                xdotool("windowfocus", "--sync", window)
+                xdotool("key", "s")
+                deadline = time.monotonic() + 90
+                while names[-1] not in shown_since() and time.monotonic() < deadline:
+                    if app.poll() is not None:
+                        fail(f"slow images in the slideshow: ImageViewer exited with code {app.returncode}")
+                    time.sleep(POLL_S)
+                seen = [name for name in shown_since() if name in names]
+                if seen != names:
+                    fail(f"slow images in the slideshow: shown {seen}, expected every one in order {names}")
+                print(f"ok   slow images in the slideshow: every one shown, in order ({', '.join(seen)})")
+                xdotool("key", "q")
+                app.wait(15)
         finally:
             if app.poll() is None:
                 app.terminate()

@@ -4,4 +4,3 @@
 # scripts/update_dependencies.py adds an entry when it takes such a release, and removes it once the
 # release is past the cooldown or no longer pinned: nobody edits code for an exception, and none
 # outlives its release. scripts/audit_dependencies.py (the release gate) lets these releases through.
-brotli 1.2.1: security: fixes CVE-2026-111497, an out-of-bounds write in the decoder libjxl runs on JPEG XL brob boxes; 1.2.1 is 1.2.0 and that one fix (b418fa8), read in full; approved by the owner, D-76 (2026-10-23)

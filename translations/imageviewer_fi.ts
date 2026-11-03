@@ -40,12 +40,21 @@
         <translation>%1 (dekooderin määrittämä)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, muunnettu ilman värinhallintaa</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>lineaarinen BT.709 (oletettu)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (oletettu)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>tiedosto on liian suuri luettavaksi (%1 Gt; enintään %2 Gt)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

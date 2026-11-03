@@ -8,7 +8,10 @@ Four checks, each usable alone, and the software bill of materials:
                    baseline or packaging/qt-version.txt pins) and that commit is looked up in OSV
                    (https://osv.dev: OSS-Fuzz, the CVE list and GitHub's advisories, by commit). A
                    vulnerability fixed in a release we may take is "actionable": the update must
-                   happen now, whatever the cooldown (D-67). Every other one must be answered (D-73):
+                   happen now, whatever the cooldown (D-67). One assessed (below) whose fix is in a
+                   release still under the cooldown is "waiting": a warning that holds no release
+                   back (D-100), and actionable from the day that release passes the cooldown (D-92).
+                   Every other one must be answered (D-73):
                    by a patch of ours ("Fixes:" in an imageviewer-*.patch of its overlay port) or by a
                    person's assessment in packaging/known-vulnerabilities.txt; one that is neither is
                    "unassessed". A library whose commit cannot be resolved fails.
@@ -23,7 +26,7 @@ Four checks, each usable alone, and the software bill of materials:
                    than the cooldown and has no recorded exception (packaging/cooldown-exceptions.txt):
                    a compromised release is usually found and withdrawn within days. The release
                    workflow runs it before publishing. The cooldown, in days, is the number in
-                   packaging/cooldown-days.txt (15, the policy; the owner may lower it for a
+                   packaging/cooldown-days.txt (12, the policy; the owner may lower it for a
                    release, and a lowered one is reported: the flag "lowered").
 
 --coverage DIR     Fails when a library installed in DIR (vcpkg's installed tree, "share/<port>")
@@ -40,8 +43,8 @@ Exit status: 0 clean; 1 an actionable or unassessed vulnerability, a source that
 tag, a release under the cooldown, or an unaudited library; 2 a check could not run (network, or an
 unreadable file of packaging/: cooldown-days.txt, cooldown-exceptions.txt, known-vulnerabilities.txt).
 The report (Markdown) goes to stdout and, with --report, to a file; with $GITHUB_OUTPUT set, the
-flags "vulnerable", "actionable", "unassessed", "mismatch", "young", "unaudited", "failed" and
-"lowered" too, and "cooldown_days".
+flags "vulnerable", "actionable", "waiting", "unassessed", "mismatch", "young", "unaudited", "failed"
+and "lowered" too, and "cooldown_days". A "waiting" fix changes no exit status: it warns.
 
 --sbom DIR FILE VERSION  Writes the SPDX 2.3 document (software bill of materials) of a package
                    built from DIR: ImageViewer, every library from vcpkg with its upstream source
@@ -53,7 +56,6 @@ usage: python3 scripts/audit_dependencies.py [--vulnerabilities] [--sources] [--
 """
 import argparse
 import datetime
-import email.utils
 import filecmp
 import fnmatch
 import hashlib
@@ -65,67 +67,18 @@ import sys
 import tarfile
 import tempfile
 import traceback
-import urllib.error
-import urllib.parse
-import urllib.request
 import uuid
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PORTS = os.path.join(ROOT, "packaging", "vcpkg", "ports")
-OSV = "https://api.osv.dev/v1"
-COOLDOWN_FILE = os.path.join(ROOT, "packaging", "cooldown-days.txt")
-EXCEPTIONS_FILE = os.path.join(ROOT, "packaging", "cooldown-exceptions.txt")
-KNOWN_FILE = os.path.join(ROOT, "packaging", "known-vulnerabilities.txt")
-VULNERABILITY_ID = re.compile(r"\b(?:CVE-\d{4}-\d+|OSV-\d{4}-\d+|RUSTSEC-\d{4}-\d{4}|GHSA(?:-[0-9a-z]{4}){3})\b")
-POLICY_DAYS = 15  # D-67; a cooldown below it is reported, and the weekly audit opens an issue
-GM_RSS = "https://sourceforge.net/projects/graphicsmagick/rss?path=/graphicsmagick&limit=100"  # more: HTTP 400
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from supply_chain import (  # noqa: E402  the shared ground (D-102)
+    PORTS, ROOT, RUST, Report, VULNERABILITY_ID, age_days, cooldown_days, cooldown_exceptions,
+    crate_date, crates, fetch, gm_releases, known_vulnerabilities, osv_crates, osv_lookup, read,
+    ref_date, release_tag, run, rust_version, tag_date,
+)
+
+POLICY_DAYS = 12  # D-67, D-101; a cooldown below it is reported, and the weekly audit opens an issue
 VCPKG = "https://github.com/microsoft/vcpkg"
-# The SVG renderer's crates and toolchain (D-90).
-SVG_PORT = os.path.join(PORTS, "imageviewer-svg")
-CRATES_IO = "https://crates.io/api/v1/crates"
-RUST = "https://github.com/rust-lang/rust"
-USER_AGENT = "ImageViewer-dependency-audit (https://github.com/njardim/ImageViewer)"  # crates.io asks for a contact
 
-
-
-def data_lines(path):
-    """The lines of a data file of packaging/, without its comment lines ("#") and blank lines."""
-    with open(path, encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip() and not line.lstrip().startswith("#")]
-
-
-def cooldown_days():
-    """The cooldown (D-67): the one whole number, 0 to 365, of packaging/cooldown-days.txt, after
-    its comment lines. Anything else stops the audit, which never passes by default (exit 2)."""
-    values = data_lines(COOLDOWN_FILE)
-    if len(values) != 1 or not re.fullmatch(r"\d{1,3}", values[0]) or int(values[0]) > 365:
-        raise ValueError(f"{COOLDOWN_FILE}: expected one whole number of days, 0 to 365, found {values}")
-    return int(values[0])
-
-
-def cooldown_exceptions():
-    """{"library version": reason} of packaging/cooldown-exceptions.txt (D-73): releases allowed to
-    ship younger than the cooldown, each a security fix (or the release one needs, D-69) that a
-    person read and the owner approved. scripts/update_dependencies.py adds and removes them."""
-    entries = {}
-    for line in data_lines(EXCEPTIONS_FILE):
-        key, separator, reason = line.partition(": ")
-        if not separator or not re.fullmatch(r"\S+( \S+)* \S+", key) or not reason.strip() or key in entries:
-            raise ValueError(f"{EXCEPTIONS_FILE}: expected '<library> <version>: <reason>' once each, found {line!r}")
-        entries[key] = reason.strip()
-    return entries
-
-
-def known_vulnerabilities():
-    """{(library, id): assessment} of packaging/known-vulnerabilities.txt (D-73): known
-    vulnerabilities a person assessed as out of the packages' reach or as an accepted risk."""
-    entries = {}
-    for line in data_lines(KNOWN_FILE):
-        match = re.fullmatch(r"(\S+) (\S+): (.+)", line)
-        if not match or not VULNERABILITY_ID.fullmatch(match.group(1)) or (match.group(2), match.group(1)) in entries:
-            raise ValueError(f"{KNOWN_FILE}: expected '<id> <library>: <assessment>' once each, found {line!r}")
-        entries[(match.group(2), match.group(1))] = match.group(3)
-    return entries
 
 
 try:
@@ -210,106 +163,6 @@ DOCUMENTATION = ["*.html", "*.css", "*.rst", "*.[1-9]", "*.png", "*.gif", "*.jpg
 AUTORECONF = {"graphicsmagick"}
 
 
-def read(path):
-    with open(path, encoding="utf-8") as f:
-        return f.read()
-
-
-class SameHostRedirects(urllib.request.HTTPRedirectHandler):
-    """Follows a redirect without the Authorization header when it leaves the host: urllib copies
-    every header to the new address, so a token would otherwise go wherever a redirect points."""
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        new = super().redirect_request(req, fp, code, msg, headers, newurl)
-        if new is not None and urllib.parse.urlsplit(newurl).netloc != urllib.parse.urlsplit(req.full_url).netloc:
-            new.remove_header("Authorization")
-        return new
-
-
-OPENER = urllib.request.build_opener(SameHostRedirects)
-
-
-def fetch(url, data=None):
-    headers = {"User-Agent": USER_AGENT}
-    if data is not None:
-        headers["Content-Type"] = "application/json"
-    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
-    if token and url.startswith("https://api.github.com/"):  # never sent to any other host
-        headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(url, data=data, headers=headers)
-    with OPENER.open(request, timeout=120) as response:
-        return response.read()
-
-
-def run(*command, cwd=None):
-    return subprocess.run(command, cwd=cwd, check=True, capture_output=True, text=True).stdout
-
-
-def tag_commit(url, tag):
-    """The commit a tag names (annotated tags peeled); None when the tag is missing or the host is
-    unreachable (the caller reports it: an unresolved library is never a pass)."""
-    try:
-        lines = run("git", "ls-remote", "--tags", url, f"refs/tags/{tag}", f"refs/tags/{tag}^{{}}").splitlines()
-    except subprocess.CalledProcessError:
-        return None
-    return lines[-1].split("\t")[0] if lines else None
-
-
-def release_tag(url, templates, version):
-    """(tag, commit) of a version: the first of the "|"-separated tag templates that exists."""
-    for template in templates.split("|"):
-        tag = template.format(v=version, v_=version.replace(".", "_"))
-        commit = tag_commit(url, tag)
-        if commit:
-            return tag, commit
-    return templates.split("|")[0].format(v=version, v_=version.replace(".", "_")), None
-
-
-def github_repository(url):
-    match = re.fullmatch(r"https://github\.com/([^/]+/[^/]+?)(\.git)?", url)
-    return match.group(1) if match else None
-
-
-def tag_date(url, tag):
-    """(when the tag was published, how that is known). GitHub's release date where the project
-    made a release of the tag (set by GitHub: the publisher cannot backdate it); otherwise the tag's
-    own date (the tagger's, or the commit's for a lightweight tag), which the publisher sets."""
-    repository = github_repository(url)
-    if repository:
-        try:
-            release = json.loads(fetch(f"https://api.github.com/repos/{repository}/releases/tags/{tag}"))
-            if release.get("published_at"):
-                return datetime.datetime.fromisoformat(release["published_at"].replace("Z", "+00:00")), "GitHub release"
-        except urllib.error.HTTPError as error:
-            if error.code not in (403, 404):  # 404: a tag without a release; 403: no token, rate limited
-                raise
-    return ref_date(url, f"refs/tags/{tag}"), "tag date"
-
-
-def ref_date(url, ref):
-    """The date of a tag (the tagger's, or its commit's) or of a commit, fetched without files."""
-    with tempfile.TemporaryDirectory() as work:
-        run("git", "init", "-q", work)
-        run("git", "fetch", "-q", "--depth", "1", "--filter=tree:0", url, f"+{ref}:refs/audit", cwd=work)
-        stamp = run("git", "for-each-ref", "refs/audit", "--format=%(creatordate:unix)", cwd=work).strip()
-    return datetime.datetime.fromtimestamp(int(stamp), datetime.timezone.utc)
-
-
-def gm_releases():
-    """{version: upload date} of GraphicsMagick's archives on SourceForge (dates set by SourceForge)."""
-    releases = {}
-    for item in re.findall(r"<item>(.*?)</item>", fetch(GM_RSS).decode(), re.S):
-        name = re.search(r"GraphicsMagick-(\d+\.\d+\.\d+)\.tar\.xz", item)
-        date = re.search(r"<pubDate>([^<]+)</pubDate>", item)
-        if name and date:
-            releases[name.group(1)] = email.utils.parsedate_to_datetime(date.group(1))
-    return releases
-
-
-def age_days(when):
-    return (datetime.datetime.now(datetime.timezone.utc) - when).total_seconds() / 86400
-
-
 def baseline_versions(commit=None):
     """{port: version} at a vcpkg commit, by default the manifest's builtin-baseline."""
     baseline = commit or json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
@@ -339,33 +192,6 @@ def our_patches(port):
         patches.append(dict(file=name, fixes=set(VULNERABILITY_ID.findall(fields["Fixes"])),
                             upstream=fields["Upstream"], remove=fields["Remove when"]))
     return patches
-
-
-def crates():
-    """[(name, version, checksum)] of every crate from crates.io in the SVG renderer's Cargo.lock (D-90),
-    which builds resvg with `cargo build --locked`."""
-    import tomllib  # Python 3.11
-    with open(os.path.join(SVG_PORT, "Cargo.lock"), "rb") as f:
-        lock = tomllib.load(f)
-    return [(p["name"], p["version"], p.get("checksum")) for p in lock["package"]
-            if p.get("source", "").startswith("registry+")]
-
-
-def rust_version():
-    """The Rust release that builds the SVG renderer (its rust-toolchain.toml, D-90)."""
-    match = re.search(r'^channel = "(\d+\.\d+\.\d+)"$', read(os.path.join(SVG_PORT, "rust-toolchain.toml")), re.M)
-    if not match:
-        raise ValueError("packaging/vcpkg/ports/imageviewer-svg/rust-toolchain.toml: no Rust release pinned")
-    return match.group(1)
-
-
-def crate_date(name, version):
-    """When crates.io published a crate's version (set by crates.io, not by the publisher). crates.io
-    allows one request a second."""
-    import time
-    time.sleep(1)
-    data = json.loads(fetch(f"{CRATES_IO}/{urllib.parse.quote(name)}/{urllib.parse.quote(version)}"))
-    return datetime.datetime.fromisoformat(data["version"]["created_at"].replace("Z", "+00:00"))
 
 
 def release_tags(url, templates, name=""):
@@ -430,54 +256,19 @@ def ripening(lib):
     return (when + datetime.timedelta(days=MIN_RELEASE_AGE_DAYS)).date().isoformat()
 
 
-def osv_lookup(commits):
-    """{commit: [(id, CVE aliases, summary, fixed upstream)]} from OSV; withdrawn entries left out."""
-    commits = list(dict.fromkeys(commits))
-    return dict(zip(commits, osv_query([{"commit": c} for c in commits])))
-
-
-def osv_crates(pinned):
-    """{(name, version): [(id, aliases, summary, fixed upstream)]} of crates from crates.io, from OSV."""
-    return dict(zip(pinned, osv_query([{"package": {"ecosystem": "crates.io", "name": n}, "version": v}
-                                       for n, v in pinned])))
-
-
-def osv_query(queries):
-    """[[(id, CVE aliases, summary, fixed upstream)] per query] from OSV's batch query; withdrawn
-    entries left out."""
-    if not queries:
-        return []
-    results = json.loads(fetch(f"{OSV}/querybatch", json.dumps({"queries": queries}).encode()))["results"]
-    details, found = {}, []
-    for query, result in zip(queries, results):
-        if result.get("next_page_token"):
-            raise RuntimeError(f"OSV paginated the results of {query}: query it alone")
-        found.append([])
-        for vid in (v["id"] for v in result.get("vulns", [])):
-            if vid not in details:
-                details[vid] = json.loads(fetch(f"{OSV}/vulns/{vid}"))
-            entry = details[vid]
-            if entry.get("withdrawn"):
-                continue
-            fixed = any("fixed" in e for a in entry.get("affected", []) for r in a.get("ranges", [])
-                        for e in r.get("events", []))
-            aliases = ", ".join(a for a in entry.get("aliases", []) if a.startswith(("CVE-", "RUSTSEC-", "GHSA-")))
-            summary = (entry.get("summary") or entry.get("details", "").split("\n")[0])[:120]
-            found[-1].append((vid, aliases, summary, fixed))
-    return found
-
-
 def vulnerabilities(libraries, report):
     """OSV, by commit: the pinned release, and the newest release the update policy allows. A known
     vulnerability is "actionable" when that newest release is free of it: the update must happen
     now (D-67), with a cooldown exception if the release is younger than the cooldown. Not when the
-    vulnerability is assessed out of our reach and that release is still under the cooldown: D-69
-    asks for an exception only for an issue we can reach, so it is taken once past the cooldown,
-    and is actionable from that day (D-92). Any other one is answered by a patch of ours ("Fixes:",
-    D-73) or by an assessment in packaging/known-vulnerabilities.txt, or else is "unassessed": a
-    person must look at it before a release ships. Returns (vulnerable, actionable, unassessed,
-    unresolved), where "vulnerable" means a known vulnerability that no patch of ours fixes."""
-    unresolved = unassessed = False
+    vulnerability is assessed (out of our reach, or a risk the owner accepts until that release
+    passes the cooldown) and that release is still under the cooldown: D-69 asks for an exception
+    only for an issue we can reach and nobody chose to wait for, so it is taken once past the
+    cooldown, is actionable from that day (D-92), and is "waiting" until then: a warning that holds
+    no release back (D-100). Any other one is answered by a patch of ours ("Fixes:", D-73) or by an
+    assessment in packaging/known-vulnerabilities.txt, or else is "unassessed": a person must look at
+    it before a release ships. Returns (vulnerable, actionable, waiting, unassessed, unresolved),
+    where "vulnerable" means a known vulnerability that no patch of ours fixes."""
+    unresolved = unassessed = waiting = False
     reported = set()
     for lib in libraries:
         lib["newest"] = None
@@ -528,9 +319,10 @@ def vulnerabilities(libraries, report):
                 state = f"patched: `{patch}`" + (f" (also fixed in {lib['newest'][0]}: the update takes it and drops "
                                                  f"the patch)" if newer is not None and vid not in newer else "")
             elif newer is not None and vid not in newer and known and (ripens := ripening(lib)):
-                vulnerable = True
-                state = (f"assessed: {known}; fixed in {lib['newest'][0]}, under the cooldown until {ripens}: "
-                         f"taken then, and \"update now\" from that day (D-69, D-92)")
+                vulnerable = waiting = True
+                state = (f"assessed: {known}; **fixed in {lib['newest'][0]}, under the cooldown until {ripens}: the "
+                         f"update waits for it** (a warning that holds no release back, D-100), taken then, and "
+                         f"\"update now\" from that day (D-69, D-92)")
             elif newer is not None and vid not in newer:
                 vulnerable = actionable = True
                 state = f"**fixed in {lib['newest'][0]}: update now**"
@@ -573,7 +365,7 @@ def vulnerabilities(libraries, report):
         for library, vid in sorted(set(KNOWN_VULNERABILITIES) - reported):
             report.notes.append(f"`{vid} {library}` is no longer reported for the pinned {library}: remove its line "
                                 f"from packaging/known-vulnerabilities.txt.")
-    return vulnerable, actionable, unassessed, unresolved
+    return vulnerable, actionable, waiting, unassessed, unresolved
 
 
 def release_dates(baseline_commit, baseline):
@@ -892,12 +684,6 @@ def sbom_svg_renderer(share, parent, packages, relationships):
         relationships.append({"spdxElementId": parent, "relationshipType": "CONTAINS", "relatedSpdxElement": ident})
 
 
-class Report:
-    def __init__(self):
-        self.rows, self.notes = [], []
-        self.stale = []  # cooldown exceptions that no longer apply (scripts/update_dependencies.py removes them)
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--vulnerabilities", action="store_true", help="look every shipped library up in OSV")
@@ -916,13 +702,14 @@ def main():
     if not (args.vulnerabilities or args.sources or args.coverage or args.cooldown):
         args.vulnerabilities = args.sources = args.cooldown = True
     out = []
-    flags = {"vulnerable": False, "actionable": False, "unassessed": False, "mismatch": False, "unaudited": False,
-             "young": False, "failed": False, "lowered": MIN_RELEASE_AGE_DAYS < POLICY_DAYS}
+    flags = {"vulnerable": False, "actionable": False, "waiting": False, "unassessed": False, "mismatch": False,
+             "unaudited": False, "young": False, "failed": False, "lowered": MIN_RELEASE_AGE_DAYS < POLICY_DAYS}
     baseline_commit = json.loads(read(os.path.join(ROOT, "vcpkg.json")))["builtin-baseline"]
     baseline = {}
 
     def check_vulnerabilities(report):
-        flags["vulnerable"], flags["actionable"], flags["unassessed"], unresolved = vulnerabilities(shipped(baseline), report)
+        (flags["vulnerable"], flags["actionable"], flags["waiting"], flags["unassessed"],
+         unresolved) = vulnerabilities(shipped(baseline), report)
         flags["failed"] |= unresolved
 
     def check_sources(report):

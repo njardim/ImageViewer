@@ -43,6 +43,7 @@ void ViewerWindow::stopAnimation()
         m_framePool.start([animation = m_animation] { animation->trim(); });
     }
     m_animation.reset();
+    m_framePixels.reset();
     m_readyFrame.reset();
     m_frameDue = false;
     m_wantedFrame = -1;
@@ -110,8 +111,7 @@ void ViewerWindow::resumeOnScreen()
         return;
     if (std::exchange(m_frameWaitsForScreen, false))
         frameTimeout();
-    if (std::exchange(m_slideshowWaitsForScreen, false) && m_slideshow && !m_slideshowPaused)
-        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+    m_slideshow.resumeOnScreen();
 }
 
 void ViewerWindow::frameTimeout()
@@ -148,6 +148,7 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
     m_image.maxComponent = std::max(m_image.maxComponent, shown.maxComponent);
     m_image.maxLuminance = std::max(m_image.maxLuminance, shown.maxLuminance);
     m_frameIndex = shown.index;
+    m_framePixels = shown.index > 0 ? shown.pixels : PixelBuffer();
     m_frameDurationMs = shown.durationMs;
     if (m_animationPaused) {
         m_wantedFrame = -1;
@@ -227,16 +228,14 @@ void ViewerWindow::stepFrame(int delta)
 
 void ViewerWindow::toggleSlideshow()
 {
-    if (m_slideshow) {
+    if (m_slideshow.running()) {
         stopSlideshow();
         showNotice(tr("Slideshow stopped"));
         return;
     }
     if (m_files.size() < 2)
         return;
-    m_slideshow = true;
-    m_slideshowPaused = false;
-    m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
+    m_slideshow.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
     showSlideshowToolbar();
     if (m_settings.slideshowFullScreen && visibility() != QWindow::FullScreen) {
         m_slideshowLeavesFullScreen = true;
@@ -248,29 +247,18 @@ void ViewerWindow::toggleSlideshow()
 
 void ViewerWindow::toggleSlideshowPause()
 {
-    m_slideshowPaused = !m_slideshowPaused;
-    if (m_slideshowPaused) {
-        m_slideshowTimer.stop();
+    if (m_slideshow.togglePause()) {
         showNotice(tr("Slideshow paused"));
     } else {
-        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
         //: %1: seconds between images, e.g. "5".
         showNotice(tr("Slideshow: a new image every %1 s").arg(QLocale().toString(m_settings.slideshowSeconds)));
     }
     updateSlideshowToolbar(); // play and pause trade places
 }
 
-void ViewerWindow::restartSlideshowInterval()
-{
-    if (m_slideshow && !m_slideshowPaused)
-        m_slideshowTimer.start();
-}
-
 void ViewerWindow::stopSlideshow()
 {
-    m_slideshow = false;
-    m_slideshowPaused = false;
-    m_slideshowTimer.stop();
+    m_slideshow.stop();
     m_toolbarTimer.stop();
     m_toolbarPress = ToolbarButton::None;
     setToolbarHover(ToolbarButton::None);
@@ -279,33 +267,32 @@ void ViewerWindow::stopSlideshow()
         leaveFullScreen();
 }
 
-void ViewerWindow::slideshowTimeout()
+void ViewerWindow::slideshowDue()
 {
-    // Not while the window is off the screen (minimized, for one): nobody sees the images it would
-    // decode. It waits for the window to come back, and the image shown then gets its full time
-    // (resumeOnScreen).
-    if (!onScreen()) {
-        m_slideshowTimer.stop();
-        m_slideshowWaitsForScreen = true;
-        return;
-    }
-    // Not behind a dialog or a menu: the image they act on must stay the one on screen.
-    if (QGuiApplication::modalWindow() || QApplication::activePopupWidget()) {
-        m_slideshowTimer.start(int(std::lround(m_settings.slideshowSeconds * 1000)));
-        return;
-    }
-    // After the last image, the first only when navigation loops (D-61).
-    if (!hasNeighbour(+1)) {
+    // The clock's rules (Slideshow::next()): it waits off the screen, behind a dialog or a menu,
+    // and for an image still being decoded; after the last image of a folder that does not loop
+    // (D-61) it ends.
+    Slideshow::Conditions conditions;
+    conditions.onScreen = onScreen();
+    conditions.behindDialog = QGuiApplication::modalWindow() || QApplication::activePopupWidget();
+    conditions.awaiting = !m_awaitedPath.isEmpty();
+    conditions.hasNext = hasNeighbour(+1);
+    switch (m_slideshow.next(conditions)) {
+    case Slideshow::Action::Step:
+        step(+1);
+        break;
+    case Slideshow::Action::End:
         stopSlideshow();
         showNotice(tr("Slideshow stopped"));
-        return;
+        break;
+    case Slideshow::Action::None:
+        break;
     }
-    step(+1);
 }
 
 void ViewerWindow::showSlideshowToolbar()
 {
-    if (!m_slideshow)
+    if (!m_slideshow.running())
         return;
     m_toolbarHidden = false;
     if (m_settings.slideshowToolbarAutoHide)

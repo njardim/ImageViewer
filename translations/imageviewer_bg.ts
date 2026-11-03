@@ -40,12 +40,21 @@
         <translation>%1 (зададено от декодера)</translation>
     </message>
     <message>
+        <source>CMYK, converted without color management</source>
+        <translation>CMYK, преобразувано без управление на цветовете</translation>
+    </message>
+    <message>
         <source>linear BT.709 (assumed)</source>
         <translation>линеен BT.709 (предполагаемо)</translation>
     </message>
     <message>
         <source>sRGB (assumed)</source>
         <translation>sRGB (предполагаемо)</translation>
+    </message>
+    <message>
+        <source>file too large to read (%1 GB; at most %2 GB)</source>
+        <extracomment>GB: gigabytes. %1: the file&apos;s size; %2: the largest file this format is read from.</extracomment>
+        <translation>файлът е твърде голям за четене (%1 GB; най-много %2 GB)</translation>
     </message>
     <message>
         <source>damaged, truncated or unsupported file</source>

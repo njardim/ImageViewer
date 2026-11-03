@@ -42,6 +42,7 @@ jobs:
       actions: write       # start build.yml (a push or a PR made with this token starts no workflow)
     env:
       GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }} # gh answers on the issue without a checkout
       ISSUE: ${{ github.event.issue.number }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -132,3 +133,16 @@ jobs:
           if [ "$FAILED" != true ]; then
             gh issue close "$ISSUE" --reason completed
           fi
+
+      # An issue always gets an answer (D-103): a step that failed before the report was posted
+      # (the checkout, the check, the push, the pull request), or the job's 30 minutes spent, leaves
+      # the issue the run's link.
+      - name: Answer on the issue when the run failed
+        if: (failure() || cancelled()) && env.ISSUE != ''
+        run: |
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          for try in 1 2 3; do
+            gh issue comment "$ISSUE" --body "The dependency update failed or was stopped before it could answer: $run. The issue stays open; remove and add the label again to retry." && exit 0
+            sleep $((try * 10))
+          done
+          exit 1

@@ -91,6 +91,7 @@ jobs:
           echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Run Gemini CLI Agent
+        id: agent
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489 # v0.1.22
         env:
           GEMINI_CLI_TRUST_WORKSPACE: "true"
@@ -169,6 +170,7 @@ jobs:
           BASE: ${{ steps.branch.outputs.base }}
           REPLY_FILE: ${{ runner.temp }}/gemini-reply.md
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          AGENT_OUTCOME: ${{ steps.agent.outcome }}
         run: |
           out="$RUNNER_TEMP/gemini-out"
           rm -rf "$out" # nothing the agent may have left there goes into the artifact
@@ -183,6 +185,19 @@ jobs:
           # where the action looks. Into the job's log always, and into the reply when there is none.
           log=gemini-artifacts/stdout.log
           session="$RUNNER_TEMP/session.txt"
+          # First how the agent's step itself ended (D-103): it may not have run (a step before it
+          # failed), been cancelled (the job's 45 minutes spent, or the run cancelled), or failed (the
+          # CLI's error, as JSON on its stderr).
+          case "$AGENT_OUTCOME" in
+            success) : ;;
+            skipped) echo "The agent did not run: a step before it failed." ;;
+            cancelled) echo "The agent's step was cancelled: the job's 45 minutes were spent, or the run was cancelled." ;;
+            *) echo "The agent's step ended with: ${AGENT_OUTCOME:-unknown}." ;;
+          esac > "$RUNNER_TEMP/outcome.txt"
+          if jq -e '.error' gemini-artifacts/stderr.log > /dev/null 2>&1; then
+            jq -r '"CLI error: \(.error.type // "error"): \(.error.message // "")"' gemini-artifacts/stderr.log \
+              >> "$RUNNER_TEMP/outcome.txt" || true
+          fi
           if jq -e . "$log" > /dev/null 2>&1; then
             jq -r '
               (if .error then "Stopped: \(.error.type // "error"): \(.error.message // "")" else empty end),
@@ -195,6 +210,7 @@ jobs:
           else
             echo "The CLI left no JSON output." > "$session"
           fi
+          cat "$RUNNER_TEMP/outcome.txt" "$session" > "$session.all" && mv "$session.all" "$session"
           # It goes into a comment, where GitHub masks no secret (only logs): anything shaped like a
           # Google API key goes first.
           sed -i -E 's/AIza[0-9A-Za-z_-]{35}/[redacted]/g' "$session"
@@ -208,6 +224,10 @@ jobs:
           if written "$REPLY_FILE"; then
             cp "$REPLY_FILE" "$out/reply.md"
             replied=true
+            # Written, but the step did not end well (cancelled after writing it, say): that too.
+            if [ "$AGENT_OUTCOME" != success ]; then
+              { echo; echo "---"; echo "How the agent's step ended ($RUN_URL):"; echo; echo '```'; cat "$session"; echo '```'; } >> "$out/reply.md"
+            fi
           else
             jq -r '.response // ""' "$log" > "$RUNNER_TEMP/answer.md" 2> /dev/null || true
             if written "$RUNNER_TEMP/answer.md"; then
@@ -245,7 +265,9 @@ jobs:
 
   publish:
     needs: solve-issue
-    if: always() && (needs.solve-issue.result == 'success' || needs.solve-issue.result == 'failure')
+    # Every run of the owner's ends with an answer on the issue (D-103): after the agent's job
+    # succeeded, failed or was cancelled (its 45 minutes spent); a skipped one was nobody's request.
+    if: always() && needs.solve-issue.result != 'skipped'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -253,6 +275,13 @@ jobs:
       pull-requests: write # its pull request
       issues: write        # the reply on the issue
       actions: write       # start build.yml (a push or a PR made with this token starts no workflow)
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }} # gh answers on the issue without a checkout
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      RESULT: ${{ needs.solve-issue.result }}
+      REPLIED: ${{ needs.solve-issue.outputs.replied }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -264,51 +293,94 @@ jobs:
           name: gemini-issue-${{ github.event.issue.number }}
           path: ${{ runner.temp }}/gemini-out
 
-      - name: Push the issue branch, open the pull request, answer on the issue
+      # Writes the answer and posts nothing: the next step posts it whatever happens here (D-103).
+      - name: Push the issue branch and open the pull request
         env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           BASE: ${{ needs.solve-issue.outputs.base }}
-          RESULT: ${{ needs.solve-issue.result }}
-          REPLIED: ${{ needs.solve-issue.outputs.replied }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           branch="gemini/issue-${ISSUE_NUMBER}"
           out="$RUNNER_TEMP/gemini-out"
-          comment="$RUNNER_TEMP/comment.md"
-          say() { gh issue comment "$ISSUE_NUMBER" --body-file "$comment"; }
-          # GitHub refuses a comment over 65,536 characters: the reply is cut well below that.
+          reply="$RUNNER_TEMP/reply.md"
+          notes="$RUNNER_TEMP/notes.md"
+          : > "$notes"
+          ok=true
           # Blanks are no reply (D-103).
           if [ -f "$out/reply.md" ] && grep -q '[^[:space:]]' "$out/reply.md"; then
-            head -c 60000 "$out/reply.md" > "$RUNNER_TEMP/reply.md"
-          else echo "The agent left no reply (run $RESULT): $RUN_URL" > "$RUNNER_TEMP/reply.md"; fi
+            cp "$out/reply.md" "$reply"
+          else
+            echo "The agent left no reply (its job: $RESULT): $RUN_URL" > "$reply"
+          fi
           url=""
           if [ -f "$out/commits.bundle" ]; then
             git fetch -q origin "+refs/heads/${branch}:refs/remotes/origin/${branch}" 2>/dev/null || true
             if ! git fetch -q "$out/commits.bundle" HEAD || ! git merge-base --is-ancestor "$BASE" FETCH_HEAD; then
-              { cat "$RUNNER_TEMP/reply.md"; echo; echo "The agent's commits do not build on the branch it started from: nothing pushed ($RUN_URL)."; } > "$comment"
-              say; exit 1
-            fi
+              echo "The agent's commits do not build on the branch it started from: nothing pushed ($RUN_URL)." >> "$notes"
+              ok=false
             # Never forced: an existing branch only moves forward. GitHub refuses changes to
             # .github/workflows from this token.
-            if ! git push origin "FETCH_HEAD:refs/heads/${branch}"; then
-              { cat "$RUNNER_TEMP/reply.md"; echo; echo "Pushing ${branch} failed: nothing published ($RUN_URL)."; } > "$comment"
-              say; exit 1
+            elif ! git push origin "FETCH_HEAD:refs/heads/${branch}"; then
+              echo "Pushing ${branch} failed: nothing published ($RUN_URL)." >> "$notes"
+              ok=false
+            else
+              # An open pull request only: after a merge, new commits get a new one.
+              url="$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')" || url=""
+              if [ -z "$url" ]; then
+                # A pull request's text holds 65,536 characters: a longer reply is whole on the issue.
+                { head -c 60000 "$reply"; echo; echo "Closes #${ISSUE_NUMBER}"; } > "$RUNNER_TEMP/body.md"
+                if ! url="$(gh pr create --base main --head "$branch" --title "Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}" \
+                  --body-file "$RUNNER_TEMP/body.md")"; then
+                  url=""
+                  echo "${branch} is pushed, but opening its pull request failed ($RUN_URL)." >> "$notes"
+                  ok=false
+                fi
+              fi
+              if [ -n "$url" ] && ! gh workflow run build.yml --ref "$branch"; then
+                echo "The full build did not start on ${branch}: start it by hand ($RUN_URL)." >> "$notes"
+                ok=false
+              fi
             fi
-            # An open pull request only: after a merge, new commits get a new one.
-            url="$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')"
-            if [ -z "$url" ]; then
-              { cat "$RUNNER_TEMP/reply.md"; echo; echo "Closes #${ISSUE_NUMBER}"; } > "$RUNNER_TEMP/body.md"
-              url="$(gh pr create --base main --head "$branch" --title "Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}" \
-                --body-file "$RUNNER_TEMP/body.md")"
-            fi
-            gh workflow run build.yml --ref "$branch"
           fi
           {
-            cat "$RUNNER_TEMP/reply.md"
+            cat "$reply"
+            if [ -s "$notes" ]; then echo; cat "$notes"; fi
             if [ -n "$url" ]; then echo; echo "Pull request: $url (the full build runs on it; review and merge are the owner's)."; fi
-          } > "$comment"
-          say
+          } > "$RUNNER_TEMP/comment.md"
+          $ok
+
+      - name: Answer on the issue
+        if: always()
+        run: |
+          comment="$RUNNER_TEMP/comment.md"
+          # Whatever happened before (no checkout, no artifact, a failed push), an answer (D-103).
+          if ! { [ -f "$comment" ] && grep -q '[^[:space:]]' "$comment"; }; then
+            echo "The agent's run ended without a reply to post (its job: $RESULT): $RUN_URL" > "$comment"
+          fi
+          # A comment holds 65,536 characters: a longer reply goes whole, in parts cut at line ends.
+          rm -f "$RUNNER_TEMP"/part-*
+          split -C 60000 -d -a 3 "$comment" "$RUNNER_TEMP/part-"
+          parts=("$RUNNER_TEMP"/part-*)
+          n=${#parts[@]}
+          posted=0
+          for i in "${!parts[@]}"; do
+            body="${parts[$i]}.md"
+            if [ "$n" -gt 1 ]; then
+              { echo "($((i + 1))/$n)"; echo; cat "${parts[$i]}"; } > "$body"
+            else
+              cp "${parts[$i]}" "$body"
+            fi
+            # Tried again on a passing failure of GitHub's.
+            for try in 1 2 3; do
+              if gh issue comment "$ISSUE_NUMBER" --body-file "$body"; then
+                posted=$((posted + 1))
+                break
+              fi
+              sleep $((try * 10))
+            done
+          done
+          if [ "$posted" -lt "$n" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Only $posted of the reply's $n parts could be posted: $RUN_URL" || true
+            exit 1
+          fi
           # A session that ended with nothing to say is a failed run, though the CLI exited with 0 (D-103).
           [ "$RESULT" = success ] && [ "$REPLIED" = true ]

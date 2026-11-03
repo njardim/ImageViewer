@@ -39,6 +39,9 @@ jobs:
     permissions:
       contents: read # the repository; this job pushes nothing
       issues: read   # the owner's comments
+    env:
+      # The model, named once: the agent's step asks for it and its settings tune it (D-104).
+      AGENT_MODEL: gemini-4-argon
     outputs:
       base: ${{ steps.branch.outputs.base }}
       replied: ${{ steps.handover.outputs.replied }}
@@ -107,14 +110,21 @@ jobs:
           # gave no answer with 0.62.0, and answered with 0.64.0 (D-74). Kept current by hand.
           gemini_cli_version: "0.65.0"
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          gemini_model: "gemini-4-argon"
+          gemini_model: ${{ env.AGENT_MODEL }}
+          # Read by Gemini CLI 0.65.0 as written here (D-104) [code: its bundle]. The tools allowed
+          # are "tools.core" (a top-level "coreTools" is not read: every built-in tool was on,
+          # web_fetch and google_web_search among them, against D-67). The thinking level is an
+          # override that names the model ("model": "*" matched no model, and "overrides" replaced
+          # the CLI's own); the CLI knows no gemini-4 model, so it gave it no thinking level of its
+          # own. Telemetry goes to a file outside the repository, without prompts or answers: the
+          # hand-over step reads from it how each response ended, which the JSON output leaves out.
           settings: |
             {
               "modelConfigs": {
-                "overrides": [
+                "customOverrides": [
                   {
                     "match": {
-                      "model": "*"
+                      "model": "${{ env.AGENT_MODEL }}"
                     },
                     "modelConfig": {
                       "generateContentConfig": {
@@ -127,15 +137,23 @@ jobs:
                   }
                 ]
               },
-              "coreTools": [
-                "read_file",
-                "write_file",
-                "replace",
-                "list_directory",
-                "glob",
-                "grep_search",
-                "run_shell_command"
-              ]
+              "tools": {
+                "core": [
+                  "read_file",
+                  "write_file",
+                  "replace",
+                  "list_directory",
+                  "glob",
+                  "grep_search",
+                  "run_shell_command"
+                ]
+              },
+              "telemetry": {
+                "enabled": true,
+                "target": "local",
+                "outfile": "${{ runner.temp }}/gemini-telemetry.log",
+                "logPrompts": false
+              }
             }
           prompt: |
             You are working on the ImageViewer repository on branch `gemini/issue-${{ env.ISSUE_NUMBER }}`.
@@ -179,12 +197,17 @@ jobs:
           # blank comment, and on issue #40 the owner then saw nothing at all).
           written() { [ -f "$1" ] && grep -q '[^[:space:]]' "$1"; }
           # The CLI's own output, which the action keeps in gemini-artifacts (written after the agent
-          # ended). How the session ended is there (D-103): Gemini CLI 0.65.0 ends a session it stops
-          # early (a loop detected, a response empty or of thoughts only, its output tokens spent, a
-          # block) with exit code 0 and the reason in this JSON's error and warnings, not on stderr,
-          # where the action looks. Into the job's log always, and into the reply when there is none.
+          # ended). Part of how the session ended is there (D-103): Gemini CLI 0.65.0 ends a session
+          # it stops early (a loop detected, an invalid response, a block) with exit code 0 and the
+          # reason in this JSON's error and warnings, not on stderr, where the action looks. Not all
+          # of it (D-104) [code: nonInteractiveCli.ts, legacy-agent-session.js, geminiChat.js]: an
+          # empty answer to a tool's result is taken, nudged once, and a session that ends on a
+          # response cut by its token limit, filtered, or with a malformed call ("max_budget",
+          # "refusal", "failed") ends with neither: the telemetry file has each response's finish
+          # reason. Into the job's log always, and into the reply when there is none.
           log=gemini-artifacts/stdout.log
           session="$RUNNER_TEMP/session.txt"
+          telemetry="$RUNNER_TEMP/gemini-telemetry.log"
           # First how the agent's step itself ended (D-103): it may not have run (a step before it
           # failed), been cancelled (the job's 45 minutes spent, or the run cancelled), or failed (the
           # CLI's error, as JSON on its stderr).
@@ -209,6 +232,30 @@ jobs:
             written "$session" || echo "The CLI recorded no error, warning or statistics." > "$session"
           else
             echo "The CLI left no JSON output." > "$session"
+          fi
+          # The telemetry's records (concatenated JSON objects): counts, finish reasons and tool
+          # names only, no text (logPrompts is off).
+          if [ -s "$telemetry" ]; then
+            jq -rn '
+              [inputs | .attributes? | objects | select(.["event.name"] | type == "string")] as $events
+              | def named($suffix): $events | map(select(.["event.name"] | endswith($suffix)));
+                def reasons: (.finish_reasons // []) | if length == 0 then "none" else join("+") end;
+                def tally(f): group_by(f) | map("\(.[0] | f) \(length)") | join(", ");
+              named("api_response") as $responses
+              | (if ($responses | length) == 0 then "Telemetry: no model response recorded."
+                 else
+                   "Telemetry: \($responses | length) responses, by finish reason: \($responses | tally(reasons))",
+                   ($responses[-1] | "Last response: finish \(reasons), \(.output_token_count // 0) output tokens, \(.thoughts_token_count // 0) thought tokens, \(.input_token_count // 0) prompt tokens")
+                 end),
+                (named("api_error") | select(length > 0) | "API errors: \(tally(.["error.type"] // .status_code // "unknown"))"),
+                (named("content_retry") | select(length > 0) | "Invalid responses retried: \(tally(.error_type // "unknown"))"),
+                (named("content_retry_failure") | select(length > 0) | "Invalid responses given up: \(tally(.error_type // "unknown"))"),
+                (named("loop_detected") | select(length > 0) | "Loops detected: \(tally(.loop_type // "unknown"))"),
+                (named("chat_compression") | select(length > 0) | "History compressed: \(length) times"),
+                (named("tool_call") | select(length > 0) | "Tools: \(tally(.function_name // "unknown"))")
+            ' "$telemetry" >> "$session" 2> /dev/null || echo "Telemetry: its file could not be read." >> "$session"
+          else
+            echo "Telemetry: no file was written." >> "$session"
           fi
           cat "$RUNNER_TEMP/outcome.txt" "$session" > "$session.all" && mv "$session.all" "$session"
           # It goes into a comment, where GitHub masks no secret (only logs): anything shaped like a

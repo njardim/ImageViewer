@@ -254,14 +254,10 @@ int runSvgWorker(QByteArrayView file, qint64 maxPixels, DecodeOptions options)
     const double documentWidth = held.width, documentHeight = held.height;
     // Its own size; within the side asked for, or (a thumbnail) exactly that side; or an area of it
     // at a scale (the zoom's detail, D-93).
-    const double longest = std::max(documentWidth, documentHeight);
     const auto pixels = [](double side) { return std::max<qint64>(1, qint64(std::ceil(side - 1e-6))); };
     const bool area = options.scale > 0.0;
-    double scale = options.maxSide > 0 && (options.fill || longest > options.maxSide) ? options.maxSide / longest : 1.0;
-    if (!options.fill && options.view.width() > 0 && options.view.height() > 0) // no larger than shown
-        scale = std::min({scale, options.view.width() / documentWidth, options.view.height() / documentHeight});
-    if (area)
-        scale = options.scale;
+    const double scale = area ? options.scale
+                              : vectorDrawScale(documentWidth, documentHeight, options.maxSide, options.fill, options.view);
     const qint64 width = area ? qRound64(options.area.width()) : pixels(documentWidth * scale);
     const qint64 height = area ? qRound64(options.area.height()) : pixels(documentHeight * scale);
     if (width > kMaxPixels || height > kMaxPixels || width * height > maxPixels)

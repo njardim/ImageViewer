@@ -2,8 +2,10 @@
 // layout, the slideshow's clock and the zoom's detail of an SVG, each driven alone, its decoding
 // handed in. The rules here are the ones a defect once broke: a folder that keeps changing never got
 // its thumbnails (D-100), a slow image was skipped by the slideshow (D-100), a failed detail was
-// asked for again without end (D-95). Run by CI on the three systems; no argument needed (the
-// offscreen platform unless QT_QPA_PLATFORM says otherwise).
+// asked for again without end (D-95); and the scale an SVG is drawn at for its window, by which the
+// window draws an SVG again when the window outgrows it (D-106). Run by CI on the three systems; no
+// argument needed (the offscreen platform unless QT_QPA_PLATFORM says otherwise).
+#include "decoders.h"
 #include "detail.h"
 #include "gallery.h"
 #include "slideshow.h"
@@ -313,6 +315,19 @@ class DetailTest : public QObject {
     Q_OBJECT
 
 private Q_SLOTS:
+    void theScaleAnSvgIsDrawnAt()
+    {
+        // As svg.cpp draws (D-90, D-94) and the window asks whether a window outgrew it (D-106): its
+        // own size, within the GPU's largest texture, never larger than the window; a thumbnail
+        // exactly at its side.
+        QCOMPARE(vectorDrawScale(4001, 3001, 16384, false, QSize(1280, 800)), 800.0 / 3001);
+        QCOMPARE(vectorDrawScale(4001, 3001, 16384, false, QSize(1600, 1000)), 1000.0 / 3001);
+        QCOMPARE(vectorDrawScale(4001, 3001, 16384, false, QSize(4000, 4000)), 4000.0 / 4001);
+        QCOMPARE(vectorDrawScale(200, 200, 16384, false, QSize(1280, 800)), 1.0);
+        QCOMPARE(vectorDrawScale(40000, 20000, 16384, false, QSize()), 16384.0 / 40000);
+        QCOMPARE(vectorDrawScale(100, 50, 256, true, QSize(1280, 800)), 2.56);
+    }
+
     void theVisiblePartInEveryTurnAndMirror()
     {
         // A 100 × 100 texture at 4×, its corner at the window's: the window shows its top-left

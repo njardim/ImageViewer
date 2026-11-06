@@ -72,6 +72,9 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     connect(&m_details, &VectorDetails::drawn, this, &ViewerWindow::detailDrawn);
     connect(&m_details, &VectorDetails::failed, this, &ViewerWindow::detailFailed);
     connect(&m_details, &VectorDetails::cleared, this, [this] { m_renderer.clearDetail(); });
+    m_redrawTimer.setSingleShot(true);
+    m_redrawTimer.setInterval(kDetailSettleMs); // the window has stayed: draw the SVG again (D-106)
+    connect(&m_redrawTimer, &QTimer::timeout, this, &ViewerWindow::scheduleWork);
     connect(&m_gallery, &Gallery::changed, this, &ViewerWindow::updateGallery);
     connect(&m_gallery, &Gallery::textureChanged, this, [this](const QImage &image) {
         m_renderer.setOverlay(Renderer::GalleryLayer, image);

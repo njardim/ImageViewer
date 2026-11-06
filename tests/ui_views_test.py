@@ -334,6 +334,44 @@ try:
                     drawn = details_at_100()
                 xdotool("key", "q")
                 app.wait(15)
+                # An SVG drawn for a smaller window (D-106): opened in the window, which then grows, it is
+                # drawn again for the window once the window stays, in place of a detail of the whole
+                # view; back at Fit after a zoom, its own texture serves, and no detail is drawn again.
+                # Before, the fit needed a detail of the whole view, drawn again after every zoom.
+                before = len(log_text())
+                app = launch([large], log)
+                wait_until("the large SVG shown", lambda: "decoded for display: large.svg" in log_text()[before:])
+                focus_viewer()
+                xdotool("key", "0")  # Fit to Window (100 % above is the zoom mode kept, D-65)
+                time.sleep(1)
+                if window_geometry()[2] >= 1600:
+                    fail("the window did not open narrower than the screen")
+                resized = len(log_text())
+                wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
+                xdotool("windowsize", "--sync", wid, "1600", "1000")
+                wait_until("the large SVG drawn again for the larger window (4001 x 3001 within 1600 x 1000)",
+                           lambda: "drawn again for the window: large.svg 1334x1000" in log_text()[resized:])
+                time.sleep(1)
+                grown = log_text()[resized:]
+                if re.search(r"detail drawn: large\.svg", grown):
+                    fail("a detail of the whole view was drawn as well as the image for the window")
+                for _ in range(2):
+                    xdotool("key", "plus")
+                wait_until("zoomed in past the window's size, the detail drawn",
+                           lambda: re.search(r"detail drawn: large\.svg", log_text()[resized:]) is not None)
+                zoomed = len(log_text())
+                xdotool("key", "0")
+                time.sleep(2)
+                back = log_text()[zoomed:]
+                if re.search(r"detail drawn: large\.svg|drawn again for the window", back):
+                    fail("back at Fit, the SVG was drawn again (a detail or the image) instead of its own texture")
+                xdotool("windowsize", "--sync", wid, "1280", "800")
+                time.sleep(1)
+                if "drawn again for the window" in log_text()[zoomed:]:
+                    fail("a smaller window drew the SVG again")
+                print("ok   an SVG drawn for a smaller window is drawn again once the window grows; Fit after a zoom needs no detail")
+                xdotool("key", "q")
+                app.wait(15)
 
                 # 4. A folder of SVGs (D-94): each decoding thread starts one SVG worker and keeps it,
                 # rather than one process per document; the interface answers throughout (the latency

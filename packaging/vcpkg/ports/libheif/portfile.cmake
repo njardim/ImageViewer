@@ -2,7 +2,7 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/strukturag/libheif
-    REF f81f28ac014b1c28dee483ac45b72c6b05bc421a # v1.23.6
+    REF 12a259a5882dd99d45ec5fc77e296a3b620d1e2e # v1.23.7
     FETCH_REF v${VERSION}
     HEAD_REF master
     PATCHES

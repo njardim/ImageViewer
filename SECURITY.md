@@ -56,7 +56,7 @@ Decision D-67 in [`docs/PLAN.md`](docs/PLAN.md) has the details and the reasons.
 - **Our patches to libraries** are `imageviewer-*.patch` files in their overlay ports, each naming
   what it fixes, its upstream fix and when it goes; `docs/PLAN.md` §15 lists them, and each
   package's bill of materials names the ones built into it. Today: OpenJPH (CVE-2026-111151 and
-  two upstream fixes), LibRaw (CVE-2026-111272), OpenJPEG (OSV-2025-219) and OpenImageIO (two).
+  two upstream fixes), OpenJPEG (OSV-2025-219) and OpenImageIO (two).
 - **Release gate.** A release is published only when the audit is clean.
 - **Only audited code reads images.** Qt reads only ICNS, cursors, WBMP, XPM and XBM; the PNG, JPEG,
   GIF and WebP images inside them are decoded by OpenImageIO with the audited libraries, never by

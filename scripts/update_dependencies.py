@@ -221,7 +221,13 @@ def check_patches(port, url, tag, apply, report):
     """Tries the port's patches, in the portfile's order, on the new source."""
     portfile = os.path.join(PORTS, port, "portfile.cmake")
     text = read(portfile)
-    patches = [p for p in re.findall(r"([\w.-]+\.(?:patch|diff))\b", text) if os.path.exists(os.path.join(PORTS, port, p))]
+    # Not the patches of a second source the port fetches beside it, which apply to that one (LibRaw's
+    # port patches LibRaw-cmake): those listed in a fetch without the pinned "REF <sha> # <tag>".
+    other = {p for block in re.findall(r"vcpkg_from_\w+\((.*?)\n\)", text, re.S)
+             if not re.search(r"REF [0-9a-f]{40} # ", block)
+             for p in re.findall(r"([\w.-]+\.(?:patch|diff))\b", block)}
+    patches = [p for p in re.findall(r"([\w.-]+\.(?:patch|diff))\b", text)
+               if os.path.exists(os.path.join(PORTS, port, p)) and p not in other]
     if not patches:
         return
     ours = {patch["file"]: patch for patch in audit.our_patches(port)}

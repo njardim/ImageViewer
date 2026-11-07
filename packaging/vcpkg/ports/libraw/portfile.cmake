@@ -1,15 +1,13 @@
-# ImageViewer overlay (D-46, D-67, D-73): vcpkg's port (baseline 0699a19d), LibRaw fetched by git at
+# ImageViewer overlay (D-46, D-67, D-74): vcpkg's port (baseline 0699a19d), LibRaw fetched by git at
 # the tag's commit, so the commit hash pins the source and scripts/update_dependencies.py moves it to
-# each release once it is past the cooldown. It exists for our patch (imageviewer-*, docs/PLAN.md
-# section 15): drop the overlay once it is gone and vcpkg has the version.
+# each release once it is past the cooldown. It exists to build LibRaw without JasPer (vcpkg's port
+# builds and ships it, D-74) at its latest release; our CVE-2026-111272 patch went with 0.22.3 (D-108).
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/LibRaw/LibRaw
-    REF b93f6e45c194f5df9b02a43b1af9a54b4f41f33f # 0.22.2
+    REF cf02d66eb5c19d4e46df7aee0582e47a4918509a # 0.22.3
     FETCH_REF "${VERSION}"
     HEAD_REF master
-    PATCHES
-        imageviewer-nikon-shotinfo-bounds.patch # ours: CVE-2026-111272, no upstream fix yet
 )
 
 vcpkg_from_github(

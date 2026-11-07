@@ -56,7 +56,7 @@ VectorDetails::VectorDetails(Draw draw, QObject *parent) : QObject(parent), m_dr
 {
     m_pool.setMaxThreadCount(1);
     m_timer.setSingleShot(true);
-    m_timer.setInterval(150);
+    m_timer.setInterval(kDetailSettleMs);
     connect(&m_timer, &QTimer::timeout, this, &VectorDetails::start);
     connect(&m_watcher, &QFutureWatcher<Image>::finished, this, &VectorDetails::finished);
 }

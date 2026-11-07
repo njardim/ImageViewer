@@ -381,6 +381,8 @@ cases = {
     "a morphology": '<filter id="f"><feMorphology operator="dilate" radius="4"/></filter><rect x="40" y="50" width="110" height="90" fill="blue" filter="url(#f)"/>',
     "a noise": '<filter id="f" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.03" numOctaves="3"/></filter><rect width="200" height="200" filter="url(#f)"/>',
     "a blurred mask": '<mask id="m"><rect x="50" y="50" width="100" height="100" fill="white" filter="url(#f)"/></mask><filter id="f"><feGaussianBlur stdDeviation="12"/></filter><rect width="200" height="200" fill="purple" mask="url(#m)"/>',
+    # resvg 0.48.1 displaces by its scale twice (#1157): its reach is scale squared over two.
+    "a displacement": '<filter id="f" x="0" y="0" width="1" height="1"><feTurbulence baseFrequency="0.04" numOctaves="2" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter><g filter="url(#f)"><rect width="200" height="200" fill="#fff"/>' + "".join(f'<rect x="{x}" width="5" height="200"/>' for x in range(0, 200, 10)) + '</g>',
 }
 areas = [(0, 0, 600, 600), (137, 91, 211, 173), (250, 223, 260, 190), (450, 7, 150, 591)]
 def request(area, file):
@@ -403,7 +405,7 @@ for name, body in cases.items():
                 sys.exit(f"{name}: the area at {l},{t} differs from the whole on its row {y}")
 PY
 )"; then
-        echo "ok   SVG: a part drawn alone has the whole's pixels (large blurs, shadows, morphology, noise, masks)"
+        echo "ok   SVG: a part drawn alone has the whole's pixels (large blurs, shadows, morphology, noise, masks, displacement)"
     else
         echo "FAIL SVG: a part drawn alone differs from the whole: $said"
         failures=$((failures + 1))

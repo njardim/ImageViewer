@@ -3,6 +3,7 @@
 // following changes on disk.
 #include "viewer.h"
 
+#include "decoders.h" // vectorDrawScale() (D-106)
 #include "folder.h"
 
 #include <QCursor>
@@ -165,8 +166,19 @@ void ViewerWindow::scheduleWork()
         m_error = m_image.error;
         updateOverlay();
     }
-    // The requested image is on screen: use the idle decode thread for its neighbours.
-    if (m_decodeBusy || !m_settings.preload || !m_rendererReady)
+    // The requested image is on screen. An SVG of it drawn for a smaller window comes first (D-106):
+    // a neighbour's decode in a worker process is stopped for it, as for an image asked for.
+    const bool redraw = !m_redrawWanted.isEmpty() && !m_redrawTimer.isActive();
+    if (redraw && m_decodeBusy && m_jobPath != current)
+        m_jobCancel->store(true, std::memory_order_relaxed);
+    if (m_decodeBusy || !m_rendererReady)
+        return;
+    if (redraw) {
+        startDecode(current, limit, 0, true);
+        return;
+    }
+    // Then the idle decode thread preloads its neighbours.
+    if (!m_settings.preload)
         return;
     const QStringList wanted = neighbourhood();
     for (qsizetype i = 1; i < wanted.size(); ++i) {
@@ -179,7 +191,7 @@ void ViewerWindow::scheduleWork()
     }
 }
 
-void ViewerWindow::startDecode(const QString &path, int limit, qint64 maxPixels)
+void ViewerWindow::startDecode(const QString &path, int limit, qint64 maxPixels, bool redraw)
 {
     m_decodeBusy = true;
     m_jobLimit = limit;
@@ -187,8 +199,9 @@ void ViewerWindow::startDecode(const QString &path, int limit, qint64 maxPixels)
     m_jobPath = path;
     m_jobCancel = std::make_shared<std::atomic_bool>(false);
     // An SVG is drawn no larger than the window shows it (D-94).
-    m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, limit, maxPixels, cancel = m_jobCancel,
-                                                          view = deviceSize().toSize()] {
+    const QSize view = deviceSize().toSize();
+    m_jobRedraw = redraw ? view : QSize();
+    m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, limit, maxPixels, cancel = m_jobCancel, view] {
         return decodeImage(path, limit, maxPixels, true, false, cancel.get(), view);
     }));
 }
@@ -199,6 +212,7 @@ void ViewerWindow::decodeFinished()
     // its own reference to the pixels alive until the next decode.
     Image image = m_watcher.future().takeResult();
     m_decodeBusy = false;
+    const QSize redrawn = std::exchange(m_jobRedraw, QSize());
     if (m_jobCancel->load(std::memory_order_relaxed) && !image.isValid()) { // stopped: no longer wanted
         scheduleWork();
         return;
@@ -208,8 +222,31 @@ void ViewerWindow::decodeFinished()
         return;
     }
     const int limit = m_jobLimit;
-    m_cache.insert(image, limit); // kept only if it is still the current image or a neighbour
     const QString current = currentPath();
+    if (!redrawn.isEmpty()) {
+        // The SVG on screen drawn again for the window (D-106): it takes the place of the one drawn
+        // for a smaller window, the view kept. One that failed, or is no larger, leaves that one on
+        // screen and is not asked for again while the window stays (the detail serves, as before).
+        if (image.path == current && !needsDisplay(current, limit)) {
+            if (image.isValid() && image.documentScale > m_image.documentScale) {
+                m_cache.insert(image, limit);
+                qCInfo(lcNavigation).noquote() << "drawn again for the window:" << QFileInfo(image.path).fileName()
+                                               << QStringLiteral("%1x%2").arg(image.width).arg(image.height);
+                showImage(std::move(image), limit, true);
+            } else {
+                m_redrawFailedPath = image.path;
+                m_redrawFailed = redrawn;
+                m_redrawWanted = QSize(); // not asked for again below; the next frame asks for the detail
+                m_redrawTimer.stop();
+                requestUpdate();
+                qCInfo(lcNavigation).noquote() << "not drawn again for the window:" << QFileInfo(image.path).fileName()
+                                               << (image.error.isEmpty() ? QStringLiteral("no larger") : image.error);
+            }
+        }
+        scheduleWork();
+        return;
+    }
+    m_cache.insert(image, limit); // kept only if it is still the current image or a neighbour
     if (image.path == current && limit == textureLimit(current) && !image.overPixelLimit
         && needsDisplay(current, limit)) {
         qCInfo(lcNavigation).noquote() << "decoded for display:" << QFileInfo(image.path).fileName();
@@ -222,9 +259,15 @@ void ViewerWindow::decodeFinished()
     scheduleWork();
 }
 
-void ViewerWindow::showImage(Image image, int limit)
+void ViewerWindow::showImage(Image image, int limit, bool redrawn)
 {
     m_details.drop(image.path); // drawn from the image this one replaces
+    m_redrawWanted = QSize(); // worked out again for this image at the next frame (D-106)
+    m_redrawTimer.stop();
+    if (image.path != m_image.path) { // another image: one that failed may be asked for again
+        m_redrawFailedPath.clear();
+        m_redrawFailed = QSize();
+    }
     // The same file again (smaller texture, device loss, language, changed on disk) keeps
     // the view; a new file starts fitted.
     const bool sameFile = image.path == m_image.path;
@@ -258,8 +301,9 @@ void ViewerWindow::showImage(Image image, int limit)
     m_shownLimit = limit;
     m_imageStale = false;
     m_awaitedPath.clear();
-    // A slideshow's interval runs from the image's arrival, not from the step that asked for it.
-    if (!m_slideshow.waitsForScreen())
+    // A slideshow's interval runs from the image's arrival, not from the step that asked for it; the
+    // same image drawn again for the window is no arrival.
+    if (!redrawn && !m_slideshow.waitsForScreen())
         m_slideshow.restart();
     // Editors often save by replacing the file: watch the path again each time it is shown.
     const QFileInfo shown(m_image.path);
@@ -459,7 +503,44 @@ void ViewerWindow::updateDetail()
     view.quarterTurns = m_quarterTurns;
     view.mirrored = m_mirrored;
     view.maxTextureSize = m_renderer.maxTextureSize();
-    m_details.want(vectorDetailFor(view));
+    std::optional<VectorDetail> wanted = vectorDetailFor(view);
+    // Drawn for a smaller window, where drawn for this one it would need no detail, the SVG is drawn
+    // again for the window instead, once the window stays (D-106); the detail shown meanwhile stays,
+    // and none is started.
+    const QSize redraw = wanted ? redrawWindow(view) : QSize();
+    if (redraw != m_redrawWanted) {
+        if (m_decodeBusy && !m_jobRedraw.isEmpty() && m_jobRedraw != redraw)
+            m_jobCancel->store(true, std::memory_order_relaxed); // drawn for a window no longer wanted
+        m_redrawWanted = redraw;
+        if (redraw.isEmpty())
+            m_redrawTimer.stop();
+        else
+            m_redrawTimer.start();
+    }
+    if (!redraw.isEmpty()) {
+        const VectorDetail &shown = m_details.shown();
+        m_details.want(shown.path.isEmpty() ? std::nullopt : std::optional<VectorDetail>(shown));
+        return;
+    }
+    m_details.want(std::move(wanted));
+}
+
+QSize ViewerWindow::redrawWindow(const DetailView &view) const
+{
+    // The scale svg.cpp would draw the document at for this window, against the scale it was drawn
+    // at. The image has the document's sides rounded up: with them the scale is at least what the
+    // worker would draw (`fits`), with a pixel less at most (`reach`).
+    const QSize window = view.window.toSize(); // as startDecode() asks
+    const int width = m_image.sourceWidth, height = m_image.sourceHeight;
+    if (!m_image.vector || !(m_image.documentScale > 0.0) || width <= 0 || height <= 0
+        || (m_redrawFailedPath == m_image.path && m_redrawFailed == window))
+        return {};
+    const double fits = vectorDrawScale(width, height, m_shownLimit, false, window);
+    const double reach = vectorDrawScale(std::max(width - 1, 1), std::max(height - 1, 1), m_shownLimit, false, window);
+    // Larger by more than the detail's threshold, and enough for the zoom shown.
+    if (fits > m_image.documentScale * (1.0 + 1e-3) && view.shownZoom <= reach * (1.0 + 1e-3))
+        return window;
+    return {};
 }
 
 void ViewerWindow::detailDrawn(const VectorDetail &detail, const Image &image)

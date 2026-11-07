@@ -163,13 +163,16 @@ private:
     QStringList neighbourhood() const;  // current image, then the neighbours, direction of travel first
     bool needsDisplay(const QString &path, int limit) const; // not what the window shows now
     void scheduleWork();                // show from the cache, else decode; then preload
-    void startDecode(const QString &path, int limit, qint64 maxPixels);
+    void startDecode(const QString &path, int limit, qint64 maxPixels, bool redraw = false);
     void decodeFinished();
     // The zoom's detail (D-93, m_details): the view at every frame, and what is drawn or fails.
     void updateDetail();
+    // An SVG on screen drawn for a smaller window than this one (D-106): the window to draw it again
+    // for, where that would show it without a detail; empty: none.
+    QSize redrawWindow(const DetailView &view) const;
     void detailDrawn(const VectorDetail &detail, const Image &image);
     void detailFailed(const VectorDetail &detail, const QString &error);
-    void showImage(Image image, int limit);
+    void showImage(Image image, int limit, bool redrawn = false); // redrawn: the same view, for this window
     void clearShownImage();             // nothing on screen: no image, no animation
     void watchFile(const QString &path); // the one file watched, the image on screen; empty: none
     void reloadCurrent();               // decode the shown file again, keeping the view
@@ -328,6 +331,14 @@ private:
     QString m_jobPath;                    // ...its file
     // ...set when its image is no longer wanted: a decode in a worker process ends at once (D-93)
     std::shared_ptr<std::atomic_bool> m_jobCancel;
+    QSize m_jobRedraw; // ...the window it draws the SVG on screen again for (D-106); empty: no redraw
+    // The SVG on screen drawn again for a window that outgrew it (D-106): the window wanted, asked
+    // for once it has stayed as long as a detail waits for its view; one that failed, or gave no
+    // larger image, is not asked for again while the window stays.
+    QSize m_redrawWanted;
+    QTimer m_redrawTimer;
+    QString m_redrawFailedPath;
+    QSize m_redrawFailed;
     VectorDetails m_details; // the zoom's detail of an SVG, drawn beside the decodes
     std::unique_ptr<QMenuBar> m_menuBar; // macOS: the application's menu bar (installApplicationMenu())
     std::unique_ptr<QTranslator> m_menuTranslator; // macOS: its About and Settings in our words

@@ -22,6 +22,9 @@
 #include <memory>
 #include <optional>
 
+// How long a view stays before its detail is drawn (VectorDetails::setSettleMs() changes it).
+inline constexpr int kDetailSettleMs = 150;
+
 struct VectorDetail {
     QString path;       // the image it is drawn from
     double scale = 0.0; // device pixels per pixel of the document

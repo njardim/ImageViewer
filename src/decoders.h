@@ -10,6 +10,7 @@
 #include <QRect>
 #include <QString>
 
+#include <algorithm>
 #include <atomic>
 #include <memory>
 #include <string>
@@ -96,6 +97,19 @@ struct DecodeOptions {
     QRectF area;
     const std::atomic_bool *cancel = nullptr;
 };
+
+// The scale a vector image's document, `width` × `height` of its own pixels, is drawn at for
+// `maxSide`, `fill` and `view` as DecodeOptions describes them: texels per pixel of the document.
+// svg.cpp draws by it; the window asks with it whether an SVG on screen was drawn for a smaller
+// window than its own (D-106).
+inline double vectorDrawScale(double width, double height, int maxSide, bool fill, QSize view)
+{
+    const double longest = std::max(width, height);
+    double scale = maxSide > 0 && (fill || longest > maxSide) ? maxSide / longest : 1.0;
+    if (!fill && view.width() > 0 && view.height() > 0) // no larger than shown
+        scale = std::min({scale, view.width() / width, view.height() / height});
+    return scale;
+}
 
 // Detects the format (formats.h) and decodes with its back end, then with the general ones
 // (OpenImageIO, Qt) if that fails. With `maxPixels` > 0 a larger source is not read

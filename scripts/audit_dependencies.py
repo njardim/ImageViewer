@@ -98,7 +98,6 @@ BASELINE_PORTS = {
     "imath": ("https://github.com/AcademySoftwareFoundation/Imath", "v{v}"),
     "lcms": ("https://github.com/mm2/Little-CMS", "lcms{v}"),
     "libdeflate": ("https://github.com/ebiggers/libdeflate", "v{v}"),
-    "libjpeg-turbo": ("https://github.com/libjpeg-turbo/libjpeg-turbo", "{v}"),
     "libjxl": ("https://github.com/libjxl/libjxl", "v{v}"),
     "liblzma": ("https://github.com/tukaani-project/xz", "v{v}"),
     "libpng": ("https://github.com/pnggroup/libpng", "v{v}"),
@@ -121,12 +120,14 @@ COMMIT_PORTS = {
     "aom": ("https://aomedia.googlesource.com/aom", "v{v}"),
     "expat": ("https://github.com/libexpat/libexpat", "R_{v_}"),
     "minizip-ng": ("https://github.com/zlib-ng/minizip-ng", "{v}"),
-    # Overlays for the patches we carry (D-73, docs/PLAN.md section 15); vcpkg's ports otherwise.
+    # Overlays for the patches we carry (D-73, docs/PLAN.md section 15), and LibRaw's for building it
+    # without JasPer (D-74); vcpkg's ports otherwise.
     "openjph": ("https://github.com/aous72/OpenJPH", "{v}"),
     "libraw": ("https://github.com/LibRaw/LibRaw", "{v}"),
     "openjpeg": ("https://github.com/uclouvain/openjpeg", "v{v}"),
-    # A security fix ahead of vcpkg's baseline (D-76); vcpkg's port otherwise.
+    # Security fixes ahead of vcpkg's baseline (D-76, D-108); vcpkg's ports otherwise.
     "brotli": ("https://github.com/google/brotli", "v{v}"),
+    "libjpeg-turbo": ("https://github.com/libjpeg-turbo/libjpeg-turbo", "{v}"),
     # The SVG renderer (D-90): resvg, with our crate beside it; its crates and Rust are audited apart.
     "imageviewer-svg": ("https://github.com/linebender/resvg", "v{v}"),
 }

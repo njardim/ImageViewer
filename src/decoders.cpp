@@ -19,8 +19,6 @@ namespace {
 using color::Descriptor;
 using color::Transfer;
 
-constexpr qint64 kWorkingBytesPerPixel = 16;    // RGBA16F result plus one orient/downscale copy
-
 bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint64 maxPixels, Decoded *out,
                 QString *error, std::unique_ptr<FrameReader> *frames, DecodeOptions options)
 {
@@ -96,7 +94,7 @@ qint64 decodeMemoryBudget()
 bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
 {
     const qint64 budget = decodeMemoryBudget();
-    const qint64 needed = pixels * (nativeBytesPerPixel + kWorkingBytesPerPixel);
+    const qint64 needed = pixels * (nativeBytesPerPixel + kConversionBytesPerPixel);
     if (budget <= 0 || needed <= budget)
         return true;
     //: GB: gigabytes.
@@ -156,6 +154,22 @@ void describeIcc(const QByteArray &icc, Descriptor *d)
     d->icc = icc;
     const QString name = cleanText(color::iccDescription(icc)); // the profile's own text
     d->description = QStringLiteral("ICC: %1").arg(name.isEmpty() ? QCoreApplication::translate("Image", "(no description)") : name);
+}
+
+bool describeCicp(int primaries, int transfer, int matrix, int range, bool fullRange, Descriptor *d)
+{
+    Descriptor c;
+    if (!color::primariesFromCicp(primaries, &c.primaries) || !color::transferFromCicp(transfer, &c.transfer, &c.gamma))
+        return false;
+    d->source = Descriptor::Source::Cicp;
+    d->primaries = c.primaries;
+    d->transfer = c.transfer;
+    d->gamma = c.gamma;
+    d->fullRange = fullRange;
+    d->description = QStringLiteral("CICP %1/%2/%3/%4 — %5")
+                         .arg(primaries).arg(transfer).arg(matrix).arg(range)
+                         .arg(color::transferName(c.transfer, c.gamma));
+    return true;
 }
 
 QString cmykWithoutProfile()

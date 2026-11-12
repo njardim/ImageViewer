@@ -95,6 +95,13 @@ bool ViewerWindow::hasNeighbour(int delta) const
     return m_settings.loop || (target >= 0 && target < m_files.size());
 }
 
+void ViewerWindow::goTo(int index, int direction)
+{
+    m_direction = direction;
+    m_slideshow.restart();
+    startLoading(index);
+}
+
 void ViewerWindow::step(int delta)
 {
     // Every way of stepping (keys, menus, mouse buttons, side zones, slideshow) is offered only
@@ -102,10 +109,7 @@ void ViewerWindow::step(int delta)
     if (!hasNeighbour(delta))
         return;
     const int n = int(m_files.size());
-    const int target = ((m_index + delta) % n + n) % n;
-    m_direction = delta > 0 ? 1 : -1;
-    m_slideshow.restart();
-    startLoading(target);
+    goTo(((m_index + delta) % n + n) % n, delta > 0 ? 1 : -1);
 }
 
 QStringList ViewerWindow::neighbourhood() const
@@ -568,9 +572,7 @@ void ViewerWindow::galleryClicked(int slot)
     const int index = m_gallery.fileAt(slot);
     if (index < 0 || index == m_index)
         return;
-    m_direction = index > m_index ? 1 : -1;
-    m_slideshow.restart();
-    startLoading(index);
+    goTo(index, index > m_index ? 1 : -1);
 }
 
 void ViewerWindow::toggleGallery()

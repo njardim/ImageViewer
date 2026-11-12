@@ -88,8 +88,6 @@ constexpr int kWorkerNativeBytesPerPixel = 8 + 8 + 8 + 8;
 // An SVG: the renderer's pixmap and two of its layers (a group with a filter, a mask) in the
 // worker, the answer and its copy here.
 constexpr int kSvgNativeBytesPerPixel = 4 + 8 + 4 + 4;
-constexpr qint64 kConversionBytesPerPixel = 16;
-constexpr qint64 kMaxIccBytes = qint64(1) << 26;
 constexpr int kTimeoutMs = 30000;
 
 // The coders the worker keeps: the registry's GraphicsMagick formats (formats.cpp), by name.

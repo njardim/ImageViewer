@@ -158,6 +158,9 @@ private:
     // navigation.cpp
     QString currentPath() const; // the requested entry of m_files, empty when there is none
     void startLoading(int index);
+    // Another image of the folder, asked for by the user or the slideshow: `direction` (1 or -1)
+    // says which neighbour is preloaded first, and a slideshow's interval starts again.
+    void goTo(int index, int direction);
     void step(int delta);
     bool hasNeighbour(int delta) const; // false at either end when navigation does not loop
     QStringList neighbourhood() const;  // current image, then the neighbours, direction of travel first

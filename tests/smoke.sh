@@ -103,6 +103,10 @@ done
 check transparent.gif 'pixel\[0,0\]: +0 0 0 a=0$' "GIF transparency kept"
 # EXIF orientation 6 rotates 300x200 into 200x300 exactly once.
 check orient6.jpg 'size: +200x300' "EXIF orientation 6 applied once"
+# An orientation outside 1 to 8 (a 6x4 JPEG whose EXIF says 9, written with Pillow): nothing is
+# turned, and nothing is said to have been (the information panel's "EXIF 9, applied").
+check orient9.jpg 'size: +6x4' "an EXIF orientation outside 1 to 8 turns nothing"
+check orient9.jpg 'orientation: +1$' "an EXIF orientation outside 1 to 8 is not reported as applied"
 
 # EXIF shooting data for the information panel (D-34); the model holds a tab and a BEL
 # character, which must not reach the panel. Made with Pillow 12.3.

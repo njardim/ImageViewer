@@ -446,6 +446,8 @@ void ViewerWindow::renameFile()
     m_cache.remove(path);
     if (m_textureCapPath == path)
         m_textureCapPath = target; // it still needs the reduced size it was shown at
+    if (m_redrawFailedPath == path)
+        m_redrawFailedPath = target; // nor is its redraw for this window asked for again (D-106)
     m_image.path = target;
     // So is an SVG's detail (D-93): drawn, wanted, failed or being drawn, it shows the same document.
     m_details.rename(path, target);

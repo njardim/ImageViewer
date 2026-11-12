@@ -81,7 +81,7 @@ int readCmykJpeg(const unsigned char *data, std::size_t size, qint64 maxPixels, 
     }
     // Within this machine's memory (fitsInMemory()'s rule): the ink, its conversion and libjpeg's own
     // buffers (a progressive file keeps every coefficient), before anything that size is allocated.
-    if (const qint64 budget = decodeMemoryBudget(); budget > 0 && width * height * (4 + 8 + 16) > budget) {
+    if (const qint64 budget = decodeMemoryBudget(); budget > 0 && width * height * (4 + 8 + kConversionBytesPerPixel) > budget) {
         std::snprintf(message, JMSG_LENGTH_MAX, "larger than the memory available");
         jpeg_destroy_decompress(&info);
         return 0;

@@ -19,7 +19,6 @@ public:
     static qint64 defaultBudget();
     explicit ImageCache(qint64 budget = defaultBudget());
 
-    qint64 budget() const { return m_budget; }
     qint64 bytes() const; // pixel bytes held
     // Largest source (width × height) worth preloading: a third of the budget at 8 bytes per pixel.
     qint64 maxPreloadPixels() const { return m_budget / 3 / 8; }

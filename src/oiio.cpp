@@ -105,20 +105,10 @@ void describeOiio(const OIIO::ImageSpec &spec, bool isFloat, const char *format,
     if (const OIIO::ParamValue *p = spec.find_attribute("CICP");
         p && p->type() == OIIO::TypeDesc(OIIO::TypeDesc::INT, 4)) {
         const int *v = static_cast<const int *>(p->data());
-        Descriptor c;
-        if (color::primariesFromCicp(v[0], &c.primaries) && color::transferFromCicp(v[1], &c.transfer, &c.gamma)) {
-            d->source = Descriptor::Source::Cicp;
-            d->primaries = c.primaries;
-            d->transfer = c.transfer;
-            d->gamma = c.gamma;
-            // The range flag describes the stored samples. libheif hands OpenImageIO RGB it
-            // has already expanded from narrow-range YCbCr, so for HEIF/AVIF it is always full.
-            d->fullRange = v[3] != 0 || std::strcmp(format, "heif") == 0;
-            d->description = QStringLiteral("CICP %1/%2/%3/%4 — %5")
-                                 .arg(v[0]).arg(v[1]).arg(v[2]).arg(v[3])
-                                 .arg(color::transferName(c.transfer, c.gamma));
+        // The range flag describes the stored samples. libheif hands OpenImageIO RGB it
+        // has already expanded from narrow-range YCbCr, so for HEIF/AVIF it is always full.
+        if (describeCicp(v[0], v[1], v[2], v[3], v[3] != 0 || std::strcmp(format, "heif") == 0, d))
             return;
-        }
     }
     if (const OIIO::ParamValue *p = spec.find_attribute("ICCProfile");
         p && p->type().basetype == OIIO::TypeDesc::UINT8 && p->type().size() > 0) {
@@ -323,7 +313,9 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
         out->associatedAlpha = false; // a CMYK file's alpha is straight (OpenImageIO drops a TIFF's)
     // Some readers give the bits of a whole pixel (DDS: 32 for 8-bit RGBA).
     out->bits = std::min(spec.get_int_attribute("oiio:BitsPerSample", int(stored.size() * 8)), int(stored.size() * 8));
-    out->orientation = spec.get_int_attribute("Orientation", 1);
+    // 1 to 8 only (F7): a JPEG's or PNG's EXIF may hold anything, and nothing else is applied or shown.
+    const int orientation = spec.get_int_attribute("Orientation", 1);
+    out->orientation = orientation >= 1 && orientation <= 8 ? orientation : 1;
     out->codec = QStringLiteral("OpenImageIO/%1").arg(QString::fromUtf8(in->format_name()));
     out->camera = cameraFromOiio(spec);
     describeOiio(spec, !out->isInteger(), in->format_name(), &out->colour);

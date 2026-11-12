@@ -60,6 +60,11 @@ struct Decoded {
 inline constexpr qint64 kMaxPixels = qint64(1) << 30;
 // The largest file read into memory (readWholeFile(), the decode worker's input).
 inline constexpr qint64 kMaxFileBytes = qint64(1) << 31;
+// The largest ICC profile a back end that asks a library for its size takes.
+inline constexpr qint64 kMaxIccBytes = qint64(1) << 26;
+// What the conversion of a decoded image needs for each pixel, beside its native samples: the
+// RGBA16F result and one copy of it (the orientation, the reduction).
+inline constexpr qint64 kConversionBytesPerPixel = 16;
 
 // The frames of an animated file (E6), composited to full canvases and read in order; every
 // frame has the first frame's size, samples and channel layout. One user at a time.
@@ -147,6 +152,10 @@ CameraInfo cameraFromExif(QByteArrayView tiff, int *orientation);
 QString cleanText(QString text);
 // The colour of an embedded ICC profile, described by the profile's own text.
 void describeIcc(const QByteArray &icc, color::Descriptor *d);
+// The colour H.273 code points give (CICP: a PNG's cICP chunk, an nclx box), described by the four
+// values as the file has them; `fullRange` says how the samples handed over are stored. False, and
+// `d` as it was, for primaries or a transfer function that are not handled.
+bool describeCicp(int primaries, int transfer, int matrix, int range, bool fullRange, color::Descriptor *d);
 // sRGB for integer samples, linear BT.709 for float, marked as assumed (F12).
 void assumeDefault(bool isFloat, color::Descriptor *d);
 // What a CMYK image without a usable CMYK profile is described as: converted by the textbook formula.

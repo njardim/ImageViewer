@@ -26,7 +26,6 @@ vcpkg_cmake_configure(
         -DBUILD_WEBSITE=OFF
         -DCMAKE_REQUIRE_FIND_PACKAGE_Imath=ON
         -DCMAKE_REQUIRE_FIND_PACKAGE_libdeflate=ON
-        -DCMAKE_REQUIRE_FIND_PACKAGE_openjph=ON
         -DCMAKE_REQUIRE_FIND_PACKAGE_zstd=ON
         -DOPENEXR_BUILD_EXAMPLES=OFF
         -DOPENEXR_INSTALL_PKG_CONFIG=ON
@@ -34,6 +33,23 @@ vcpkg_cmake_configure(
         -DOPENEXR_BUILD_TOOLS=OFF
         -DOPENEXR_INSTALL_TOOLS=OFF
 )
+# OpenJPH is not required by CMAKE_REQUIRE_FIND_PACKAGE_openjph, as vcpkg's port has it: that makes
+# the patch's first find_package(openjph 0.32.0) fatal, before its second asks for 0.33.0 (D-110).
+# Its effect instead: OpenEXR must have found ours, never built the copy of OpenJPH it carries.
+set(checked 0)
+foreach(build_type IN ITEMS rel dbg)
+    set(cache "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-${build_type}/CMakeCache.txt")
+    if(EXISTS "${cache}")
+        file(STRINGS "${cache}" external REGEX "^OPENEXR_USE_INTERNAL_OPENJPH:INTERNAL=0$")
+        if(NOT external)
+            message(FATAL_ERROR "OpenEXR did not find the openjph port and would build its own copy of OpenJPH")
+        endif()
+        math(EXPR checked "${checked} + 1")
+    endif()
+endforeach()
+if(checked EQUAL 0)
+    message(FATAL_ERROR "no CMakeCache.txt of OpenEXR's configure found: which OpenJPH it uses is unknown")
+endif()
 vcpkg_cmake_install()
 vcpkg_copy_pdbs()
 

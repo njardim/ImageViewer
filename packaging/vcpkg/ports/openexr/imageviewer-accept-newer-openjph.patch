@@ -1,6 +1,6 @@
 ImageViewer patch (docs/PLAN.md section 15, D-57, D-110): OpenEXR accepts an OpenJPH newer than 0.32
 Library: openexr 3.5.3
-Fixes: none (the build with OpenJPH 0.33.0; the two entries it answers are named here once that release is pinned)
+Fixes: OSV-2026-1299, OSV-2026-1371, OSV-2026-1517 (OpenJPH's NLT marker parsing, filed under OpenEXR: fixed in OpenJPH 0.33.0, which this patch lets OpenEXR build with)
 Upstream: AcademySoftwareFoundation/openexr e9e9fefc (#2813), on main; released in 3.5.4
 Remove when: OpenEXR 3.5.4 or later is taken (the update script removes a patch the release already contains)
 

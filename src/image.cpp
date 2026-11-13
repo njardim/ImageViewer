@@ -33,12 +33,16 @@ namespace {
 using color::Descriptor;
 using color::Transfer;
 
-// What a decode that threw reports: a library's own exception, or memory it could not get.
+// What a decode that threw reports: a library's own exception, or memory it could not get. The
+// library's text goes to the log, never to the interface (D-64, D-111): it is English, and may be
+// anything.
 QString exceptionError(const std::exception &e)
 {
     if (dynamic_cast<const std::bad_alloc *>(&e))
         return QCoreApplication::translate("Image", "Not enough memory to decode the image.");
-    return QCoreApplication::translate("Image", "Decoding error: %1").arg(QString::fromLocal8Bit(e.what()));
+    qCWarning(lcDecode).noquote() << "a decoder threw:" << QString::fromLocal8Bit(e.what());
+    return QCoreApplication::translate("Image", "Decoding error: %1")
+        .arg(QCoreApplication::translate("Image", "damaged, truncated or unsupported file"));
 }
 
 // Runs fn(range) for consecutive ranges of [0, count) on the global thread pool.
@@ -479,6 +483,8 @@ namespace {
 
 Image guardedDecode(const QString &path, int maxTextureSize, qint64 maxPixels, bool animate, const DecodeOptions &options)
 {
+    // What the decode reserves of the memory every decode shares is free again when it ends (D-111).
+    const DecodeMemory memory;
     // Runs on a worker thread: an exception escaping here would be rethrown by
     // QFuture::result() on the GUI thread and terminate the application.
     try {

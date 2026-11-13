@@ -7,8 +7,10 @@
 #include "image.h"
 
 #include <QLoggingCategory>
+#include <QMutex>
 #include <QRect>
 #include <QString>
+#include <QWaitCondition>
 
 #include <algorithm>
 #include <atomic>
@@ -65,6 +67,77 @@ inline constexpr qint64 kMaxIccBytes = qint64(1) << 26;
 // What the conversion of a decoded image needs for each pixel, beside its native samples: the
 // RGBA16F result and one copy of it (the orientation, the reduction).
 inline constexpr qint64 kConversionBytesPerPixel = 16;
+
+// One limit for the decodes that run at once (D-111): the image shown or preloaded and the gallery's
+// two thumbnails, each on a thread of its own. fitsInMemory() holds every decode to the budget on
+// its own; through this class what they need together stays within it: a decode whose need does not
+// fit beside the others' waits until they end, in the order they asked, so that thumbnails never
+// pass the image shown. A decode alone is never held back. One that holds memory already and needs
+// more, or that must not wait (a worker process has drawn the image and its clock runs), is given it
+// at once: two decodes that waited while they held some could wait for each other for ever.
+class DecodeMemory {
+public:
+    // A decode begins on this thread; it ends with the object, and what it reserved is free again.
+    DecodeMemory() : m_outermost(t_held < 0)
+    {
+        if (m_outermost)
+            t_held = 0;
+    }
+    ~DecodeMemory()
+    {
+        if (!m_outermost)
+            return;
+        Shared &s = shared();
+        {
+            const QMutexLocker lock(&s.mutex);
+            s.reserved -= t_held;
+        }
+        t_held = -1;
+        s.freed.wakeAll();
+    }
+    Q_DISABLE_COPY_MOVE(DecodeMemory)
+
+    // `bytes` for this thread's decode, of the `budget` every decode shares. Nothing outside a
+    // decode: the decode worker's process, a frame of an animation while it plays.
+    static void reserve(qint64 bytes, qint64 budget, bool mayWait = true)
+    {
+        if (t_held < 0 || bytes <= t_held || budget <= 0)
+            return;
+        Shared &s = shared();
+        const QMutexLocker lock(&s.mutex);
+        if (t_held == 0 && mayWait) {
+            const quint64 turn = s.asked++;
+            while (turn != s.served || (s.reserved > 0 && s.reserved + bytes > budget))
+                s.freed.wait(&s.mutex);
+            ++s.served;
+            s.freed.wakeAll(); // the next in line looks again
+        }
+        s.reserved += bytes - t_held;
+        t_held = bytes;
+    }
+    // What the decodes that run now have reserved.
+    static qint64 reserved()
+    {
+        Shared &s = shared();
+        const QMutexLocker lock(&s.mutex);
+        return s.reserved;
+    }
+
+private:
+    struct Shared {
+        QMutex mutex;
+        QWaitCondition freed;
+        qint64 reserved = 0;
+        quint64 asked = 0, served = 0; // the turns given out, and how many of them have gone ahead
+    };
+    static Shared &shared()
+    {
+        static Shared s;
+        return s;
+    }
+    static inline thread_local qint64 t_held = -1; // what this thread's decode holds; -1 outside a decode
+    const bool m_outermost;
+};
 
 // The frames of an animated file (E6), composited to full canvases and read in order; every
 // frame has the first frame's size, samples and channel layout. One user at a time.
@@ -128,8 +201,10 @@ bool decodeFile(const QString &path, qint64 maxPixels, Decoded *out, QString *er
 void shutdownOpenImageIO();
 
 // Shared by the back ends (decoders.cpp, oiio.cpp, codecs.cpp).
-// Refuses a decode that would need more than ~60 % of physical memory (*error says why).
-bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error);
+// Refuses a decode that would need more than ~60 % of physical memory (*error says why), and
+// reserves what it needs of that budget for this thread's decode (DecodeMemory), waiting for the
+// decodes that run beside it unless `mayWait` is false.
+bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error, bool mayWait = true);
 // What every back end checks before it reads a pixel (D-38): dimensions within kMaxPixels, a
 // volume's slices included (*error otherwise, naming `channels`); the pixel limit asked for
 // (out->overLimit otherwise); fitsInMemory() for every slice. Any 32-bit dimension is safe.
@@ -171,8 +246,9 @@ bool readWholeFile(const QString &path, QByteArray *bytes, QString *error);
 // oiio.cpp: the OpenImageIO back end.
 // A file through OpenImageIO; with `frames`, `format` is the animated format the content was
 // recognised as (GIF), whose frames after the first go to *frames.
+// With `thumbnailSide` > 0 (a thumbnail of that side), a JPEG's pixels are read reduced (D-111).
 bool decodeWithOiio(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error,
-                    std::unique_ptr<FrameReader> *frames = nullptr);
+                    std::unique_ptr<FrameReader> *frames = nullptr, int thumbnailSide = 0);
 // OpenImageIO on a file in memory; `name` only tells it the format (e.g. "frame.png").
 bool decodeOiioMemory(QByteArrayView bytes, const char *name, Decoded *out, QString *error, qint64 maxPixels = 0);
 // Whether this build's OpenImageIO reads HEIF from memory (3.x; 2.4 only from a file).
@@ -239,6 +315,11 @@ bool decodeCodec(Decoder decoder, QByteArray bytes, qint64 maxPixels, Decoded *o
 // jpeg.cpp: a CMYK JPEG with a CMYK ICC profile, its ink read through libjpeg-turbo (OpenImageIO
 // converts CMYK to RGB itself, without the profile; D-100).
 bool decodeCmykJpeg(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QString *error);
+// A gray (`components` 1) or colour (3) 8-bit JPEG at 1/`denominator` (2, 4 or 8) of its size, which
+// is `width` x `height` (each side divided, rounded up), for a thumbnail (D-111). Null unless the
+// file reads cleanly at that size: the caller then reads it whole.
+std::unique_ptr<unsigned char[]> decodeReducedJpeg(const QByteArray &bytes, int denominator, int components, int width,
+                                                   int height);
 
 // apng.cpp: animated PNG; a PNG without animation control is read as a plain PNG.
 bool decodeApng(QByteArray bytes, qint64 maxPixels, Decoded *out, QString *error,

@@ -173,6 +173,9 @@ private:
     // An SVG on screen drawn for a smaller window than this one (D-106): the window to draw it again
     // for, where that would show it without a detail; empty: none.
     QSize redrawWindow(const DetailView &view) const;
+    // The window as an SVG is drawn for it (DecodeOptions::view), its sides exchanged for a view
+    // turned a quarter (D-111).
+    QSize vectorWindow(int quarterTurns) const;
     void detailDrawn(const VectorDetail &detail, const Image &image);
     void detailFailed(const VectorDetail &detail, const QString &error);
     void showImage(Image image, int limit, bool redrawn = false); // redrawn: the same view, for this window

@@ -57,6 +57,24 @@ else
     failures=$((failures + 1))
 fi
 
+# A JPEG's thumbnail is read reduced (D-111). reduced.jpg is 960 x 720 with a quadrant each of red,
+# green, blue (bottom left) and yellow, and EXIF orientation 6: read at half its size (480 x 360, the
+# smallest of libjpeg's scales that leaves twice the side asked for), reduced by 3 in linear light and
+# turned, it is 120 x 160 with the blue quadrant top left; read whole it was reduced by 5, to
+# 144 x 192. Its colour is described as the image's own.
+thumbnail="$("$exe" --info --thumbnail 228 "$data/reduced.jpg" 2>/dev/null || true)"
+whole="$("$exe" --info "$data/reduced.jpg" 2>/dev/null || true)"
+if grep -Eq 'size: +120x160' <<<"$thumbnail" && grep -Eq 'orientation: +6' <<<"$thumbnail" \
+    && grep -Eq 'pixel\[0,0\]: +0\.01[0-9]* 0\.01[0-9]* 0\.7[89][0-9]* a=1' <<<"$thumbnail" \
+    && grep -Eq 'size: +720x960' <<<"$whole" \
+    && [ "$(grep -E '^colour:' <<<"$thumbnail")" = "$(grep -E '^colour:' <<<"$whole")" ]; then
+    echo "ok   reduced.jpg: a JPEG's thumbnail read at half its size, the whole image, turned and described as the image is"
+else
+    echo "FAIL reduced.jpg: a JPEG's thumbnail read at half its size, the whole image, turned and described as the image is"
+    echo "$thumbnail" | sed 's/^/     /'
+    failures=$((failures + 1))
+fi
+
 # Camera RAW (LibRaw through OpenImageIO), when a sample is given: none is small enough, and free
 # enough, to keep here (docs/PLAN.md section 14). CI fetches one at a pinned commit, checked by its
 # SHA-256 (build.yml). Developed in full for the viewer; its embedded preview for a thumbnail

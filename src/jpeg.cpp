@@ -1,7 +1,8 @@
-// A CMYK JPEG with a CMYK ICC profile, read by libjpeg-turbo (D-100): OpenImageIO converts a
-// JPEG's CMYK to RGB itself, by the textbook formula and without the profile, so its ink comes from
-// here; oiio.cpp sends such a file here and the rest of the JPEG files to OpenImageIO. Split from
-// codecs.cpp (D-08). Shared helpers are in decoders.cpp.
+// What libjpeg-turbo reads itself. A CMYK JPEG with a CMYK ICC profile (D-100): OpenImageIO converts
+// a JPEG's CMYK to RGB itself, by the textbook formula and without the profile, so its ink comes
+// from here; oiio.cpp sends such a file here and the rest of the JPEG files to OpenImageIO. And a
+// JPEG's pixels at a fraction of its size, for a thumbnail (D-111): OpenImageIO reads every pixel.
+// Split from codecs.cpp (D-08). Shared helpers are in decoders.cpp.
 #include "decoders.h"
 
 #include <csetjmp>
@@ -137,7 +138,68 @@ int readCmykJpeg(const unsigned char *data, std::size_t size, qint64 maxPixels, 
     return 1;
 }
 
+// A gray or colour JPEG at 1/`denominator` of its size (libjpeg's reduced inverse DCT) into `pixels`,
+// which holds width x height x components samples: the size libjpeg must announce, or nothing is
+// read. Plain C, as above. 0 for anything but a clean read: ink, another depth, a size that is not
+// the one expected, a file libjpeg warns about (damaged, truncated); the caller then reads the file
+// whole, as before.
+int readAtScale(const unsigned char *data, std::size_t size, int denominator, int components, int width, int height,
+                unsigned char *pixels)
+{
+    jpeg_decompress_struct info;
+    JpegFailure failure;
+    info.err = jpeg_std_error(&failure.manager);
+    failure.manager.error_exit = jpegFail;
+    failure.manager.output_message = jpegSilent;
+    failure.message[0] = '\0';
+    if (setjmp(failure.jump)) {
+        jpeg_destroy_decompress(&info);
+        return 0;
+    }
+    jpeg_create_decompress(&info);
+    jpeg_mem_src(&info, data, static_cast<unsigned long>(size));
+    jpeg_read_header(&info, TRUE);
+    const bool gray = info.jpeg_color_space == JCS_GRAYSCALE;
+    if (info.jpeg_color_space == JCS_CMYK || info.jpeg_color_space == JCS_YCCK || info.data_precision != 8
+        || components != (gray ? 1 : 3)) {
+        jpeg_destroy_decompress(&info);
+        return 0;
+    }
+    info.out_color_space = gray ? JCS_GRAYSCALE : JCS_RGB; // as OpenImageIO hands them over
+    info.scale_num = 1;
+    info.scale_denom = static_cast<unsigned int>(denominator);
+    jpeg_start_decompress(&info);
+    if (info.output_components != components || qint64(info.output_width) != width || qint64(info.output_height) != height) {
+        jpeg_destroy_decompress(&info);
+        return 0;
+    }
+    const std::size_t row = std::size_t(width) * std::size_t(components);
+    while (info.output_scanline < info.output_height) {
+        JSAMPROW line = pixels + row * info.output_scanline;
+        if (jpeg_read_scanlines(&info, &line, 1) != 1)
+            break;
+    }
+    int clean = info.output_scanline == info.output_height;
+    if (clean)
+        jpeg_finish_decompress(&info);
+    clean = clean && failure.manager.num_warnings == 0;
+    jpeg_destroy_decompress(&info);
+    return clean;
+}
+
 } // namespace
+
+std::unique_ptr<unsigned char[]> decodeReducedJpeg(const QByteArray &bytes, int denominator, int components, int width,
+                                                   int height)
+{
+    std::unique_ptr<unsigned char[]> pixels(
+        new (std::nothrow) unsigned char[std::size_t(width) * std::size_t(height) * std::size_t(components)]);
+    if (pixels
+        && !readAtScale(reinterpret_cast<const unsigned char *>(bytes.constData()), std::size_t(bytes.size()), denominator,
+                        components, width, height, pixels.get()))
+        pixels.reset();
+    return pixels;
+}
 
 bool decodeCmykJpeg(const QByteArray &bytes, qint64 maxPixels, Decoded *out, QString *error)
 {

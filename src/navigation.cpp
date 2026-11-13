@@ -203,7 +203,7 @@ void ViewerWindow::startDecode(const QString &path, int limit, qint64 maxPixels,
     m_jobPath = path;
     m_jobCancel = std::make_shared<std::atomic_bool>(false);
     // An SVG is drawn no larger than the window shows it (D-94).
-    const QSize view = deviceSize().toSize();
+    const QSize view = vectorWindow(path == m_image.path ? m_quarterTurns : 0); // another image starts upright
     m_jobRedraw = redraw ? view : QSize();
     m_watcher.setFuture(QtConcurrent::run(&m_decodePool, [path, limit, maxPixels, cancel = m_jobCancel, view] {
         return decodeImage(path, limit, maxPixels, true, false, cancel.get(), view);
@@ -529,12 +529,21 @@ void ViewerWindow::updateDetail()
     m_details.want(std::move(wanted));
 }
 
+QSize ViewerWindow::vectorWindow(int quarterTurns) const
+{
+    // The document is drawn upright, and shown turned: a quarter turn fits its width in the window's
+    // height (D-111). Without it an SVG turned a quarter was drawn for the wrong side of the window,
+    // and needed the zoom's detail at every fit.
+    const QSize window = deviceSize().toSize();
+    return quarterTurns % 2 ? window.transposed() : window;
+}
+
 QSize ViewerWindow::redrawWindow(const DetailView &view) const
 {
     // The scale svg.cpp would draw the document at for this window, against the scale it was drawn
     // at. The image has the document's sides rounded up: with them the scale is at least what the
     // worker would draw (`fits`), with a pixel less at most (`reach`).
-    const QSize window = view.window.toSize(); // as startDecode() asks
+    const QSize window = vectorWindow(view.quarterTurns); // as startDecode() asks
     const int width = m_image.sourceWidth, height = m_image.sourceHeight;
     if (!m_image.vector || !(m_image.documentScale > 0.0) || width <= 0 || height <= 0
         || (m_redrawFailedPath == m_image.path && m_redrawFailed == window))

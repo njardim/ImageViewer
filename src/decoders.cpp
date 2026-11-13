@@ -70,7 +70,8 @@ bool decodeWith(Decoder decoder, const QString &path, const Format *format, qint
     }
     // GIF animations are OpenImageIO's subimages; pages of other formats are not frames.
     const bool animatable = frames && format && format->decoder == Decoder::OpenImageIO && (format->capabilities & CanAnimate);
-    if (!decodeWithOiio(path, format, maxPixels, out, error, animatable ? frames : nullptr))
+    if (!decodeWithOiio(path, format, maxPixels, out, error, animatable ? frames : nullptr,
+                        options.preview ? options.maxSide : 0))
         return false;
     if (out->codec == QLatin1String("OpenImageIO/heif")) {
         QByteArray bytes;
@@ -91,12 +92,14 @@ qint64 decodeMemoryBudget()
     return budget;
 }
 
-bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error)
+bool fitsInMemory(qint64 pixels, int nativeBytesPerPixel, QString *error, bool mayWait)
 {
     const qint64 budget = decodeMemoryBudget();
     const qint64 needed = pixels * (nativeBytesPerPixel + kConversionBytesPerPixel);
-    if (budget <= 0 || needed <= budget)
+    if (budget <= 0 || needed <= budget) {
+        DecodeMemory::reserve(needed, budget, mayWait);
         return true;
+    }
     //: GB: gigabytes.
     *error = QCoreApplication::translate("Image", "image too large for the available memory (needs %1 GB, limit %2 GB)")
                  .arg(QLocale().toString(double(needed) / (1 << 30), 'f', 1), QLocale().toString(double(budget) / (1 << 30), 'f', 1));

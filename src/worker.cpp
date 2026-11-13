@@ -635,7 +635,8 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
                     continue;
                 haveHeader = parseHeader(head, limit, &a);
                 // The real size is known: no use waiting for an image this machine cannot take.
-                broken = !haveHeader || !fitsInMemory(qint64(a.width) * a.height, nativeBytesPerPixel, &tooLarge);
+                // Reserved without waiting for other decodes (DecodeMemory): the worker has drawn it.
+                broken = !haveHeader || !fitsInMemory(qint64(a.width) * a.height, nativeBytesPerPixel, &tooLarge, false);
                 if (!broken) {
                     data.reset(new (std::nothrow) unsigned char[std::size_t(a.dataBytes)]);
                     if (!data)

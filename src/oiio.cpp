@@ -243,14 +243,46 @@ std::unique_ptr<OIIO::ImageInput> openOiioMemory(OiioMemory &memory, const std::
     return openOiioProxy(&memory.reader, name);
 }
 
+// A JPEG for a thumbnail of `side` pixels, read reduced (D-111): OpenImageIO decodes every pixel of
+// a photograph for an image a few hundred pixels wide. libjpeg-turbo reads it at the smallest of its
+// scales (1/8, 1/4, 1/2) that leaves at least twice the side asked for, so the reduction in linear
+// light that follows (image.cpp) still averages, as for every thumbnail. The whole image, smaller;
+// everything but the pixels (colour, orientation, shooting data) stays as OpenImageIO read it. Null,
+// and the file is read whole as before, for anything but a plain 8-bit gray or colour JPEG that
+// libjpeg-turbo reads without a warning; that decode's memory then grows from the reduced image's
+// without waiting for other decodes (DecodeMemory), as rarely as a damaged JPEG has a thumbnail.
+std::unique_ptr<unsigned char[]> readReducedJpeg(const QString &path, int side, int channels, int *width, int *height)
+{
+    const int longest = std::max(*width, *height);
+    for (const int denominator : {8, 4, 2}) {
+        const int w = (*width + denominator - 1) / denominator, h = (*height + denominator - 1) / denominator;
+        if ((longest + denominator - 1) / denominator < 2 * qint64(side))
+            continue;
+        QByteArray file;
+        QString ignored;
+        if (!fitsInMemory(qint64(w) * h, channels, &ignored) || !readWholeFile(path, &file, &ignored))
+            return nullptr;
+        std::unique_ptr<unsigned char[]> pixels = decodeReducedJpeg(file, denominator, channels, w, h);
+        if (pixels) {
+            *width = w;
+            *height = h;
+        }
+        return pixels;
+    }
+    return nullptr;
+}
+
 // Reads the first subimage of an opened file. With `frames`, a file of several subimages is
 // read as an animation (GIF); `memory`, if the file was opened from memory, then goes to the
 // frame reader.
+// `reducePath` and `reduceSide`: the file and the side of the thumbnail it is read for (readReducedJpeg()).
 bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *out, QString *error,
-              std::unique_ptr<FrameReader> *frames, std::unique_ptr<OiioMemory> *memory = nullptr)
+              std::unique_ptr<FrameReader> *frames, std::unique_ptr<OiioMemory> *memory = nullptr,
+              const QString *reducePath = nullptr, int reduceSide = 0)
 {
     const OIIO::ImageSpec &spec = in->spec();
-    const int w = spec.width, h = spec.height, nch = spec.nchannels;
+    int w = spec.width, h = spec.height;
+    const int nch = spec.nchannels;
     // A volume (FITS cube, TIFF ImageDepth, 3D DDS texture) is read whole by read_image(): the
     // buffer holds every slice, and its first slice is shown.
     const int depth = std::max(spec.depth, 1);
@@ -282,13 +314,20 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
             alpha = c;
     const bool gray = nch < 3;
     const int readChannels = std::max(cmyk ? 4 : gray ? 1 : 3, alpha + 1);
-    if (!checkDimensions(w, h, nch, readChannels * out->sampleBytes(), maxPixels, out, error, depth))
-        return false;
-    const qint64 pixels = qint64(w) * h * depth;
-    out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
-    if (!in->read_image(0, 0, 0, readChannels, request, out->data.get())) {
-        *error = libraryError("OpenImageIO:", in->geterror());
-        return false;
+    // Within the limits checkDimensions() sets on the whole image, which is the one over a limit.
+    if (reducePath && reduceSide > 0 && in->format_name() == std::string_view("jpeg") && out->sample == Sample::U8
+        && !cmyk && alpha < 0 && depth == 1 && (nch == 1 || nch == 3) && w > 0 && h > 0 && qint64(w) * h <= kMaxPixels
+        && (maxPixels <= 0 || qint64(w) * h <= maxPixels))
+        out->data = readReducedJpeg(*reducePath, reduceSide, nch, &w, &h);
+    if (!out->data) {
+        if (!checkDimensions(w, h, nch, readChannels * out->sampleBytes(), maxPixels, out, error, depth))
+            return false;
+        const qint64 pixels = qint64(w) * h * depth;
+        out->data.reset(new unsigned char[std::size_t(pixels) * std::size_t(readChannels * out->sampleBytes())]);
+        if (!in->read_image(0, 0, 0, readChannels, request, out->data.get())) {
+            *error = libraryError("OpenImageIO:", in->geterror());
+            return false;
+        }
     }
 
     out->width = w;
@@ -340,7 +379,7 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
 } // namespace
 
 bool decodeWithOiio(const QString &path, const Format *format, qint64 maxPixels, Decoded *out, QString *error,
-                    std::unique_ptr<FrameReader> *frames)
+                    std::unique_ptr<FrameReader> *frames, int thumbnailSide)
 {
     if (frames && format) { // an animation: read from memory, see OiioMemory
         QByteArray bytes;
@@ -388,7 +427,7 @@ bool decodeWithOiio(const QString &path, const Format *format, qint64 maxPixels,
                 (void)OIIO::geterror(); // another ink set: the RGB opened first
         }
     }
-    return readOiio(std::move(in), maxPixels, out, error, frames);
+    return readOiio(std::move(in), maxPixels, out, error, frames, nullptr, &path, thumbnailSide);
 }
 
 // Whether this build's OpenImageIO reads HEIF from memory (3.x; 2.4 only from a file).

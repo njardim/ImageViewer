@@ -104,7 +104,6 @@ BASELINE_PORTS = {
     "libspng": ("https://github.com/randy408/libspng", "v{v}"),
     "libwebp": ("https://github.com/webmproject/libwebp", "v{v}"),
     "opencolorio": ("https://github.com/AcademySoftwareFoundation/OpenColorIO", "v{v}"),
-    "openexr": ("https://github.com/AcademySoftwareFoundation/openexr", "v{v}"),
     "pystring": ("https://github.com/imageworks/pystring", "v{v}"),
     "robin-map": ("https://github.com/Tessil/robin-map", "v{v}"),
     "sse2neon": ("https://github.com/DLTcollab/sse2neon", "v{v}"),  # macOS (ARM) only: SSE on NEON
@@ -128,6 +127,7 @@ COMMIT_PORTS = {
     # Security fixes ahead of vcpkg's baseline (D-76, D-108); vcpkg's ports otherwise.
     "brotli": ("https://github.com/google/brotli", "v{v}"),
     "libjpeg-turbo": ("https://github.com/libjpeg-turbo/libjpeg-turbo", "{v}"),
+    "openexr": ("https://github.com/AcademySoftwareFoundation/openexr", "v{v}"),
     # The SVG renderer (D-90): resvg, with our crate beside it; its crates and Rust are audited apart.
     "imageviewer-svg": ("https://github.com/linebender/resvg", "v{v}"),
 }

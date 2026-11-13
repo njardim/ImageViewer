@@ -3,6 +3,7 @@ set(PATCHES
     imath-version-guard.patch
     fix-openimageio_include_dir.patch
     fix-openexr-target-missing.patch
+    imageviewer-raw-strerror-msvc.patch # upstream #5637 (docs/PLAN.md section 15)
 )
 
 if(VCPKG_TARGET_IS_OSX)

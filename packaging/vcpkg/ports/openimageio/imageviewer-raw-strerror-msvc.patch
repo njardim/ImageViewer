@@ -1,0 +1,44 @@
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-110): the RAW reader compiles with MSVC again
+Library: openimageio 3.2.2.0
+Fixes: none (a build failure, not a vulnerability)
+Upstream: AcademySoftwareFoundation/OpenImageIO 0008a6f0 (#5637), on main after 3.2.2.0
+Remove when: a release contains #5637 (the update script removes a patch the release already contains)
+
+OpenImageIO 3.2.2.0's rawinput.cpp calls strerror_r(), which MSVC does not have: error C3861, so
+the port does not build on Windows (CI, 2026-11-13). Upstream's commit, unchanged.
+
+diff --git a/src/raw.imageio/rawinput.cpp b/src/raw.imageio/rawinput.cpp
+index 52d7d3bb..bb413b8a 100644
+--- a/src/raw.imageio/rawinput.cpp
++++ b/src/raw.imageio/rawinput.cpp
+@@ -6,6 +6,7 @@
+ #include <ctime> /* time_t, struct tm, gmtime */
+ #include <iostream>
+ #include <memory>
++#include <system_error>
+ 
+ #include <OpenImageIO/half.h>
+ 
+@@ -293,7 +294,8 @@ libraw_xtrans_filter_to_str(char (&filters)[6][6])
+ 
+ // Sometimes LibRaw returns error codes that are its own -- they are all
+ // negative values and use libraw_strerror to turn into strings. But they also
+-// mix in positive error codes like EINVAL, for which we use C stderror.
++// mix in positive error codes like EINVAL, for which we use
++// std::generic_category(), a portable alternative to strerror_r().
+ std::string
+ libraw_errmsg(int ret)
+ {
+@@ -303,11 +305,7 @@ libraw_errmsg(int ret)
+         if (const char* m = libraw_strerror(ret))
+             msg = m;
+     } else if (ret > 0) {
+-        // C style error code, use safe version of strerror
+-        const size_t maxbuf = 100;
+-        char buf[maxbuf]    = { 0 };
+-        if (strerror_r(ret, buf, maxbuf) == 0)
+-            msg = std::string(buf);
++        msg = std::generic_category().message(ret);
+     } else if (ret == 0) {
+         msg = "ok";  // 0 means "no error"
+     }

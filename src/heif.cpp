@@ -26,22 +26,9 @@ using color::Descriptor;
 // The colour of decoded RGB samples from an nclx box or AV1 colour description (D-22).
 bool describeNclx(const heif_color_profile_nclx &nclx, Descriptor *d)
 {
-    Descriptor c;
-    if (!color::primariesFromCicp(int(nclx.color_primaries), &c.primaries)
-        || !color::transferFromCicp(int(nclx.transfer_characteristics), &c.transfer, &c.gamma))
-        return false;
-    d->source = Descriptor::Source::Cicp;
-    d->primaries = c.primaries;
-    d->transfer = c.transfer;
-    d->gamma = c.gamma;
-    d->fullRange = true; // libheif expands narrow-range YCbCr into full-range RGB
-    d->description = QStringLiteral("CICP %1/%2/%3/%4 — %5")
-                         .arg(int(nclx.color_primaries))
-                         .arg(int(nclx.transfer_characteristics))
-                         .arg(int(nclx.matrix_coefficients))
-                         .arg(nclx.full_range_flag ? 1 : 0)
-                         .arg(color::transferName(c.transfer, c.gamma));
-    return true;
+    // Full range, whatever the file's flag: libheif expands narrow-range YCbCr into full-range RGB.
+    return describeCicp(int(nclx.color_primaries), int(nclx.transfer_characteristics), int(nclx.matrix_coefficients),
+                        nclx.full_range_flag ? 1 : 0, true, d);
 }
 
 // CICP first, then an ICC profile, from the file's primary image (D-22); false when it carries
@@ -58,7 +45,7 @@ bool describeHandle(heif_context *context, Descriptor *d)
         heif_nclx_color_profile_free(nclx);
     }
     const std::size_t size = known ? 0 : heif_image_handle_get_raw_color_profile_size(handle);
-    if (size > 0 && size < (std::size_t(1) << 26)) {
+    if (size > 0 && size < std::size_t(kMaxIccBytes)) {
         QByteArray icc(qsizetype(size), Qt::Uninitialized);
         if (heif_image_handle_get_raw_color_profile(handle, icc.data()).code == heif_error_Ok) {
             describeIcc(icc, d);
@@ -83,7 +70,7 @@ bool describeImage(const heif_image *image, Descriptor *d)
             return true;
     }
     const std::size_t size = heif_image_get_raw_color_profile_size(image);
-    if (size > 0 && size < (std::size_t(1) << 26)) {
+    if (size > 0 && size < std::size_t(kMaxIccBytes)) {
         QByteArray icc(qsizetype(size), Qt::Uninitialized);
         if (heif_image_get_raw_color_profile(image, icc.data()).code == heif_error_Ok) {
             describeIcc(icc, d);

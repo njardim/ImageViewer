@@ -88,8 +88,6 @@ constexpr int kWorkerNativeBytesPerPixel = 8 + 8 + 8 + 8;
 // An SVG: the renderer's pixmap and two of its layers (a group with a filter, a mask) in the
 // worker, the answer and its copy here.
 constexpr int kSvgNativeBytesPerPixel = 4 + 8 + 4 + 4;
-constexpr qint64 kConversionBytesPerPixel = 16;
-constexpr qint64 kMaxIccBytes = qint64(1) << 26;
 constexpr int kTimeoutMs = 30000;
 
 // The coders the worker keeps: the registry's GraphicsMagick formats (formats.cpp), by name.
@@ -637,7 +635,8 @@ bool runWorker(const Format &format, const QString &path, qint64 maxPixels, Deco
                     continue;
                 haveHeader = parseHeader(head, limit, &a);
                 // The real size is known: no use waiting for an image this machine cannot take.
-                broken = !haveHeader || !fitsInMemory(qint64(a.width) * a.height, nativeBytesPerPixel, &tooLarge);
+                // Reserved without waiting for other decodes (DecodeMemory): the worker has drawn it.
+                broken = !haveHeader || !fitsInMemory(qint64(a.width) * a.height, nativeBytesPerPixel, &tooLarge, false);
                 if (!broken) {
                     data.reset(new (std::nothrow) unsigned char[std::size_t(a.dataBytes)]);
                     if (!data)

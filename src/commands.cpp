@@ -265,16 +265,8 @@ void ViewerWindow::execute(Command command)
     case Command::Quit: close(); break;
     case Command::Previous: step(-1); break;
     case Command::Next: step(+1); break;
-    case Command::First:
-        m_direction = 1;
-        m_slideshow.restart();
-        startLoading(0);
-        break;
-    case Command::Last:
-        m_direction = -1;
-        m_slideshow.restart();
-        startLoading(int(m_files.size()) - 1);
-        break;
+    case Command::First: goTo(0, 1); break;
+    case Command::Last: goTo(int(m_files.size()) - 1, -1); break;
     case Command::ZoomIn: zoomAt(kZoomStep, centre); break;
     case Command::ZoomOut: zoomAt(1.0 / kZoomStep, centre); break;
     case Command::Fit: chooseFit(FitMode::Window); break;

@@ -4,6 +4,8 @@
 
 #include <rhi/qrhi.h>
 
+#include <algorithm>
+#include <cstring>
 #include <memory>
 
 bool Renderer::renderToBuffer(const Frame &frame, const Output &output, QSize size, std::vector<float> *rgba,

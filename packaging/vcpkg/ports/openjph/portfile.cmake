@@ -1,20 +1,17 @@
-# ImageViewer overlay (D-46, D-67, D-73): vcpkg's port (baseline 0699a19d), fetched by git at the
-# tag's commit, so the commit hash pins the source and scripts/update_dependencies.py moves it to each
-# release once it is past the cooldown. It exists for our patches (imageviewer-*, docs/PLAN.md
-# section 15): drop the overlay once they are all gone and vcpkg has the version.
+# ImageViewer overlay (D-46, D-67, D-73, D-110): vcpkg's port (baseline 0699a19d), fetched by git at
+# the tag's commit, so the commit hash pins the source and scripts/update_dependencies.py moves it to
+# each release once it is past the cooldown. OpenJPH 0.33.0 (fixes OSV-2026-1371 and OSV-2026-1517,
+# and holds the fixes our three patches carried) ahead of vcpkg's 0.32.0; vcpkg's own patches, but
+# fix-msvc-x86-ice, which 0.33.0 holds. Drop the overlay once vcpkg's baseline has 0.33.0 or later.
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/aous72/OpenJPH
-    REF 23c422895ce6c3a156935222e4715ee0b7be952c # 0.32.0
+    REF 345a8bcd1c7a3908e3870797057277660a412073 # 0.33.0
     FETCH_REF "${VERSION}"
     HEAD_REF master
     PATCHES
         xsi-strerror_r.patch
         fix-pkgconfig-library-name.patch
-        fix-msvc-x86-ice.patch
-        imageviewer-codeblock-row-pairs.patch # ours: CVE-2026-111151, no upstream fix yet
-        imageviewer-nlt-marker-points.patch # upstream b7b2dee, after 0.32.0
-        imageviewer-dfs-index-null.patch # upstream 287f8b1, after 0.32.0
 )
 
 vcpkg_check_features(

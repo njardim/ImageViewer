@@ -18,6 +18,7 @@
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QThread>
 #include <QWaitCondition>
 
 #include <atomic>
@@ -479,6 +480,92 @@ private Q_SLOTS:
     }
 };
 
+// The one limit for the decodes that run at once (D-111): DecodeMemory, with a budget of 100.
+class DecodeMemoryTest : public QObject {
+    Q_OBJECT
+
+private Q_SLOTS:
+    void aDecodeAloneIsNeverHeld()
+    {
+        const DecodeMemory decode;
+        DecodeMemory::reserve(90, 100);
+        QCOMPARE(DecodeMemory::reserved(), qint64(90));
+        DecodeMemory::reserve(60, 100); // less than it holds: nothing changes
+        QCOMPARE(DecodeMemory::reserved(), qint64(90));
+    }
+
+    void whatADecodeReservedIsFreeWhenItEnds()
+    {
+        QCOMPARE(DecodeMemory::reserved(), qint64(0));
+        DecodeMemory::reserve(50, 100); // outside a decode: nothing is reserved
+        QCOMPARE(DecodeMemory::reserved(), qint64(0));
+        {
+            const DecodeMemory outer;
+            DecodeMemory::reserve(30, 100);
+            {
+                const DecodeMemory inner; // a decode within a decode is the same decode
+                DecodeMemory::reserve(40, 100);
+            }
+            QCOMPARE(DecodeMemory::reserved(), qint64(40));
+        }
+        QCOMPARE(DecodeMemory::reserved(), qint64(0));
+    }
+
+    void aDecodeThatDoesNotFitWaitsForTheOthers()
+    {
+        QSemaphore holds, mayEnd;
+        std::atomic_int through{0}; // the decodes past their reservation
+        QThread *first = QThread::create([&] {
+            const DecodeMemory decode;
+            DecodeMemory::reserve(60, 100);
+            holds.release();
+            mayEnd.acquire();
+        });
+        first->start();
+        holds.acquire();
+        // 60 are held: 50 more do not fit; 30, asked for later, would fit, but does not pass the 50 (in the
+        // order asked). Which of the two goes on first once the 60 are free is not observable from here:
+        // both then fit.
+        QThread *second = QThread::create([&] {
+            const DecodeMemory decode;
+            DecodeMemory::reserve(50, 100);
+            ++through;
+            holds.release();
+            mayEnd.acquire();
+        });
+        second->start();
+        QTest::qWait(100);
+        QThread *third = QThread::create([&] {
+            const DecodeMemory decode;
+            DecodeMemory::reserve(30, 100);
+            ++through;
+            holds.release();
+        });
+        third->start();
+        QTest::qWait(200);
+        QCOMPARE(through.load(), 0); // both wait
+        QCOMPARE(DecodeMemory::reserved(), qint64(60));
+        {
+            // One that holds some already, or that must not wait, is not held back.
+            const DecodeMemory decode;
+            DecodeMemory::reserve(70, 100, false);
+            QCOMPARE(DecodeMemory::reserved(), qint64(130));
+            DecodeMemory::reserve(80, 100);
+            QCOMPARE(DecodeMemory::reserved(), qint64(140));
+        }
+        QCOMPARE(through.load(), 0);
+        mayEnd.release(); // the first decode ends: both go on
+        QVERIFY(holds.tryAcquire(2, 5000));
+        QCOMPARE(through.load(), 2);
+        mayEnd.release();
+        for (QThread *thread : {first, second, third}) {
+            QVERIFY(thread->wait(5000));
+            delete thread;
+        }
+        QCOMPARE(DecodeMemory::reserved(), qint64(0));
+    }
+};
+
 int main(int argc, char **argv)
 {
     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
@@ -497,6 +584,10 @@ int main(int argc, char **argv)
     }
     {
         DetailTest test;
+        status |= QTest::qExec(&test, argc, argv);
+    }
+    {
+        DecodeMemoryTest test;
         status |= QTest::qExec(&test, argc, argv);
     }
     return status;

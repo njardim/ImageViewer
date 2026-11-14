@@ -3,8 +3,7 @@ set(PATCHES
     imath-version-guard.patch
     fix-openimageio_include_dir.patch
     fix-openexr-target-missing.patch
-    imageviewer-fits-row-offset.patch # ours, upstream #5555 (docs/PLAN.md section 15)
-    imageviewer-heif-image-handle-error.patch # ours, upstream #5556 (docs/PLAN.md section 15)
+    imageviewer-raw-strerror-msvc.patch # upstream #5637 (docs/PLAN.md section 15)
 )
 
 if(VCPKG_TARGET_IS_OSX)
@@ -21,15 +20,14 @@ if(VCPKG_TARGET_IS_OSX)
     endif()
 endif()
 
-# Overlay (D-46): OpenImageIO 3.2.1.3 ahead of vcpkg's 3.1.14.0 (3.2.1.2 and 3.2.1.3, 2026-10-15, only
-# publish Python wheels: the same C++ code, still under the cooldown, D-67). Fetched by git at the tag's
-# commit, so the commit hash pins the source. vcpkg's patches rebased on 3.2 (fix-dependencies,
+# Overlay (D-46): OpenImageIO 3.2.2.0 ahead of vcpkg's 3.1.14.0. Fetched by git at the tag's commit,
+# so the commit hash pins the source. vcpkg's patches rebased on 3.2 (fix-dependencies,
 # fix-openexr-target-missing); its fix-static-ffmpeg patch is for the Python bindings, rewritten in
 # 3.2 and not built here.
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/AcademySoftwareFoundation/OpenImageIO
-    REF 214fcdd381f837741f1d75b06a1bea65861f3569 # v3.2.1.3
+    REF 96377f681cc9e6650c8534671f4fc36b3c8acbc1 # v3.2.2.0
     FETCH_REF v${VERSION}
     HEAD_REF main
     PATCHES ${PATCHES}

@@ -26,7 +26,8 @@
 #include <utility>
 
 Q_LOGGING_CATEGORY(lcView, "imageviewer.view", QtWarningMsg)
-Q_LOGGING_CATEGORY(lcLatency, "imageviewer.latency")
+// Off unless asked for, as the others: on, main.cpp ticks every 20 ms for as long as the viewer runs.
+Q_LOGGING_CATEGORY(lcLatency, "imageviewer.latency", QtWarningMsg)
 
 namespace {
 constexpr int kDefaultMaxTexture = 16384;

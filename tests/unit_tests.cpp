@@ -514,7 +514,7 @@ private Q_SLOTS:
     void aDecodeThatDoesNotFitWaitsForTheOthers()
     {
         QSemaphore holds, mayEnd;
-        std::atomic_int order{0}, secondAt{0}, thirdAt{0};
+        std::atomic_int through{0}; // the decodes past their reservation
         QThread *first = QThread::create([&] {
             const DecodeMemory decode;
             DecodeMemory::reserve(60, 100);
@@ -523,11 +523,13 @@ private Q_SLOTS:
         });
         first->start();
         holds.acquire();
-        // 60 are held: 50 more do not fit, and 30, asked for later, do not pass the 50 (in the order asked).
+        // 60 are held: 50 more do not fit; 30, asked for later, would fit, but does not pass the 50 (in the
+        // order asked). Which of the two goes on first once the 60 are free is not observable from here:
+        // both then fit.
         QThread *second = QThread::create([&] {
             const DecodeMemory decode;
             DecodeMemory::reserve(50, 100);
-            secondAt = ++order;
+            ++through;
             holds.release();
             mayEnd.acquire();
         });
@@ -536,12 +538,12 @@ private Q_SLOTS:
         QThread *third = QThread::create([&] {
             const DecodeMemory decode;
             DecodeMemory::reserve(30, 100);
-            thirdAt = ++order;
+            ++through;
             holds.release();
         });
         third->start();
         QTest::qWait(200);
-        QCOMPARE(order.load(), 0); // both wait
+        QCOMPARE(through.load(), 0); // both wait
         QCOMPARE(DecodeMemory::reserved(), qint64(60));
         {
             // One that holds some already, or that must not wait, is not held back.
@@ -551,11 +553,10 @@ private Q_SLOTS:
             DecodeMemory::reserve(80, 100);
             QCOMPARE(DecodeMemory::reserved(), qint64(140));
         }
-        QCOMPARE(order.load(), 0);
-        mayEnd.release(); // the first decode ends
+        QCOMPARE(through.load(), 0);
+        mayEnd.release(); // the first decode ends: both go on
         QVERIFY(holds.tryAcquire(2, 5000));
-        QCOMPARE(secondAt.load(), 1);
-        QCOMPARE(thirdAt.load(), 2);
+        QCOMPARE(through.load(), 2);
         mayEnd.release();
         for (QThread *thread : {first, second, third}) {
             QVERIFY(thread->wait(5000));

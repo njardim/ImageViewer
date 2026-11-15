@@ -179,6 +179,44 @@ try:
             xdotool("key", "q")
             app.wait(15)
 
+            # A JPEG's thumbnail is read reduced (D-111): a 3648 x 2736 photograph is read at an eighth
+            # of its size (456 x 342, twice the 228 px the gallery asks for) instead of pixel by pixel,
+            # and the thumbnail is still the whole image, turned as its EXIF says (orientation 6: the
+            # stored bottom left, blue, comes top left).
+            reduced_dir = os.path.join(work, "reduced")
+            os.makedirs(reduced_dir)
+            quadrants = np.zeros((2736, 3648, 3), dtype=np.uint8)
+            quadrants[:1368, :1824], quadrants[:1368, 1824:] = (230, 30, 30), (30, 200, 30)   # red, green
+            quadrants[1368:, :1824], quadrants[1368:, 1824:] = (30, 30, 230), (230, 220, 30)  # blue, yellow
+            exif = Image.Exif()
+            exif[0x0112] = 6
+            Image.fromarray(quadrants).save(os.path.join(reduced_dir, "p1.jpg"), quality=90, exif=exif)
+            del quadrants
+            for i in (0, 2, 3, 4):
+                Image.new("RGB", (160, 120), (90, 90, 90)).save(os.path.join(reduced_dir, f"p{i}.png"))
+            before = len(log_text())
+            app = launch([os.path.join(reduced_dir, "p0.png")], log)
+            wait_until("p0.png shown with the gallery", shown("p0.png"))
+            time.sleep(1)  # the window has taken its size
+            x, y, w, h = window_geometry()
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))  # off the gallery
+            jx, jy = slot_centre(-1)  # five images, all in view in their order: the second, left of the middle
+
+            def turned_quadrants():
+                # 72 x 96 in its 96 px place: a quadrant's middle is 18 px and 24 px from the centre.
+                shot = grab()
+                if shot is None:
+                    return False
+                expected = {(-18, -24): (30, 30, 230), (18, -24): (230, 30, 30), (18, 24): (30, 200, 30), (-18, 24): (230, 220, 30)}
+                return all(abs(int(c) - e) <= 12 for (dx, dy), colour in expected.items()
+                           for c, e in zip(shot[jy + dy, jx + dx][:3], colour))
+            wait_until("a JPEG's thumbnail shows the whole image, turned as its EXIF says", turned_quadrants)
+            if not re.search(r'"p1\.jpg": 456x342, read', log_text()[before:]):
+                fail("the JPEG's thumbnail was not read at an eighth of its size (456 x 342)")
+            print("ok   a JPEG's thumbnail is read at an eighth of its size, and shows the whole image turned as its EXIF says")
+            xdotool("key", "q")
+            app.wait(15)
+
             # Large thumbnails (128 px) in ruby, enlarged by the most (100 px), chosen in the settings.
             edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("gallery", "highlight", "#e0115f"),
                           ("gallery", "zoom", "true"), ("gallery", "enlargement", "100"))
@@ -370,6 +408,45 @@ try:
                 if "drawn again for the window" in log_text()[zoomed:]:
                     fail("a smaller window drew the SVG again")
                 print("ok   an SVG drawn for a smaller window is drawn again once the window grows; Fit after a zoom needs no detail")
+                xdotool("key", "q")
+                app.wait(15)
+
+                # An SVG turned a quarter (D-111) is drawn for the window as the turned view fits it: a
+                # document of 1000 x 4000 in a window of 1280 x 800, 200 x 800 upright, is drawn again
+                # 320 x 1280 once turned, and Fit after a zoom needs no detail. Before, it was drawn for
+                # the window's other side, and every fit of the turned view needed a detail of all of it.
+                tall_dir = os.path.join(work, "tall")
+                os.makedirs(tall_dir)
+                tall = os.path.join(tall_dir, "tall.svg")
+                with open(tall, "w") as f:
+                    f.write('<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="4000">'
+                            '<rect width="1000" height="4000" fill="#fff"/>'
+                            '<path d="M100 100H900V3900H100Z" fill="none" stroke="#000" stroke-width="20"/></svg>')
+                before = len(log_text())
+                app = launch([tall], log)
+                wait_until("the tall SVG shown", lambda: "decoded for display: tall.svg" in log_text()[before:])
+                focus_viewer()
+                xdotool("key", "0")
+                wid = xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0]
+                xdotool("windowsize", "--sync", wid, "1280", "800")
+                wait_until("the window is 1280 x 800", lambda: window_geometry()[2:] == (1280, 800))
+                time.sleep(2)  # drawn for this window, if it opened smaller (D-106)
+                turned = len(log_text())
+                xdotool("key", "r")
+                wait_until("turned a quarter, the tall SVG is drawn again for the window (320 x 1280)",
+                           lambda: "drawn again for the window: tall.svg 320x1280" in log_text()[turned:])
+                time.sleep(1)
+                if re.search(r"detail drawn: tall\.svg", log_text()[turned:]):
+                    fail("a detail of the whole turned view was drawn as well as the image for the window")
+                xdotool("key", "plus")
+                wait_until("the turned SVG zoomed in, the detail drawn",
+                           lambda: re.search(r"detail drawn: tall\.svg", log_text()[turned:]) is not None)
+                zoomed = len(log_text())
+                xdotool("key", "0")
+                time.sleep(2)
+                if re.search(r"detail drawn: tall\.svg|drawn again for the window", log_text()[zoomed:]):
+                    fail("back at Fit, the turned SVG was drawn again (a detail or the image) instead of its own texture")
+                print("ok   an SVG turned a quarter is drawn again for the window as it fits; Fit after a zoom needs no detail")
                 xdotool("key", "q")
                 app.wait(15)
 

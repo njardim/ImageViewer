@@ -158,6 +158,9 @@ private:
     // navigation.cpp
     QString currentPath() const; // the requested entry of m_files, empty when there is none
     void startLoading(int index);
+    // Another image of the folder, asked for by the user or the slideshow: `direction` (1 or -1)
+    // says which neighbour is preloaded first, and a slideshow's interval starts again.
+    void goTo(int index, int direction);
     void step(int delta);
     bool hasNeighbour(int delta) const; // false at either end when navigation does not loop
     QStringList neighbourhood() const;  // current image, then the neighbours, direction of travel first
@@ -170,6 +173,9 @@ private:
     // An SVG on screen drawn for a smaller window than this one (D-106): the window to draw it again
     // for, where that would show it without a detail; empty: none.
     QSize redrawWindow(const DetailView &view) const;
+    // The window as an SVG is drawn for it (DecodeOptions::view), its sides exchanged for a view
+    // turned a quarter (D-111).
+    QSize vectorWindow(int quarterTurns) const;
     void detailDrawn(const VectorDetail &detail, const Image &image);
     void detailFailed(const VectorDetail &detail, const QString &error);
     void showImage(Image image, int limit, bool redrawn = false); // redrawn: the same view, for this window

@@ -1,7 +1,7 @@
 {
   "name": "openjph",
-  "$comment": "ImageViewer overlay (docs/PLAN.md D-46, D-67, D-73): vcpkg's port fetched by git at the tag's commit, for the patches we carry (imageviewer-*, docs/PLAN.md section 15). OpenEXR's HTJ2K and OpenImageIO's .jph reader.",
-  "version": "0.32.0",
+  "$comment": "ImageViewer overlay (docs/PLAN.md D-46, D-67, D-73, D-110): vcpkg's port fetched by git at the tag's commit: 0.33.0, ahead of vcpkg's 0.32.0. OpenEXR's HTJ2K and OpenImageIO's .jph reader.",
+  "version": "0.33.0",
   "description": "Open-source implementation of JPEG2000 Part-15 (or JPH or HTJ2K)",
   "homepage": "https://github.com/aous72/OpenJPH",
   "license": "BSD-2-Clause",

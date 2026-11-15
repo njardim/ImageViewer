@@ -57,6 +57,24 @@ else
     failures=$((failures + 1))
 fi
 
+# A JPEG's thumbnail is read reduced (D-111). reduced.jpg is 960 x 720 with a quadrant each of red,
+# green, blue (bottom left) and yellow, and EXIF orientation 6: read at half its size (480 x 360, the
+# smallest of libjpeg's scales that leaves twice the side asked for), reduced by 3 in linear light and
+# turned, it is 120 x 160 with the blue quadrant top left; read whole it was reduced by 5, to
+# 144 x 192. Its colour is described as the image's own.
+thumbnail="$("$exe" --info --thumbnail 228 "$data/reduced.jpg" 2>/dev/null || true)"
+whole="$("$exe" --info "$data/reduced.jpg" 2>/dev/null || true)"
+if grep -Eq 'size: +120x160' <<<"$thumbnail" && grep -Eq 'orientation: +6' <<<"$thumbnail" \
+    && grep -Eq 'pixel\[0,0\]: +0\.01[0-9]* 0\.01[0-9]* 0\.7[89][0-9]* a=1' <<<"$thumbnail" \
+    && grep -Eq 'size: +720x960' <<<"$whole" \
+    && [ "$(grep -E '^colour:' <<<"$thumbnail")" = "$(grep -E '^colour:' <<<"$whole")" ]; then
+    echo "ok   reduced.jpg: a JPEG's thumbnail read at half its size, the whole image, turned and described as the image is"
+else
+    echo "FAIL reduced.jpg: a JPEG's thumbnail read at half its size, the whole image, turned and described as the image is"
+    echo "$thumbnail" | sed 's/^/     /'
+    failures=$((failures + 1))
+fi
+
 # Camera RAW (LibRaw through OpenImageIO), when a sample is given: none is small enough, and free
 # enough, to keep here (docs/PLAN.md section 14). CI fetches one at a pinned commit, checked by its
 # SHA-256 (build.yml). Developed in full for the viewer; its embedded preview for a thumbnail
@@ -103,6 +121,10 @@ done
 check transparent.gif 'pixel\[0,0\]: +0 0 0 a=0$' "GIF transparency kept"
 # EXIF orientation 6 rotates 300x200 into 200x300 exactly once.
 check orient6.jpg 'size: +200x300' "EXIF orientation 6 applied once"
+# An orientation outside 1 to 8 (a 6x4 JPEG whose EXIF says 9, written with Pillow): nothing is
+# turned, and nothing is said to have been (the information panel's "EXIF 9, applied").
+check orient9.jpg 'size: +6x4' "an EXIF orientation outside 1 to 8 turns nothing"
+check orient9.jpg 'orientation: +1$' "an EXIF orientation outside 1 to 8 is not reported as applied"
 
 # EXIF shooting data for the information panel (D-34); the model holds a tab and a BEL
 # character, which must not reach the panel. Made with Pillow 12.3.

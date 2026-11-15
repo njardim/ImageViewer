@@ -40,6 +40,15 @@ QString fileSizeText(qint64 bytes, const QLocale &locale)
 #endif
 }
 
+// What an overlay is painted on: transparent, `logical` pixels at the screen's device pixel ratio.
+QImage overlayCanvas(const QSizeF &logical, qreal dpr)
+{
+    QImage image((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
+    image.setDevicePixelRatio(dpr);
+    image.fill(Qt::transparent);
+    return image;
+}
+
 constexpr double kToolbarButton = 44.0;  // the slideshow toolbar's round buttons, logical pixels (D-65)
 constexpr double kToolbarPadding = 8.0;  // around and between them
 
@@ -48,9 +57,7 @@ constexpr double kToolbarPadding = 8.0;  // around and between them
 QImage slideshowToolbar(bool paused, int hover, int press, double dpr, const QColor &background)
 {
     const QSizeF logical(2 * kToolbarButton + 3 * kToolbarPadding, kToolbarButton + 2 * kToolbarPadding);
-    QImage image((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
-    image.setDevicePixelRatio(dpr);
-    image.fill(Qt::transparent);
+    QImage image = overlayCanvas(logical, dpr);
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
@@ -422,9 +429,7 @@ void ViewerWindow::updateOverlay()
     const qreal between = messageSize.isEmpty() || infoSize.isEmpty() ? 0.0 : kEdgeMargin;
     const QSizeF logical(std::max(messageSize.width(), infoSize.width()), messageSize.height() + between + infoSize.height());
 
-    QImage overlay((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
-    overlay.setDevicePixelRatio(dpr);
-    overlay.fill(Qt::transparent);
+    QImage overlay = overlayCanvas(logical, dpr);
     QPainter painter(&overlay);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
@@ -513,9 +518,7 @@ void ViewerWindow::updateMessage()
     const QSizeF panel(std::ceil(textSize.width() + 2 * padding), std::ceil(textSize.height() + 2 * padding));
     const QSizeF logical(std::max(panel.width(), kWarningSign), kWarningSign + kWarningGap + panel.height());
 
-    QImage image((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
-    image.setDevicePixelRatio(dpr);
-    image.fill(Qt::transparent);
+    QImage image = overlayCanvas(logical, dpr);
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());
@@ -670,9 +673,7 @@ void ViewerWindow::updateTopOverlay()
     const QSizeF logical(std::ceil(metrics.horizontalAdvance(text) + 2 * paddingX),
                          std::ceil(metrics.height() + 2 * paddingY));
 
-    QImage overlay((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
-    overlay.setDevicePixelRatio(dpr);
-    overlay.fill(Qt::transparent);
+    QImage overlay = overlayCanvas(logical, dpr);
     QPainter painter(&overlay);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setLayoutDirection(QGuiApplication::layoutDirection());

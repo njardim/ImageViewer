@@ -207,7 +207,7 @@ private:
             return;
         std::size_t size = 0;
         if (JxlDecoderGetICCProfileSize(JXL_COLOR_ARGS(m_dec.get()), &size) == JXL_DEC_SUCCESS && size > 0
-            && size < (std::size_t(1) << 26)) {
+            && size < std::size_t(kMaxIccBytes)) {
             QByteArray icc(qsizetype(size), Qt::Uninitialized);
             if (JxlDecoderGetColorAsICCProfile(JXL_COLOR_ARGS(m_dec.get()), reinterpret_cast<uint8_t *>(icc.data()), size)
                 == JXL_DEC_SUCCESS) {

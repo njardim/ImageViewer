@@ -1,10 +1,11 @@
-# ImageViewer overlay (D-46): expat 2.9.0 (security fixes CVE-2026-102633, CVE-2026-77214) ahead of
-# vcpkg's 2.8.5; fetched by git at the tag's commit, which pins the source.
+# ImageViewer overlay (D-46, D-110): expat 2.10.0 (security fixes CVE-2026-113351, CVE-2026-115506,
+# CVE-2026-117610, CVE-2026-118370) ahead of vcpkg's 2.8.5; fetched by git at the tag's commit, which
+# pins the source.
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/libexpat/libexpat
-    REF a76b1174c1ea52abb639a4c69d52b630a8a106a2 # R_2_9_0
-    FETCH_REF R_2_9_0
+    REF a70841d9ffa64ddde29ab824ed6305035ebe4c47 # R_2_10_0
+    FETCH_REF R_2_10_0
     HEAD_REF master
 )
 

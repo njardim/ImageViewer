@@ -207,7 +207,7 @@ bool decodeSystemHeic(const QString &path, qint64 maxPixels, Decoded *out, QStri
                 WICColorContextType type{};
                 UINT size = 0;
                 if (raw[i] && SUCCEEDED(raw[i]->GetType(&type)) && type == WICColorContextProfile
-                    && SUCCEEDED(raw[i]->GetProfileBytes(0, nullptr, &size)) && size > 0 && size < (1u << 26)) {
+                    && SUCCEEDED(raw[i]->GetProfileBytes(0, nullptr, &size)) && size > 0 && size < kMaxIccBytes) {
                     QByteArray icc(qsizetype(size), Qt::Uninitialized);
                     if (SUCCEEDED(raw[i]->GetProfileBytes(size, reinterpret_cast<BYTE *>(icc.data()), &size))) {
                         describeIcc(icc, &out->colour);

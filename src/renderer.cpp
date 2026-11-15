@@ -83,6 +83,31 @@ void setStage(Uniforms *u, const color::OutputStage &s)
     u->modes[2] = s.clipWarning ? 1 : 0;
 }
 
+// How many values an RGBA image of `size` holds; 0 for an empty or invalid size.
+std::size_t rgbaValues(QSize size)
+{
+    return std::size_t(std::max(0, size.width())) * std::size_t(std::max(0, size.height())) * 4;
+}
+
+// `pixels` as a texture's first level, read where they are, not copied: the buffer must stay
+// alive until the frame that carries the upload has ended.
+QRhiTextureUploadDescription firstLevel(const std::vector<qfloat16> &pixels)
+{
+    QRhiTextureSubresourceUploadDescription level0;
+    level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(pixels.data()),
+                                           qsizetype(pixels.size() * sizeof(qfloat16))));
+    return QRhiTextureUploadDescription({0, 0, level0});
+}
+
+// Gives a texture's GPU memory back now; QRhi defers the native release until the GPU no longer
+// uses it, and the object goes with the frame.
+void discard(QRhiTexture *&texture)
+{
+    texture->destroy();
+    texture->deleteLater();
+    texture = nullptr;
+}
+
 } // namespace
 
 Renderer::Output Renderer::sdrOutput()
@@ -494,9 +519,7 @@ void Renderer::clearDetail()
     m_pendingDetail = {};
     m_detailPending = false;
     if (m_detailTexture) { // the GPU memory back now
-        m_detailTexture->destroy();
-        m_detailTexture->deleteLater();
-        m_detailTexture = nullptr;
+        discard(m_detailTexture);
         bindImageTexture(m_boundImage);
     }
 }
@@ -516,9 +539,7 @@ void Renderer::clearImage()
     m_hasImage = false;
     if (m_imageTexture) { // give the GPU memory back now, not at the next image
         bindImageTexture(m_placeholderTexture);
-        m_imageTexture->destroy();
-        m_imageTexture->deleteLater();
-        m_imageTexture = nullptr;
+        discard(m_imageTexture);
     }
 }
 
@@ -547,15 +568,12 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         m_initialUpdates = nullptr;
     }
 
-    const std::size_t pendingValues = std::size_t(std::max(0, m_pendingSize.width())) * std::size_t(std::max(0, m_pendingSize.height())) * 4;
+    const std::size_t pendingValues = rgbaValues(m_pendingSize);
     if (m_imagePending && m_frameUpdate && m_imageTexture && m_hasImage && m_imageTexture->pixelSize() == m_pendingSize
         && m_pendingPixels && m_pendingPixels->size() == pendingValues) {
         // Another frame of the same animation: the texture stays, only its contents change.
         m_imagePending = m_frameUpdate = false;
-        QRhiTextureSubresourceUploadDescription level0;
-        level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels->data()),
-                                               qsizetype(m_pendingPixels->size() * sizeof(qfloat16))));
-        updates->uploadTexture(m_imageTexture, QRhiTextureUploadDescription({0, 0, level0}));
+        updates->uploadTexture(m_imageTexture, firstLevel(*m_pendingPixels));
         updates->generateMips(m_imageTexture);
         m_uploadInFlight = true;
     }
@@ -566,20 +584,14 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         // object each time: an upload still queued for an old object must never land in it.
         if (m_imageTexture) {
             bindImageTexture(m_placeholderTexture);
-            m_imageTexture->destroy();
-            m_imageTexture->deleteLater();
-            m_imageTexture = nullptr;
+            discard(m_imageTexture);
         }
         m_hasImage = false;
         QRhiTexture *texture = m_rhi->newTexture(QRhiTexture::RGBA16F, m_pendingSize, 1,
                                                  QRhiTexture::MipMapped | QRhiTexture::UsedWithGenerateMips);
-        const std::size_t expected = std::size_t(std::max(0, m_pendingSize.width())) * std::size_t(std::max(0, m_pendingSize.height())) * 4;
-        if (m_pendingPixels && m_pendingPixels->size() == expected && expected > 0 && texture->create()) {
+        if (m_pendingPixels && m_pendingPixels->size() == pendingValues && pendingValues > 0 && texture->create()) {
             // No copy: m_pendingPixels stays alive until the frame carrying this batch has ended.
-            QRhiTextureSubresourceUploadDescription level0;
-            level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingPixels->data()),
-                                                   qsizetype(m_pendingPixels->size() * sizeof(qfloat16))));
-            updates->uploadTexture(texture, QRhiTextureUploadDescription({0, 0, level0}));
+            updates->uploadTexture(texture, firstLevel(*m_pendingPixels));
             updates->generateMips(texture);
             m_imageTexture = texture;
             bindImageTexture(texture);
@@ -599,19 +611,12 @@ QRhiResourceUpdateBatch *Renderer::takeUpdates()
         // As a new image: the old texture goes first, a fresh object takes the pixels. No mipmaps:
         // the detail is drawn at the scale shown, or larger while the next one is drawn.
         m_detailPending = false;
-        if (m_detailTexture) {
-            m_detailTexture->destroy();
-            m_detailTexture->deleteLater();
-            m_detailTexture = nullptr;
-        }
+        if (m_detailTexture)
+            discard(m_detailTexture);
         QRhiTexture *texture = m_rhi->newTexture(QRhiTexture::RGBA16F, m_pendingDetailSize);
-        const std::size_t expected = std::size_t(std::max(0, m_pendingDetailSize.width()))
-                                     * std::size_t(std::max(0, m_pendingDetailSize.height())) * 4;
+        const std::size_t expected = rgbaValues(m_pendingDetailSize);
         if (m_pendingDetail && m_pendingDetail->size() == expected && expected > 0 && texture->create()) {
-            QRhiTextureSubresourceUploadDescription level0;
-            level0.setData(QByteArray::fromRawData(reinterpret_cast<const char *>(m_pendingDetail->data()),
-                                                   qsizetype(m_pendingDetail->size() * sizeof(qfloat16))));
-            updates->uploadTexture(texture, QRhiTextureUploadDescription({0, 0, level0}));
+            updates->uploadTexture(texture, firstLevel(*m_pendingDetail));
             m_detailTexture = texture;
             m_detailRect = m_pendingDetailRect;
             m_uploadInFlight = true; // m_pendingDetail stays alive until the frame has ended

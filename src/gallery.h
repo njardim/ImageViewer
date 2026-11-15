@@ -69,7 +69,6 @@ public:
     QRectF rect() const { return m_rect; }    // device pixels, where its texture goes
     bool contains(const QPointF &position) const; // over its background (logical pixels)
     int slotAt(const QPointF &position) const;    // the slot under `position`; -1: none
-    int hover() const { return m_hover; }
 
     // Lays the gallery out for `scene`, asks for the thumbnails it lacks and draws its texture
     // when what it shows changed (textureChanged()). Call at every change of the window, the

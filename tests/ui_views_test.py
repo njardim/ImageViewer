@@ -345,6 +345,10 @@ try:
             print("ok   \"…\" holds Full Screen and Settings in a narrow window; its Settings row opens Settings")
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            # The size the next sections start from, which the session keeps (rememberGeometry).
+            xdotool("windowsize", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0],
+                    "1280", "800")
+            wait_until("the window is 1280 px wide again", lambda: window_geometry()[2] == 1280)
             focus_viewer()
             xdotool("key", "q")
             app.wait(15)

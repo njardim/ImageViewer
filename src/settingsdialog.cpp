@@ -147,6 +147,10 @@ void SettingsDialog::buildUi()
     m_fontSize->addItem(tr("Medium", "font size"), int(FontSize::Medium));
     m_fontSize->addItem(tr("Large", "font size"), int(FontSize::Large));
     generalForm->addRow(tr("Font size:"), m_fontSize);
+    // The interface's accent over the image: the gallery's highlight, a toolbar switch that is on (D-112).
+    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
+    generalForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
+                                                         int(std::size(kHighlightPresets)), tr("Highlight Color")));
     m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
     generalForm->addRow(m_confirmTrash);
     m_reopenLast = new QCheckBox(tr("Reopen the last image at startup"));
@@ -159,7 +163,7 @@ void SettingsDialog::buildUi()
     const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
     windowForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
                                                    int(std::size(kBackgroundPresets)), tr("Background Color")));
-    m_checkerboard = new QCheckBox(tr("Show a checkerboard behind transparent areas"));
+    m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
     windowForm->addRow(m_checkerboard);
     m_rememberGeometry = new QCheckBox(tr("Remember the window size and position"));
     windowForm->addRow(m_rememberGeometry);
@@ -283,7 +287,7 @@ void SettingsDialog::buildUi()
     slideshowForm->addRow(m_slideshowFullScreen);
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
-    m_toolbarAutoHide = new QCheckBox(tr("Hide the toolbar while the pointer is still"));
+    m_toolbarAutoHide = new QCheckBox(tr("Hide the slideshow toolbar while the pointer is still"));
     slideshowForm->addRow(m_toolbarAutoHide);
     m_toolbarHide = secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0);
     slideshowForm->addRow(tr("Hide after:"), m_toolbarHide);
@@ -304,14 +308,19 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
     galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
-    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
-    galleryForm->addRow(tr("Highlight color:"), colorRow(m_galleryHighlight, kHighlightPresets, highlightNames,
-                                                         int(std::size(kHighlightPresets)), tr("Highlight Color")));
     m_galleryOpacity = sizeBox(0, 100, percent());
     galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
+    m_galleryAutoHide = new QCheckBox(tr("Hide the gallery while the pointer is still"));
+    galleryForm->addRow(m_galleryAutoHide);
+    m_galleryHide = secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0);
+    galleryForm->addRow(tr("Hide after:"), m_galleryHide);
+    connect(m_galleryAutoHide, &QCheckBox::toggled, m_galleryHide, &QWidget::setEnabled);
     navigationLayout->addWidget(m_galleryBox);
     navigationLayout->addStretch();
     tabs->addTab(navigation, tr("Navigation"));
+    // After Navigation (the owner, 2026-11-18).
+    tabs->addTab(buildToolbarTab(secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0)),
+                 tr("Toolbar"));
 
     // Color & HDR
     auto *color = new QWidget;
@@ -322,9 +331,9 @@ void SettingsDialog::buildUi()
     m_output->addItem(tr("SDR (sRGB)"), int(Renderer::OutputPreference::Sdr));
     m_output->addItem(tr("HDR10 (PQ)"), int(Renderer::OutputPreference::Hdr10));
     colorForm->addRow(tr("Display output:"), m_output);
-    m_toneMap = new QCheckBox(tr("Tone map HDR images that exceed the display (ITU-R BT.2390)"));
+    m_toneMap = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
     colorForm->addRow(m_toneMap);
-    m_clipWarning = new QCheckBox(tr("Highlight pixels altered by clipping or tone mapping (magenta)"));
+    m_clipWarning = new QCheckBox; // likewise
     colorForm->addRow(m_clipWarning);
     //: "&&" is shown as a single "&".
     tabs->addTab(color, tr("Color && HDR"));
@@ -454,6 +463,11 @@ void SettingsDialog::buildUi()
     QAbstractItemModel *fields = m_overlayFields->model();
     connect(fields, &QAbstractItemModel::rowsMoved, this, &SettingsDialog::updateApplyButton);
     connect(fields, &QAbstractItemModel::rowsInserted, this, &SettingsDialog::updateApplyButton);
+    connect(m_toolbarButtons, &QListWidget::itemChanged, this, &SettingsDialog::updateApplyButton);
+    QAbstractItemModel *buttonsModel = m_toolbarButtons->model();
+    connect(buttonsModel, &QAbstractItemModel::rowsMoved, this, &SettingsDialog::updateApplyButton);
+    connect(buttonsModel, &QAbstractItemModel::rowsInserted, this, &SettingsDialog::updateApplyButton);
+    connect(buttonsModel, &QAbstractItemModel::rowsRemoved, this, &SettingsDialog::updateApplyButton);
 }
 
 void SettingsDialog::apply()
@@ -500,7 +514,7 @@ void SettingsDialog::rebuildUi()
     m_apply = nullptr; // updateApplyButton() is called while the new widgets are filled
     delete layout();
     delete m_background.group; // owned by the dialog, not by a widget
-    delete m_galleryHighlight.group;
+    delete m_highlight.group;
     qDeleteAll(findChildren<QWidget *>(Qt::FindDirectChildrenOnly));
     buildUi();
     setValues(shown);
@@ -528,6 +542,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_fontSize->setCurrentIndex(std::max(0, m_fontSize->findData(int(settings.fontSize))));
     m_confirmTrash->setChecked(settings.confirmTrash);
     m_reopenLast->setChecked(settings.reopenLastImage);
+    setColor(m_highlight, settings.highlight);
     setColor(m_background, settings.background);
     m_checkerboard->setChecked(settings.checkerboard);
     m_rememberGeometry->setChecked(settings.rememberGeometry);
@@ -576,7 +591,14 @@ void SettingsDialog::setValues(const Settings &settings)
     m_galleryEnlargement->setEnabled(settings.galleryZoom);
     m_galleryOpacity->setValue(settings.galleryOpacity);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
-    setColor(m_galleryHighlight, settings.galleryHighlight);
+    m_galleryAutoHide->setChecked(settings.galleryAutoHide);
+    m_galleryHide->setEnabled(settings.galleryAutoHide);
+    m_galleryHide->setValue(settings.galleryHideMs / 1000.0);
+    m_showToolbar->setChecked(settings.showToolbar);
+    m_toolbarNames->setChecked(settings.toolbarNames);
+    m_mainToolbarAutoHide->setChecked(settings.toolbarAutoHide);
+    m_mainToolbarHide->setEnabled(settings.toolbarAutoHide);
+    m_mainToolbarHide->setValue(settings.toolbarHideMs / 1000.0);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toolbarAutoHide->setChecked(settings.slideshowToolbarAutoHide);
     m_toolbarHide->setEnabled(settings.slideshowToolbarAutoHide);
@@ -589,6 +611,7 @@ void SettingsDialog::setValues(const Settings &settings)
         m_shortcuts.insert(command.key, settings.shortcuts.value(command.key, command.defaults));
     m_shortcutNote->clear();
     fillShortcutTable();
+    fillToolbarButtons(settings.toolbarButtons); // with m_commands, which the Shortcuts tab asked for
 }
 
 QLayout *SettingsDialog::colorRow(ColorChoice &choice, const QColor *presets, const QString *names, int count,
@@ -659,6 +682,7 @@ Settings SettingsDialog::settings() const
     s.fontSize = FontSize(m_fontSize->currentData().toInt());
     s.confirmTrash = m_confirmTrash->isChecked();
     s.reopenLastImage = m_reopenLast->isChecked();
+    s.highlight = m_highlight.color;
     s.background = m_background.color;
     s.checkerboard = m_checkerboard->isChecked();
     s.rememberGeometry = m_rememberGeometry->isChecked();
@@ -698,7 +722,13 @@ Settings SettingsDialog::settings() const
     s.galleryZoom = m_galleryZoom->isChecked();
     s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();
-    s.galleryHighlight = m_galleryHighlight.color;
+    s.galleryAutoHide = m_galleryAutoHide->isChecked();
+    s.galleryHideMs = int(std::lround(m_galleryHide->value() * 1000));
+    s.showToolbar = m_showToolbar->isChecked();
+    s.toolbarNames = m_toolbarNames->isChecked();
+    s.toolbarAutoHide = m_mainToolbarAutoHide->isChecked();
+    s.toolbarHideMs = int(std::lround(m_mainToolbarHide->value() * 1000));
+    s.toolbarButtons = toolbarButtonsShown();
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());

@@ -110,6 +110,36 @@ bool isKnownLanguage(const QString &code)
 
 } // namespace
 
+QStringList Settings::normalizedToolbar(const QStringList &buttons)
+{
+    const QString separator(kToolbarSeparator), quit = QStringLiteral("Quit");
+    QStringList result;
+    bool hasQuit = false;
+    for (const QString &name : buttons) {
+        const bool word = !name.isEmpty() && std::all_of(name.cbegin(), name.cend(), [](QChar c) {
+            return (c >= QLatin1Char('A') && c <= QLatin1Char('Z')) || (c >= QLatin1Char('a') && c <= QLatin1Char('z'));
+        });
+        if (!word)
+            continue;
+        if (name == separator) {
+            if (!result.isEmpty() && result.last() != separator)
+                result << name;
+        } else if (name == quit) {
+            hasQuit = true;
+        } else if (!result.contains(name)) {
+            result << name;
+        }
+    }
+    while (!result.isEmpty() && result.last() == separator)
+        result.removeLast();
+    if (hasQuit) {
+        if (!result.isEmpty())
+            result << separator;
+        result << quit;
+    }
+    return result;
+}
+
 const QList<OverlayField> &Settings::allOverlayFields()
 {
     static const QList<OverlayField> all = {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,
@@ -209,7 +239,22 @@ Settings Settings::load()
     s.galleryOpacity = sizeValue(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
     s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
-    s.galleryHighlight = colorValue(store, QStringLiteral("gallery/highlight"), defaults.galleryHighlight);
+    s.galleryAutoHide = boolValue(store, QStringLiteral("gallery/autoHide"), defaults.galleryAutoHide);
+    s.galleryHideMs = timeValue(store, QStringLiteral("gallery/hideMs"), defaults.galleryHideMs, kMinToolbarHideMs,
+                                kMaxToolbarHideMs);
+    s.highlight = colorValue(store, QStringLiteral("app/highlight"), defaults.highlight);
+    s.showToolbar = boolValue(store, QStringLiteral("toolbar/show"), defaults.showToolbar);
+    s.toolbarNames = boolValue(store, QStringLiteral("toolbar/names"), defaults.toolbarNames);
+    s.toolbarAutoHide = boolValue(store, QStringLiteral("toolbar/autoHide"), defaults.toolbarAutoHide);
+    s.toolbarHideMs = timeValue(store, QStringLiteral("toolbar/hideMs"), defaults.toolbarHideMs, kMinToolbarHideMs,
+                                kMaxToolbarHideMs);
+    if (store.contains(QStringLiteral("toolbar/buttons"))) {
+        // Comma-separated command keys, as the overlay's fields; empty: no buttons.
+        const QVariant stored = store.value(QStringLiteral("toolbar/buttons"));
+        const QString joined = stored.typeId() == QMetaType::QStringList ? stored.toStringList().join(QLatin1Char(','))
+                                                                          : stored.toString();
+        s.toolbarButtons = normalizedToolbar(joined.split(QLatin1Char(','), Qt::SkipEmptyParts));
+    }
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -311,7 +356,14 @@ void Settings::save() const
     store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
     store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
-    store.setValue(QStringLiteral("gallery/highlight"), galleryHighlight.name(QColor::HexRgb));
+    store.setValue(QStringLiteral("gallery/autoHide"), galleryAutoHide);
+    store.setValue(QStringLiteral("gallery/hideMs"), galleryHideMs);
+    store.setValue(QStringLiteral("app/highlight"), highlight.name(QColor::HexRgb));
+    store.setValue(QStringLiteral("toolbar/show"), showToolbar);
+    store.setValue(QStringLiteral("toolbar/names"), toolbarNames);
+    store.setValue(QStringLiteral("toolbar/autoHide"), toolbarAutoHide);
+    store.setValue(QStringLiteral("toolbar/hideMs"), toolbarHideMs);
+    store.setValue(QStringLiteral("toolbar/buttons"), toolbarButtons.join(QLatin1Char(',')));
     store.remove(QStringLiteral("shortcuts"));
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QStringList parts;

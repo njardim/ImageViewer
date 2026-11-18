@@ -24,7 +24,7 @@ layout(std140, binding = 0) uniform Params {
     vec4 imageRect; // the image on screen, device pixels: x, y, width, height (width 0: none)
     vec4 uvMap;     // xy: texture coordinates at imageRect's top-left; zw: their change per pixel along x
     vec4 uvMapY;    // xy: their change per pixel along y; z: target height in pixels
-    vec4 layers[7]; // overlay rectangles, device pixels (width 0: absent), in drawing order
+    vec4 layers[8]; // overlay rectangles, device pixels (width 0: absent), in drawing order
     vec4 detailRect; // the zoom's detail in the image's texture coordinates: x, y, width, height (width 0: none)
 };
 
@@ -36,7 +36,8 @@ layout(binding = 5) uniform sampler2D overlay3;
 layout(binding = 6) uniform sampler2D overlay4;
 layout(binding = 7) uniform sampler2D overlay5;
 layout(binding = 8) uniform sampler2D overlay6;
-layout(binding = 9) uniform sampler2D detail; // the zoom's detail: part of the image drawn again at the scale shown
+layout(binding = 9) uniform sampler2D overlay7;
+layout(binding = 10) uniform sampler2D detail; // the zoom's detail: part of the image drawn again at the scale shown
 
 const int MODE_SDR = 0;
 const int MODE_SCRGB = 1;
@@ -185,6 +186,7 @@ void main()
     vec4 ui4 = texture(overlay4, (p - layers[4].xy) / max(layers[4].zw, vec2(1.0)));
     vec4 ui5 = texture(overlay5, (p - layers[5].xy) / max(layers[5].zw, vec2(1.0)));
     vec4 ui6 = texture(overlay6, (p - layers[6].xy) / max(layers[6].zw, vec2(1.0)));
+    vec4 ui7 = texture(overlay7, (p - layers[7].xy) / max(layers[7].zw, vec2(1.0)));
     rgb = overUi(rgb, ui0, layer >= 0 && within(p, layers[0]));
     rgb = overUi(rgb, ui1, layer >= 1 && within(p, layers[1]));
     rgb = overUi(rgb, ui2, layer >= 2 && within(p, layers[2]));
@@ -192,5 +194,6 @@ void main()
     rgb = overUi(rgb, ui4, layer >= 4 && within(p, layers[4]));
     rgb = overUi(rgb, ui5, layer >= 5 && within(p, layers[5]));
     rgb = overUi(rgb, ui6, layer >= 6 && within(p, layers[6]));
+    rgb = overUi(rgb, ui7, layer >= 7 && within(p, layers[7]));
     fragColor = vec4(encodeOutput(rgb), 1.0);
 }

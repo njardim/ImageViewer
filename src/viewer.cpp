@@ -40,6 +40,17 @@ constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 
 ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     : m_renderer(this), m_settings(Settings::load()),
+      // A bar never hides from under the pointer, nor while a menu is open (D-65).
+      m_toolbarHide([this] {
+          return QApplication::activePopupWidget()
+                 || toolbarButtonAt(mapFromGlobal(QCursor::pos(screen()))) != ToolbarButton::None;
+      }),
+      m_mainToolbarHide([this] {
+          return QApplication::activePopupWidget() || mainToolbarAt(mapFromGlobal(QCursor::pos(screen()))) != -1;
+      }),
+      m_galleryHide([this] {
+          return QApplication::activePopupWidget() || m_gallery.contains(mapFromGlobal(QCursor::pos(screen())));
+      }),
       m_details([](const VectorDetail &job, const std::atomic_bool *cancel) {
           return decodeVectorArea(job.path, job.scale, job.area, cancel);
       }),
@@ -116,16 +127,25 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
     connect(&m_slideshow, &Slideshow::due, this, &ViewerWindow::slideshowDue);
-    m_toolbarTimer.setSingleShot(true);
-    connect(&m_toolbarTimer, &QTimer::timeout, this, [this] {
-        if (toolbarButtonAt(mapFromGlobal(QCursor::pos(screen()))) != ToolbarButton::None) {
-            m_toolbarTimer.start(); // never from under the pointer
-            return;
-        }
-        m_toolbarHidden = true;
-        setToolbarHover(ToolbarButton::None);
+    connect(&m_toolbarHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
+        if (hidden)
+            setToolbarHover(ToolbarButton::None);
         updateSlideshowToolbar();
     });
+    connect(&m_mainToolbarHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
+        if (hidden)
+            setMainToolbarHover(-1);
+        updateMainToolbar();
+        requestUpdate();
+    });
+    connect(&m_galleryHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
+        if (hidden)
+            m_gallery.setHover(-1);
+        requestUpdate();
+    });
+    configureAutoHide();
+    m_tooltipTimer.setSingleShot(true);
+    connect(&m_tooltipTimer, &QTimer::timeout, this, &ViewerWindow::showToolbarTooltip);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
@@ -257,6 +277,7 @@ bool ViewerWindow::event(QEvent *e)
         m_pointerTimer.stop();
         setHoverZone(Zone::None);
         setToolbarHover(ToolbarButton::None);
+        setMainToolbarHover(-1);
         m_gallery.setHover(-1);
         setPointerAtTop(false);
         break;
@@ -580,6 +601,9 @@ void ViewerWindow::render()
             qCDebug(lcLatency) << "a frame took" << frameTime.elapsed() << "ms";
     });
     updateDetail();
+    // The toolbar's buttons follow every state they show (enabled, on, the slideshow's) at each
+    // frame: a few names and checks, its texture drawn again only when one changed.
+    updateMainToolbar();
     Renderer::Frame frame = imageFrame();
     if (m_image.width > 0) {
         frame.imageRect = imageRect();
@@ -654,6 +678,7 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_panelKey.clear();
         m_messageKey.clear();
         m_toolbarKey.clear();
+        m_mainToolbarTexture = 0;
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again
@@ -692,8 +717,11 @@ void ViewerWindow::applySettings(const Settings &settings)
     if (settings.slideshowSeconds != previous.slideshowSeconds)
         m_slideshow.setInterval(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes it at once
     if (settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
-        || settings.slideshowToolbarHideMs != previous.slideshowToolbarHideMs)
-        showSlideshowToolbar();
+        || settings.slideshowToolbarHideMs != previous.slideshowToolbarHideMs
+        || settings.toolbarAutoHide != previous.toolbarAutoHide || settings.toolbarHideMs != previous.toolbarHideMs
+        || settings.galleryAutoHide != previous.galleryAutoHide || settings.galleryHideMs != previous.galleryHideMs)
+        configureAutoHide(); // each shows at once, and hides again as now set
+    updateMainToolbar();
     m_renderer.setOutputPreference(settings.output);
     // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
     if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)

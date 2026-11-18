@@ -49,49 +49,6 @@ QImage overlayCanvas(const QSizeF &logical, qreal dpr)
     return image;
 }
 
-constexpr double kToolbarButton = 44.0;  // the slideshow toolbar's round buttons, logical pixels (D-65)
-constexpr double kToolbarPadding = 8.0;  // around and between them
-
-// The slideshow's toolbar: stop, then pause (or play, when paused), round buttons in the side
-// buttons' look on a panel in the information panels' look.
-QImage slideshowToolbar(bool paused, int hover, int press, double dpr, const QColor &background)
-{
-    const QSizeF logical(2 * kToolbarButton + 3 * kToolbarPadding, kToolbarButton + 2 * kToolbarPadding);
-    QImage image = overlayCanvas(logical, dpr);
-    QPainter painter(&image);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(background);
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
-    const QColor glyph(240, 240, 240);
-    const double s = kToolbarButton;
-    for (int i = 0; i < 2; ++i) {
-        const QRectF circle(kToolbarPadding + i * (s + kToolbarPadding), kToolbarPadding, s, s);
-        painter.setBrush(i == press ? QColor(255, 255, 255, 80) : i == hover ? QColor(255, 255, 255, 48)
-                                                                              : QColor(0, 0, 0, 125));
-        painter.drawEllipse(circle.adjusted(0.5, 0.5, -0.5, -0.5));
-        painter.setBrush(glyph);
-        const QPointF c = circle.center();
-        if (i == 0) { // stop: a square
-            const double half = s * 0.17;
-            painter.drawRoundedRect(QRectF(c.x() - half, c.y() - half, 2 * half, 2 * half), 1.5, 1.5);
-        } else if (paused) { // play: a triangle, its centre of mass on the circle's
-            const double h = s * 0.42, w = h * 0.87;
-            QPainterPath triangle;
-            triangle.moveTo(c.x() - w / 3.0, c.y() - h / 2.0);
-            triangle.lineTo(c.x() + 2.0 * w / 3.0, c.y());
-            triangle.lineTo(c.x() - w / 3.0, c.y() + h / 2.0);
-            triangle.closeSubpath();
-            painter.drawPath(triangle);
-        } else { // pause: two bars
-            const double h = s * 0.38, w = s * 0.12, gap = s * 0.11;
-            painter.drawRoundedRect(QRectF(c.x() - gap / 2.0 - w, c.y() - h / 2.0, w, h), 1.5, 1.5);
-            painter.drawRoundedRect(QRectF(c.x() + gap / 2.0, c.y() - h / 2.0, w, h), 1.5, 1.5);
-        }
-    }
-    return image;
-}
-
 // The round previous/next button of a side zone, drawn at `pixels` (device) size.
 QImage navigationButton(bool next, int pixels, bool pressed)
 {
@@ -200,7 +157,8 @@ void ViewerWindow::updateOverlay()
         return;
     updateGallery(); // the current image, the folder or the window's width may have changed
     updateMessage();
-    updateSlideshowToolbar(); // the device pixel ratio may have changed
+    updateMainToolbar();      // the window's width and the device pixel ratio may have changed
+    updateSlideshowToolbar(); // likewise
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
@@ -556,13 +514,14 @@ bool ViewerWindow::topOverlayVisible() const
 
 double ViewerWindow::topActivationHeight() const
 {
-    // The top band, and the overlay itself once it is shown; with the slideshow's toolbar below
-    // the overlay, down to the toolbar too (reaching for it must not hide the overlay, which
-    // would move the toolbar up from under the pointer).
+    // The top band, and the overlay itself once it is shown, below the toolbar where it is on; with
+    // the slideshow's toolbar below the overlay, down to that toolbar too (reaching for it must not
+    // hide the overlay, which would move the toolbar up from under the pointer).
     const double dpr = devicePixelRatio();
-    double band = std::max(48.0, m_topOverlaySize.height() / dpr + 2 * kEdgeMargin);
+    const double above = mainToolbarReserve();
+    double band = std::max(48.0, above + m_topOverlaySize.height() / dpr + 2 * kEdgeMargin);
     if (!m_toolbarSize.isEmpty())
-        band = std::max(band, m_topOverlaySize.height() / dpr + kEdgeMargin + m_toolbarSize.height() / dpr
+        band = std::max(band, above + m_topOverlaySize.height() / dpr + kEdgeMargin + m_toolbarSize.height() / dpr
                                   + 2 * kEdgeMargin);
     return band;
 }
@@ -695,7 +654,7 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
     const double margin = kEdgeMargin * dpr;
-    if (m_gallery.visible())
+    if (galleryShown())
         frame->overlayRects[Renderer::GalleryLayer] = m_gallery.rect();
     if (!m_messageSize.isEmpty())
         frame->overlayRects[Renderer::MessageLayer] =
@@ -710,10 +669,12 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
             QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_gallery.reserve() * dpr - m_overlaySize.height())),
                    QSizeF(m_overlaySize));
     }
-    if (topOverlayVisible())
+    if (topOverlayVisible()) // below the toolbar (D-112)
         frame->overlayRects[Renderer::TopLayer] =
-            QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0), std::round(kEdgeMargin * dpr)),
+            QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0),
+                           std::round((kEdgeMargin + mainToolbarReserve()) * dpr)),
                    QSizeF(m_topOverlaySize));
+    frame->overlayRects[Renderer::ToolbarLayer] = mainToolbarRect();
     frame->overlayRects[Renderer::SlideshowLayer] = slideshowToolbarRect();
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);
@@ -746,52 +707,3 @@ QRectF ViewerWindow::zoneButtonRect(Zone zone) const
                   QSizeF(pixels, pixels));
 }
 
-void ViewerWindow::updateSlideshowToolbar()
-{
-    if (!m_rendererReady)
-        return;
-    if (!m_slideshow.running() || m_toolbarHidden) {
-        if (!m_toolbarSize.isEmpty()) {
-            m_toolbarSize = QSize();
-            m_toolbarKey.clear();
-            m_renderer.setOverlay(Renderer::SlideshowLayer, QImage());
-            requestUpdate();
-        }
-        return;
-    }
-    const double dpr = devicePixelRatio();
-    const QColor background = m_settings.panelBackground();
-    const int hover = int(m_toolbarHover) - 1, press = int(m_toolbarPress) - 1; // -1: none
-    const QString key = QStringLiteral("%1|%2|%3|%4|%5")
-                            .arg(m_slideshow.paused()).arg(hover).arg(press).arg(dpr).arg(background.alpha());
-    if (key == m_toolbarKey)
-        return;
-    m_toolbarKey = key;
-    const QImage image = slideshowToolbar(m_slideshow.paused(), hover, press, dpr, background);
-    m_toolbarSize = image.size();
-    m_renderer.setOverlay(Renderer::SlideshowLayer, image);
-    requestUpdate();
-}
-
-QRectF ViewerWindow::slideshowToolbarRect() const
-{
-    if (m_toolbarSize.isEmpty())
-        return {};
-    // Centred below the top overlay when it shows, else at the top margin (D-60).
-    const double dpr = devicePixelRatio();
-    double top = kEdgeMargin * dpr;
-    if (topOverlayVisible())
-        top += m_topOverlaySize.height() + kEdgeMargin * dpr;
-    return QRectF(QPointF(std::round((deviceSize().width() - m_toolbarSize.width()) / 2.0), std::round(top)),
-                  QSizeF(m_toolbarSize));
-}
-
-ViewerWindow::ToolbarButton ViewerWindow::toolbarButtonAt(const QPointF &position) const
-{
-    const QRectF rect = slideshowToolbarRect();
-    const QPointF device = position * devicePixelRatio();
-    if (!rect.contains(device))
-        return ToolbarButton::None;
-    // Each button takes its half of the panel, padding included.
-    return device.x() < rect.center().x() ? ToolbarButton::Stop : ToolbarButton::PlayPause;
-}

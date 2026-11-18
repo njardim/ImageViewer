@@ -159,7 +159,7 @@ void Gallery::update(const Scene &scene)
     QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|")
                       .arg(m_first).arg(shown).arg(m_hover).arg(scene.current).arg(dpr)
                       .arg(m_settings.galleryOpacity).arg(zoom).arg(side)
-                  + m_settings.galleryHighlight.name(QColor::HexRgb);
+                  + m_settings.highlight.name(QColor::HexRgb);
     for (int i = 0; i < shown; ++i) { // which file, and its thumbnail's sharpness, if it is there yet
         const QString &path = m_files.at(fileAt(i));
         const auto thumbnail = m_thumbnails.constFind(path);
@@ -222,7 +222,7 @@ void Gallery::update(const Scene &scene)
         // One colour behind the current thumbnail and the hovered one, at the gallery's opacity
         // over its background; the hovered one a little fainter, unless it is the current one.
         if (fileAt(i) == scene.current || i == m_hover) {
-            QColor tile = m_settings.galleryHighlight;
+            QColor tile = m_settings.highlight;
             const int opacity = fileAt(i) == scene.current ? m_settings.galleryOpacity
                                                            : std::max(0, m_settings.galleryOpacity - kHoverFade);
             tile.setAlpha(int(std::lround(opacity * 2.55)));

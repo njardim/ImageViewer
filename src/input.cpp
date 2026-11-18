@@ -1,5 +1,6 @@
 // ViewerWindow, part 8: the keyboard, the mouse and the wheel (D-08: split from viewer.cpp).
-// Keys run commands (D-30); the mouse pans, clicks the side zones (D-31) and the gallery (D-60);
+// Keys run commands (D-30); the mouse pans, clicks the side zones (D-31), the gallery (D-60) and
+// the toolbars (D-65, D-112);
 // the wheel zooms, or scrolls the gallery under the pointer. The side zones and the pointer's
 // cursor and hiding live here too.
 #include "viewer.h"
@@ -9,6 +10,7 @@
 #include <QMouseEvent>
 #include <QPointingDevice>
 #include <QStyleHints>
+#include <QToolTip>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -32,8 +34,10 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
 
 void ViewerWindow::mousePressEvent(QMouseEvent *e)
 {
-    // Only a toolbar on screen takes the press: a hidden one comes back with it (pointerActive).
+    // Only a bar on screen takes the press: a hidden one comes back with it (pointerActive).
     const ToolbarButton button = toolbarButtonAt(e->position());
+    const int barButton = mainToolbarAt(e->position());
+    const bool onGallery = galleryShown() && m_gallery.contains(e->position());
     pointerActive();
     switch (e->button()) {
     case Qt::RightButton:
@@ -50,12 +54,19 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     default:
         return;
     }
+    if (barButton != -1) {
+        m_mainToolbar.setPressed(barButton); // a click when released on the same button
+        QToolTip::hideText();
+        m_tooltipTimer.stop();
+        updateMainToolbar();
+        return;
+    }
     if (button != ToolbarButton::None) {
         m_toolbarPress = button; // a click when released on the same button
         updateSlideshowToolbar();
         return;
     }
-    if (m_gallery.contains(e->position())) { // a thumbnail shows its image; the bar itself does nothing
+    if (onGallery) { // a thumbnail shows its image; the bar itself does nothing
         if (const int slot = m_gallery.slotAt(e->position()); slot >= 0)
             galleryClicked(slot);
         return;
@@ -75,11 +86,13 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         cancelPress();
+        const int barButton = mainToolbarAt(e->position());
+        setMainToolbarHover(barButton);
         const ToolbarButton button = toolbarButtonAt(e->position());
         setToolbarHover(button);
-        setHoverZone(button == ToolbarButton::None ? zoneAt(e->position()) : Zone::None);
+        setHoverZone(button == ToolbarButton::None && barButton == -1 ? zoneAt(e->position()) : Zone::None);
         setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
-        m_gallery.setHover(m_gallery.slotAt(e->position()));
+        m_gallery.setHover(galleryShown() ? m_gallery.slotAt(e->position()) : -1);
         return;
     }
     if (m_pressZone != Zone::None && !m_pressMoved) {
@@ -100,6 +113,13 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton)
         return;
+    if (const int pressed = m_mainToolbar.pressed(); pressed != -1) {
+        m_mainToolbar.setPressed(-1);
+        updateMainToolbar();
+        if (mainToolbarAt(e->position()) == pressed)
+            mainToolbarClicked(pressed);
+        return;
+    }
     if (const ToolbarButton pressed = std::exchange(m_toolbarPress, ToolbarButton::None); pressed != ToolbarButton::None) {
         updateSlideshowToolbar();
         if (toolbarButtonAt(e->position()) == pressed)
@@ -125,13 +145,15 @@ void ViewerWindow::cancelPress()
         updateNavigationButtons();
     if (std::exchange(m_toolbarPress, ToolbarButton::None) != ToolbarButton::None)
         updateSlideshowToolbar();
+    if (m_mainToolbar.setPressed(-1))
+        updateMainToolbar();
 }
 
 void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (e->button() != Qt::LeftButton || m_gallery.contains(e->position()))
+    if (e->button() != Qt::LeftButton || (galleryShown() && m_gallery.contains(e->position())))
         return;
-    if (toolbarButtonAt(e->position()) != ToolbarButton::None) {
+    if (toolbarButtonAt(e->position()) != ToolbarButton::None || mainToolbarAt(e->position()) != -1) {
         mousePressEvent(e); // quick clicks on its buttons are clicks, never full screen
         return;
     }
@@ -150,10 +172,12 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
 {
     // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
+    const bool onGallery = galleryShown() && m_gallery.contains(e->position());
+    const bool onBar = toolbarButtonAt(e->position()) != ToolbarButton::None || mainToolbarAt(e->position()) != -1;
     pointerActive();
-    if (toolbarButtonAt(e->position()) != ToolbarButton::None)
+    if (onBar)
         return;
-    if (m_gallery.contains(e->position())) { // over the gallery the wheel scrolls the thumbnails
+    if (onGallery) { // over the gallery the wheel scrolls the thumbnails
         if (const int steps = m_gallery.wheel(e->angleDelta().y() + e->angleDelta().x()); steps != 0)
             m_gallery.scroll(-steps);
         return;
@@ -219,11 +243,14 @@ void ViewerWindow::pointerActive()
         m_pointerTimer.start(m_settings.pointerHideMs);
     else
         m_pointerTimer.stop();
-    showSlideshowToolbar();
+    // Every bar that hides by itself shows again, and waits for the pointer to stay still.
+    m_toolbarHide.pointerMoved();
+    m_mainToolbarHide.pointerMoved();
+    m_galleryHide.pointerMoved();
 }
 
 void ViewerWindow::updateCursor()
 {
-    const bool onButton = m_hoverZone != Zone::None || m_toolbarHover != ToolbarButton::None;
+    const bool onButton = m_hoverZone != Zone::None || m_toolbarHover != ToolbarButton::None || m_mainToolbar.hover() != -1;
     setCursor(m_pointerHidden ? Qt::BlankCursor : onButton ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }

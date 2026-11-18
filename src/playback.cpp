@@ -259,7 +259,6 @@ void ViewerWindow::toggleSlideshowPause()
 void ViewerWindow::stopSlideshow()
 {
     m_slideshow.stop();
-    m_toolbarTimer.stop();
     m_toolbarPress = ToolbarButton::None;
     setToolbarHover(ToolbarButton::None);
     updateSlideshowToolbar();
@@ -288,34 +287,4 @@ void ViewerWindow::slideshowDue()
     case Slideshow::Action::None:
         break;
     }
-}
-
-void ViewerWindow::showSlideshowToolbar()
-{
-    if (!m_slideshow.running())
-        return;
-    m_toolbarHidden = false;
-    if (m_settings.slideshowToolbarAutoHide)
-        m_toolbarTimer.start(m_settings.slideshowToolbarHideMs);
-    else
-        m_toolbarTimer.stop();
-    updateSlideshowToolbar();
-}
-
-void ViewerWindow::setToolbarHover(ToolbarButton button)
-{
-    if (button == m_toolbarHover)
-        return;
-    m_toolbarHover = button;
-    updateCursor();
-    updateSlideshowToolbar();
-}
-
-void ViewerWindow::toolbarClicked(ToolbarButton button)
-{
-    // The toolbar shows only during a slideshow: Space and S, as the keys give them.
-    if (button == ToolbarButton::PlayPause)
-        run(Command::PlayPause);
-    else if (button == ToolbarButton::Stop)
-        run(Command::Slideshow);
 }

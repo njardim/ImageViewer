@@ -34,7 +34,7 @@ struct Uniforms {
     float layers[Renderer::OverlayLayerCount][4]; // overlay rectangles; width 0: absent
     float detailRect[4];    // the zoom's detail, texture coordinates; width 0: none
 };
-static_assert(sizeof(Uniforms) == 352, "uniform block must match the shaders");
+static_assert(sizeof(Uniforms) == 368, "uniform block must match the shaders"); // eight layers (D-112)
 
 constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
 constexpr int kQuadBytes = 4 * kVertexStride;

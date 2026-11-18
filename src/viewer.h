@@ -1,15 +1,18 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
-// swapchain (decision D-09). ViewerWindow is implemented in eight files:
+// swapchain (decision D-09). ViewerWindow is implemented in nine files:
 //   viewer.cpp      display and view state;
 //   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
 //   overlays.cpp    what is drawn over the image: information panel, top overlay (D-34),
-//                   navigation buttons, the slideshow's toolbar;
+//                   navigation buttons;
+//   toolbars.cpp    the toolbar at the top (D-87, D-112) and the slideshow's (D-65), and the hiding
+//                   of those and of the gallery while the pointer is still;
 //   commands.cpp    the command table, menus and dialogs (D-30);
 //   files.cpp       file operations: show, copy, rename, trash and undo, delete (D-41);
-//   playback.cpp    animation playback and the slideshow, its toolbar's behaviour (E6, E11, D-41);
+//   playback.cpp    animation playback and the slideshow (E6, E11, D-41);
 //   input.cpp       the keyboard, the mouse and the wheel, the side zones and the pointer.
 // Its parts with state of their own are classes (D-102): Gallery (gallery.h), Slideshow
-// (slideshow.h, the slideshow's clock) and VectorDetails (detail.h, the zoom's detail of an SVG).
+// (slideshow.h, the slideshow's clock), VectorDetails (detail.h, the zoom's detail of an SVG) and
+// Toolbar and AutoHide (toolbar.h).
 #pragma once
 
 #include "cache.h"
@@ -19,6 +22,7 @@
 #include "renderer.h"
 #include "settings.h"
 #include "slideshow.h"
+#include "toolbar.h"
 
 #include <QDateTime>
 #include <QElapsedTimer>
@@ -50,6 +54,7 @@ inline constexpr double kPanelRadius = 8.0;
 // One step of Zoom In or Zoom Out, and of a wheel notch.
 inline constexpr double kZoomStep = 1.25;
 
+class QAction;
 class QMenu;
 class QMenuBar;
 class QTranslator;
@@ -76,11 +81,11 @@ public:
 
     // Every user command: one table drives the keyboard, the context menu and its submenus.
     enum class Command {
-        Open, ClearRecent, ShowInFolder, OpenWithOther, CopyImage, CopyPath,
+        Open, ClearRecent, ShowInFolder, OpenWith, OpenWithOther, CopyImage, CopyPath,
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
         ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
-        FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery,
+        FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery, Toolbar,
         RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,
@@ -218,14 +223,34 @@ private:
     void toggleSlideshow();
     void stopSlideshow();
     void slideshowDue(); // m_slideshow's interval ended: the next image, or the end
-    // The slideshow's toolbar (D-65): pause or play, and stop, below the top overlay.
-    enum class ToolbarButton { None, Stop, PlayPause }; // left to right
+
+    // toolbars.cpp: the toolbar at the top (m_mainToolbar, D-87, D-112), its buttons the user's
+    // commands; the slideshow's toolbar (D-65): stop, and pause or play, below the top overlay; the
+    // hiding of those and of the gallery while the pointer is still (AutoHide).
+    static std::optional<Glyph> glyphFor(Command command); // none: not a toolbar button
+    QString buttonName(Command command) const; // its menu text, without the dialog's "…"
+    QList<Toolbar::Button> mainToolbarButtons() const;
+    void updateMainToolbar();       // its buttons' states, laid out for the window, drawn when changed
+    QRectF mainToolbarRect() const; // device pixels; empty when not shown
+    double mainToolbarReserve() const; // logical pixels it takes from the window's top, hidden by itself or not
+    int mainToolbarAt(const QPointF &position) const; // logical pixels: a button's id, Toolbar::kMore, or -1
+    void setMainToolbarHover(int id);
+    void showToolbarTooltip();      // the hovered button's name and key
+    void mainToolbarClicked(int id);
+    void showMainToolbarMenu();     // "…": the buttons a narrow window cannot hold
+    void showOpenWithMenu(const QPoint &globalPos);
+    void fillOpenWithMenu(QMenu *menu); // the system's applications for the image, and "Other Application…"
+    void toggleMainToolbar();
+    bool slideshowInMainToolbar() const; // its buttons show there: the slideshow's own toolbar does not (D-112)
+    bool galleryShown() const;           // on screen: on, and not hidden by itself
+    enum class ToolbarButton { None, Stop, PlayPause }; // the slideshow's, left to right
     QRectF slideshowToolbarRect() const;                         // device pixels; empty when hidden
     ToolbarButton toolbarButtonAt(const QPointF &position) const; // logical pixels
     void showSlideshowToolbar(); // when the pointer moves; it hides again when it stays still
     void updateSlideshowToolbar();
     void setToolbarHover(ToolbarButton button);
     void toolbarClicked(ToolbarButton button);
+    void configureAutoHide();    // from the settings
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
@@ -261,7 +286,7 @@ private:
     void run(Command command);     // every way of giving a command comes here: keys, menus, mouse
     void execute(Command command); // run()'s work, once the command is enabled
     bool executeShortcut(QKeyEvent *e); // true when a command took the key
-    void addCommand(QMenu *menu, Command command);
+    QAction *addCommand(QMenu *menu, Command command);
     void showContextMenu(const QPoint &globalPos);
     void installApplicationMenu();   // macOS: About and Settings in the application menu (D-96)
     void translateApplicationMenu(); // ... named in the language shown
@@ -322,12 +347,17 @@ private:
     bool m_frameWaitsForScreen = false; // nothing is drawn while the window is off the screen
     QTimer m_frameTimer;
     Slideshow m_slideshow;
-    QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
-    bool m_toolbarHidden = false;
+    AutoHide m_toolbarHide;       // the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
     ToolbarButton m_toolbarHover = ToolbarButton::None;
     ToolbarButton m_toolbarPress = ToolbarButton::None; // a press that becomes a click when released on it
     QSize m_toolbarSize;          // device pixels; empty when not shown
     QString m_toolbarKey;         // what its texture shows
+    Toolbar m_mainToolbar;        // the toolbar at the top (D-112)
+    AutoHide m_mainToolbarHide;   // ...hidden while the pointer is still (Settings::toolbarAutoHide)
+    qint64 m_mainToolbarTexture = 0; // the cache key of the texture the renderer has; 0: none
+    bool m_slideshowInMainToolbar = false; // as last laid out
+    QTimer m_tooltipTimer;        // a button's name and key, once the pointer rests on it
+    AutoHide m_galleryHide;       // the gallery (Settings::galleryAutoHide)
     // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
     // as soon as the worker ends, while the finished signal is still queued, and setting a
     // new future then would discard the result that was never delivered.

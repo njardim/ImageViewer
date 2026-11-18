@@ -1,10 +1,13 @@
 // ViewerWindow, part 9: the toolbars over the image (D-08: gathered from overlays.cpp and
-// playback.cpp). The toolbar at the top (D-87, D-112): the commands the user chose, as buttons
-// (Toolbar), each run through run() as a key's (D-85); the slideshow's toolbar (D-65): stop, and
-// pause or play; and the hiding of those and of the gallery while the pointer is still (AutoHide).
-// At the top, the toolbar first, then the top overlay, then the slideshow's toolbar, which shows
-// only while the toolbar does not hold the slideshow's buttons: never two controls for one thing
-// at once (the owner, 2026-11-18).
+// playback.cpp). The toolbar at the top (D-87, D-112): the commands the user chose, as buttons, each
+// run through run() as a key's (D-85), and the "…" panel of what a narrow window cannot hold
+// (D-113); the slideshow's toolbar (D-65): stop, then pause or play, in the same look, a Toolbar of
+// its own (the owner, D-113); and the hiding of the bars, the gallery, the top overlay and the
+// information panel while the pointer is still (AutoHide), after the one delay of the settings. At
+// the top, the toolbar first, then the top overlay, then the slideshow's toolbar, which shows only
+// while the toolbar does not hold the slideshow's buttons: never two controls for one thing at once
+// (the owner, D-112). What hides by itself gives its place to what is below or above it, as when it
+// is switched off (the owner, D-113).
 #include "viewer.h"
 
 #include "openwith.h"
@@ -13,60 +16,15 @@
 #include <QCursor>
 #include <QMenu>
 #include <QMetaEnum>
-#include <QPainter>
-#include <QPainterPath>
 #include <QToolTip>
 
 #include <cmath>
 
 namespace {
 
-constexpr double kToolbarButton = 44.0;  // the slideshow toolbar's round buttons, logical pixels (D-65)
-constexpr double kToolbarPadding = 8.0;  // around and between them
-constexpr int kSlideshowPause = 1000;    // the toolbar's id of the slideshow's own pause or play
-constexpr int kTooltipDelayMs = 700;     // as Qt's widgets wait before a tooltip
-
-// The slideshow's toolbar: stop, then pause (or play, when paused), round buttons in the side
-// buttons' look on a panel in the information panels' look.
-QImage slideshowToolbar(bool paused, int hover, int press, double dpr, const QColor &background)
-{
-    const QSizeF logical(2 * kToolbarButton + 3 * kToolbarPadding, kToolbarButton + 2 * kToolbarPadding);
-    QImage image((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
-    image.setDevicePixelRatio(dpr);
-    image.fill(Qt::transparent);
-    QPainter painter(&image);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(background);
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
-    const QColor glyph(240, 240, 240);
-    const double s = kToolbarButton;
-    for (int i = 0; i < 2; ++i) {
-        const QRectF circle(kToolbarPadding + i * (s + kToolbarPadding), kToolbarPadding, s, s);
-        painter.setBrush(i == press ? QColor(255, 255, 255, 80) : i == hover ? QColor(255, 255, 255, 48)
-                                                                              : QColor(0, 0, 0, 125));
-        painter.drawEllipse(circle.adjusted(0.5, 0.5, -0.5, -0.5));
-        painter.setBrush(glyph);
-        const QPointF c = circle.center();
-        if (i == 0) { // stop: a square
-            const double half = s * 0.17;
-            painter.drawRoundedRect(QRectF(c.x() - half, c.y() - half, 2 * half, 2 * half), 1.5, 1.5);
-        } else if (paused) { // play: a triangle, its centre of mass on the circle's
-            const double h = s * 0.42, w = h * 0.87;
-            QPainterPath triangle;
-            triangle.moveTo(c.x() - w / 3.0, c.y() - h / 2.0);
-            triangle.lineTo(c.x() + 2.0 * w / 3.0, c.y());
-            triangle.lineTo(c.x() - w / 3.0, c.y() + h / 2.0);
-            triangle.closeSubpath();
-            painter.drawPath(triangle);
-        } else { // pause: two bars
-            const double h = s * 0.38, w = s * 0.12, gap = s * 0.11;
-            painter.drawRoundedRect(QRectF(c.x() - gap / 2.0 - w, c.y() - h / 2.0, w, h), 1.5, 1.5);
-            painter.drawRoundedRect(QRectF(c.x() + gap / 2.0, c.y() - h / 2.0, w, h), 1.5, 1.5);
-        }
-    }
-    return image;
-}
+constexpr int kSlideshowPause = 1000; // the id of the slideshow's own pause or play, on either bar
+constexpr int kTooltipDelayMs = 700;  // as Qt's widgets wait before a tooltip
+constexpr double kMenuGap = 6.0;      // between the toolbar and its "…" panel, logical pixels
 
 } // namespace
 
@@ -135,37 +93,68 @@ QString ViewerWindow::buttonName(Command command) const
     return name;
 }
 
+Toolbar::Look ViewerWindow::toolbarLook() const
+{
+    Toolbar::Look look;
+    look.devicePixelRatio = devicePixelRatio();
+    look.names = m_settings.toolbarNames;
+    look.panel = m_settings.panelBackground();
+    look.highlight = m_settings.highlight;
+    look.menuFont = QGuiApplication::font(); // the panels' own; the names a little smaller
+    look.font = look.menuFont;
+    if (look.font.pointSizeF() > 0)
+        look.font.setPointSizeF(look.font.pointSizeF() * 0.85);
+    else
+        look.font.setPixelSize(std::max(8, int(std::lround(look.font.pixelSize() * 0.85))));
+    look.radius = kPanelRadius;
+    return look;
+}
+
 QList<Toolbar::Button> ViewerWindow::mainToolbarButtons() const
 {
     const QMetaEnum names = QMetaEnum::fromType<Command>();
+    const auto key = [this](Command command) {
+        const QList<QKeySequence> keys = shortcutsFor(command);
+        return keys.isEmpty() ? QString() : keys.first().toString(QKeySequence::NativeText);
+    };
     QList<Toolbar::Button> buttons;
-    for (const QString &key : m_settings.toolbarButtons) {
-        if (key == Settings::kToolbarSeparator) {
+    for (const QString &name : m_settings.toolbarButtons) {
+        if (name == Settings::kToolbarSeparator) {
             Toolbar::Button separator;
             separator.separator = true;
             buttons.append(separator);
             continue;
         }
         bool known = false;
-        const auto command = Command(names.keyToValue(key.toLatin1().constData(), &known));
+        const auto command = Command(names.keyToValue(name.toLatin1().constData(), &known));
         const std::optional<Glyph> glyph = known ? glyphFor(command) : std::nullopt;
         if (!glyph)
             continue; // a command of another version, or none
         if (command == Command::Slideshow && m_slideshow.running()) {
-            // While it runs: stop, then pause or play, as on the slideshow's own toolbar (the owner).
-            //: The toolbar's button that ends the running slideshow.
-            buttons.append({int(Command::Slideshow), Glyph::Stop, tr("Stop")});
-            const bool paused = m_slideshow.paused();
-            //: The toolbar's button that resumes the paused slideshow.
-            buttons.append({kSlideshowPause, paused ? Glyph::Play : Glyph::Pause,
-                            paused ? tr("Play") : buttonName(Command::PlayPause)});
+            for (Toolbar::Button button : slideshowBarButtons()) // stop, then pause or play (the owner)
+                buttons.append(button);
             continue;
         }
         bool checkable = false;
         const bool checked = isCommandChecked(command, &checkable);
-        buttons.append({int(command), *glyph, buttonName(command), isCommandEnabled(command), checkable && checked});
+        buttons.append({int(command), *glyph, buttonName(command), isCommandEnabled(command), checkable && checked,
+                        false, key(command)});
     }
     return buttons;
+}
+
+QList<Toolbar::Button> ViewerWindow::slideshowBarButtons() const
+{
+    const auto key = [this](Command command) {
+        const QList<QKeySequence> keys = shortcutsFor(command);
+        return keys.isEmpty() ? QString() : keys.first().toString(QKeySequence::NativeText);
+    };
+    const bool paused = m_slideshow.paused();
+    //: The toolbar's button that ends the running slideshow.
+    return {{int(Command::Slideshow), Glyph::Stop, tr("Stop"), true, false, false, key(Command::Slideshow)},
+            //: The toolbar's button that resumes the paused slideshow.
+            {kSlideshowPause, paused ? Glyph::Play : Glyph::Pause, paused ? tr("Play") : buttonName(Command::PlayPause),
+             true, false, false, key(Command::PlayPause)}};
 }
 
 void ViewerWindow::updateMainToolbar()
@@ -173,26 +162,23 @@ void ViewerWindow::updateMainToolbar()
     if (!m_rendererReady)
         return;
     if (m_settings.showToolbar) {
-        Toolbar::Look look;
-        look.devicePixelRatio = devicePixelRatio();
-        look.names = m_settings.toolbarNames;
-        look.panel = m_settings.panelBackground();
-        look.highlight = m_settings.highlight;
-        look.font = QGuiApplication::font(); // the panels' own, a little smaller under the glyphs
-        if (look.font.pointSizeF() > 0)
-            look.font.setPointSizeF(look.font.pointSizeF() * 0.85);
-        else
-            look.font.setPixelSize(std::max(8, int(std::lround(look.font.pixelSize() * 0.85))));
-        look.radius = kPanelRadius;
-        m_mainToolbar.setLook(look);
+        m_mainToolbar.setLook(toolbarLook());
         m_mainToolbar.setButtons(mainToolbarButtons());
         m_mainToolbar.layout(width() - 2 * kEdgeMargin);
     }
-    const QImage image = m_settings.showToolbar && !m_mainToolbarHide.hidden() ? m_mainToolbar.texture() : QImage();
-    const qint64 key = image.isNull() ? 0 : image.cacheKey();
-    if (key != m_mainToolbarTexture) {
+    const bool shown = m_settings.showToolbar && !m_mainToolbarHide.hidden();
+    if (!shown)
+        m_mainToolbar.setMenuOpen(false);
+    const QImage bar = shown ? m_mainToolbar.texture() : QImage();
+    if (const qint64 key = bar.isNull() ? 0 : bar.cacheKey(); key != m_mainToolbarTexture) {
         m_mainToolbarTexture = key;
-        m_renderer.setOverlay(Renderer::ToolbarLayer, image);
+        m_renderer.setOverlay(Renderer::ToolbarLayer, bar);
+        requestUpdate();
+    }
+    const QImage menu = shown ? m_mainToolbar.menuTexture() : QImage();
+    if (const qint64 key = menu.isNull() ? 0 : menu.cacheKey(); key != m_toolbarMenuTexture) {
+        m_toolbarMenuTexture = key;
+        m_renderer.setOverlay(Renderer::ToolbarMenuLayer, menu);
         requestUpdate();
     }
     if (const bool inToolbar = slideshowInMainToolbar(); inToolbar != m_slideshowInMainToolbar) {
@@ -211,10 +197,27 @@ QRectF ViewerWindow::mainToolbarRect() const
     return QRectF(QPointF(std::round((deviceSize().width() - size.width()) / 2.0), std::round(kEdgeMargin * dpr)), size);
 }
 
+QRectF ViewerWindow::toolbarMenuRect() const
+{
+    const QRectF bar = mainToolbarRect();
+    const QSizeF menu = m_mainToolbar.menuSize();
+    if (bar.isEmpty() || menu.isEmpty())
+        return {};
+    // Below "…", its right edge under the button's, within the window's margins.
+    const double dpr = devicePixelRatio();
+    const QSizeF size((menu * dpr).toSize());
+    const double right = bar.left() + m_mainToolbar.buttonRect(Toolbar::kMore).right() * dpr;
+    const double left = std::clamp(right - size.width(), kEdgeMargin * dpr,
+                                   std::max(kEdgeMargin * dpr, deviceSize().width() - kEdgeMargin * dpr - size.width()));
+    return QRectF(QPointF(std::round(left), std::round(bar.bottom() + kMenuGap * dpr)), size);
+}
+
 double ViewerWindow::mainToolbarReserve() const
 {
-    // Its place stays while it hides by itself: nothing below it moves because the pointer stopped.
-    return m_settings.showToolbar && !m_mainToolbar.size().isEmpty() ? m_mainToolbar.size().height() + kEdgeMargin : 0.0;
+    // What it takes from the window's top while it shows: hidden by itself, its place goes to what is
+    // below it, as when it is switched off (the owner, D-113).
+    const QRectF bar = mainToolbarRect();
+    return bar.isEmpty() ? 0.0 : bar.height() / devicePixelRatio() + kEdgeMargin;
 }
 
 int ViewerWindow::mainToolbarAt(const QPointF &position) const
@@ -226,6 +229,15 @@ int ViewerWindow::mainToolbarAt(const QPointF &position) const
     return m_mainToolbar.buttonAt((position * dpr - rect.topLeft()) / dpr);
 }
 
+int ViewerWindow::toolbarMenuAt(const QPointF &position) const
+{
+    const QRectF rect = toolbarMenuRect();
+    if (rect.isEmpty())
+        return -1;
+    const double dpr = devicePixelRatio();
+    return m_mainToolbar.menuRowAt((position * dpr - rect.topLeft()) / dpr);
+}
+
 void ViewerWindow::setMainToolbarHover(int id)
 {
     if (!m_mainToolbar.setHover(id))
@@ -233,69 +245,75 @@ void ViewerWindow::setMainToolbarHover(int id)
     QToolTip::hideText();
     if (id != -1)
         m_tooltipTimer.start(kTooltipDelayMs);
-    else
+    else if (m_slideshowBar.hover() == -1)
         m_tooltipTimer.stop();
     updateCursor();
     updateMainToolbar();
 }
 
+void ViewerWindow::setSlideshowBarHover(int id)
+{
+    if (!m_slideshowBar.setHover(id))
+        return;
+    QToolTip::hideText();
+    if (id != -1)
+        m_tooltipTimer.start(kTooltipDelayMs);
+    else if (m_mainToolbar.hover() == -1)
+        m_tooltipTimer.stop();
+    updateCursor();
+    updateSlideshowToolbar();
+}
+
 void ViewerWindow::showToolbarTooltip()
 {
-    const int id = m_mainToolbar.hover();
-    const Toolbar::Button *button = m_mainToolbar.button(id);
-    const QRectF rect = mainToolbarRect();
-    if (!button || rect.isEmpty() || QApplication::activePopupWidget())
+    // The hovered button's name and key, below it, on either bar.
+    const bool main = m_mainToolbar.hover() != -1;
+    const Toolbar &bar = main ? m_mainToolbar : m_slideshowBar;
+    const int id = bar.hover();
+    const Toolbar::Button *button = bar.button(id);
+    const QRectF rect = main ? mainToolbarRect() : slideshowToolbarRect();
+    if (!button || rect.isEmpty() || QApplication::activePopupWidget() || m_mainToolbar.menuOpen())
         return;
     //: The toolbar's "…" button, which holds the buttons a narrow window cannot show.
     QString text = id == Toolbar::kMore ? tr("More") : button->name;
-    const Command command = id == kSlideshowPause ? Command::PlayPause : Command(std::max(id, 0));
-    if (const QList<QKeySequence> keys = shortcutsFor(command); id != Toolbar::kMore && !keys.isEmpty())
+    if (!button->shortcut.isEmpty())
         //: A toolbar button's tooltip: %1 its name, %2 its keyboard shortcut, e.g. "Gallery (G)".
-        text = tr("%1 (%2)").arg(text, keys.first().toString(QKeySequence::NativeText));
-    const QRectF square = m_mainToolbar.buttonRect(id);
+        text = tr("%1 (%2)").arg(text, button->shortcut);
+    const QRectF square = bar.buttonRect(id);
     const double dpr = devicePixelRatio();
     QToolTip::showText(mapToGlobal(QPointF(rect.left() / dpr + square.left(), rect.bottom() / dpr + 4).toPoint()), text);
 }
 
-void ViewerWindow::mainToolbarClicked(int id)
+void ViewerWindow::toolbarButtonClicked(int id)
 {
+    // A button of either bar, or a row of the "…" panel, which closes first.
     QToolTip::hideText();
     m_tooltipTimer.stop();
     if (id == Toolbar::kMore) {
-        showMainToolbarMenu();
-    } else if (id == kSlideshowPause) {
+        m_mainToolbar.setMenuOpen(!m_mainToolbar.menuOpen());
+        updateMainToolbar();
+        return;
+    }
+    closeToolbarMenu();
+    if (id == kSlideshowPause) {
         run(Command::PlayPause);
-    } else if (Command(id) == Command::OpenWith) { // its menu under the button
+    } else if (Command(id) == Command::OpenWith && mainToolbarRect().isValid()) { // its menu under the toolbar
         if (isCommandEnabled(Command::OpenWith)) {
-            const QRectF rect = mainToolbarRect();
+            const QRectF bar = mainToolbarRect();
             const QRectF button = m_mainToolbar.buttonRect(id);
             const double dpr = devicePixelRatio();
-            showOpenWithMenu(mapToGlobal(QPointF(rect.left() / dpr + button.left(), rect.bottom() / dpr + 2).toPoint()));
+            const double left = button.isEmpty() ? bar.right() / dpr - 4 : bar.left() / dpr + button.left();
+            showOpenWithMenu(mapToGlobal(QPointF(left, bar.bottom() / dpr + 2).toPoint()));
         }
     } else if (id >= 0) {
         run(Command(id));
     }
 }
 
-void ViewerWindow::showMainToolbarMenu()
+void ViewerWindow::closeToolbarMenu()
 {
-    // The buttons a narrow window cannot hold, as the context menu names them (D-30).
-    QMenu menu;
-    const QColor text = menu.palette().color(QPalette::Text);
-    for (const Toolbar::Button &button : m_mainToolbar.overflow()) {
-        const Command command = button.id == kSlideshowPause ? Command::PlayPause : Command(button.id);
-        QAction *action = addCommand(&menu, command);
-        action->setIcon(glyphIcon(button.glyph, text));
-    }
-    const QRectF rect = mainToolbarRect();
-    const QRectF more = m_mainToolbar.buttonRect(Toolbar::kMore);
-    const double dpr = devicePixelRatio();
-    makeTransient(menu, this);
-    cancelPress();
-    m_menuChoice = nullptr;
-    menu.exec(mapToGlobal(QPointF(rect.left() / dpr + more.left(), rect.bottom() / dpr + 2).toPoint()));
-    if (std::function<void()> choice = std::exchange(m_menuChoice, nullptr)) // once the menu is gone (D-85)
-        QMetaObject::invokeMethod(this, std::move(choice), Qt::QueuedConnection);
+    if (m_mainToolbar.setMenuOpen(false))
+        updateMainToolbar();
 }
 
 void ViewerWindow::fillOpenWithMenu(QMenu *menu)
@@ -335,6 +353,7 @@ void ViewerWindow::toggleMainToolbar()
 {
     savePreference([on = !m_settings.showToolbar](Settings &s) { s.showToolbar = on; });
     setMainToolbarHover(-1);
+    closeToolbarMenu();
     m_mainToolbarHide.show();
     updateMainToolbar();
     updateOverlay(); // the overlay and the slideshow's toolbar move down below it, or back up
@@ -356,59 +375,57 @@ bool ViewerWindow::galleryShown() const
 
 void ViewerWindow::configureAutoHide()
 {
-    m_toolbarHide.configure(m_settings.slideshowToolbarAutoHide, m_settings.slideshowToolbarHideMs);
-    m_mainToolbarHide.configure(m_settings.toolbarAutoHide, m_settings.toolbarHideMs);
-    m_galleryHide.configure(m_settings.galleryAutoHide, m_settings.galleryHideMs);
+    // One delay for all (the owner, D-113), each its own switch.
+    const int delay = m_settings.autoHideMs;
+    m_toolbarHide.configure(m_settings.slideshowToolbarAutoHide, delay);
+    m_mainToolbarHide.configure(m_settings.toolbarAutoHide, delay);
+    m_galleryHide.configure(m_settings.galleryAutoHide, delay);
+    m_overlayHide.configure(m_settings.overlayAutoHide, delay);
+    m_panelHide.configure(m_settings.panelAutoHide, delay);
 }
 
 void ViewerWindow::updateSlideshowToolbar()
 {
     if (!m_rendererReady)
         return;
-    if (!m_slideshow.running() || m_toolbarHide.hidden() || m_slideshowInMainToolbar) {
-        if (!m_toolbarSize.isEmpty()) {
-            m_toolbarSize = QSize();
-            m_toolbarKey.clear();
-            m_renderer.setOverlay(Renderer::SlideshowLayer, QImage());
-            requestUpdate();
-        }
-        return;
+    const bool shown = m_slideshow.running() && !m_toolbarHide.hidden() && !m_slideshowInMainToolbar;
+    if (shown) {
+        m_slideshowBar.setLook(toolbarLook()); // the toolbar's look (the owner, D-113)
+        m_slideshowBar.setButtons(slideshowBarButtons());
+        m_slideshowBar.layout(width() - 2 * kEdgeMargin);
     }
-    const double dpr = devicePixelRatio();
-    const QColor background = m_settings.panelBackground();
-    const int hover = int(m_toolbarHover) - 1, press = int(m_toolbarPress) - 1; // -1: none
-    const QString key = QStringLiteral("%1|%2|%3|%4|%5")
-                            .arg(m_slideshow.paused()).arg(hover).arg(press).arg(dpr).arg(background.alpha());
-    if (key == m_toolbarKey)
-        return;
-    m_toolbarKey = key;
-    const QImage image = slideshowToolbar(m_slideshow.paused(), hover, press, dpr, background);
-    m_toolbarSize = image.size();
-    m_renderer.setOverlay(Renderer::SlideshowLayer, image);
-    requestUpdate();
+    const QImage image = shown ? m_slideshowBar.texture() : QImage();
+    const bool wasShown = m_slideshowBarShown;
+    m_slideshowBarShown = shown && !image.isNull();
+    if (const qint64 key = image.isNull() ? 0 : image.cacheKey(); key != m_slideshowBarTexture) {
+        m_slideshowBarTexture = key;
+        m_renderer.setOverlay(Renderer::SlideshowLayer, image);
+        requestUpdate();
+    }
+    if (wasShown && !m_slideshowBarShown)
+        setSlideshowBarHover(-1);
 }
 
 QRectF ViewerWindow::slideshowToolbarRect() const
 {
-    if (m_toolbarSize.isEmpty())
+    if (!m_slideshowBarShown)
         return {};
     // Centred below the toolbar and the top overlay where they show, else at the top margin (D-60).
     const double dpr = devicePixelRatio();
     double top = (kEdgeMargin + mainToolbarReserve()) * dpr;
     if (topOverlayVisible())
         top += m_topOverlaySize.height() + kEdgeMargin * dpr;
-    return QRectF(QPointF(std::round((deviceSize().width() - m_toolbarSize.width()) / 2.0), std::round(top)),
-                  QSizeF(m_toolbarSize));
+    const QSizeF size((m_slideshowBar.size() * dpr).toSize());
+    return QRectF(QPointF(std::round((deviceSize().width() - size.width()) / 2.0), std::round(top)), size);
 }
 
-ViewerWindow::ToolbarButton ViewerWindow::toolbarButtonAt(const QPointF &position) const
+int ViewerWindow::slideshowBarAt(const QPointF &position) const
 {
     const QRectF rect = slideshowToolbarRect();
-    const QPointF device = position * devicePixelRatio();
-    if (!rect.contains(device))
-        return ToolbarButton::None;
-    // Each button takes its half of the panel, padding included.
-    return device.x() < rect.center().x() ? ToolbarButton::Stop : ToolbarButton::PlayPause;
+    if (rect.isEmpty())
+        return -1;
+    const double dpr = devicePixelRatio();
+    return m_slideshowBar.buttonAt((position * dpr - rect.topLeft()) / dpr);
 }
 
 void ViewerWindow::showSlideshowToolbar()
@@ -417,22 +434,4 @@ void ViewerWindow::showSlideshowToolbar()
         return;
     m_toolbarHide.show();
     updateSlideshowToolbar();
-}
-
-void ViewerWindow::setToolbarHover(ToolbarButton button)
-{
-    if (button == m_toolbarHover)
-        return;
-    m_toolbarHover = button;
-    updateCursor();
-    updateSlideshowToolbar();
-}
-
-void ViewerWindow::toolbarClicked(ToolbarButton button)
-{
-    // The toolbar shows only during a slideshow: Space and S, as the keys give them.
-    if (button == ToolbarButton::PlayPause)
-        run(Command::PlayPause);
-    else if (button == ToolbarButton::Stop)
-        run(Command::Slideshow);
 }

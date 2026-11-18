@@ -246,6 +246,22 @@
         <translation>Alb</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Ascunde indicatorul cât timp stă nemișcat</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Afișează suprapunerea:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Ascunde panoul cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Ascunde suprapunerea cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ascunde bara prezentării cât timp indicatorul stă nemișcat</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Fundal:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Limbă și text</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Mică</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Mărimea fontului:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Pornire și fișiere</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Afișează ecranul de bun venit la pornire</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Deasupra imaginii</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Pentru tot ce se ascunde cât timp indicatorul stă nemișcat: barele, galeria, suprapunerea, panoul și indicatorul.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Bara de titlu:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ascunde cursorul staționar după:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Când cursorul se află în partea de sus</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Niciodată</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Pe ecran complet:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Într-o fereastră:</translation>
     </message>
     <message>
         <source>Fields</source>

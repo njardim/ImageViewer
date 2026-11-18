@@ -1,9 +1,10 @@
 // The toolbar (D-87, D-112): a bar of buttons over the image, at the top of the window, with our
 // glyphs (glyphs.h) on a panel in the information panels' look. Separators between groups;
 // optionally each button's name under it; the buttons a narrow window cannot hold under a "…"
-// button at the end. It lays itself out for a width, says which button is under the pointer (the
-// buttons' areas touch, so that no point of the bar is between two), keeps the hover and the
-// press, and draws the texture the renderer composites. The window gives it the buttons (each its
+// button at the end, which opens them as a panel of rows below it, in the bar's look (D-113). It
+// lays itself out for a width, says which button is under the pointer (the buttons' areas touch,
+// so that no point of the bar is between two), keeps the hover and the press, and draws the
+// textures the renderer composites. The window gives it the buttons (each its
 // command's glyph, name and state) and runs the command a click gives (D-85), so the unit tests
 // drive it alone (tests/unit_tests.cpp, D-102).
 //
@@ -38,6 +39,7 @@ public:
         bool enabled = true;
         bool on = false;      // a switch that is on: the highlight behind its glyph
         bool separator = false;
+        QString shortcut;     // its key as the menus show it, in the "…" panel; empty: none
         bool operator==(const Button &) const = default;
     };
     struct Look {
@@ -46,6 +48,7 @@ public:
         QColor panel;         // the panel behind the buttons (Settings::panelBackground())
         QColor highlight;     // behind a switch that is on (Settings::highlight)
         QFont font;           // the names'
+        QFont menuFont;       // the "…" panel's rows
         double radius = 8.0;  // the panel's corners (kPanelRadius)
         bool operator==(const Look &) const = default;
     };
@@ -56,6 +59,7 @@ public:
     static constexpr double kPadding = 6.0;   // inside the panel, around the buttons
     static constexpr double kSpacing = 2.0;   // between buttons
     static constexpr double kSeparator = 13.0; // a separator's slot
+    static constexpr double kRow = 32.0;       // a row of the "…" panel
 
     // Both return whether the bar changed (it is laid out and drawn again).
     bool setButtons(const QList<Button> &buttons);
@@ -80,6 +84,16 @@ public:
     // The bar at the look's pixel ratio, drawn again only when something it shows changed.
     QImage texture();
 
+    // The "…" panel: the buttons under "…" as rows, each its glyph, name and key. It closes when
+    // nothing is left under "…".
+    bool setMenuOpen(bool open); // whether it changed
+    bool menuOpen() const { return m_menuOpen && !m_menuSize.isEmpty(); }
+    QSizeF menuSize() const { return menuOpen() ? m_menuSize : QSizeF(); } // logical pixels
+    int menuRowAt(const QPointF &position) const; // a row's id (logical pixels in the panel), or -1
+    bool setMenuHover(int id);
+    int menuHover() const { return m_menuHover; }
+    QImage menuTexture(); // drawn again only on a change; null when closed
+
 private:
     struct Slot {
         Button button;
@@ -92,6 +106,7 @@ private:
     double nameHeight() const;
     QStringList nameLines(const QString &name, double width) const; // at most two, the second elided
     void drawButton(QPainter &painter, const Slot &slot) const;
+    void layoutMenu();
 
     QList<Button> m_buttons;
     Look m_look;
@@ -103,6 +118,12 @@ private:
     int m_pressed = -1;
     QImage m_texture;
     bool m_dirty = true;
+    bool m_menuOpen = false;
+    QSizeF m_menuSize;       // logical pixels, for what is under "…"
+    double m_menuNameWidth = 0;  // the widest name
+    int m_menuHover = -1;
+    QImage m_menuTexture;
+    bool m_menuDirty = true;
 };
 
 class AutoHide : public QObject {

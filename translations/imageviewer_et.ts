@@ -246,6 +246,22 @@
         <translation>Valge</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Peida kursor, kui see ei liigu</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Kuva ülekate:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Peida paneel, kui kursor ei liigu</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Peida ülekate, kui kursor ei liigu</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Peida slaidiseansi riba, kui kursor ei liigu</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Taust:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Keel ja tekst</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Väike</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Fondi suurus:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Käivitus ja failid</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Kuva käivitamisel tervituskuva</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Pildi kohal</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Kõigele, mis on seatud peituma, kui kursor ei liigu: ribad, galerii, ülekate, paneel ja kursor.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Tiitliriba:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Peida liikumatu kursor pärast:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Kui kursor on üleval</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Mitte kunagi</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Täisekraanil:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Aknas:</translation>
     </message>
     <message>
         <source>Fields</source>

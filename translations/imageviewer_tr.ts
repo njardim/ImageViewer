@@ -246,6 +246,22 @@
         <translation>Beyaz</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>İşaretçi hareketsizken onu gizle</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Bindirmeyi göster:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>İşaretçi hareketsizken paneli gizle</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>İşaretçi hareketsizken bindirmeyi gizle</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>İşaretçi hareketsizken slayt gösterisi çubuğunu gizle</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Arka plan:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Dil ve metin</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Küçük</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Yazı tipi boyutu:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Başlangıç ve dosyalar</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Başlangıçta karşılama ekranını göster</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Görüntünün üzerinde</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>İşaretçi hareketsizken gizlenmek üzere ayarlanan her şey için: çubuklar, galeri, bindirme, panel ve işaretçi.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Başlık çubuğu:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Hareketsiz işaretçiyi şu süreden sonra gizle:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>İşaretçi üstteyken</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Hiçbir zaman</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Tam ekranda:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Pencerede:</translation>
     </message>
     <message>
         <source>Fields</source>

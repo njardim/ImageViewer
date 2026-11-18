@@ -242,6 +242,22 @@
         <translation>सफ़ेद</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>पॉइंटर स्थिर रहने पर उसे छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ओवरले दिखाएँ:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>पॉइंटर स्थिर रहने पर पैनल छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>पॉइंटर स्थिर रहने पर ओवरले छिपाएँ</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>पॉइंटर स्थिर रहने पर स्लाइड शो टूलबार छिपाएँ</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>जब पॉइंटर शीर्ष पर हो</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>कभी नहीं</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>पूर्ण स्क्रीन में:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>विंडो में:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>फ़ील्ड</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> सेकंड</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>भाषा और पाठ</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>छोटा</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>फ़ॉन्ट आकार:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>प्रारंभ और फ़ाइलें</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>प्रारंभ पर स्वागत स्क्रीन दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>छवि के ऊपर</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>पॉइंटर स्थिर रहने पर छिपने के लिए सेट की गई हर चीज़ के लिए: बार, गैलरी, ओवरले, पैनल और पॉइंटर।</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>टाइटल बार:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>स्थिर पॉइंटर इसके बाद छिपाएँ:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

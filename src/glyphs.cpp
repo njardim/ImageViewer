@@ -103,11 +103,12 @@ void rotation(QPainter &p, const QColor &colour)
     p.drawPath(rest);
 }
 
-// A mirror's two halves: the image solid at the left, its reflection dashed at the right.
+// A mirror's two halves: the image solid at the left, its reflection dashed at the right; as tall
+// as the other glyphs (the owner: the axis they once had, 3 to 21).
 void flip(QPainter &p)
 {
-    p.drawPolygon(QPolygonF({QPointF(10.5, 5), QPointF(3.5, 19), QPointF(10.5, 19)}));
-    dashedPolygon(p, {QPointF(13.5, 5), QPointF(20.5, 19), QPointF(13.5, 19)});
+    p.drawPolygon(QPolygonF({QPointF(10.75, 3), QPointF(2.5, 21), QPointF(10.75, 21)}));
+    dashedPolygon(p, {QPointF(13.25, 3), QPointF(21.5, 21), QPointF(13.25, 21)});
 }
 
 // A closed folder.

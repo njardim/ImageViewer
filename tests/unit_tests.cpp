@@ -752,6 +752,40 @@ private Q_SLOTS:
         QVERIFY(hovered != first); // the disc behind the hovered button
     }
 
+    void theMorePanelHoldsWhatANarrowWindowCannot()
+    {
+        Toolbar bar;
+        QList<Toolbar::Button> buttons = defaults();
+        for (Toolbar::Button &b : buttons)
+            if (!b.separator)
+                b.shortcut = QStringLiteral("Ctrl+%1").arg(b.id);
+        bar.setButtons(buttons);
+        Toolbar::Look l = look();
+        l.menuFont = QGuiApplication::font();
+        bar.setLook(l);
+        bar.layout(300);
+        QVERIFY(!bar.menuOpen() && bar.menuSize().isEmpty() && bar.menuTexture().isNull());
+        QVERIFY(bar.setMenuOpen(true));
+        QVERIFY(!bar.setMenuOpen(true));
+        const QList<Toolbar::Button> hidden = bar.overflow();
+        QCOMPARE(bar.menuSize().height(), 2 * Toolbar::kPadding + hidden.size() * Toolbar::kRow);
+        // A row each, in order; the padding above and below takes none.
+        for (qsizetype i = 0; i < hidden.size(); ++i)
+            QCOMPARE(bar.menuRowAt(QPointF(20, Toolbar::kPadding + (i + 0.5) * Toolbar::kRow)), hidden.at(i).id);
+        QCOMPARE(bar.menuRowAt(QPointF(20, 2)), -1);
+        QCOMPARE(bar.menuRowAt(QPointF(-1, Toolbar::kPadding + 5)), -1);
+        const QImage first = bar.menuTexture();
+        QCOMPARE(first.size(), (bar.menuSize() * 2.0).toSize());
+        QCOMPARE(bar.menuTexture().cacheKey(), first.cacheKey());
+        QVERIFY(bar.setMenuHover(hidden.first().id));
+        QVERIFY(bar.menuTexture().cacheKey() != first.cacheKey());
+        // Wide enough for every button: nothing under "…", the panel closes, and stays closed.
+        bar.layout(2000);
+        QVERIFY(!bar.menuOpen() && bar.menuTexture().isNull());
+        bar.layout(300);
+        QVERIFY(!bar.menuOpen());
+    }
+
     void autoHideWaitsForAStillPointer()
     {
         bool underPointer = false;

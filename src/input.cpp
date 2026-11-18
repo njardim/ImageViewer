@@ -19,6 +19,10 @@
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
+    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && m_mainToolbar.menuOpen()) {
+        closeToolbarMenu(); // the "…" panel first, as a menu
+        return;
+    }
     if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && (m_slideshow.running() || visibility() == QWindow::FullScreen)) {
         if (m_slideshow.running()) {
             stopSlideshow();
@@ -35,10 +39,16 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
 void ViewerWindow::mousePressEvent(QMouseEvent *e)
 {
     // Only a bar on screen takes the press: a hidden one comes back with it (pointerActive).
-    const ToolbarButton button = toolbarButtonAt(e->position());
+    const bool inMenu = toolbarMenuRect().contains(e->position() * devicePixelRatio());
+    const int menuRow = toolbarMenuAt(e->position());
     const int barButton = mainToolbarAt(e->position());
+    const int slideshowButton = slideshowBarAt(e->position());
     const bool onGallery = galleryShown() && m_gallery.contains(e->position());
     pointerActive();
+    if (m_mainToolbar.menuOpen() && !inMenu && barButton != Toolbar::kMore) {
+        closeToolbarMenu(); // a press outside the "…" panel closes it and does nothing else, as outside a menu
+        return;
+    }
     switch (e->button()) {
     case Qt::RightButton:
         showContextMenu(e->globalPosition().toPoint());
@@ -54,6 +64,10 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     default:
         return;
     }
+    if (inMenu) {
+        m_toolbarMenuPress = menuRow; // a click when released on the same row
+        return;
+    }
     if (barButton != -1) {
         m_mainToolbar.setPressed(barButton); // a click when released on the same button
         QToolTip::hideText();
@@ -61,8 +75,10 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
         updateMainToolbar();
         return;
     }
-    if (button != ToolbarButton::None) {
-        m_toolbarPress = button; // a click when released on the same button
+    if (slideshowButton != -1) {
+        m_slideshowBar.setPressed(slideshowButton); // likewise
+        QToolTip::hideText();
+        m_tooltipTimer.stop();
         updateSlideshowToolbar();
         return;
     }
@@ -86,13 +102,17 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         cancelPress();
+        const bool inMenu = toolbarMenuRect().contains(e->position() * devicePixelRatio());
+        if (m_mainToolbar.setMenuHover(toolbarMenuAt(e->position())))
+            updateMainToolbar();
         const int barButton = mainToolbarAt(e->position());
         setMainToolbarHover(barButton);
-        const ToolbarButton button = toolbarButtonAt(e->position());
-        setToolbarHover(button);
-        setHoverZone(button == ToolbarButton::None && barButton == -1 ? zoneAt(e->position()) : Zone::None);
+        const int slideshowButton = slideshowBarAt(e->position());
+        setSlideshowBarHover(slideshowButton);
+        const bool overBar = inMenu || barButton != -1 || slideshowButton != -1;
+        setHoverZone(overBar ? Zone::None : zoneAt(e->position()));
         setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
-        m_gallery.setHover(galleryShown() ? m_gallery.slotAt(e->position()) : -1);
+        m_gallery.setHover(galleryShown() && !overBar ? m_gallery.slotAt(e->position()) : -1);
         return;
     }
     if (m_pressZone != Zone::None && !m_pressMoved) {
@@ -113,17 +133,23 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton)
         return;
+    if (const int row = std::exchange(m_toolbarMenuPress, -1); row != -1) {
+        if (toolbarMenuAt(e->position()) == row)
+            toolbarButtonClicked(row);
+        return;
+    }
     if (const int pressed = m_mainToolbar.pressed(); pressed != -1) {
         m_mainToolbar.setPressed(-1);
         updateMainToolbar();
         if (mainToolbarAt(e->position()) == pressed)
-            mainToolbarClicked(pressed);
+            toolbarButtonClicked(pressed);
         return;
     }
-    if (const ToolbarButton pressed = std::exchange(m_toolbarPress, ToolbarButton::None); pressed != ToolbarButton::None) {
+    if (const int pressed = m_slideshowBar.pressed(); pressed != -1) {
+        m_slideshowBar.setPressed(-1);
         updateSlideshowToolbar();
-        if (toolbarButtonAt(e->position()) == pressed)
-            toolbarClicked(pressed);
+        if (slideshowBarAt(e->position()) == pressed)
+            toolbarButtonClicked(pressed);
         return;
     }
     m_dragging = false;
@@ -143,7 +169,8 @@ void ViewerWindow::cancelPress()
     m_dragging = false;
     if (std::exchange(m_pressZone, Zone::None) != Zone::None)
         updateNavigationButtons();
-    if (std::exchange(m_toolbarPress, ToolbarButton::None) != ToolbarButton::None)
+    m_toolbarMenuPress = -1;
+    if (m_slideshowBar.setPressed(-1))
         updateSlideshowToolbar();
     if (m_mainToolbar.setPressed(-1))
         updateMainToolbar();
@@ -153,7 +180,8 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton || (galleryShown() && m_gallery.contains(e->position())))
         return;
-    if (toolbarButtonAt(e->position()) != ToolbarButton::None || mainToolbarAt(e->position()) != -1) {
+    if (slideshowBarAt(e->position()) != -1 || mainToolbarAt(e->position()) != -1
+        || toolbarMenuRect().contains(e->position() * devicePixelRatio())) {
         mousePressEvent(e); // quick clicks on its buttons are clicks, never full screen
         return;
     }
@@ -173,7 +201,8 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     // Scroll gestures (trackpads: they have phases or a touchpad device) pan; wheels and
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
     const bool onGallery = galleryShown() && m_gallery.contains(e->position());
-    const bool onBar = toolbarButtonAt(e->position()) != ToolbarButton::None || mainToolbarAt(e->position()) != -1;
+    const bool onBar = slideshowBarAt(e->position()) != -1 || mainToolbarAt(e->position()) != -1
+                       || toolbarMenuRect().contains(e->position() * devicePixelRatio());
     pointerActive();
     if (onBar)
         return;
@@ -239,18 +268,21 @@ void ViewerWindow::pointerActive()
         m_pointerHidden = false;
         updateCursor();
     }
-    if (m_settings.pointerHideMs > 0)
-        m_pointerTimer.start(m_settings.pointerHideMs);
+    if (m_settings.pointerAutoHide)
+        m_pointerTimer.start(m_settings.autoHideMs); // the one delay (D-113)
     else
         m_pointerTimer.stop();
-    // Every bar that hides by itself shows again, and waits for the pointer to stay still.
+    // Everything that hides by itself shows again, and waits for the pointer to stay still.
     m_toolbarHide.pointerMoved();
     m_mainToolbarHide.pointerMoved();
     m_galleryHide.pointerMoved();
+    m_overlayHide.pointerMoved();
+    m_panelHide.pointerMoved();
 }
 
 void ViewerWindow::updateCursor()
 {
-    const bool onButton = m_hoverZone != Zone::None || m_toolbarHover != ToolbarButton::None || m_mainToolbar.hover() != -1;
+    const bool onButton = m_hoverZone != Zone::None || m_slideshowBar.hover() != -1 || m_mainToolbar.hover() != -1
+                          || m_mainToolbar.menuHover() != -1;
     setCursor(m_pointerHidden ? Qt::BlankCursor : onButton ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }

@@ -246,6 +246,22 @@
         <translation>Hvid</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Skjul markøren, mens den står stille</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Vis overlayet:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Skjul panelet, mens markøren står stille</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Skjul overlayet, mens markøren står stille</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Skjul diasshowets værktøjslinje, mens markøren står stille</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Baggrund:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Sprog og tekst</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Lille</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Skriftstørrelse:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Start og filer</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Vis velkomstskærmen ved start</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Over billedet</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>For alt, der er sat til at skjules, mens markøren står stille: linjerne, galleriet, overlayet, panelet og markøren.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Titellinje:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Skjul ubevægelig markør efter:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Når markøren er øverst</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Aldrig</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>I fuldskærm:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>I et vindue:</translation>
     </message>
     <message>
         <source>Fields</source>

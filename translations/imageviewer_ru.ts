@@ -242,6 +242,22 @@
         <translation>Белый</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Скрывать указатель, пока он неподвижен</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Показывать оверлей:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Скрывать панель, пока указатель неподвижен</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Скрывать оверлей, пока указатель неподвижен</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Скрывать панель слайд-шоу, пока указатель неподвижен</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>Когда указатель находится вверху</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Никогда</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>В полноэкранном режиме:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>В окне:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Поля</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> с</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Язык и текст</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Маленький</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>Размер шрифта:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Запуск и файлы</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Показывать приветственный экран при запуске</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Поверх изображения</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Для всего, что скрывается, пока указатель неподвижен: панелей инструментов, галереи, оверлея, панели и указателя.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Заголовок окна:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Скрывать неподвижный указатель через:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

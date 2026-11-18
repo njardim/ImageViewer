@@ -97,13 +97,15 @@ def wait_for(what, names):
 def toolbar():
     """(glyph, x, y, stop_x) for the slideshow toolbar: its second button's glyph ("pause" or
     "play") and centre on the screen, and the first button's (stop) x; None when the toolbar is
-    not shown. The toolbar's glyphs are the only near-white pixels in the window's top band."""
+    not shown. The toolbar's glyphs are the only light grey pixels in the window's top band: lines
+    of 1.75 px since D-113, whose diagonals are seldom whole pixels, so from 160 (the panel is
+    about 10, the discs under a hovered or pressed button at most 85)."""
     screen = xvfb.grab(display, shot_path)
     if screen is None:
         return None
     x0, y0, w, _ = geometry
     band = screen[y0:y0 + 150, x0:x0 + w]
-    ys, xs = np.nonzero(band.min(axis=2) >= 225)
+    ys, xs = np.nonzero(band.min(axis=2) >= 160)
     if len(xs) < 40:
         return None
     # Two glyphs, split at the widest gap between white columns: stop, then play or pause.
@@ -114,7 +116,7 @@ def toolbar():
         return None
     left, right = xs[second].min(), xs[second].max()
     middle = (left + right) // 2
-    # Pause is two bars with a gap in the middle; play's triangle is solid there.
+    # Pause is two bars with a gap in the middle; play's triangle has its edges there.
     glyph = "play" if np.any(xs[second] == middle) else "pause"
     return glyph, x0 + int(xs[second].mean()), y0 + int(ys[second].mean()), x0 + int(xs[stop].mean())
 

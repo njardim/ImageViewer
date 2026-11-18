@@ -242,6 +242,22 @@
         <translation>سفید</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>پوائنٹر ساکن رہنے پر اسے چھپائیں</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>اوورلے دکھائیں:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر پینل چھپائیں</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر اوورلے چھپائیں</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>پوائنٹر ساکن رہنے پر سلائیڈ شو ٹول بار چھپائیں</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>جب پوائنٹر اوپر ہو</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>کبھی نہیں</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>پوری اسکرین میں:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>ونڈو میں:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>فیلڈز</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> سیکنڈ</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>زبان اور متن</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>چھوٹا</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>فونٹ کا سائز:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>آغاز اور فائلیں</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>آغاز پر خوش آمدید اسکرین دکھائیں</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>تصویر کے اوپر</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>ہر اُس چیز کے لیے جو پوائنٹر ساکن رہنے پر چھپنے کے لیے مقرر ہو: بارز، گیلری، اوورلے، پینل اور پوائنٹر۔</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>ٹائٹل بار:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>ساکن پوائنٹر اتنی دیر بعد چھپائیں:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

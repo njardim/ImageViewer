@@ -246,6 +246,22 @@
         <translation>Balts</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Paslēpt rādītāju, kamēr tas nekustas</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Rādīt pārklājumu:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Paslēpt paneli, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Paslēpt pārklājumu, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Paslēpt slīdrādes rīkjoslu, kamēr rādītājs nekustas</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Fons:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Valoda un teksts</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Mazs</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Fonta lielums:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Palaišana un faili</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Palaišanas laikā rādīt sveiciena ekrānu</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Virs attēla</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Visam, kas iestatīts paslēpties, kamēr rādītājs nekustas: joslām, galerijai, pārklājumam, panelim un rādītājam.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Virsraksta josla:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Paslēpt nekustīgu rādītāju pēc:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Kad rādītājs ir augšpusē</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nekad</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Pilnekrāna režīmā:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Logā:</translation>
     </message>
     <message>
         <source>Fields</source>

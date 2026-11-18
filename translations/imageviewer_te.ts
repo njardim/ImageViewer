@@ -242,6 +242,22 @@
         <translation>తెలుపు</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు దాన్ని దాచు</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ఓవర్‌లే చూపు:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు ప్యానెల్‌ను దాచు</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు ఓవర్‌లేను దాచు</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు స్లైడ్‌షో టూల్‌బార్‌ను దాచు</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>పాయింటర్ పైన ఉన్నప్పుడు</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>ఎప్పుడూ కాదు</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>పూర్తి స్క్రీన్‌లో:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>విండోలో:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>ఫీల్డ్‌లు</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> సెకన్లు</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>భాష మరియు వచనం</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>చిన్నది</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>ఫాంట్ పరిమాణం:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>ప్రారంభం మరియు ఫైల్‌లు</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>ప్రారంభంలో స్వాగత తెరను చూపు</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>చిత్రం పైన</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు దాగేలా సెట్ చేసిన అన్నింటికీ: బార్‌లు, గ్యాలరీ, ఓవర్‌లే, ప్యానెల్ మరియు పాయింటర్.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>టైటిల్ బార్:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>కదలని పాయింటర్ ఇంత సమయం తర్వాత దాచు:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

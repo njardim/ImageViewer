@@ -242,6 +242,22 @@
         <translation>Putih</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Sembunyikan penunjuk saat diam</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Tampilkan overlay:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Sembunyikan panel saat penunjuk diam</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Sembunyikan overlay saat penunjuk diam</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Sembunyikan bilah tayangan slide saat penunjuk diam</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>Saat penunjuk berada di atas</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Tidak pernah</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Dalam layar penuh:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Dalam jendela:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Bidang</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> detik</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Bahasa dan teks</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Kecil</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>Ukuran huruf:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Mulai dan berkas</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Tampilkan layar sambutan saat mulai</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Di atas gambar</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Untuk semua yang disetel tersembunyi saat penunjuk diam: bilah, galeri, overlay, panel, dan penunjuk.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Bilah judul:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Sembunyikan penunjuk yang diam setelah:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

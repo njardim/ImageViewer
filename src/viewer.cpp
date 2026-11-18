@@ -42,14 +42,23 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     : m_renderer(this), m_settings(Settings::load()),
       // A bar never hides from under the pointer, nor while a menu is open (D-65).
       m_toolbarHide([this] {
-          return QApplication::activePopupWidget()
-                 || toolbarButtonAt(mapFromGlobal(QCursor::pos(screen()))) != ToolbarButton::None;
+          return QApplication::activePopupWidget() || slideshowBarAt(mapFromGlobal(QCursor::pos(screen()))) != -1;
       }),
       m_mainToolbarHide([this] {
-          return QApplication::activePopupWidget() || mainToolbarAt(mapFromGlobal(QCursor::pos(screen()))) != -1;
+          return QApplication::activePopupWidget() || m_mainToolbar.menuOpen()
+                 || mainToolbarAt(mapFromGlobal(QCursor::pos(screen()))) != -1;
       }),
       m_galleryHide([this] {
           return QApplication::activePopupWidget() || m_gallery.contains(mapFromGlobal(QCursor::pos(screen())));
+      }),
+      m_overlayHide([this] {
+          // Over the top overlay, or in its band where it shows when the pointer is at the top.
+          const QPointF at = mapFromGlobal(QCursor::pos(screen()));
+          return QApplication::activePopupWidget() || (at.y() >= 0 && at.y() < topActivationHeight() && at.x() >= 0 && at.x() < width());
+      }),
+      m_panelHide([this] {
+          return QApplication::activePopupWidget()
+                 || infoPanelRect().contains(mapFromGlobal(QCursor::pos(screen())) * devicePixelRatio());
       }),
       m_details([](const VectorDetail &job, const std::atomic_bool *cancel) {
           return decodeVectorArea(job.path, job.scale, job.area, cancel);
@@ -127,14 +136,18 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
     connect(&m_slideshow, &Slideshow::due, this, &ViewerWindow::slideshowDue);
+    // What hides by itself gives its place to what is beside it (D-113): every place follows at the
+    // next frame (placeOverlays()).
     connect(&m_toolbarHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
         if (hidden)
-            setToolbarHover(ToolbarButton::None);
+            setSlideshowBarHover(-1);
         updateSlideshowToolbar();
     });
     connect(&m_mainToolbarHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
-        if (hidden)
+        if (hidden) {
             setMainToolbarHover(-1);
+            closeToolbarMenu();
+        }
         updateMainToolbar();
         requestUpdate();
     });
@@ -143,6 +156,8 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
             m_gallery.setHover(-1);
         requestUpdate();
     });
+    connect(&m_overlayHide, &AutoHide::hiddenChanged, this, [this] { requestUpdate(); });
+    connect(&m_panelHide, &AutoHide::hiddenChanged, this, [this] { updateOverlay(); });
     configureAutoHide();
     m_tooltipTimer.setSingleShot(true);
     connect(&m_tooltipTimer, &QTimer::timeout, this, &ViewerWindow::showToolbarTooltip);
@@ -276,8 +291,10 @@ bool ViewerWindow::event(QEvent *e)
     case QEvent::Leave:
         m_pointerTimer.stop();
         setHoverZone(Zone::None);
-        setToolbarHover(ToolbarButton::None);
+        setSlideshowBarHover(-1);
         setMainToolbarHover(-1);
+        if (m_mainToolbar.setMenuHover(-1))
+            updateMainToolbar();
         m_gallery.setHover(-1);
         setPointerAtTop(false);
         break;
@@ -677,8 +694,9 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_gallery.invalidate();
         m_panelKey.clear();
         m_messageKey.clear();
-        m_toolbarKey.clear();
+        m_slideshowBarTexture = 0;
         m_mainToolbarTexture = 0;
+        m_toolbarMenuTexture = 0;
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again
@@ -712,14 +730,13 @@ void ViewerWindow::applySettings(const Settings &settings)
     }
     if (settings.fontSize != previous.fontSize)
         applyFontSize(settings.fontSize); // the panels follow below: their keys hold the font
-    if (settings.pointerHideMs != previous.pointerHideMs)
+    if (settings.pointerAutoHide != previous.pointerAutoHide || settings.autoHideMs != previous.autoHideMs)
         pointerActive();
     if (settings.slideshowSeconds != previous.slideshowSeconds)
         m_slideshow.setInterval(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes it at once
-    if (settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
-        || settings.slideshowToolbarHideMs != previous.slideshowToolbarHideMs
-        || settings.toolbarAutoHide != previous.toolbarAutoHide || settings.toolbarHideMs != previous.toolbarHideMs
-        || settings.galleryAutoHide != previous.galleryAutoHide || settings.galleryHideMs != previous.galleryHideMs)
+    if (settings.autoHideMs != previous.autoHideMs || settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
+        || settings.toolbarAutoHide != previous.toolbarAutoHide || settings.galleryAutoHide != previous.galleryAutoHide
+        || settings.overlayAutoHide != previous.overlayAutoHide || settings.panelAutoHide != previous.panelAutoHide)
         configureAutoHide(); // each shows at once, and hides again as now set
     updateMainToolbar();
     m_renderer.setOutputPreference(settings.output);

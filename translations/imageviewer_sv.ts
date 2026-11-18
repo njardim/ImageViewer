@@ -246,6 +246,22 @@
         <translation>Vit</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Dölj pekaren medan den står still</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Visa överlagringen:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Dölj panelen medan pekaren står still</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Dölj överlagringen medan pekaren står still</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Dölj bildspelets verktygsfält medan pekaren står still</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Bakgrund:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Språk och text</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Liten</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Teckenstorlek:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Start och filer</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Visa välkomstskärmen vid start</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Över bilden</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>För allt som döljs medan pekaren står still: fälten, galleriet, överlagringen, panelen och pekaren.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Namnlist:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Dölj stillastående pekare efter:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>När pekaren är högst upp</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Aldrig</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>I helskärmsläge:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>I ett fönster:</translation>
     </message>
     <message>
         <source>Fields</source>

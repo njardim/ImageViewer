@@ -242,6 +242,22 @@
         <translation>أبيض</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>إخفاء المؤشر ما دام ساكنًا</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>عرض التراكب:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>إخفاء اللوحة ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>إخفاء التراكب ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>إخفاء شريط أدوات عرض الشرائح ما دام المؤشر ساكنًا</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>عندما يكون المؤشر في الأعلى</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>أبداً</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>في وضع ملء الشاشة:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>في نافذة:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>الحقول</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> ث</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>اللغة والنص</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>صغير</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>حجم الخط:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>بدء التشغيل والملفات</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>إظهار شاشة الترحيب عند بدء التشغيل</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>فوق الصورة</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>لكل ما ضُبط ليختفي ما دام المؤشر ساكنًا: الأشرطة والمعرض والتراكب واللوحة والمؤشر.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>شريط العنوان:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>إخفاء المؤشر الساكن بعد:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

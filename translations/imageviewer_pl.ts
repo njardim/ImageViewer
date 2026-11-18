@@ -246,6 +246,22 @@
         <translation>Biały</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Ukrywaj wskaźnik, gdy się nie porusza</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Wyświetlaj nakładkę:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Ukrywaj panel, gdy wskaźnik się nie porusza</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Ukrywaj nakładkę, gdy wskaźnik się nie porusza</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ukrywaj pasek pokazu slajdów, gdy wskaźnik się nie porusza</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Tło:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Język i tekst</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Mały</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Rozmiar czcionki:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Uruchamianie i pliki</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Pokazuj ekran powitalny przy uruchamianiu</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Nad obrazem</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Dla wszystkiego, co ma się ukrywać, gdy wskaźnik się nie porusza: pasków, galerii, nakładki, panelu i wskaźnika.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Pasek tytułu:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ukryj nieruchomy wskaźnik po:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Gdy wskaźnik znajduje się u góry</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nigdy</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Na pełnym ekranie:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>W oknie:</translation>
     </message>
     <message>
         <source>Fields</source>

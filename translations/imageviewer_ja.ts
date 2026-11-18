@@ -242,6 +242,22 @@
         <translation>白</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>止まっている間はポインターを隠す</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>オーバーレイの表示:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>ポインターが止まっている間はパネルを隠す</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>ポインターが止まっている間はオーバーレイを隠す</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>ポインターが止まっている間はスライドショーのツールバーを隠す</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>ポインターが上部にあるとき</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>表示しない</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>全画面表示時：</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>ウィンドウ表示時：</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>項目</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>言語とテキスト</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>小</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>文字サイズ：</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>起動とファイル</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>起動時にようこそ画面を表示</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>画像の上</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>ポインターが止まっている間に隠れるよう設定したすべてに適用：バー、ギャラリー、オーバーレイ、パネル、ポインター。</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>タイトルバー：</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>動かないポインターを非表示にするまでの時間：</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

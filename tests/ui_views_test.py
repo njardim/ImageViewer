@@ -12,7 +12,8 @@ image's own pixels (D-102: split from tests/ui_test.py, whose harness tests/ui_d
   4. a folder of SVGs (D-94): one SVG worker per decoding thread, and the interface answers while
      they are read;
   5. the toolbar (D-87, D-112): T shows it, the top overlay below it, a click on a button runs its
-     command, the slideshow's buttons on it and the slideshow's own toolbar only without them.
+     command, the slideshow's buttons on it and the slideshow's own toolbar only without them, the
+     "…" panel of a narrow window.
 3 and 4 need the SVG renderer (scripts/build-svg.sh): a build without it skips them, CI fails.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
@@ -33,7 +34,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ui_driver import (  # noqa: E402  the harness (D-102); it reads the command line
-    edit_settings, fail, focus_viewer, grab, launch, log_path, log_text, rhi, server, shot_path, stored,
+    edit_settings, fail, find_dialog, focus_viewer, grab, launch, log_path, log_text, rhi, server, shot_path, stored,
     svg_renderer, viewer, wait_until, window_geometry, work, xdotool,
 )
 import xvfb  # noqa: E402
@@ -92,18 +93,14 @@ try:
                 return colour is not None and all(abs(int(c) - e) <= 3 for c, e in zip(colour, expected))
             mx, my = slot_centre(0)
             xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))  # off the gallery
-            time.sleep(0.5)
-            current = tile_colour(mx, my - 48)
-            if not near(current, emerald_at(70)):
-                fail(f"the current thumbnail's tile is {current}, not emerald at 70 %")
-            print(f"ok   the current thumbnail sits on an emerald tile at 70 % {tuple(int(c) for c in current)}")
+            # Waited for, not sampled once: a frame of llvmpipe takes up to 0.9 s on a busy runner.
+            wait_until("the current thumbnail sits on an emerald tile at 70 %",
+                       lambda: near(tile_colour(mx, my - 48), emerald_at(70)))
             hx, hy = slot_centre(2)
             xdotool("mousemove", "--sync", str(hx), str(hy))
-            time.sleep(0.5)
-            hovered = tile_colour(hx, hy - 48)  # not enlarged: the zoom is off by default (D-81)
-            if not near(hovered, emerald_at(50)):  # 20 points fainter (D-85)
-                fail(f"the hovered tile is {hovered}, not emerald at 50 %")
-            print(f"ok   the thumbnail under the pointer sits on emerald at 50 % {tuple(int(c) for c in hovered)}")
+            # Not enlarged: the zoom is off by default (D-81); 20 points fainter (D-85).
+            wait_until("the thumbnail under the pointer sits on emerald at 50 %",
+                       lambda: near(tile_colour(hx, hy - 48), emerald_at(50)))
             xdotool("click", "1")
             wait_until("a click on a thumbnail two to the right shows g03.png", shown("g03.png"))
             xdotool("key", "Home")
@@ -230,11 +227,10 @@ try:
             x, y, w, h = window_geometry()
             mx, my = slot_centre(0, thumb=128, enlargement=100)
             xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 3))
-            time.sleep(0.5)
-            current = tile_colour(mx, my - 64)
-            if current is None or not (current[0] > current[1] + 60 and current[0] > current[2] + 20):
-                fail(f"the current thumbnail's tile is {current}, not ruby")
-            print(f"ok   the highlight follows the setting: ruby {tuple(current)}")
+
+            def ruby(colour):
+                return colour is not None and colour[0] > colour[1] + 60 and colour[0] > colour[2] + 20
+            wait_until("the highlight follows the setting: ruby", lambda: ruby(tile_colour(mx, my - 64)))
             rx, ry = slot_centre(1, thumb=128, enlargement=100)
             xdotool("mousemove", "--sync", str(rx), str(ry))
 
@@ -329,6 +325,27 @@ try:
             xdotool("key", "s")
             wait_until("without the toolbar, the slideshow shows its own toolbar", lambda: slideshow_toolbar())
             xdotool("key", "s")
+            # A window of 660 px holds the bar up to Gallery with "…" after it (589 px of 628): Full
+            # Screen and Settings go under "…", whose panel lists them below it (D-113); a click on a
+            # row runs its command.
+            xdotool("key", "t")
+            wait_until("T shows the toolbar again", lambda: stored(r"(?ms)^\[toolbar\]\n(?:[^\[]*\n)?show=true$"))
+            xdotool("windowsize", "--sync", xdotool("search", "--onlyvisible", "--name", "ImageViewer$").stdout.split()[0],
+                    "660", "700")
+            wait_until("the window is 660 px wide", lambda: window_geometry()[2] == 660)
+            x, y, w, h = window_geometry()
+            bar_left = x + (w - 589) // 2
+            xdotool("mousemove", "--sync", str(bar_left + 589 - 6 - 20), str(y + 16 + 26))  # "…"
+            xdotool("click", "1")
+            time.sleep(1)  # the panel drawn
+            xdotool("mousemove", "--sync", str(bar_left + 589 - 6 - 20), str(y + 16 + 52 + 6 + 6 + 32 + 16))  # its second row
+            xdotool("click", "1")
+            if not find_dialog("Settings"):
+                fail("the \"…\" panel's Settings row did not open Settings")
+            print("ok   \"…\" holds Full Screen and Settings in a narrow window; its Settings row opens Settings")
+            xdotool("key", "Escape")
+            wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
+            focus_viewer()
             xdotool("key", "q")
             app.wait(15)
 

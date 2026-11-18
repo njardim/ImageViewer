@@ -246,6 +246,22 @@
         <translation>Bianco</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Nascondi il puntatore quando è fermo</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Mostra la sovrapposizione:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Nascondi il pannello quando il puntatore è fermo</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Nascondi la sovrapposizione quando il puntatore è fermo</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Nascondi la barra della presentazione quando il puntatore è fermo</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Sfondo:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Lingua e testo</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Piccola</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Dimensione del carattere:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Avvio e file</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Mostra la schermata di benvenuto all’avvio</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Sopra l’immagine</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Per tutto ciò che si nasconde quando il puntatore è fermo: le barre, la galleria, la sovrapposizione, il pannello e il puntatore.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Barra del titolo:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Nascondi il puntatore fermo dopo:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Quando il puntatore è in alto</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Mai</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>A schermo intero:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>In una finestra:</translation>
     </message>
     <message>
         <source>Fields</source>

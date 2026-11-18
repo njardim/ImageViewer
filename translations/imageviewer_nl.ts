@@ -246,6 +246,22 @@
         <translation>Wit</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>De aanwijzer verbergen zolang hij stilstaat</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>De overlay tonen:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Het paneel verbergen zolang de aanwijzer stilstaat</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>De overlay verbergen zolang de aanwijzer stilstaat</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Diavoorstellingsbalk verbergen zolang de aanwijzer stilstaat</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Achtergrond:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Taal en tekst</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Klein</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Lettergrootte:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Opstarten en bestanden</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Het welkomstscherm tonen bij het opstarten</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Boven de afbeelding</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Voor alles wat zich verbergt zolang de aanwijzer stilstaat: de balken, de galerij, de overlay, het paneel en de aanwijzer.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Titelbalk:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Stilstaande aanwijzer verbergen na:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Wanneer de aanwijzer bovenaan staat</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nooit</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Op volledig scherm:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>In een venster:</translation>
     </message>
     <message>
         <source>Fields</source>

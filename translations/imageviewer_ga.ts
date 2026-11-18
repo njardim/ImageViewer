@@ -246,6 +246,22 @@
         <translation>Bán</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Folaigh an pointeoir fad is atá sé socair</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Taispeáin an forleagan:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Folaigh an painéal fad is atá an pointeoir socair</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Folaigh an forleagan fad is atá an pointeoir socair</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Folaigh barra an taispeántais sleamhnán fad is atá an pointeoir socair</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Cúlra:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Teanga agus téacs</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Beag</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Méid an chló:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Tosú agus comhaid</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Taispeáin an scáileán fáilte ag an tosú</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Os cionn na híomhá</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Do gach rud atá socraithe le dul i bhfolach fad is atá an pointeoir socair: na barraí, an gailearaí, an forleagan, an painéal agus an pointeoir.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Barra teidil:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Folaigh pointeoir gan bogadh tar éis:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Nuair a bhíonn an pointeoir ag an mbarr</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Riamh</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Sa lánscáileán:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>I bhfuinneog:</translation>
     </message>
     <message>
         <source>Fields</source>

@@ -225,32 +225,35 @@ private:
     void slideshowDue(); // m_slideshow's interval ended: the next image, or the end
 
     // toolbars.cpp: the toolbar at the top (m_mainToolbar, D-87, D-112), its buttons the user's
-    // commands; the slideshow's toolbar (D-65): stop, and pause or play, below the top overlay; the
-    // hiding of those and of the gallery while the pointer is still (AutoHide).
+    // commands, its "…" panel (D-113); the slideshow's toolbar (m_slideshowBar, D-65), stop and pause
+    // or play below the top overlay, in the same look (D-113); the hiding of the bars, the gallery,
+    // the top overlay and the information panel while the pointer is still (AutoHide).
     static std::optional<Glyph> glyphFor(Command command); // none: not a toolbar button
     QString buttonName(Command command) const; // its menu text, without the dialog's "…"
+    Toolbar::Look toolbarLook() const;         // both bars'
     QList<Toolbar::Button> mainToolbarButtons() const;
+    QList<Toolbar::Button> slideshowBarButtons() const; // stop, then pause or play
     void updateMainToolbar();       // its buttons' states, laid out for the window, drawn when changed
     QRectF mainToolbarRect() const; // device pixels; empty when not shown
-    double mainToolbarReserve() const; // logical pixels it takes from the window's top, hidden by itself or not
+    QRectF toolbarMenuRect() const; // device pixels: the "…" panel; empty when closed
+    double mainToolbarReserve() const; // logical pixels it takes from the window's top while it shows
     int mainToolbarAt(const QPointF &position) const; // logical pixels: a button's id, Toolbar::kMore, or -1
+    int toolbarMenuAt(const QPointF &position) const; // logical pixels: a row's id, or -1
     void setMainToolbarHover(int id);
+    void setSlideshowBarHover(int id);
     void showToolbarTooltip();      // the hovered button's name and key
-    void mainToolbarClicked(int id);
-    void showMainToolbarMenu();     // "…": the buttons a narrow window cannot hold
+    void toolbarButtonClicked(int id); // a button of either bar, or a row of the "…" panel
+    void closeToolbarMenu();
     void showOpenWithMenu(const QPoint &globalPos);
     void fillOpenWithMenu(QMenu *menu); // the system's applications for the image, and "Other Application…"
     void toggleMainToolbar();
     bool slideshowInMainToolbar() const; // its buttons show there: the slideshow's own toolbar does not (D-112)
     bool galleryShown() const;           // on screen: on, and not hidden by itself
-    enum class ToolbarButton { None, Stop, PlayPause }; // the slideshow's, left to right
-    QRectF slideshowToolbarRect() const;                         // device pixels; empty when hidden
-    ToolbarButton toolbarButtonAt(const QPointF &position) const; // logical pixels
-    void showSlideshowToolbar(); // when the pointer moves; it hides again when it stays still
+    QRectF slideshowToolbarRect() const; // device pixels; empty when hidden
+    int slideshowBarAt(const QPointF &position) const; // logical pixels: a button's id, or -1
+    void showSlideshowToolbar(); // when the slideshow starts
     void updateSlideshowToolbar();
-    void setToolbarHover(ToolbarButton button);
-    void toolbarClicked(ToolbarButton button);
-    void configureAutoHide();    // from the settings
+    void configureAutoHide();    // from the settings: one delay, a switch each (D-113)
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
@@ -268,6 +271,7 @@ private:
     void setPointerAtTop(bool atTop);
     double topActivationHeight() const; // logical pixels
     void placeOverlays(Renderer::Frame *frame) const;
+    QRectF infoPanelRect() const; // device pixels: the information panel with its notices; empty: none
     void updateNavigationButtons();
     void showNotice(const QString &text); // brief message, in a panel over the information panel
 
@@ -347,17 +351,20 @@ private:
     bool m_frameWaitsForScreen = false; // nothing is drawn while the window is off the screen
     QTimer m_frameTimer;
     Slideshow m_slideshow;
-    AutoHide m_toolbarHide;       // the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
-    ToolbarButton m_toolbarHover = ToolbarButton::None;
-    ToolbarButton m_toolbarPress = ToolbarButton::None; // a press that becomes a click when released on it
-    QSize m_toolbarSize;          // device pixels; empty when not shown
-    QString m_toolbarKey;         // what its texture shows
+    Toolbar m_slideshowBar;       // the slideshow's toolbar (D-65, D-113)
+    AutoHide m_toolbarHide;       // ...hidden while the pointer is still (Settings::slideshowToolbarAutoHide)
+    qint64 m_slideshowBarTexture = 0; // the cache key of the texture the renderer has; 0: none
+    bool m_slideshowBarShown = false;
     Toolbar m_mainToolbar;        // the toolbar at the top (D-112)
     AutoHide m_mainToolbarHide;   // ...hidden while the pointer is still (Settings::toolbarAutoHide)
-    qint64 m_mainToolbarTexture = 0; // the cache key of the texture the renderer has; 0: none
+    qint64 m_mainToolbarTexture = 0; // as m_slideshowBarTexture
+    qint64 m_toolbarMenuTexture = 0; // ...its "…" panel's
     bool m_slideshowInMainToolbar = false; // as last laid out
+    int m_toolbarMenuPress = -1;  // a row of the "…" panel pressed, a click when released on it
     QTimer m_tooltipTimer;        // a button's name and key, once the pointer rests on it
     AutoHide m_galleryHide;       // the gallery (Settings::galleryAutoHide)
+    AutoHide m_overlayHide;       // the top overlay (Settings::overlayAutoHide, D-113)
+    AutoHide m_panelHide;         // the information panel (Settings::panelAutoHide); its notices stay
     // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
     // as soon as the worker ends, while the finished signal is still queued, and setting a
     // new future then would discard the result that was never delivered.
@@ -435,7 +442,7 @@ private:
     QPointF m_dragOrigin;
     QPointF m_panOrigin;
     Zone m_hoverZone = Zone::None;
-    QTimer m_pointerTimer;       // hides a still pointer (Settings::pointerHideMs)
+    QTimer m_pointerTimer;       // hides a still pointer (Settings::pointerAutoHide, autoHideMs)
     bool m_pointerHidden = false;
     Zone m_pressZone = Zone::None; // a press that may become a click on a side zone
     bool m_pressMoved = false;     // the press turned into a drag

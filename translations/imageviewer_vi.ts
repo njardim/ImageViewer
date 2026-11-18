@@ -242,6 +242,22 @@
         <translation>Trắng</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Ẩn con trỏ khi nó đứng yên</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Hiển thị lớp phủ:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Ẩn bảng khi con trỏ đứng yên</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Ẩn lớp phủ khi con trỏ đứng yên</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ẩn thanh trình chiếu khi con trỏ đứng yên</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>Khi con trỏ ở phía trên</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Không bao giờ</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Ở chế độ toàn màn hình:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Ở chế độ cửa sổ:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Trường</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> giây</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Ngôn ngữ và văn bản</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Nhỏ</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>Cỡ chữ:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Khởi động và tệp</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Hiện màn hình chào mừng khi khởi động</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Phía trên ảnh</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Cho mọi thứ được đặt để ẩn khi con trỏ đứng yên: các thanh, thư viện ảnh, lớp phủ, bảng và con trỏ.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Thanh tiêu đề:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ẩn con trỏ đứng yên sau:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

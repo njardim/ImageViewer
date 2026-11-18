@@ -242,6 +242,22 @@
         <translation>Blanco</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Ocultar el puntero mientras esté quieto</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Mostrar la superposición:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Ocultar el panel mientras el puntero esté quieto</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Ocultar la superposición mientras el puntero esté quieto</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ocultar la barra de la presentación mientras el puntero esté quieto</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>Cuando el puntero está en la parte superior</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nunca</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>En pantalla completa:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>En una ventana:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Campos</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> s</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Idioma y texto</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Pequeño</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>Tamaño de letra:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Inicio y archivos</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Mostrar la pantalla de bienvenida al iniciar</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Sobre la imagen</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Para todo lo que se oculta mientras el puntero está quieto: las barras, la galería, la superposición, el panel y el puntero.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Barra de título:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ocultar el puntero inmóvil después de:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

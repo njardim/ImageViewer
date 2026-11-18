@@ -170,8 +170,10 @@ void ViewerWindow::updateOverlay()
     if (!m_message.isEmpty())
         messages.append({QString(), m_message});
 
+    // The panel's rows while it is on and not hidden by itself (D-113); the notices stay either way.
+    const bool panel = m_settings.showInfo && !m_panelHide.hidden();
     QList<Row> rows;
-    if (m_settings.showInfo && !m_image.path.isEmpty()) {
+    if (panel && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
         // Names are shown without bidi and other format characters, as in the title: a file
         // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
@@ -184,7 +186,7 @@ void ViewerWindow::updateOverlay()
         if (m_image.modified.isValid())
             rows.append({tr("Modified"), locale.toString(m_image.modified, QLocale::ShortFormat)});
     }
-    if (m_settings.showInfo && m_image.width > 0) {
+    if (panel && m_image.width > 0) {
         //: Megapixels, e.g. "24.0 MP".
         QString dimensions = QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
                                                           locale.toString(m_image.sourceHeight))
@@ -257,7 +259,7 @@ void ViewerWindow::updateOverlay()
                 add(tr("Taken"), locale.toString(camera.taken, QLocale::ShortFormat));
         }
     }
-    if (m_settings.showInfo) {
+    if (panel) {
         QStringList view;
         if (m_image.width > 0) {
             //: A zoom percentage, e.g. "100 %"; write the percent sign as your language does.
@@ -497,12 +499,13 @@ OverlayVisibility ViewerWindow::topOverlayMode() const
 {
     if (!m_settings.showOverlay)
         return OverlayVisibility::Hidden;
-    return visibility() == QWindow::FullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
+    return m_settings.overlayVisibility; // the same in a window and in full screen (D-113)
 }
 
 bool ViewerWindow::topOverlayVisible() const
 {
-    if (m_topOverlaySize.isEmpty())
+    // Not while the toolbar's "…" panel is open over its place: its rows would read through it.
+    if (m_topOverlaySize.isEmpty() || m_overlayHide.hidden() || m_mainToolbar.menuOpen())
         return false;
     switch (topOverlayMode()) {
     case OverlayVisibility::Always: return true;
@@ -520,8 +523,8 @@ double ViewerWindow::topActivationHeight() const
     const double dpr = devicePixelRatio();
     const double above = mainToolbarReserve();
     double band = std::max(48.0, above + m_topOverlaySize.height() / dpr + 2 * kEdgeMargin);
-    if (!m_toolbarSize.isEmpty())
-        band = std::max(band, above + m_topOverlaySize.height() / dpr + kEdgeMargin + m_toolbarSize.height() / dpr
+    if (m_slideshowBarShown)
+        band = std::max(band, above + m_topOverlaySize.height() / dpr + kEdgeMargin + m_slideshowBar.size().height()
                                   + 2 * kEdgeMargin);
     return band;
 }
@@ -535,7 +538,7 @@ void ViewerWindow::setPointerAtTop(bool atTop)
             requestUpdate();
         }
     } else if (m_pointerAtTop && !m_topOverlayTimer.isActive()) {
-        m_topOverlayTimer.start(m_settings.overlayHideDelayMs);
+        m_topOverlayTimer.start(m_settings.autoHideMs); // the one delay (D-113)
     }
 }
 
@@ -650,10 +653,23 @@ void ViewerWindow::updateTopOverlay()
     requestUpdate();
 }
 
+QRectF ViewerWindow::infoPanelRect() const
+{
+    if (m_overlaySize.isEmpty())
+        return {};
+    const double dpr = devicePixelRatio();
+    const double margin = kEdgeMargin * dpr;
+    const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft ? deviceSize().width() - margin - m_overlaySize.width()
+                                                                          : margin;
+    // Above the gallery while it shows; down in its place while it hides by itself (D-113).
+    const double below = galleryShown() ? m_gallery.reserve() * dpr : 0.0;
+    return QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - below - m_overlaySize.height())),
+                  QSizeF(m_overlaySize));
+}
+
 void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
-    const double margin = kEdgeMargin * dpr;
     if (galleryShown())
         frame->overlayRects[Renderer::GalleryLayer] = m_gallery.rect();
     if (!m_messageSize.isEmpty())
@@ -661,20 +677,14 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
             QRectF(QPointF(std::round((deviceSize().width() - m_messageSize.width()) / 2.0),
                            std::round((deviceSize().height() - m_messageSize.height()) / 2.0)),
                    QSizeF(m_messageSize));
-    if (!m_overlaySize.isEmpty()) {
-        const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
-                             ? deviceSize().width() - margin - m_overlaySize.width()
-                             : margin;
-        frame->overlayRects[Renderer::InfoLayer] =
-            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_gallery.reserve() * dpr - m_overlaySize.height())),
-                   QSizeF(m_overlaySize));
-    }
+    frame->overlayRects[Renderer::InfoLayer] = infoPanelRect();
     if (topOverlayVisible()) // below the toolbar (D-112)
         frame->overlayRects[Renderer::TopLayer] =
             QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0),
                            std::round((kEdgeMargin + mainToolbarReserve()) * dpr)),
                    QSizeF(m_topOverlaySize));
     frame->overlayRects[Renderer::ToolbarLayer] = mainToolbarRect();
+    frame->overlayRects[Renderer::ToolbarMenuLayer] = toolbarMenuRect();
     frame->overlayRects[Renderer::SlideshowLayer] = slideshowToolbarRect();
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);

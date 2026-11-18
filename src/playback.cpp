@@ -259,8 +259,8 @@ void ViewerWindow::toggleSlideshowPause()
 void ViewerWindow::stopSlideshow()
 {
     m_slideshow.stop();
-    m_toolbarPress = ToolbarButton::None;
-    setToolbarHover(ToolbarButton::None);
+    m_slideshowBar.setPressed(-1);
+    setSlideshowBarHover(-1);
     updateSlideshowToolbar();
     if (std::exchange(m_slideshowLeavesFullScreen, false) && visibility() == QWindow::FullScreen)
         leaveFullScreen();

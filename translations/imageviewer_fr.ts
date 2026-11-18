@@ -242,6 +242,22 @@
         <translation>Blanc</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Masquer le pointeur tant qu’il ne bouge pas</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Afficher la surimpression :</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Masquer le panneau tant que le pointeur ne bouge pas</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Masquer la surimpression tant que le pointeur ne bouge pas</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Masquer la barre du diaporama tant que le pointeur ne bouge pas</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>Quand le pointeur est en haut</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Jamais</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>En plein écran&#xa0;:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Dans une fenêtre&#xa0;:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Champs</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation>&#xa0;s</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Langue et texte</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Petite</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>Taille de police&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Démarrage et fichiers</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Afficher l’écran d’accueil au démarrage</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Sur l’image</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Pour tout ce qui se masque tant que le pointeur ne bouge pas : les barres, la galerie, la surimpression, le panneau et le pointeur.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Barre de titre&#xa0;:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Masquer le pointeur immobile après&#xa0;:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

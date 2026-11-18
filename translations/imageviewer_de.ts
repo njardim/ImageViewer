@@ -242,6 +242,22 @@
         <translation>Weiß</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Zeiger ausblenden, solange er stillsteht</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Einblendung anzeigen:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Bereich ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Einblendung ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Diashow-Leiste ausblenden, solange der Zeiger stillsteht</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>Wenn sich der Mauszeiger oben befindet</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nie</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Im Vollbild:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Im Fenster:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Felder</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> s</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Sprache und Text</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Klein</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>Schriftgröße:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Start und Dateien</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Begrüßungsbildschirm beim Start anzeigen</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Über dem Bild</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Für alles, was sich ausblendet, solange der Zeiger stillsteht: die Leisten, die Galerie, die Einblendung, den Bereich und den Zeiger.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Titelleiste:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ruhenden Mauszeiger ausblenden nach:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

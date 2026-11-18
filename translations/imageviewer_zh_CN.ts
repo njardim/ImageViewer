@@ -242,6 +242,22 @@
         <translation>白色</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>指针静止时隐藏指针</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>显示叠加层：</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>指针静止时隐藏面板</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>指针静止时隐藏叠加层</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>指针静止时隐藏幻灯片放映工具栏</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>指针位于顶部时</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>从不</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>全屏时：</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>窗口模式下：</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>字段</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation>秒</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>语言和文字</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>小</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>字体大小：</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>启动和文件</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>启动时显示欢迎屏幕</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>图像上方</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>适用于所有设置为在指针静止时隐藏的元素：工具栏、图库、叠加层、面板和指针。</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>标题栏：</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>静止指针隐藏延迟：</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

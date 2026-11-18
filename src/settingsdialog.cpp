@@ -129,32 +129,52 @@ void SettingsDialog::buildUi()
     tabs->setUsesScrollButtons(false); // every tab in sight: the dialog widens to fit them
     m_tabs = tabs;
 
-    // General
+    // General, in three groups (the owner, D-113): the language and the text; startup and files;
+    // what is drawn over the image.
     auto *general = new QWidget;
-    auto *generalForm = new QFormLayout(general);
+    auto *generalLayout = new QVBoxLayout(general);
+    auto *languageBox = new QGroupBox(tr("Language and text"));
+    auto *languageForm = new QFormLayout(languageBox);
     m_language = new QComboBox;
     m_language->addItem(tr("System default"), QString());
     for (const UiLanguage &language : uiLanguages())
         m_language->addItem(language.nativeName, language.code);
-    generalForm->addRow(tr("Language:"), m_language);
+    languageForm->addRow(tr("Language:"), m_language);
     auto *translationNote = new QLabel(tr("Languages other than English are machine translations "
                                           "awaiting review by native speakers."));
     translationNote->setWordWrap(true);
     translationNote->setForegroundRole(QPalette::PlaceholderText); // secondary, but still read by screen readers
-    generalForm->addRow(QString(), translationNote);
+    languageForm->addRow(QString(), translationNote);
     m_fontSize = new QComboBox; // D-85: the system's size, then 2 and 4 pixels more
     m_fontSize->addItem(tr("Small", "font size"), int(FontSize::Small));
     m_fontSize->addItem(tr("Medium", "font size"), int(FontSize::Medium));
     m_fontSize->addItem(tr("Large", "font size"), int(FontSize::Large));
-    generalForm->addRow(tr("Font size:"), m_fontSize);
+    languageForm->addRow(tr("Font size:"), m_fontSize);
+    generalLayout->addWidget(languageBox);
+    auto *startupBox = new QGroupBox(tr("Startup and files"));
+    auto *startupForm = new QFormLayout(startupBox);
+    m_welcomeScreen = new QCheckBox(tr("Show the welcome screen at startup"));
+    startupForm->addRow(m_welcomeScreen);
+    m_reopenLast = new QCheckBox(tr("Reopen the last image at startup"));
+    startupForm->addRow(m_reopenLast);
+    m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
+    startupForm->addRow(m_confirmTrash);
+    generalLayout->addWidget(startupBox);
+    auto *overImageBox = new QGroupBox(tr("Over the image"));
+    auto *overImageForm = new QFormLayout(overImageBox);
     // The interface's accent over the image: the gallery's highlight, a toolbar switch that is on (D-112).
     const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
-    generalForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
-                                                         int(std::size(kHighlightPresets)), tr("Highlight Color")));
-    m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
-    generalForm->addRow(m_confirmTrash);
-    m_reopenLast = new QCheckBox(tr("Reopen the last image at startup"));
-    generalForm->addRow(m_reopenLast);
+    overImageForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
+                                                           int(std::size(kHighlightPresets)), tr("Highlight Color")));
+    m_autoHide = secondsBox(Settings::kMinAutoHideMs / 1000.0, Settings::kMaxAutoHideMs / 1000.0);
+    overImageForm->addRow(tr("Hide after:"), m_autoHide);
+    auto *autoHideNote = new QLabel(tr("For everything set to hide while the pointer is still: the bars, the gallery, "
+                                       "the overlay, the panel and the pointer."));
+    autoHideNote->setWordWrap(true);
+    autoHideNote->setForegroundRole(QPalette::PlaceholderText);
+    overImageForm->addRow(QString(), autoHideNote);
+    generalLayout->addWidget(overImageBox);
+    generalLayout->addStretch();
     tabs->addTab(general, tr("General"));
 
     // Window
@@ -196,10 +216,8 @@ void SettingsDialog::buildUi()
     m_titleMode->addItem(tr("Name, position, dimensions, file size and zoom"), int(TitleMode::Everything));
     m_titleMode->addItem(tr("The same as the overlay at the top"), int(TitleMode::Overlay));
     windowForm->addRow(tr("Title bar:"), m_titleMode);
-    m_pointerHide = secondsBox(0.0, Settings::kMaxPointerHideMs / 1000.0);
-    //: Shown instead of 0 s: the pointer never hides by itself.
-    m_pointerHide->setSpecialValueText(tr("Never"));
-    windowForm->addRow(tr("Hide a still pointer after:"), m_pointerHide);
+    m_pointerAutoHide = new QCheckBox(tr("Hide the pointer while it is still"));
+    windowForm->addRow(m_pointerAutoHide);
     tabs->addTab(window, tr("Window"));
 
     // Information (D-34): the detailed panel and the compact overlay at the top.
@@ -211,17 +229,11 @@ void SettingsDialog::buildUi()
     informationLayout->addWidget(m_showOverlay);
     auto *overlayBox = new QGroupBox(tr("Overlay at the top"));
     auto *overlayForm = new QFormLayout(overlayBox);
-    const auto fillVisibility = [](QComboBox *combo) {
-        combo->addItem(tr("Always"), int(OverlayVisibility::Always));
-        combo->addItem(tr("When the pointer is at the top"), int(OverlayVisibility::Hover));
-        combo->addItem(tr("Never"), int(OverlayVisibility::Hidden));
-    };
-    m_overlayFullScreen = new QComboBox;
-    fillVisibility(m_overlayFullScreen);
-    overlayForm->addRow(tr("In full screen:"), m_overlayFullScreen);
-    m_overlayWindow = new QComboBox;
-    fillVisibility(m_overlayWindow);
-    overlayForm->addRow(tr("In a window:"), m_overlayWindow);
+    // One choice for a window and full screen; never is the box above, and I (the owner, D-113).
+    m_overlayVisibility = new QComboBox;
+    m_overlayVisibility->addItem(tr("Always"), int(OverlayVisibility::Always));
+    m_overlayVisibility->addItem(tr("When the pointer is at the top"), int(OverlayVisibility::Hover));
+    overlayForm->addRow(tr("Display the overlay:"), m_overlayVisibility);
     m_overlayFields = new QListWidget;
     m_overlayFields->setDragDropMode(QAbstractItemView::InternalMove);
     m_overlayFields->setDefaultDropAction(Qt::MoveAction);
@@ -239,8 +251,6 @@ void SettingsDialog::buildUi()
     fieldsRow->addWidget(m_overlayFields, 1);
     fieldsRow->addLayout(moveButtons);
     overlayForm->addRow(tr("Fields:"), fieldsRow);
-    m_overlayDelay = secondsBox(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
-    overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
     informationLayout->addWidget(overlayBox);
     // One look for both panels (D-49).
     auto *styleBox = new QGroupBox(tr("Appearance of the panel and the overlay"));
@@ -251,6 +261,10 @@ void SettingsDialog::buildUi()
     styleForm->addRow(tr("Text opacity:"), m_overlayText);
     m_overlayOutline = new QCheckBox(tr("Outline the text"));
     styleForm->addRow(m_overlayOutline);
+    m_panelAutoHide = new QCheckBox(tr("Hide the panel while the pointer is still"));
+    styleForm->addRow(m_panelAutoHide);
+    m_overlayAutoHide = new QCheckBox(tr("Hide the overlay while the pointer is still"));
+    styleForm->addRow(m_overlayAutoHide);
     informationLayout->addWidget(styleBox);
     informationLayout->addStretch();
     tabs->addTab(information, tr("Information"));
@@ -289,9 +303,6 @@ void SettingsDialog::buildUi()
     slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
     m_toolbarAutoHide = new QCheckBox(tr("Hide the slideshow toolbar while the pointer is still"));
     slideshowForm->addRow(m_toolbarAutoHide);
-    m_toolbarHide = secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0);
-    slideshowForm->addRow(tr("Hide after:"), m_toolbarHide);
-    connect(m_toolbarAutoHide, &QCheckBox::toggled, m_toolbarHide, &QWidget::setEnabled);
     navigationLayout->addWidget(m_slideshowBox);
     // The gallery (D-60, D-61).
     m_galleryBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
@@ -312,15 +323,12 @@ void SettingsDialog::buildUi()
     galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
     m_galleryAutoHide = new QCheckBox(tr("Hide the gallery while the pointer is still"));
     galleryForm->addRow(m_galleryAutoHide);
-    m_galleryHide = secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0);
-    galleryForm->addRow(tr("Hide after:"), m_galleryHide);
-    connect(m_galleryAutoHide, &QCheckBox::toggled, m_galleryHide, &QWidget::setEnabled);
+
     navigationLayout->addWidget(m_galleryBox);
     navigationLayout->addStretch();
     tabs->addTab(navigation, tr("Navigation"));
     // After Navigation (the owner, 2026-11-18).
-    tabs->addTab(buildToolbarTab(secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0)),
-                 tr("Toolbar"));
+    tabs->addTab(buildToolbarTab(), tr("Toolbar"));
 
     // Color & HDR
     auto *color = new QWidget;
@@ -542,6 +550,8 @@ void SettingsDialog::setValues(const Settings &settings)
     m_fontSize->setCurrentIndex(std::max(0, m_fontSize->findData(int(settings.fontSize))));
     m_confirmTrash->setChecked(settings.confirmTrash);
     m_reopenLast->setChecked(settings.reopenLastImage);
+    m_welcomeScreen->setChecked(settings.welcomeScreen);
+    m_autoHide->setValue(settings.autoHideMs / 1000.0);
     setColor(m_highlight, settings.highlight);
     setColor(m_background, settings.background);
     m_checkerboard->setChecked(settings.checkerboard);
@@ -555,10 +565,9 @@ void SettingsDialog::setValues(const Settings &settings)
     m_titleMode->setCurrentIndex(std::max(0, m_titleMode->findData(int(settings.titleMode))));
     m_showInfo->setChecked(settings.showInfo);
     m_showOverlay->setChecked(settings.showOverlay);
-    m_overlayFullScreen->setCurrentIndex(
-        std::max(0, m_overlayFullScreen->findData(int(settings.overlayFullScreen))));
-    m_overlayWindow->setCurrentIndex(
-        std::max(0, m_overlayWindow->findData(int(settings.overlayWindow))));
+    m_overlayVisibility->setCurrentIndex(std::max(0, m_overlayVisibility->findData(int(settings.overlayVisibility))));
+    m_overlayAutoHide->setChecked(settings.overlayAutoHide);
+    m_panelAutoHide->setChecked(settings.panelAutoHide);
     // The chosen fields first, in their order, then the others in their usual order.
     m_overlayFields->clear();
     QList<OverlayField> order = settings.overlayFields;
@@ -575,8 +584,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_overlayBackground->setValue(settings.overlayBackgroundOpacity);
     m_overlayText->setValue(settings.overlayTextOpacity);
     m_overlayOutline->setChecked(settings.overlayOutline);
-    m_overlayDelay->setValue(settings.overlayHideDelayMs / 1000.0);
-    m_pointerHide->setValue(settings.pointerHideMs / 1000.0);
+    m_pointerAutoHide->setChecked(settings.pointerAutoHide);
     m_loop->setChecked(settings.loop);
     m_sideZones->setChecked(settings.sideZones);
     m_sideZoneWidth->setValue(settings.sideZoneWidth);
@@ -592,17 +600,11 @@ void SettingsDialog::setValues(const Settings &settings)
     m_galleryOpacity->setValue(settings.galleryOpacity);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
     m_galleryAutoHide->setChecked(settings.galleryAutoHide);
-    m_galleryHide->setEnabled(settings.galleryAutoHide);
-    m_galleryHide->setValue(settings.galleryHideMs / 1000.0);
     m_showToolbar->setChecked(settings.showToolbar);
     m_toolbarNames->setChecked(settings.toolbarNames);
     m_mainToolbarAutoHide->setChecked(settings.toolbarAutoHide);
-    m_mainToolbarHide->setEnabled(settings.toolbarAutoHide);
-    m_mainToolbarHide->setValue(settings.toolbarHideMs / 1000.0);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toolbarAutoHide->setChecked(settings.slideshowToolbarAutoHide);
-    m_toolbarHide->setEnabled(settings.slideshowToolbarAutoHide);
-    m_toolbarHide->setValue(settings.slideshowToolbarHideMs / 1000.0);
     m_toneMap->setChecked(settings.toneMap);
     m_clipWarning->setChecked(settings.clipWarning);
     m_output->setCurrentIndex(std::max(0, m_output->findData(int(settings.output))));
@@ -682,6 +684,8 @@ Settings SettingsDialog::settings() const
     s.fontSize = FontSize(m_fontSize->currentData().toInt());
     s.confirmTrash = m_confirmTrash->isChecked();
     s.reopenLastImage = m_reopenLast->isChecked();
+    s.welcomeScreen = m_welcomeScreen->isChecked();
+    s.autoHideMs = int(std::lround(m_autoHide->value() * 1000.0));
     s.highlight = m_highlight.color;
     s.background = m_background.color;
     s.checkerboard = m_checkerboard->isChecked();
@@ -692,11 +696,12 @@ Settings SettingsDialog::settings() const
     s.windowFit = WindowFit(m_windowFit->currentData().toInt());
     s.windowFitPercent = m_windowFitPercent->value();
     s.titleMode = TitleMode(m_titleMode->currentData().toInt());
-    s.pointerHideMs = int(std::lround(m_pointerHide->value() * 1000.0));
+    s.pointerAutoHide = m_pointerAutoHide->isChecked();
     s.showInfo = m_showInfo->isChecked();
     s.showOverlay = m_showOverlay->isChecked();
-    s.overlayFullScreen = OverlayVisibility(m_overlayFullScreen->currentData().toInt());
-    s.overlayWindow = OverlayVisibility(m_overlayWindow->currentData().toInt());
+    s.overlayVisibility = OverlayVisibility(m_overlayVisibility->currentData().toInt());
+    s.overlayAutoHide = m_overlayAutoHide->isChecked();
+    s.panelAutoHide = m_panelAutoHide->isChecked();
     s.overlayFields.clear();
     for (int i = 0; i < m_overlayFields->count(); ++i) {
         const QListWidgetItem *item = m_overlayFields->item(i);
@@ -706,7 +711,6 @@ Settings SettingsDialog::settings() const
     s.overlayBackgroundOpacity = m_overlayBackground->value();
     s.overlayTextOpacity = m_overlayText->value();
     s.overlayOutline = m_overlayOutline->isChecked();
-    s.overlayHideDelayMs = int(std::lround(m_overlayDelay->value() * 1000.0));
     s.loop = m_loop->isChecked();
     s.sideZones = m_sideZones->isChecked();
     s.sideZoneWidth = m_sideZoneWidth->value();
@@ -716,18 +720,15 @@ Settings SettingsDialog::settings() const
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
     s.slideshowToolbarAutoHide = m_toolbarAutoHide->isChecked();
-    s.slideshowToolbarHideMs = int(std::lround(m_toolbarHide->value() * 1000));
     s.showGallery = m_showGallery->isChecked();
     s.galleryThumbnailSize = m_galleryThumbnailSize->currentData().toInt();
     s.galleryZoom = m_galleryZoom->isChecked();
     s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();
     s.galleryAutoHide = m_galleryAutoHide->isChecked();
-    s.galleryHideMs = int(std::lround(m_galleryHide->value() * 1000));
     s.showToolbar = m_showToolbar->isChecked();
     s.toolbarNames = m_toolbarNames->isChecked();
     s.toolbarAutoHide = m_mainToolbarAutoHide->isChecked();
-    s.toolbarHideMs = int(std::lround(m_mainToolbarHide->value() * 1000));
     s.toolbarButtons = toolbarButtonsShown();
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();

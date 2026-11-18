@@ -246,6 +246,22 @@
         <translation>Valkoinen</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Piilota osoitin, kun se on paikallaan</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Näytä peittokerros:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Piilota paneeli, kun osoitin on paikallaan</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Piilota peittokerros, kun osoitin on paikallaan</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Piilota diaesityksen palkki, kun osoitin on paikallaan</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Tausta:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Kieli ja teksti</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Pieni</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Fonttikoko:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Käynnistys ja tiedostot</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Näytä tervetulonäyttö käynnistettäessä</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Kuvan päällä</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Kaikelle, mikä on asetettu piiloutumaan osoittimen ollessa paikallaan: palkit, galleria, peittokerros, paneeli ja osoitin.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Otsikkopalkki:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Paikallaan olevan osoittimen piilotusviive:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Kun osoitin on ylhäällä</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Ei koskaan</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Koko näytön tilassa:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Ikkunatilassa:</translation>
     </message>
     <message>
         <source>Fields</source>

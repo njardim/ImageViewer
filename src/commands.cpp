@@ -565,16 +565,9 @@ void ViewerWindow::showOpenDialog()
 
 void ViewerWindow::toggleTopOverlay()
 {
-    // Like P for the panel, a switch (Settings::showOverlay); switched on where its mode is
-    // "never", it shows there always.
-    const bool fullScreen = visibility() == QWindow::FullScreen;
-    const bool show = topOverlayMode() == OverlayVisibility::Hidden;
-    savePreference([fullScreen, show](Settings &s) {
-        s.showOverlay = show;
-        OverlayVisibility &mode = fullScreen ? s.overlayFullScreen : s.overlayWindow;
-        if (show && mode == OverlayVisibility::Hidden)
-            mode = OverlayVisibility::Always;
-    });
+    // Like P for the panel, a switch (Settings::showOverlay); how it shows when on is one choice
+    // for a window and full screen (D-113).
+    savePreference([show = !m_settings.showOverlay](Settings &s) { s.showOverlay = show; });
     if (topOverlayMode() == OverlayVisibility::Hover) { // shown now, then hidden as on hover
         setPointerAtTop(true);
         setPointerAtTop(false);

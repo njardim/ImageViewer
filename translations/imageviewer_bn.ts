@@ -242,6 +242,22 @@
         <translation>সাদা</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>পয়েন্টার স্থির থাকলে সেটি লুকান</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ওভারলে দেখান:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে প্যানেল লুকান</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে ওভারলে লুকান</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>পয়েন্টার স্থির থাকলে স্লাইডশো টুলবার লুকান</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>পয়েন্টার উপরে থাকলে</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>কখনোই নয়</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>পূর্ণ স্ক্রিনে:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>উইন্ডোতে:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>ক্ষেত্র</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> সেকেন্ড</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>ভাষা ও লেখা</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>ছোট</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>ফন্টের আকার:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>শুরু ও ফাইল</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>শুরুতে স্বাগত পর্দা দেখান</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>ছবির উপরে</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>পয়েন্টার স্থির থাকলে লুকানোর জন্য সেট করা সবকিছুর জন্য: বার, গ্যালারি, ওভারলে, প্যানেল ও পয়েন্টার।</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>টাইটেল বার:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>স্থির পয়েন্টার এই সময়ের পরে লুকান:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

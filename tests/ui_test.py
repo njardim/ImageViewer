@@ -319,9 +319,9 @@ try:
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
-            # Past the language and font size lists and the highlight's colours, one stop as a group of
-            # exclusive buttons is (D-112): "Confirm before…" off.
-            xdotool("key", "Tab", "Tab", "Tab", "Tab", "space")
+            # Past the language and font size lists, the welcome screen and the last image (the group
+            # "Startup and files", D-113): "Confirm before…", the group's last, off.
+            xdotool("key", "Tab", "Tab", "Tab", "Tab", "Tab", "space")
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))

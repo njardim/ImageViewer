@@ -246,6 +246,22 @@
         <translation>Balta</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Slėpti žymiklį, kol jis nejuda</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Rodyti užklotą:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Slėpti skydelį, kol žymiklis nejuda</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Slėpti užklotą, kol žymiklis nejuda</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Slėpti skaidrių peržiūros juostą, kol žymiklis nejuda</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Fonas:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Kalba ir tekstas</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Mažas</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Šrifto dydis:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Paleidimas ir failai</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Paleidžiant rodyti pasveikinimo ekraną</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Virš vaizdo</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Viskam, kas nustatyta slėptis, kol žymiklis nejuda: juostoms, galerijai, užklotui, skydeliui ir žymikliui.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Antraštės juosta:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Slėpti nejudantį žymiklį po:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Kai žymiklis viršuje</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Niekada</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Viso ekrano režimu:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Lange:</translation>
     </message>
     <message>
         <source>Fields</source>

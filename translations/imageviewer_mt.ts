@@ -246,6 +246,22 @@
         <translation>Abjad</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Aħbi l-pointer sakemm ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Uri l-overlay:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Aħbi l-pannell sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Aħbi l-overlay sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Aħbi l-barra tal-preżentazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Sfond:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Lingwa u test</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Żgħir</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Daqs tat-tipa:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Bidu u fajls</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Uri l-iskrin ta’ merħba mal-bidu</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Fuq l-immaġni</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Għal kull ma hu ssettjat biex jinħeba sakemm il-pointer ma jiċċaqlaqx: il-barrijiet, il-gallerija, l-overlay, il-pannell u l-pointer.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Bar tat-titlu:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Aħbi l-kursur li ma jiċċaqlaqx wara:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Meta l-kursur ikun fin-naħa ta&apos; fuq</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Qatt</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Fi skrin sħiħ:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>F&apos;tieqa:</translation>
     </message>
     <message>
         <source>Fields</source>

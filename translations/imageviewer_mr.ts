@@ -242,6 +242,22 @@
         <translation>पांढरा</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>पॉइंटर स्थिर असताना तो लपवा</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ओव्हरले दाखवा:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>पॉइंटर स्थिर असताना पॅनेल लपवा</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>पॉइंटर स्थिर असताना ओव्हरले लपवा</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>पॉइंटर स्थिर असताना स्लाइडशो टूलबार लपवा</translation>
     </message>
@@ -299,19 +315,6 @@
         <translation>पॉइंटर वर असताना</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>कधीही नाही</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>पूर्ण स्क्रीनमध्ये:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>विंडोमध्ये:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>फील्ड</translation>
     </message>
@@ -350,6 +353,10 @@
         <translation> सेकंद</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>भाषा आणि मजकूर</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>लहान</translation>
@@ -367,6 +374,22 @@
     <message>
         <source>Font size:</source>
         <translation>फॉन्ट आकार:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>प्रारंभ आणि फायली</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>प्रारंभी स्वागत स्क्रीन दाखवा</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>प्रतिमेवर</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>पॉइंटर स्थिर असताना लपण्यासाठी सेट केलेल्या सर्वांसाठी: बार, गॅलरी, ओव्हरले, पॅनेल आणि पॉइंटर.</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -440,10 +463,6 @@
     <message>
         <source>Title bar:</source>
         <translation>टायटल बार:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>स्थिर पॉइंटर इतक्या वेळानंतर लपवा:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>

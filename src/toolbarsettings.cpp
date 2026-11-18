@@ -5,7 +5,6 @@
 #include "settings.h"
 
 #include <QCheckBox>
-#include <QDoubleSpinBox>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -28,7 +27,7 @@ bool isSeparator(const QListWidgetItem *item)
 
 } // namespace
 
-QWidget *SettingsDialog::buildToolbarTab(QDoubleSpinBox *hideAfter)
+QWidget *SettingsDialog::buildToolbarTab()
 {
     auto *page = new QWidget;
     auto *layout = new QVBoxLayout(page);
@@ -39,10 +38,7 @@ QWidget *SettingsDialog::buildToolbarTab(QDoubleSpinBox *hideAfter)
     m_toolbarNames = new QCheckBox(tr("Show the names under the buttons"));
     form->addRow(m_toolbarNames);
     m_mainToolbarAutoHide = new QCheckBox(tr("Hide the toolbar while the pointer is still"));
-    form->addRow(m_mainToolbarAutoHide);
-    m_mainToolbarHide = hideAfter;
-    form->addRow(tr("Hide after:"), m_mainToolbarHide);
-    connect(m_mainToolbarAutoHide, &QCheckBox::toggled, m_mainToolbarHide, &QWidget::setEnabled);
+    form->addRow(m_mainToolbarAutoHide); // after the delay in General (D-113)
     layout->addWidget(m_toolbarBox);
 
     auto *buttonsBox = new QGroupBox(tr("Buttons"));

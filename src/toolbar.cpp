@@ -90,7 +90,7 @@ void Toolbar::layout(double width)
 
     // The width of the first `count` items, without separators at the ends, and "…" after them
     // when `more`.
-    const Button moreButton{kMore, Glyph::More, {}, true, false, false};
+    const Button moreButton{kMore, Glyph::More, {}, true, false, false, {}};
     const auto build = [this, &moreButton](qsizetype count, bool more) {
         QList<Slot> columns;
         for (qsizetype i = 0; i < count; ++i) {
@@ -148,6 +148,118 @@ void Toolbar::layout(double width)
     }
     m_slots = columns;
     m_size = QSizeF(total, 2 * kPadding + kButton + nameHeight());
+    layoutMenu();
+}
+
+void Toolbar::layoutMenu()
+{
+    // A row: the glyph in a button's square, its name, its key at the right.
+    m_menuDirty = true;
+    const QList<Button> rows = overflow();
+    if (rows.isEmpty()) { // nothing under "…": the panel closes, and stays closed when the window narrows again
+        m_menuSize = QSizeF();
+        m_menuOpen = false;
+        m_menuHover = -1;
+        return;
+    }
+    const QFontMetricsF metrics(m_look.menuFont);
+    double names = 0, keys = 0;
+    for (const Button &b : rows) {
+        names = std::max(names, metrics.horizontalAdvance(b.name));
+        keys = std::max(keys, metrics.horizontalAdvance(b.shortcut));
+    }
+    m_menuNameWidth = std::ceil(names);
+    const double width = kPadding + kRow + 8 + m_menuNameWidth + (keys > 0 ? 24 + std::ceil(keys) : 0) + 12 + kPadding;
+    m_menuSize = QSizeF(width, 2 * kPadding + rows.size() * kRow);
+}
+
+bool Toolbar::setMenuOpen(bool open)
+{
+    if (open == m_menuOpen)
+        return false;
+    m_menuOpen = open;
+    m_menuHover = -1;
+    m_menuDirty = true;
+    m_dirty = true; // "…" shows the panel is open
+    return true;
+}
+
+int Toolbar::menuRowAt(const QPointF &position) const
+{
+    const QSizeF size = menuSize();
+    if (size.isEmpty() || position.x() < 0 || position.x() >= size.width() || position.y() < kPadding
+        || position.y() >= size.height() - kPadding)
+        return -1;
+    const QList<Button> rows = overflow();
+    const int row = int((position.y() - kPadding) / kRow);
+    return row >= 0 && row < rows.size() ? rows.at(row).id : -1;
+}
+
+bool Toolbar::setMenuHover(int id)
+{
+    if (id == m_menuHover)
+        return false;
+    m_menuHover = id;
+    m_menuDirty = true;
+    return true;
+}
+
+QImage Toolbar::menuTexture()
+{
+    if (!menuOpen()) {
+        m_menuTexture = QImage();
+        return m_menuTexture;
+    }
+    if (!m_menuDirty && !m_menuTexture.isNull())
+        return m_menuTexture;
+    m_menuDirty = false;
+    const qreal dpr = m_look.devicePixelRatio;
+    m_menuTexture = QImage((m_menuSize * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
+    m_menuTexture.setDevicePixelRatio(dpr);
+    m_menuTexture.fill(Qt::transparent);
+    {
+        QPainter painter(&m_menuTexture);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(m_look.panel);
+        painter.drawRoundedRect(QRectF(QPointF(0, 0), m_menuSize), m_look.radius, m_look.radius);
+        painter.setFont(m_look.menuFont);
+        double y = kPadding;
+        for (const Button &b : overflow()) {
+            const QRectF square(kPadding, y, kRow, kRow);
+            const QRectF disc(square.center() - QPointF(14, 14), QSizeF(28, 28));
+            painter.setPen(Qt::NoPen);
+            if (b.on) {
+                QColor highlight = m_look.highlight;
+                highlight.setAlpha(170);
+                painter.setBrush(highlight);
+                painter.drawEllipse(disc);
+            }
+            if (b.enabled && b.id == m_menuHover) {
+                painter.setBrush(QColor(255, 255, 255, 48));
+                painter.drawEllipse(disc);
+            }
+            QColor ink = kGlyphColour;
+            if (!b.enabled)
+                ink.setAlpha(kDisabledAlpha);
+            painter.save();
+            painter.translate(square.center() - QPointF(10, 10));
+            painter.scale(20 / 24.0, 20 / 24.0); // a little smaller than the bar's, as a menu's icons are
+            drawGlyph(painter, b.glyph, ink);
+            painter.restore();
+            const double textLeft = kPadding + kRow + 8;
+            painter.setPen(ink);
+            painter.drawText(QRectF(textLeft, y, m_menuNameWidth + 1, kRow), Qt::AlignLeft | Qt::AlignVCenter, b.name);
+            if (!b.shortcut.isEmpty()) {
+                QColor key(190, 190, 190, b.enabled ? 255 : kDisabledAlpha); // the panels' label grey (D-49)
+                painter.setPen(key);
+                painter.drawText(QRectF(textLeft, y, m_menuSize.width() - kPadding - 12 - textLeft, kRow),
+                                 Qt::AlignRight | Qt::AlignVCenter, b.shortcut);
+            }
+            y += kRow;
+        }
+    }
+    return m_menuTexture;
 }
 
 QList<Toolbar::Button> Toolbar::overflow() const
@@ -215,9 +327,10 @@ void Toolbar::drawButton(QPainter &painter, const Slot &slot) const
         painter.setBrush(highlight);
         painter.drawEllipse(disc);
     }
-    if (b.enabled && (b.id == m_pressed || b.id == m_hover)) {
+    const bool open = b.id == kMore && menuOpen(); // "…" while its panel shows
+    if (b.enabled && (b.id == m_pressed || b.id == m_hover || open)) {
         // The slideshow toolbar's states: a veil while hovered, a brighter one while pressed.
-        painter.setBrush(b.id == m_pressed ? QColor(255, 255, 255, 80) : QColor(255, 255, 255, 48));
+        painter.setBrush(b.id == m_pressed || open ? QColor(255, 255, 255, 80) : QColor(255, 255, 255, 48));
         painter.drawEllipse(disc);
     }
     QColor glyph = kGlyphColour;

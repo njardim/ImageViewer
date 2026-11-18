@@ -246,6 +246,22 @@
         <translation>Bílá</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Skrýt ukazatel, když se nehýbe</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Zobrazit překrytí:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Skrýt panel, když se ukazatel nehýbe</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Skrýt překrytí, když se ukazatel nehýbe</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Skrýt panel prezentace, když se ukazatel nehýbe</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Pozadí:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Jazyk a text</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Malá</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Velikost písma:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Spuštění a soubory</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Při spuštění zobrazit uvítací obrazovku</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Nad obrázkem</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Pro vše, co se má skrýt, když se ukazatel nehýbe: panely, galerii, překrytí, panel informací a ukazatel.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Záhlaví okna:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Skrýt nehybný ukazatel myši po:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Když je ukazatel myši nahoře</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nikdy</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Na celé obrazovce:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>V okně:</translation>
     </message>
     <message>
         <source>Fields</source>

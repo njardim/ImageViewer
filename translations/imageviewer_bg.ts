@@ -246,6 +246,22 @@
         <translation>Бяло</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Скриване на показалеца, докато е неподвижен</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Показване на наслагването:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Скриване на панела, докато показалецът е неподвижен</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Скриване на наслагването, докато показалецът е неподвижен</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Скриване на лентата на слайдшоуто, докато показалецът е неподвижен</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Фон:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Език и текст</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Малък</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Размер на шрифта:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Стартиране и файлове</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Показване на приветствения екран при стартиране</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Върху изображението</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>За всичко, настроено да се скрива, докато показалецът е неподвижен: лентите, галерията, наслагването, панела и показалеца.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Заглавна лента:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Скриване на неподвижния показалец след:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Когато показалецът е в горната част</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Никога</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>На цял екран:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>В прозорец:</translation>
     </message>
     <message>
         <source>Fields</source>

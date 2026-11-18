@@ -246,6 +246,22 @@
         <translation>Bela</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Skrij kazalec, ko miruje</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Prikaži prekrivni sloj:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Skrij ploščo, ko kazalec miruje</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Skrij prekrivni sloj, ko kazalec miruje</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Skrij vrstico diaprojekcije, ko kazalec miruje</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Ozadje:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Jezik in besedilo</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Majhna</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Velikost pisave:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Zagon in datoteke</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Ob zagonu prikaži pozdravni zaslon</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Nad sliko</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Za vse, kar se skrije, ko kazalec miruje: vrstice, galerijo, prekrivni sloj, ploščo in kazalec.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Naslovna vrstica:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Skrij mirujoči kazalec po:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Ko je kazalec na vrhu</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nikoli</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Čez cel zaslon:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>V oknu:</translation>
     </message>
     <message>
         <source>Fields</source>

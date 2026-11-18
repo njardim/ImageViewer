@@ -246,6 +246,22 @@
         <translation>Bijela</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Sakrij pokazivač dok se ne miče</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Prikaži prekrivanje:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Sakrij ploču dok se pokazivač ne miče</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Sakrij prekrivanje dok se pokazivač ne miče</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Sakrij traku dijaprojekcije dok se pokazivač ne miče</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Pozadina:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Jezik i tekst</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Mala</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Veličina fonta:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Pokretanje i datoteke</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Prikaži zaslon dobrodošlice pri pokretanju</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Iznad slike</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Za sve što se skriva dok se pokazivač ne miče: trake, galeriju, prekrivanje, ploču i pokazivač.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Naslovna traka:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Sakrij nepomičan pokazivač nakon:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Kada je pokazivač pri vrhu</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nikad</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>U cijelom zaslonu:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>U prozoru:</translation>
     </message>
     <message>
         <source>Fields</source>

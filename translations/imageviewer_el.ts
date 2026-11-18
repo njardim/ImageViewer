@@ -246,6 +246,22 @@
         <translation>Λευκό</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>Απόκρυψη του δείκτη όσο μένει ακίνητος</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Εμφάνιση της επικάλυψης:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>Απόκρυψη του πίνακα όσο ο δείκτης μένει ακίνητος</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>Απόκρυψη της επικάλυψης όσο ο δείκτης μένει ακίνητος</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Απόκρυψη της γραμμής της παρουσίασης όσο ο δείκτης μένει ακίνητος</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Φόντο:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Γλώσσα και κείμενο</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Μικρό</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Μέγεθος γραμματοσειράς:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Εκκίνηση και αρχεία</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Εμφάνιση της οθόνης καλωσορίσματος κατά την εκκίνηση</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Πάνω από την εικόνα</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Για ό,τι έχει οριστεί να κρύβεται όσο ο δείκτης μένει ακίνητος: οι γραμμές, η συλλογή, η επικάλυψη, ο πίνακας και ο δείκτης.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Γραμμή τίτλου:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Απόκρυψη ακίνητου δείκτη μετά από:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Όταν ο δείκτης βρίσκεται στην κορυφή</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Ποτέ</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Σε πλήρη οθόνη:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Σε παράθυρο:</translation>
     </message>
     <message>
         <source>Fields</source>

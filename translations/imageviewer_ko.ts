@@ -246,6 +246,22 @@
         <translation>흰색</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>포인터가 움직이지 않으면 포인터 숨기기</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>오버레이 표시:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 패널 숨기기</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 오버레이 숨기기</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>포인터가 움직이지 않으면 슬라이드 쇼 도구 모음 숨기기</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>배경:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>언어 및 텍스트</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>작게</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>글꼴 크기:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>시작 및 파일</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>시작할 때 시작 화면 표시</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>이미지 위</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>포인터가 움직이지 않을 때 숨기도록 설정한 모든 항목에 적용: 막대, 갤러리, 오버레이, 패널, 포인터.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>제목 표시줄:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>움직이지 않는 포인터를 다음 시간 후 숨기기:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>포인터가 상단에 있을 때</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>표시 안 함</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>전체 화면에서:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>창에서:</translation>
     </message>
     <message>
         <source>Fields</source>

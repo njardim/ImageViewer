@@ -246,6 +246,22 @@
         <translation>Fehér</translation>
     </message>
     <message>
+        <source>Hide the pointer while it is still</source>
+        <translation>A mutató elrejtése, amíg nem mozog</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>A fedőréteg megjelenítése:</translation>
+    </message>
+    <message>
+        <source>Hide the panel while the pointer is still</source>
+        <translation>A panel elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
+        <source>Hide the overlay while the pointer is still</source>
+        <translation>A fedőréteg elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>A diavetítés eszköztárának elrejtése, amíg a mutató nem mozog</translation>
     </message>
@@ -270,6 +286,10 @@
         <translation>Háttér:</translation>
     </message>
     <message>
+        <source>Language and text</source>
+        <translation>Nyelv és szöveg</translation>
+    </message>
+    <message>
         <source>Small</source>
         <comment>font size</comment>
         <translation>Kicsi</translation>
@@ -287,6 +307,22 @@
     <message>
         <source>Font size:</source>
         <translation>Betűméret:</translation>
+    </message>
+    <message>
+        <source>Startup and files</source>
+        <translation>Indítás és fájlok</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Üdvözlőképernyő megjelenítése indításkor</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>A kép fölött</translation>
+    </message>
+    <message>
+        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
+        <translation>Mindarra, ami rejtőzködik, amíg a mutató nem mozog: a sávok, a galéria, a fedőréteg, a panel és a mutató.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -360,10 +396,6 @@
     <message>
         <source>Title bar:</source>
         <translation>Címsor:</translation>
-    </message>
-    <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Mozdulatlan mutató elrejtése ennyi idő után:</translation>
     </message>
     <message>
         <source>Window</source>
@@ -504,19 +536,6 @@
     <message>
         <source>When the pointer is at the top</source>
         <translation>Ha a mutató felül van</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Soha</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Teljes képernyőn:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Ablakban:</translation>
     </message>
     <message>
         <source>Fields</source>

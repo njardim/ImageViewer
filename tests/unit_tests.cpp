@@ -1,6 +1,6 @@
 // Unit tests of the window's parts with state of their own (D-102): the gallery's thumbnails and
-// layout, the slideshow's clock and the zoom's detail of an SVG, each driven alone, its decoding
-// handed in. The rules here are the ones a defect once broke: a folder that keeps changing never got
+// layout, the slideshow's clock, the zoom's detail of an SVG and the toolbar's layout and hiding
+// (D-112), each driven alone, its decoding handed in. The rules here are the ones a defect once broke: a folder that keeps changing never got
 // its thumbnails (D-100), a slow image was skipped by the slideshow (D-100), a failed detail was
 // asked for again without end (D-95); and the scale an SVG is drawn at for its window, by which the
 // window draws an SVG again when the window outgrows it (D-106). Run by CI on the three systems; no
@@ -9,9 +9,11 @@
 #include "detail.h"
 #include "gallery.h"
 #include "slideshow.h"
+#include "toolbar.h"
 
 #include <QFile>
 #include <QFileInfo>
+#include <QFontMetricsF>
 #include <QGuiApplication>
 #include <QMutex>
 #include <QSemaphore>
@@ -566,6 +568,197 @@ private Q_SLOTS:
     }
 };
 
+// The toolbar (D-112): what fits a width and what goes under "…", which button takes a point (none
+// is between two), the slideshow's button giving way to stop and pause under the pointer, the
+// names, the texture drawn again only on a change; and the hiding of a bar while the pointer is still.
+class ToolbarTest : public QObject {
+    Q_OBJECT
+
+    // The default toolbar's shape: buttons 1..14 with separators where the owner's design has them.
+    static QList<Toolbar::Button> defaults()
+    {
+        QList<Toolbar::Button> buttons;
+        int id = 0;
+        const auto add = [&](int count) {
+            for (int i = 0; i < count; ++i) {
+                ++id;
+                buttons.append({id, Glyph::Open, QStringLiteral("Button %1").arg(id)});
+            }
+        };
+        const auto separator = [&] { buttons.append({-1, Glyph::More, {}, true, false, true}); };
+        add(1);
+        separator();
+        add(5);
+        separator();
+        add(4);
+        separator();
+        add(3);
+        separator();
+        add(1);
+        return buttons;
+    }
+    static Toolbar::Look look(bool names = false)
+    {
+        Toolbar::Look l;
+        l.devicePixelRatio = 2.0;
+        l.names = names;
+        l.panel = QColor(0, 0, 0, 179);
+        l.highlight = QColor(80, 200, 120);
+        l.font = QGuiApplication::font();
+        return l;
+    }
+    static QList<int> shownIds(const Toolbar &bar)
+    {
+        QList<int> ids;
+        for (double x = 0; x < bar.size().width(); x += 1.0) {
+            const int id = bar.buttonAt(QPointF(x, bar.size().height() / 2));
+            if (ids.isEmpty() || ids.last() != id)
+                ids << id;
+        }
+        return ids;
+    }
+
+private Q_SLOTS:
+    void everyButtonFitsAWideWindow()
+    {
+        Toolbar bar;
+        bar.setButtons(defaults());
+        bar.setLook(look());
+        bar.layout(2000);
+        // 14 buttons, 9 spacings between neighbours, 4 separators, the padding at both ends.
+        const double expected = 2 * Toolbar::kPadding + 14 * Toolbar::kButton + 9 * Toolbar::kSpacing + 4 * Toolbar::kSeparator;
+        QCOMPARE(bar.size(), QSizeF(expected, 2 * Toolbar::kPadding + Toolbar::kButton));
+        QVERIFY(bar.overflow().isEmpty());
+        QList<int> all;
+        for (int id = 1; id <= 14; ++id)
+            all << id;
+        QCOMPARE(shownIds(bar), all); // every point of the bar takes a button, in order
+        QCOMPARE(bar.buttonAt(QPointF(-0.5, 10)), -1);
+        QCOMPARE(bar.buttonAt(QPointF(10, bar.size().height())), -1);
+        // Between two neighbours the point belongs to the one at its right.
+        const QRectF first = bar.buttonRect(2), second = bar.buttonRect(3);
+        const double between = (first.right() + second.left()) / 2;
+        QCOMPARE(bar.buttonAt(QPointF(between - 0.01, 20)), 2);
+        QCOMPARE(bar.buttonAt(QPointF(between, 20)), 3);
+    }
+
+    void aNarrowWindowPutsTheLastButtonsUnderMore()
+    {
+        Toolbar bar;
+        bar.setButtons(defaults());
+        bar.setLook(look());
+        int previousHidden = 15;
+        for (const double width : {300.0, 450.0, 600.0}) { // the whole bar needs 642
+            bar.layout(width);
+            QVERIFY(bar.size().width() <= width);
+            const QList<int> ids = shownIds(bar);
+            QCOMPARE(ids.last(), Toolbar::kMore);
+            const QList<Toolbar::Button> hidden = bar.overflow();
+            QVERIFY(!hidden.isEmpty());
+            QVERIFY(int(hidden.size()) < previousHidden); // a wider window holds more
+            previousHidden = int(hidden.size());
+            // What shows and what is under "…" are every button once, in order, without separators.
+            QList<int> together = ids.mid(0, ids.size() - 1);
+            for (const Toolbar::Button &b : hidden) {
+                QVERIFY(!b.separator);
+                together << b.id;
+            }
+            QList<int> all;
+            for (int id = 1; id <= 14; ++id)
+                all << id;
+            QCOMPARE(together, all);
+            QVERIFY(bar.button(Toolbar::kMore));
+        }
+        bar.layout(10); // not even one button: "…" alone holds them all
+        QCOMPARE(shownIds(bar), QList<int>{Toolbar::kMore});
+        QCOMPARE(bar.overflow().size(), 14);
+    }
+
+    void startingTheSlideshowLeavesPauseUnderThePointer()
+    {
+        // The bar is centred in the window: when the slideshow's button becomes stop and pause, the
+        // bar grows by one button and moves left by half of it. The pointer that clicked start is
+        // then where stop and pause meet, and pause takes it.
+        enum { Slideshow = 100, Stop, Pause };
+        QList<Toolbar::Button> buttons = defaults();
+        buttons[4] = {Slideshow, Glyph::Slideshow, QStringLiteral("Slideshow")};
+        Toolbar bar;
+        bar.setLook(look());
+        bar.setButtons(buttons);
+        bar.layout(2000);
+        const double before = bar.size().width();
+        const QPointF pointer = bar.buttonRect(Slideshow).center();
+        buttons[4] = {Stop, Glyph::Stop, QStringLiteral("Stop")};
+        buttons.insert(5, {Pause, Glyph::Pause, QStringLiteral("Pause")});
+        QVERIFY(bar.setButtons(buttons));
+        bar.layout(2000);
+        const double shift = (bar.size().width() - before) / 2;
+        QCOMPARE(shift, (Toolbar::kButton + Toolbar::kSpacing) / 2);
+        QCOMPARE(bar.buttonAt(pointer + QPointF(shift, 0)), int(Pause));
+    }
+
+    void namesWidenTheColumnsAndAddTwoLines()
+    {
+        Toolbar bar;
+        QList<Toolbar::Button> buttons{{1, Glyph::Open, QStringLiteral("Open")},
+                                       {2, Glyph::Checkerboard, QStringLiteral("Checkerboard Background")},
+                                       {3, Glyph::Settings, QStringLiteral("Supercalifragilisticexpialidocious")}};
+        bar.setButtons(buttons);
+        bar.setLook(look(true));
+        bar.layout(4000);
+        const QFontMetricsF metrics(QGuiApplication::font());
+        QCOMPARE(bar.size().height(), 2 * Toolbar::kPadding + Toolbar::kButton + 2 * metrics.lineSpacing() + 2);
+        // A short name keeps the least column; a long one wraps at the name's width, or at its
+        // longest word, which is never cut.
+        QVERIFY(bar.buttonRect(1).width() == Toolbar::kButton);
+        QVERIFY(bar.texture().width() > 0);
+        const double word = metrics.horizontalAdvance(QStringLiteral("Supercalifragilisticexpialidocious"));
+        const double third = bar.size().width() - Toolbar::kPadding - bar.buttonRect(3).center().x();
+        QVERIFY(2 * third >= word); // its column, centred on the button, holds the word
+    }
+
+    void theTextureIsDrawnAgainOnlyOnAChange()
+    {
+        Toolbar bar;
+        bar.setButtons(defaults());
+        bar.setLook(look());
+        bar.layout(2000);
+        const QImage first = bar.texture();
+        QCOMPARE(first.size(), (bar.size() * 2.0).toSize());
+        QCOMPARE(bar.texture().cacheKey(), first.cacheKey());
+        QVERIFY(!bar.setButtons(defaults()));
+        QVERIFY(!bar.setLook(look()));
+        bar.layout(2000);
+        QCOMPARE(bar.texture().cacheKey(), first.cacheKey());
+        QVERIFY(bar.setHover(3));
+        QVERIFY(!bar.setHover(3));
+        const QImage hovered = bar.texture();
+        QVERIFY(hovered.cacheKey() != first.cacheKey());
+        QVERIFY(hovered != first); // the disc behind the hovered button
+    }
+
+    void autoHideWaitsForAStillPointer()
+    {
+        bool underPointer = false;
+        AutoHide hide([&underPointer] { return underPointer; });
+        QSignalSpy changed(&hide, &AutoHide::hiddenChanged);
+        hide.configure(false, 30);
+        QTest::qWait(80);
+        QVERIFY(!hide.hidden()); // off: it never hides
+        hide.configure(true, 30);
+        QTRY_VERIFY_WITH_TIMEOUT(hide.hidden(), 2000);
+        QCOMPARE(changed.size(), 1);
+        hide.pointerMoved();
+        QVERIFY(!hide.hidden());
+        QCOMPARE(changed.size(), 2);
+        underPointer = true; // never from under the pointer
+        QTest::qWait(150);
+        QVERIFY(!hide.hidden());
+        underPointer = false;
+        QTRY_VERIFY_WITH_TIMEOUT(hide.hidden(), 2000);
+    }
+};
+
 int main(int argc, char **argv)
 {
     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
@@ -588,6 +781,10 @@ int main(int argc, char **argv)
     }
     {
         DecodeMemoryTest test;
+        status |= QTest::qExec(&test, argc, argv);
+    }
+    {
+        ToolbarTest test;
         status |= QTest::qExec(&test, argc, argv);
     }
     return status;

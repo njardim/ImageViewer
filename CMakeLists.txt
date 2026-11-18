@@ -79,6 +79,7 @@ qt_add_executable(imageviewer
     src/main.cpp
     src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp
     src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
+    src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp src/settingsdialog.cpp src/shortcuts.cpp
     src/appearance.h src/appearance.cpp
@@ -290,7 +291,7 @@ qt_generate_deploy_app_script(TARGET imageviewer
 install(SCRIPT ${deploy_script})
 
 # Unit tests (D-102): the window's parts with state of their own (the gallery, the slideshow's clock,
-# the zoom's detail of an SVG), each driven alone with its decoding handed in. A second executable,
+# the zoom's detail of an SVG, the toolbar), each driven alone with its decoding handed in. A second executable,
 # for the tests only: never installed nor packaged. CI runs it on the three systems.
 option(IMAGEVIEWER_UNIT_TESTS "Build the unit tests (tests/unit_tests.cpp)" ON)
 if(IMAGEVIEWER_UNIT_TESTS)
@@ -298,6 +299,7 @@ if(IMAGEVIEWER_UNIT_TESTS)
     qt_add_executable(imageviewer_tests
         tests/unit_tests.cpp
         src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
+        src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
     )
     set_target_properties(imageviewer_tests PROPERTIES MACOSX_BUNDLE OFF WIN32_EXECUTABLE OFF)
     target_include_directories(imageviewer_tests PRIVATE src)

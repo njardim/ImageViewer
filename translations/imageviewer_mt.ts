@@ -721,7 +721,7 @@
     <message>
         <source>Show a checkerboard behind transparent areas (%1)</source>
         <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
-        <translation>Uri mudell ta' skakkiera wara ż-żoni trasparenti (%1)</translation>
+        <translation>Uri mudell ta&apos; skakkiera wara ż-żoni trasparenti (%1)</translation>
     </message>
     <message>
         <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>

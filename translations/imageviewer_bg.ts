@@ -246,6 +246,18 @@
         <translation>Бяло</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Скриване на лентата на слайдшоуто, докато показалецът е неподвижен</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Скриване на галерията, докато показалецът е неподвижен</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Лента с инструменти</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Търсене:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Размер на шрифта:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Показване на шахматна дъска зад прозрачните области</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Време за изображение:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Показване на лентата с инструменти</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Показване на имената под бутоните</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Скриване на лентата с инструменти, докато показалецът е неподвижен</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Бутони</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Добавяне на разделител</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Премахване на разделител</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Бутони по подразбиране</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Изход, когато е избран, винаги е последен, след разделител.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Разделител</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Увеличение:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Открояване на пикселите, променени при отсичане или тоново картографиране (магента)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Изход на дисплея:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Тоново картографиране на HDR изображения, надвишаващи възможностите на дисплея (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Цвят &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Слайдшоу (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Лента с инструменти (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Показване на шахматна дъска зад прозрачните области (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Тоново картографиране на HDR изображения, надвишаващи възможностите на дисплея, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Открояване в магента на пикселите, променени при отсичане или тоново картографиране (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Галерия</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Завъртане по часовниковата стрелка</translation>
+        <source>Toolbar</source>
+        <translation>Лента с инструменти</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Завъртане обратно на часовниковата стрелка</translation>
+        <source>Rotate Right</source>
+        <translation>Завъртане надясно</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Завъртане наляво</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Отваряне с</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Спиране</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Пускане</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Още</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

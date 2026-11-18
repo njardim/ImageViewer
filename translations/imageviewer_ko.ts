@@ -246,6 +246,18 @@
         <translation>흰색</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 슬라이드 쇼 도구 모음 숨기기</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 갤러리 숨기기</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>도구 모음</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>검색:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>글꼴 크기:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>투명 영역 뒤에 체크무늬 표시</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>이미지당 시간:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>도구 모음 표시</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>버튼 아래에 이름 표시</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>포인터가 움직이지 않으면 도구 모음 숨기기</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>버튼</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>구분선 추가</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>구분선 제거</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>기본 버튼</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>종료를 선택하면 항상 구분선 뒤 맨 끝에 놓입니다.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>구분선</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>확대:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>디스플레이 출력:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>디스플레이 범위를 초과하는 HDR 이미지 톤 매핑(ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>색상 &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>슬라이드 쇼 (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>도구 모음(%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>투명 영역 뒤에 체크무늬 표시(%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>디스플레이 범위를 초과하는 HDR 이미지 톤 매핑(ITU-R BT.2390, %1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀을 마젠타로 강조 표시(%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>갤러리</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>시계 방향으로 회전</translation>
+        <source>Toolbar</source>
+        <translation>도구 모음</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>시계 반대 방향으로 회전</translation>
+        <source>Rotate Right</source>
+        <translation>오른쪽으로 회전</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>왼쪽으로 회전</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>다음 애플리케이션으로 열기</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>중지</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>재생</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>더 보기</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1(%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

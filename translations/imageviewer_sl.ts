@@ -246,6 +246,18 @@
         <translation>Bela</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Skrij vrstico diaprojekcije, ko kazalec miruje</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Skrij galerijo, ko kazalec miruje</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Orodna vrstica</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Iskanje:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Velikost pisave:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Prikaži šahovnico za prosojnimi območji</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Čas na sliko:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Prikaži orodno vrstico</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Prikaži imena pod gumbi</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Skrij orodno vrstico, ko kazalec miruje</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Gumbi</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Dodaj ločilo</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Odstrani ločilo</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Privzeti gumbi</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Izhod je, če je izbran, vedno zadnji, za ločilom.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Ločilo</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Povečava:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Označi piksle, spremenjene z obrezovanjem ali tonskim preslikavanjem (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Izhod zaslona:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Tonsko preslikaj slike HDR, ki presegajo zmožnosti zaslona (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Barve &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Diaprojekcija (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Orodna vrstica (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Prikaži šahovnico za prosojnimi območji (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Tonsko preslikaj slike HDR, ki presegajo zmožnosti zaslona, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Z magento označi piksle, spremenjene z obrezovanjem ali tonskim preslikavanjem (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Galerija</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Zasukaj v smeri urnega kazalca</translation>
+        <source>Toolbar</source>
+        <translation>Orodna vrstica</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Zasukaj v nasprotni smeri urnega kazalca</translation>
+        <source>Rotate Right</source>
+        <translation>Zasukaj desno</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Zasukaj levo</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Odpri z</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Ustavi</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Predvajaj</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Več</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

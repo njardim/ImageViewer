@@ -246,6 +246,18 @@
         <translation>Balts</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Paslēpt slīdrādes rīkjoslu, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Paslēpt galeriju, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Rīkjosla</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Meklēt:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Fonta lielums:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Rādīt rūtiņu rakstu aiz caurspīdīgiem apgabaliem</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Laiks katram attēlam:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Rādīt rīkjoslu</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Rādīt nosaukumus zem pogām</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Paslēpt rīkjoslu, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Pogas</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Pievienot atdalītāju</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Noņemt atdalītāju</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Noklusējuma pogas</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Iziet, ja izvēlēts, vienmēr ir pēdējais, aiz atdalītāja.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Atdalītājs</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Palielinājums:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Iezīmēt pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Displeja izvade:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Pielietot toņu kartēšanu HDR attēliem, kas pārsniedz displeja iespējas (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Krāsas &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Slīdrāde (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Rīkjosla (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Rādīt rūtiņu rakstu aiz caurspīdīgiem apgabaliem (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Pielietot toņu kartēšanu HDR attēliem, kas pārsniedz displeja iespējas, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Iezīmēt fuksīnā pikseļus, ko izmainījusi apcirpšana vai toņu kartēšana (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Galerija</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Pagriezt pulksteņrādītāja virzienā</translation>
+        <source>Toolbar</source>
+        <translation>Rīkjosla</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Pagriezt pretēji pulksteņrādītāja virzienam</translation>
+        <source>Rotate Right</source>
+        <translation>Pagriezt pa labi</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Pagriezt pa kreisi</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Atvērt ar</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Apturēt</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Atskaņot</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Vairāk</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

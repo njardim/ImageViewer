@@ -242,6 +242,18 @@
         <translation>سفید</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر سلائیڈ شو ٹول بار چھپائیں</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر گیلری چھپائیں</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>ٹول بار</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>حسب ضرورت…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>تصویر کو ردی کی ٹوکری میں منتقل کرنے سے پہلے تصدیق کریں</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>شفاف حصوں کے پیچھے شطرنج نما پس منظر دکھائیں</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>پچھلی یا اگلی تصویر کے لیے ونڈو کے بائیں یا دائیں جانب کلک کریں</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>ٹول بار دکھائیں</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>بٹنوں کے نیچے نام دکھائیں</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>پوائنٹر ساکن رہنے پر ٹول بار چھپائیں</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>بٹن</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>علیحدہ کار شامل کریں</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>علیحدہ کار ہٹائیں</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>طے شدہ بٹن</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>منتخب ہونے پر خارج ہوں ہمیشہ آخر میں، ایک علیحدہ کار کے بعد آتا ہے۔</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>علیحدہ کار</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>سلائیڈ شو پوری اسکرین میں شروع کریں</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز نمایاں کریں (میجنٹا)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>تلاش:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>ڈسپلے آؤٹ پٹ:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>ڈسپلے کی حد سے تجاوز کرنے والی HDR تصاویر پر ٹون میپنگ لاگو کریں (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>سلائیڈ شو (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>ٹول بار (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>شفاف حصوں کے پیچھے شطرنج نما پس منظر دکھائیں (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>ڈسپلے کی حد سے تجاوز کرنے والی HDR تصاویر پر ٹون میپنگ لاگو کریں, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>کلپنگ یا ٹون میپنگ سے تبدیل شدہ پکسلز میجنٹا رنگ میں نمایاں کریں (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>گیلری</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>گھڑی کی سمت میں گھمائیں</translation>
+        <source>Toolbar</source>
+        <translation>ٹول بار</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>گھڑی کی مخالف سمت میں گھمائیں</translation>
+        <source>Rotate Right</source>
+        <translation>دائیں گھمائیں</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>بائیں گھمائیں</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>اس کے ساتھ کھولیں</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>روکیں</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>چلائیں</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>مزید</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

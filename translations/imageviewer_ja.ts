@@ -242,6 +242,18 @@
         <translation>白</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>ポインターが止まっている間はスライドショーのツールバーを隠す</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>ポインターが止まっている間はギャラリーを隠す</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>ツールバー</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>カスタム…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>画像をゴミ箱に入れる前に確認する</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>透明な部分に市松模様を表示する</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>ウィンドウの左側または右側をクリックして前または次の画像を表示する</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>ツールバーを表示</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>ボタンの下に名前を表示</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>ポインターが止まっている間はツールバーを隠す</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>ボタン</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>区切りを追加</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>区切りを削除</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>既定のボタン</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>「終了」を選んだ場合は、常に区切りの後の最後に置かれます。</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>区切り</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>スライドショーを全画面表示で開始</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>クリッピングまたはトーンマッピングで変更されたピクセルを強調表示（マゼンタ）</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>検索：</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>ディスプレイ出力：</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>ディスプレイの表示範囲を超える HDR 画像をトーンマッピングする（ITU-R BT.2390）</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>スライドショー（%1）</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>ツールバー（%1）</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>透明な部分に市松模様を表示する（%1）</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>ディスプレイの表示範囲を超える HDR 画像をトーンマッピングする（ITU-R BT.2390、%1）</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>クリッピングまたはトーンマッピングで変更されたピクセルをマゼンタで強調表示（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>ギャラリー</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>時計回りに回転</translation>
+        <source>Toolbar</source>
+        <translation>ツールバー</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>反時計回りに回転</translation>
+        <source>Rotate Right</source>
+        <translation>右に回転</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>左に回転</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>アプリケーションで開く</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>再生</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>その他</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1（%2）</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

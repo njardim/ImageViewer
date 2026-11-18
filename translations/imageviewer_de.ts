@@ -242,6 +242,18 @@
         <translation>Weiß</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Diashow-Leiste ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Galerie ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Symbolleiste</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Benutzerdefiniert…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>Vor dem Verschieben eines Bildes in den Papierkorb nachfragen</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Schachbrettmuster hinter transparenten Bereichen anzeigen</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>Durch Klicken auf die linke oder rechte Fensterseite zum vorherigen oder nächsten Bild wechseln</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Symbolleiste anzeigen</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Namen unter den Schaltflächen anzeigen</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Symbolleiste ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Schaltflächen</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Trennlinie hinzufügen</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Trennlinie entfernen</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Standardschaltflächen</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Beenden steht, wenn gewählt, immer am Ende, nach einer Trennlinie.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Trennlinie</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>Diashow im Vollbild starten</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Pixel hervorheben, die durch Clipping oder Tone-Mapping verändert wurden (Magenta)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>Suchen:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>Bildschirmausgabe:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Tone-Mapping auf HDR-Bilder anwenden, die den Bildschirm übersteigen (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Diashow (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Symbolleiste (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Schachbrettmuster hinter transparenten Bereichen anzeigen (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Tone-Mapping auf HDR-Bilder anwenden, die den Bildschirm übersteigen, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Durch Clipping oder Tone-Mapping veränderte Pixel in Magenta hervorheben (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>Galerie</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Im Uhrzeigersinn drehen</translation>
+        <source>Toolbar</source>
+        <translation>Symbolleiste</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Gegen den Uhrzeigersinn drehen</translation>
+        <source>Rotate Right</source>
+        <translation>Nach rechts drehen</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Nach links drehen</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>Öffnen mit</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Abspielen</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Mehr</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

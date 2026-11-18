@@ -290,6 +290,21 @@ private Q_SLOTS:
         QVERIFY(texture.first().first().value<QImage>().isNull() && !m_gallery->visible() && m_gallery->reserve() == 0.0);
     }
 
+    // A row that held every image is not centred on the current one: when the window narrows, the
+    // current image stays in sight (its middle thumbnail stayed, and the first image went out).
+    void aNarrowedRowKeepsTheCurrentImage()
+    {
+        QCOMPARE(m_gallery->capacity(600), 3);
+        Gallery::Scene wide = scene(); // all five fit, the first one current
+        m_gallery->update(wide);
+        QCOMPARE(m_gallery->fileAt(0), 0);
+        Gallery::Scene narrow = wide;
+        narrow.window.setWidth(600);
+        m_gallery->update(narrow);
+        QCOMPARE(m_gallery->fileAt(0), 0); // the first image, current, at the row's start
+        QCOMPARE(m_gallery->fileAt(2), 2);
+    }
+
     void theRingWhenNavigationLoops()
     {
         for (int i = 0; i < 15; ++i) {

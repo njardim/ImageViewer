@@ -10,7 +10,9 @@ image's own pixels (D-102: split from tests/ui_test.py, whose harness tests/ui_d
   3. the zoom's detail of an SVG (D-93, D-94, D-99): drawn at the zoom shown, sharp on the
      screen's pixel grid in every turn and mirror, 100 % by the document's own pixels;
   4. a folder of SVGs (D-94): one SVG worker per decoding thread, and the interface answers while
-     they are read.
+     they are read;
+  5. the toolbar (D-87, D-112): T shows it, the top overlay below it, a click on a button runs its
+     command, the slideshow's buttons on it and the slideshow's own toolbar only without them.
 3 and 4 need the SVG renderer (scripts/build-svg.sh): a build without it skips them, CI fails.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
@@ -218,7 +220,7 @@ try:
             app.wait(15)
 
             # Large thumbnails (128 px) in ruby, enlarged by the most (100 px), chosen in the settings.
-            edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("gallery", "highlight", "#e0115f"),
+            edit_settings(("gallery", "show", "true"), ("gallery", "thumbnailSize", "128"), ("app", "highlight", "#e0115f"),
                           ("gallery", "zoom", "true"), ("gallery", "enlargement", "100"))
             app = launch([os.path.join(gallery_dir, "g01.png")], log)
             wait_until("g01.png shown with the gallery", shown("g01.png"))
@@ -266,6 +268,67 @@ try:
                 # The sign above the middle (the message is below it), centred across.
                 return len(xs) > 2000 and abs(xs.mean() - w / 2) < 3 and h / 2 - 160 < ys.mean() < h / 2
             wait_until("an unreadable file shows the warning sign in the middle", warning_in_the_middle)
+            xdotool("key", "q")
+            app.wait(15)
+
+            # 5. The toolbar (D-87, D-112): T shows it at the top margin and saves it, the top overlay
+            # below it; a click on a button runs its command; while the slideshow runs, its button is
+            # stop and pause, and the slideshow's own toolbar does not show, until the toolbar hides.
+            # The default bar is 642 px wide: Open | First, Previous, Slideshow, Next, Last | the
+            # rotations and flips | checkerboard, gallery, full screen | Settings, buttons of 40 px 2
+            # apart and separators of 13 px, 6 px inside the panel.
+            edit_settings(("gallery", "show", "false"))
+            app = launch([os.path.join(gallery_dir, "g01.png")], log)
+            wait_until("g01.png shown without the gallery", shown("g01.png"))
+            focus_viewer()
+            xdotool("key", "t")
+            wait_until("T shows the toolbar and saves it", lambda: stored(r"(?ms)^\[toolbar\]\n(?:[^\[]*\n)?show=true$"))
+            x, y, w, h = window_geometry()
+            left, middle = x + (w - 642) // 2, y + 16 + 26  # the bar's left edge, its buttons' middle row
+            panel = 0x21 * (1 - round(70 * 2.55) / 255)  # black at 70 % over the background
+
+            def bars_at_top():
+                # The toolbar's panel at the top margin (in the first separator's slot, above its line),
+                # the background in the 16 px below it, the top overlay's panel below that.
+                shot = grab()
+                if shot is None:
+                    return False
+                cx = x + w // 2
+                return (abs(int(shot[y + 20, left + 52][0]) - panel) <= 3 and abs(int(shot[y + 16 + 52 + 8, cx][0]) - 0x21) <= 2
+                        and abs(int(shot[y + 16 + 52 + 16 + 3, cx][0]) - panel) <= 3)
+            wait_until("the toolbar at the top margin, the top overlay 16 px below it", bars_at_top)
+            xdotool("mousemove", "--sync", str(left + 205), str(middle))  # Next
+            xdotool("click", "1")
+            wait_until("a click on the toolbar's Next shows g02.png", shown("g02.png"))
+
+            def slideshow_toolbar():
+                """The slideshow's own toolbar below the top overlay: a column a little left of the
+                middle, from below the toolbar's place down, crosses the overlay (30 rows) and, when
+                it shows, the slideshow's toolbar (60 rows); None before a frame."""
+                shot = grab()
+                if shot is None:
+                    return None
+                column = shot[y + 60:y + 260, x + w // 2 - 30, 0].astype(int)
+                return bool((np.abs(column - 0x21) > 6).sum() > 45)
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            xdotool("key", "s")
+            time.sleep(1.5)  # frames to draw what would show
+            if slideshow_toolbar():
+                fail("the slideshow's own toolbar shows while the toolbar holds its buttons")
+            print("ok   S: the slideshow's buttons on the toolbar, not its own toolbar as well")
+            # Stop where start was, pause after it: the bar, one button wider, moved 21 px left.
+            xdotool("mousemove", "--sync", str(left - 21 + 163), str(middle))  # stop
+            xdotool("click", "1")
+            xdotool("key", "t")
+            wait_until("T hides the toolbar and saves it", lambda: stored(r"(?ms)^\[toolbar\]\n(?:[^\[]*\n)?show=false$"))
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            time.sleep(1.5)
+            if slideshow_toolbar():
+                fail("the slideshow still runs after the toolbar's stop")
+            print("ok   the toolbar's stop ends the slideshow")
+            xdotool("key", "s")
+            wait_until("without the toolbar, the slideshow shows its own toolbar", lambda: slideshow_toolbar())
+            xdotool("key", "s")
             xdotool("key", "q")
             app.wait(15)
 

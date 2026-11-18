@@ -242,6 +242,18 @@
         <translation>सफ़ेद</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>पॉइंटर स्थिर रहने पर स्लाइड शो टूलबार छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>पॉइंटर स्थिर रहने पर गैलरी छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>टूलबार</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>कस्टम…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>छवि को ट्रैश में ले जाने से पहले पुष्टि करें</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>पारदर्शी क्षेत्रों के पीछे चेकरबोर्ड दिखाएँ</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>पिछली या अगली छवि के लिए विंडो के बाएँ या दाएँ भाग पर क्लिक करें</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>टूलबार दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>बटनों के नीचे नाम दिखाएँ</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>पॉइंटर स्थिर रहने पर टूलबार छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>बटन</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>विभाजक जोड़ें</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>विभाजक हटाएँ</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>डिफ़ॉल्ट बटन</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>चुने जाने पर बाहर निकलें हमेशा अंत में, एक विभाजक के बाद आता है।</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>विभाजक</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>स्लाइड शो पूर्ण स्क्रीन में शुरू करें</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>खोज:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>डिस्प्ले आउटपुट:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>डिस्प्ले की क्षमता से अधिक HDR छवियों पर टोन मैपिंग लागू करें (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>स्लाइड शो (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>टूलबार (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>पारदर्शी क्षेत्रों के पीछे चेकरबोर्ड दिखाएँ (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>डिस्प्ले की क्षमता से अधिक HDR छवियों पर टोन मैपिंग लागू करें, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल मैजेंटा रंग में हाइलाइट करें (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>गैलरी</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>दक्षिणावर्त घुमाएँ</translation>
+        <source>Toolbar</source>
+        <translation>टूलबार</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>वामावर्त घुमाएँ</translation>
+        <source>Rotate Right</source>
+        <translation>दाईं ओर घुमाएँ</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>बाईं ओर घुमाएँ</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>इसके साथ खोलें</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>रोकें</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>चलाएँ</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>और</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

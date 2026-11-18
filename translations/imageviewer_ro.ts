@@ -246,6 +246,18 @@
         <translation>Alb</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Ascunde bara prezentării cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Ascunde galeria cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Bară de instrumente</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Căutare:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Mărimea fontului:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Afișează un model în carouri în spatele zonelor transparente</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Timp pe imagine:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Afișează bara de instrumente</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Afișează numele sub butoane</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Ascunde bara de instrumente cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Butoane</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Adaugă separator</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Elimină separatorul</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Butoane implicite</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Ieșire, când este ales, este mereu ultimul, după un separator.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Separator</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Mărire:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Evidențiere pixeli modificați prin tăiere sau mapare tonală (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Ieșire afișaj:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Aplică maparea tonală imaginilor HDR care depășesc capacitatea afișajului (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Culoare &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Prezentare (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Bară de instrumente (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Afișează un model în carouri în spatele zonelor transparente (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Aplică maparea tonală imaginilor HDR care depășesc capacitatea afișajului, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Evidențiere cu magenta a pixelilor modificați prin tăiere sau mapare tonală (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Galerie</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Rotire în sens orar</translation>
+        <source>Toolbar</source>
+        <translation>Bară de instrumente</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Rotire în sens antiorar</translation>
+        <source>Rotate Right</source>
+        <translation>Rotire la dreapta</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Rotire la stânga</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Deschidere cu</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Oprește</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Redă</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Mai multe</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

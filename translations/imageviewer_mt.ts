@@ -246,6 +246,18 @@
         <translation>Abjad</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Aħbi l-barra tal-preżentazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Aħbi l-gallerija sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Barra tal-għodod</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Fittex:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Daqs tat-tipa:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Uri mudell ta&apos; skakkiera wara ż-żoni trasparenti</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Ħin għal kull immaġni:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Uri l-barra tal-għodod</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Uri l-ismijiet taħt il-buttuni</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Aħbi l-barra tal-għodod sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Buttuni</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Żid separatur</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Neħħi s-separatur</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Buttuni awtomatiċi</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Oħroġ, meta jintgħażel, dejjem jiġi l-aħħar, wara separatur.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Separatur</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Tkabbir:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Enfasizza l-pixels mibdula bil-clipping jew bit-tone mapping (manġenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Output tal-iskrin:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Applika tone mapping fuq l-immaġni HDR li jaqbżu l-kapaċità tal-iskrin (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Kulur &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Preżentazzjoni (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Barra tal-għodod (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Uri mudell ta' skakkiera wara ż-żoni trasparenti (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Applika tone mapping fuq l-immaġni HDR li jaqbżu l-kapaċità tal-iskrin, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Enfasizza bil-manġenta l-pixels mibdula bil-clipping jew bit-tone mapping (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Gallerija</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Dawwar fid-direzzjoni tal-arloġġ</translation>
+        <source>Toolbar</source>
+        <translation>Barra tal-għodod</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Dawwar kontra d-direzzjoni tal-arloġġ</translation>
+        <source>Rotate Right</source>
+        <translation>Dawwar lejn il-lemin</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Dawwar lejn ix-xellug</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Iftaħ permezz ta&apos;</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Waqqaf</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Ħaddem</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Aktar</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

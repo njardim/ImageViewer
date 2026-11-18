@@ -242,6 +242,18 @@
         <translation>తెలుపు</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు స్లైడ్‌షో టూల్‌బార్‌ను దాచు</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు గ్యాలరీని దాచు</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>టూల్‌బార్</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>అనుకూలం…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>చిత్రాన్ని ట్రాష్‌కు తరలించే ముందు నిర్ధారించు</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>పారదర్శక ప్రాంతాల వెనుక చెకర్‌బోర్డ్ చూపు</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>మునుపటి లేదా తదుపరి చిత్రం కోసం విండో ఎడమ లేదా కుడి వైపున క్లిక్ చేయి</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>టూల్‌బార్ చూపు</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>బటన్‌ల కింద పేర్లు చూపు</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు టూల్‌బార్‌ను దాచు</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>బటన్‌లు</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>విభాజకం జోడించు</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>విభాజకం తీసివేయి</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>డిఫాల్ట్ బటన్‌లు</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>నిష్క్రమించు ఎంచుకుంటే ఎల్లప్పుడూ చివరగా, ఒక విభాజకం తర్వాత వస్తుంది.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>విభాజకం</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>స్లైడ్‌షోను పూర్తి స్క్రీన్‌లో ప్రారంభించు</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>శోధన:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>డిస్‌ప్లే అవుట్‌పుట్:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>డిస్‌ప్లే సామర్థ్యాన్ని మించిన HDR చిత్రాలకు టోన్ మ్యాపింగ్ వర్తింపజేయి (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>స్లైడ్‌షో (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>టూల్‌బార్ (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>పారదర్శక ప్రాంతాల వెనుక చెకర్‌బోర్డ్ చూపు (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>డిస్‌ప్లే సామర్థ్యాన్ని మించిన HDR చిత్రాలకు టోన్ మ్యాపింగ్ వర్తింపజేయి, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను మెజెంటా రంగులో హైలైట్ చేయి (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>గ్యాలరీ</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>సవ్యదిశలో తిప్పు</translation>
+        <source>Toolbar</source>
+        <translation>టూల్‌బార్</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>అపసవ్యదిశలో తిప్పు</translation>
+        <source>Rotate Right</source>
+        <translation>కుడివైపు తిప్పు</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>ఎడమవైపు తిప్పు</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>దీనితో తెరువు</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>ఆపు</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>ప్లే చేయి</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>మరిన్ని</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

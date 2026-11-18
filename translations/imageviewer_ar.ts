@@ -242,6 +242,18 @@
         <translation>أبيض</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>إخفاء شريط أدوات عرض الشرائح ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>إخفاء المعرض ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>شريط الأدوات</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>مخصص…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>التأكيد قبل نقل صورة إلى سلة المهملات</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>إظهار نمط رقعة الشطرنج خلف المناطق الشفافة</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>النقر على الجانب الأيسر أو الأيمن من النافذة لعرض الصورة السابقة أو التالية</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>إظهار شريط الأدوات</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>إظهار الأسماء تحت الأزرار</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>إخفاء شريط الأدوات ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>الأزرار</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>إضافة فاصل</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>إزالة الفاصل</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>الأزرار الافتراضية</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>عند اختيار «إنهاء» يأتي دائمًا في الآخر، بعد فاصل.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>فاصل</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>بدء عرض الشرائح في وضع ملء الشاشة</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>بحث:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>إخراج الشاشة:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>تطبيق تعيين الدرجات اللونية على صور HDR التي تتجاوز قدرة الشاشة (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>عرض الشرائح (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>شريط الأدوات (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>إظهار نمط رقعة الشطرنج خلف المناطق الشفافة (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>تطبيق تعيين الدرجات اللونية على صور HDR التي تتجاوز قدرة الشاشة, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية باللون الماجنتا (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>المعرض</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>تدوير باتجاه عقارب الساعة</translation>
+        <source>Toolbar</source>
+        <translation>شريط الأدوات</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>تدوير عكس اتجاه عقارب الساعة</translation>
+        <source>Rotate Right</source>
+        <translation>تدوير لليمين</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>تدوير لليسار</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>فتح باستخدام</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>إيقاف</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>تشغيل</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>المزيد</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

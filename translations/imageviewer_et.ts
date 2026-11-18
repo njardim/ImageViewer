@@ -246,6 +246,18 @@
         <translation>Valge</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Peida slaidiseansi riba, kui kursor ei liigu</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Peida galerii, kui kursor ei liigu</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Tööriistariba</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Otsi:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Fondi suurus:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Kuva läbipaistvate alade taga malelauamuster</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Aeg pildi kohta:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Kuva tööriistariba</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Kuva nimed nuppude all</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Peida tööriistariba, kui kursor ei liigu</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Nupud</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Lisa eraldaja</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Eemalda eraldaja</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Vaikimisi nupud</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Valitud Välju on alati viimane, eraldaja järel.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Eraldaja</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Suurendus:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Tõsta esile pikslid, mida on muutnud kärpimine või toonivastendus (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Ekraaniväljund:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Rakenda toonivastendust ekraani võimalusi ületavatele HDR-piltidele (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Värv &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Slaidiseanss (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Tööriistariba (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Kuva läbipaistvate alade taga malelauamuster (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Rakenda toonivastendust ekraani võimalusi ületavatele HDR-piltidele, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Tõsta magentaga esile pikslid, mida on muutnud kärpimine või toonivastendus (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Galerii</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Pööra päripäeva</translation>
+        <source>Toolbar</source>
+        <translation>Tööriistariba</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Pööra vastupäeva</translation>
+        <source>Rotate Right</source>
+        <translation>Pööra paremale</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Pööra vasakule</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Ava rakendusega</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Peata</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Esita</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Veel</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

@@ -246,6 +246,18 @@
         <translation>Wit</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Diavoorstellingsbalk verbergen zolang de aanwijzer stilstaat</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Galerij verbergen zolang de aanwijzer stilstaat</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Werkbalk</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Zoeken:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Lettergrootte:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Een dambordpatroon tonen achter transparante gebieden</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Tijd per afbeelding:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>De werkbalk tonen</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>De namen onder de knoppen tonen</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Werkbalk verbergen zolang de aanwijzer stilstaat</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Knoppen</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Scheidingslijn toevoegen</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Scheidingslijn verwijderen</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Standaardknoppen</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Afsluiten staat, als die gekozen is, altijd achteraan, na een scheidingslijn.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Scheidingslijn</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Vergroting:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Pixels markeren die door clipping of tonemapping zijn gewijzigd (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Beeldschermuitvoer:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Tonemapping toepassen op HDR-afbeeldingen die het bereik van het beeldscherm overschrijden (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Kleur &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Diavoorstelling (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Werkbalk (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Een dambordpatroon tonen achter transparante gebieden (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Tonemapping toepassen op HDR-afbeeldingen die het bereik van het beeldscherm overschrijden, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Pixels die door clipping of tonemapping zijn gewijzigd in magenta markeren (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,11 +1128,15 @@
         <translation>Galerij</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
+        <source>Toolbar</source>
+        <translation>Werkbalk</translation>
+    </message>
+    <message>
+        <source>Rotate Right</source>
         <translation>Rechtsom draaien</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
+        <source>Rotate Left</source>
         <translation>Linksom draaien</translation>
     </message>
     <message>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Openen met</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Stoppen</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Afspelen</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Meer</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

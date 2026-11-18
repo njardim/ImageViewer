@@ -242,6 +242,18 @@
         <translation>সাদা</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে স্লাইডশো টুলবার লুকান</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে গ্যালারি লুকান</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>টুলবার</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>কাস্টম…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>ছবি ট্র্যাশে সরানোর আগে নিশ্চিত করুন</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>স্বচ্ছ অংশের পেছনে দাবার ছক দেখান</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>টুলবার দেখান</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>বোতামের নিচে নাম দেখান</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>পয়েন্টার স্থির থাকলে টুলবার লুকান</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>বোতাম</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>বিভাজক যোগ করুন</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>বিভাজক সরান</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>ডিফল্ট বোতাম</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>প্রস্থান বেছে নিলে সবসময় শেষে, একটি বিভাজকের পরে থাকে।</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>বিভাজক</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>পূর্ণ স্ক্রিনে স্লাইডশো শুরু করুন</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>অনুসন্ধান:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>ডিসপ্লে আউটপুট:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>ডিসপ্লের সীমা ছাড়িয়ে যাওয়া HDR ছবিতে টোন ম্যাপিং প্রয়োগ করুন (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>স্লাইডশো (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>টুলবার (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>স্বচ্ছ অংশের পেছনে দাবার ছক দেখান (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>ডিসপ্লের সীমা ছাড়িয়ে যাওয়া HDR ছবিতে টোন ম্যাপিং প্রয়োগ করুন, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল ম্যাজেন্টা রঙে হাইলাইট করুন (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>গ্যালারি</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>ঘড়ির কাঁটার দিকে ঘোরান</translation>
+        <source>Toolbar</source>
+        <translation>টুলবার</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>ঘড়ির কাঁটার বিপরীত দিকে ঘোরান</translation>
+        <source>Rotate Right</source>
+        <translation>ডানে ঘোরান</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>বামে ঘোরান</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>এর মাধ্যমে খুলুন</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>থামান</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>চালান</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>আরও</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

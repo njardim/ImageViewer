@@ -118,9 +118,15 @@ void Gallery::update(const Scene &scene)
     const int capacity = this->capacity(width);
     const int shown = count <= capacity ? count : std::max(1, capacity % 2 ? capacity : capacity - 1);
     // The current image comes to the centre whenever it changes; the wheel moves away from it.
-    // When the window holds more or fewer thumbnails, the middle one stays (both counts are odd).
-    if (!m_slots.isEmpty())
-        m_first += (int(m_slots.size()) - shown) / 2;
+    // When the window holds more or fewer thumbnails, the middle one stays (both counts are odd);
+    // but a row that held every image was not centred on the current one, which comes to the
+    // centre then (it went out of sight when the window narrowed).
+    if (!m_slots.isEmpty()) {
+        if (int(m_slots.size()) >= count)
+            m_first = std::max(0, scene.current) - shown / 2;
+        else
+            m_first += (int(m_slots.size()) - shown) / 2;
+    }
     if (scene.current != m_centredOn) {
         m_centredOn = scene.current;
         m_first = std::max(0, scene.current) - shown / 2;

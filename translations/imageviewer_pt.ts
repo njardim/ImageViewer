@@ -242,6 +242,18 @@
         <translation>Branco</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Ocultar a barra da apresentação enquanto o ponteiro estiver parado</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Ocultar a galeria enquanto o ponteiro estiver parado</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Barra de ferramentas</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizado…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>Confirmar antes de mover uma imagem para o Lixo ou a Reciclagem</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Mostrar um padrão de xadrez atrás das áreas transparentes</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>Clicar no lado esquerdo ou direito da janela para a imagem anterior ou seguinte</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Mostrar a barra de ferramentas</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Mostrar os nomes por baixo dos botões</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Ocultar a barra de ferramentas enquanto o ponteiro estiver parado</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Botões</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Adicionar separador</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Remover separador</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Botões predefinidos</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Sair, quando escolhido, fica sempre no fim, depois de um separador.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Separador</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>Iniciar a apresentação de diapositivos em ecrã inteiro</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Realçar os píxeis alterados por corte ou mapeamento de tons (magenta)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>Pesquisar:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>Saída para o ecrã:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Aplicar mapeamento de tons às imagens HDR que excedem o ecrã (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Apresentação de diapositivos (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Barra de ferramentas (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Mostrar um padrão de xadrez atrás das áreas transparentes (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Aplicar mapeamento de tons às imagens HDR que excedem o ecrã, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Realçar a magenta os píxeis alterados por corte ou mapeamento de tons (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>Galeria</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Rodar no sentido horário</translation>
+        <source>Toolbar</source>
+        <translation>Barra de ferramentas</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Rodar no sentido anti-horário</translation>
+        <source>Rotate Right</source>
+        <translation>Rodar para a direita</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Rodar para a esquerda</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>Abrir com</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Parar</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Retomar</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Mais</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

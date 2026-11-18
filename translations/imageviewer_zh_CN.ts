@@ -242,6 +242,18 @@
         <translation>白色</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>指针静止时隐藏幻灯片放映工具栏</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>指针静止时隐藏图库</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>工具栏</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>自定义…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>将图像移到废纸篓前进行确认</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>在透明区域后显示棋盘格背景</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>显示工具栏</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>在按钮下方显示名称</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>指针静止时隐藏工具栏</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>按钮</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>添加分隔线</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>移除分隔线</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>默认按钮</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>选中“退出”时，它始终位于最后，在一条分隔线之后。</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>分隔线</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>以全屏方式开始幻灯片放映</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>搜索：</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>显示输出：</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>对超出显示器范围的 HDR 图像进行色调映射（ITU-R BT.2390）</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>幻灯片放映（%1）</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>工具栏（%1）</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>在透明区域后显示棋盘格背景（%1）</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>对超出显示器范围的 HDR 图像进行色调映射（ITU-R BT.2390，%1）</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>用品红色突出显示因截断或色调映射而被改变的像素（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>图库</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>顺时针旋转</translation>
+        <source>Toolbar</source>
+        <translation>工具栏</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>逆时针旋转</translation>
+        <source>Rotate Right</source>
+        <translation>向右旋转</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>向左旋转</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>打开方式</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>播放</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>更多</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1（%2）</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

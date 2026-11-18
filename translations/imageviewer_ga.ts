@@ -246,6 +246,18 @@
         <translation>Bán</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Folaigh barra an taispeántais sleamhnán fad is atá an pointeoir socair</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Folaigh an gailearaí fad is atá an pointeoir socair</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Barra uirlisí</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Cuardaigh:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Méid an chló:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Taispeáin clár fichille taobh thiar de limistéir thrédhearcacha</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Am in aghaidh na híomhá:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Taispeáin an barra uirlisí</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Taispeáin na hainmneacha faoi na cnaipí</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Folaigh an barra uirlisí fad is atá an pointeoir socair</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Cnaipí</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Cuir deighilteoir leis</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Bain an deighilteoir</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Cnaipí réamhshocraithe</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Nuair a roghnaítear Scoir, bíonn sé i gcónaí ar deireadh, i ndiaidh deighilteora.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Deighilteoir</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Méadú:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Aibhsigh picteilíní a athraíodh trí ghearradh nó mapáil toin (maigeanta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Aschur taispeána:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Déan mapáil toin ar íomhánna HDR a sháraíonn an taispeáint (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Dath &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Taispeántas sleamhnán (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Barra uirlisí (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Taispeáin clár fichille taobh thiar de limistéir thrédhearcacha (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Déan mapáil toin ar íomhánna HDR a sháraíonn an taispeáint, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Aibhsigh i maigeanta picteilíní a athraíodh trí ghearradh nó mapáil toin (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Gailearaí</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Rothlaigh deiseal</translation>
+        <source>Toolbar</source>
+        <translation>Barra uirlisí</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Rothlaigh tuathal</translation>
+        <source>Rotate Right</source>
+        <translation>Rothlaigh ar dheis</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Rothlaigh ar chlé</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Oscail le</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Stop</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Seinn</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Tuilleadh</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

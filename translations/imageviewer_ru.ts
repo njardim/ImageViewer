@@ -242,6 +242,18 @@
         <translation>Белый</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>Скрывать панель слайд-шоу, пока указатель неподвижен</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>Скрывать галерею, пока указатель неподвижен</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Панель инструментов</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Другой…</translation>
     </message>
@@ -256,10 +268,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>Запрашивать подтверждение перед перемещением изображения в Корзину</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Показывать шахматный фон в прозрачных областях</translation>
     </message>
     <message>
         <source>Window</source>
@@ -466,8 +474,41 @@
         <translation>Переход к предыдущему или следующему изображению щелчком по левой или правой части окна</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Показывать панель инструментов</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Показывать названия под кнопками</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Скрывать панель инструментов, пока указатель неподвижен</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Кнопки</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Добавить разделитель</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Удалить разделитель</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Кнопки по умолчанию</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>Выход, если выбран, всегда стоит последним, после разделителя.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Разделитель</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,10 +606,6 @@
         <translation>Запускать слайд-шоу в полноэкранном режиме</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Выделять пиксели, изменённые отсечением или тональной компрессией (пурпурный)</translation>
-    </message>
-    <message>
         <source>Search:</source>
         <translation>Поиск:</translation>
     </message>
@@ -616,10 +653,6 @@
     <message>
         <source>Display output:</source>
         <translation>Режим вывода:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Применять тональную компрессию к HDR-изображениям, превышающим возможности дисплея (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Слайд-шоу (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Панель инструментов (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Показывать шахматный фон в прозрачных областях (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Применять тональную компрессию к HDR-изображениям, превышающим возможности дисплея, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Выделять пурпурным пиксели, изменённые отсечением или тональной компрессией (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1067,12 +1120,16 @@
         <translation>Галерея</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Повернуть по часовой стрелке</translation>
+        <source>Toolbar</source>
+        <translation>Панель инструментов</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Повернуть против часовой стрелки</translation>
+        <source>Rotate Right</source>
+        <translation>Повернуть вправо</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Повернуть влево</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1136,6 +1193,26 @@
     <message>
         <source>Open With</source>
         <translation>Открыть с помощью</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Остановить</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Продолжить</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Ещё</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

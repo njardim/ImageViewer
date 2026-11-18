@@ -246,6 +246,18 @@
         <translation>Fehér</translation>
     </message>
     <message>
+        <source>Hide the slideshow toolbar while the pointer is still</source>
+        <translation>A diavetítés eszköztárának elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
+        <source>Hide the gallery while the pointer is still</source>
+        <translation>A galéria elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Eszköztár</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Keresés:</translation>
     </message>
@@ -275,10 +287,6 @@
     <message>
         <source>Font size:</source>
         <translation>Betűméret:</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Sakktábla megjelenítése az átlátszó területek mögött</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -366,8 +374,41 @@
         <translation>Képenkénti idő:</translation>
     </message>
     <message>
+        <source>Show the toolbar</source>
+        <translation>Az eszköztár megjelenítése</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Nevek megjelenítése a gombok alatt</translation>
+    </message>
+    <message>
         <source>Hide the toolbar while the pointer is still</source>
         <translation>Az eszköztár elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Gombok</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Elválasztó hozzáadása</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Elválasztó eltávolítása</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Alapértelmezett gombok</translation>
+    </message>
+    <message>
+        <source>Quit, when chosen, always comes last, after a separator.</source>
+        <translation>A Kilépés, ha ki van választva, mindig az utolsó, egy elválasztó után.</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Elválasztó</translation>
     </message>
     <message>
         <source>Small</source>
@@ -434,10 +475,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Nagyítás:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -613,10 +650,6 @@
         <translation>Megjelenítési kimenet:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>A kijelzőt meghaladó HDR-képek tónusleképezése (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Szín &amp;&amp; HDR</translation>
@@ -679,6 +712,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Diavetítés (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Eszköztár (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Sakktábla megjelenítése az átlátszó területek mögött (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>A kijelzőt meghaladó HDR-képek tónusleképezése, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése bíborral (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -1075,12 +1128,16 @@
         <translation>Galéria</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Forgatás az óramutató járásával megegyezően</translation>
+        <source>Toolbar</source>
+        <translation>Eszköztár</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Forgatás az óramutató járásával ellentétesen</translation>
+        <source>Rotate Right</source>
+        <translation>Forgatás jobbra</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Forgatás balra</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1144,6 +1201,26 @@
     <message>
         <source>Open With</source>
         <translation>Megnyitás ezzel</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Leállítás</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Lejátszás</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Továbbiak</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>

@@ -56,7 +56,7 @@ Image.new("RGB", (160, 120), COLOURS["yellow"]).save(os.path.join(pictures, "b-s
 # would hold the slideshow's buttons in place of its own toolbar (D-112).
 with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "w") as f:
     f.write("[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\nshowOverlay=false\n\n"
-            "[gallery]\nshow=false\n\n[toolbar]\nshow=false\n")  # the slideshow's own toolbar shows (D-112)
+            "[gallery]\nshow=false\n\n[toolbar]\nshow=false\nnames=false\n")  # the slideshow's own toolbar shows (D-112)
 
 
 def fail(message):

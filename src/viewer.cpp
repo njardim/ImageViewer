@@ -33,7 +33,6 @@ namespace {
 constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
-constexpr QSize kMinWindowSize(320, 240); // logical pixels; also when the window takes an image's size
 constexpr float kMaxExposureEv = 16.0f;
 constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
@@ -191,62 +190,6 @@ ViewerWindow::~ViewerWindow()
     m_framePool.waitForDone();
 }
 
-void ViewerWindow::showRestored(const SessionState &session)
-{
-    m_lastDirectory = session.lastDirectory;
-    QRect geometry = session.geometry;
-    bool placed = false;
-    if (m_settings.rememberGeometry && geometry.isValid()) {
-        // Only where a screen still shows a usable part of it (monitors change between
-        // sessions), and never larger than that screen (a hand-edited or corrupt value).
-        const QScreen *best = nullptr;
-        qint64 bestArea = 0;
-        for (const QScreen *screen : QGuiApplication::screens()) {
-            const QRect visible = screen->availableGeometry().intersected(geometry);
-            const qint64 area = qint64(visible.width()) * visible.height();
-            if (visible.width() >= 160 && visible.height() >= 120 && area > bestArea) {
-                best = screen;
-                bestArea = area;
-            }
-        }
-        if (best) {
-            const QRect available = best->availableGeometry();
-            geometry.setSize(geometry.size().boundedTo(available.size()));
-            geometry.moveLeft(std::clamp(geometry.left(), available.left(), available.right() - geometry.width() + 1));
-            geometry.moveTop(std::clamp(geometry.top(), available.top(), available.bottom() - geometry.height() + 1));
-            placed = true;
-        }
-    }
-    if (placed)
-        setGeometry(geometry);
-    else
-        resize(1280, 800);
-    m_normalGeometry = this->geometry();
-    m_maximizedBeforeFullScreen = session.maximized;
-    if (placed && session.fullScreen)
-        showFullScreen();
-    else if (placed && session.maximized)
-        showMaximized();
-    else
-        show();
-}
-
-void ViewerWindow::saveSession() const
-{
-    SessionState session;
-    session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
-    // Closed while minimized (from the taskbar or the Dock), it opens again as it was before.
-    Qt::WindowStates states = windowStates();
-    if (states.testFlag(Qt::WindowMinimized))
-        states |= m_statesBeforeMinimize;
-    const bool fullScreen = states.testFlag(Qt::WindowFullScreen);
-    session.fullScreen = fullScreen && !m_slideshowLeavesFullScreen; // the slideshow's own ends with it
-    session.maximized = fullScreen ? m_maximizedBeforeFullScreen : states.testFlag(Qt::WindowMaximized);
-    session.lastFile = m_image.path;
-    session.lastDirectory = m_lastDirectory;
-    session.save(); // preferences are saved when they change, never here (U2)
-}
-
 int ViewerWindow::textureLimit(const QString &path) const
 {
     int limit = m_rendererReady ? std::min(kDefaultMaxTexture, m_renderer.maxTextureSize()) : kDefaultMaxTexture;
@@ -378,6 +321,7 @@ void ViewerWindow::initializeRenderer()
 
 void ViewerWindow::resizeEvent(QResizeEvent *)
 {
+    windowChanged(); // the image glides from where it was on the screen, after full screen (D-114)
     if (windowStates() == Qt::WindowNoState)
         m_normalGeometry = geometry();
     // A fitting zoom follows the window: the image point at the centre stays there (a long page
@@ -545,31 +489,6 @@ bool ViewerWindow::canPan() const
     return image.width() > view.width() + 0.5 || image.height() > view.height() + 0.5;
 }
 
-void ViewerWindow::matchWindowToImage()
-{
-    QScreen *display = screen();
-    if (!display || m_image.width == 0 || (windowStates() & (Qt::WindowMaximized | Qt::WindowFullScreen)))
-        return;
-    // The image at 100 %, within the chosen share of the screen's free area (frame included).
-    const QRect available = display->availableGeometry();
-    const QMargins frame = frameMargins();
-    const QSizeF room = QSizeF(available.width() - frame.left() - frame.right(),
-                               available.height() - frame.top() - frame.bottom())
-                        * (m_settings.windowFitPercent / 100.0);
-    QSizeF size = displayedImageSize() * naturalZoom() / devicePixelRatio();
-    size *= std::min({1.0, room.width() / size.width(), room.height() / size.height()});
-    // Rounded up: at a fractional device pixel ratio the window must hold every image pixel.
-    const QSize logical(int(std::ceil(size.width() - 1e-6)), int(std::ceil(size.height() - 1e-6)));
-    QRect target(QPoint(), logical.expandedTo(kMinWindowSize).boundedTo(available.size()));
-    // Around the window's centre, moved back onto the screen where it would leave it.
-    target.moveCenter(geometry().center());
-    target.moveLeft(std::clamp(target.left(), available.left() + frame.left(),
-                               std::max(available.left() + frame.left(), available.right() - frame.right() - target.width() + 1)));
-    target.moveTop(std::clamp(target.top(), available.top() + frame.top(),
-                              std::max(available.top() + frame.top(), available.bottom() - frame.bottom() - target.height() + 1)));
-    setGeometry(target);
-}
-
 void ViewerWindow::clampPan()
 {
     const QSizeF image = displayedImageSize() * currentZoom(), view = deviceSize();
@@ -623,7 +542,7 @@ void ViewerWindow::render()
     updateMainToolbar();
     Renderer::Frame frame = imageFrame();
     if (m_image.width > 0) {
-        frame.imageRect = imageRect();
+        frame.imageRect = glidedImageRect(imageRect()); // imageRect() itself after a glide (D-114)
         frame.quarterTurns = m_quarterTurns;
         frame.mirrored = m_mirrored;
         const double zoom = currentZoom();
@@ -808,45 +727,4 @@ void ViewerWindow::toggleInfo()
 {
     savePreference([on = !m_settings.showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
-}
-
-void ViewerWindow::toggleFullScreen()
-{
-    if (visibility() == QWindow::FullScreen) {
-        leaveFullScreen();
-        return;
-    }
-    m_maximizedBeforeFullScreen = windowStates().testFlag(Qt::WindowMaximized);
-    showFullScreen();
-}
-
-void ViewerWindow::leaveFullScreen()
-{
-    m_slideshowLeavesFullScreen = false; // a full screen entered again later is the user's
-    if (m_maximizedBeforeFullScreen)
-        showMaximized();
-    else
-        showNormal();
-}
-
-void ViewerWindow::minimize()
-{
-    // Minimized on top of its other states, which are remembered: macOS must leave full screen to
-    // minimize, and gives back a normal window (returnFromMinimized).
-    m_statesBeforeMinimize = windowStates() & (Qt::WindowFullScreen | Qt::WindowMaximized);
-    setWindowStates(windowStates() | Qt::WindowMinimized);
-}
-
-void ViewerWindow::returnFromMinimized()
-{
-    if (windowStates().testFlag(Qt::WindowMinimized)) // minimized again meanwhile: it waits for that return
-        return;
-    // Where the platform gave back less (macOS: a normal window), the window takes its state again;
-    // m_maximizedBeforeFullScreen still says where leaving full screen goes.
-    const Qt::WindowStates before = std::exchange(m_statesBeforeMinimize, Qt::WindowNoState);
-    if (before.testFlag(Qt::WindowFullScreen) && !windowStates().testFlag(Qt::WindowFullScreen))
-        showFullScreen();
-    else if (before.testFlag(Qt::WindowMaximized) && windowStates() == Qt::WindowNoState)
-        showMaximized();
-    resumeOnScreen();
 }

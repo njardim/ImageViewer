@@ -250,14 +250,6 @@
         <translation>オーバーレイの表示:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>ポインターが止まっている間はパネルを隠す</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>ポインターが止まっている間はオーバーレイを隠す</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>ポインターが止まっている間はスライドショーのツールバーを隠す</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>背景の不透明度：</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>文字の不透明度：</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>文字を縁取りする</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>ウィンドウに合わせる</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>色</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>幅に合わせる</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>ウィンドウより小さい画像を拡大する</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>ウィンドウ</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>タイトルバー：</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>上部のオーバーレイ</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>パネル、オーバーレイ、ギャラリー、ツールバー、左右のボタン</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>非表示にするまでの時間：</translation>
+        <source>Text and icon opacity:</source>
+        <translation>テキストとアイコンの不透明度:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>要素を自動で隠すまでの時間:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>上部のオーバーレイ</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>ポインターが止まっている間は情報パネルを隠す</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>ポインターが止まっている間は情報オーバーレイを隠す</translation>
     </message>
     <message>
         <source>Width of each side:</source>

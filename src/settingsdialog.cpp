@@ -129,8 +129,7 @@ void SettingsDialog::buildUi()
     tabs->setUsesScrollButtons(false); // every tab in sight: the dialog widens to fit them
     m_tabs = tabs;
 
-    // General, in three groups (the owner, D-113): the language and the text; startup and files;
-    // what is drawn over the image.
+    // General, in two groups (the owner, D-113, D-114): the language and the text; startup and files.
     auto *general = new QWidget;
     auto *generalLayout = new QVBoxLayout(general);
     auto *languageBox = new QGroupBox(tr("Language and text"));
@@ -160,54 +159,54 @@ void SettingsDialog::buildUi()
     m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
     startupForm->addRow(m_confirmTrash);
     generalLayout->addWidget(startupBox);
-    auto *overImageBox = new QGroupBox(tr("Over the image"));
-    auto *overImageForm = new QFormLayout(overImageBox);
-    // The interface's accent over the image: the gallery's highlight, a toolbar switch that is on (D-112).
-    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
-    overImageForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
-                                                           int(std::size(kHighlightPresets)), tr("Highlight Color")));
-    m_autoHide = secondsBox(Settings::kMinAutoHideMs / 1000.0, Settings::kMaxAutoHideMs / 1000.0);
-    overImageForm->addRow(tr("Hide after:"), m_autoHide);
-    auto *autoHideNote = new QLabel(tr("For everything set to hide while the pointer is still: the bars, the gallery, "
-                                       "the overlay, the panel and the pointer."));
-    autoHideNote->setWordWrap(true);
-    autoHideNote->setForegroundRole(QPalette::PlaceholderText);
-    overImageForm->addRow(QString(), autoHideNote);
-    generalLayout->addWidget(overImageBox);
     generalLayout->addStretch();
     tabs->addTab(general, tr("General"));
 
-    // Window
+    // Window, in four groups (the owner, D-114): the colours; the zoom; the window; what is drawn over
+    // the image, its opacity and its hiding, the one place for every element.
     auto *window = new QWidget;
-    auto *windowForm = new QFormLayout(window);
+    auto *windowLayout = new QVBoxLayout(window);
+    auto *colorsBox = new QGroupBox(tr("Colors"));
+    auto *colorsForm = new QFormLayout(colorsBox);
     const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
-    windowForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
+    colorsForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
                                                    int(std::size(kBackgroundPresets)), tr("Background Color")));
+    // The interface's accent over the image: the gallery's highlight, a toolbar's button (D-112, D-114).
+    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
+    colorsForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
+                                                        int(std::size(kHighlightPresets)), tr("Highlight Color")));
     m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
-    windowForm->addRow(m_checkerboard);
-    m_rememberGeometry = new QCheckBox(tr("Remember the window size and position"));
-    windowForm->addRow(m_rememberGeometry);
+    colorsForm->addRow(m_checkerboard);
+    windowLayout->addWidget(colorsBox);
     // D-51: the zoom of a new image, the window's size, the title bar.
+    auto *zoomBox = new QGroupBox(QStringLiteral("Zoom")); // a technical name, never translated (D-59)
+    auto *zoomForm = new QFormLayout(zoomBox);
     m_fitMode = new QComboBox;
     m_fitMode->addItem(tr("Fit to the window"), int(FitMode::Window));
     m_fitMode->addItem(tr("Fit to the width"), int(FitMode::Width));
     m_fitMode->addItem(tr("Fit to the height"), int(FitMode::Height));
     m_fitMode->addItem(tr("Fill the window"), int(FitMode::Fill));
     m_fitMode->addItem(tr("Actual size (100 %)"), int(FitMode::Actual));
-    windowForm->addRow(tr("Zoom of a new image:"), m_fitMode);
+    zoomForm->addRow(tr("Zoom of a new image:"), m_fitMode);
     m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
-    windowForm->addRow(m_enlargeSmall);
+    zoomForm->addRow(m_enlargeSmall);
     m_lockZoom = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
-    windowForm->addRow(m_lockZoom);
+    zoomForm->addRow(m_lockZoom);
+    windowLayout->addWidget(zoomBox);
+    //: The group of the window's own options: its size, its position, its title bar.
+    auto *frameBox = new QGroupBox(tr("Window", "settings group"));
+    auto *frameForm = new QFormLayout(frameBox);
+    m_rememberGeometry = new QCheckBox(tr("Remember the window size and position"));
+    frameForm->addRow(m_rememberGeometry);
     m_windowFit = new QComboBox;
     m_windowFit->addItem(tr("Keep its size"), int(WindowFit::Never));
     m_windowFit->addItem(tr("Fit it to the first image"), int(WindowFit::FirstImage));
     m_windowFit->addItem(tr("Fit it to every image"), int(WindowFit::EveryImage));
-    windowForm->addRow(tr("Window size:"), m_windowFit);
+    frameForm->addRow(tr("Window size:"), m_windowFit);
     m_windowFitPercent = sizeBox(Settings::kMinWindowFitPercent, Settings::kMaxWindowFitPercent,
                                  //: Unit after a percentage of the screen's size; keep the leading space if your language separates it.
                                  tr(" % of the screen"));
-    windowForm->addRow(tr("At most:"), m_windowFitPercent);
+    frameForm->addRow(tr("At most:"), m_windowFitPercent);
     connect(m_windowFit, &QComboBox::currentIndexChanged, this,
             [this] { m_windowFitPercent->setEnabled(WindowFit(m_windowFit->currentData().toInt()) != WindowFit::Never); });
     m_titleMode = new QComboBox;
@@ -215,9 +214,25 @@ void SettingsDialog::buildUi()
     m_titleMode->addItem(tr("Name, position and dimensions"), int(TitleMode::Details));
     m_titleMode->addItem(tr("Name, position, dimensions, file size and zoom"), int(TitleMode::Everything));
     m_titleMode->addItem(tr("The same as the overlay at the top"), int(TitleMode::Overlay));
-    windowForm->addRow(tr("Title bar:"), m_titleMode);
+    frameForm->addRow(tr("Title bar:"), m_titleMode);
+    windowLayout->addWidget(frameBox);
+    // One opacity for every background and one for every text and icon over the image, and one
+    // delay for everything that hides while the pointer is still (D-113, D-114).
+    auto *overImageBox = new QGroupBox(tr("Over the image"));
+    auto *overImageForm = new QFormLayout(overImageBox);
+    m_backgroundOpacity = sizeBox(0, 100, percent());
+    m_backgroundOpacity->setToolTip(tr("The panels, the overlay, the gallery, the toolbars and the side buttons"));
+    overImageForm->addRow(tr("Background opacity:"), m_backgroundOpacity);
+    m_textOpacity = sizeBox(Settings::kMinTextOpacity, 100, percent());
+    overImageForm->addRow(tr("Text and icon opacity:"), m_textOpacity);
     m_pointerAutoHide = new QCheckBox(tr("Hide the pointer while it is still"));
-    windowForm->addRow(m_pointerAutoHide);
+    overImageForm->addRow(m_pointerAutoHide);
+    m_autoHide = secondsBox(Settings::kMinAutoHideMs / 1000.0, Settings::kMaxAutoHideMs / 1000.0);
+    m_autoHide->setToolTip(tr("For everything set to hide while the pointer is still: the bars, the gallery, "
+                              "the overlay, the panel and the pointer."));
+    overImageForm->addRow(tr("Auto-hide elements after:"), m_autoHide);
+    windowLayout->addWidget(overImageBox);
+    windowLayout->addStretch();
     tabs->addTab(window, tr("Window"));
 
     // Information (D-34): the detailed panel and the compact overlay at the top.
@@ -255,15 +270,11 @@ void SettingsDialog::buildUi()
     // One look for both panels (D-49).
     auto *styleBox = new QGroupBox(tr("Appearance of the panel and the overlay"));
     auto *styleForm = new QFormLayout(styleBox);
-    m_overlayBackground = sizeBox(0, 100, percent());
-    styleForm->addRow(tr("Background opacity:"), m_overlayBackground);
-    m_overlayText = sizeBox(Settings::kMinOverlayTextOpacity, 100, percent());
-    styleForm->addRow(tr("Text opacity:"), m_overlayText);
     m_overlayOutline = new QCheckBox(tr("Outline the text"));
     styleForm->addRow(m_overlayOutline);
-    m_panelAutoHide = new QCheckBox(tr("Hide the panel while the pointer is still"));
+    m_panelAutoHide = new QCheckBox(tr("Hide the information panel while the pointer is still"));
     styleForm->addRow(m_panelAutoHide);
-    m_overlayAutoHide = new QCheckBox(tr("Hide the overlay while the pointer is still"));
+    m_overlayAutoHide = new QCheckBox(tr("Hide the information overlay while the pointer is still"));
     styleForm->addRow(m_overlayAutoHide);
     informationLayout->addWidget(styleBox);
     informationLayout->addStretch();
@@ -319,8 +330,6 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
     galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
-    m_galleryOpacity = sizeBox(0, 100, percent());
-    galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
     m_galleryAutoHide = new QCheckBox(tr("Hide the gallery while the pointer is still"));
     galleryForm->addRow(m_galleryAutoHide);
 
@@ -581,8 +590,8 @@ void SettingsDialog::setValues(const Settings &settings)
         item->setCheckState(settings.overlayFields.contains(field) ? Qt::Checked : Qt::Unchecked);
     }
     fitOverlayFields();
-    m_overlayBackground->setValue(settings.overlayBackgroundOpacity);
-    m_overlayText->setValue(settings.overlayTextOpacity);
+    m_backgroundOpacity->setValue(settings.backgroundOpacity);
+    m_textOpacity->setValue(settings.textOpacity);
     m_overlayOutline->setChecked(settings.overlayOutline);
     m_pointerAutoHide->setChecked(settings.pointerAutoHide);
     m_loop->setChecked(settings.loop);
@@ -597,7 +606,6 @@ void SettingsDialog::setValues(const Settings &settings)
     m_galleryThumbnailSize->setCurrentIndex(std::max(0, m_galleryThumbnailSize->findData(settings.galleryThumbnailSize)));
     m_galleryZoom->setChecked(settings.galleryZoom);
     m_galleryEnlargement->setEnabled(settings.galleryZoom);
-    m_galleryOpacity->setValue(settings.galleryOpacity);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
     m_galleryAutoHide->setChecked(settings.galleryAutoHide);
     m_showToolbar->setChecked(settings.showToolbar);
@@ -708,8 +716,8 @@ Settings SettingsDialog::settings() const
         if (item->checkState() == Qt::Checked)
             s.overlayFields.append(OverlayField(item->data(Qt::UserRole).toInt()));
     }
-    s.overlayBackgroundOpacity = m_overlayBackground->value();
-    s.overlayTextOpacity = m_overlayText->value();
+    s.backgroundOpacity = m_backgroundOpacity->value();
+    s.textOpacity = m_textOpacity->value();
     s.overlayOutline = m_overlayOutline->isChecked();
     s.loop = m_loop->isChecked();
     s.sideZones = m_sideZones->isChecked();
@@ -723,7 +731,6 @@ Settings SettingsDialog::settings() const
     s.showGallery = m_showGallery->isChecked();
     s.galleryThumbnailSize = m_galleryThumbnailSize->currentData().toInt();
     s.galleryZoom = m_galleryZoom->isChecked();
-    s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();
     s.galleryAutoHide = m_galleryAutoHide->isChecked();
     s.showToolbar = m_showToolbar->isChecked();

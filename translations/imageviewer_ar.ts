@@ -250,14 +250,6 @@
         <translation>عرض التراكب:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>إخفاء اللوحة ما دام المؤشر ساكنًا</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>إخفاء التراكب ما دام المؤشر ساكنًا</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>إخفاء شريط أدوات عرض الشرائح ما دام المؤشر ساكنًا</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>عتامة الخلفية:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>عتامة النص:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>إضافة حد خارجي للنص</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>ملاءمة النافذة</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>الألوان</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>ملاءمة العرض</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>تكبير الصور الأصغر من النافذة</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>النافذة</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>شريط العنوان:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>التراكب في الأعلى</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>اللوحات والتراكب والمعرض وأشرطة الأدوات والأزرار الجانبية</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>الإخفاء بعد:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>عتامة النص والأيقونات:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>إخفاء العناصر تلقائيًا بعد:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>التراكب في الأعلى</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>إخفاء لوحة المعلومات ما دام المؤشر ساكنًا</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>إخفاء تراكب المعلومات ما دام المؤشر ساكنًا</translation>
     </message>
     <message>
         <source>Width of each side:</source>

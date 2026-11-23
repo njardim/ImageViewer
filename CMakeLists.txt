@@ -77,7 +77,7 @@ find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp src/toolbars.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp src/toolbars.cpp src/windowstates.cpp
     src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
     src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
     src/cache.h src/cache.cpp
@@ -213,6 +213,10 @@ if(APPLE)
     target_link_libraries(imageviewer PRIVATE "-framework CoreServices")
 elseif(WIN32)
     target_link_libraries(imageviewer PRIVATE shell32 shlwapi)
+endif()
+# Leaving full screen without Windows' own animation of the window (D-114, windowstates.cpp).
+if(WIN32)
+    target_link_libraries(imageviewer PRIVATE dwmapi)
 endif()
 
 if(MSVC)

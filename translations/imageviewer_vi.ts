@@ -250,14 +250,6 @@
         <translation>Hiển thị lớp phủ:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Ẩn bảng khi con trỏ đứng yên</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Ẩn lớp phủ khi con trỏ đứng yên</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ẩn thanh trình chiếu khi con trỏ đứng yên</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>Độ mờ đục của nền:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Độ mờ đục của văn bản:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Tạo viền cho văn bản</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>Vừa với cửa sổ</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Màu sắc</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>Vừa với chiều rộng</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Phóng to ảnh nhỏ hơn cửa sổ</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Cửa sổ</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>Thanh tiêu đề:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>Lớp phủ ở trên cùng</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Các bảng, lớp phủ, thư viện ảnh, thanh công cụ và các nút bên</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Ẩn sau:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>Độ mờ đục của chữ và biểu tượng:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Tự động ẩn các thành phần sau:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Lớp phủ ở trên cùng</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Ẩn bảng thông tin khi con trỏ đứng yên</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Ẩn lớp phủ thông tin khi con trỏ đứng yên</translation>
     </message>
     <message>
         <source>Width of each side:</source>

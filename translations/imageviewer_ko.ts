@@ -254,14 +254,6 @@
         <translation>오버레이 표시:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 패널 숨기기</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 오버레이 숨기기</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>포인터가 움직이지 않으면 슬라이드 쇼 도구 모음 숨기기</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>창 크기와 위치 기억</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>색상</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>창에 맞추기</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>창보다 작은 이미지 확대</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>창</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>제목 표시줄:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>패널, 오버레이, 갤러리, 도구 모음, 측면 버튼</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>텍스트 및 아이콘 불투명도:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>요소 자동 숨기기 시간:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>창</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 정보 패널 숨기기</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>포인터가 움직이지 않으면 정보 오버레이 숨기기</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>배경 불투명도:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>텍스트 불투명도:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>텍스트에 윤곽선 넣기</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation>초</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>다음 시간 후 숨기기:</translation>
     </message>
     <message>
         <source>Information</source>

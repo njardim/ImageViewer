@@ -50,7 +50,8 @@ QImage overlayCanvas(const QSizeF &logical, qreal dpr)
 }
 
 // The round previous/next button of a side zone, drawn at `pixels` (device) size.
-QImage navigationButton(bool next, int pixels, bool pressed)
+// The panels' background and ink (D-114), and while pressed the highlight, as a toolbar's button.
+QImage navigationButton(bool next, int pixels, const QColor &disc, const QColor &ink)
 {
     QImage image(pixels, pixels, QImage::Format_RGBA8888_Premultiplied);
     image.setDevicePixelRatio(pixels / kNavigationButtonSize);
@@ -58,10 +59,10 @@ QImage navigationButton(bool next, int pixels, bool pressed)
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, pressed ? 180 : 125));
+    painter.setBrush(disc);
     const double s = kNavigationButtonSize;
     painter.drawEllipse(QRectF(0.5, 0.5, s - 1.0, s - 1.0));
-    painter.setPen(QPen(QColor(240, 240, 240), 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.setPen(QPen(ink, 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter.setBrush(Qt::NoBrush); // the circle's brush filled the open chevron as a dark triangle
     const double c = s / 2.0, half = s * 0.16, depth = s * 0.08;
     const double dir = next ? 1.0 : -1.0;
@@ -317,8 +318,8 @@ void ViewerWindow::updateOverlay()
     QString key;
     if (!messages.isEmpty() || !rows.isEmpty()) {
         key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|%9")
-                  .arg(m_settings.overlayBackgroundOpacity)
-                  .arg(m_settings.overlayTextOpacity)
+                  .arg(m_settings.backgroundOpacity)
+                  .arg(m_settings.textOpacity)
                   .arg(m_settings.overlayOutline)
                   .arg(width())
                   .arg(height())
@@ -455,8 +456,8 @@ void ViewerWindow::updateMessage()
                                           : QStringLiteral("%1|%2|%3|%4|%5|%6|%7|")
                                                     .arg(width())
                                                     .arg(dpr)
-                                                    .arg(m_settings.overlayBackgroundOpacity)
-                                                    .arg(m_settings.overlayTextOpacity)
+                                                    .arg(m_settings.backgroundOpacity)
+                                                    .arg(m_settings.textOpacity)
                                                     .arg(m_settings.overlayOutline)
                                                     .arg(int(QGuiApplication::layoutDirection()))
                                                     .arg(font.key())
@@ -600,8 +601,8 @@ void ViewerWindow::updateTopOverlay()
     const qreal dpr = devicePixelRatio();
     const QString key = parts.isEmpty() ? QString() // hidden, whatever the window's size
                                         : parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6|%7")
-                                                                         .arg(m_settings.overlayBackgroundOpacity)
-                                                                         .arg(m_settings.overlayTextOpacity)
+                                                                         .arg(m_settings.backgroundOpacity)
+                                                                         .arg(m_settings.textOpacity)
                                                                          .arg(m_settings.overlayOutline)
                                                                          .arg(width())
                                                                          .arg(dpr)
@@ -698,11 +699,13 @@ void ViewerWindow::updateNavigationButtons()
         return;
     const int pixels = int(std::lround(kNavigationButtonSize * devicePixelRatio()));
     const bool pressed = m_pressZone != Zone::None && m_pressZone == m_hoverZone && !m_pressMoved;
+    const QColor disc = pressed ? m_settings.highlightTile(false) : m_settings.panelBackground();
+    const QColor ink = m_settings.panelText(Settings::kPanelValueGrey);
     m_renderer.setOverlay(Renderer::PreviousButtonLayer, m_hoverZone == Zone::Previous
-                                                             ? navigationButton(false, pixels, pressed)
+                                                             ? navigationButton(false, pixels, disc, ink)
                                                              : QImage());
     m_renderer.setOverlay(Renderer::NextButtonLayer,
-                          m_hoverZone == Zone::Next ? navigationButton(true, pixels, pressed) : QImage());
+                          m_hoverZone == Zone::Next ? navigationButton(true, pixels, disc, ink) : QImage());
     requestUpdate();
 }
 

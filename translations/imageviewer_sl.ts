@@ -254,14 +254,6 @@
         <translation>Prikaži prekrivni sloj:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Skrij ploščo, ko kazalec miruje</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Skrij prekrivni sloj, ko kazalec miruje</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Skrij vrstico diaprojekcije, ko kazalec miruje</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Zapomni si velikost in položaj okna</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Barve</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Prilagodi oknu</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Povečaj slike, ki so manjše od okna</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Naslovna vrstica:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Plošče, prekrivni sloj, galerija, orodne vrstice in stranski gumbi</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Prekrivnost besedila in ikon:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Samodejno skrij elemente po:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Skrij informacijsko ploščo, ko kazalec miruje</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Skrij informacijski prekrivni sloj, ko kazalec miruje</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Neprosojnost ozadja:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Neprosojnost besedila:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Obrobi besedilo</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Skrij po:</translation>
     </message>
     <message>
         <source>Information</source>

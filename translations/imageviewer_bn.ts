@@ -250,14 +250,6 @@
         <translation>ওভারলে দেখান:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে প্যানেল লুকান</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে ওভারলে লুকান</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>পয়েন্টার স্থির থাকলে স্লাইডশো টুলবার লুকান</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>পটভূমির অস্বচ্ছতা:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>লেখার অস্বচ্ছতা:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>লেখার আউটলাইন দিন</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>উইন্ডোর মাপে ফিট করুন</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>রং</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>প্রস্থের মাপে ফিট করুন</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>উইন্ডোর চেয়ে ছোট ছবি বড় করুন</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>উইন্ডো</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>টাইটেল বার:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>উপরে ওভারলে</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>প্যানেল, ওভারলে, গ্যালারি, টুলবার ও পাশের বোতাম</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>এর পরে লুকান:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>লেখা ও আইকনের অস্বচ্ছতা:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>উপাদানগুলো স্বয়ংক্রিয়ভাবে লুকান এর পরে:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>উপরে ওভারলে</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে তথ্য প্যানেল লুকান</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>পয়েন্টার স্থির থাকলে তথ্য ওভারলে লুকান</translation>
     </message>
     <message>
         <source>Width of each side:</source>

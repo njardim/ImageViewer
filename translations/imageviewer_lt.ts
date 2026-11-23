@@ -254,14 +254,6 @@
         <translation>Rodyti užklotą:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Slėpti skydelį, kol žymiklis nejuda</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Slėpti užklotą, kol žymiklis nejuda</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Slėpti skaidrių peržiūros juostą, kol žymiklis nejuda</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Prisiminti lango dydį ir padėtį</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Spalvos</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Priderinti prie lango</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Padidinti vaizdus, mažesnius už langą</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Langas</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Antraštės juosta:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Skydeliai, užklotas, galerija, įrankių juostos ir šoniniai mygtukai</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Teksto ir piktogramų neskaidrumas:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Automatiškai slėpti elementus po:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Langas</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Slėpti informacijos skydelį, kol žymiklis nejuda</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Slėpti informacijos užklotą, kol žymiklis nejuda</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Fono nepermatomumas:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Teksto nepermatomumas:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Apvesti tekstą kontūru</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Slėpti po:</translation>
     </message>
     <message>
         <source>Information</source>

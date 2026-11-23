@@ -250,14 +250,6 @@
         <translation>Mostrar a sobreposição:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Ocultar o painel enquanto o ponteiro estiver parado</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Ocultar a sobreposição enquanto o ponteiro estiver parado</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ocultar a barra da apresentação enquanto o ponteiro estiver parado</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>Opacidade do fundo:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opacidade do texto:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Contornar o texto</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>Ajustar à janela</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Cores</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>Ajustar à largura</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Ampliar as imagens mais pequenas do que a janela</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Janela</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>Barra de título:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>Sobreposição no topo</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Os painéis, a sobreposição, a galeria, as barras de ferramentas e os botões laterais</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Ocultar após:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>Opacidade do texto e dos ícones:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Ocultar os elementos automaticamente após:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Sobreposição no topo</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Ocultar o painel de informações enquanto o ponteiro estiver parado</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Ocultar a sobreposição de informação enquanto o ponteiro estiver parado</translation>
     </message>
     <message>
         <source>Width of each side:</source>

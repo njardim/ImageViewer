@@ -254,14 +254,6 @@
         <translation>Rādīt pārklājumu:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Paslēpt paneli, kamēr rādītājs nekustas</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Paslēpt pārklājumu, kamēr rādītājs nekustas</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Paslēpt slīdrādes rīkjoslu, kamēr rādītājs nekustas</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Atcerēties loga izmēru un pozīciju</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Krāsas</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Ietilpināt logā</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Palielināt attēlus, kas ir mazāki par logu</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Logs</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Virsraksta josla:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Paneļi, pārklājums, galerija, rīkjoslas un sānu pogas</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Teksta un ikonu necaurredzamība:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Automātiski paslēpt elementus pēc:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Logs</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Paslēpt informācijas paneli, kamēr rādītājs nekustas</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Paslēpt informācijas pārklājumu, kamēr rādītājs nekustas</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Fona necaurredzamība:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Teksta necaurredzamība:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Teksta kontūra</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Paslēpt pēc:</translation>
     </message>
     <message>
         <source>Information</source>

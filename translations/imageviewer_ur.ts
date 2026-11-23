@@ -250,14 +250,6 @@
         <translation>اوورلے دکھائیں:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر پینل چھپائیں</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر اوورلے چھپائیں</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>پوائنٹر ساکن رہنے پر سلائیڈ شو ٹول بار چھپائیں</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>پس منظر کی غیر شفافیت:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>متن کی غیر شفافیت:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>متن کے گرد خاکہ لگائیں</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>ونڈو میں فٹ کریں</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>رنگ</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>چوڑائی میں فٹ کریں</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>ونڈو سے چھوٹی تصاویر کو بڑا کریں</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>ونڈو</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>ٹائٹل بار:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>اوپر اوورلے</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>پینل، اوورلے، گیلری، ٹول بارز اور سائیڈ بٹن</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>اتنی دیر بعد چھپائیں:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>متن اور آئیکنز کی دھندلاہٹ:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>عناصر کو خودکار طور پر چھپائیں اتنے بعد:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>اوپر اوورلے</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر معلوماتی پینل چھپائیں</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>پوائنٹر ساکن رہنے پر معلوماتی اوورلے چھپائیں</translation>
     </message>
     <message>
         <source>Width of each side:</source>

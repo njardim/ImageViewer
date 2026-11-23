@@ -10,8 +10,12 @@
 
 namespace {
 
-const QColor kGlyphColour(240, 240, 240); // the panels' glyphs (D-65)
-constexpr int kDisabledAlpha = 90;
+// A disabled button's ink: about a third of the look's.
+QColor disabled(QColor ink)
+{
+    ink.setAlphaF(ink.alphaF() * 0.35f);
+    return ink;
+}
 constexpr double kMinColumn = 48.0;       // a named button's column, at least
 constexpr double kNameWidth = 64.0;       // a name wraps at this width, or at its longest word
 
@@ -229,19 +233,16 @@ QImage Toolbar::menuTexture()
             const QRectF square(kPadding, y, kRow, kRow);
             const QRectF disc(square.center() - QPointF(14, 14), QSizeF(28, 28));
             painter.setPen(Qt::NoPen);
-            if (b.on) {
-                QColor highlight = m_look.highlight;
-                highlight.setAlpha(170);
-                painter.setBrush(highlight);
+            if (b.enabled && b.id == m_menuHover) { // the row under the pointer as the gallery's hovered tile
+                painter.setBrush(m_look.hover);
+                painter.drawRoundedRect(QRectF(kPadding, y + 1, m_menuSize.width() - 2 * kPadding, kRow - 2),
+                                        m_look.radius / 2, m_look.radius / 2);
+            }
+            if (b.on) { // a switch that is on: as behind the gallery's current thumbnail
+                painter.setBrush(m_look.on);
                 painter.drawEllipse(disc);
             }
-            if (b.enabled && b.id == m_menuHover) {
-                painter.setBrush(QColor(255, 255, 255, 48));
-                painter.drawEllipse(disc);
-            }
-            QColor ink = kGlyphColour;
-            if (!b.enabled)
-                ink.setAlpha(kDisabledAlpha);
+            const QColor ink = b.enabled ? m_look.ink : disabled(m_look.ink);
             painter.save();
             painter.translate(square.center() - QPointF(10, 10));
             painter.scale(20 / 24.0, 20 / 24.0); // a little smaller than the bar's, as a menu's icons are
@@ -251,8 +252,9 @@ QImage Toolbar::menuTexture()
             painter.setPen(ink);
             painter.drawText(QRectF(textLeft, y, m_menuNameWidth + 1, kRow), Qt::AlignLeft | Qt::AlignVCenter, b.name);
             if (!b.shortcut.isEmpty()) {
-                QColor key(190, 190, 190, b.enabled ? 255 : kDisabledAlpha); // the panels' label grey (D-49)
-                painter.setPen(key);
+                // The panels' label grey (D-49), at the text's opacity.
+                QColor key(190, 190, 190, m_look.ink.alpha());
+                painter.setPen(b.enabled ? key : disabled(key));
                 painter.drawText(QRectF(textLeft, y, m_menuSize.width() - kPadding - 12 - textLeft, kRow),
                                  Qt::AlignRight | Qt::AlignVCenter, b.shortcut);
             }
@@ -321,21 +323,15 @@ void Toolbar::drawButton(QPainter &painter, const Slot &slot) const
     const QRectF square(slot.left, kPadding, kButton, kButton);
     const QRectF disc(square.center() - QPointF(kDisc / 2, kDisc / 2), QSizeF(kDisc, kDisc));
     painter.setPen(Qt::NoPen);
-    if (b.on) { // a switch that is on: the highlight, as behind the gallery's current thumbnail (D-65)
-        QColor highlight = m_look.highlight;
-        highlight.setAlpha(170);
-        painter.setBrush(highlight);
+    // The gallery's highlight (the owner, D-114): a switch that is on, a pressed button and "…"
+    // while its panel shows as the current thumbnail; the button under the pointer as the hovered one.
+    const bool open = b.id == kMore && menuOpen();
+    const bool active = b.on || open || (b.enabled && b.id == m_pressed);
+    if (active || (b.enabled && b.id == m_hover)) {
+        painter.setBrush(active ? m_look.on : m_look.hover);
         painter.drawEllipse(disc);
     }
-    const bool open = b.id == kMore && menuOpen(); // "…" while its panel shows
-    if (b.enabled && (b.id == m_pressed || b.id == m_hover || open)) {
-        // The slideshow toolbar's states: a veil while hovered, a brighter one while pressed.
-        painter.setBrush(b.id == m_pressed || open ? QColor(255, 255, 255, 80) : QColor(255, 255, 255, 48));
-        painter.drawEllipse(disc);
-    }
-    QColor glyph = kGlyphColour;
-    if (!b.enabled)
-        glyph.setAlpha(kDisabledAlpha);
+    const QColor glyph = b.enabled ? m_look.ink : disabled(m_look.ink);
     painter.save();
     painter.translate(square.center() - QPointF(kGlyph / 2, kGlyph / 2));
     painter.scale(kGlyph / 24.0, kGlyph / 24.0);
@@ -377,7 +373,9 @@ QImage Toolbar::texture()
             if (slot.button.separator) {
                 // One device pixel wide, on the pixel grid.
                 const double x = (std::floor(slot.left * dpr + slot.width * dpr / 2) + 0.5) / dpr;
-                painter.setPen(QPen(QColor(240, 240, 240, 70), 1.0 / dpr));
+                QColor line = m_look.ink;
+                line.setAlphaF(line.alphaF() * 0.3f);
+                painter.setPen(QPen(line, 1.0 / dpr));
                 painter.drawLine(QPointF(x, kPadding + 9), QPointF(x, kPadding + kButton - 9 + nameHeight()));
                 continue;
             }

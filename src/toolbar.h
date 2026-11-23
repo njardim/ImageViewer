@@ -37,7 +37,7 @@ public:
         Glyph glyph = Glyph::More;
         QString name;         // under the glyph when the names show, and in the "…" menu
         bool enabled = true;
-        bool on = false;      // a switch that is on: the highlight behind its glyph
+        bool on = false;      // a switch that is on: Look::on behind its glyph
         bool separator = false;
         QString shortcut;     // its key as the menus show it, in the "…" panel; empty: none
         bool operator==(const Button &) const = default;
@@ -46,7 +46,9 @@ public:
         qreal devicePixelRatio = 1.0;
         bool names = false;   // each button's name under it
         QColor panel;         // the panel behind the buttons (Settings::panelBackground())
-        QColor highlight;     // behind a switch that is on (Settings::highlight)
+        QColor ink;           // the glyphs and names (the panels' text, at its opacity)
+        QColor on;            // behind a switch that is on, or a pressed button (Settings::highlightTile())
+        QColor hover;         // behind the button under the pointer
         QFont font;           // the names'
         QFont menuFont;       // the "…" panel's rows
         double radius = 8.0;  // the panel's corners (kPanelRadius)

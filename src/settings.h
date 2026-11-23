@@ -6,7 +6,9 @@
 #include "glyphs.h"
 #include "renderer.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <functional>
 #include <optional>
 
@@ -75,16 +77,17 @@ struct Settings {
     int windowFitPercent = 80;       // largest share of the screen the window takes for an image
     TitleMode titleMode = TitleMode::Overlay; // the owner's default (2026-11-18)
     bool pointerAutoHide = true;     // the pointer hides while it is still (autoHideMs)
+    // Everything drawn over the image (D-49, D-114): the panels, the overlay, the gallery, the
+    // toolbars and their "…" panel, the side buttons; one background and one text and icon opacity.
+    int backgroundOpacity = 70; // percent
+    int textOpacity = 100;      // percent
     // Information
     bool showInfo = false;     // the information panel (P)
-    bool showOverlay = true;   // the top overlay (I), where its mode below is not "never"
+    bool showOverlay = false;  // the top overlay (I); off at first: the toolbar and the gallery only (the owner, D-114)
     OverlayVisibility overlayVisibility = OverlayVisibility::Always; // in a window and in full screen: always or at the top (D-113)
     bool overlayAutoHide = false;    // the top overlay hides while the pointer is still
     bool panelAutoHide = false;      // the information panel likewise (its notices stay)
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
-    // The look of both information panels (D-49).
-    int overlayBackgroundOpacity = 70; // percent
-    int overlayTextOpacity = 100;      // percent
     bool overlayOutline = false;       // dark outline around the text, for HDR highlights (D-58)
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back: keys, mouse, slideshow, gallery
@@ -100,11 +103,10 @@ struct Settings {
     bool showGallery = true;          // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
     bool galleryZoom = false;         // the thumbnail under the pointer enlarges
-    int galleryOpacity = 70;          // percent, the gallery's background
     int galleryEnlargement = 50;      // logical pixels added to the thumbnail under the pointer
     // Toolbar (D-87, D-112): off by default, the screen is not meant to be full of controls.
-    bool showToolbar = false;         // a toggle, T
-    bool toolbarNames = false;        // each button's name under it
+    bool showToolbar = true;          // a toggle, T; on at first, with the gallery (the owner, D-114)
+    bool toolbarNames = true;         // each button's name under it
     bool toolbarAutoHide = false;     // it hides while the pointer is still; the user opts in
     QStringList toolbarButtons = defaultToolbarButtons(); // command keys (D-52), kToolbarSeparator between groups
     // Color & HDR
@@ -127,13 +129,24 @@ struct Settings {
     static constexpr int kMinGalleryEnlargement = 10;
     static constexpr int kMaxGalleryEnlargement = 100;
     static constexpr std::array<int, 3> kGalleryThumbnailSizes = {64, 96, 128}; // small, medium, large
-    static constexpr int kMinOverlayTextOpacity = 20; // never invisible
-    // Both information panels (D-49): values and labels in these greys over black at
-    // overlayBackgroundOpacity; at the default 70 % the labels keep 4.5:1 over a white image.
+    static constexpr int kMinTextOpacity = 20; // never invisible
+    // The panels (D-49): values and labels in these greys over black at backgroundOpacity; at the
+    // default 70 % the labels keep 4.5:1 over a white image.
     static constexpr int kPanelValueGrey = 240;
     static constexpr int kPanelLabelGrey = 190;
-    QColor panelBackground() const;
-    QColor panelText(int grey) const;
+    // The highlight under the pointer: 20 points fainter than under what is current or on (D-85).
+    static constexpr int kHoverFade = 20;
+    // In the header, as defaultOverlayFields(): the gallery's unit tests use them without settings.cpp.
+    QColor panelBackground() const { return QColor(0, 0, 0, int(std::lround(backgroundOpacity * 2.55))); }
+    QColor panelText(int grey) const { return QColor(grey, grey, grey, int(std::lround(textOpacity * 2.55))); }
+    // The highlight colour at the background's opacity (what is current, a switch that is on), or
+    // kHoverFade fainter (what is under the pointer): the gallery's tiles and the toolbars' discs alike.
+    QColor highlightTile(bool hovered) const
+    {
+        QColor tile = highlight;
+        tile.setAlpha(int(std::lround(std::max(0, backgroundOpacity - (hovered ? kHoverFade : 0)) * 2.55)));
+        return tile;
+    }
     static constexpr int kMinAutoHideMs = 500;
     static constexpr int kMaxAutoHideMs = 10000;
 
@@ -321,8 +334,8 @@ private:
     QCheckBox *m_overlayAutoHide = nullptr;
     QCheckBox *m_panelAutoHide = nullptr;
     QListWidget *m_overlayFields = nullptr;
-    QSpinBox *m_overlayBackground = nullptr;
-    QSpinBox *m_overlayText = nullptr;
+    QSpinBox *m_backgroundOpacity = nullptr;
+    QSpinBox *m_textOpacity = nullptr;
     QCheckBox *m_overlayOutline = nullptr;
     QCheckBox *m_pointerAutoHide = nullptr;
     QCheckBox *m_loop = nullptr;
@@ -336,7 +349,6 @@ private:
     QCheckBox *m_showGallery = nullptr;
     QComboBox *m_galleryThumbnailSize = nullptr;
     QCheckBox *m_galleryZoom = nullptr;
-    QSpinBox *m_galleryOpacity = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;
     QCheckBox *m_galleryAutoHide = nullptr;
     QCheckBox *m_showToolbar = nullptr;

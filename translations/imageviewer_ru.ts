@@ -250,14 +250,6 @@
         <translation>Показывать оверлей:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Скрывать панель, пока указатель неподвижен</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Скрывать оверлей, пока указатель неподвижен</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Скрывать панель слайд-шоу, пока указатель неподвижен</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>Непрозрачность фона:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Непрозрачность текста:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Обводить текст</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>По размеру окна</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Цвета</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>По ширине окна</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Увеличивать изображения, которые меньше окна</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Окно</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>Заголовок окна:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>Оверлей вверху</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Панели, оверлей, галерея, панели инструментов и боковые кнопки</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Скрывать через:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>Непрозрачность текста и значков:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Автоматически скрывать элементы через:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Оверлей вверху</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Скрывать информационную панель, пока указатель неподвижен</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Скрывать информационный оверлей, пока указатель неподвижен</translation>
     </message>
     <message>
         <source>Width of each side:</source>

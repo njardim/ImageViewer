@@ -254,14 +254,6 @@
         <translation>Mostra la sovrapposizione:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Nascondi il pannello quando il puntatore è fermo</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Nascondi la sovrapposizione quando il puntatore è fermo</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Nascondi la barra della presentazione quando il puntatore è fermo</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Ricorda dimensioni e posizione della finestra</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Colori</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Adatta alla finestra</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Ingrandisci le immagini più piccole della finestra</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Finestra</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Barra del titolo:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>I pannelli, la sovrapposizione, la galleria, le barre degli strumenti e i pulsanti laterali</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opacità di testo e icone:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Nascondi automaticamente gli elementi dopo:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Finestra</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Nascondi il pannello informazioni quando il puntatore è fermo</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Nascondi la sovrapposizione informazioni quando il puntatore è fermo</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Opacità dello sfondo:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opacità del testo:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Contorna il testo</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Nascondi dopo:</translation>
     </message>
     <message>
         <source>Information</source>

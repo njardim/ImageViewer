@@ -254,14 +254,6 @@
         <translation>Bindirmeyi göster:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>İşaretçi hareketsizken paneli gizle</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>İşaretçi hareketsizken bindirmeyi gizle</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>İşaretçi hareketsizken slayt gösterisi çubuğunu gizle</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Pencere boyutunu ve konumunu hatırla</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Renkler</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Pencereye sığdır</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Pencereden küçük görüntüleri büyüt</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Pencere</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Başlık çubuğu:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Paneller, bindirme, galeri, araç çubukları ve yan düğmeler</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Metin ve simge opaklığı:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Öğeleri şu süreden sonra otomatik gizle:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Pencere</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>İşaretçi hareketsizken bilgi panelini gizle</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>İşaretçi hareketsizken bilgi bindirmesini gizle</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Arka plan opaklığı:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Metin opaklığı:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Metne anahat ekle</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> sn</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Şu süreden sonra gizle:</translation>
     </message>
     <message>
         <source>Information</source>

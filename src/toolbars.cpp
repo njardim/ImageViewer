@@ -99,7 +99,9 @@ Toolbar::Look ViewerWindow::toolbarLook() const
     look.devicePixelRatio = devicePixelRatio();
     look.names = m_settings.toolbarNames;
     look.panel = m_settings.panelBackground();
-    look.highlight = m_settings.highlight;
+    look.ink = m_settings.panelText(Settings::kPanelValueGrey);
+    look.on = m_settings.highlightTile(false); // as the gallery's current thumbnail and hovered one (D-114)
+    look.hover = m_settings.highlightTile(true);
     look.menuFont = QGuiApplication::font(); // the panels' own; the names a little smaller
     look.font = look.menuFont;
     if (look.font.pointSizeF() > 0)

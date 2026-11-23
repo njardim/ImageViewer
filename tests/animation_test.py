@@ -52,10 +52,11 @@ frames = [Image.new("RGB", (160, 120), COLOURS[c]) for c in ("red", "green", "bl
 frames[0].save(os.path.join(pictures, "a-anim.gif"), save_all=True, append_images=frames[1:], duration=400, loop=0)
 Image.new("RGB", (160, 120), COLOURS["yellow"]).save(os.path.join(pictures, "b-still.png"))
 # 1 s per image; neither the top overlay (its text would be white in the toolbar's band, until I
-# shows it for the gap below it) nor the gallery nor the panel.
+# shows it for the gap below it) nor the gallery nor the panel, nor the toolbar at the top, which
+# would hold the slideshow's buttons in place of its own toolbar (D-112).
 with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "w") as f:
     f.write("[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\nshowOverlay=false\n\n"
-            "[gallery]\nshow=false\n")
+            "[gallery]\nshow=false\n\n[toolbar]\nshow=false\n")  # the slideshow's own toolbar shows (D-112)
 
 
 def fail(message):

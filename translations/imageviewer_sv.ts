@@ -254,14 +254,6 @@
         <translation>Visa överlagringen:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Dölj panelen medan pekaren står still</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Dölj överlagringen medan pekaren står still</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Dölj bildspelets verktygsfält medan pekaren står still</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Kom ihåg fönstrets storlek och position</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Färger</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Anpassa till fönstret</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Förstora bilder som är mindre än fönstret</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Fönster</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Namnlist:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panelerna, överlagringen, galleriet, verktygsfälten och sidoknapparna</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opacitet för text och ikoner:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Dölj element automatiskt efter:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fönster</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Dölj informationspanelen medan pekaren står still</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Dölj informationsöverlagringen medan pekaren står still</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Bakgrundens opacitet:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Textens opacitet:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Ge texten en kontur</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Dölj efter:</translation>
     </message>
     <message>
         <source>Information</source>

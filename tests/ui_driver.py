@@ -136,6 +136,12 @@ def edit_settings(*options):
         f.write(text)
 
 
+# The interaction tests were written for a window without the toolbar and with the top overlay:
+# what the application showed by default until D-114 (the toolbar and the gallery only). Each test
+# switches on what it checks (ui_views_test.py section 5: the toolbar).
+edit_settings(("toolbar", "show", "false"), ("window", "showOverlay", "true"))
+
+
 def find_dialog(title):
     """Window id of a visible dialog with this exact title, waiting for it."""
     found = []

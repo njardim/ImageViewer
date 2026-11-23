@@ -210,10 +210,8 @@ Settings Settings::load()
                 if (id == QLatin1String(key) && !s.overlayFields.contains(field))
                     s.overlayFields.append(field);
     }
-    s.overlayBackgroundOpacity = sizeValue(store, QStringLiteral("overlay/backgroundOpacity"),
-                                            defaults.overlayBackgroundOpacity, 0, 100);
-    s.overlayTextOpacity = sizeValue(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
-                                      kMinOverlayTextOpacity, 100);
+    s.backgroundOpacity = sizeValue(store, QStringLiteral("window/backgroundOpacity"), defaults.backgroundOpacity, 0, 100);
+    s.textOpacity = sizeValue(store, QStringLiteral("window/textOpacity"), defaults.textOpacity, kMinTextOpacity, 100);
     s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
 
     s.loop = boolValue(store, QStringLiteral("navigation/loop"), defaults.loop);
@@ -237,7 +235,6 @@ Settings Settings::load()
         == kGalleryThumbnailSizes.cend())
         s.galleryThumbnailSize = defaults.galleryThumbnailSize;
     s.galleryZoom = boolValue(store, QStringLiteral("gallery/zoom"), defaults.galleryZoom);
-    s.galleryOpacity = sizeValue(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
     s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
     s.galleryAutoHide = boolValue(store, QStringLiteral("gallery/autoHide"), defaults.galleryAutoHide);
@@ -299,16 +296,6 @@ bool sameShortcut(const QKeySequence &a, const QKeySequence &b)
     return a.count() == 1 && b.count() == 1 && comparableKey(a[0]) == comparableKey(b[0]);
 }
 
-QColor Settings::panelBackground() const
-{
-    return QColor(0, 0, 0, int(std::lround(overlayBackgroundOpacity * 2.55)));
-}
-
-QColor Settings::panelText(int grey) const
-{
-    return QColor(grey, grey, grey, int(std::lround(overlayTextOpacity * 2.55)));
-}
-
 void Settings::save() const
 {
     QSettings store;
@@ -337,8 +324,8 @@ void Settings::save() const
     for (OverlayField field : overlayFields)
         ids << QString::fromLatin1(keyOf(kFields, field));
     store.setValue(QStringLiteral("overlay/fields"), ids.join(QLatin1Char(',')));
-    store.setValue(QStringLiteral("overlay/backgroundOpacity"), overlayBackgroundOpacity);
-    store.setValue(QStringLiteral("overlay/textOpacity"), overlayTextOpacity);
+    store.setValue(QStringLiteral("window/backgroundOpacity"), backgroundOpacity);
+    store.setValue(QStringLiteral("window/textOpacity"), textOpacity);
     store.setValue(QStringLiteral("overlay/outline"), overlayOutline);
     store.setValue(QStringLiteral("navigation/loop"), loop);
     store.setValue(QStringLiteral("navigation/sideZones"), sideZones);
@@ -352,7 +339,6 @@ void Settings::save() const
     store.setValue(QStringLiteral("gallery/show"), showGallery);
     store.setValue(QStringLiteral("gallery/thumbnailSize"), galleryThumbnailSize);
     store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
-    store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
     store.setValue(QStringLiteral("gallery/autoHide"), galleryAutoHide);
     store.setValue(QStringLiteral("app/highlight"), highlight.name(QColor::HexRgb));

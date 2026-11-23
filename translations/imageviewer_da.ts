@@ -254,14 +254,6 @@
         <translation>Vis overlayet:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Skjul panelet, mens markøren står stille</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Skjul overlayet, mens markøren står stille</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Skjul diasshowets værktøjslinje, mens markøren står stille</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Husk vinduets størrelse og placering</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Farver</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Tilpas til vinduet</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Forstør billeder, der er mindre end vinduet</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Vindue</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Titellinje:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panelerne, overlayet, galleriet, værktøjslinjerne og sideknapperne</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Uigennemsigtighed for tekst og ikoner:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Skjul elementer automatisk efter:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Vindue</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Skjul informationspanelet, mens markøren står stille</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Skjul informationsoverlayet, mens markøren står stille</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Baggrundens opacitet:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Tekstens opacitet:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Giv teksten en kontur</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Skjul efter:</translation>
     </message>
     <message>
         <source>Information</source>

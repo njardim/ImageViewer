@@ -254,14 +254,6 @@
         <translation>Zobraziť prekrytie:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Skryť panel, kým sa ukazovateľ nehýbe</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Skryť prekrytie, kým sa ukazovateľ nehýbe</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Skryť panel prezentácie, kým sa ukazovateľ nehýbe</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Pamätať si veľkosť a polohu okna</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Farby</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Prispôsobiť oknu</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Zväčšiť obrázky menšie než okno</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Okno</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Záhlavie okna:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panely, prekrytie, galéria, panely nástrojov a bočné tlačidlá</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Krytie textu a ikon:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Automaticky skryť prvky po:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Okno</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Skryť informačný panel, kým sa ukazovateľ nehýbe</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Skryť informačné prekrytie, kým sa ukazovateľ nehýbe</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Nepriehľadnosť pozadia:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Nepriehľadnosť textu:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Obrysovať text</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Skryť po:</translation>
     </message>
     <message>
         <source>Information</source>

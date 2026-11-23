@@ -250,14 +250,6 @@
         <translation>ఓవర్‌లే చూపు:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు ప్యానెల్‌ను దాచు</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు ఓవర్‌లేను దాచు</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు స్లైడ్‌షో టూల్‌బార్‌ను దాచు</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>నేపథ్య అపారదర్శకత:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>టెక్స్ట్ అపారదర్శకత:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>టెక్స్ట్‌కు అవుట్‌లైన్ ఇవ్వు</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>విండోకు సరిపోయేలా చేయి</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>రంగులు</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>వెడల్పుకు సరిపోయేలా చేయి</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>విండో కంటే చిన్న చిత్రాలను పెద్దవి చేయి</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>విండో</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>టైటిల్ బార్:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>పైన ఓవర్‌లే</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>ప్యానెల్‌లు, ఓవర్‌లే, గ్యాలరీ, టూల్‌బార్‌లు మరియు పక్క బటన్‌లు</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>తర్వాత దాచు:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>వచనం మరియు చిహ్నాల అపారదర్శకత:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>మూలకాలను స్వయంచాలకంగా దాచు ఇంత తర్వాత:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>పైన ఓవర్‌లే</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు సమాచార ప్యానెల్‌ను దాచు</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు సమాచార ఓవర్‌లేను దాచు</translation>
     </message>
     <message>
         <source>Width of each side:</source>

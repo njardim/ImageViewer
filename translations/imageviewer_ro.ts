@@ -254,14 +254,6 @@
         <translation>Afișează suprapunerea:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Ascunde panoul cât timp indicatorul stă nemișcat</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Ascunde suprapunerea cât timp indicatorul stă nemișcat</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Ascunde bara prezentării cât timp indicatorul stă nemișcat</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Reține dimensiunea și poziția ferestrei</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Culori</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Potrivire în fereastră</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Mărește imaginile mai mici decât fereastra</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Fereastră</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Bara de titlu:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panourile, suprapunerea, galeria, barele de instrumente și butoanele laterale</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opacitatea textului și a pictogramelor:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Ascunde automat elementele după:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Fereastră</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Ascunde panoul de informații cât timp indicatorul stă nemișcat</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Ascunde suprapunerea de informații cât timp indicatorul stă nemișcat</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Opacitatea fundalului:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opacitatea textului:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Conturează textul</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Ascunde după:</translation>
     </message>
     <message>
         <source>Information</source>

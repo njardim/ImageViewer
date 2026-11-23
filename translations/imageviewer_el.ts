@@ -254,14 +254,6 @@
         <translation>Εμφάνιση της επικάλυψης:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Απόκρυψη του πίνακα όσο ο δείκτης μένει ακίνητος</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Απόκρυψη της επικάλυψης όσο ο δείκτης μένει ακίνητος</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Απόκρυψη της γραμμής της παρουσίασης όσο ο δείκτης μένει ακίνητος</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Απομνημόνευση του μεγέθους και της θέσης του παραθύρου</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Χρώματα</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Προσαρμογή στο παράθυρο</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Μεγέθυνση των εικόνων που είναι μικρότερες από το παράθυρο</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Παράθυρο</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Γραμμή τίτλου:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Οι πίνακες, η επικάλυψη, η συλλογή, οι γραμμές εργαλείων και τα πλευρικά κουμπιά</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Αδιαφάνεια κειμένου και εικονιδίων:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Αυτόματη απόκρυψη στοιχείων μετά από:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Παράθυρο</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Απόκρυψη του πίνακα πληροφοριών όσο ο δείκτης μένει ακίνητος</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Απόκρυψη της επικάλυψης πληροφοριών όσο ο δείκτης μένει ακίνητος</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Αδιαφάνεια φόντου:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Αδιαφάνεια κειμένου:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Περίγραμμα στο κείμενο</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> δευτ.</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Απόκρυψη μετά από:</translation>
     </message>
     <message>
         <source>Information</source>

@@ -254,14 +254,6 @@
         <translation>A fedőréteg megjelenítése:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>A panel elrejtése, amíg a mutató nem mozog</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>A fedőréteg elrejtése, amíg a mutató nem mozog</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>A diavetítés eszköztárának elrejtése, amíg a mutató nem mozog</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Ablakméret és -pozíció megjegyzése</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Színek</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Ablakhoz igazítás</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Az ablaknál kisebb képek felnagyítása</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Ablak</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Címsor:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>A panelek, a fedőréteg, a galéria, az eszköztárak és az oldalsó gombok</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>A szöveg és az ikonok átlátszatlansága:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Az elemek automatikus elrejtése ennyi idő után:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Ablak</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Az információs panel elrejtése, amíg a mutató nem mozog</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Az információs fedőréteg elrejtése, amíg a mutató nem mozog</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Háttér átlátszatlansága:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Szöveg átlátszatlansága:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Szöveg körvonalazása</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Elrejtés ennyi idő után:</translation>
     </message>
     <message>
         <source>Information</source>

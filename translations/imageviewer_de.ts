@@ -250,14 +250,6 @@
         <translation>Einblendung anzeigen:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Bereich ausblenden, solange der Zeiger stillsteht</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Einblendung ausblenden, solange der Zeiger stillsteht</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Diashow-Leiste ausblenden, solange der Zeiger stillsteht</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>Deckkraft des Hintergrunds:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Deckkraft des Textes:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Text umranden</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>An Fenster anpassen</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Farben</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>An Breite anpassen</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Bilder, die kleiner als das Fenster sind, vergrößern</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Fenster</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>Titelleiste:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>Einblendung oben</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Die Bereiche, die Einblendung, die Galerie, die Leisten und die seitlichen Schaltflächen</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Ausblenden nach:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>Deckkraft von Text und Symbolen:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Elemente automatisch ausblenden nach:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Einblendung oben</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Informationsbereich ausblenden, solange der Zeiger stillsteht</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Informationseinblendung ausblenden, solange der Zeiger stillsteht</translation>
     </message>
     <message>
         <source>Width of each side:</source>

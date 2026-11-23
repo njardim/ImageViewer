@@ -618,7 +618,9 @@ class ToolbarTest : public QObject {
         l.devicePixelRatio = 2.0;
         l.names = names;
         l.panel = QColor(0, 0, 0, 179);
-        l.highlight = QColor(80, 200, 120);
+        l.ink = QColor(240, 240, 240);
+        l.on = QColor(80, 200, 120, 179);
+        l.hover = QColor(80, 200, 120, 128);
         l.font = QGuiApplication::font();
         return l;
     }

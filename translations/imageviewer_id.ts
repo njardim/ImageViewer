@@ -250,14 +250,6 @@
         <translation>Tampilkan overlay:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Sembunyikan panel saat penunjuk diam</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Sembunyikan overlay saat penunjuk diam</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Sembunyikan bilah tayangan slide saat penunjuk diam</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>Opasitas latar belakang:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opasitas teks:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Beri garis tepi pada teks</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>Sesuaikan dengan jendela</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Warna</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>Sesuaikan dengan lebar</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Perbesar gambar yang lebih kecil dari jendela</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Jendela</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>Bilah judul:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>Overlay di bagian atas</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panel, overlay, galeri, bilah alat, dan tombol samping</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Sembunyikan setelah:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>Opasitas teks dan ikon:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Sembunyikan elemen otomatis setelah:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>Overlay di bagian atas</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Sembunyikan panel informasi saat penunjuk diam</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Sembunyikan overlay informasi saat penunjuk diam</translation>
     </message>
     <message>
         <source>Width of each side:</source>

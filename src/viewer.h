@@ -1,6 +1,7 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
-// swapchain (decision D-09). ViewerWindow is implemented in nine files:
+// swapchain (decision D-09). ViewerWindow is implemented in ten files:
 //   viewer.cpp      display and view state;
+//   windowstates.cpp the window's states: the session's place, full screen (the image gliding), minimized;
 //   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
 //   overlays.cpp    what is drawn over the image: information panel, top overlay (D-34),
 //                   navigation buttons;
@@ -51,6 +52,8 @@
 // edges and rounds its corners by kPanelRadius (D-58, D-60), logical pixels.
 inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
+// The window's least size, logical pixels; also when the window takes an image's size.
+inline constexpr QSize kMinWindowSize(320, 240);
 // One step of Zoom In or Zoom Out, and of a wheel notch.
 inline constexpr double kZoomStep = 1.25;
 
@@ -111,10 +114,15 @@ private:
     // viewer.cpp
     void initializeRenderer();
     void render();
+    // windowstates.cpp: full screen and back with the image gliding (D-114), minimized and back.
     void toggleFullScreen();
     void leaveFullScreen(); // back to maximized or normal, whichever it was
     void minimize();
     void returnFromMinimized(); // full screen or maximized again, as before minimize()
+    void startGlide();            // before the window changes: where the image is on the screen
+    void windowChanged();         // the window has its new size: the glide starts
+    void presentChangedWindow();  // Windows: the first frame of the new size at once
+    QRectF glidedImageRect(const QRectF &target); // device pixels: on its way there during a glide
     void applySettings(const Settings &settings);
     // Sets one preference changed outside the Settings dialog (a toggle) and saves it into the
     // stored preferences rather than saving all of this instance's: another instance may have
@@ -434,6 +442,9 @@ private:
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
+    QRectF m_glideFrom;      // where the image was on the screen, global logical pixels (D-114)
+    QElapsedTimer m_glideClock; // running while the image glides to its new place
+    bool m_glidePending = false; // the window is about to change: the glide starts when it has
     bool m_maximizedBeforeFullScreen = false;
     Qt::WindowStates m_statesBeforeMinimize; // full screen or maximized: given back by returnFromMinimized()
     std::function<void()> m_menuChoice; // what the context menu chose: run once the menu is gone

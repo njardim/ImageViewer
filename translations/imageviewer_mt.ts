@@ -254,14 +254,6 @@
         <translation>Uri l-overlay:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Aħbi l-pannell sakemm il-pointer ma jiċċaqlaqx</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Aħbi l-overlay sakemm il-pointer ma jiċċaqlaqx</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Aħbi l-barra tal-preżentazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Ftakar id-daqs u l-pożizzjoni tat-tieqa</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Kuluri</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Adatta għat-tieqa</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Kabbar l-immaġini li huma iżgħar mit-tieqa</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Tieqa</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Bar tat-titlu:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Il-pannelli, l-overlay, il-gallerija, il-barrijiet tal-għodod u l-buttuni tal-ġenb</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opaċità tat-test u tal-ikoni:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Aħbi l-elementi awtomatikament wara:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Tieqa</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Aħbi l-pannell tal-informazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Aħbi l-overlay tal-informazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Opaċità tal-isfond:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opaċità tat-test:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Agħti kontorn lit-test</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Aħbi wara:</translation>
     </message>
     <message>
         <source>Information</source>

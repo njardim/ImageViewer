@@ -250,14 +250,6 @@
         <translation>显示叠加层：</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>指针静止时隐藏面板</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>指针静止时隐藏叠加层</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>指针静止时隐藏幻灯片放映工具栏</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>背景不透明度：</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>文字不透明度：</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>为文字添加轮廓</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>适合窗口</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>颜色</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>适合宽度</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>放大小于窗口的图像</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>窗口</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>标题栏：</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>顶部叠加层</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>面板、叠加层、图库、工具栏和侧边按钮</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>隐藏延迟：</translation>
+        <source>Text and icon opacity:</source>
+        <translation>文字和图标不透明度：</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>自动隐藏元素的时间：</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>顶部叠加层</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>指针静止时隐藏信息面板</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>指针静止时隐藏信息叠加层</translation>
     </message>
     <message>
         <source>Width of each side:</source>

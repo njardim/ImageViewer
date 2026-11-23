@@ -250,14 +250,6 @@
         <translation>ओव्हरले दाखवा:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना पॅनेल लपवा</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना ओव्हरले लपवा</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>पॉइंटर स्थिर असताना स्लाइडशो टूलबार लपवा</translation>
     </message>
@@ -340,10 +332,6 @@
         <translation>पार्श्वभूमीची अपारदर्शकता:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>मजकुराची अपारदर्शकता:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>मजकुराला बाह्यरेखा द्या</translation>
     </message>
@@ -396,6 +384,10 @@
         <translation>विंडोमध्ये बसवा</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>रंग</translation>
+    </message>
+    <message>
         <source>Fit to the width</source>
         <translation>रुंदीनुसार बसवा</translation>
     </message>
@@ -418,6 +410,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>विंडोपेक्षा लहान प्रतिमा मोठ्या करा</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>विंडो</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -465,12 +463,20 @@
         <translation>टायटल बार:</translation>
     </message>
     <message>
-        <source>Overlay at the top</source>
-        <translation>वर ओव्हरले</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>पॅनेल, ओव्हरले, गॅलरी, टूलबार आणि बाजूची बटणे</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>नंतर लपवा:</translation>
+        <source>Text and icon opacity:</source>
+        <translation>मजकूर आणि आयकॉनची अपारदर्शकता:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>घटक आपोआप लपवा यानंतर:</translation>
+    </message>
+    <message>
+        <source>Overlay at the top</source>
+        <translation>वर ओव्हरले</translation>
     </message>
     <message>
         <source>Appearance of the panel and the overlay</source>
@@ -591,6 +597,14 @@
         <source> px</source>
         <extracomment>Unit after a number of pixels; keep the leading space if your language separates units.</extracomment>
         <translation> px</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>पॉइंटर स्थिर असताना माहिती पॅनेल लपवा</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>पॉइंटर स्थिर असताना माहिती ओव्हरले लपवा</translation>
     </message>
     <message>
         <source>Width of each side:</source>

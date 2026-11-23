@@ -254,14 +254,6 @@
         <translation>Kuva ülekate:</translation>
     </message>
     <message>
-        <source>Hide the panel while the pointer is still</source>
-        <translation>Peida paneel, kui kursor ei liigu</translation>
-    </message>
-    <message>
-        <source>Hide the overlay while the pointer is still</source>
-        <translation>Peida ülekate, kui kursor ei liigu</translation>
-    </message>
-    <message>
         <source>Hide the slideshow toolbar while the pointer is still</source>
         <translation>Peida slaidiseansi riba, kui kursor ei liigu</translation>
     </message>
@@ -329,6 +321,10 @@
         <translation>Jäta meelde akna suurus ja asukoht</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <translation>Värvid</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Mahuta aknasse</translation>
     </message>
@@ -355,6 +351,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Suurenda aknast väiksemaid pilte</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Aken</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -398,8 +400,28 @@
         <translation>Tiitliriba:</translation>
     </message>
     <message>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Paneelid, ülekate, galerii, tööriistaribad ja külgnupud</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Teksti ja ikoonide läbipaistmatus:</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Peida elemendid automaatselt pärast:</translation>
+    </message>
+    <message>
         <source>Window</source>
         <translation>Aken</translation>
+    </message>
+    <message>
+        <source>Hide the information panel while the pointer is still</source>
+        <translation>Peida teabepaneel, kui kursor ei liigu</translation>
+    </message>
+    <message>
+        <source>Hide the information overlay while the pointer is still</source>
+        <translation>Peida teabe ülekate, kui kursor ei liigu</translation>
     </message>
     <message>
         <source>Time per image:</source>
@@ -567,10 +589,6 @@
         <translation>Tausta läbipaistmatus:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Teksti läbipaistmatus:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Joonista tekstile ääris</translation>
     </message>
@@ -578,10 +596,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Peida pärast:</translation>
     </message>
     <message>
         <source>Information</source>

@@ -435,14 +435,25 @@ try:
             xdotool("key", "p")
 
             def histogram_lines():
+                """The orange's three spikes on the panel's plot, wherever the panel's width puts it (a
+                long folder path widens it): blue at 52, green at 145, red at 247 of 255, so green lies
+                93/195 of the way from blue to red. Red is told from the orange image (R − G = 102)."""
                 shot = grab()
                 if shot is None:
                     return False
-                top = shot[y + 100:y + h - 16, x + 16:x + 16 + 300, :3].astype(int)
-                red = (top[..., 0] > top[..., 1] + 60) & (top[..., 0] > top[..., 2] + 60)
-                blue = (top[..., 2] > top[..., 0] + 40) & (top[..., 2] > top[..., 1] + 20)
-                return red.sum() > 20 and blue.sum() > 20
-            wait_until("P: the panel's histogram draws the orange's red and blue", histogram_lines)
+                band = shot[y + h // 2:y + h - 16, x:x + w, :3].astype(int)
+                r, g, b = band[..., 0], band[..., 1], band[..., 2]
+
+                def column(mask):
+                    columns = np.nonzero(mask.sum(axis=0) >= 10)[0]
+                    return float(columns.mean()) if len(columns) else None
+                red = column((r > g + 120) & (r > b + 120))
+                green = column((g > r + 60) & (g > b + 60))
+                blue = column((b > r + 60) & (b > g + 40))
+                return (None not in (red, green, blue) and blue < green < red
+                        and abs((green - blue) / (red - blue) - 93 / 195) < 0.05)
+            wait_until("P: the panel's histogram shows the orange's blue, green and red where their codes are",
+                       histogram_lines)
             xdotool("key", "p")
             xdotool("key", "q")
             app.wait(15)

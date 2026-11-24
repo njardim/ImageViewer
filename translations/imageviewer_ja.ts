@@ -285,10 +285,6 @@
         <translation>白</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>止まっている間はポインターを隠す</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>オーバーレイの表示:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>ポインターが止まっている間はスライドショーのツールバーを隠す</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>ポインターの下のサムネイルの上に画像の情報を表示する</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>ポインターが止まっている間はギャラリーを隠す</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>画像の上</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>ポインターが止まっている間に隠れるよう設定したすべてに適用：バー、ギャラリー、オーバーレイ、パネル、ポインター。</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>ウィンドウに合わせる</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>テキストとアイコンの不透明度:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>マウスポインターが止まっている間は自動で隠す</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>自動で隠すように設定したすべてに適用：バー、ギャラリー、オーバーレイ、パネル、マウスポインター。</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>要素を自動で隠すまでの時間:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>パネルとオーバーレイの外観</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>情報パネルを自動で隠す</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>情報オーバーレイを自動で隠す</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>ボタンの下に名前を表示</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>ポインターが止まっている間はツールバーを隠す</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>ツールバーを自動で隠す</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>ポインターが止まっている間は情報パネルを隠す</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>ポインターが止まっている間は情報オーバーレイを隠す</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>左右それぞれの幅：</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>スライドショーを全画面表示で開始</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>スライドショーのツールバーを自動で隠す</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>画像の情報をツールチップで表示する</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>ギャラリーを自動で隠す</translation>
     </message>
     <message>
         <source>Search:</source>

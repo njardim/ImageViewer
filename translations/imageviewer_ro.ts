@@ -289,10 +289,6 @@
         <translation>Alb</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Ascunde indicatorul cât timp stă nemișcat</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Afișează suprapunerea:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Ascunde bara prezentării cât timp indicatorul stă nemișcat</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Afișează informațiile imaginii deasupra miniaturii de sub indicator</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Ascunde galeria cât timp indicatorul stă nemișcat</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Deasupra imaginii</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Pentru tot ce se ascunde cât timp indicatorul stă nemișcat: barele, galeria, suprapunerea, panoul și indicatorul.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Opacitatea textului și a pictogramelor:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Ascunde automat indicatorul mouse-ului cât timp stă nemișcat</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Pentru tot ce se ascunde automat: barele, galeria, suprapunerea, panoul și indicatorul mouse-ului.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Ascunde automat elementele după:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogramă:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Ascunde panoul de informații cât timp indicatorul stă nemișcat</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Ascunde suprapunerea de informații cât timp indicatorul stă nemișcat</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Timp pe imagine:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Afișează numele sub butoane</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Ascunde bara de instrumente cât timp indicatorul stă nemișcat</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Ascunde automat bara de instrumente</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Culoarea evidențierii</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Ascunde automat panoul de informații</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Ascunde automat suprapunerea de informații</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Ascunde automat bara prezentării</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Afișează informațiile imaginii în sfatul ecranului</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Ascunde automat galeria</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

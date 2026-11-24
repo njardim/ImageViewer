@@ -289,10 +289,6 @@
         <translation>Fehér</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>A mutató elrejtése, amíg nem mozog</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>A fedőréteg megjelenítése:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>A diavetítés eszköztárának elrejtése, amíg a mutató nem mozog</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>A kép adatainak megjelenítése a mutató alatti bélyegkép fölött</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>A galéria elrejtése, amíg a mutató nem mozog</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>A kép fölött</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Mindarra, ami rejtőzködik, amíg a mutató nem mozog: a sávok, a galéria, a fedőréteg, a panel és a mutató.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>A szöveg és az ikonok átlátszatlansága:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Az egérmutató automatikus elrejtése, amíg nem mozog</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Mindenre, ami automatikusan elrejtőzik: az eszköztárakra, a galériára, a fedőrétegre, a panelre és az egérmutatóra.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Az elemek automatikus elrejtése ennyi idő után:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Hisztogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Az információs panel elrejtése, amíg a mutató nem mozog</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Az információs fedőréteg elrejtése, amíg a mutató nem mozog</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Képenkénti idő:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Nevek megjelenítése a gombok alatt</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Az eszköztár elrejtése, amíg a mutató nem mozog</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Az eszköztár automatikus elrejtése</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Kiemelés színe</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Az információs panel automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Az információs fedőréteg automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>A diavetítés eszköztárának automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>A kép adatainak megjelenítése elemleírásban</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>A galéria automatikus elrejtése</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

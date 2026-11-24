@@ -289,10 +289,6 @@
         <translation>Balta</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Slėpti žymiklį, kol jis nejuda</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Rodyti užklotą:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Slėpti skaidrių peržiūros juostą, kol žymiklis nejuda</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Rodyti vaizdo informaciją virš miniatiūros po žymikliu</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Slėpti galeriją, kol žymiklis nejuda</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Virš vaizdo</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Viskam, kas nustatyta slėptis, kol žymiklis nejuda: juostoms, galerijai, užklotui, skydeliui ir žymikliui.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Teksto ir piktogramų neskaidrumas:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Automatiškai slėpti pelės žymiklį, kol jis nejuda</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Viskam, kas slepiama automatiškai: juostoms, galerijai, užklotui, skydeliui ir pelės žymikliui.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Automatiškai slėpti elementus po:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histograma:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Slėpti informacijos skydelį, kol žymiklis nejuda</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Slėpti informacijos užklotą, kol žymiklis nejuda</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Laikas vienam vaizdui:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Rodyti pavadinimus po mygtukais</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Slėpti įrankių juostą, kol žymiklis nejuda</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Automatiškai slėpti įrankių juostą</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Paryškinimo spalva</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Automatiškai slėpti informacijos skydelį</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Automatiškai slėpti informacijos užklotą</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Automatiškai slėpti skaidrių demonstracijos įrankių juostą</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Rodyti vaizdo informaciją patarime</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Automatiškai slėpti galeriją</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

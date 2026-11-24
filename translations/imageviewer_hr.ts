@@ -289,10 +289,6 @@
         <translation>Bijela</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Sakrij pokazivač dok se ne miče</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Prikaži prekrivanje:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Sakrij traku dijaprojekcije dok se pokazivač ne miče</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Prikaži podatke o slici iznad minijature ispod pokazivača</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Sakrij galeriju dok se pokazivač ne miče</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Iznad slike</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Za sve što se skriva dok se pokazivač ne miče: trake, galeriju, prekrivanje, ploču i pokazivač.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Neprozirnost teksta i ikona:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Automatski sakrij pokazivač miša dok miruje</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Za sve što se automatski skriva: trake, galeriju, prekrivanje, ploču i pokazivač miša.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Automatski sakrij elemente nakon:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Sakrij informacijsku ploču dok se pokazivač ne miče</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Sakrij informacijsko prekrivanje dok se pokazivač ne miče</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Vrijeme po slici:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Prikaži nazive ispod gumba</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Sakrij alatnu traku dok se pokazivač ne miče</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Automatski sakrij alatnu traku</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Boja isticanja</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Automatski sakrij informacijsku ploču</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Automatski sakrij informacijsko prekrivanje</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Automatski sakrij alatnu traku dijaprojekcije</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Prikaži podatke o slici u opisu alata</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Automatski sakrij galeriju</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

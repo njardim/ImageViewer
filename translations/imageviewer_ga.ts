@@ -289,10 +289,6 @@
         <translation>Bán</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Folaigh an pointeoir fad is atá sé socair</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Taispeáin an forleagan:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Folaigh barra an taispeántais sleamhnán fad is atá an pointeoir socair</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Taispeáin faisnéis na híomhá os cionn na mionsamhla faoin bpointeoir</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Folaigh an gailearaí fad is atá an pointeoir socair</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Os cionn na híomhá</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Do gach rud atá socraithe le dul i bhfolach fad is atá an pointeoir socair: na barraí, an gailearaí, an forleagan, an painéal agus an pointeoir.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Teimhneacht an téacs agus na ndeilbhíní:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Folaigh pointeoir na luiche go huathoibríoch fad is atá sé socair</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Do gach rud atá socraithe le folú go huathoibríoch: na barraí, an gailearaí, an forleagan, an painéal agus pointeoir na luiche.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Folaigh na heilimintí go huathoibríoch tar éis:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histeagram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Folaigh an painéal faisnéise fad is atá an pointeoir socair</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Folaigh an forleagan faisnéise fad is atá an pointeoir socair</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Am in aghaidh na híomhá:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Taispeáin na hainmneacha faoi na cnaipí</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Folaigh an barra uirlisí fad is atá an pointeoir socair</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Folaigh an barra uirlisí go huathoibríoch</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Dath aibhsithe</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Folaigh an painéal faisnéise go huathoibríoch</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Folaigh an forleagan faisnéise go huathoibríoch</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Folaigh barra uirlisí an taispeántais sleamhnán go huathoibríoch</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Taispeáin faisnéis na híomhá i leid uirlise</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Folaigh an gailearaí go huathoibríoch</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

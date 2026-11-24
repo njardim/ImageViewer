@@ -285,10 +285,6 @@
         <translation>पांढरा</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>पॉइंटर स्थिर असताना तो लपवा</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>ओव्हरले दाखवा:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना स्लाइडशो टूलबार लपवा</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>पॉइंटरखालील थंबनेलच्या वर प्रतिमेची माहिती दाखवा</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना गॅलरी लपवा</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>प्रतिमेवर</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>पॉइंटर स्थिर असताना लपण्यासाठी सेट केलेल्या सर्वांसाठी: बार, गॅलरी, ओव्हरले, पॅनेल आणि पॉइंटर.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>विंडोमध्ये बसवा</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>मजकूर आणि आयकॉनची अपारदर्शकता:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>माउस पॉइंटर स्थिर असताना आपोआप लपवा</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>आपोआप लपवण्यासाठी सेट केलेल्या सर्वांसाठी: बार, गॅलरी, ओव्हरले, पॅनेल आणि माउस पॉइंटर.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>घटक आपोआप लपवा यानंतर:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>पॅनेल आणि ओव्हरलेचे स्वरूप</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>माहिती पॅनेल आपोआप लपवा</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>माहिती ओव्हरले आपोआप लपवा</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>बटणांखाली नावे दाखवा</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना टूलबार लपवा</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>टूलबार आपोआप लपवा</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना माहिती पॅनेल लपवा</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>पॉइंटर स्थिर असताना माहिती ओव्हरले लपवा</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>प्रत्येक बाजूची रुंदी:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>स्लाइडशो पूर्ण स्क्रीनमध्ये सुरू करा</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>स्लाइडशो टूलबार आपोआप लपवा</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>टूलटिपमध्ये प्रतिमेची माहिती दाखवा</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>गॅलरी आपोआप लपवा</translation>
     </message>
     <message>
         <source>Search:</source>

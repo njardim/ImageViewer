@@ -289,10 +289,6 @@
         <translation>흰색</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>포인터가 움직이지 않으면 포인터 숨기기</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>오버레이 표시:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 슬라이드 쇼 도구 모음 숨기기</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>포인터 아래 썸네일 위에 이미지 정보 표시</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 갤러리 숨기기</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>이미지 위</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>포인터가 움직이지 않을 때 숨기도록 설정한 모든 항목에 적용: 막대, 갤러리, 오버레이, 패널, 포인터.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>텍스트 및 아이콘 불투명도:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>마우스 포인터가 움직이지 않으면 자동으로 숨기기</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>자동 숨기기로 설정한 모든 요소에 적용: 막대, 갤러리, 오버레이, 패널, 마우스 포인터.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>요소 자동 숨기기 시간:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>히스토그램:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 정보 패널 숨기기</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 정보 오버레이 숨기기</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>이미지당 시간:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>버튼 아래에 이름 표시</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 도구 모음 숨기기</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>도구 모음 자동 숨기기</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>강조 색</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>정보 패널 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>정보 오버레이 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>슬라이드 쇼 도구 모음 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>도구 설명에 이미지 정보 표시</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>갤러리 자동 숨기기</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

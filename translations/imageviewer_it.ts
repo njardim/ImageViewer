@@ -289,10 +289,6 @@
         <translation>Bianco</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Nascondi il puntatore quando è fermo</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Mostra la sovrapposizione:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Nascondi la barra della presentazione quando il puntatore è fermo</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Mostra le informazioni dell’immagine sopra la miniatura sotto il puntatore</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Nascondi la galleria quando il puntatore è fermo</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Sopra l’immagine</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Per tutto ciò che si nasconde quando il puntatore è fermo: le barre, la galleria, la sovrapposizione, il pannello e il puntatore.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Opacità di testo e icone:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Nascondi automaticamente il puntatore del mouse quando è fermo</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Per tutto ciò che si nasconde automaticamente: le barre, la galleria, la sovrapposizione, il pannello e il puntatore del mouse.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Nascondi automaticamente gli elementi dopo:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Istogramma:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Nascondi il pannello informazioni quando il puntatore è fermo</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Nascondi la sovrapposizione informazioni quando il puntatore è fermo</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Tempo per immagine:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Mostra i nomi sotto i pulsanti</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Nascondi la barra degli strumenti quando il puntatore è fermo</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Nascondi automaticamente la barra degli strumenti</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Colore di evidenziazione</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Nascondi automaticamente il pannello informazioni</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Nascondi automaticamente la sovrapposizione informazioni</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Nascondi automaticamente la barra della presentazione</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Mostra le informazioni dell’immagine nel suggerimento</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Nascondi automaticamente la galleria</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

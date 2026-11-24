@@ -285,10 +285,6 @@
         <translation>أبيض</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>إخفاء المؤشر ما دام ساكنًا</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>عرض التراكب:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>إخفاء شريط أدوات عرض الشرائح ما دام المؤشر ساكنًا</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>عرض معلومات الصورة فوق الصورة المصغرة تحت المؤشر</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>إخفاء المعرض ما دام المؤشر ساكنًا</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>فوق الصورة</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>لكل ما ضُبط ليختفي ما دام المؤشر ساكنًا: الأشرطة والمعرض والتراكب واللوحة والمؤشر.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>ملاءمة النافذة</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>عتامة النص والأيقونات:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>إخفاء مؤشر الفأرة تلقائيًا ما دام ساكنًا</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>لكل ما ضُبط على الإخفاء التلقائي: الأشرطة والمعرض والتراكب واللوحة ومؤشر الفأرة.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>إخفاء العناصر تلقائيًا بعد:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>مظهر اللوحة والتراكب</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>إخفاء لوحة المعلومات تلقائيًا</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>إخفاء تراكب المعلومات تلقائيًا</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>إظهار الأسماء تحت الأزرار</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>إخفاء شريط الأدوات ما دام المؤشر ساكنًا</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>إخفاء شريط الأدوات تلقائيًا</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>إخفاء لوحة المعلومات ما دام المؤشر ساكنًا</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>إخفاء تراكب المعلومات ما دام المؤشر ساكنًا</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>عرض كل جانب:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>بدء عرض الشرائح في وضع ملء الشاشة</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>إخفاء شريط أدوات العرض التلقائي تلقائيًا</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>عرض معلومات الصورة في التلميح</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>إخفاء المعرض تلقائيًا</translation>
     </message>
     <message>
         <source>Search:</source>

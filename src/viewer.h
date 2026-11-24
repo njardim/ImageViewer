@@ -60,6 +60,9 @@ inline constexpr QSize kMinWindowSize(320, 240);
 // File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and the
 // Linux desktops in 1000s (overlays.cpp).
 QString fileSizeText(qint64 bytes, const QLocale &locale);
+// A zoom as the overlay writes it: "100" only when the image really is shown 1:1 (nearest
+// sampling); otherwise one decimal (overlays.cpp).
+QString zoomNumber(double zoom, const QLocale &locale);
 // Between the top overlay's facts, the title's and a gallery tooltip's.
 inline const QString kFieldSeparator = QStringLiteral("   ·   ");
 
@@ -146,6 +149,9 @@ private:
     double sourceScale() const; // the file's pixels per texel: above 1 for a texture drawn smaller
     double naturalZoom() const; // the texture's zoom at 100 %: an SVG's own pixels one per device pixel (D-94)
     double shownZoom() const;   // of the file's own pixels (the overlay's per cent)
+    // The zoom an image of `fileSize` (its own pixels) would be shown at in this window, as shownZoom()
+    // gives it: the zoom of a new image, or the locked one (a gallery's tooltip, D-117).
+    double zoomFor(QSizeF fileSize) const;
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
     void chooseFit(FitMode mode); // a command: the mode stays for the next images (D-65)
@@ -307,8 +313,9 @@ private:
     void toggleGallery();
     // The top overlay's facts for `fields`, in its order and wording; also the title's (D-58).
     QStringList overlayParts(const QList<OverlayField> &fields, int *nameIndex = nullptr) const;
-    // A gallery thumbnail's tooltip (D-116): the top overlay's facts of its file that hold without
-    // showing it (no zoom, no output), its name on a line of its own.
+    // A gallery thumbnail's tooltip (D-116, D-117): the top overlay's chosen facts of its file, the
+    // name, dimensions, size and zoom (the one it would be shown at) on the first line, the others on
+    // the second.
     QString galleryTipText(int file) const;
     void updateTitle(); // per Settings::titleMode
     OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
@@ -318,7 +325,13 @@ private:
     void placeOverlays(Renderer::Frame *frame) const;
     QRectF infoPanelRect() const; // device pixels: the information panel with its notices; empty: none
     bool overHistogramChoice(const QPointF &position) const; // logical pixels: on the panel's histogram choice
-    void showHistogramMenu();     // what the histogram shows, from the panel (D-116)
+    // Its menu (D-117), drawn by us below the choice: a row each for Colors, Luminance and None.
+    QString histogramModeName(HistogramMode mode) const;
+    void setHistogramMenuOpen(bool open);
+    void updateHistogramMenu();
+    QRectF histogramMenuRect() const;                      // device pixels; empty when closed
+    int histogramMenuAt(const QPointF &position) const;    // logical pixels: a row, or -1
+    void chooseHistogramMode(int row);
     void updateNavigationButtons();
     void showNotice(const QString &text); // brief message, in a panel over the information panel
 
@@ -487,6 +500,9 @@ private:
     QString m_panelKey;      // likewise for the information panel
     QRectF m_histogramChoice; // the panel's histogram choice, logical pixels in its texture; empty: none (D-116)
     bool m_histogramChoiceHover = false;
+    bool m_histogramMenuOpen = false;  // its menu (D-117)...
+    int m_histogramMenuHover = -1;     // ...the row under the pointer...
+    QSize m_histogramMenuSize;         // ...its texture's size, device pixels
     bool m_grabbing = false;  // the image follows a drag: the closed hand (D-116)
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band

@@ -285,10 +285,6 @@
         <translation>తెలుపు</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు దాన్ని దాచు</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>ఓవర్‌లే చూపు:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు స్లైడ్‌షో టూల్‌బార్‌ను దాచు</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>పాయింటర్ కింద ఉన్న సూక్ష్మచిత్రం పైన చిత్రం సమాచారాన్ని చూపు</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు గ్యాలరీని దాచు</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>చిత్రం పైన</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు దాగేలా సెట్ చేసిన అన్నింటికీ: బార్‌లు, గ్యాలరీ, ఓవర్‌లే, ప్యానెల్ మరియు పాయింటర్.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>విండోకు సరిపోయేలా చేయి</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>వచనం మరియు చిహ్నాల అపారదర్శకత:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>మౌస్ పాయింటర్ కదలకుండా ఉన్నప్పుడు స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>స్వయంచాలకంగా దాచేలా సెట్ చేసిన అన్నింటికీ: బార్‌లు, గ్యాలరీ, ఓవర్‌లే, ప్యానెల్ మరియు మౌస్ పాయింటర్.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>మూలకాలను స్వయంచాలకంగా దాచు ఇంత తర్వాత:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>ప్యానెల్ మరియు ఓవర్‌లే రూపం</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>సమాచార ప్యానెల్‌ను స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>సమాచార ఓవర్‌లేను స్వయంచాలకంగా దాచు</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>బటన్‌ల కింద పేర్లు చూపు</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు టూల్‌బార్‌ను దాచు</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>టూల్‌బార్‌ను స్వయంచాలకంగా దాచు</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు సమాచార ప్యానెల్‌ను దాచు</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు సమాచార ఓవర్‌లేను దాచు</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>ప్రతి వైపు వెడల్పు:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>స్లైడ్‌షోను పూర్తి స్క్రీన్‌లో ప్రారంభించు</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>స్లైడ్‌షో టూల్‌బార్‌ను స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>టూల్‌టిప్‌లో చిత్రం సమాచారాన్ని చూపు</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>గ్యాలరీని స్వయంచాలకంగా దాచు</translation>
     </message>
     <message>
         <source>Search:</source>

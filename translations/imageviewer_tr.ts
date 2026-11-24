@@ -289,10 +289,6 @@
         <translation>Beyaz</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>İşaretçi hareketsizken onu gizle</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Bindirmeyi göster:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>İşaretçi hareketsizken slayt gösterisi çubuğunu gizle</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>İşaretçinin altındaki küçük resmin üzerinde görüntü bilgilerini göster</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>İşaretçi hareketsizken galeriyi gizle</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Görüntünün üzerinde</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>İşaretçi hareketsizken gizlenmek üzere ayarlanan her şey için: çubuklar, galeri, bindirme, panel ve işaretçi.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Metin ve simge opaklığı:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Fare işaretçisini hareketsizken otomatik gizle</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Otomatik gizlenmek üzere ayarlanan her şey için: çubuklar, galeri, bindirme, panel ve fare işaretçisi.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Öğeleri şu süreden sonra otomatik gizle:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>İşaretçi hareketsizken bilgi panelini gizle</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>İşaretçi hareketsizken bilgi bindirmesini gizle</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Görüntü başına süre:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Adları düğmelerin altında göster</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>İşaretçi hareketsizken araç çubuğunu gizle</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Araç çubuğunu otomatik gizle</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Vurgu Rengi</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Bilgi panelini otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Bilgi bindirmesini otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Slayt gösterisi araç çubuğunu otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Görüntü bilgilerini araç ipucunda göster</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Galeriyi otomatik gizle</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

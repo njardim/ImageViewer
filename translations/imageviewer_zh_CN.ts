@@ -285,10 +285,6 @@
         <translation>白色</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>指针静止时隐藏指针</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>显示叠加层：</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>指针静止时隐藏幻灯片放映工具栏</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>在指针下方的缩略图上方显示图像信息</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>指针静止时隐藏图库</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>图像上方</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>适用于所有设置为在指针静止时隐藏的元素：工具栏、图库、叠加层、面板和指针。</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>适合窗口</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>文字和图标不透明度：</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>鼠标指针静止时自动隐藏</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>适用于所有设为自动隐藏的元素：工具栏、图库、叠加层、面板和鼠标指针。</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>自动隐藏元素的时间：</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>面板和叠加层的外观</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>自动隐藏信息面板</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>自动隐藏信息叠加层</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>在按钮下方显示名称</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>指针静止时隐藏工具栏</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>自动隐藏工具栏</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>指针静止时隐藏信息面板</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>指针静止时隐藏信息叠加层</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>每侧宽度：</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>以全屏方式开始幻灯片放映</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>自动隐藏幻灯片放映工具栏</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>在工具提示中显示图像信息</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>自动隐藏图库</translation>
     </message>
     <message>
         <source>Search:</source>

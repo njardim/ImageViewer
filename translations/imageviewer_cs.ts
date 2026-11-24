@@ -289,10 +289,6 @@
         <translation>Bílá</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Skrýt ukazatel, když se nehýbe</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Zobrazit překrytí:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Skrýt panel prezentace, když se ukazatel nehýbe</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Zobrazit informace o obrázku nad miniaturou pod ukazatelem</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Skrýt galerii, když se ukazatel nehýbe</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Nad obrázkem</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Pro vše, co se má skrýt, když se ukazatel nehýbe: panely, galerii, překrytí, panel informací a ukazatel.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Krytí textu a ikon:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Automaticky skrýt ukazatel myši, když se nehýbe</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Pro vše, co se má automaticky skrývat: panely, galerii, překrytí, informační panel a ukazatel myši.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Automaticky skrýt prvky po:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Skrýt informační panel, když se ukazatel nehýbe</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Skrýt informační překrytí, když se ukazatel nehýbe</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Doba na obrázek:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Zobrazit názvy pod tlačítky</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Skrýt panel nástrojů, když se ukazatel nehýbe</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Automaticky skrýt panel nástrojů</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Barva zvýraznění</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Automaticky skrýt informační panel</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Automaticky skrýt informační překrytí</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Automaticky skrýt panel prezentace</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Zobrazit informace o obrázku v popisku</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Automaticky skrýt galerii</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

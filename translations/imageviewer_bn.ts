@@ -285,10 +285,6 @@
         <translation>সাদা</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>পয়েন্টার স্থির থাকলে সেটি লুকান</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>ওভারলে দেখান:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে স্লাইডশো টুলবার লুকান</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>পয়েন্টারের নিচের থাম্বনেইলের উপরে ছবির তথ্য দেখান</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে গ্যালারি লুকান</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>ছবির উপরে</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>পয়েন্টার স্থির থাকলে লুকানোর জন্য সেট করা সবকিছুর জন্য: বার, গ্যালারি, ওভারলে, প্যানেল ও পয়েন্টার।</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>উইন্ডোর মাপে ফিট করুন</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>লেখা ও আইকনের অস্বচ্ছতা:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>মাউস পয়েন্টার স্থির থাকলে স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>স্বয়ংক্রিয়ভাবে লুকানোর জন্য সেট করা সবকিছুর জন্য: বার, গ্যালারি, ওভারলে, প্যানেল ও মাউস পয়েন্টার।</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>উপাদানগুলো স্বয়ংক্রিয়ভাবে লুকান এর পরে:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>প্যানেল ও ওভারলের চেহারা</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>তথ্য প্যানেল স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>তথ্য ওভারলে স্বয়ংক্রিয়ভাবে লুকান</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>বোতামের নিচে নাম দেখান</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে টুলবার লুকান</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>টুলবার স্বয়ংক্রিয়ভাবে লুকান</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে তথ্য প্যানেল লুকান</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে তথ্য ওভারলে লুকান</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>প্রতিটি দিকের প্রস্থ:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>পূর্ণ স্ক্রিনে স্লাইডশো শুরু করুন</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>স্লাইডশো টুলবার স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>টুলটিপে ছবির তথ্য দেখান</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>গ্যালারি স্বয়ংক্রিয়ভাবে লুকান</translation>
     </message>
     <message>
         <source>Search:</source>

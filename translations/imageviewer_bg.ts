@@ -289,10 +289,6 @@
         <translation>Бяло</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Скриване на показалеца, докато е неподвижен</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Показване на наслагването:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Скриване на лентата на слайдшоуто, докато показалецът е неподвижен</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Показване на сведенията за изображението над миниатюрата под показалеца</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Скриване на галерията, докато показалецът е неподвижен</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Върху изображението</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>За всичко, настроено да се скрива, докато показалецът е неподвижен: лентите, галерията, наслагването, панела и показалеца.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Плътност на текста и иконите:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Автоматично скриване на показалеца на мишката, докато е неподвижен</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>За всичко, настроено за автоматично скриване: лентите, галерията, наслагването, панела и показалеца на мишката.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Автоматично скриване на елементите след:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Хистограма:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Скриване на информационния панел, докато показалецът е неподвижен</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Скриване на информационното наслагване, докато показалецът е неподвижен</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Време за изображение:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Показване на имената под бутоните</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Скриване на лентата с инструменти, докато показалецът е неподвижен</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Автоматично скриване на лентата с инструменти</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Цвят на открояването</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Автоматично скриване на информационния панел</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Автоматично скриване на информационното наслагване</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Автоматично скриване на лентата на слайдшоуто</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Показване на сведенията за изображението в подсказка</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Автоматично скриване на галерията</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

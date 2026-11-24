@@ -285,10 +285,6 @@
         <translation>Trắng</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Ẩn con trỏ khi nó đứng yên</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Hiển thị lớp phủ:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Ẩn thanh trình chiếu khi con trỏ đứng yên</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Hiển thị thông tin ảnh phía trên hình thu nhỏ dưới con trỏ</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Ẩn thư viện ảnh khi con trỏ đứng yên</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>Phía trên ảnh</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Cho mọi thứ được đặt để ẩn khi con trỏ đứng yên: các thanh, thư viện ảnh, lớp phủ, bảng và con trỏ.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>Vừa với cửa sổ</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>Độ mờ đục của chữ và biểu tượng:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Tự động ẩn con trỏ chuột khi nó đứng yên</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Cho mọi thứ được đặt để tự động ẩn: các thanh, thư viện ảnh, lớp phủ, bảng và con trỏ chuột.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Tự động ẩn các thành phần sau:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Giao diện bảng và lớp phủ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Tự động ẩn bảng thông tin</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Tự động ẩn lớp phủ thông tin</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>Hiện tên dưới các nút</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Ẩn thanh công cụ khi con trỏ đứng yên</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Tự động ẩn thanh công cụ</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Ẩn bảng thông tin khi con trỏ đứng yên</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Ẩn lớp phủ thông tin khi con trỏ đứng yên</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>Độ rộng mỗi bên:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Bắt đầu trình chiếu ở chế độ toàn màn hình</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Tự động ẩn thanh công cụ trình chiếu</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Hiển thị thông tin ảnh trong chú giải công cụ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Tự động ẩn thư viện ảnh</translation>
     </message>
     <message>
         <source>Search:</source>

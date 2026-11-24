@@ -66,7 +66,7 @@ QWidget *SettingsDialog::buildToolbarTab()
     form->addRow(m_showToolbar);
     m_toolbarNames = new QCheckBox(tr("Show the names under the buttons"));
     form->addRow(m_toolbarNames);
-    m_mainToolbarAutoHide = new QCheckBox(tr("Hide the toolbar while the pointer is still"));
+    m_mainToolbarAutoHide = new QCheckBox(tr("Auto-hide the toolbar"));
     form->addRow(m_mainToolbarAutoHide); // after the delay in General (D-113)
     layout->addWidget(m_toolbarBox);
 

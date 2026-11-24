@@ -289,10 +289,6 @@
         <translation>Valge</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Peida kursor, kui see ei liigu</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Kuva ülekate:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Peida slaidiseansi riba, kui kursor ei liigu</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Näita pildi teavet kursori all oleva pisipildi kohal</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Peida galerii, kui kursor ei liigu</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Pildi kohal</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Kõigele, mis on seatud peituma, kui kursor ei liigu: ribad, galerii, ülekate, paneel ja kursor.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Teksti ja ikoonide läbipaistmatus:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Peida hiirekursor automaatselt, kui see ei liigu</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Kõige jaoks, mis peitub automaatselt: ribad, galerii, ülekate, paneel ja hiirekursor.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Peida elemendid automaatselt pärast:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogramm:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Peida teabepaneel, kui kursor ei liigu</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Peida teabe ülekate, kui kursor ei liigu</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Aeg pildi kohta:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Kuva nimed nuppude all</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Peida tööriistariba, kui kursor ei liigu</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Peida tööriistariba automaatselt</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Esiletõstu värv</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Peida teabepaneel automaatselt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Peida teabe ülekate automaatselt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Peida slaidiesitluse tööriistariba automaatselt</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Näita pildi teavet kohtspikris</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Peida galerii automaatselt</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

@@ -285,10 +285,6 @@
         <translation>سفید</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>پوائنٹر ساکن رہنے پر اسے چھپائیں</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>اوورلے دکھائیں:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر سلائیڈ شو ٹول بار چھپائیں</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>پوائنٹر کے نیچے والے تھمب نیل کے اوپر تصویر کی معلومات دکھائیں</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر گیلری چھپائیں</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>تصویر کے اوپر</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>ہر اُس چیز کے لیے جو پوائنٹر ساکن رہنے پر چھپنے کے لیے مقرر ہو: بارز، گیلری، اوورلے، پینل اور پوائنٹر۔</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>ونڈو میں فٹ کریں</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>متن اور آئیکنز کی دھندلاہٹ:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>ماؤس پوائنٹر ساکن رہنے پر خودکار طور پر چھپائیں</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>خودکار طور پر چھپنے کے لیے سیٹ کی گئی ہر چیز کے لیے: بارز، گیلری، اوورلے، پینل اور ماؤس پوائنٹر۔</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>عناصر کو خودکار طور پر چھپائیں اتنے بعد:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>پینل اور اوورلے کی شکل</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>معلوماتی پینل خودکار طور پر چھپائیں</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>معلوماتی اوورلے خودکار طور پر چھپائیں</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>بٹنوں کے نیچے نام دکھائیں</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر ٹول بار چھپائیں</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>ٹول بار خودکار طور پر چھپائیں</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر معلوماتی پینل چھپائیں</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>پوائنٹر ساکن رہنے پر معلوماتی اوورلے چھپائیں</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>ہر جانب کی چوڑائی:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>سلائیڈ شو پوری اسکرین میں شروع کریں</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>سلائیڈ شو ٹول بار خودکار طور پر چھپائیں</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>ٹول ٹپ میں تصویر کی معلومات دکھائیں</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>گیلری خودکار طور پر چھپائیں</translation>
     </message>
     <message>
         <source>Search:</source>

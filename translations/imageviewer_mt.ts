@@ -289,10 +289,6 @@
         <translation>Abjad</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Aħbi l-pointer sakemm ma jiċċaqlaqx</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Uri l-overlay:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Aħbi l-barra tal-preżentazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Uri l-informazzjoni tal-immaġni fuq il-minjatura taħt il-pointer</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Aħbi l-gallerija sakemm il-pointer ma jiċċaqlaqx</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Fuq l-immaġni</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Għal kull ma hu ssettjat biex jinħeba sakemm il-pointer ma jiċċaqlaqx: il-barrijiet, il-gallerija, l-overlay, il-pannell u l-pointer.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Opaċità tat-test u tal-ikoni:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Aħbi l-pointer tal-maws awtomatikament sakemm ma jiċċaqlaqx</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Għal kull ma huwa ssettjat biex jinħeba awtomatikament: il-barrijiet, il-gallerija, l-overlay, il-pannell u l-pointer tal-maws.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Aħbi l-elementi awtomatikament wara:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Istogramma:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Aħbi l-pannell tal-informazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Aħbi l-overlay tal-informazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Ħin għal kull immaġni:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Uri l-ismijiet taħt il-buttuni</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Aħbi l-barra tal-għodod sakemm il-pointer ma jiċċaqlaqx</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Aħbi l-barra tal-għodod awtomatikament</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Kulur tal-enfasi</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Aħbi l-pannell tal-informazzjoni awtomatikament</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Aħbi l-overlay tal-informazzjoni awtomatikament</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Aħbi l-barra tal-għodod tal-preżentazzjoni awtomatikament</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Uri l-informazzjoni tal-immaġni f’tooltip</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Aħbi l-gallerija awtomatikament</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

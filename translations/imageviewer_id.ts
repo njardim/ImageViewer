@@ -285,10 +285,6 @@
         <translation>Putih</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Sembunyikan penunjuk saat diam</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Tampilkan overlay:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Sembunyikan bilah tayangan slide saat penunjuk diam</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Tampilkan informasi gambar di atas gambar mini di bawah penunjuk</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Sembunyikan galeri saat penunjuk diam</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>Di atas gambar</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Untuk semua yang disetel tersembunyi saat penunjuk diam: bilah, galeri, overlay, panel, dan penunjuk.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>Sesuaikan dengan jendela</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>Opasitas teks dan ikon:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Sembunyikan penunjuk tetikus otomatis saat diam</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Untuk semua yang disetel untuk disembunyikan otomatis: bilah, galeri, overlay, panel, dan penunjuk tetikus.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Sembunyikan elemen otomatis setelah:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Tampilan panel dan overlay</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Sembunyikan panel informasi otomatis</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Sembunyikan overlay informasi otomatis</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>Tampilkan nama di bawah tombol</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Sembunyikan bilah alat saat penunjuk diam</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Sembunyikan bilah alat otomatis</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Sembunyikan panel informasi saat penunjuk diam</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Sembunyikan overlay informasi saat penunjuk diam</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>Lebar setiap sisi:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Mulai tayangan slide dalam layar penuh</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Sembunyikan bilah alat tayangan slide otomatis</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Tampilkan informasi gambar dalam tooltip</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Sembunyikan galeri otomatis</translation>
     </message>
     <message>
         <source>Search:</source>

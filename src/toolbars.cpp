@@ -540,45 +540,54 @@ void ViewerWindow::showSlideshowToolbar()
 
 QString ViewerWindow::galleryTipText(int file) const
 {
+    // The top overlay's chosen facts, in its order: the name, dimensions, size and zoom on the first
+    // line, the others on the second (the owner, D-117).
     const QString path = m_files.value(file);
     if (path.isEmpty())
         return {};
     const QLocale locale;
     const Thumbnail *thumbnail = m_gallery.thumbnail(path);
     const QFileInfo info(path);
-    QString name;
-    QStringList facts;
+    QSizeF fileSize; // the file's own, which its thumbnail's decode read (viewer.cpp)
+    if (thumbnail)
+        if (const QStringList size = thumbnail->image.text(QStringLiteral("Size")).split(QLatin1Char(' ')); size.size() == 2)
+            fileSize = QSizeF(size.at(0).toInt(), size.at(1).toInt());
+    QStringList first, second;
     for (OverlayField field : m_settings.overlayFields) {
         switch (field) {
-        case OverlayField::Name: name = displayFileName(info.fileName()); break;
+        case OverlayField::Name: first << displayFileName(info.fileName()); break;
         case OverlayField::Dimensions:
-            if (thumbnail) { // the file's own size, which its thumbnail's decode read (viewer.cpp)
-                const QStringList size = thumbnail->image.text(QStringLiteral("Size")).split(QLatin1Char(' '));
-                if (size.size() == 2 && size.at(0).toInt() > 0)
-                    facts << QStringLiteral("%1 × %2").arg(locale.toString(size.at(0).toInt()), locale.toString(size.at(1).toInt()));
-            }
+            if (!fileSize.isEmpty())
+                first << QStringLiteral("%1 × %2").arg(locale.toString(int(fileSize.width())), locale.toString(int(fileSize.height())));
             break;
         case OverlayField::FileSize:
             if (const qint64 bytes = thumbnail ? thumbnail->fileSize : info.size(); bytes >= 0)
-                facts << fileSizeText(bytes, locale);
+                first << fileSizeText(bytes, locale);
+            break;
+        case OverlayField::Zoom: // the zoom it would be shown at, as the overlay would write it
+            if (!fileSize.isEmpty())
+                first << tr("%1 %").arg(zoomNumber(zoomFor(fileSize), locale));
             break;
         case OverlayField::ColorSpace:
             if (thumbnail && !thumbnail->image.text(QStringLiteral("Color")).isEmpty())
-                facts << thumbnail->image.text(QStringLiteral("Color"));
+                second << thumbnail->image.text(QStringLiteral("Color"));
             break;
         case OverlayField::Modified:
             if (const QDateTime modified = thumbnail ? thumbnail->modified : info.lastModified(); modified.isValid())
-                facts << locale.toString(modified, QLocale::ShortFormat);
+                second << locale.toString(modified, QLocale::ShortFormat);
             break;
         case OverlayField::Position:
-            facts << QStringLiteral("%1 / %2").arg(locale.toString(file + 1), locale.toString(m_files.size()));
+            second << QStringLiteral("%1 / %2").arg(locale.toString(file + 1), locale.toString(m_files.size()));
             break;
-        case OverlayField::Zoom:   // the image shown's, not this one's
-        case OverlayField::Output: // likewise
+        case OverlayField::Output: // the screen's, which would show it
+            if (!m_renderer.output().description.isEmpty())
+                second << m_renderer.output().description;
             break;
         }
     }
-    if (name.isEmpty())
-        return facts.join(kFieldSeparator);
-    return facts.isEmpty() ? name : name + QLatin1Char('\n') + facts.join(kFieldSeparator);
+    QStringList lines;
+    for (const QStringList &line : {first, second})
+        if (!line.isEmpty())
+            lines << line.join(kFieldSeparator);
+    return lines.join(QLatin1Char('\n'));
 }

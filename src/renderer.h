@@ -59,11 +59,12 @@ public:
     // that changing one (hover feedback) does not re-upload the others.
     // The color picker's panel (D-115) right above the information panel: its loupe and swatches are
     // drawn from the image under the layers that follow it.
-    // The tooltip (D-116) over everything else.
+    // The information panel's menu of what its histogram shows (D-117) with the toolbar's "…" panel;
+    // the tooltip (D-116) over everything else.
     enum OverlayLayer {
         InfoLayer, PickerLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, SlideshowLayer,
-        ToolbarLayer, ToolbarMenuLayer, MessageLayer, TooltipLayer,
-        OverlayLayerCount // eleven: the shaders' layers[] and overlay samplers follow
+        ToolbarLayer, ToolbarMenuLayer, HistogramMenuLayer, MessageLayer, TooltipLayer,
+        OverlayLayerCount // twelve: the shaders' layers[] and overlay samplers follow
     };
 
     // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
@@ -165,7 +166,7 @@ public:
 private:
     static constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
     static constexpr int kQuadBytes = 4 * kVertexStride;
-    static constexpr int kUniformBytes = 512; // the shaders' uniform block (offscreen.cpp's Uniforms)
+    static constexpr int kUniformBytes = 528; // the shaders' uniform block (offscreen.cpp's Uniforms)
 
     bool createRhi();
     int chooseFormat() const; // QRhiSwapChain::Format

@@ -285,10 +285,6 @@
         <translation>सफ़ेद</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>पॉइंटर स्थिर रहने पर उसे छिपाएँ</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>ओवरले दिखाएँ:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>पॉइंटर स्थिर रहने पर स्लाइड शो टूलबार छिपाएँ</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>पॉइंटर के नीचे वाले थंबनेल के ऊपर छवि की जानकारी दिखाएँ</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>पॉइंटर स्थिर रहने पर गैलरी छिपाएँ</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>छवि के ऊपर</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>पॉइंटर स्थिर रहने पर छिपने के लिए सेट की गई हर चीज़ के लिए: बार, गैलरी, ओवरले, पैनल और पॉइंटर।</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>विंडो में फ़िट करें</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>पाठ और आइकन की अपारदर्शिता:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>माउस पॉइंटर स्थिर रहने पर उसे स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>स्वतः छिपाने के लिए सेट की गई हर चीज़ के लिए: बार, गैलरी, ओवरले, पैनल और माउस पॉइंटर।</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>तत्वों को स्वतः छिपाएँ इसके बाद:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>पैनल और ओवरले का रूप</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>जानकारी पैनल स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>जानकारी ओवरले स्वतः छिपाएँ</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>बटनों के नीचे नाम दिखाएँ</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>पॉइंटर स्थिर रहने पर टूलबार छिपाएँ</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>टूलबार स्वतः छिपाएँ</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>पॉइंटर स्थिर रहने पर जानकारी पैनल छिपाएँ</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>पॉइंटर स्थिर रहने पर जानकारी ओवरले छिपाएँ</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>प्रत्येक भाग की चौड़ाई:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>स्लाइड शो पूर्ण स्क्रीन में शुरू करें</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>स्लाइडशो टूलबार स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>टूलटिप में छवि की जानकारी दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>गैलरी स्वतः छिपाएँ</translation>
     </message>
     <message>
         <source>Search:</source>

@@ -507,7 +507,9 @@ try:
             wait_until("P: the panel's histogram shows the orange's blue, green and red where their codes are",
                        histogram_lines)
             # Its row above the plot (D-116): "Histogram" and the choice, which opens a menu as a combo
-            # box; None hides the plot, the row stays. The choice is the brightest text of the row.
+            # box, drawn by us (D-117): its rows 30 px below the choice, the hovered one on the
+            # interface's highlight (ruby since section 1), never the system's; None hides the plot, the
+            # row stays. The choice is the brightest text of the row.
             shot = grab()
             band = shot[y + h // 2:y + h - 16, x:x + w, :3].astype(int)
             spikes = np.nonzero(((band[..., 1] > band[..., 0] + 60) & (band[..., 1] > band[..., 2] + 60)).any(axis=1))[0]
@@ -520,8 +522,18 @@ try:
             choice_x = x + 16 + int(words[-1].mean())
             xdotool("mousemove", "--sync", str(choice_x), str(plot_top - 15))
             xdotool("click", "1")
-            time.sleep(1)  # the menu shown
-            xdotool("key", "Down", "Down", "Down", "Return")  # Colors, Luminance, None
+            none_y = plot_top + 79  # the third row's middle: the menu 4 px below the row, 6 inside, 30 a row
+            xdotool("mousemove", "--sync", str(choice_x), str(none_y))
+
+            def hovered_row():
+                shot = grab()
+                if shot is None:
+                    return False
+                tile = shot[none_y, choice_x - 30:choice_x + 30, :3].astype(int)
+                return int((tile.max(axis=1) - tile.min(axis=1) > 40).sum()) > 20
+            wait_until("the histogram's menu opens below its choice, the row under the pointer on the highlight",
+                       hovered_row)
+            xdotool("click", "1")  # None
             wait_until("the panel's choice, None, hides the plot and is saved",
                        lambda: stored(r"(?m)^histogram=off$") and not histogram_lines())
             xdotool("key", "p")

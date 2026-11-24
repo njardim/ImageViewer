@@ -285,10 +285,6 @@
         <translation>Weiß</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Zeiger ausblenden, solange er stillsteht</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Einblendung anzeigen:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Diashow-Leiste ausblenden, solange der Zeiger stillsteht</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Bildinformationen über der Miniatur unter dem Zeiger anzeigen</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Galerie ausblenden, solange der Zeiger stillsteht</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>Über dem Bild</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Für alles, was sich ausblendet, solange der Zeiger stillsteht: die Leisten, die Galerie, die Einblendung, den Bereich und den Zeiger.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>An Fenster anpassen</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>Deckkraft von Text und Symbolen:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Mauszeiger automatisch ausblenden, solange er stillsteht</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Für alles, was automatisch ausgeblendet wird: die Leisten, die Galerie, die Einblendung, den Bereich und den Mauszeiger.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Elemente automatisch ausblenden nach:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Aussehen von Bereich und Einblendung</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Informationsbereich automatisch ausblenden</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Informationseinblendung automatisch ausblenden</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>Namen unter den Schaltflächen anzeigen</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Symbolleiste ausblenden, solange der Zeiger stillsteht</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Symbolleiste automatisch ausblenden</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Informationsbereich ausblenden, solange der Zeiger stillsteht</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Informationseinblendung ausblenden, solange der Zeiger stillsteht</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>Breite je Seite:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Diashow im Vollbild starten</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Diashow-Leiste automatisch ausblenden</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Bildinformationen als Kurzinfo anzeigen</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Galerie automatisch ausblenden</translation>
     </message>
     <message>
         <source>Search:</source>

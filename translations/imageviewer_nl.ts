@@ -289,10 +289,6 @@
         <translation>Wit</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>De aanwijzer verbergen zolang hij stilstaat</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>De overlay tonen:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Diavoorstellingsbalk verbergen zolang de aanwijzer stilstaat</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>De informatie van de afbeelding boven de miniatuur onder de aanwijzer tonen</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Galerij verbergen zolang de aanwijzer stilstaat</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Boven de afbeelding</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Voor alles wat zich verbergt zolang de aanwijzer stilstaat: de balken, de galerij, de overlay, het paneel en de aanwijzer.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Dekking van tekst en pictogrammen:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>De muisaanwijzer automatisch verbergen zolang hij stilstaat</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Voor alles wat automatisch verborgen wordt: de balken, de galerij, de overlay, het paneel en de muisaanwijzer.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Elementen automatisch verbergen na:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Het informatiepaneel verbergen zolang de aanwijzer stilstaat</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>De informatie-overlay verbergen zolang de aanwijzer stilstaat</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Tijd per afbeelding:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>De namen onder de knoppen tonen</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Werkbalk verbergen zolang de aanwijzer stilstaat</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>De werkbalk automatisch verbergen</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Markeringskleur</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Het informatiepaneel automatisch verbergen</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>De informatie-overlay automatisch verbergen</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>De werkbalk van de diavoorstelling automatisch verbergen</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>De informatie van de afbeelding als knopinfo tonen</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>De galerij automatisch verbergen</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

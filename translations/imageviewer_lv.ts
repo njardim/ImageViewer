@@ -289,10 +289,6 @@
         <translation>Balts</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Paslēpt rādītāju, kamēr tas nekustas</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Rādīt pārklājumu:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Paslēpt slīdrādes rīkjoslu, kamēr rādītājs nekustas</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Rādīt attēla informāciju virs sīktēla zem rādītāja</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Paslēpt galeriju, kamēr rādītājs nekustas</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Virs attēla</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Visam, kas iestatīts paslēpties, kamēr rādītājs nekustas: joslām, galerijai, pārklājumam, panelim un rādītājam.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Teksta un ikonu necaurredzamība:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Automātiski paslēpt peles rādītāju, kamēr tas nekustas</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Visam, kas tiek paslēpts automātiski: joslām, galerijai, pārklājumam, panelim un peles rādītājam.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Automātiski paslēpt elementus pēc:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogramma:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Paslēpt informācijas paneli, kamēr rādītājs nekustas</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Paslēpt informācijas pārklājumu, kamēr rādītājs nekustas</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Laiks katram attēlam:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Rādīt nosaukumus zem pogām</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Paslēpt rīkjoslu, kamēr rādītājs nekustas</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Automātiski paslēpt rīkjoslu</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Izcēluma krāsa</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Automātiski paslēpt informācijas paneli</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Automātiski paslēpt informācijas pārklājumu</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Automātiski paslēpt slaidrādes rīkjoslu</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Rādīt attēla informāciju rīka padomā</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Automātiski paslēpt galeriju</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

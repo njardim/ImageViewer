@@ -285,10 +285,6 @@
         <translation>Белый</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Скрывать указатель, пока он неподвижен</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Показывать оверлей:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Скрывать панель слайд-шоу, пока указатель неподвижен</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Показывать сведения об изображении над миниатюрой под указателем</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Скрывать галерею, пока указатель неподвижен</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>Поверх изображения</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Для всего, что скрывается, пока указатель неподвижен: панелей инструментов, галереи, оверлея, панели и указателя.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>По размеру окна</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>Непрозрачность текста и значков:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Автоматически скрывать указатель мыши, пока он неподвижен</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Для всего, что скрывается автоматически: панелей, галереи, оверлея, информационной панели и указателя мыши.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Автоматически скрывать элементы через:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Оформление панели и оверлея</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Автоматически скрывать информационную панель</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Автоматически скрывать информационный оверлей</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>Показывать названия под кнопками</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Скрывать панель инструментов, пока указатель неподвижен</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Автоматически скрывать панель инструментов</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Скрывать информационную панель, пока указатель неподвижен</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Скрывать информационный оверлей, пока указатель неподвижен</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>Ширина зоны с каждой стороны:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Запускать слайд-шоу в полноэкранном режиме</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Автоматически скрывать панель слайд-шоу</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Показывать сведения об изображении во всплывающей подсказке</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Автоматически скрывать галерею</translation>
     </message>
     <message>
         <source>Search:</source>

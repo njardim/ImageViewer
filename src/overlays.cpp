@@ -22,11 +22,6 @@ constexpr double kWarningSign = 128.0;          // logical pixels, square (D-63)
 constexpr double kWarningGap = 12.0;            // between the sign and the message
 constexpr int kNoticeMs = 3000;
 
-// "100" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
-QString zoomNumber(double zoom, const QLocale &locale)
-{
-    return zoom == 1.0 ? locale.toString(100) : locale.toString(zoom * 100.0, 'f', 1);
-}
 
 
 // What an overlay is painted on: transparent, `logical` pixels at the screen's device pixel ratio.
@@ -114,6 +109,11 @@ struct Row {
 };
 
 } // namespace
+
+QString zoomNumber(double zoom, const QLocale &locale)
+{
+    return zoom == 1.0 ? locale.toString(100) : locale.toString(zoom * 100.0, 'f', 1);
+}
 
 QString fileSizeText(qint64 bytes, const QLocale &locale)
 {
@@ -319,9 +319,7 @@ void ViewerWindow::updateOverlay()
     }
 
     if (histogramRow) { // first, the plot under it, then the file's facts after a gap
-        const QString shows = m_settings.histogram == HistogramMode::Colors ? tr("Colors", "histogram")
-                              : m_settings.histogram == HistogramMode::Luminance ? tr("Luminance", "histogram")
-                                                                                 : tr("None", "histogram");
+        const QString shows = histogramModeName(m_settings.histogram);
         if (!rows.isEmpty())
             rows.first().gapBefore = true;
         //: The information panel's row that chooses what its histogram shows.
@@ -368,6 +366,7 @@ void ViewerWindow::updateOverlay()
         m_pickerOffset = 0.0; // the picker's panel right above the gallery
         m_overlaySize = {};
         m_renderer.setOverlay(Renderer::InfoLayer, QImage());
+        setHistogramMenuOpen(false); // its choice is gone
         updateTopOverlay();
         requestUpdate();
         return;
@@ -430,6 +429,7 @@ void ViewerWindow::updateOverlay()
     if (logical.isEmpty()) { // the notices and the panel left no room
         m_overlaySize = {};
         m_renderer.setOverlay(Renderer::InfoLayer, QImage());
+        setHistogramMenuOpen(false); // its choice is gone
         updateTopOverlay();
         requestUpdate();
         return;
@@ -515,6 +515,8 @@ void ViewerWindow::updateOverlay()
 
     m_overlaySize = overlay.size();
     m_renderer.setOverlay(Renderer::InfoLayer, overlay);
+    if (m_histogramMenuOpen)
+        updateHistogramMenu(); // its check follows the choice; it closes with the choice's row
     updateTopOverlay();
     requestUpdate();
 }
@@ -761,6 +763,7 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
     frame->overlayRects[Renderer::ToolbarMenuLayer] = toolbarMenuRect();
     frame->overlayRects[Renderer::SlideshowLayer] = slideshowToolbarRect();
     placePicker(frame); // the color picker's panel, loupe and swatches (D-115)
+    frame->overlayRects[Renderer::HistogramMenuLayer] = histogramMenuRect(); // D-117
     frame->overlayRects[Renderer::TooltipLayer] = tipRect(); // over everything (D-116)
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);

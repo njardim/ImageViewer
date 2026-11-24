@@ -226,11 +226,11 @@ void SettingsDialog::buildUi()
     overImageForm->addRow(tr("Background opacity:"), m_backgroundOpacity);
     m_textOpacity = sizeBox(Settings::kMinTextOpacity, 100, percent());
     overImageForm->addRow(tr("Text and icon opacity:"), m_textOpacity);
-    m_pointerAutoHide = new QCheckBox(tr("Hide the pointer while it is still"));
+    m_pointerAutoHide = new QCheckBox(tr("Auto-hide the mouse pointer while it is still"));
     overImageForm->addRow(m_pointerAutoHide);
     m_autoHide = secondsBox(Settings::kMinAutoHideMs / 1000.0, Settings::kMaxAutoHideMs / 1000.0);
-    m_autoHide->setToolTip(tr("For everything set to hide while the pointer is still: the bars, the gallery, "
-                              "the overlay, the panel and the pointer."));
+    m_autoHide->setToolTip(tr("For everything set to auto-hide: the bars, the gallery, the overlay, the panel "
+                              "and the mouse pointer."));
     overImageForm->addRow(tr("Auto-hide elements after:"), m_autoHide);
     windowLayout->addWidget(overImageBox);
     windowLayout->addStretch();
@@ -284,20 +284,18 @@ void SettingsDialog::buildUi()
     auto *styleForm = new QFormLayout(styleBox);
     m_overlayOutline = new QCheckBox(tr("Outline the text"));
     styleForm->addRow(m_overlayOutline);
-    m_panelAutoHide = new QCheckBox(tr("Hide the information panel while the pointer is still"));
+    m_panelAutoHide = new QCheckBox(tr("Auto-hide the information panel"));
     styleForm->addRow(m_panelAutoHide);
-    m_overlayAutoHide = new QCheckBox(tr("Hide the information overlay while the pointer is still"));
+    m_overlayAutoHide = new QCheckBox(tr("Auto-hide the information overlay"));
     styleForm->addRow(m_overlayAutoHide);
     informationLayout->addWidget(styleBox);
     informationLayout->addStretch();
     tabs->addTab(information, tr("Information"));
 
-    // Navigation: the loop for everything that steps through the folder, then a group each for
-    // moving between images, the slideshow and the gallery.
+    // Navigation: a group each for moving between images (the loop for everything that steps through
+    // the folder among them, D-117), the slideshow and the gallery.
     auto *navigation = new QWidget;
     auto *navigationLayout = new QVBoxLayout(navigation);
-    m_loop = new QCheckBox(tr("After the last image, continue with the first"));
-    navigationLayout->addWidget(m_loop);
     auto *imagesBox = new QGroupBox(tr("Images"));
     auto *imagesForm = new QFormLayout(imagesBox);
     m_sortBy = new QComboBox;
@@ -315,6 +313,9 @@ void SettingsDialog::buildUi()
     m_sideZoneWidth = sizeBox(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth, pixels());
     imagesForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
     connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
+    // Before the last row (the owner, D-117): everything that steps through the folder follows it.
+    m_loop = new QCheckBox(tr("After the last image, continue with the first"));
+    imagesForm->addRow(m_loop);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     imagesForm->addRow(m_preload);
     navigationLayout->addWidget(imagesBox);
@@ -324,7 +325,7 @@ void SettingsDialog::buildUi()
     slideshowForm->addRow(m_slideshowFullScreen);
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
-    m_toolbarAutoHide = new QCheckBox(tr("Hide the slideshow toolbar while the pointer is still"));
+    m_toolbarAutoHide = new QCheckBox(tr("Auto-hide the slideshow toolbar"));
     slideshowForm->addRow(m_toolbarAutoHide);
     navigationLayout->addWidget(m_slideshowBox);
     // The gallery (D-60, D-61).
@@ -342,9 +343,9 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
     galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
-    m_galleryTooltips = new QCheckBox(tr("Show the image's information over the thumbnail under the pointer"));
+    m_galleryTooltips = new QCheckBox(tr("Show the image's tooltip information"));
     galleryForm->addRow(m_galleryTooltips);
-    m_galleryAutoHide = new QCheckBox(tr("Hide the gallery while the pointer is still"));
+    m_galleryAutoHide = new QCheckBox(tr("Auto-hide the gallery"));
     galleryForm->addRow(m_galleryAutoHide);
 
     navigationLayout->addWidget(m_galleryBox);
@@ -477,6 +478,12 @@ void SettingsDialog::buildUi()
     auto *layout = new QVBoxLayout(this);
     layout->addWidget(tabs);
     layout->addWidget(buttons);
+
+    // Every group's rows from the left and the top, on every system: macOS's style centres a form's
+    // rows (QFormLayout's formAlignment), which left the General tab's first group in the middle
+    // (the owner, D-117).
+    for (QFormLayout *form : findChildren<QFormLayout *>())
+        form->setFormAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     // Apply is enabled while the dialog shows anything other than what the viewer uses.
     // (Every widget is the dialog's descendant only from here on, through the layout.)

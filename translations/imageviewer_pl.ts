@@ -289,10 +289,6 @@
         <translation>Biały</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Ukrywaj wskaźnik, gdy się nie porusza</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Wyświetlaj nakładkę:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Ukrywaj pasek pokazu slajdów, gdy wskaźnik się nie porusza</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Pokazuj informacje o obrazie nad miniaturą pod wskaźnikiem</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Ukrywaj galerię, gdy wskaźnik się nie porusza</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Nad obrazem</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Dla wszystkiego, co ma się ukrywać, gdy wskaźnik się nie porusza: pasków, galerii, nakładki, panelu i wskaźnika.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Krycie tekstu i ikon:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Automatycznie ukrywaj wskaźnik myszy, gdy się nie porusza</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Dla wszystkiego, co ukrywa się automatycznie: pasków, galerii, nakładki, panelu i wskaźnika myszy.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Automatycznie ukrywaj elementy po:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Ukrywaj panel informacji, gdy wskaźnik się nie porusza</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Ukrywaj nakładkę informacji, gdy wskaźnik się nie porusza</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Czas na obraz:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Pokaż nazwy pod przyciskami</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Ukrywaj pasek narzędzi, gdy wskaźnik się nie porusza</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Automatycznie ukrywaj pasek narzędzi</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Kolor wyróżnienia</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Automatycznie ukrywaj panel informacji</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Automatycznie ukrywaj nakładkę informacyjną</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Automatycznie ukrywaj pasek pokazu slajdów</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Pokazuj informacje o obrazie w podpowiedzi</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Automatycznie ukrywaj galerię</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

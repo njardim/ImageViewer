@@ -56,7 +56,7 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
           return QApplication::activePopupWidget() || (at.y() >= 0 && at.y() < topActivationHeight() && at.x() >= 0 && at.x() < width());
       }),
       m_panelHide([this] {
-          return QApplication::activePopupWidget()
+          return QApplication::activePopupWidget() || m_histogramMenuOpen // its menu, drawn by us (D-117)
                  || infoPanelRect().contains(mapFromGlobal(QCursor::pos(screen())) * devicePixelRatio());
       }),
       m_details([](const VectorDetail &job, const std::atomic_bool *cancel) {
@@ -262,6 +262,8 @@ bool ViewerWindow::event(QEvent *e)
         hideTip(); // the pointer has left what the tooltip names
         if (std::exchange(m_histogramChoiceHover, false))
             updateOverlay();
+        if (std::exchange(m_histogramMenuHover, -1) != -1)
+            updateHistogramMenu();
         setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
@@ -405,6 +407,30 @@ double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
     if (!m_settings.enlargeSmallImages)
         zoom = std::min(zoom, natural);
     return std::clamp(zoom, kMinZoom * natural, kMaxZoom * natural);
+}
+
+double ViewerWindow::zoomFor(QSizeF fileSize) const
+{
+    // As showImage() and fitZoom() set it for a new file: the settings' fit, or the locked one; a
+    // locked zoom of no fit carries over as it is. The view turns back to none.
+    const std::optional<FitMode> mode = m_settings.lockZoom ? m_fit : std::optional<FitMode>(m_settings.fitMode);
+    if (!mode)
+        return m_zoom;
+    const QSizeF view = deviceSize();
+    if (fileSize.isEmpty() || view.isEmpty())
+        return 1.0;
+    const double width = view.width() / fileSize.width(), height = view.height() / fileSize.height();
+    double zoom = 1.0;
+    switch (*mode) {
+    case FitMode::Window: zoom = std::min(width, height); break;
+    case FitMode::Width: zoom = width; break;
+    case FitMode::Height: zoom = height; break;
+    case FitMode::Fill: zoom = std::max(width, height); break;
+    case FitMode::Actual: return 1.0;
+    }
+    if (!m_settings.enlargeSmallImages)
+        zoom = std::min(zoom, 1.0);
+    return std::clamp(zoom, kMinZoom, kMaxZoom);
 }
 
 double ViewerWindow::currentZoom() const
@@ -639,6 +665,7 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_slideshowBarTexture = 0;
         m_mainToolbarTexture = 0;
         m_pickerTexture = 0;
+        m_histogramMenuOpen = false; // its texture is gone with the others
         m_toolbarMenuTexture = 0;
         updateOverlay();
         updateNavigationButtons();

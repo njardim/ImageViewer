@@ -285,10 +285,6 @@
         <translation>Branco</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Ocultar o ponteiro enquanto estiver parado</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Mostrar a sobreposição:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Ocultar a barra da apresentação enquanto o ponteiro estiver parado</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Mostrar a informação da imagem sobre a miniatura sob o ponteiro</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Ocultar a galeria enquanto o ponteiro estiver parado</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>Sobre a imagem</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Para tudo o que se oculta enquanto o ponteiro está parado: as barras, a galeria, a sobreposição, o painel e o ponteiro.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>Ajustar à janela</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>Opacidade do texto e dos ícones:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Ocultar automaticamente o ponteiro do rato enquanto estiver parado</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Para tudo o que se oculta automaticamente: as barras, a galeria, a sobreposição, o painel e o ponteiro do rato.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Ocultar os elementos automaticamente após:</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Aspeto do painel e da sobreposição</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Ocultar automaticamente o painel de informações</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Ocultar automaticamente a sobreposição de informações</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>Mostrar os nomes por baixo dos botões</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Ocultar a barra de ferramentas enquanto o ponteiro estiver parado</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Ocultar automaticamente a barra de ferramentas</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Ocultar o painel de informações enquanto o ponteiro estiver parado</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Ocultar a sobreposição de informação enquanto o ponteiro estiver parado</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>Largura de cada lado:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Iniciar a apresentação de diapositivos em ecrã inteiro</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Ocultar automaticamente a barra de ferramentas da apresentação</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Mostrar a informação da imagem na dica</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Ocultar automaticamente a galeria</translation>
     </message>
     <message>
         <source>Search:</source>

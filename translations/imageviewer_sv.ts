@@ -289,10 +289,6 @@
         <translation>Vit</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Dölj pekaren medan den står still</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Visa överlagringen:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Dölj bildspelets verktygsfält medan pekaren står still</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Visa bildens information ovanför miniatyren under pekaren</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Dölj galleriet medan pekaren står still</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Över bilden</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>För allt som döljs medan pekaren står still: fälten, galleriet, överlagringen, panelen och pekaren.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Opacitet för text och ikoner:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Dölj muspekaren automatiskt medan den står still</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>För allt som döljs automatiskt: fälten, galleriet, överlagringen, panelen och muspekaren.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Dölj element automatiskt efter:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Histogram:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Dölj informationspanelen medan pekaren står still</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Dölj informationsöverlagringen medan pekaren står still</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Tid per bild:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Visa namnen under knapparna</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Dölj verktygsfältet medan pekaren står still</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Dölj verktygsfältet automatiskt</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Markeringsfärg</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Dölj informationspanelen automatiskt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Dölj informationsöverlagringen automatiskt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Dölj bildspelets verktygsfält automatiskt</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Visa bildens information i knappbeskrivning</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Dölj galleriet automatiskt</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

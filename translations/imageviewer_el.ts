@@ -289,10 +289,6 @@
         <translation>Λευκό</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Απόκρυψη του δείκτη όσο μένει ακίνητος</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -313,18 +309,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Εμφάνιση της επικάλυψης:</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Απόκρυψη της γραμμής της παρουσίασης όσο ο δείκτης μένει ακίνητος</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Εμφάνιση των πληροφοριών της εικόνας πάνω από τη μικρογραφία κάτω από τον δείκτη</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Απόκρυψη της συλλογής όσο ο δείκτης μένει ακίνητος</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -376,10 +360,6 @@
     <message>
         <source>Over the image</source>
         <translation>Πάνω από την εικόνα</translation>
-    </message>
-    <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Για ό,τι έχει οριστεί να κρύβεται όσο ο δείκτης μένει ακίνητος: οι γραμμές, η συλλογή, η επικάλυψη, ο πίνακας και ο δείκτης.</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
@@ -473,6 +453,14 @@
         <translation>Αδιαφάνεια κειμένου και εικονιδίων:</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Αυτόματη απόκρυψη του δείκτη του ποντικιού όσο μένει ακίνητος</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Για ό,τι έχει οριστεί να αποκρύπτεται αυτόματα: τις γραμμές, τη συλλογή, την επικάλυψη, τον πίνακα και τον δείκτη του ποντικιού.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Αυτόματη απόκρυψη στοιχείων μετά από:</translation>
     </message>
@@ -489,14 +477,6 @@
         <translation>Ιστόγραμμα:</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Απόκρυψη του πίνακα πληροφοριών όσο ο δείκτης μένει ακίνητος</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Απόκρυψη της επικάλυψης πληροφοριών όσο ο δείκτης μένει ακίνητος</translation>
-    </message>
-    <message>
         <source>Time per image:</source>
         <translation>Χρόνος ανά εικόνα:</translation>
     </message>
@@ -509,8 +489,8 @@
         <translation>Εμφάνιση των ονομάτων κάτω από τα κουμπιά</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Απόκρυψη της γραμμής εργαλείων όσο ο δείκτης μένει ακίνητος</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Αυτόματη απόκρυψη της γραμμής εργαλείων</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -585,6 +565,26 @@
     <message>
         <source>Highlight Color</source>
         <translation>Χρώμα επισήμανσης</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Αυτόματη απόκρυψη του πίνακα πληροφοριών</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Αυτόματη απόκρυψη της επικάλυψης πληροφοριών</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Αυτόματη απόκρυψη της γραμμής της προβολής διαφανειών</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Εμφάνιση των πληροφοριών της εικόνας σε συμβουλή</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Αυτόματη απόκρυψη της συλλογής</translation>
     </message>
     <message>
         <source>Search extensions, formats and decoders</source>

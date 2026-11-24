@@ -7,7 +7,6 @@
 // histogram choice, which opens a menu (D-116).
 #include "viewer.h"
 
-#include <QActionGroup>
 #include <QClipboard>
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -15,8 +14,8 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QKeyEvent>
 #include <QLoggingCategory>
-#include <QMenu>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QPointingDevice>
 #include <QStyleHints>
 #include <QWheelEvent>
@@ -36,6 +35,10 @@ void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && m_mainToolbar.menuOpen()) {
         closeToolbarMenu(); // the "…" panel first, as a menu
+        return;
+    }
+    if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && m_histogramMenuOpen) {
+        setHistogramMenuOpen(false); // the histogram's menu first, as a menu
         return;
     }
     if (e->key() == Qt::Key_Escape && e->modifiers() == Qt::NoModifier && m_pickerOn) {
@@ -69,6 +72,13 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     m_tooltipTimer.stop();
     if (m_mainToolbar.menuOpen() && !inMenu && barButton != Toolbar::kMore) {
         closeToolbarMenu(); // a press outside the "…" panel closes it and does nothing else, as outside a menu
+        return;
+    }
+    if (m_histogramMenuOpen) { // a row chooses; anywhere else, the menu closes and nothing else happens
+        if (e->button() == Qt::LeftButton && histogramMenuAt(e->position()) >= 0)
+            chooseHistogramMode(histogramMenuAt(e->position()));
+        else
+            setHistogramMenuOpen(false);
         return;
     }
     switch (e->button()) {
@@ -109,8 +119,8 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
         m_pickerPress = pickerRowAt(e->position());
         return;
     }
-    if (overHistogramChoice(e->position())) { // the panel's histogram choice, as a combo box (D-116)
-        showHistogramMenu();
+    if (overHistogramChoice(e->position())) { // the panel's histogram choice, as a combo box (D-116, D-117)
+        setHistogramMenuOpen(true);
         return;
     }
     m_pressZone = zoneAt(e->position());
@@ -135,7 +145,9 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         cancelPress();
-        const bool inMenu = toolbarMenuRect().contains(e->position() * devicePixelRatio());
+        // Over a menu of ours (the "…" panel, the histogram's), nothing under it answers.
+        const bool inMenu = toolbarMenuRect().contains(e->position() * devicePixelRatio())
+                            || histogramMenuRect().contains(e->position() * devicePixelRatio());
         if (m_mainToolbar.setMenuHover(toolbarMenuAt(e->position())))
             updateMainToolbar();
         const int barButton = mainToolbarAt(e->position());
@@ -154,6 +166,11 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
             showTip(TipSource::Picker, tr("Copy"), QRectF(e->position(), QSizeF()), TipPlace::Pointer);
         else
             hideTip(TipSource::Picker);
+        if (const int row = histogramMenuAt(e->position()); row != m_histogramMenuHover && m_histogramMenuOpen) {
+            m_histogramMenuHover = row;
+            updateHistogramMenu();
+            updateCursor();
+        }
         if (const bool choice = !overBar && overHistogramChoice(e->position()); choice != m_histogramChoiceHover) {
             m_histogramChoiceHover = choice;
             updateOverlay();
@@ -258,7 +275,8 @@ void ViewerWindow::mouseDoubleClickEvent(QMouseEvent *e)
         mousePressEvent(e); // quick clicks on its buttons are clicks, never full screen
         return;
     }
-    if (zoneAt(e->position()) != Zone::None || overPicker(e->position())) {
+    if (zoneAt(e->position()) != Zone::None || overPicker(e->position()) || m_histogramMenuOpen
+        || overHistogramChoice(e->position())) {
         mousePressEvent(e); // quick clicks on a side keep navigating; on the picker's values, copying
         return;
     }
@@ -279,7 +297,8 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     // Ctrl+scroll zoom. pixelDelta alone says nothing: macOS sets it for mouse wheels too.
     const bool onGallery = galleryShown() && m_gallery.contains(e->position());
     const bool onBar = slideshowBarAt(e->position()) != -1 || mainToolbarAt(e->position()) != -1
-                       || toolbarMenuRect().contains(e->position() * devicePixelRatio()) || overPicker(e->position());
+                       || toolbarMenuRect().contains(e->position() * devicePixelRatio()) || overPicker(e->position())
+                       || histogramMenuAt(e->position()) >= 0;
     pointerActive();
     if (onBar)
         return;
@@ -362,7 +381,8 @@ void ViewerWindow::pointerActive()
 void ViewerWindow::updateCursor()
 {
     const bool onButton = m_hoverZone != Zone::None || m_slideshowBar.hover() != -1 || m_mainToolbar.hover() != -1
-                          || m_mainToolbar.menuHover() != -1 || m_picker.hover() != -1 || m_histogramChoiceHover;
+                          || m_mainToolbar.menuHover() != -1 || m_picker.hover() != -1 || m_histogramChoiceHover
+                          || m_histogramMenuHover != -1;
     // While picking, a cross over the image, its centre the pixel a click picks.
     const bool picking = m_pickerOn && m_pointerIn && texelAt(m_pointer).has_value() && !overPicker(m_pointer)
                          && !(galleryShown() && m_gallery.contains(m_pointer));
@@ -609,33 +629,122 @@ bool ViewerWindow::overHistogramChoice(const QPointF &position) const
     return m_histogramChoice.contains((position * dpr - panel.topLeft()) / dpr);
 }
 
-void ViewerWindow::showHistogramMenu()
+namespace {
+// The information panel's histogram menu (D-117): a row each, as the toolbar's "…" panel's rows.
+constexpr double kChoiceRow = 30.0, kChoicePadding = 6.0, kChoiceMark = 24.0;
+const HistogramMode kHistogramModes[] = {HistogramMode::Colors, HistogramMode::Luminance, HistogramMode::Off};
+} // namespace
+
+QString ViewerWindow::histogramModeName(HistogramMode mode) const
 {
-    // As a combo box: the three choices below the value, the one in use checked; the setting's own.
-    const QRectF panel = infoPanelRect();
-    const double dpr = devicePixelRatio();
-    QMenu menu;
-    auto *group = new QActionGroup(&menu);
-    const std::pair<HistogramMode, QString> modes[] = {{HistogramMode::Colors, tr("Colors", "histogram")},
-                                                        {HistogramMode::Luminance, tr("Luminance", "histogram")},
-                                                        {HistogramMode::Off, tr("None", "histogram")}};
-    for (const auto &[mode, name] : modes) {
-        QAction *action = menu.addAction(name);
-        action->setCheckable(true);
-        action->setChecked(mode == m_settings.histogram);
-        group->addAction(action);
-        connect(action, &QAction::triggered, this, [this, mode] {
-            m_menuChoice = [this, mode] {
-                savePreference([mode](Settings &s) { s.histogram = mode; });
-                updateOverlay();
-            };
-        });
+    switch (mode) {
+    case HistogramMode::Colors: return tr("Colors", "histogram");
+    case HistogramMode::Luminance: return tr("Luminance", "histogram");
+    case HistogramMode::Off: return tr("None", "histogram");
     }
-    makeTransient(menu, this);
-    cancelPress();
-    m_menuChoice = nullptr;
-    menu.exec(mapToGlobal(QPointF(panel.left() / dpr + m_histogramChoice.left(),
-                                  panel.top() / dpr + m_histogramChoice.bottom() + 2).toPoint()));
-    if (std::function<void()> choice = std::exchange(m_menuChoice, nullptr)) // once the menu is gone (D-85)
-        QMetaObject::invokeMethod(this, std::move(choice), Qt::QueuedConnection);
+    return {};
+}
+
+void ViewerWindow::setHistogramMenuOpen(bool open)
+{
+    // As a combo box's list, below the choice; drawn by us, in the interface's own look (the owner,
+    // D-117): a menu of the system's took the system's colours.
+    if (open == m_histogramMenuOpen && !open)
+        return;
+    m_histogramMenuOpen = open && !m_histogramChoice.isEmpty() && m_rendererReady;
+    m_histogramMenuHover = -1;
+    updateHistogramMenu();
+    updateCursor();
+}
+
+void ViewerWindow::updateHistogramMenu()
+{
+    if (!m_rendererReady)
+        return;
+    if (!m_histogramMenuOpen || m_histogramChoice.isEmpty()) {
+        m_histogramMenuOpen = false;
+        m_histogramMenuSize = QSize();
+        m_renderer.setOverlay(Renderer::HistogramMenuLayer, QImage());
+        requestUpdate();
+        return;
+    }
+    const QFont font = QGuiApplication::font();
+    const QFontMetricsF metrics(font);
+    double names = 0;
+    for (const HistogramMode mode : kHistogramModes)
+        names = std::max(names, metrics.horizontalAdvance(histogramModeName(mode)));
+    const QSizeF logical(std::ceil(2 * kChoicePadding + kChoiceMark + 4.0 + names + 16.0),
+                         2 * kChoicePadding + std::size(kHistogramModes) * kChoiceRow);
+    const qreal dpr = devicePixelRatio();
+    QImage panel((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
+    panel.setDevicePixelRatio(dpr);
+    panel.fill(Qt::transparent);
+    {
+        QPainter painter(&panel);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(m_settings.panelBackground());
+        painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
+        const QColor ink = m_settings.panelText(Settings::kPanelValueGrey);
+        painter.setFont(font);
+        for (int i = 0; i < int(std::size(kHistogramModes)); ++i) {
+            const QRectF row(kChoicePadding, kChoicePadding + i * kChoiceRow, logical.width() - 2 * kChoicePadding, kChoiceRow);
+            if (i == m_histogramMenuHover) { // the gallery's hovered tile, as the "…" panel's rows
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(m_settings.highlightTile(true));
+                painter.drawRoundedRect(row.adjusted(0, 1, 0, -1), kPanelRadius / 2, kPanelRadius / 2);
+            }
+            if (kHistogramModes[i] == m_settings.histogram) { // the choice in use: a check
+                const QPointF c(row.left() + kChoiceMark / 2, row.center().y());
+                painter.setPen(QPen(ink, 1.6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter.setBrush(Qt::NoBrush);
+                painter.drawPolyline(QPolygonF({c + QPointF(-5, 0), c + QPointF(-1.5, 3.5), c + QPointF(5, -4)}));
+            }
+            painter.setPen(ink);
+            painter.drawText(QRectF(row.left() + kChoiceMark + 4.0, row.top(), names + 1, kChoiceRow),
+                             Qt::AlignLeft | Qt::AlignVCenter, histogramModeName(kHistogramModes[i]));
+        }
+    }
+    m_histogramMenuSize = panel.size();
+    m_renderer.setOverlay(Renderer::HistogramMenuLayer, panel);
+    requestUpdate();
+}
+
+QRectF ViewerWindow::histogramMenuRect() const
+{
+    const QRectF info = infoPanelRect();
+    if (!m_histogramMenuOpen || m_histogramMenuSize.isEmpty() || info.isEmpty())
+        return {};
+    // Below the choice, its left edge under the value's; within the window's margins (D-60). Above it
+    // when there is no room below (the panel sits at the window's bottom).
+    const double dpr = devicePixelRatio();
+    const QSizeF size(m_histogramMenuSize);
+    const QRectF choice(info.topLeft() + m_histogramChoice.topLeft() * dpr, m_histogramChoice.size() * dpr);
+    const double margin = kEdgeMargin * dpr;
+    double top = choice.bottom() + 4 * dpr;
+    if (top + size.height() > deviceSize().height() - margin)
+        top = choice.top() - 4 * dpr - size.height();
+    const double left = std::clamp(choice.left(), margin, std::max(margin, deviceSize().width() - margin - size.width()));
+    return QRectF(QPointF(std::round(left), std::round(std::max(margin, top))), size);
+}
+
+int ViewerWindow::histogramMenuAt(const QPointF &position) const
+{
+    const QRectF rect = histogramMenuRect();
+    const double dpr = devicePixelRatio();
+    if (!rect.contains(position * dpr))
+        return -1;
+    const double y = (position.y() * dpr - rect.top()) / dpr - kChoicePadding;
+    const int row = int(std::floor(y / kChoiceRow));
+    return y >= 0 && row < int(std::size(kHistogramModes)) ? row : -1;
+}
+
+void ViewerWindow::chooseHistogramMode(int row)
+{
+    if (row < 0 || row >= int(std::size(kHistogramModes)))
+        return;
+    const HistogramMode mode = kHistogramModes[row];
+    setHistogramMenuOpen(false);
+    savePreference([mode](Settings &s) { s.histogram = mode; });
+    updateOverlay();
 }

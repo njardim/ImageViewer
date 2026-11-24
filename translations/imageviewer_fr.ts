@@ -285,10 +285,6 @@
         <translation>Blanc</translation>
     </message>
     <message>
-        <source>Hide the pointer while it is still</source>
-        <translation>Masquer le pointeur tant qu’il ne bouge pas</translation>
-    </message>
-    <message>
         <source>Colors</source>
         <comment>histogram</comment>
         <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
@@ -309,18 +305,6 @@
     <message>
         <source>Display the overlay:</source>
         <translation>Afficher la surimpression :</translation>
-    </message>
-    <message>
-        <source>Hide the slideshow toolbar while the pointer is still</source>
-        <translation>Masquer la barre du diaporama tant que le pointeur ne bouge pas</translation>
-    </message>
-    <message>
-        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
-        <translation>Afficher les informations de l’image au-dessus de la miniature sous le pointeur</translation>
-    </message>
-    <message>
-        <source>Hide the gallery while the pointer is still</source>
-        <translation>Masquer la galerie tant que le pointeur ne bouge pas</translation>
     </message>
     <message>
         <source>Toolbar</source>
@@ -441,10 +425,6 @@
         <translation>Sur l’image</translation>
     </message>
     <message>
-        <source>For everything set to hide while the pointer is still: the bars, the gallery, the overlay, the panel and the pointer.</source>
-        <translation>Pour tout ce qui se masque tant que le pointeur ne bouge pas : les barres, la galerie, la surimpression, le panneau et le pointeur.</translation>
-    </message>
-    <message>
         <source>Fit to the window</source>
         <translation>Ajuster à la fenêtre</translation>
     </message>
@@ -536,6 +516,14 @@
         <translation>Opacité du texte et des icônes :</translation>
     </message>
     <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Masquer automatiquement le pointeur de la souris tant qu’il est immobile</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Pour tout ce qui se masque automatiquement : les barres, la galerie, la surimpression, le panneau et le pointeur de la souris.</translation>
+    </message>
+    <message>
         <source>Auto-hide elements after:</source>
         <translation>Masquer automatiquement les éléments après :</translation>
     </message>
@@ -554,6 +542,14 @@
     <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Apparence du panneau et de la surimpression</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Masquer automatiquement le panneau d’informations</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Masquer automatiquement les informations en surimpression</translation>
     </message>
     <message>
         <source>Information</source>
@@ -580,8 +576,8 @@
         <translation>Afficher les noms sous les boutons</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Masquer la barre d’outils tant que le pointeur ne bouge pas</translation>
+        <source>Auto-hide the toolbar</source>
+        <translation>Masquer automatiquement la barre d’outils</translation>
     </message>
     <message>
         <source>Buttons</source>
@@ -677,14 +673,6 @@
         <translation> px</translation>
     </message>
     <message>
-        <source>Hide the information panel while the pointer is still</source>
-        <translation>Masquer le panneau d’informations tant que le pointeur ne bouge pas</translation>
-    </message>
-    <message>
-        <source>Hide the information overlay while the pointer is still</source>
-        <translation>Masquer la surimpression d’informations tant que le pointeur ne bouge pas</translation>
-    </message>
-    <message>
         <source>Width of each side:</source>
         <translation>Largeur de chaque côté&#xa0;:</translation>
     </message>
@@ -715,6 +703,18 @@
     <message>
         <source>Start the slideshow in full screen</source>
         <translation>Démarrer le diaporama en plein écran</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Masquer automatiquement la barre du diaporama</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Afficher les informations de l’image dans une info-bulle</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Masquer automatiquement la galerie</translation>
     </message>
     <message>
         <source>Search:</source>

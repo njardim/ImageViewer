@@ -92,6 +92,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::RotateCounterclockwise, {K(Qt::SHIFT | Qt::Key_R)}, false},
         {C::FlipHorizontal, {K(Qt::SHIFT | Qt::Key_W)}, false},
         {C::FlipVertical, {K(Qt::SHIFT | Qt::Key_H)}, false},
+        {C::ColorPicker, {K(Qt::Key_K)}, false}, // a free key (D-115)
         {C::ExposureUp, {K(Qt::Key_E)}, true},
         {C::ExposureDown, {K(Qt::SHIFT | Qt::Key_E)}, true},
         {C::ExposureReset, {K(Qt::CTRL | Qt::Key_E)}, false},
@@ -159,6 +160,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::RotateCounterclockwise: return tr("Rotate Left");
     case Command::FlipHorizontal: return tr("Flip Horizontally");
     case Command::FlipVertical: return tr("Flip Vertically");
+    case Command::ColorPicker: return tr("Color Picker");
     //: EV: exposure value, photographic stops; ½ EV is half a stop.
     case Command::ExposureUp: return tr("Increase Exposure (+½ EV)");
     //: EV: exposure value, photographic stops; ½ EV is half a stop.
@@ -219,6 +221,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::ExposureUp:
     case Command::ExposureDown:
     case Command::ExposureReset: return hasImage;
+    case Command::ColorPicker: return m_pickerOn || hasImage; // a picker on can always be left
     default: return true;
     }
 }
@@ -241,6 +244,7 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::Toolbar: return m_settings.showToolbar;
     case Command::ToneMap: return m_settings.toneMap;
     case Command::ClipWarning: return m_settings.clipWarning;
+    case Command::ColorPicker: return m_pickerOn;
     case Command::PlayPause: return m_slideshow.running() ? m_slideshow.paused() : m_animationPaused;
     case Command::Slideshow: return m_slideshow.running();
     default: *checkable = false; return false;
@@ -296,6 +300,7 @@ void ViewerWindow::execute(Command command)
     case Command::RotateCounterclockwise: rotate(-1); break;
     case Command::FlipHorizontal: flipHorizontal(); break;
     case Command::FlipVertical: flipVertical(); break;
+    case Command::ColorPicker: togglePicker(); break;
     case Command::ExposureUp: adjustExposure(0.5f); break;
     case Command::ExposureDown: adjustExposure(-0.5f); break;
     case Command::ExposureReset: resetExposure(); break;
@@ -516,6 +521,8 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     color->addSeparator();
     addCommand(color, Command::ToneMap);
     addCommand(color, Command::ClipWarning);
+    color->addSeparator();
+    addCommand(color, Command::ColorPicker); // a tool of colour (D-115)
 
     QMenu *go = menu.addMenu(tr("Jump to"));
     addCommand(go, Command::First);

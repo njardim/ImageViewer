@@ -92,10 +92,12 @@ void Toolbar::layout(double width)
     m_width = width;
     m_dirty = true;
 
-    // The width of the first `count` items, without separators at the ends, and "…" after them
-    // when `more`.
+    // The buttons pinned at the end (the last group, D-115) stay on the bar; "…" takes the others.
+    const qsizetype main = pinnedStart();
+    // The width of the first `count` items, without separators at the ends, "…" after them when
+    // `more`, then the pinned group after a separator of its own.
     const Button moreButton{kMore, Glyph::More, {}, true, false, false, {}};
-    const auto build = [this, &moreButton](qsizetype count, bool more) {
+    const auto build = [this, &moreButton, main](qsizetype count, bool more) {
         QList<Slot> columns;
         for (qsizetype i = 0; i < count; ++i) {
             const Button &b = m_buttons.at(i);
@@ -107,6 +109,14 @@ void Toolbar::layout(double width)
             columns.removeLast();
         if (more)
             columns.append({moreButton});
+        if (main < m_buttons.size() && !columns.isEmpty()) {
+            Button separator;
+            separator.separator = true;
+            columns.append({separator});
+        }
+        for (qsizetype i = main; i < m_buttons.size(); ++i)
+            if (!m_buttons.at(i).separator)
+                columns.append({m_buttons.at(i)});
         double x = kPadding;
         for (qsizetype i = 0; i < columns.size(); ++i) {
             Slot &slot = columns[i];
@@ -121,10 +131,10 @@ void Toolbar::layout(double width)
         return std::pair{columns, x + kPadding};
     };
 
-    auto [columns, total] = build(m_buttons.size(), false);
-    m_shownButtons = int(m_buttons.size());
+    auto [columns, total] = build(main, false);
+    m_shownButtons = int(main);
     if (total > width) { // the most that fit with "…" after them; at least "…" alone
-        for (qsizetype count = m_buttons.size() - 1; count >= 0; --count) {
+        for (qsizetype count = main - 1; count >= 0; --count) {
             std::tie(columns, total) = build(count, true);
             m_shownButtons = int(count);
             if (total <= width)
@@ -264,10 +274,22 @@ QImage Toolbar::menuTexture()
     return m_menuTexture;
 }
 
+qsizetype Toolbar::pinnedStart() const
+{
+    // The pinned buttons at the end, and the separators among and before them.
+    qsizetype start = m_buttons.size();
+    while (start > 0 && (m_buttons.at(start - 1).pinned || m_buttons.at(start - 1).separator))
+        --start;
+    while (start < m_buttons.size() && m_buttons.at(start).separator) // a separator before them belongs to no one
+        ++start;
+    return start;
+}
+
 QList<Toolbar::Button> Toolbar::overflow() const
 {
     QList<Button> hidden;
-    for (qsizetype i = m_shownButtons; i < m_buttons.size(); ++i)
+    const qsizetype main = pinnedStart();
+    for (qsizetype i = m_shownButtons; i < main; ++i)
         if (!m_buttons.at(i).separator)
             hidden << m_buttons.at(i);
     return hidden;

@@ -38,6 +38,8 @@ constexpr std::pair<TitleMode, const char *> kTitleModes[] = {{TitleMode::Overla
                                                               {TitleMode::Name, "name"},
                                                               {TitleMode::Details, "details"},
                                                               {TitleMode::Everything, "everything"}};
+constexpr std::pair<HistogramMode, const char *> kHistograms[] = {
+    {HistogramMode::Colors, "colors"}, {HistogramMode::Luminance, "luminance"}, {HistogramMode::Off, "off"}};
 constexpr std::pair<FontSize, const char *> kFontSizes[] = {
     {FontSize::Small, "small"}, {FontSize::Medium, "medium"}, {FontSize::Large, "large"}};
 
@@ -112,9 +114,9 @@ bool isKnownLanguage(const QString &code)
 
 QStringList Settings::normalizedToolbar(const QStringList &buttons)
 {
-    const QString separator(kToolbarSeparator), quit = QStringLiteral("Quit");
-    QStringList result;
-    bool hasQuit = false;
+    const QString separator(kToolbarSeparator);
+    const QStringList last = finalToolbarGroup();
+    QStringList result, ending;
     for (const QString &name : buttons) {
         const bool word = !name.isEmpty() && std::all_of(name.cbegin(), name.cend(), [](QChar c) {
             return (c >= QLatin1Char('A') && c <= QLatin1Char('Z')) || (c >= QLatin1Char('a') && c <= QLatin1Char('z'));
@@ -124,19 +126,21 @@ QStringList Settings::normalizedToolbar(const QStringList &buttons)
         if (name == separator) {
             if (!result.isEmpty() && result.last() != separator)
                 result << name;
-        } else if (name == quit) {
-            hasQuit = true;
+        } else if (last.contains(name)) {
+            if (!ending.contains(name))
+                ending << name;
         } else if (!result.contains(name)) {
             result << name;
         }
     }
     while (!result.isEmpty() && result.last() == separator)
         result.removeLast();
-    if (hasQuit) {
-        if (!result.isEmpty())
-            result << separator;
-        result << quit;
-    }
+    // The last group in its own order, after a separator of its own (the owner, D-115).
+    if (!ending.isEmpty() && !result.isEmpty())
+        result << separator;
+    for (const QString &name : last)
+        if (ending.contains(name))
+            result << name;
     return result;
 }
 
@@ -189,6 +193,7 @@ Settings Settings::load()
     s.titleMode = fromKey(kTitleModes, store.value(QStringLiteral("window/title")).toString(), defaults.titleMode);
     s.pointerAutoHide = boolValue(store, QStringLiteral("window/pointerAutoHide"), defaults.pointerAutoHide);
     s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
+    s.histogram = fromKey(kHistograms, store.value(QStringLiteral("overlay/histogram")).toString(), defaults.histogram);
     s.showOverlay = boolValue(store, QStringLiteral("window/showOverlay"), defaults.showOverlay);
 
     s.overlayVisibility = fromKey(kVisibilities, store.value(QStringLiteral("overlay/display")).toString(),
@@ -316,6 +321,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("window/title"), QString::fromLatin1(keyOf(kTitleModes, titleMode)));
     store.setValue(QStringLiteral("window/pointerAutoHide"), pointerAutoHide);
     store.setValue(QStringLiteral("window/showInfo"), showInfo);
+    store.setValue(QStringLiteral("overlay/histogram"), QString::fromLatin1(keyOf(kHistograms, histogram)));
     store.setValue(QStringLiteral("window/showOverlay"), showOverlay);
     store.setValue(QStringLiteral("overlay/display"), QString::fromLatin1(keyOf(kVisibilities, overlayVisibility)));
     store.setValue(QStringLiteral("overlay/autoHide"), overlayAutoHide);

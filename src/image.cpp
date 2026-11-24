@@ -2,6 +2,7 @@
 
 #include "decoders.h"
 #include "folder.h"
+#include "histogram.h"
 
 #include <QColorSpace>
 #include <QCoreApplication>
@@ -51,6 +52,7 @@ struct Range {
     std::size_t end;
     float max;
     float maxLuminance;
+    std::shared_ptr<Histogram> histogram = {}; // this range's counts (convertFrame())
 };
 
 template <typename Fn>
@@ -223,11 +225,14 @@ struct Converted {
     int height = 0;
     float maxComponent = 0.0f;
     float maxLuminance = 0.0f;
+    std::shared_ptr<const Histogram> histogram; // with a counter
 };
 
 // One fused, parallel pass: native samples -> linear scRGB -> premultiplied half floats; then
-// the orientation, applied once, and the reduction by `factor` (1: none).
-Converted convertFrame(Decoded &dec, const color::Converter &converter, int factor)
+// the orientation, applied once, and the reduction by `factor` (1: none). With a `counter`, the
+// histogram on the way, from the native samples and the converted floats (D-115).
+Converted convertFrame(Decoded &dec, const color::Converter &converter, int factor,
+                       const HistogramCounter *counter = nullptr)
 {
     Converted out;
     const std::size_t pixelCount = std::size_t(dec.width) * dec.height;
@@ -236,14 +241,20 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     forEachRange(pixelCount, std::size_t(1) << 15, [&](Range &range) {
         const std::size_t n = range.end - range.begin;
         const std::unique_ptr<float[]> rgba(new float[n * 4]); // not zero-filled: expand() writes every value
+        if (counter)
+            range.histogram = std::make_shared<Histogram>(counter->empty());
         if (dec.cmyk) {
             const std::unique_ptr<float[]> cmyka(new float[n * 5]);
             expandCmyk(dec, range.begin, range.end, cmyka.get());
             converter.applyCmyk(cmyka.get(), n, rgba.get());
         } else {
             expand(dec, range.begin, range.end, rgba.get());
+            if (counter)
+                counter->countSignal(rgba.get(), n, range.histogram.get());
             converter.apply(rgba.get(), n);
         }
+        if (counter)
+            counter->countLinear(rgba.get(), n, range.histogram.get());
         constexpr float kHalfMax = 65504.0f;
         float maxComponent = 0.0f, maxLuminance = 0.0f;
         for (std::size_t i = 0; i < n * 4; i += 4) {
@@ -271,6 +282,12 @@ Converted convertFrame(Decoded &dec, const color::Converter &converter, int fact
     for (const Range &r : ranges) {
         out.maxComponent = std::max(out.maxComponent, r.max);
         out.maxLuminance = std::max(out.maxLuminance, r.maxLuminance);
+    }
+    if (counter) {
+        Histogram counted = counter->empty();
+        for (const Range &r : ranges)
+            counted.add(*r.histogram);
+        out.histogram = std::make_shared<const Histogram>(std::move(counted));
     }
     dec.data.reset(); // release native samples early
 
@@ -328,6 +345,10 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
         converter = std::make_unique<color::Converter>(dec.colour, integerBits, dec.cmyk);
     }
     const bool littleCms = converter->usesLittleCms();
+    // The histogram (D-115), but for a thumbnail and an SVG's detail.
+    std::shared_ptr<const HistogramCounter> counter;
+    if (!options.fill && !(options.scale > 0.0))
+        counter = std::make_shared<const HistogramCounter>(dec.colour, dec.cmyk, integerBits);
 
     // Orientation swaps the axes but keeps the longest side, so the reduction is known here.
     const int longest = std::max(dec.width, dec.height);
@@ -345,12 +366,14 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     result.sourceChannels = dec.sourceChannels;
     result.sourceBits = dec.bits;
     result.sourceFloat = !dec.isInteger();
+    result.sourceCmyk = dec.cmyk;
+    result.sourceGray = dec.gray;
     result.hasAlpha = dec.alphaIndex >= 0;
     result.orientation = dec.orientation;
     result.colour = dec.colour;
     result.camera = dec.camera;
     const int firstDurationMs = dec.durationMs;
-    Converted first = convertFrame(dec, *converter, factor);
+    Converted first = convertFrame(dec, *converter, factor, counter.get());
     const qint64 convertNs = timer.nsecsElapsed();
 
     result.width = first.width;
@@ -358,9 +381,11 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     result.maxComponent = first.maxComponent;
     result.maxLuminance = first.maxLuminance;
     result.pixels = std::make_shared<const std::vector<qfloat16>>(std::move(first.pixels));
+    result.histogram = first.histogram;
     if (frames)
         result.animation = std::make_shared<Animation>(std::move(frames), std::move(converter), factor, result.width,
-                                                       result.height, result.pixels, firstDurationMs);
+                                                       result.height, result.pixels, firstDurationMs, counter,
+                                                       first.histogram);
     result.decodeMs = double(timer.nsecsElapsed()) / 1e6;
     qCInfo(lcDecode).nospace() << QFileInfo(path).fileName() << ": " << dec.width << "x" << dec.height << ", read "
                                << readNs / 1000000 << " ms, convert " << (convertNs - readNs) / 1000000 << " ms"
@@ -371,15 +396,17 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
 } // namespace
 
 Animation::Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
-                     int width, int height, PixelBuffer first, int firstDurationMs)
-    : m_reader(std::move(reader)), m_converter(std::move(converter)), m_factor(factor), m_width(width),
+                     int width, int height, PixelBuffer first, int firstDurationMs,
+                     std::shared_ptr<const HistogramCounter> counter, std::shared_ptr<const Histogram> firstHistogram)
+    : m_reader(std::move(reader)), m_converter(std::move(converter)), m_counter(std::move(counter)), m_factor(factor),
+      m_width(width),
       m_height(height), m_loops(m_reader->loopCount()), m_firstDurationMs(firstDurationMs),
       // Every frame stays in memory while they fit in an eighth of the RAM (at least 128 MiB,
       // at most 1 GiB); beyond that, each loop decodes them again.
       m_budget(std::clamp(physicalMemoryBytes() / 8, qint64(128) << 20, qint64(1) << 30))
 {
     m_count = m_reader->frameCount();
-    m_kept.push_back({0, std::move(first), firstDurationMs});
+    m_kept.push_back({0, std::move(first), firstDurationMs, 0.0f, 0.0f, std::move(firstHistogram)});
     m_keptBytes = qint64(m_kept.front().pixels->size() * sizeof(qfloat16));
 }
 
@@ -454,13 +481,13 @@ bool Animation::frameLocked(int index, Frame *out, QString *error)
             }
             continue; // read past without converting
         }
-        Converted c = convertFrame(dec, *m_converter, m_factor);
+        Converted c = convertFrame(dec, *m_converter, m_factor, m_counter.get());
         if (c.width != m_width || c.height != m_height) {
             *error = QCoreApplication::translate("Image", "invalid dimensions (%1×%2×%3)").arg(c.width).arg(c.height).arg(4);
             return false;
         }
         Frame frame{at, std::make_shared<const std::vector<qfloat16>>(std::move(c.pixels)), durationMs, c.maxComponent,
-                    c.maxLuminance};
+                    c.maxLuminance, c.histogram};
         const qint64 bytes = qint64(frame.pixels->size() * sizeof(qfloat16));
         if (m_keepAll && m_keptBytes + bytes <= m_budget) {
             if (int(m_kept.size()) <= at)
@@ -566,6 +593,84 @@ QImage srgbImage(const Image &image)
     });
     out.setColorSpace(QColorSpace::SRgb);
     return out;
+}
+
+FileSamples::FileSamples() = default;
+FileSamples::~FileSamples() = default;
+
+std::shared_ptr<const FileSamples> FileSamples::read(const QString &path)
+{
+    const DecodeMemory memory; // within the memory every decode shares (D-111)
+    try {
+        std::shared_ptr<FileSamples> samples(new FileSamples);
+        samples->m_decoded = std::make_unique<Decoded>();
+        QString error;
+        if (!decodeFile(path, 0, samples->m_decoded.get(), &error) || !samples->m_decoded->data
+            || samples->m_decoded->channels <= 0)
+            return nullptr;
+        samples->m_path = path;
+        return samples;
+    } catch (const std::exception &e) {
+        exceptionError(e); // logged
+    }
+    return nullptr;
+}
+
+int FileSamples::bits() const
+{
+    const Decoded &d = *m_decoded;
+    return std::clamp(d.bits > 0 ? d.bits : 8 * d.sampleBytes(), 1, 16);
+}
+
+bool FileSamples::isFloat() const
+{
+    return !m_decoded->isInteger();
+}
+
+QList<double> FileSamples::at(QPoint position) const
+{
+    const Decoded &d = *m_decoded;
+    // From the image as oriented back to the file's own rows and columns (orient()'s mapping).
+    const int o = d.orientation >= 2 && d.orientation <= 8 ? d.orientation : 1;
+    const int sw = d.width, sh = d.height;
+    const int ow = o >= 5 ? sh : sw, oh = o >= 5 ? sw : sh;
+    const int ox = position.x(), oy = position.y();
+    if (ox < 0 || oy < 0 || ox >= ow || oy >= oh)
+        return {};
+    int sx = ox, sy = oy;
+    switch (o) {
+    case 2: sx = sw - 1 - ox; break;
+    case 3: sx = sw - 1 - ox; sy = sh - 1 - oy; break;
+    case 4: sy = sh - 1 - oy; break;
+    case 5: sx = oy; sy = ox; break;
+    case 6: sx = oy; sy = sh - 1 - ox; break;
+    case 7: sx = sw - 1 - oy; sy = sh - 1 - ox; break;
+    case 8: sx = sw - 1 - oy; sy = ox; break;
+    }
+    const std::size_t bytes = std::size_t(d.sampleBytes());
+    const unsigned char *pixel = d.data.get() + (std::size_t(sy) * std::size_t(sw) + std::size_t(sx)) * std::size_t(d.channels) * bytes;
+    const double maxCode = double((1 << bits()) - 1);
+    const auto value = [&](int channel, bool ink) {
+        const unsigned char *p = pixel + std::size_t(channel) * bytes;
+        float v = 0.0f;
+        switch (d.sample) {
+        case Decoded::Sample::U8: v = readSample<quint8>(p); break;
+        case Decoded::Sample::U16: v = readSample<quint16>(p); break;
+        case Decoded::Sample::F16: v = readSample<qfloat16>(p); break;
+        case Decoded::Sample::F32: v = readSample<float>(p); break;
+        }
+        if (ink && d.inkInverted) // stored as 1 - ink: the ink
+            v = 1.0f - v;
+        // Integer samples are normalised by their container's range: the codes of their own bits.
+        return d.isInteger() ? double(std::lround(double(v) * maxCode)) : double(v);
+    };
+    QList<double> values;
+    const int colours = d.cmyk ? 4 : d.gray ? 1 : 3;
+    for (int c = 0; c < colours && c < d.channels; ++c)
+        values << value(c, d.cmyk);
+    if (d.alphaIndex >= 0 && d.alphaIndex < d.channels)
+        values << value(d.alphaIndex, false);
+    return values;
 }
 
 void shutdownDecoders()

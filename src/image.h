@@ -8,7 +8,9 @@
 #include <QDateTime>
 #include <QFloat16>
 #include <QImage>
+#include <QList>
 #include <QLocale>
+#include <QPoint>
 #include <QRect>
 #include <QString>
 #include <QStringList>
@@ -41,6 +43,8 @@ using PixelBuffer = std::shared_ptr<const std::vector<qfloat16>>;
 
 class FrameReader;
 class Animation;
+class HistogramCounter;
+struct Histogram;
 
 struct Image {
     QString path;
@@ -56,6 +60,8 @@ struct Image {
     int sourceChannels = 0;
     int sourceBits = 0; // bits per channel of the stored data
     bool sourceFloat = false;
+    bool sourceCmyk = false; // ink, converted through a CMYK profile or the formula
+    bool sourceGray = false; // one channel of luminance
     bool hasAlpha = false;
     bool vector = false; // an SVG: the viewer draws it again at the zoom shown (D-93)
     double documentScale = 0.0; // an SVG: texels per pixel of the document, as drawn (D-94); 0: none
@@ -71,6 +77,9 @@ struct Image {
     PixelBuffer pixels;
     // The frames after the first, for an animated image (E6); null for still images.
     std::shared_ptr<Animation> animation;
+    // Its values counted from the decoder's own samples (D-115, histogram.h), the first frame's;
+    // null for a gallery's thumbnail and an SVG's detail.
+    std::shared_ptr<const Histogram> histogram;
 
     bool isValid() const { return error.isEmpty() && pixels && !pixels->empty(); }
     qint64 pixelBytes() const { return pixels ? qint64(pixels->size() * sizeof(qfloat16)) : 0; }
@@ -88,10 +97,12 @@ public:
         int durationMs = 0;  // how long it is shown
         float maxComponent = 0.0f; // as Image::maxComponent, for this frame
         float maxLuminance = 0.0f;
+        std::shared_ptr<const Histogram> histogram; // as Image::histogram, for this frame
     };
 
     Animation(std::unique_ptr<FrameReader> reader, std::unique_ptr<color::Converter> converter, int factor,
-              int width, int height, PixelBuffer first, int firstDurationMs);
+              int width, int height, PixelBuffer first, int firstDurationMs,
+              std::shared_ptr<const HistogramCounter> counter, std::shared_ptr<const Histogram> firstHistogram);
     ~Animation();
     Animation(const Animation &) = delete;
     Animation &operator=(const Animation &) = delete;
@@ -112,6 +123,7 @@ private:
     std::mutex m_mutex;
     std::unique_ptr<FrameReader> m_reader;
     std::unique_ptr<color::Converter> m_converter;
+    std::shared_ptr<const HistogramCounter> m_counter;
     int m_factor = 1;
     int m_width = 0;
     int m_height = 0;
@@ -123,6 +135,33 @@ private:
     std::vector<Frame> m_kept;    // by index; the first is always there
     qint64 m_keptBytes = 0;
     bool m_keepAll = true;        // every frame fits in the budget so far
+};
+
+struct Decoded;
+
+// The samples a file stores, decoded again for the color picker's value of the file (D-115): exact
+// where the working buffer (half floats in scRGB) cannot give it back, as a saturated wide-gamut
+// colour's small components. An animation's first frame.
+class FileSamples {
+public:
+    // `path` read on a worker thread; null when it cannot be.
+    static std::shared_ptr<const FileSamples> read(const QString &path);
+    ~FileSamples();
+    FileSamples(const FileSamples &) = delete;
+    FileSamples &operator=(const FileSamples &) = delete;
+
+    // At `position`, a pixel of the image as the viewer orients it, in the file's own pixels: its
+    // colour (gray: one value; CMYK: the four inks), then its alpha when the file has one, as integer
+    // codes of bits() bits, or floats. Empty outside the image.
+    QList<double> at(QPoint position) const;
+    int bits() const;
+    bool isFloat() const;
+    const QString &path() const { return m_path; }
+
+private:
+    FileSamples();
+    std::unique_ptr<Decoded> m_decoded;
+    QString m_path;
 };
 
 // Decodes `path`. Images larger than `maxTextureSize` on either axis are reduced

@@ -44,6 +44,7 @@ void ViewerWindow::stopAnimation()
     }
     m_animation.reset();
     m_framePixels.reset();
+    m_frameHistogram.reset();
     m_readyFrame.reset();
     m_frameDue = false;
     m_wantedFrame = -1;
@@ -149,6 +150,7 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
     m_image.maxLuminance = std::max(m_image.maxLuminance, shown.maxLuminance);
     m_frameIndex = shown.index;
     m_framePixels = shown.index > 0 ? shown.pixels : PixelBuffer();
+    m_frameHistogram = shown.index > 0 ? shown.histogram : nullptr; // the panel's (D-115)
     m_frameDurationMs = shown.durationMs;
     if (m_animationPaused) {
         m_wantedFrame = -1;

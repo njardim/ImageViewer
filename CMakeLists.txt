@@ -80,6 +80,7 @@ qt_add_executable(imageviewer
     src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp src/toolbars.cpp src/windowstates.cpp
     src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
     src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
+    src/colorpicker.h src/colorpicker.cpp src/histogram.h src/histogram.cpp
     src/cache.h src/cache.cpp
     src/settings.h src/settings.cpp src/settingsdialog.cpp src/shortcuts.cpp src/toolbarsettings.cpp
     src/appearance.h src/appearance.cpp
@@ -304,9 +305,11 @@ if(IMAGEVIEWER_UNIT_TESTS)
         tests/unit_tests.cpp
         src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
         src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
+        src/colorpicker.h src/colorpicker.cpp src/histogram.h src/histogram.cpp src/color.h src/color.cpp
     )
     set_target_properties(imageviewer_tests PROPERTIES MACOSX_BUNDLE OFF WIN32_EXECUTABLE OFF)
     target_include_directories(imageviewer_tests PRIVATE src)
     target_compile_definitions(imageviewer_tests PRIVATE QT_NO_KEYWORDS)
-    target_link_libraries(imageviewer_tests PRIVATE Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent Qt6::Test)
+    target_link_libraries(imageviewer_tests PRIVATE Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent Qt6::Test
+                          lcms2::lcms2)
 endif()

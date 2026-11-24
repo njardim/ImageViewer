@@ -160,6 +160,7 @@ void ViewerWindow::updateOverlay()
     updateMessage();
     updateMainToolbar();      // the window's width and the device pixel ratio may have changed
     updateSlideshowToolbar(); // likewise
+    updatePicker();           // the color picker's panel: its look, its values (D-115)
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
@@ -173,6 +174,12 @@ void ViewerWindow::updateOverlay()
 
     // The panel's rows while it is on and not hidden by itself (D-113); the notices stay either way.
     const bool panel = m_settings.showInfo && !m_panelHide.hidden();
+    // Its histogram at the top (D-115), counted when the image (the frame on screen) was decoded.
+    const std::shared_ptr<const Histogram> counted = m_frameHistogram ? m_frameHistogram : m_image.histogram;
+    const bool histogram = panel && m_image.width > 0 && counted && m_settings.histogram != HistogramMode::Off;
+    // The color picker's panel goes between the information panel and the notices (D-115).
+    const bool picker = m_pickerOn && m_image.width > 0;
+    const QSizeF pickerSize = picker ? m_picker.size() : QSizeF();
     QList<Row> rows;
     if (panel && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
@@ -326,7 +333,12 @@ void ViewerWindow::updateOverlay()
                   .arg(m_gallery.reserve()) // the panel's room above the gallery
                   .arg(dpr)
                   .arg(int(QGuiApplication::layoutDirection()))
-                  .arg(font.key());
+                  .arg(font.key())
+              + QStringLiteral("|%1|%2|%3|%4")
+                    .arg(histogram ? int(m_settings.histogram) : -1)
+                    .arg(histogram ? quintptr(counted.get()) : 0)
+                    .arg(pickerSize.width())
+                    .arg(pickerSize.height());
         for (const QList<Row> *list : {&messages, &rows}) {
             key += QChar(0x1d);
             for (const Row &row : *list)
@@ -341,6 +353,7 @@ void ViewerWindow::updateOverlay()
     m_panelKey = key;
 
     if (messages.isEmpty() && rows.isEmpty()) {
+        m_pickerOffset = 0.0; // the picker's panel right above the gallery
         m_overlaySize = {};
         m_renderer.setOverlay(Renderer::InfoLayer, QImage());
         updateTopOverlay();
@@ -350,6 +363,8 @@ void ViewerWindow::updateOverlay()
 
     const QFontMetricsF metrics(font);
     const qreal padding = 10.0, columnGap = 14.0, sectionGap = 6.0, lineHeight = metrics.height() + 2.0;
+    // The histogram: 256 bins at least one logical pixel each, and as tall as a third of its width.
+    const qreal histogramWidth = Histogram::kBins, histogramHeight = 84.0, histogramGap = 2 * sectionGap;
     struct Layout {
         qreal labelWidth = 0;
         qreal contentWidth = 0;
@@ -384,11 +399,29 @@ void ViewerWindow::updateOverlay()
     const auto panelSize = [&](const Layout &layout, qreal room) {
         return QSizeF(std::ceil(std::min(layout.contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(layout.height, room)));
     };
+    Layout infoWithHistogram = infoLayout;
+    if (histogram && !rows.isEmpty()) {
+        infoWithHistogram.contentWidth = std::max(infoWithHistogram.contentWidth, histogramWidth);
+        infoWithHistogram.height += histogramHeight + histogramGap;
+    }
     const QSizeF messageSize = messages.isEmpty() ? QSizeF() : panelSize(messageLayout, maxHeight);
-    const qreal infoRoom = messages.isEmpty() ? maxHeight : maxHeight - messageSize.height() - kEdgeMargin;
-    const QSizeF infoSize = rows.isEmpty() || infoRoom < lineHeight + 2 * padding ? QSizeF() : panelSize(infoLayout, infoRoom);
-    const qreal between = messageSize.isEmpty() || infoSize.isEmpty() ? 0.0 : kEdgeMargin;
-    const QSizeF logical(std::max(messageSize.width(), infoSize.width()), messageSize.height() + between + infoSize.height());
+    const qreal infoRoom = maxHeight - (messages.isEmpty() ? 0.0 : messageSize.height() + kEdgeMargin)
+                           - (picker ? pickerSize.height() + kEdgeMargin : 0.0);
+    const QSizeF infoSize =
+        rows.isEmpty() || infoRoom < lineHeight + 2 * padding ? QSizeF() : panelSize(infoWithHistogram, infoRoom);
+    // From the bottom: the information panel, the picker's place (its own layer), the notices.
+    m_pickerOffset = infoSize.isEmpty() ? 0.0 : infoSize.height() + kEdgeMargin;
+    const qreal pickerPlace = picker ? pickerSize.height() + (infoSize.isEmpty() ? 0.0 : kEdgeMargin) : 0.0;
+    const qreal between = messageSize.isEmpty() || (infoSize.isEmpty() && !picker) ? 0.0 : kEdgeMargin;
+    const QSizeF logical(std::max(messageSize.width(), infoSize.width()),
+                         messageSize.height() + between + pickerPlace + infoSize.height());
+    if (logical.isEmpty()) { // the notices and the panel left no room
+        m_overlaySize = {};
+        m_renderer.setOverlay(Renderer::InfoLayer, QImage());
+        updateTopOverlay();
+        requestUpdate();
+        return;
+    }
 
     QImage overlay = overlayCanvas(logical, dpr);
     QPainter painter(&overlay);
@@ -402,7 +435,7 @@ void ViewerWindow::updateOverlay()
     // cell, AlignLeft is the start of the line (Qt mirrors it in right-to-left layouts). Both
     // panels start at the window's edge, the left one or, right to left, the right one.
     const bool rtl = QGuiApplication::layoutDirection() == Qt::RightToLeft;
-    const auto paint = [&](const QList<Row> &list, const Layout &layout, const QRectF &panel) {
+    const auto paint = [&](const QList<Row> &list, const Layout &layout, const QRectF &panel, bool withHistogram) {
         painter.setPen(Qt::NoPen);
         painter.setBrush(m_settings.panelBackground());
         painter.drawRoundedRect(panel, kPanelRadius, kPanelRadius);
@@ -412,6 +445,12 @@ void ViewerWindow::updateOverlay()
             return QRectF(rtl ? panel.right() - padding - x - w : panel.left() + padding + x, y, w, lineHeight);
         };
         qreal y = panel.top() + padding;
+        if (withHistogram) { // at the top, the panel's width (the owner's reference, D-115)
+            drawHistogram(painter, QRectF(panel.left() + padding, y, inner, histogramHeight),
+                          *counted, m_settings.histogram == HistogramMode::Colors,
+                          valueColour, QColor(0, 0, 0, 90));
+            y += histogramHeight + histogramGap;
+        }
         for (qsizetype i = 0; i < list.size(); ++i) {
             const Row &row = list.at(i);
             y += gapBefore(list, i) ? sectionGap : 0.0;
@@ -435,9 +474,9 @@ void ViewerWindow::updateOverlay()
         return QRectF(QPointF(rtl ? logical.width() - size.width() : 0.0, top), size);
     };
     if (!messageSize.isEmpty())
-        paint(messages, messageLayout, placed(messageSize, 0.0));
+        paint(messages, messageLayout, placed(messageSize, 0.0), false);
     if (!infoSize.isEmpty())
-        paint(rows, infoLayout, placed(infoSize, logical.height() - infoSize.height()));
+        paint(rows, infoLayout, placed(infoSize, logical.height() - infoSize.height()), histogram);
     painter.end();
 
     m_overlaySize = overlay.size();
@@ -687,6 +726,7 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
     frame->overlayRects[Renderer::ToolbarLayer] = mainToolbarRect();
     frame->overlayRects[Renderer::ToolbarMenuLayer] = toolbarMenuRect();
     frame->overlayRects[Renderer::SlideshowLayer] = slideshowToolbarRect();
+    placePicker(frame); // the color picker's panel, loupe and swatches (D-115)
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);
     else if (m_hoverZone == Zone::Next)
@@ -719,4 +759,3 @@ QRectF ViewerWindow::zoneButtonRect(Zone zone) const
     return QRectF(QPointF(std::round(centreX - pixels / 2.0), std::round((deviceSize().height() - pixels) / 2.0)),
                   QSizeF(pixels, pixels));
 }
-

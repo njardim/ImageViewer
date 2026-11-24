@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Plik</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (przycięte do sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (zmiennoprzecinkowo)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-bitowo)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Luminancja</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Piksel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Kliknij obraz, aby pobrać kolor.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -250,6 +293,24 @@
         <translation>Ukrywaj wskaźnik, gdy się nie porusza</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Kolory</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Luminancja</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Brak</translation>
+    </message>
+    <message>
         <source>Display the overlay:</source>
         <translation>Wyświetlaj nakładkę:</translation>
     </message>
@@ -416,6 +477,14 @@
         <translation>Okno</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Panel informacji</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histogram:</translation>
+    </message>
+    <message>
         <source>Hide the information panel while the pointer is still</source>
         <translation>Ukrywaj panel informacji, gdy wskaźnik się nie porusza</translation>
     </message>
@@ -456,8 +525,13 @@
         <translation>Domyślne przyciski</translation>
     </message>
     <message>
-        <source>Quit, when chosen, always comes last, after a separator.</source>
-        <translation>Zakończ, jeśli wybrany, jest zawsze ostatni, po separatorze.</translation>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Ustawienia i Zakończ są zawsze na końcu, we własnej grupie.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Separator (zawsze)</translation>
     </message>
     <message>
         <source>Separator</source>
@@ -1181,6 +1255,10 @@
         <translation>Odbij w pionie</translation>
     </message>
     <message>
+        <source>Color Picker</source>
+        <translation>Próbnik kolorów</translation>
+    </message>
+    <message>
         <source>Increase Exposure (+½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Zwiększ ekspozycję (+½ EV)</translation>
@@ -1441,6 +1519,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Pokaz slajdów wstrzymany</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Kopiuj</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Skopiowano: %1</translation>
     </message>
 </context>
 </TS>

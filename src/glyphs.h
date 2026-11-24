@@ -14,7 +14,7 @@ enum class Glyph {
     Open, ShowInFolder, OpenWith, CopyImage, CopyPath, Rename, MoveToTrash, DeletePermanently, UndoTrash,
     Settings, Quit, Previous, Next, First, Last, ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize,
     LockZoom, FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery, RotateClockwise,
-    RotateCounterclockwise, FlipHorizontal, FlipVertical, ExposureUp, ExposureDown, ExposureReset, ToneMap,
+    RotateCounterclockwise, FlipHorizontal, FlipVertical, ColorPicker, ExposureUp, ExposureDown, ExposureReset, ToneMap,
     ClipWarning, PlayPause, PreviousFrame, NextFrame, Slideshow,
     // The slideshow's states in its button's place, and the button of what a narrow toolbar cannot hold.
     Pause, Play, Stop, More,

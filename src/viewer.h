@@ -17,8 +17,10 @@
 #pragma once
 
 #include "cache.h"
+#include "colorpicker.h"
 #include "detail.h"
 #include "gallery.h"
+#include "histogram.h"
 #include "image.h"
 #include "renderer.h"
 #include "settings.h"
@@ -89,7 +91,7 @@ public:
         Previous, Next, First, Last,
         ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
         FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery, Toolbar,
-        RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
+        RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical, ColorPicker,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,
         About, AboutQt,
@@ -157,6 +159,23 @@ private:
     void cancelPress();   // a press whose release goes elsewhere clicks nothing
     void pointerActive(); // shows the pointer again and restarts its hiding timer
     void updateCursor();
+    // The color picker (m_picker, D-115): while it is on, a click on the image picks the pixel under
+    // the pointer instead of the side zones and full screen; its panel, above the information panel,
+    // shows the loupe and the values, a click on one copies it.
+    void togglePicker();
+    ColorPicker::Look pickerLook() const;
+    ColorPicker::Source pickerSource() const;
+    void updatePicker();           // its panel laid out and drawn when it changed
+    QRectF pickerRect() const;     // device pixels: its panel; empty when off
+    int pickerRowAt(const QPointF &position) const; // logical pixels: a value's index, or -1
+    bool overPicker(const QPointF &position) const; // logical pixels: on its panel
+    // The texture's pixel under `position` (logical pixels); none outside the image.
+    std::optional<QPoint> texelAt(const QPointF &position) const;
+    void pickAt(const QPointF &position);
+    void fillFileValue(); // the picked pixel's value in the file, from m_fileSamples or once read
+    void fileSamplesRead();
+    void placePicker(Renderer::Frame *frame) const;
+    void copyPickerValue(int row);
 
     // View actions.
     void rotate(int quarterTurns);
@@ -348,6 +367,7 @@ private:
     int m_frameGeneration = 0;  // changes when the animation shown changes
     int m_frameIndex = 0;       // the frame on screen
     PixelBuffer m_framePixels;  // ...its pixels (none for the first frame, which m_image's file gives), for the clipboard
+    std::shared_ptr<const Histogram> m_frameHistogram; // ...and its histogram (none for the first frame)
     int m_frameDurationMs = 0;  // ...and how long it stays
     QElapsedTimer m_panelRefreshed; // while playing, the panel's frame number follows at intervals
     int m_wantedFrame = -1;     // the frame to show next; -1: none
@@ -457,4 +477,22 @@ private:
     bool m_pointerHidden = false;
     Zone m_pressZone = Zone::None; // a press that may become a click on a side zone
     bool m_pressMoved = false;     // the press turned into a drag
+    QPointF m_pointer;             // where the pointer is, logical pixels...
+    bool m_pointerIn = false;      // ...when it is over the window
+
+    ColorPicker m_picker;          // the color picker (D-115)
+    bool m_pickerOn = false;
+    qint64 m_pickerTexture = 0;    // the cache key of its panel's texture the renderer has; 0: none
+    QSize m_pickerTextureSize;     // ...and its size
+    int m_pickerPress = -1;        // a value pressed, copied when released on it
+    bool m_pickPress = false;      // a press on the image that picks when released without a drag
+    QString m_pickPath;            // the file of the pixel picked
+    double m_pickerOffset = 0;     // logical pixels from the information layer's bottom to the panel's
+
+    // The file's own samples, decoded again for the picker's value of the file (D-115), on m_samplesPool.
+    std::shared_ptr<const FileSamples> m_fileSamples; // of m_image's file; null: not read
+    QThreadPool m_samplesPool;
+    QFutureWatcher<std::shared_ptr<const FileSamples>> m_samplesWatcher;
+    bool m_samplesBusy = false;    // as m_decodeBusy
+    QString m_samplesPath;         // the file being read
 };

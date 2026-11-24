@@ -64,6 +64,7 @@ std::optional<Glyph> ViewerWindow::glyphFor(Command command)
     case Command::RotateCounterclockwise: return Glyph::RotateCounterclockwise;
     case Command::FlipHorizontal: return Glyph::FlipHorizontal;
     case Command::FlipVertical: return Glyph::FlipVertical;
+    case Command::ColorPicker: return Glyph::ColorPicker;
     case Command::ExposureUp: return Glyph::ExposureUp;
     case Command::ExposureDown: return Glyph::ExposureDown;
     case Command::ExposureReset: return Glyph::ExposureReset;
@@ -139,8 +140,9 @@ QList<Toolbar::Button> ViewerWindow::mainToolbarButtons() const
         }
         bool checkable = false;
         const bool checked = isCommandChecked(command, &checkable);
+        // Settings and Quit, the last group, stay on the bar when "…" takes others (the owner, D-115).
         buttons.append({int(command), *glyph, buttonName(command), isCommandEnabled(command), checkable && checked,
-                        false, key(command)});
+                        false, key(command), command == Command::Settings || command == Command::Quit});
     }
     return buttons;
 }

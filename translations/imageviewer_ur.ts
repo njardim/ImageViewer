@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>فائل</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGB تک کاٹا گیا)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (فلوٹنگ پوائنٹ)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 بٹ)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>روشنی</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>پکسل</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>رنگ لینے کے لیے تصویر پر کلک کریں۔</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -244,6 +287,24 @@
     <message>
         <source>Hide the pointer while it is still</source>
         <translation>پوائنٹر ساکن رہنے پر اسے چھپائیں</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>رنگ</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>روشنی</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>کوئی نہیں</translation>
     </message>
     <message>
         <source>Display the overlay:</source>
@@ -475,6 +536,14 @@
         <translation>عناصر کو خودکار طور پر چھپائیں اتنے بعد:</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>معلوماتی پینل</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>ہسٹوگرام:</translation>
+    </message>
+    <message>
         <source>Overlay at the top</source>
         <translation>اوپر اوورلے</translation>
     </message>
@@ -527,8 +596,13 @@
         <translation>طے شدہ بٹن</translation>
     </message>
     <message>
-        <source>Quit, when chosen, always comes last, after a separator.</source>
-        <translation>منتخب ہونے پر خارج ہوں ہمیشہ آخر میں، ایک علیحدہ کار کے بعد آتا ہے۔</translation>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>ترتیبات اور خارج ہوں ہمیشہ آخر میں، اپنے الگ گروپ میں آتے ہیں۔</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>علیحدہ کار (ہمیشہ)</translation>
     </message>
     <message>
         <source>Separator</source>
@@ -1173,6 +1247,10 @@
         <translation>عمودی طور پر پلٹیں</translation>
     </message>
     <message>
+        <source>Color Picker</source>
+        <translation>رنگ چننے والا</translation>
+    </message>
+    <message>
         <source>Increase Exposure (+½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>ایکسپوژر بڑھائیں (+½ EV)</translation>
@@ -1441,6 +1519,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>سلائیڈ شو موقوف ہے</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>کاپی کریں</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>کاپی ہو گیا: %1</translation>
     </message>
 </context>
 </TS>

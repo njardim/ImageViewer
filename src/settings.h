@@ -49,6 +49,8 @@ enum class FitMode { Window, Width, Height, Fill, Actual }; // Actual: 100 %
 enum class WindowFit { Never, FirstImage, EveryImage };
 // What the title bar shows (D-51, D-58): the top overlay's fields, or a fixed set in its style.
 enum class TitleMode { Overlay, Name, Details, Everything };
+// The information panel's histogram (D-115): the three colours (the owner's default), the luminance, or none.
+enum class HistogramMode { Colors, Luminance, Off };
 // The interface's text (D-85): the system's size, 2 or 4 pixels larger.
 enum class FontSize { Small, Medium, Large };
 
@@ -83,6 +85,7 @@ struct Settings {
     int textOpacity = 100;      // percent
     // Information
     bool showInfo = false;     // the information panel (P)
+    HistogramMode histogram = HistogramMode::Colors; // at the top of the information panel (D-115)
     bool showOverlay = false;  // the top overlay (I); off at first: the toolbar and the gallery only (the owner, D-114)
     OverlayVisibility overlayVisibility = OverlayVisibility::Always; // in a window and in full screen: always or at the top (D-113)
     bool overlayAutoHide = false;    // the top overlay hides while the pointer is still
@@ -150,9 +153,9 @@ struct Settings {
     static constexpr int kMinAutoHideMs = 500;
     static constexpr int kMaxAutoHideMs = 10000;
 
-    // The toolbar's buttons as the owner designed them (2026-11-18): open; first, previous, the
-    // slideshow, next, last; the rotations and flips; the checkerboard, the gallery, full screen;
-    // settings.
+    // The toolbar's buttons as the owner designed them (2026-11-18, 2026-11-24): open; first,
+    // previous, the slideshow, next, last; the rotations, the flips and the color picker; the
+    // checkerboard, the gallery, full screen; settings and quit, the last group.
     static constexpr QLatin1StringView kToolbarSeparator{"Separator"};
     static QStringList defaultToolbarButtons() // in the header, as defaultOverlayFields()
     {
@@ -160,13 +163,16 @@ struct Settings {
         return {QStringLiteral("Open"), separator, QStringLiteral("First"), QStringLiteral("Previous"),
                 QStringLiteral("Slideshow"), QStringLiteral("Next"), QStringLiteral("Last"), separator,
                 QStringLiteral("RotateCounterclockwise"), QStringLiteral("RotateClockwise"),
-                QStringLiteral("FlipHorizontal"), QStringLiteral("FlipVertical"), separator,
-                QStringLiteral("Checkerboard"), QStringLiteral("Gallery"), QStringLiteral("FullScreen"), separator,
-                QStringLiteral("Settings")};
+                QStringLiteral("FlipHorizontal"), QStringLiteral("FlipVertical"), QStringLiteral("ColorPicker"),
+                separator, QStringLiteral("Checkerboard"), QStringLiteral("Gallery"), QStringLiteral("FullScreen"),
+                separator, QStringLiteral("Settings"), QStringLiteral("Quit")};
     }
+    // The last group, in its order: always at the end, after a separator of its own, and on the bar
+    // when "…" takes other buttons (the owner, D-115).
+    static QStringList finalToolbarGroup() { return {QStringLiteral("Settings"), QStringLiteral("Quit")}; }
     // `buttons` as the toolbar keeps them: each command once, no separator first, last or twice in
-    // a row, and Quit at the end after a separator of its own (D-87). Names are not checked
-    // against the commands, which the window does.
+    // a row, and the last group at the end (finalToolbarGroup()). Names are not checked against the
+    // commands, which the window does.
     static QStringList normalizedToolbar(const QStringList &buttons);
 
     // The six fields of ImageGlass issue #2475 (E14).
@@ -329,6 +335,7 @@ private:
     QSpinBox *m_windowFitPercent = nullptr;
     QComboBox *m_titleMode = nullptr;
     QCheckBox *m_showInfo = nullptr;
+    QComboBox *m_histogram = nullptr;
     QCheckBox *m_showOverlay = nullptr;
     QComboBox *m_overlayVisibility = nullptr;
     QCheckBox *m_overlayAutoHide = nullptr;

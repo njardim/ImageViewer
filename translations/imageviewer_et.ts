@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Fail</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (kärbitud sRGB-ks)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (ujukoma)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-bitine)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Heledus</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Piksel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Värvi võtmiseks klõpsake pildil.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -250,6 +293,24 @@
         <translation>Peida kursor, kui see ei liigu</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Värvid</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Heledus</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Puudub</translation>
+    </message>
+    <message>
         <source>Display the overlay:</source>
         <translation>Kuva ülekate:</translation>
     </message>
@@ -416,6 +477,14 @@
         <translation>Aken</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Teabepaneel</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histogramm:</translation>
+    </message>
+    <message>
         <source>Hide the information panel while the pointer is still</source>
         <translation>Peida teabepaneel, kui kursor ei liigu</translation>
     </message>
@@ -456,8 +525,13 @@
         <translation>Vaikimisi nupud</translation>
     </message>
     <message>
-        <source>Quit, when chosen, always comes last, after a separator.</source>
-        <translation>Valitud Välju on alati viimane, eraldaja järel.</translation>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Seaded ja Välju on alati viimased, omaette rühmas.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Eraldaja (alati)</translation>
     </message>
     <message>
         <source>Separator</source>
@@ -1181,6 +1255,10 @@
         <translation>Peegelda vertikaalselt</translation>
     </message>
     <message>
+        <source>Color Picker</source>
+        <translation>Värvivalija</translation>
+    </message>
+    <message>
         <source>Increase Exposure (+½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Suurenda säritust (+½ EV)</translation>
@@ -1441,6 +1519,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Slaidiseanss on pausil</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Kopeeri</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Kopeeritud: %1</translation>
     </message>
 </context>
 </TS>

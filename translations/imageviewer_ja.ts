@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>ファイル</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1（sRGB にクリップ）</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1（浮動小数点）</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1（%2 ビット）</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>輝度</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>ピクセル</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>画像をクリックして色を取得します。</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -244,6 +287,24 @@
     <message>
         <source>Hide the pointer while it is still</source>
         <translation>止まっている間はポインターを隠す</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>カラー</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>輝度</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Display the overlay:</source>
@@ -475,6 +536,14 @@
         <translation>要素を自動で隠すまでの時間:</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>情報パネル</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>ヒストグラム:</translation>
+    </message>
+    <message>
         <source>Overlay at the top</source>
         <translation>上部のオーバーレイ</translation>
     </message>
@@ -527,8 +596,13 @@
         <translation>既定のボタン</translation>
     </message>
     <message>
-        <source>Quit, when chosen, always comes last, after a separator.</source>
-        <translation>「終了」を選んだ場合は、常に区切りの後の最後に置かれます。</translation>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>設定と終了は常に最後に、独立したグループとして並びます。</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>区切り（常時）</translation>
     </message>
     <message>
         <source>Separator</source>
@@ -1173,6 +1247,10 @@
         <translation>上下反転</translation>
     </message>
     <message>
+        <source>Color Picker</source>
+        <translation>カラーピッカー</translation>
+    </message>
+    <message>
         <source>Increase Exposure (+½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>露出を上げる（+½ EV）</translation>
@@ -1441,6 +1519,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>スライドショーを一時停止しました</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>コピー</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>コピーしました: %1</translation>
     </message>
 </context>
 </TS>

@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Αρχείο</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (περικομμένο σε sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (κινητής υποδιαστολής)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bit)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Φωτεινότητα</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Εικονοστοιχείο</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Κάντε κλικ στην εικόνα για να επιλέξετε ένα χρώμα.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -250,6 +293,24 @@
         <translation>Απόκρυψη του δείκτη όσο μένει ακίνητος</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Χρώματα</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Φωτεινότητα</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Κανένα</translation>
+    </message>
+    <message>
         <source>Display the overlay:</source>
         <translation>Εμφάνιση της επικάλυψης:</translation>
     </message>
@@ -416,6 +477,14 @@
         <translation>Παράθυρο</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Πίνακας πληροφοριών</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Ιστόγραμμα:</translation>
+    </message>
+    <message>
         <source>Hide the information panel while the pointer is still</source>
         <translation>Απόκρυψη του πίνακα πληροφοριών όσο ο δείκτης μένει ακίνητος</translation>
     </message>
@@ -456,8 +525,13 @@
         <translation>Προεπιλεγμένα κουμπιά</translation>
     </message>
     <message>
-        <source>Quit, when chosen, always comes last, after a separator.</source>
-        <translation>Η Έξοδος, όταν επιλέγεται, μπαίνει πάντα τελευταία, μετά από διαχωριστικό.</translation>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Οι Ρυθμίσεις και η Έξοδος είναι πάντα τελευταίες, σε δική τους ομάδα.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Διαχωριστικό (πάντα)</translation>
     </message>
     <message>
         <source>Separator</source>
@@ -1181,6 +1255,10 @@
         <translation>Κάθετη αναστροφή</translation>
     </message>
     <message>
+        <source>Color Picker</source>
+        <translation>Επιλογέας χρώματος</translation>
+    </message>
+    <message>
         <source>Increase Exposure (+½ EV)</source>
         <extracomment>EV: exposure value, photographic stops; ½ EV is half a stop.</extracomment>
         <translation>Αύξηση έκθεσης (+½ EV)</translation>
@@ -1441,6 +1519,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Η παρουσίαση είναι σε παύση</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Αντιγραφή</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Αντιγράφηκε: %1</translation>
     </message>
 </context>
 </TS>

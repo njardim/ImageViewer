@@ -472,6 +472,28 @@ void drawGlyph(QPainter &p, Glyph glyph, const QColor &colour)
         p.setTransform(QTransform(0, 1, 1, 0, 0, 0), true);
         flip(p);
         break;
+    case Glyph::ColorPicker: { // an eyedropper, its tip down to the left
+        p.save();
+        p.translate(12, 12);
+        p.rotate(-45);
+        QPainterPath tube;
+        tube.moveTo(-10.5, 0);
+        tube.lineTo(-7.5, -1.8);
+        tube.lineTo(1.5, -1.8);
+        tube.lineTo(1.5, 1.8);
+        tube.lineTo(-7.5, 1.8);
+        tube.closeSubpath();
+        p.drawPath(tube);
+        p.drawRoundedRect(QRectF(1.5, -3.4, 2.8, 6.8), 0.8, 0.8); // the collar
+        QPainterPath bulb;
+        bulb.moveTo(4.3, -2.4);
+        bulb.lineTo(7.4, -2.4);
+        bulb.arcTo(QRectF(5.0, -2.4, 4.8, 4.8), 90, -180);
+        bulb.lineTo(4.3, 2.4);
+        p.drawPath(bulb);
+        p.restore();
+        break;
+    }
     case Glyph::ExposureUp:
     case Glyph::ExposureDown:
         sun(p, QPointF(10, 14), 3.4);

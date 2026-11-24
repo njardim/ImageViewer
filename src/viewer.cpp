@@ -161,6 +161,9 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     m_tooltipTimer.setSingleShot(true);
     connect(&m_tooltipTimer, &QTimer::timeout, this, &ViewerWindow::showToolbarTooltip);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
+    m_samplesPool.setMaxThreadCount(1);
+    connect(&m_samplesWatcher, &QFutureWatcher<std::shared_ptr<const FileSamples>>::finished, this,
+            &ViewerWindow::fileSamplesRead);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
             m_renderer.refreshOutput();
@@ -188,6 +191,7 @@ ViewerWindow::~ViewerWindow()
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
     m_framePool.waitForDone();
+    m_samplesWatcher.waitForFinished();
 }
 
 int ViewerWindow::textureLimit(const QString &path) const
@@ -233,6 +237,10 @@ bool ViewerWindow::event(QEvent *e)
         break;
     case QEvent::Leave:
         m_pointerTimer.stop();
+        if (std::exchange(m_pointerIn, false) && m_pickerOn)
+            requestUpdate(); // the loupe shows nothing under the pointer
+        if (m_picker.setHover(-1))
+            updatePicker();
         setHoverZone(Zone::None);
         setSlideshowBarHover(-1);
         setMainToolbarHover(-1);
@@ -515,13 +523,12 @@ Renderer::Frame ViewerWindow::imageFrame() const
     frame.background[1] = float(m_settings.background.greenF());
     frame.background[2] = float(m_settings.background.blueF());
     frame.checkerboard = m_settings.checkerboard && m_image.hasAlpha;
-    if (frame.checkerboard) {
-        // The second colour is the background made lighter (dark backgrounds) or darker.
-        const float luma = 0.2126f * frame.background[0] + 0.7152f * frame.background[1] + 0.0722f * frame.background[2];
-        const float delta = luma < 0.5f ? 0.12f : -0.12f;
-        for (int c = 0; c < 3; ++c)
-            frame.checkerColour[c] = std::clamp(frame.background[c] + delta, 0.0f, 1.0f);
-    }
+    // The second colour is the background made lighter (dark backgrounds) or darker; the color
+    // picker's checks use it whether the checkerboard is on or not (D-115).
+    const float luma = 0.2126f * frame.background[0] + 0.7152f * frame.background[1] + 0.0722f * frame.background[2];
+    const float delta = luma < 0.5f ? 0.12f : -0.12f;
+    for (int c = 0; c < 3; ++c)
+        frame.checkerColour[c] = std::clamp(frame.background[c] + delta, 0.0f, 1.0f);
     return frame;
 }
 
@@ -615,6 +622,7 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_messageKey.clear();
         m_slideshowBarTexture = 0;
         m_mainToolbarTexture = 0;
+        m_pickerTexture = 0;
         m_toolbarMenuTexture = 0;
         updateOverlay();
         updateNavigationButtons();

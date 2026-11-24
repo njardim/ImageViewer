@@ -5,9 +5,11 @@
 // asked for again without end (D-95); and the scale an SVG is drawn at for its window, by which the
 // window draws an SVG again when the window outgrows it (D-106). Run by CI on the three systems; no
 // argument needed (the offscreen platform unless QT_QPA_PLATFORM says otherwise).
+#include "colorpicker.h"
 #include "decoders.h"
 #include "detail.h"
 #include "gallery.h"
+#include "histogram.h"
 #include "slideshow.h"
 #include "toolbar.h"
 
@@ -788,6 +790,39 @@ private Q_SLOTS:
         QVERIFY(!bar.menuOpen());
     }
 
+    void theLastGroupStaysOnTheBar()
+    {
+        // Settings and Quit, pinned after a separator of their own (the owner, D-115): "…" takes the
+        // others and comes before them.
+        QList<Toolbar::Button> buttons = defaults();
+        buttons.append({-1, Glyph::More, {}, true, false, true});
+        buttons.append({15, Glyph::Settings, QStringLiteral("Settings"), true, false, false, {}, true});
+        buttons.append({16, Glyph::Quit, QStringLiteral("Quit"), true, false, false, {}, true});
+        Toolbar bar;
+        bar.setButtons(buttons);
+        bar.setLook(look());
+        bar.layout(2000);
+        QList<int> all;
+        for (int id = 1; id <= 16; ++id)
+            all << id;
+        QCOMPARE(shownIds(bar), all);
+        bar.layout(400);
+        const QList<int> shown = shownIds(bar);
+        QCOMPARE(shown.mid(shown.size() - 3), QList<int>({Toolbar::kMore, 15, 16}));
+        const QList<Toolbar::Button> hidden = bar.overflow();
+        QVERIFY(!hidden.isEmpty());
+        for (const Toolbar::Button &b : hidden)
+            QVERIFY(b.id != 15 && b.id != 16);
+        QCOMPARE(hidden.last().id, 14); // the last of the others, not of the bar
+        // Only the last group: on the bar whatever the width, and no separator first.
+        Toolbar alone;
+        alone.setButtons({buttons.at(buttons.size() - 2), buttons.last()});
+        alone.setLook(look());
+        alone.layout(400);
+        QCOMPARE(shownIds(alone), QList<int>({15, 16}));
+        QCOMPARE(alone.size().width(), 2 * Toolbar::kPadding + 2 * Toolbar::kButton + Toolbar::kSpacing);
+    }
+
     void autoHideWaitsForAStillPointer()
     {
         bool underPointer = false;
@@ -807,6 +842,241 @@ private Q_SLOTS:
         QVERIFY(!hide.hidden());
         underPointer = false;
         QTRY_VERIFY_WITH_TIMEOUT(hide.hidden(), 2000);
+    }
+};
+
+// color::Encoder against color::Converter, the histogram's counting and the color picker's values
+// and panel (D-115).
+class ColorTest : public QObject {
+    Q_OBJECT
+
+    static color::Descriptor analytic(const color::Chromaticities &primaries, color::Transfer transfer,
+                                      float gamma = 2.2f)
+    {
+        color::Descriptor d;
+        d.source = color::Descriptor::Source::Cicp;
+        d.primaries = primaries;
+        d.transfer = transfer;
+        d.gamma = gamma;
+        return d;
+    }
+    static ColorPicker::Sample sample(double r, double g, double b, double alpha = 1.0) // sRGB-encoded in
+    {
+        ColorPicker::Sample s;
+        s.rgb[0] = color::srgbToLinear(float(r));
+        s.rgb[1] = color::srgbToLinear(float(g));
+        s.rgb[2] = color::srgbToLinear(float(b));
+        s.alpha = float(alpha);
+        s.position = QPoint(12, 34);
+        return s;
+    }
+    static QString row(const QList<ColorPicker::Row> &rows, const QString &label, bool copy = true)
+    {
+        for (const ColorPicker::Row &r : rows)
+            if (r.label == label)
+                return copy ? r.copy : r.text;
+        return QStringLiteral("(none)");
+    }
+
+private Q_SLOTS:
+    void theEncoderUndoesTheConverter()
+    {
+        // In float precision the file's signal comes back from linear scRGB, matrix and curve undone.
+        const color::Descriptor descriptors[] = {
+            analytic(color::kBt709, color::Transfer::Srgb),     analytic(color::kDisplayP3, color::Transfer::Srgb),
+            analytic(color::kBt2020, color::Transfer::Pq),      analytic(color::kBt2020, color::Transfer::Hlg),
+            analytic(color::kAdobeRgb, color::Transfer::Power), analytic(color::kBt709, color::Transfer::Bt1886),
+        };
+        for (const color::Descriptor &d : descriptors) {
+            const color::Converter converter(d, 0);
+            const color::Encoder encoder(d, false);
+            QVERIFY(encoder.valid());
+            // PQ, HLG and the pure power laws rise so steeply from black that a float's rounding in
+            // the matrices moves their darkest signals by up to two 10-bit codes; sRGB starts linear.
+            const bool steep = d.transfer != color::Transfer::Srgb;
+            const float tolerance = steep ? 2e-3f : 2e-4f;
+            for (const float r : {0.0f, 0.1f, 0.5f, 0.75f, 1.0f})
+                for (const float g : {0.05f, 0.4f, 0.9f})
+                    for (const float b : {0.0f, 0.3f, 1.0f}) {
+                        float rgba[4] = {r, g, b, 1.0f};
+                        converter.apply(rgba, 1);
+                        encoder.encode(rgba);
+                        const float in[3] = {r, g, b};
+                        for (int c = 0; c < 3; ++c)
+                            QVERIFY2(std::abs(rgba[c] - in[c]) < tolerance,
+                                     qPrintable(QStringLiteral("%1: %2 back as %3").arg(d.primaries.r[0]).arg(in[c]).arg(rgba[c])));
+                    }
+        }
+        color::Descriptor cmyk;
+        QVERIFY(!color::Encoder(cmyk, true).valid()); // ink has no inverse here
+    }
+
+    void labIsCssLab()
+    {
+        // CSS Color 4's lab() of #F79134, of sRGB red and of white.
+        const auto near = [](const std::array<double, 3> &lab, double l, double a, double b) {
+            return std::abs(lab[0] - l) < 0.05 && std::abs(lab[1] - a) < 0.05 && std::abs(lab[2] - b) < 0.05;
+        };
+        QVERIFY(near(color::scRgbToLab(color::srgbToLinear(247 / 255.0f), color::srgbToLinear(145 / 255.0f),
+                                       color::srgbToLinear(52 / 255.0f)),
+                     70.32, 34.81, 63.10));
+        QVERIFY(near(color::scRgbToLab(1, 0, 0), 54.29, 80.80, 69.89));
+        QVERIFY(near(color::scRgbToLab(1, 1, 1), 100.0, 0.0, 0.0));
+    }
+
+    void theHistogramCountsTheFilesCodes()
+    {
+        // 8-bit sRGB samples: each colour in the bin of its code; a transparent pixel left out; the
+        // luminance of a grey in the grey's bin.
+        const HistogramCounter counter(analytic(color::kBt709, color::Transfer::Srgb), false, 8);
+        const float signal[] = {10 / 255.0f, 128 / 255.0f, 255 / 255.0f, 1.0f, // a colour
+                                128 / 255.0f, 128 / 255.0f, 128 / 255.0f, 1.0f, // a grey
+                                200 / 255.0f, 0.0f, 0.0f, 0.0f};                 // transparent
+        Histogram h = counter.empty();
+        QCOMPARE(h.axis, QStringLiteral("sRGB"));
+        QCOMPARE(h.referenceWhite, -1.0); // at the axis' end
+        counter.countSignal(signal, 3, &h);
+        float linear[12];
+        std::copy(std::begin(signal), std::end(signal), linear);
+        color::Converter(analytic(color::kBt709, color::Transfer::Srgb), 0).apply(linear, 3);
+        counter.countLinear(linear, 3, &h);
+        QCOMPARE(h.pixels, quint64(2));
+        QCOMPARE(h.bins[Histogram::Red][10], quint32(1));
+        QCOMPARE(h.bins[Histogram::Red][128], quint32(1));
+        QCOMPARE(h.bins[Histogram::Green][128], quint32(2));
+        QCOMPARE(h.bins[Histogram::Blue][255], quint32(1));
+        QCOMPARE(h.bins[Histogram::Red][200], quint32(0));
+        QCOMPARE(h.bins[Histogram::Luminance][128], quint32(1));
+        quint64 luminance = 0;
+        for (const quint32 n : h.bins[Histogram::Luminance])
+            luminance += n;
+        QCOMPARE(luminance, quint64(2));
+        Histogram other = h;
+        other.add(h);
+        QCOMPARE(other.pixels, quint64(4));
+        QCOMPARE(other.bins[Histogram::Green][128], quint32(4));
+    }
+
+    void theHistogramsAxes()
+    {
+        // Narrow range: black and white at the axis' ends.
+        color::Descriptor narrow = analytic(color::kBt709, color::Transfer::Bt1886);
+        narrow.fullRange = false;
+        const HistogramCounter video(narrow, false, 8);
+        const float codes[] = {16 / 255.0f, 235 / 255.0f, 126 / 255.0f, 1.0f};
+        Histogram v = video.empty();
+        video.countSignal(codes, 1, &v);
+        QCOMPARE(v.bins[Histogram::Red][0], quint32(1));
+        QCOMPARE(v.bins[Histogram::Green][255], quint32(1));
+        QCOMPARE(v.bins[Histogram::Blue][128], quint32(1)); // (126 − 16) / 219 of the way
+        // PQ: SDR white marked where 203 cd/m² is.
+        const Histogram pq = HistogramCounter(analytic(color::kBt2020, color::Transfer::Pq), false, 16).empty();
+        QVERIFY(pq.axis.startsWith(QStringLiteral("PQ")));
+        QVERIFY(std::abs(pq.referenceWhite - color::nitsToPq(203.0f)) < 1e-3);
+        // Linear floats (EXR): counted converted, on PQ.
+        const HistogramCounter floats(analytic(color::kBt709, color::Transfer::Linear), false, 0);
+        Histogram f = floats.empty();
+        QCOMPARE(f.axis, QStringLiteral("PQ"));
+        const float white[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        floats.countSignal(white, 1, &f); // not from the samples
+        QCOMPARE(f.pixels, quint64(0));
+        floats.countLinear(white, 1, &f);
+        const int bin = int(std::lround(color::nitsToPq(203.0f) * 255.0));
+        QCOMPARE(f.bins[Histogram::Red][std::size_t(bin)], quint32(1));
+        QCOMPARE(f.bins[Histogram::Luminance][std::size_t(bin)], quint32(1));
+        // CMYK: the converted colours on the sRGB curve.
+        QCOMPARE(HistogramCounter(color::Descriptor(), true, 8).empty().axis, QStringLiteral("sRGB"));
+    }
+
+    void thePickersValues()
+    {
+        const QLocale c(QLocale::C);
+        ColorPicker::Source srgb;
+        QList<ColorPicker::Row> rows = ColorPicker::values(sample(247 / 255.0, 145 / 255.0, 52 / 255.0), srgb, c);
+        QCOMPARE(row(rows, QStringLiteral("HEX")), QStringLiteral("#F79134"));
+        QCOMPARE(row(rows, QStringLiteral("RGB")), QStringLiteral("rgb(247, 145, 52)"));
+        QCOMPARE(row(rows, QStringLiteral("HSL")), QStringLiteral("hsl(29, 92%, 59%)"));
+        QCOMPARE(row(rows, QStringLiteral("HSV")), QStringLiteral("hsv(29, 79%, 97%)"));
+        QCOMPARE(row(rows, QStringLiteral("CMYK")), QStringLiteral("cmyk(0%, 41%, 79%, 3%)"));
+        QCOMPARE(row(rows, QStringLiteral("Lab")), QStringLiteral("lab(70.3% 34.8 63.1)"));
+        QCOMPARE(row(rows, QStringLiteral("Pixel")), QStringLiteral("12, 34"));
+        QCOMPARE(row(rows, QStringLiteral("File")), QStringLiteral("(none)")); // 8-bit sRGB: the RGB row
+        QCOMPARE(row(rows, QStringLiteral("Luminance")), QStringLiteral("(none)")); // SDR
+
+        rows = ColorPicker::values(sample(247 / 255.0, 145 / 255.0, 52 / 255.0, 0.5), srgb, c);
+        QCOMPARE(row(rows, QStringLiteral("HEX")), QStringLiteral("#F7913480"));
+        QCOMPARE(row(rows, QStringLiteral("RGBA")), QStringLiteral("rgba(247, 145, 52, 0.5)"));
+        QCOMPARE(row(rows, QStringLiteral("HSL")), QStringLiteral("hsla(29, 92%, 59%, 0.5)"));
+        QCOMPARE(row(rows, QStringLiteral("Lab")), QStringLiteral("lab(70.3% 34.8 63.1 / 0.5)"));
+
+        // Outside sRGB: clipped, and said so; Lab keeps it. HDR: the luminance in cd/m².
+        ColorPicker::Sample bright;
+        bright.rgb[0] = bright.rgb[1] = bright.rgb[2] = 2.0f;
+        ColorPicker::Source hdr;
+        hdr.colour = analytic(color::kBt2020, color::Transfer::Pq);
+        hdr.bits = 10;
+        hdr.hdr = true;
+        rows = ColorPicker::values(bright, hdr, c);
+        QCOMPARE(row(rows, QStringLiteral("HEX")), QStringLiteral("#FFFFFF"));
+        QVERIFY(row(rows, QStringLiteral("HEX"), false).contains(QStringLiteral("sRGB")));
+        QCOMPARE(row(rows, QStringLiteral("Luminance")), QStringLiteral("406"));
+        QVERIFY(color::scRgbToLab(2, 2, 2)[0] > 100.0);
+        // The file's value: "…" until read, then its codes.
+        QCOMPARE(row(rows, QStringLiteral("File"), false), QStringLiteral("…"));
+        ColorPicker picker;
+        picker.pick(bright, hdr, c);
+        QVERIFY(picker.waitsForFileValue());
+        QVERIFY(picker.setFileValue({{668.0, 668.0, 668.0}, 10, false}));
+        QVERIFY(!picker.waitsForFileValue());
+        QCOMPARE(row(picker.rows(), QStringLiteral("File")), QStringLiteral("668, 668, 668"));
+        QCOMPARE(row(picker.rows(), QStringLiteral("File"), false), QStringLiteral("668, 668, 668 (10-bit)"));
+        QVERIFY(picker.setFileValue({}));
+        QCOMPARE(row(picker.rows(), QStringLiteral("File"), false), QStringLiteral("—"));
+        hdr.firstFrame = false; // an animation's later frame: not read
+        QCOMPARE(row(ColorPicker::values(bright, hdr, c), QStringLiteral("File")), QStringLiteral("(none)"));
+    }
+
+    void thePickersPanel()
+    {
+        ColorPicker picker;
+        ColorPicker::Look look;
+        look.devicePixelRatio = 2.0;
+        look.panel = QColor(0, 0, 0, 179);
+        look.ink = QColor(240, 240, 240);
+        look.label = QColor(170, 170, 170);
+        look.hover = QColor(80, 200, 120, 128);
+        look.font = QGuiApplication::font();
+        QVERIFY(picker.setLook(look));
+        QVERIFY(!picker.setLook(look));
+        // Before a pick: the hint, no value to click; the loupe, the swatches inside the panel.
+        const QSizeF empty = picker.size();
+        QVERIFY(empty.height() >= ColorPicker::kCells * ColorPicker::kCell + 2 * ColorPicker::kPadding);
+        QCOMPARE(picker.rowAt(QPointF(empty.width() - 20, ColorPicker::kPadding + 5)), -1);
+        const QRectF panel(QPointF(0, 0), empty);
+        QVERIFY(panel.contains(picker.loupeRect()) && panel.contains(picker.currentRect()) && panel.contains(picker.pickedRect()));
+        QVERIFY(!picker.loupeRect().intersects(picker.currentRect()) && !picker.currentRect().intersects(picker.pickedRect()));
+        QImage texture = picker.texture();
+        QCOMPARE(texture.size(), (empty * 2.0).toSize());
+        // The holes are transparent but for the frame of the centre pixel.
+        const QPointF inLoupe = (picker.loupeRect().topLeft() + QPointF(2, 2)) * 2.0;
+        QCOMPARE(qAlpha(texture.pixel(inLoupe.toPoint())), 0);
+        QCOMPARE(qAlpha(texture.pixel((picker.currentRect().center() * 2.0).toPoint())), 0);
+        QVERIFY(qAlpha(texture.pixel(QPoint(2 * int(ColorPicker::kPadding / 2), 2 * int(empty.height() / 2)))) > 0);
+        // A pick: a row a value, each under its own place.
+        picker.pick(sample(1, 0.5, 0), ColorPicker::Source(), QLocale(QLocale::C));
+        const QSizeF size = picker.size();
+        const double line = (size.height() - 2 * ColorPicker::kPadding) / std::max<qsizetype>(picker.rows().size(), 1);
+        QVERIFY(picker.rows().size() >= 7);
+        for (int i = 0; i < picker.rows().size(); ++i)
+            QCOMPARE(picker.rowAt(QPointF(size.width() - 30, ColorPicker::kPadding + (i + 0.5) * std::min(line, 100.0))) >= 0, true);
+        QCOMPARE(picker.rowAt(QPointF(picker.loupeRect().center())), -1); // the loupe is not a value
+        const qint64 before = picker.texture().cacheKey();
+        QVERIFY(picker.setHover(1));
+        QVERIFY(!picker.setHover(1));
+        QVERIFY(picker.texture().cacheKey() != before);
+        QVERIFY(picker.clear());
+        QVERIFY(!picker.clear());
+        QVERIFY(!picker.picked());
     }
 };
 
@@ -836,6 +1106,10 @@ int main(int argc, char **argv)
     }
     {
         ToolbarTest test;
+        status |= QTest::qExec(&test, argc, argv);
+    }
+    {
+        ColorTest test;
         status |= QTest::qExec(&test, argc, argv);
     }
     return status;

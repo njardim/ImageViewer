@@ -12,6 +12,7 @@
 
 #include <QFloat16>
 #include <QImage>
+#include <QPoint>
 #include <QRectF>
 #include <QSize>
 #include <QString>
@@ -56,9 +57,12 @@ public:
 
     // UI layers drawn over the image at SDR white, each from its own small texture so
     // that changing one (hover feedback) does not re-upload the others.
+    // The color picker's panel (D-115) right above the information panel: its loupe and swatches are
+    // drawn from the image under the layers that follow it.
     enum OverlayLayer {
-        InfoLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, SlideshowLayer, ToolbarLayer,
-        ToolbarMenuLayer, MessageLayer, OverlayLayerCount // nine: the shaders' layers[] and overlay samplers follow
+        InfoLayer, PickerLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, SlideshowLayer,
+        ToolbarLayer, ToolbarMenuLayer, MessageLayer,
+        OverlayLayerCount // ten: the shaders' layers[] and overlay samplers follow
     };
 
     // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
@@ -86,7 +90,24 @@ public:
         float checkerColour[3] = {0.0f, 0.0f, 0.0f};
         // The zoom's detail (setDetail()) over the part of the image it covers (D-93).
         bool detail = false;
+        // The color picker (D-115), device pixels; an empty loupeRect: none. The loupe shows
+        // `loupeCells` × `loupeCells` texels in squares, `loupeTexel` (the texture's column and row)
+        // in the middle, turned and mirrored as the image is; currentRect shows that texel alone,
+        // pickedRect `pickedColour` (linear scRGB, premultiplied, working units; alpha < 0: nothing
+        // picked). Through the image's output stage; where there is no image (or nothing picked), checks
+        // of `pickerCheck` device pixels in the checkerboard's colours, under translucent colours too.
+        QRectF loupeRect;
+        QPoint loupeTexel;
+        int loupeCells = 11;
+        QRectF currentRect;
+        QRectF pickedRect;
+        float pickedColour[4] = {0.0f, 0.0f, 0.0f, -1.0f};
+        float pickerCheck = 5.0f;
     };
+
+    // The texture coordinates (0 to 1 across the texture, x then y) under `position` (device pixels)
+    // as `frame` places the image, turned and mirrored: what the image quad draws there.
+    static QPointF textureCoordinates(const Frame &frame, const QPointF &position);
 
     // The output-stage parameters the shader receives for the image layer.
     static color::OutputStage stageFor(const Output &output, const Frame &frame);
@@ -141,6 +162,10 @@ public:
     int maxTextureSize() const;
 
 private:
+    static constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
+    static constexpr int kQuadBytes = 4 * kVertexStride;
+    static constexpr int kUniformBytes = 496; // the shaders' uniform block (offscreen.cpp's Uniforms)
+
     bool createRhi();
     int chooseFormat() const; // QRhiSwapChain::Format
     bool createSwapChainResources();

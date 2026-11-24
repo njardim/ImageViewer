@@ -40,6 +40,9 @@ public:
         bool on = false;      // a switch that is on: Look::on behind its glyph
         bool separator = false;
         QString shortcut;     // its key as the menus show it, in the "…" panel; empty: none
+        // One of the last group, which stays on the bar, after a separator of its own, when "…" takes
+        // the others (Settings and Quit, D-115); only buttons at the end are pinned.
+        bool pinned = false;
         bool operator==(const Button &) const = default;
     };
     struct Look {
@@ -67,7 +70,8 @@ public:
     bool setButtons(const QList<Button> &buttons);
     bool setLook(const Look &look);
     // Lays the bar out for at most `width` logical pixels: the buttons that do not fit go, from the
-    // end, under "…"; separators at either end of what shows are left out.
+    // end, under "…", which comes before the pinned buttons; separators at either end of what shows
+    // are left out.
     void layout(double width);
 
     QSizeF size() const { return m_size; }  // logical pixels; empty when there is no button
@@ -104,6 +108,7 @@ private:
         double from = 0;  // the area that takes the pointer, from...
         double to = 0;    // ...to (exclusive)
     };
+    qsizetype pinnedStart() const; // the index of the first pinned button; size() when none
     double columnWidth(const Button &button) const;
     double nameHeight() const;
     QStringList nameLines(const QString &name, double width) const; // at most two, the second elided
@@ -114,7 +119,7 @@ private:
     Look m_look;
     double m_width = -1;   // the width laid out for
     QList<Slot> m_slots;   // what shows: buttons, separators, and "…" last when some do not fit
-    int m_shownButtons = 0; // how many of m_buttons show (the rest are under "…")
+    int m_shownButtons = 0; // how many of m_buttons before the pinned ones show (the rest are under "…")
     QSizeF m_size;
     int m_hover = -1;
     int m_pressed = -1;

@@ -162,37 +162,10 @@ void SettingsDialog::buildUi()
     generalLayout->addStretch();
     tabs->addTab(general, tr("General"));
 
-    // Window, in four groups (the owner, D-114): the colours; the zoom; the window; what is drawn over
-    // the image, its opacity and its hiding, the one place for every element.
+    // Window, in four groups (the owner, D-114, D-115): the window; the colours; the zoom; what is
+    // drawn over the image, its opacity and its hiding, the one place for every element.
     auto *window = new QWidget;
     auto *windowLayout = new QVBoxLayout(window);
-    auto *colorsBox = new QGroupBox(tr("Colors"));
-    auto *colorsForm = new QFormLayout(colorsBox);
-    const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
-    colorsForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
-                                                   int(std::size(kBackgroundPresets)), tr("Background Color")));
-    // The interface's accent over the image: the gallery's highlight, a toolbar's button (D-112, D-114).
-    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
-    colorsForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
-                                                        int(std::size(kHighlightPresets)), tr("Highlight Color")));
-    m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
-    colorsForm->addRow(m_checkerboard);
-    windowLayout->addWidget(colorsBox);
-    // D-51: the zoom of a new image, the window's size, the title bar.
-    auto *zoomBox = new QGroupBox(QStringLiteral("Zoom")); // a technical name, never translated (D-59)
-    auto *zoomForm = new QFormLayout(zoomBox);
-    m_fitMode = new QComboBox;
-    m_fitMode->addItem(tr("Fit to the window"), int(FitMode::Window));
-    m_fitMode->addItem(tr("Fit to the width"), int(FitMode::Width));
-    m_fitMode->addItem(tr("Fit to the height"), int(FitMode::Height));
-    m_fitMode->addItem(tr("Fill the window"), int(FitMode::Fill));
-    m_fitMode->addItem(tr("Actual size (100 %)"), int(FitMode::Actual));
-    zoomForm->addRow(tr("Zoom of a new image:"), m_fitMode);
-    m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
-    zoomForm->addRow(m_enlargeSmall);
-    m_lockZoom = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
-    zoomForm->addRow(m_lockZoom);
-    windowLayout->addWidget(zoomBox);
     //: The group of the window's own options: its size, its position, its title bar.
     auto *frameBox = new QGroupBox(tr("Window", "settings group"));
     auto *frameForm = new QFormLayout(frameBox);
@@ -216,6 +189,33 @@ void SettingsDialog::buildUi()
     m_titleMode->addItem(tr("The same as the overlay at the top"), int(TitleMode::Overlay));
     frameForm->addRow(tr("Title bar:"), m_titleMode);
     windowLayout->addWidget(frameBox);
+    auto *colorsBox = new QGroupBox(tr("Colors"));
+    auto *colorsForm = new QFormLayout(colorsBox);
+    const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
+    colorsForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
+                                                   int(std::size(kBackgroundPresets)), tr("Background Color")));
+    // The interface's accent over the image: the gallery's highlight, a toolbar's button (D-112, D-114).
+    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
+    colorsForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
+                                                        int(std::size(kHighlightPresets)), tr("Highlight Color")));
+    m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
+    colorsForm->addRow(m_checkerboard);
+    windowLayout->addWidget(colorsBox);
+    // D-51: the zoom of a new image.
+    auto *zoomBox = new QGroupBox(QStringLiteral("Zoom")); // a technical name, never translated (D-59)
+    auto *zoomForm = new QFormLayout(zoomBox);
+    m_fitMode = new QComboBox;
+    m_fitMode->addItem(tr("Fit to the window"), int(FitMode::Window));
+    m_fitMode->addItem(tr("Fit to the width"), int(FitMode::Width));
+    m_fitMode->addItem(tr("Fit to the height"), int(FitMode::Height));
+    m_fitMode->addItem(tr("Fill the window"), int(FitMode::Fill));
+    m_fitMode->addItem(tr("Actual size (100 %)"), int(FitMode::Actual));
+    zoomForm->addRow(tr("Zoom of a new image:"), m_fitMode);
+    m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
+    zoomForm->addRow(m_enlargeSmall);
+    m_lockZoom = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
+    zoomForm->addRow(m_lockZoom);
+    windowLayout->addWidget(zoomBox);
     // One opacity for every background and one for every text and icon over the image, and one
     // delay for everything that hides while the pointer is still (D-113, D-114).
     auto *overImageBox = new QGroupBox(tr("Over the image"));
@@ -235,15 +235,26 @@ void SettingsDialog::buildUi()
     windowLayout->addStretch();
     tabs->addTab(window, tr("Window"));
 
-    // Information (D-34): the detailed panel and the compact overlay at the top.
+    // Information (D-34): the detailed panel and the compact overlay at the top, a group each.
     auto *information = new QWidget;
     auto *informationLayout = new QVBoxLayout(information);
+    auto *panelBox = new QGroupBox(tr("Information panel"));
+    auto *panelForm = new QFormLayout(panelBox);
     m_showInfo = new QCheckBox; // its text names the command's shortcut (updateShortcutLabels)
-    informationLayout->addWidget(m_showInfo);
-    m_showOverlay = new QCheckBox; // likewise
-    informationLayout->addWidget(m_showOverlay);
+    panelForm->addRow(m_showInfo);
+    m_histogram = new QComboBox; // at the top of the panel (D-115)
+    //: The information panel's histogram: the red, green and blue channels.
+    m_histogram->addItem(tr("Colors", "histogram"), int(HistogramMode::Colors));
+    //: The information panel's histogram: the luminance alone.
+    m_histogram->addItem(tr("Luminance", "histogram"), int(HistogramMode::Luminance));
+    //: The information panel's histogram: not shown.
+    m_histogram->addItem(tr("None", "histogram"), int(HistogramMode::Off));
+    panelForm->addRow(tr("Histogram:"), m_histogram);
+    informationLayout->addWidget(panelBox);
     auto *overlayBox = new QGroupBox(tr("Overlay at the top"));
     auto *overlayForm = new QFormLayout(overlayBox);
+    m_showOverlay = new QCheckBox; // its text names the command's shortcut (updateShortcutLabels)
+    overlayForm->addRow(m_showOverlay);
     // One choice for a window and full screen; never is the box above, and I (the owner, D-113).
     m_overlayVisibility = new QComboBox;
     m_overlayVisibility->addItem(tr("Always"), int(OverlayVisibility::Always));
@@ -288,11 +299,6 @@ void SettingsDialog::buildUi()
     navigationLayout->addWidget(m_loop);
     auto *imagesBox = new QGroupBox(tr("Images"));
     auto *imagesForm = new QFormLayout(imagesBox);
-    m_sideZones = new QCheckBox(tr("Click the left or right side of the window for the previous or next image"));
-    imagesForm->addRow(m_sideZones);
-    m_sideZoneWidth = sizeBox(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth, pixels());
-    imagesForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
-    connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
     m_sortBy = new QComboBox;
     m_sortBy->addItem(tr("Name"), int(FolderSort::Name));
     m_sortBy->addItem(tr("Date modified"), int(FolderSort::Modified));
@@ -303,6 +309,11 @@ void SettingsDialog::buildUi()
     sortRow->addWidget(m_sortDescending);
     sortRow->addStretch();
     imagesForm->addRow(tr("Sort images by:"), sortRow);
+    m_sideZones = new QCheckBox(tr("Click the left or right side of the window for the previous or next image"));
+    imagesForm->addRow(m_sideZones);
+    m_sideZoneWidth = sizeBox(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth, pixels());
+    imagesForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
+    connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     imagesForm->addRow(m_preload);
     navigationLayout->addWidget(imagesBox);
@@ -575,6 +586,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_showInfo->setChecked(settings.showInfo);
     m_showOverlay->setChecked(settings.showOverlay);
     m_overlayVisibility->setCurrentIndex(std::max(0, m_overlayVisibility->findData(int(settings.overlayVisibility))));
+    m_histogram->setCurrentIndex(std::max(0, m_histogram->findData(int(settings.histogram))));
     m_overlayAutoHide->setChecked(settings.overlayAutoHide);
     m_panelAutoHide->setChecked(settings.panelAutoHide);
     // The chosen fields first, in their order, then the others in their usual order.
@@ -708,6 +720,7 @@ Settings SettingsDialog::settings() const
     s.showInfo = m_showInfo->isChecked();
     s.showOverlay = m_showOverlay->isChecked();
     s.overlayVisibility = OverlayVisibility(m_overlayVisibility->currentData().toInt());
+    s.histogram = HistogramMode(m_histogram->currentData().toInt());
     s.overlayAutoHide = m_overlayAutoHide->isChecked();
     s.panelAutoHide = m_panelAutoHide->isChecked();
     s.overlayFields.clear();

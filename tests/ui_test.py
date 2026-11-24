@@ -570,8 +570,8 @@ try:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
             # It opens on Shortcuts, where it closed before the restart (D-84): three tabs on, past
-            # General and Window, Information; past the panel's box, the overlay's.
-            xdotool("key", "ctrl+Tab", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")
+            # General and Window, Information; past the panel's box and its histogram, the overlay's.
+            xdotool("key", "ctrl+Tab", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "Tab", "space")
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))

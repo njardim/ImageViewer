@@ -315,6 +315,10 @@
         <translation>Diashow-Leiste ausblenden, solange der Zeiger stillsteht</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Bildinformationen über der Miniatur unter dem Zeiger anzeigen</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Galerie ausblenden, solange der Zeiger stillsteht</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>über %1 nits abgeschnitten (Tone-Mapping aus)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Farben</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Leuchtdichte</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Keines</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogramm</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

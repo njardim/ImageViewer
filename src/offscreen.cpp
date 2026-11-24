@@ -187,7 +187,7 @@ void Renderer::recordFrame(QRhiCommandBuffer *cb, QRhiRenderTarget *target, QRhi
     }
     updates->updateDynamicBuffer(m_vertices, 0, sizeof vertices, vertices);
 
-    static_assert(sizeof(Uniforms) == kUniformBytes, "uniform block must match the shaders"); // ten layers, the picker (D-115)
+    static_assert(sizeof(Uniforms) == kUniformBytes, "uniform block must match the shaders"); // eleven layers, the picker (D-115, D-116)
     Uniforms u{};
     std::memcpy(u.clipCorrection, projection.constData(), sizeof u.clipCorrection);
     setStage(&u, stageFor(output, frame));

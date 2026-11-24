@@ -315,6 +315,10 @@
         <translation>Ocultar la barra de la presentación mientras el puntero esté quieto</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Mostrar la información de la imagen sobre la miniatura bajo el puntero</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Ocultar la galería mientras el puntero esté quieto</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>recorte por encima de %1 nits (mapeo de tonos desactivado)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Colores</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Luminancia</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histograma</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

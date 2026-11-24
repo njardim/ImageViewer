@@ -290,8 +290,7 @@ void ViewerWindow::showImage(Image image, int limit, bool redrawn)
         // only while the color picker reads them (D-115).
         if (!m_pickerOn)
             image.pixels.reset();
-        if (image.path != m_image.path)
-            m_fileSamples.reset(); // the picker's values of the file shown before (D-115)
+        m_fileSamples.reset(); // read again when picked: another file, or this one changed on disk (D-115)
         m_image = std::move(image);
         if (!sameFile) {
             if (!m_settings.lockZoom) // a locked zoom (Z) carries over to the new image

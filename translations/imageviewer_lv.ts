@@ -319,6 +319,10 @@
         <translation>Paslēpt slīdrādes rīkjoslu, kamēr rādītājs nekustas</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Rādīt attēla informāciju virs sīktēla zem rādītāja</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Paslēpt galeriju, kamēr rādītājs nekustas</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Orientācija</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Krāsas</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Spožums</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Nav</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogramma</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

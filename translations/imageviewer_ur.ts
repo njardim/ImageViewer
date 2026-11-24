@@ -315,6 +315,10 @@
         <translation>پوائنٹر ساکن رہنے پر سلائیڈ شو ٹول بار چھپائیں</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>پوائنٹر کے نیچے والے تھمب نیل کے اوپر تصویر کی معلومات دکھائیں</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>پوائنٹر ساکن رہنے پر گیلری چھپائیں</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1 nits سے اوپر کلپ شدہ (ٹون میپنگ بند)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>رنگ</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>روشنی</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>کوئی نہیں</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>ہسٹوگرام</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

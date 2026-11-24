@@ -319,6 +319,10 @@
         <translation>Diavoorstellingsbalk verbergen zolang de aanwijzer stilstaat</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>De informatie van de afbeelding boven de miniatuur onder de aanwijzer tonen</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Galerij verbergen zolang de aanwijzer stilstaat</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Oriëntatie</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Kleuren</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Luminantie</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Geen</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

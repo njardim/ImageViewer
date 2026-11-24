@@ -8,7 +8,9 @@
 #include <QDir>
 #include <QFontMetricsF>
 #include <QGuiApplication>
+#include <QActionGroup>
 #include <QLocale>
+#include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
 
@@ -121,6 +123,7 @@ struct Row {
     QString label; // empty: the value spans both columns (messages)
     QString value;
     bool gapBefore = false; // first row of a section
+    bool choice = false;    // the histogram's choice (D-116): a value that opens a menu, the plot below it
 };
 
 } // namespace
@@ -174,9 +177,11 @@ void ViewerWindow::updateOverlay()
 
     // The panel's rows while it is on and not hidden by itself (D-113); the notices stay either way.
     const bool panel = m_settings.showInfo && !m_panelHide.hidden();
-    // Its histogram at the top (D-115), counted when the image (the frame on screen) was decoded.
+    // Its histogram at the top (D-115), counted when the image (the frame on screen) was decoded: a
+    // row with the choice of what it shows, which stays when it shows none, and the plot (D-116).
     const std::shared_ptr<const Histogram> counted = m_frameHistogram ? m_frameHistogram : m_image.histogram;
-    const bool histogram = panel && m_image.width > 0 && counted && m_settings.histogram != HistogramMode::Off;
+    const bool histogramRow = panel && m_image.width > 0 && m_image.error.isEmpty() && counted;
+    const bool histogram = histogramRow && m_settings.histogram != HistogramMode::Off;
     // The color picker's panel goes between the information panel and the notices (D-115).
     const bool picker = m_pickerOn && m_image.width > 0;
     const QSizeF pickerSize = picker ? m_picker.size() : QSizeF();
@@ -317,6 +322,15 @@ void ViewerWindow::updateOverlay()
         }
     }
 
+    if (histogramRow) { // first, the plot under it, then the file's facts after a gap
+        const QString shows = m_settings.histogram == HistogramMode::Colors ? tr("Colors", "histogram")
+                              : m_settings.histogram == HistogramMode::Luminance ? tr("Luminance", "histogram")
+                                                                                 : tr("None", "histogram");
+        if (!rows.isEmpty())
+            rows.first().gapBefore = true;
+        //: The information panel's row that chooses what its histogram shows.
+        rows.prepend({tr("Histogram"), shows, false, true});
+    }
     const qreal dpr = devicePixelRatio();
     const QFont font = QGuiApplication::font();
     // The panel is drawn again only when what it shows changes, not on every animation frame,
@@ -334,11 +348,12 @@ void ViewerWindow::updateOverlay()
                   .arg(dpr)
                   .arg(int(QGuiApplication::layoutDirection()))
                   .arg(font.key())
-              + QStringLiteral("|%1|%2|%3|%4")
+              + QStringLiteral("|%1|%2|%3|%4|%5")
                     .arg(histogram ? int(m_settings.histogram) : -1)
                     .arg(histogram ? quintptr(counted.get()) : 0)
                     .arg(pickerSize.width())
-                    .arg(pickerSize.height());
+                    .arg(pickerSize.height())
+                    .arg(m_histogramChoiceHover);
         for (const QList<Row> *list : {&messages, &rows}) {
             key += QChar(0x1d);
             for (const Row &row : *list)
@@ -352,6 +367,7 @@ void ViewerWindow::updateOverlay()
     }
     m_panelKey = key;
 
+    m_histogramChoice = QRectF();
     if (messages.isEmpty() && rows.isEmpty()) {
         m_pickerOffset = 0.0; // the picker's panel right above the gallery
         m_overlaySize = {};
@@ -445,17 +461,39 @@ void ViewerWindow::updateOverlay()
             return QRectF(rtl ? panel.right() - padding - x - w : panel.left() + padding + x, y, w, lineHeight);
         };
         qreal y = panel.top() + padding;
-        if (withHistogram) { // at the top, the panel's width (the owner's reference, D-115)
-            drawHistogram(painter, QRectF(panel.left() + padding, y, inner, histogramHeight),
-                          *counted, m_settings.histogram == HistogramMode::Colors,
-                          valueColour, QColor(0, 0, 0, 90));
-            y += histogramHeight + histogramGap;
-        }
         for (qsizetype i = 0; i < list.size(); ++i) {
             const Row &row = list.at(i);
             y += gapBefore(list, i) ? sectionGap : 0.0;
             if (y + lineHeight > panel.bottom() - padding + 2.0)
                 break;
+            if (row.choice) { // the histogram's choice: its value a button that opens a menu (D-116)
+                const qreal valueX = labelColumn + columnGap;
+                drawPanelText(painter, cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
+                              metrics.elidedText(row.label, Qt::ElideRight, labelColumn), labelColour, outline);
+                const qreal textWidth = std::ceil(metrics.horizontalAdvance(row.value));
+                const QRectF value = cell(valueX, y, textWidth + 14.0);
+                m_histogramChoice = value.adjusted(-4.0, -1.0, 4.0, 1.0);
+                if (m_histogramChoiceHover) { // as a hovered button
+                    painter.setPen(Qt::NoPen);
+                    painter.setBrush(m_settings.highlightTile(true));
+                    painter.drawRoundedRect(m_histogramChoice, kPanelRadius / 2, kPanelRadius / 2);
+                }
+                const QRectF text = rtl ? value.adjusted(14.0, 0, 0, 0) : value.adjusted(0, 0, -14.0, 0);
+                drawPanelText(painter, text, Qt::AlignLeft | Qt::AlignTop, row.value, valueColour, outline);
+                // A small chevron: the value opens a menu, as a combo box's.
+                const double cx = rtl ? value.left() + 5.0 : value.right() - 5.0, cy = y + lineHeight / 2.0;
+                painter.setPen(QPen(valueColour, 1.4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter.setBrush(Qt::NoBrush);
+                painter.drawPolyline(QPolygonF({QPointF(cx - 3.5, cy - 1.5), QPointF(cx, cy + 2.0), QPointF(cx + 3.5, cy - 1.5)}));
+                y += lineHeight;
+                if (withHistogram) { // the plot, the panel's width (the owner's reference, D-115)
+                    y += histogramGap / 2;
+                    drawHistogram(painter, QRectF(panel.left() + padding, y, inner, histogramHeight), *counted,
+                                  m_settings.histogram == HistogramMode::Colors, valueColour, QColor(0, 0, 0, 90));
+                    y += histogramHeight + histogramGap / 2;
+                }
+                continue;
+            }
             if (row.label.isEmpty()) {
                 drawPanelText(painter, cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
                               isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)), valueColour, outline);
@@ -628,6 +666,51 @@ QStringList ViewerWindow::overlayParts(const QList<OverlayField> &fields, int *n
     return parts;
 }
 
+QString ViewerWindow::galleryTipText(int file) const
+{
+    const QString path = m_files.value(file);
+    if (path.isEmpty())
+        return {};
+    const QLocale locale;
+    const Thumbnail *thumbnail = m_gallery.thumbnail(path);
+    const QFileInfo info(path);
+    QString name;
+    QStringList facts;
+    for (OverlayField field : m_settings.overlayFields) {
+        switch (field) {
+        case OverlayField::Name: name = displayFileName(info.fileName()); break;
+        case OverlayField::Dimensions:
+            if (thumbnail) { // the file's own size, which its thumbnail's decode read (viewer.cpp)
+                const QStringList size = thumbnail->image.text(QStringLiteral("Size")).split(QLatin1Char(' '));
+                if (size.size() == 2 && size.at(0).toInt() > 0)
+                    facts << QStringLiteral("%1 × %2").arg(locale.toString(size.at(0).toInt()), locale.toString(size.at(1).toInt()));
+            }
+            break;
+        case OverlayField::FileSize:
+            if (const qint64 bytes = thumbnail ? thumbnail->fileSize : info.size(); bytes >= 0)
+                facts << fileSizeText(bytes, locale);
+            break;
+        case OverlayField::ColorSpace:
+            if (thumbnail && !thumbnail->image.text(QStringLiteral("Color")).isEmpty())
+                facts << thumbnail->image.text(QStringLiteral("Color"));
+            break;
+        case OverlayField::Modified:
+            if (const QDateTime modified = thumbnail ? thumbnail->modified : info.lastModified(); modified.isValid())
+                facts << locale.toString(modified, QLocale::ShortFormat);
+            break;
+        case OverlayField::Position:
+            facts << QStringLiteral("%1 / %2").arg(locale.toString(file + 1), locale.toString(m_files.size()));
+            break;
+        case OverlayField::Zoom:   // the image shown's, not this one's
+        case OverlayField::Output: // likewise
+            break;
+        }
+    }
+    if (name.isEmpty())
+        return facts.join(kFieldSeparator);
+    return facts.isEmpty() ? name : name + QLatin1Char('\n') + facts.join(kFieldSeparator);
+}
+
 void ViewerWindow::updateTopOverlay()
 {
     if (!m_rendererReady)
@@ -707,6 +790,46 @@ QRectF ViewerWindow::infoPanelRect() const
                   QSizeF(m_overlaySize));
 }
 
+bool ViewerWindow::overHistogramChoice(const QPointF &position) const
+{
+    const QRectF panel = infoPanelRect();
+    if (m_histogramChoice.isEmpty() || panel.isEmpty())
+        return false;
+    const double dpr = devicePixelRatio();
+    return m_histogramChoice.contains((position * dpr - panel.topLeft()) / dpr);
+}
+
+void ViewerWindow::showHistogramMenu()
+{
+    // As a combo box: the three choices below the value, the one in use checked; the setting's own.
+    const QRectF panel = infoPanelRect();
+    const double dpr = devicePixelRatio();
+    QMenu menu;
+    auto *group = new QActionGroup(&menu);
+    const std::pair<HistogramMode, QString> modes[] = {{HistogramMode::Colors, tr("Colors", "histogram")},
+                                                        {HistogramMode::Luminance, tr("Luminance", "histogram")},
+                                                        {HistogramMode::Off, tr("None", "histogram")}};
+    for (const auto &[mode, name] : modes) {
+        QAction *action = menu.addAction(name);
+        action->setCheckable(true);
+        action->setChecked(mode == m_settings.histogram);
+        group->addAction(action);
+        connect(action, &QAction::triggered, this, [this, mode] {
+            m_menuChoice = [this, mode] {
+                savePreference([mode](Settings &s) { s.histogram = mode; });
+                updateOverlay();
+            };
+        });
+    }
+    makeTransient(menu, this);
+    cancelPress();
+    m_menuChoice = nullptr;
+    menu.exec(mapToGlobal(QPointF(panel.left() / dpr + m_histogramChoice.left(),
+                                  panel.top() / dpr + m_histogramChoice.bottom() + 2).toPoint()));
+    if (std::function<void()> choice = std::exchange(m_menuChoice, nullptr)) // once the menu is gone (D-85)
+        QMetaObject::invokeMethod(this, std::move(choice), Qt::QueuedConnection);
+}
+
 void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
@@ -727,6 +850,7 @@ void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
     frame->overlayRects[Renderer::ToolbarMenuLayer] = toolbarMenuRect();
     frame->overlayRects[Renderer::SlideshowLayer] = slideshowToolbarRect();
     placePicker(frame); // the color picker's panel, loupe and swatches (D-115)
+    frame->overlayRects[Renderer::TooltipLayer] = tipRect(); // over everything (D-116)
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);
     else if (m_hoverZone == Zone::Next)

@@ -185,10 +185,8 @@ public:
     Encoder &operator=(const Encoder &) = delete;
 
     bool valid() const { return m_valid; }
-    bool gray() const { return m_gray; } // one channel: an ICC gray profile
     // The signal follows each channel alone, after the primaries: false for HLG, whose OOTF mixes them.
     bool separable() const { return m_transfer != Transfer::Hlg; }
-    bool convertsPrimaries() const { return m_convertPrimaries; }
     // Linear scRGB to linear light in the source's primaries, in place.
     void toSourcePrimaries(float *rgb) const;
     // The signal of linear light `v` (source primaries, working units) on `channel`; separable() only.

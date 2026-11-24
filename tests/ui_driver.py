@@ -228,6 +228,18 @@ def open_xfixes():
         hidden = not any(c.pixels[i] >> 24 for i in range(c.width * c.height))
         x11.XFree(image)
         return hidden
+
+    def pointer_shape():
+        """The pointer's image as a comparable value (its size, hot spot and pixels): the cross, the
+        arrow and the hands differ."""
+        image = xfixes.XFixesGetCursorImage(connection)
+        if not image:
+            fail("XFixesGetCursorImage failed")
+        c = image.contents
+        shape = (c.width, c.height, c.xhot, c.yhot, hash(tuple(c.pixels[i] for i in range(c.width * c.height))))
+        x11.XFree(image)
+        return shape
+    pointer_hidden.shape = pointer_shape  # the same connection
     return pointer_hidden
 
 

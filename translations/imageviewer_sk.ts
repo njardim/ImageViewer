@@ -319,6 +319,10 @@
         <translation>Skryť panel prezentácie, kým sa ukazovateľ nehýbe</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Zobraziť informácie o obrázku nad miniatúrou pod ukazovateľom</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Skryť galériu, kým sa ukazovateľ nehýbe</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Orientácia</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Farby</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Jas</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Žiadny</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

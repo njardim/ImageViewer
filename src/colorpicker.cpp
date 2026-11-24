@@ -254,8 +254,8 @@ void ColorPicker::layout()
         m_textWidth = std::ceil(metrics.horizontalAdvance(QCoreApplication::translate("ColorPicker", "Click the image to pick a color.")));
     const double values = m_rows.isEmpty() ? m_textWidth : m_labelWidth + 12.0 + m_textWidth;
     const double loupe = kCells * kCell;
-    m_size = QSizeF(std::ceil(kPadding + loupe + kGap + kSwatch + 16.0 + values + 12.0 + kPadding),
-                    std::ceil(2 * kPadding + std::max(loupe, m_rows.size() * rowHeight())));
+    m_size = QSizeF(std::ceil(kPadding + loupe + 16.0 + values + 12.0 + kPadding),
+                    std::ceil(2 * kPadding + std::max(loupe + kGap + kSwatch, m_rows.size() * rowHeight())));
 }
 
 QSizeF ColorPicker::size() const
@@ -271,18 +271,18 @@ QRectF ColorPicker::loupeRect() const
 
 QRectF ColorPicker::currentRect() const
 {
-    return QRectF(kPadding + kCells * kCell + kGap, kPadding, kSwatch, kSwatch);
+    return QRectF(kPadding, kPadding + kCells * kCell + kGap, kSwatch, kSwatch);
 }
 
 QRectF ColorPicker::pickedRect() const
 {
-    return QRectF(kPadding + kCells * kCell + kGap, kPadding + kCells * kCell - kSwatch, kSwatch, kSwatch);
+    return QRectF(kPadding + kCells * kCell - kSwatch, kPadding + kCells * kCell + kGap, kSwatch, kSwatch);
 }
 
 int ColorPicker::rowAt(const QPointF &position) const
 {
     const QSizeF panel = size();
-    const double left = kPadding + kCells * kCell + kGap + kSwatch + 16.0 - 6.0;
+    const double left = kPadding + kCells * kCell + 16.0 - 6.0;
     if (position.x() < left || position.x() >= panel.width() - kPadding + 4.0 || position.y() < kPadding)
         return -1;
     const int row = int((position.y() - kPadding) / rowHeight());
@@ -327,7 +327,7 @@ QImage ColorPicker::texture()
         painter.drawRect(centre.adjusted(-0.5, -0.5, 0.5, 0.5));
 
         painter.setFont(m_look.font);
-        const double left = kPadding + kCells * kCell + kGap + kSwatch + 16.0;
+        const double left = kPadding + kCells * kCell + 16.0;
         const double line = rowHeight();
         if (m_rows.isEmpty()) {
             painter.setPen(m_look.label);

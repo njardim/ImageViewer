@@ -356,6 +356,10 @@ Image decode(const QString &path, int maxTextureSize, qint64 maxPixels, bool ani
     const bool swapsAxes = dec.orientation >= 5 && dec.orientation <= 8;
     result.sourceWidth = swapsAxes ? dec.height : dec.width;
     result.sourceHeight = swapsAxes ? dec.width : dec.height;
+    if (dec.fileWidth > 0 && dec.fileHeight > 0) { // a thumbnail read smaller than the file
+        result.sourceWidth = swapsAxes ? dec.fileHeight : dec.fileWidth;
+        result.sourceHeight = swapsAxes ? dec.fileWidth : dec.fileHeight;
+    }
     if (dec.documentWidth > 0) { // a vector image drawn at another size than its own (D-90)
         result.sourceWidth = dec.documentWidth;
         result.sourceHeight = dec.documentHeight;

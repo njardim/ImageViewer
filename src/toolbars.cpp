@@ -14,16 +14,21 @@
 
 #include <QApplication>
 #include <QCursor>
+#include <QFontMetricsF>
+#include <QGuiApplication>
 #include <QMenu>
 #include <QMetaEnum>
-#include <QToolTip>
+#include <QPainter>
 
+#include <algorithm>
 #include <cmath>
 
 namespace {
 
 constexpr int kSlideshowPause = 1000; // the id of the slideshow's own pause or play, on either bar
 constexpr int kTooltipDelayMs = 700;  // as Qt's widgets wait before a tooltip
+constexpr double kTipGap = 8.0;       // between a tooltip and what it names, or the pointer (the owner, D-116)
+constexpr double kPointerBody = 16.0; // below the pointer's hot spot, its arrow or hand: a tooltip goes under it
 constexpr double kMenuGap = 6.0;      // between the toolbar and its "…" panel, logical pixels
 
 } // namespace
@@ -246,7 +251,7 @@ void ViewerWindow::setMainToolbarHover(int id)
 {
     if (!m_mainToolbar.setHover(id))
         return;
-    QToolTip::hideText();
+    hideTip(TipSource::Toolbar);
     if (id != -1)
         m_tooltipTimer.start(kTooltipDelayMs);
     else if (m_slideshowBar.hover() == -1)
@@ -259,13 +264,102 @@ void ViewerWindow::setSlideshowBarHover(int id)
 {
     if (!m_slideshowBar.setHover(id))
         return;
-    QToolTip::hideText();
+    hideTip(TipSource::Toolbar);
     if (id != -1)
         m_tooltipTimer.start(kTooltipDelayMs);
     else if (m_mainToolbar.hover() == -1)
         m_tooltipTimer.stop();
     updateCursor();
     updateSlideshowToolbar();
+}
+
+void ViewerWindow::showTip(TipSource source, const QString &text, const QRectF &anchor, TipPlace place)
+{
+    if (!m_rendererReady || text.isEmpty())
+        return;
+    const bool redraw = source != m_tipSource || text != m_tipText || m_tipSize.isEmpty() || m_tipDpr != devicePixelRatio();
+    m_tipSource = source;
+    m_tipAnchor = anchor;
+    m_tipPlace = place;
+    if (redraw) {
+        // The panels' background with the hover's colour over it, as a hovered button or thumbnail.
+        m_tipText = text;
+        const QFont font = QGuiApplication::font();
+        const QFontMetricsF metrics(font);
+        const QStringList lines = text.split(QLatin1Char('\n'));
+        double width = 0;
+        for (const QString &line : lines)
+            width = std::max(width, metrics.horizontalAdvance(line));
+        const double padX = 8.0, padY = 4.0, line = metrics.height();
+        const QSizeF logical(std::ceil(width + 2 * padX), std::ceil(lines.size() * line + 2 * padY));
+        const qreal dpr = devicePixelRatio();
+        QImage tip((logical * dpr).toSize(), QImage::Format_RGBA8888_Premultiplied);
+        tip.setDevicePixelRatio(dpr);
+        tip.fill(Qt::transparent);
+        {
+            QPainter painter(&tip);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setPen(Qt::NoPen);
+            const QRectF box(QPointF(0, 0), logical);
+            const double radius = std::min(kPanelRadius, logical.height() / 2);
+            painter.setBrush(m_settings.panelBackground());
+            painter.drawRoundedRect(box, radius, radius);
+            painter.setBrush(m_settings.highlightTile(true));
+            painter.drawRoundedRect(box, radius, radius);
+            painter.setFont(font);
+            painter.setPen(m_settings.panelText(Settings::kPanelValueGrey));
+            for (qsizetype i = 0; i < lines.size(); ++i)
+                painter.drawText(QRectF(padX, padY + i * line, logical.width() - 2 * padX, line),
+                                 Qt::AlignLeft | Qt::AlignVCenter, lines.at(i));
+        }
+        m_tipSize = tip.size();
+        m_tipDpr = dpr;
+        m_renderer.setOverlay(Renderer::TooltipLayer, tip);
+    }
+    requestUpdate();
+}
+
+void ViewerWindow::hideTip(TipSource source)
+{
+    if (m_tipSource == TipSource::None || (source != TipSource::None && source != m_tipSource))
+        return;
+    m_tipSource = TipSource::None;
+    m_tipText.clear();
+    m_tipSize = QSize();
+    if (m_rendererReady)
+        m_renderer.setOverlay(Renderer::TooltipLayer, QImage());
+    requestUpdate();
+}
+
+QRectF ViewerWindow::tipRect() const
+{
+    if (m_tipSource == TipSource::None || m_tipSize.isEmpty())
+        return {};
+    const double dpr = devicePixelRatio();
+    const QSizeF size = QSizeF(m_tipSize) / dpr;
+    QPointF at;
+    switch (m_tipPlace) {
+    case TipPlace::Below: at = QPointF(m_tipAnchor.center().x() - size.width() / 2, m_tipAnchor.bottom() + kTipGap); break;
+    case TipPlace::Above: at = QPointF(m_tipAnchor.center().x() - size.width() / 2, m_tipAnchor.top() - kTipGap - size.height()); break;
+    case TipPlace::Pointer: at = m_tipAnchor.topLeft() + QPointF(kTipGap, kPointerBody + kTipGap); break;
+    }
+    // Within the window's margins, as every component over the image (D-60).
+    at.setX(std::clamp(at.x(), kEdgeMargin, std::max(kEdgeMargin, width() - kEdgeMargin - size.width())));
+    at.setY(std::clamp(at.y(), kEdgeMargin, std::max(kEdgeMargin, height() - kEdgeMargin - size.height())));
+    return QRectF(QPointF(std::round(at.x() * dpr), std::round(at.y() * dpr)), QSizeF(m_tipSize));
+}
+
+void ViewerWindow::showPendingTip()
+{
+    if (m_mainToolbar.hover() != -1 || m_slideshowBar.hover() != -1) {
+        showToolbarTooltip();
+        return;
+    }
+    const int slot = m_gallery.hover();
+    const int file = slot >= 0 ? m_gallery.fileAt(slot) : -1;
+    if (file < 0 || !galleryShown() || !m_settings.galleryTooltips || QApplication::activePopupWidget())
+        return;
+    showTip(TipSource::Gallery, galleryTipText(file), m_gallery.slotRect(slot), TipPlace::Above);
 }
 
 void ViewerWindow::showToolbarTooltip()
@@ -283,15 +377,17 @@ void ViewerWindow::showToolbarTooltip()
     if (!button->shortcut.isEmpty())
         //: A toolbar button's tooltip: %1 its name, %2 its keyboard shortcut, e.g. "Gallery (G)".
         text = tr("%1 (%2)").arg(text, button->shortcut);
-    const QRectF square = bar.buttonRect(id);
+    // Below its button, kTipGap under the bar.
     const double dpr = devicePixelRatio();
-    QToolTip::showText(mapToGlobal(QPointF(rect.left() / dpr + square.left(), rect.bottom() / dpr + 4).toPoint()), text);
+    const QRectF square = bar.buttonRect(id);
+    showTip(TipSource::Toolbar, text, QRectF(rect.left() / dpr + square.left(), rect.top() / dpr, square.width(), rect.height() / dpr),
+            TipPlace::Below);
 }
 
 void ViewerWindow::toolbarButtonClicked(int id)
 {
     // A button of either bar, or a row of the "…" panel, which closes first.
-    QToolTip::hideText();
+    hideTip();
     m_tooltipTimer.stop();
     if (id == Toolbar::kMore) {
         m_mainToolbar.setMenuOpen(!m_mainToolbar.menuOpen());

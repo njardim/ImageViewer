@@ -315,6 +315,10 @@
         <translation>إخفاء شريط أدوات عرض الشرائح ما دام المؤشر ساكنًا</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>عرض معلومات الصورة فوق الصورة المصغرة تحت المؤشر</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>إخفاء المعرض ما دام المؤشر ساكنًا</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>مقصوص فوق %1 nits (تعيين الدرجات اللونية متوقف)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>الألوان</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>الإضاءة</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>بلا</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>المدرج التكراري</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

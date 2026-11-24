@@ -319,6 +319,10 @@
         <translation>A diavetítés eszköztárának elrejtése, amíg a mutató nem mozog</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>A kép adatainak megjelenítése a mutató alatti bélyegkép fölött</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>A galéria elrejtése, amíg a mutató nem mozog</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Tájolás</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Színek</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Fénysűrűség</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Nincs</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Hisztogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

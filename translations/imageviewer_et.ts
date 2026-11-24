@@ -319,6 +319,10 @@
         <translation>Peida slaidiseansi riba, kui kursor ei liigu</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Näita pildi teavet kursori all oleva pisipildi kohal</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Peida galerii, kui kursor ei liigu</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Suund</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Värvid</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Heledus</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Puudub</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogramm</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

@@ -243,6 +243,7 @@ Settings Settings::load()
     s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
     s.galleryAutoHide = boolValue(store, QStringLiteral("gallery/autoHide"), defaults.galleryAutoHide);
+    s.galleryTooltips = boolValue(store, QStringLiteral("gallery/tooltips"), defaults.galleryTooltips);
     s.highlight = colorValue(store, QStringLiteral("app/highlight"), defaults.highlight);
     s.showToolbar = boolValue(store, QStringLiteral("toolbar/show"), defaults.showToolbar);
     s.toolbarNames = boolValue(store, QStringLiteral("toolbar/names"), defaults.toolbarNames);
@@ -347,6 +348,7 @@ void Settings::save() const
     store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
     store.setValue(QStringLiteral("gallery/autoHide"), galleryAutoHide);
+    store.setValue(QStringLiteral("gallery/tooltips"), galleryTooltips);
     store.setValue(QStringLiteral("app/highlight"), highlight.name(QColor::HexRgb));
     store.setValue(QStringLiteral("toolbar/show"), showToolbar);
     store.setValue(QStringLiteral("toolbar/names"), toolbarNames);

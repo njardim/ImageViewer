@@ -315,6 +315,10 @@
         <translation>ポインターが止まっている間はスライドショーのツールバーを隠す</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>ポインターの下のサムネイルの上に画像の情報を表示する</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>ポインターが止まっている間はギャラリーを隠す</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1 nits を超える部分をクリップ（トーンマッピング無効）</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>カラー</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>輝度</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>なし</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>ヒストグラム</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

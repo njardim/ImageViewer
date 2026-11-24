@@ -315,6 +315,10 @@
         <translation>পয়েন্টার স্থির থাকলে স্লাইডশো টুলবার লুকান</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>পয়েন্টারের নিচের থাম্বনেইলের উপরে ছবির তথ্য দেখান</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>পয়েন্টার স্থির থাকলে গ্যালারি লুকান</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1 nits-এর উপরে ক্লিপ করা হয়েছে (টোন ম্যাপিং বন্ধ)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>রং</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>উজ্জ্বলতা</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>কোনোটি নয়</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>হিস্টোগ্রাম</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

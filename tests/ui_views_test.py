@@ -2,7 +2,8 @@
 """Interaction test on Xvfb, driven like a user with xdotool: what the window draws besides the
 image's own pixels (D-102: split from tests/ui_test.py, whose harness tests/ui_driver.py both share):
   1. the title in the overlay's style with its fields (D-58); the gallery (D-60, D-65): G shows
-     it, the current thumbnail on the highlight colour and the hovered one fainter, a click
+     it, the current thumbnail on the highlight colour and the hovered one fainter, its tooltip
+     (D-116), a click
      shows a thumbnail's image, the ring past the first image, the wheel scrolls, a file saved
      again by an editor gets a new thumbnail (D-82), a folder that keeps changing gets every
      thumbnail (D-100), G hides it; large thumbnails and another highlight from the settings;
@@ -14,9 +15,10 @@ image's own pixels (D-102: split from tests/ui_test.py, whose harness tests/ui_d
   5. the toolbar (D-87, D-112): T shows it, the top overlay below it, a click on a button runs its
      command, the slideshow's buttons on it and the slideshow's own toolbar only without them, the
      "…" panel of a narrow window, Settings and Quit on the bar beside it (D-115);
-  6. the color picker (D-115): K turns it on, its swatch shows the pixel under the pointer as the
-     image shows it, the checks outside the image, a click picks, the file's own value is read
-     again, a click on a value copies it, Esc leaves it; the information panel's histogram.
+  6. the color picker (D-115): K turns it on, the pointer a cross over the image (D-116), its
+     swatch shows the pixel under the pointer as the image shows it, the checks outside the image, a click picks, the file's own value is read
+     again, a click on a value copies it, Esc leaves it; a drag in a closed hand; the information
+     panel's histogram and its choice from the panel (D-116).
 3 and 4 need the SVG renderer (scripts/build-svg.sh): a build without it skips them, CI fails.
 The application runs with its own HOME, XDG_CONFIG_HOME and XDG_DATA_HOME (trash), so the
 user's settings and trash are never touched.
@@ -37,8 +39,8 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ui_driver import (  # noqa: E402  the harness (D-102); it reads the command line
-    edit_settings, fail, find_dialog, focus_viewer, grab, launch, log_path, log_text, rhi, server, shot_path, stored,
-    svg_renderer, viewer, wait_until, window_geometry, work, xdotool,
+    edit_settings, fail, find_dialog, focus_viewer, grab, launch, log_path, log_text, open_xfixes, rhi, server, shot_path,
+    stored, svg_renderer, viewer, wait_until, window_geometry, work, xdotool,
 )
 import xvfb  # noqa: E402
 
@@ -104,6 +106,16 @@ try:
             # Not enlarged: the zoom is off by default (D-81); 20 points fainter (D-85).
             wait_until("the thumbnail under the pointer sits on emerald at 50 %",
                        lambda: near(tile_colour(hx, hy - 48), emerald_at(50)))
+
+            def gallery_tip():
+                # Its tooltip (D-116) once the pointer rests on it: above the thumbnail, on the hover's
+                # emerald; the column above it otherwise holds the background (the image is narrower).
+                shot = grab()
+                if shot is None:
+                    return False
+                column = shot[y + h // 2:hy - 60, hx, :3].astype(int)
+                return int(((column[:, 1] - column[:, 0]) > 30).sum()) >= 10
+            wait_until("resting on a thumbnail shows its tooltip above it", gallery_tip)
             xdotool("click", "1")
             wait_until("a click on a thumbnail two to the right shows g03.png", shown("g03.png"))
             xdotool("key", "Home")
@@ -297,6 +309,17 @@ try:
                         and abs(int(shot[y + 16 + 52 + 16 + 3, cx][0]) - panel) <= 3)
             wait_until("the toolbar at the top margin, the top overlay 16 px below it", bars_at_top)
             xdotool("mousemove", "--sync", str(left + 205), str(middle))  # Next
+
+            def toolbar_tip():
+                # Drawn by us (D-116): 8 px under the bar, below the button, on the hover's colour (the
+                # highlight, ruby since section 1, over the panels' black), where the grey background
+                # is without it.
+                shot = grab()
+                if shot is None:
+                    return False
+                tip = shot[y + 16 + 52 + 8 + 4, left + 205][:3].astype(int)
+                return int(tip.max() - tip.min()) > 30
+            wait_until("resting on a button shows its tooltip, 8 px under the bar, on the hover's colour", toolbar_tip)
             xdotool("click", "1")
             wait_until("a click on the toolbar's Next shows g02.png", shown("g02.png"))
 
@@ -363,8 +386,9 @@ try:
 
             # 6. The color picker (D-115). An orange image and a 16-bit Display P3 one; the toolbar,
             # the checkerboard and the overlay off. K turns the picker on: its panel at the bottom
-            # left, 130 px tall before a pick (the loupe and its padding), the swatch of the pixel
-            # under the pointer 130 px from its left, 10 from its top, 48 px a side.
+            # left, 190 px tall before a pick (the loupe, the swatches under it and the padding), the
+            # swatch of the pixel under the pointer 10 px from its left, 130 from its top, 50 px a side
+            # (D-116).
             picker_dir = os.path.join(work, "picker")
             os.makedirs(picker_dir)
             Image.new("RGB", (400, 300), (247, 145, 52)).save(os.path.join(picker_dir, "a-orange.png"))
@@ -377,9 +401,22 @@ try:
             wait_until("a-orange.png shown", lambda: "decoded for display: a-orange.png" in log_text()[before:])
             focus_viewer()
             x, y, w, h = window_geometry()
-            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            pointer_hidden = open_xfixes()
+            pointer = pointer_hidden.shape
+            # Beside the image and off the side zones (100 px, the folder holds two images), moved
+            # twice: a still pointer hides after 2 s (D-113), its image blank.
+            xdotool("mousemove", "--sync", str(x + 201), str(y + h // 2))
+            xdotool("mousemove", "--sync", str(x + 200), str(y + h // 2))
+            time.sleep(0.3)
+            arrow = pointer()
             xdotool("key", "k")
-            swatch = (x + 16 + 154, y + h - 16 - 130 + 34)  # the middle of the swatch under the pointer
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            wait_until("while picking, the pointer is a cross over the image (D-116)", lambda: pointer() != arrow)
+            time.sleep(0.3)
+            cross = pointer()
+            if cross == arrow or pointer_hidden():
+                fail("while picking, the pointer over the image is not a cross")
+            swatch = (x + 16 + 35, y + h - 16 - 190 + 155)  # the middle of the swatch under the pointer
 
             def swatch_is(colour):
                 shot = grab()
@@ -427,11 +464,26 @@ try:
                 shot = grab()
                 return shot is not None and abs(int(shot[y + h - 16 - 6, x + 16 + 6][0]) - 0x21) <= 2
             wait_until("Esc leaves the picker: its panel goes", no_panel)
-            # The information panel's histogram (P): the orange's three channels, each a coloured line.
-            mark = len(log_text())
+            # A drag holds the image in a closed hand, whatever the mode (the owner, D-116): the image
+            # enlarged past the window, a press and a move; released, the arrow again.
             xdotool("key", "Left")
+            xdotool("key", "plus", "plus", "plus", "plus", "plus")
+            time.sleep(1)
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
+            xdotool("mousedown", "1")
+            xdotool("mousemove", "--sync", str(x + w // 2 + 40), str(y + h // 2 + 40))
+            wait_until("dragging the image, the pointer is a closed hand", lambda: pointer() not in (arrow, cross))
+            hand = pointer()
+            xdotool("mouseup", "1")
+            # A move shows the pointer, which hides when still (D-113's delay, 2 s).
+            xdotool("mousemove", "--sync", str(x + w // 2 + 41), str(y + h // 2 + 41))
+            wait_until("released, the hand goes: the arrow again",
+                       lambda: not pointer_hidden() and pointer() not in (hand, cross))
+            xdotool("key", "0")  # fitted again
+            # The information panel's histogram (P): the orange's three channels, each a coloured line.
             wait_until("a-orange.png again", lambda: re.search(r"(decoded for display|shown from the cache): a-orange\.png",
-                                                               log_text()[mark:]) is not None)
+                                                               log_text()[before:].split("file value:")[-1]) is not None)
+            xdotool("mousemove", "--sync", str(x + w // 2), str(y + h // 2))
             xdotool("key", "p")
 
             def histogram_lines():
@@ -454,6 +506,24 @@ try:
                         and abs((green - blue) / (red - blue) - 93 / 195) < 0.05)
             wait_until("P: the panel's histogram shows the orange's blue, green and red where their codes are",
                        histogram_lines)
+            # Its row above the plot (D-116): "Histogram" and the choice, which opens a menu as a combo
+            # box; None hides the plot, the row stays. The choice is the brightest text of the row.
+            shot = grab()
+            band = shot[y + h // 2:y + h - 16, x:x + w, :3].astype(int)
+            spikes = np.nonzero(((band[..., 1] > band[..., 0] + 60) & (band[..., 1] > band[..., 2] + 60)).any(axis=1))[0]
+            plot_top = y + h // 2 + int(spikes.min()) - 4
+            row = shot[plot_top - 26:plot_top - 4, x + 16:x + 16 + 400, :3].astype(int).min(axis=2)
+            columns = np.nonzero((row > 200).any(axis=0))[0]
+            if not len(columns):
+                fail("the panel's histogram row: no text above the plot")
+            words = np.split(columns, np.nonzero(np.diff(columns) > 12)[0] + 1)  # "Histogram", then the choice
+            choice_x = x + 16 + int(words[-1].mean())
+            xdotool("mousemove", "--sync", str(choice_x), str(plot_top - 15))
+            xdotool("click", "1")
+            time.sleep(1)  # the menu shown
+            xdotool("key", "Down", "Down", "Down", "Return")  # Colors, Luminance, None
+            wait_until("the panel's choice, None, hides the plot and is saved",
+                       lambda: stored(r"(?m)^histogram=off$") and not histogram_lines())
             xdotool("key", "p")
             xdotool("key", "q")
             app.wait(15)

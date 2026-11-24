@@ -319,6 +319,10 @@
         <translation>Folaigh barra an taispeántais sleamhnán fad is atá an pointeoir socair</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Taispeáin faisnéis na híomhá os cionn na mionsamhla faoin bpointeoir</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Folaigh an gailearaí fad is atá an pointeoir socair</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Treoshuíomh</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Dathanna</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Lonras</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Dada</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histeagram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

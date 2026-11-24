@@ -1,7 +1,7 @@
 // The color picker (D-115): a mode in which a click on the image picks the colour of the pixel under
 // the pointer, and a panel over the image, above the information panel, that shows it. On the
-// panel's left a loupe of the pixels around the pointer, its centre framed, then the colour under
-// the pointer and the colour picked; the renderer draws those three from the image itself, through
+// panel's left a loupe of the pixels around the pointer, its centre framed, and under it the colour
+// under the pointer and the colour picked side by side (the owner, D-116); the renderer draws those three from the image itself, through
 // the output stage (the panel leaves holes for them), so that they show the exact colour, HDR and
 // wide gamut included; where there is no image, the checkerboard (the owner). On the right the
 // picked colour's values, each copied by a click: in sRGB (HEX, RGB, HSL, HSV, CMYK, clipped to it),
@@ -71,7 +71,7 @@ public:
 
     static constexpr int kCells = 11;        // the loupe's pixels per side; the centre one is picked
     static constexpr double kCell = 10.0;    // one of them, logical pixels
-    static constexpr double kSwatch = 48.0;  // the colour under the pointer and the picked one
+    static constexpr double kSwatch = 50.0;  // the colour under the pointer and the picked one, under the loupe
     static constexpr double kPadding = 10.0;
     static constexpr double kGap = 10.0;     // between the loupe, the swatches and the values
 
@@ -103,6 +103,7 @@ public:
     QRectF currentRect() const; // the colour under the pointer
     QRectF pickedRect() const;
     int rowAt(const QPointF &position) const; // a value's index, or -1
+    double rowHeight() const;                 // a value's row
 
     // The panel at the look's pixel ratio, drawn again only when it changed; the loupe and the two
     // swatches are holes (transparent) but for the frame of the loupe's centre pixel.
@@ -110,7 +111,6 @@ public:
 
 private:
     void layout();
-    double rowHeight() const;
 
     std::optional<Sample> m_picked;
     Source m_source;     // ...the image it came from

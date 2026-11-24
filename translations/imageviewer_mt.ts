@@ -319,6 +319,10 @@
         <translation>Aħbi l-barra tal-preżentazzjoni sakemm il-pointer ma jiċċaqlaqx</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Uri l-informazzjoni tal-immaġni fuq il-minjatura taħt il-pointer</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Aħbi l-gallerija sakemm il-pointer ma jiċċaqlaqx</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Orjentazzjoni</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Kuluri</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Luminanza</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Xejn</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Istogramma</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

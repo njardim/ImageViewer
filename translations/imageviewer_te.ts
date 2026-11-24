@@ -315,6 +315,10 @@
         <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు స్లైడ్‌షో టూల్‌బార్‌ను దాచు</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>పాయింటర్ కింద ఉన్న సూక్ష్మచిత్రం పైన చిత్రం సమాచారాన్ని చూపు</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు గ్యాలరీని దాచు</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1 nits పైన క్లిప్ చేయబడింది (టోన్ మ్యాపింగ్ ఆఫ్)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>రంగులు</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>కాంతి తీవ్రత</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>ఏదీ కాదు</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>హిస్టోగ్రామ్</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

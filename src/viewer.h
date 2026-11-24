@@ -268,6 +268,14 @@ private:
     int toolbarMenuAt(const QPointF &position) const; // logical pixels: a row's id, or -1
     void setMainToolbarHover(int id);
     void setSlideshowBarHover(int id);
+    // Tooltips over the image (D-116): drawn by us in the panels' look on the hover's colour, kTipGap
+    // from what they name (below a button, above a thumbnail) or from the pointer (a picker's value).
+    enum class TipSource { None, Toolbar, Gallery, Picker };
+    enum class TipPlace { Below, Above, Pointer };
+    void showTip(TipSource source, const QString &text, const QRectF &anchor, TipPlace place); // anchor: logical pixels
+    void hideTip(TipSource source = TipSource::None); // None: whichever shows
+    QRectF tipRect() const;         // device pixels; empty: none
+    void showPendingTip();          // the pointer rests on a toolbar's button or a thumbnail
     void showToolbarTooltip();      // the hovered button's name and key
     void toolbarButtonClicked(int id); // a button of either bar, or a row of the "…" panel
     void closeToolbarMenu();
@@ -292,6 +300,9 @@ private:
     void toggleGallery();
     // The top overlay's facts for `fields`, in its order and wording; also the title's (D-58).
     QStringList overlayParts(const QList<OverlayField> &fields, int *nameIndex = nullptr) const;
+    // A gallery thumbnail's tooltip (D-116): the top overlay's facts of its file that hold without
+    // showing it (no zoom, no output), its name on a line of its own.
+    QString galleryTipText(int file) const;
     void updateTitle(); // per Settings::titleMode
     OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
     bool topOverlayVisible() const;
@@ -299,6 +310,8 @@ private:
     double topActivationHeight() const; // logical pixels
     void placeOverlays(Renderer::Frame *frame) const;
     QRectF infoPanelRect() const; // device pixels: the information panel with its notices; empty: none
+    bool overHistogramChoice(const QPointF &position) const; // logical pixels: on the panel's histogram choice
+    void showHistogramMenu();     // what the histogram shows, from the panel (D-116)
     void updateNavigationButtons();
     void showNotice(const QString &text); // brief message, in a panel over the information panel
 
@@ -389,7 +402,13 @@ private:
     qint64 m_toolbarMenuTexture = 0; // ...its "…" panel's
     bool m_slideshowInMainToolbar = false; // as last laid out
     int m_toolbarMenuPress = -1;  // a row of the "…" panel pressed, a click when released on it
-    QTimer m_tooltipTimer;        // a button's name and key, once the pointer rests on it
+    QTimer m_tooltipTimer;        // a button's or a thumbnail's tooltip, once the pointer rests on it
+    TipSource m_tipSource = TipSource::None; // the tooltip shown...
+    QString m_tipText;
+    QRectF m_tipAnchor;           // ...what it names, logical pixels...
+    TipPlace m_tipPlace = TipPlace::Below;
+    QSize m_tipSize;              // ...its texture's size, device pixels...
+    qreal m_tipDpr = 1.0;         // ...at this pixel ratio
     AutoHide m_galleryHide;       // the gallery (Settings::galleryAutoHide)
     AutoHide m_overlayHide;       // the top overlay (Settings::overlayAutoHide, D-113)
     AutoHide m_panelHide;         // the information panel (Settings::panelAutoHide); its notices stay
@@ -459,6 +478,9 @@ private:
     QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
     QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads
     QString m_panelKey;      // likewise for the information panel
+    QRectF m_histogramChoice; // the panel's histogram choice, logical pixels in its texture; empty: none (D-116)
+    bool m_histogramChoiceHover = false;
+    bool m_grabbing = false;  // the image follows a drag: the closed hand (D-116)
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen

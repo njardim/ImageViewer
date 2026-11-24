@@ -319,6 +319,10 @@
         <translation>İşaretçi hareketsizken slayt gösterisi çubuğunu gizle</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>İşaretçinin altındaki küçük resmin üzerinde görüntü bilgilerini göster</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>İşaretçi hareketsizken galeriyi gizle</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Yönelim</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Renkler</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Parlaklık</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Yok</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

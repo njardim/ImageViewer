@@ -315,6 +315,10 @@
         <translation>Ẩn thanh trình chiếu khi con trỏ đứng yên</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Hiển thị thông tin ảnh phía trên hình thu nhỏ dưới con trỏ</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Ẩn thư viện ảnh khi con trỏ đứng yên</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>bị cắt trên %1 nits (đã tắt ánh xạ tông màu)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Màu sắc</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Độ chói</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Không</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Biểu đồ histogram</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

@@ -343,6 +343,13 @@ int Gallery::slotAt(const QPointF &position) const
     return -1;
 }
 
+QRectF Gallery::slotRect(int slot) const
+{
+    if (m_size.isEmpty() || slot < 0 || slot >= m_slots.size())
+        return {};
+    return m_slots.at(slot).translated(m_rect.topLeft() / m_scene.devicePixelRatio);
+}
+
 bool Gallery::contains(const QPointF &position) const
 {
     // The background drawn, not the texture: the room left for the zoom is the image's.

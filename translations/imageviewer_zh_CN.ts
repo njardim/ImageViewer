@@ -315,6 +315,10 @@
         <translation>指针静止时隐藏幻灯片放映工具栏</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>在指针下方的缩略图上方显示图像信息</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>指针静止时隐藏图库</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>高于 %1 nits 的部分被裁剪（色调映射已关闭）</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>亮度</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>直方图</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

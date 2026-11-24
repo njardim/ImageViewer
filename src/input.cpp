@@ -16,12 +16,15 @@
 #include <QMouseEvent>
 #include <QPointingDevice>
 #include <QStyleHints>
-#include <QToolTip>
 #include <QWheelEvent>
 
 #include <algorithm>
 #include <cmath>
 #include <utility>
+
+namespace {
+constexpr int kGalleryTipDelayMs = 700; // a thumbnail's tooltip, as a toolbar button's (D-116)
+} // namespace
 
 // What the color picker picks, reads from the file and copies (D-115): the tests read it.
 Q_LOGGING_CATEGORY(lcPicker, "imageviewer.picker", QtWarningMsg)
@@ -59,6 +62,8 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     const bool onGallery = galleryShown() && m_gallery.contains(e->position());
     const bool onPicker = overPicker(e->position());
     pointerActive();
+    hideTip(); // a press ends a tooltip, as in the widgets
+    m_tooltipTimer.stop();
     if (m_mainToolbar.menuOpen() && !inMenu && barButton != Toolbar::kMore) {
         closeToolbarMenu(); // a press outside the "…" panel closes it and does nothing else, as outside a menu
         return;
@@ -84,15 +89,11 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     }
     if (barButton != -1) {
         m_mainToolbar.setPressed(barButton); // a click when released on the same button
-        QToolTip::hideText();
-        m_tooltipTimer.stop();
         updateMainToolbar();
         return;
     }
     if (slideshowButton != -1) {
         m_slideshowBar.setPressed(slideshowButton); // likewise
-        QToolTip::hideText();
-        m_tooltipTimer.stop();
         updateSlideshowToolbar();
         return;
     }
@@ -103,6 +104,10 @@ void ViewerWindow::mousePressEvent(QMouseEvent *e)
     }
     if (onPicker) { // a value is copied when released on it; the panel itself does nothing
         m_pickerPress = pickerRowAt(e->position());
+        return;
+    }
+    if (overHistogramChoice(e->position())) { // the panel's histogram choice, as a combo box (D-116)
+        showHistogramMenu();
         return;
     }
     m_pressZone = zoneAt(e->position());
@@ -120,8 +125,10 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
     pointerActive();
     m_pointer = e->position();
     m_pointerIn = true;
-    if (m_pickerOn)
+    if (m_pickerOn) {
         requestUpdate(); // the loupe follows the pointer
+        updateCursor();  // a cross over the image, the arrow beside it
+    }
     if (!(e->buttons() & Qt::LeftButton)) {
         // No press in progress (or its release went elsewhere, e.g. to the context menu).
         cancelPress();
@@ -136,16 +143,28 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         const int pickerRow = overBar ? -1 : pickerRowAt(e->position());
         if (m_picker.setHover(pickerRow)) {
             updatePicker();
-            if (pickerRow >= 0)
-                //: The color picker: the tooltip of a value, which a click copies.
-                QToolTip::showText(mapToGlobal(e->position().toPoint()) + QPoint(12, 16), tr("Copy"));
-            else
-                QToolTip::hideText();
+            updateCursor();
+        }
+        // Each value's tooltip while the pointer is on it, kTipGap below and right of the pointer (D-116).
+        if (pickerRow >= 0 && !m_picker.rows().at(pickerRow).copy.isEmpty()) // not one still read ("…")
+            //: The color picker: the tooltip of a value, which a click copies.
+            showTip(TipSource::Picker, tr("Copy"), QRectF(e->position(), QSizeF()), TipPlace::Pointer);
+        else
+            hideTip(TipSource::Picker);
+        if (const bool choice = !overBar && overHistogramChoice(e->position()); choice != m_histogramChoiceHover) {
+            m_histogramChoiceHover = choice;
+            updateOverlay();
             updateCursor();
         }
         setHoverZone(overBar ? Zone::None : zoneAt(e->position()));
         setPointerAtTop(e->position().y() >= 0 && e->position().y() < topActivationHeight());
-        m_gallery.setHover(galleryShown() && !overBar ? m_gallery.slotAt(e->position()) : -1);
+        const int slot = galleryShown() && !overBar ? m_gallery.slotAt(e->position()) : -1;
+        if (slot != m_gallery.hover()) { // a thumbnail's tooltip once the pointer rests on it (D-116)
+            hideTip(TipSource::Gallery);
+            if (slot >= 0 && m_settings.galleryTooltips)
+                m_tooltipTimer.start(kGalleryTipDelayMs);
+        }
+        m_gallery.setHover(slot);
         return;
     }
     if (m_pressZone != Zone::None && !m_pressMoved) {
@@ -159,6 +178,10 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         m_pickPress = false; // a drag pans, and picks nothing
     if (!m_dragging)
         return;
+    if (!m_grabbing && (e->position() - m_dragOrigin).manhattanLength() >= QGuiApplication::styleHints()->startDragDistance()) {
+        m_grabbing = true; // the hand holds the image while it follows (the owner, D-116)
+        updateCursor();
+    }
     m_pan = m_panOrigin + (e->position() - m_dragOrigin) * devicePixelRatio();
     clampPan();
     requestUpdate();
@@ -193,6 +216,7 @@ void ViewerWindow::mouseReleaseEvent(QMouseEvent *e)
         return;
     }
     m_dragging = false;
+    m_grabbing = false;
     if (std::exchange(m_pickPress, false))
         pickAt(e->position());
     const Zone pressed = std::exchange(m_pressZone, Zone::None);
@@ -209,6 +233,8 @@ void ViewerWindow::cancelPress()
 {
     // Nothing is clicked, and the pressed look goes.
     m_dragging = false;
+    if (std::exchange(m_grabbing, false))
+        updateCursor();
     m_pickPress = false;
     m_pickerPress = -1;
     if (std::exchange(m_pressZone, Zone::None) != Zone::None)
@@ -255,8 +281,10 @@ void ViewerWindow::wheelEvent(QWheelEvent *e)
     if (onBar)
         return;
     if (onGallery) { // over the gallery the wheel scrolls the thumbnails
-        if (const int steps = m_gallery.wheel(e->angleDelta().y() + e->angleDelta().x()); steps != 0)
+        if (const int steps = m_gallery.wheel(e->angleDelta().y() + e->angleDelta().x()); steps != 0) {
+            hideTip(TipSource::Gallery); // the thumbnails move under it
             m_gallery.scroll(-steps);
+        }
         return;
     }
     const QPointingDevice *device = e->pointingDevice();
@@ -331,14 +359,17 @@ void ViewerWindow::pointerActive()
 void ViewerWindow::updateCursor()
 {
     const bool onButton = m_hoverZone != Zone::None || m_slideshowBar.hover() != -1 || m_mainToolbar.hover() != -1
-                          || m_mainToolbar.menuHover() != -1 || m_picker.hover() != -1;
+                          || m_mainToolbar.menuHover() != -1 || m_picker.hover() != -1 || m_histogramChoiceHover;
     // While picking, a cross over the image, its centre the pixel a click picks.
     const bool picking = m_pickerOn && m_pointerIn && texelAt(m_pointer).has_value() && !overPicker(m_pointer)
                          && !(galleryShown() && m_gallery.contains(m_pointer));
-    setCursor(m_pointerHidden ? Qt::BlankCursor
-              : onButton      ? Qt::PointingHandCursor
-              : picking       ? Qt::CrossCursor
-                              : Qt::ArrowCursor);
+    const Qt::CursorShape shape = m_pointerHidden ? Qt::BlankCursor
+                                  : m_grabbing    ? Qt::ClosedHandCursor
+                                  : onButton      ? Qt::PointingHandCursor
+                                  : picking       ? Qt::CrossCursor
+                                                  : Qt::ArrowCursor;
+    if (shape != cursor().shape()) // asked at every move while picking
+        setCursor(shape);
 }
 
 void ViewerWindow::togglePicker()
@@ -558,6 +589,8 @@ void ViewerWindow::copyPickerValue(int row)
     if (row < 0 || row >= m_picker.rows().size())
         return;
     const QString text = m_picker.rows().at(row).copy;
+    if (text.isEmpty())
+        return; // the file's value, still being read
     QGuiApplication::clipboard()->setText(text);
     qCInfo(lcPicker).noquote() << "copied:" << text;
     //: A notice: a color picker's value was copied, e.g. "Copied: #F79134".

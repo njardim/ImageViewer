@@ -162,10 +162,23 @@ void SettingsDialog::buildUi()
     generalLayout->addStretch();
     tabs->addTab(general, tr("General"));
 
-    // Window, in four groups (the owner, D-114, D-115): the window; the colours; the zoom; what is
-    // drawn over the image, its opacity and its hiding, the one place for every element.
+    // Window, in four groups (the owner, D-114, D-116): the colours; the window (after the colours, so
+    // that the tab's name and the group's are not one above the other); the zoom; what is drawn over
+    // the image, its opacity and its hiding, the one place for every element.
     auto *window = new QWidget;
     auto *windowLayout = new QVBoxLayout(window);
+    auto *colorsBox = new QGroupBox(tr("Colors"));
+    auto *colorsForm = new QFormLayout(colorsBox);
+    const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
+    colorsForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
+                                                   int(std::size(kBackgroundPresets)), tr("Background Color")));
+    // The interface's accent over the image: the gallery's highlight, a toolbar's button (D-112, D-114).
+    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
+    colorsForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
+                                                        int(std::size(kHighlightPresets)), tr("Highlight Color")));
+    m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
+    colorsForm->addRow(m_checkerboard);
+    windowLayout->addWidget(colorsBox);
     //: The group of the window's own options: its size, its position, its title bar.
     auto *frameBox = new QGroupBox(tr("Window", "settings group"));
     auto *frameForm = new QFormLayout(frameBox);
@@ -189,18 +202,6 @@ void SettingsDialog::buildUi()
     m_titleMode->addItem(tr("The same as the overlay at the top"), int(TitleMode::Overlay));
     frameForm->addRow(tr("Title bar:"), m_titleMode);
     windowLayout->addWidget(frameBox);
-    auto *colorsBox = new QGroupBox(tr("Colors"));
-    auto *colorsForm = new QFormLayout(colorsBox);
-    const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
-    colorsForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
-                                                   int(std::size(kBackgroundPresets)), tr("Background Color")));
-    // The interface's accent over the image: the gallery's highlight, a toolbar's button (D-112, D-114).
-    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
-    colorsForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
-                                                        int(std::size(kHighlightPresets)), tr("Highlight Color")));
-    m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
-    colorsForm->addRow(m_checkerboard);
-    windowLayout->addWidget(colorsBox);
     // D-51: the zoom of a new image.
     auto *zoomBox = new QGroupBox(QStringLiteral("Zoom")); // a technical name, never translated (D-59)
     auto *zoomForm = new QFormLayout(zoomBox);
@@ -341,6 +342,8 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
     galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
+    m_galleryTooltips = new QCheckBox(tr("Show the image's information over the thumbnail under the pointer"));
+    galleryForm->addRow(m_galleryTooltips);
     m_galleryAutoHide = new QCheckBox(tr("Hide the gallery while the pointer is still"));
     galleryForm->addRow(m_galleryAutoHide);
 
@@ -620,6 +623,7 @@ void SettingsDialog::setValues(const Settings &settings)
     m_galleryEnlargement->setEnabled(settings.galleryZoom);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
     m_galleryAutoHide->setChecked(settings.galleryAutoHide);
+    m_galleryTooltips->setChecked(settings.galleryTooltips);
     m_showToolbar->setChecked(settings.showToolbar);
     m_toolbarNames->setChecked(settings.toolbarNames);
     m_mainToolbarAutoHide->setChecked(settings.toolbarAutoHide);
@@ -746,6 +750,7 @@ Settings SettingsDialog::settings() const
     s.galleryZoom = m_galleryZoom->isChecked();
     s.galleryEnlargement = m_galleryEnlargement->value();
     s.galleryAutoHide = m_galleryAutoHide->isChecked();
+    s.galleryTooltips = m_galleryTooltips->isChecked();
     s.showToolbar = m_showToolbar->isChecked();
     s.toolbarNames = m_toolbarNames->isChecked();
     s.toolbarAutoHide = m_mainToolbarAutoHide->isChecked();

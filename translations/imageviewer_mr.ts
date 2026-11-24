@@ -315,6 +315,10 @@
         <translation>पॉइंटर स्थिर असताना स्लाइडशो टूलबार लपवा</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>पॉइंटरखालील थंबनेलच्या वर प्रतिमेची माहिती दाखवा</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>पॉइंटर स्थिर असताना गॅलरी लपवा</translation>
     </message>
@@ -1040,6 +1044,26 @@
         <source>clipped above %1 nits (tone mapping off)</source>
         <extracomment>nits: candela per square metre, the unit of luminance.</extracomment>
         <translation>%1 nits च्या वर क्लिप केले (टोन मॅपिंग बंद)</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>रंग</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>ल्युमिनन्स</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>काहीही नाही</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>हिस्टोग्राम</translation>
     </message>
     <message>
         <source>exposure %1 EV</source>

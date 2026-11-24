@@ -65,7 +65,13 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
       m_gallery(m_settings, m_files, [](const QString &path, int pixels, qint64 maxPixels) {
           // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
           const Image image = decodeThumbnailImage(path, pixels, maxPixels);
-          return image.isValid() ? srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied) : QImage();
+          if (!image.isValid())
+              return QImage();
+          QImage thumbnail = srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied);
+          // The file's own size and colour space, for the gallery's tooltip (D-116).
+          thumbnail.setText(QStringLiteral("Size"), QStringLiteral("%1 %2").arg(image.sourceWidth).arg(image.sourceHeight));
+          thumbnail.setText(QStringLiteral("Color"), image.colour.description);
+          return thumbnail;
       })
 {
 #if defined(Q_OS_WIN)
@@ -151,15 +157,20 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
         requestUpdate();
     });
     connect(&m_galleryHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
-        if (hidden)
+        if (hidden) {
             m_gallery.setHover(-1);
+            hideTip(TipSource::Gallery);
+        }
         requestUpdate();
     });
     connect(&m_overlayHide, &AutoHide::hiddenChanged, this, [this] { requestUpdate(); });
     connect(&m_panelHide, &AutoHide::hiddenChanged, this, [this] { updateOverlay(); });
     configureAutoHide();
+    // The pointer set at once: a window without one shows its parent's (X11's root has its own),
+    // and updateCursor() sets it only when the shape it wants changes.
+    setCursor(Qt::ArrowCursor);
     m_tooltipTimer.setSingleShot(true);
-    connect(&m_tooltipTimer, &QTimer::timeout, this, &ViewerWindow::showToolbarTooltip);
+    connect(&m_tooltipTimer, &QTimer::timeout, this, &ViewerWindow::showPendingTip);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
     m_samplesPool.setMaxThreadCount(1);
     connect(&m_samplesWatcher, &QFutureWatcher<std::shared_ptr<const FileSamples>>::finished, this,
@@ -247,6 +258,10 @@ bool ViewerWindow::event(QEvent *e)
         if (m_mainToolbar.setMenuHover(-1))
             updateMainToolbar();
         m_gallery.setHover(-1);
+        m_tooltipTimer.stop();
+        hideTip(); // the pointer has left what the tooltip names
+        if (std::exchange(m_histogramChoiceHover, false))
+            updateOverlay();
         setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
@@ -329,6 +344,7 @@ void ViewerWindow::initializeRenderer()
 
 void ViewerWindow::resizeEvent(QResizeEvent *)
 {
+    hideTip(); // what it named has moved
     windowChanged(); // the image glides from where it was on the screen, after full screen (D-114)
     if (windowStates() == Qt::WindowNoState)
         m_normalGeometry = geometry();

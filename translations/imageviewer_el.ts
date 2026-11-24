@@ -319,6 +319,10 @@
         <translation>Απόκρυψη της γραμμής της παρουσίασης όσο ο δείκτης μένει ακίνητος</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>Εμφάνιση των πληροφοριών της εικόνας πάνω από τη μικρογραφία κάτω από τον δείκτη</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>Απόκρυψη της συλλογής όσο ο δείκτης μένει ακίνητος</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Προσανατολισμός</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Χρώματα</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Φωτεινότητα</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Κανένα</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Ιστόγραμμα</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

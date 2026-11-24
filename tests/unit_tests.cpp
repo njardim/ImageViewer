@@ -1065,10 +1065,14 @@ private Q_SLOTS:
         // A pick: a row a value, each under its own place.
         picker.pick(sample(1, 0.5, 0), ColorPicker::Source(), QLocale(QLocale::C));
         const QSizeF size = picker.size();
-        const double line = (size.height() - 2 * ColorPicker::kPadding) / std::max<qsizetype>(picker.rows().size(), 1);
         QVERIFY(picker.rows().size() >= 7);
         for (int i = 0; i < picker.rows().size(); ++i)
-            QCOMPARE(picker.rowAt(QPointF(size.width() - 30, ColorPicker::kPadding + (i + 0.5) * std::min(line, 100.0))) >= 0, true);
+            QCOMPARE(picker.rowAt(QPointF(size.width() - 30, ColorPicker::kPadding + (i + 0.5) * picker.rowHeight())), i);
+        // The swatches under the loupe, side by side, as wide as it (the owner, D-116).
+        QCOMPARE(picker.currentRect().top(), picker.loupeRect().bottom() + ColorPicker::kGap);
+        QCOMPARE(picker.pickedRect().top(), picker.currentRect().top());
+        QCOMPARE(picker.pickedRect().right(), picker.loupeRect().right());
+        QCOMPARE(picker.rowAt(picker.pickedRect().center()), -1);
         QCOMPARE(picker.rowAt(QPointF(picker.loupeRect().center())), -1); // the loupe is not a value
         const qint64 before = picker.texture().cacheKey();
         QVERIFY(picker.setHover(1));

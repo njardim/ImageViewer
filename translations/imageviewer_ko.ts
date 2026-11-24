@@ -319,6 +319,10 @@
         <translation>포인터가 움직이지 않으면 슬라이드 쇼 도구 모음 숨기기</translation>
     </message>
     <message>
+        <source>Show the image&apos;s information over the thumbnail under the pointer</source>
+        <translation>포인터 아래 썸네일 위에 이미지 정보 표시</translation>
+    </message>
+    <message>
         <source>Hide the gallery while the pointer is still</source>
         <translation>포인터가 움직이지 않으면 갤러리 숨기기</translation>
     </message>
@@ -952,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>방향</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>색상</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>휘도</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>히스토그램</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>

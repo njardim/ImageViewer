@@ -103,6 +103,7 @@ struct Settings {
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
     bool slideshowToolbarAutoHide = false; // its toolbar hides while the pointer is still (D-65); the user opts in
     bool galleryAutoHide = false;     // likewise the gallery (D-112)
+    bool galleryTooltips = true;      // a thumbnail's file's facts above it, once the pointer rests on it (D-116)
     bool showGallery = true;          // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
     bool galleryZoom = false;         // the thumbnail under the pointer enlarges
@@ -358,6 +359,7 @@ private:
     QCheckBox *m_galleryZoom = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;
     QCheckBox *m_galleryAutoHide = nullptr;
+    QCheckBox *m_galleryTooltips = nullptr;
     QCheckBox *m_showToolbar = nullptr;
     QCheckBox *m_toolbarNames = nullptr;
     QCheckBox *m_mainToolbarAutoHide = nullptr;

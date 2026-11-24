@@ -8,9 +8,7 @@
 #include <QDir>
 #include <QFontMetricsF>
 #include <QGuiApplication>
-#include <QActionGroup>
 #include <QLocale>
-#include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
 
@@ -23,7 +21,6 @@ constexpr double kNavigationButtonSize = 56.0; // logical pixels
 constexpr double kWarningSign = 128.0;          // logical pixels, square (D-63)
 constexpr double kWarningGap = 12.0;            // between the sign and the message
 constexpr int kNoticeMs = 3000;
-const QString kFieldSeparator = QStringLiteral("   ·   "); // between the top overlay's facts, and the title's
 
 // "100" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
 QString zoomNumber(double zoom, const QLocale &locale)
@@ -31,16 +28,6 @@ QString zoomNumber(double zoom, const QLocale &locale)
     return zoom == 1.0 ? locale.toString(100) : locale.toString(zoom * 100.0, 'f', 1);
 }
 
-// File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and
-// the Linux desktops in 1000s.
-QString fileSizeText(qint64 bytes, const QLocale &locale)
-{
-#if defined(Q_OS_WIN)
-    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeTraditionalFormat);
-#else
-    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeSIFormat);
-#endif
-}
 
 // What an overlay is painted on: transparent, `logical` pixels at the screen's device pixel ratio.
 QImage overlayCanvas(const QSizeF &logical, qreal dpr)
@@ -127,6 +114,15 @@ struct Row {
 };
 
 } // namespace
+
+QString fileSizeText(qint64 bytes, const QLocale &locale)
+{
+#if defined(Q_OS_WIN)
+    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeTraditionalFormat);
+#else
+    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeSIFormat);
+#endif
+}
 
 void ViewerWindow::showNotice(const QString &text)
 {
@@ -666,51 +662,6 @@ QStringList ViewerWindow::overlayParts(const QList<OverlayField> &fields, int *n
     return parts;
 }
 
-QString ViewerWindow::galleryTipText(int file) const
-{
-    const QString path = m_files.value(file);
-    if (path.isEmpty())
-        return {};
-    const QLocale locale;
-    const Thumbnail *thumbnail = m_gallery.thumbnail(path);
-    const QFileInfo info(path);
-    QString name;
-    QStringList facts;
-    for (OverlayField field : m_settings.overlayFields) {
-        switch (field) {
-        case OverlayField::Name: name = displayFileName(info.fileName()); break;
-        case OverlayField::Dimensions:
-            if (thumbnail) { // the file's own size, which its thumbnail's decode read (viewer.cpp)
-                const QStringList size = thumbnail->image.text(QStringLiteral("Size")).split(QLatin1Char(' '));
-                if (size.size() == 2 && size.at(0).toInt() > 0)
-                    facts << QStringLiteral("%1 × %2").arg(locale.toString(size.at(0).toInt()), locale.toString(size.at(1).toInt()));
-            }
-            break;
-        case OverlayField::FileSize:
-            if (const qint64 bytes = thumbnail ? thumbnail->fileSize : info.size(); bytes >= 0)
-                facts << fileSizeText(bytes, locale);
-            break;
-        case OverlayField::ColorSpace:
-            if (thumbnail && !thumbnail->image.text(QStringLiteral("Color")).isEmpty())
-                facts << thumbnail->image.text(QStringLiteral("Color"));
-            break;
-        case OverlayField::Modified:
-            if (const QDateTime modified = thumbnail ? thumbnail->modified : info.lastModified(); modified.isValid())
-                facts << locale.toString(modified, QLocale::ShortFormat);
-            break;
-        case OverlayField::Position:
-            facts << QStringLiteral("%1 / %2").arg(locale.toString(file + 1), locale.toString(m_files.size()));
-            break;
-        case OverlayField::Zoom:   // the image shown's, not this one's
-        case OverlayField::Output: // likewise
-            break;
-        }
-    }
-    if (name.isEmpty())
-        return facts.join(kFieldSeparator);
-    return facts.isEmpty() ? name : name + QLatin1Char('\n') + facts.join(kFieldSeparator);
-}
-
 void ViewerWindow::updateTopOverlay()
 {
     if (!m_rendererReady)
@@ -788,46 +739,6 @@ QRectF ViewerWindow::infoPanelRect() const
     const double below = galleryShown() ? m_gallery.reserve() * dpr : 0.0;
     return QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - below - m_overlaySize.height())),
                   QSizeF(m_overlaySize));
-}
-
-bool ViewerWindow::overHistogramChoice(const QPointF &position) const
-{
-    const QRectF panel = infoPanelRect();
-    if (m_histogramChoice.isEmpty() || panel.isEmpty())
-        return false;
-    const double dpr = devicePixelRatio();
-    return m_histogramChoice.contains((position * dpr - panel.topLeft()) / dpr);
-}
-
-void ViewerWindow::showHistogramMenu()
-{
-    // As a combo box: the three choices below the value, the one in use checked; the setting's own.
-    const QRectF panel = infoPanelRect();
-    const double dpr = devicePixelRatio();
-    QMenu menu;
-    auto *group = new QActionGroup(&menu);
-    const std::pair<HistogramMode, QString> modes[] = {{HistogramMode::Colors, tr("Colors", "histogram")},
-                                                        {HistogramMode::Luminance, tr("Luminance", "histogram")},
-                                                        {HistogramMode::Off, tr("None", "histogram")}};
-    for (const auto &[mode, name] : modes) {
-        QAction *action = menu.addAction(name);
-        action->setCheckable(true);
-        action->setChecked(mode == m_settings.histogram);
-        group->addAction(action);
-        connect(action, &QAction::triggered, this, [this, mode] {
-            m_menuChoice = [this, mode] {
-                savePreference([mode](Settings &s) { s.histogram = mode; });
-                updateOverlay();
-            };
-        });
-    }
-    makeTransient(menu, this);
-    cancelPress();
-    m_menuChoice = nullptr;
-    menu.exec(mapToGlobal(QPointF(panel.left() / dpr + m_histogramChoice.left(),
-                                  panel.top() / dpr + m_histogramChoice.bottom() + 2).toPoint()));
-    if (std::function<void()> choice = std::exchange(m_menuChoice, nullptr)) // once the menu is gone (D-85)
-        QMetaObject::invokeMethod(this, std::move(choice), Qt::QueuedConnection);
 }
 
 void ViewerWindow::placeOverlays(Renderer::Frame *frame) const

@@ -35,6 +35,7 @@
 #include <QHash>
 #include <QKeySequence>
 #include <QList>
+#include <QLocale>
 #include <QPainterPath>
 #include <QPointF>
 #include <QSet>
@@ -56,6 +57,12 @@ inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
 // The window's least size, logical pixels; also when the window takes an image's size.
 inline constexpr QSize kMinWindowSize(320, 240);
+// File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and the
+// Linux desktops in 1000s (overlays.cpp).
+QString fileSizeText(qint64 bytes, const QLocale &locale);
+// Between the top overlay's facts, the title's and a gallery tooltip's.
+inline const QString kFieldSeparator = QStringLiteral("   ·   ");
+
 // One step of Zoom In or Zoom Out, and of a wheel notch.
 inline constexpr double kZoomStep = 1.25;
 

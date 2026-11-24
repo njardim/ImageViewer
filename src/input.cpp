@@ -2,10 +2,12 @@
 // Keys run commands (D-30); the mouse pans, clicks the side zones (D-31), the gallery (D-60) and
 // the toolbars (D-65, D-112);
 // the wheel zooms, or scrolls the gallery under the pointer. The side zones and the pointer's
-// cursor and hiding live here too, and the color picker's work with the pointer (D-115): the
-// pixel under it, a click that picks, its panel and the copies of its values.
+// cursor and hiding live here too, the color picker's work with the pointer (D-115): the pixel
+// under it, a click that picks, its panel and the copies of its values, and the information panel's
+// histogram choice, which opens a menu (D-116).
 #include "viewer.h"
 
+#include <QActionGroup>
 #include <QClipboard>
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -13,6 +15,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QKeyEvent>
 #include <QLoggingCategory>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPointingDevice>
 #include <QStyleHints>
@@ -595,4 +598,44 @@ void ViewerWindow::copyPickerValue(int row)
     qCInfo(lcPicker).noquote() << "copied:" << text;
     //: A notice: a color picker's value was copied, e.g. "Copied: #F79134".
     showNotice(tr("Copied: %1").arg(text));
+}
+
+bool ViewerWindow::overHistogramChoice(const QPointF &position) const
+{
+    const QRectF panel = infoPanelRect();
+    if (m_histogramChoice.isEmpty() || panel.isEmpty())
+        return false;
+    const double dpr = devicePixelRatio();
+    return m_histogramChoice.contains((position * dpr - panel.topLeft()) / dpr);
+}
+
+void ViewerWindow::showHistogramMenu()
+{
+    // As a combo box: the three choices below the value, the one in use checked; the setting's own.
+    const QRectF panel = infoPanelRect();
+    const double dpr = devicePixelRatio();
+    QMenu menu;
+    auto *group = new QActionGroup(&menu);
+    const std::pair<HistogramMode, QString> modes[] = {{HistogramMode::Colors, tr("Colors", "histogram")},
+                                                        {HistogramMode::Luminance, tr("Luminance", "histogram")},
+                                                        {HistogramMode::Off, tr("None", "histogram")}};
+    for (const auto &[mode, name] : modes) {
+        QAction *action = menu.addAction(name);
+        action->setCheckable(true);
+        action->setChecked(mode == m_settings.histogram);
+        group->addAction(action);
+        connect(action, &QAction::triggered, this, [this, mode] {
+            m_menuChoice = [this, mode] {
+                savePreference([mode](Settings &s) { s.histogram = mode; });
+                updateOverlay();
+            };
+        });
+    }
+    makeTransient(menu, this);
+    cancelPress();
+    m_menuChoice = nullptr;
+    menu.exec(mapToGlobal(QPointF(panel.left() / dpr + m_histogramChoice.left(),
+                                  panel.top() / dpr + m_histogramChoice.bottom() + 2).toPoint()));
+    if (std::function<void()> choice = std::exchange(m_menuChoice, nullptr)) // once the menu is gone (D-85)
+        QMetaObject::invokeMethod(this, std::move(choice), Qt::QueuedConnection);
 }

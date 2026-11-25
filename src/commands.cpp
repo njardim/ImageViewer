@@ -7,6 +7,7 @@
 
 #include "formats.h"
 
+#include <QCursor>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -46,7 +47,8 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
     // F keys, forward Delete) is never a command's only shortcut. The first shortcut is the one
     // menus show, so macOS lists its own first. By the owner's choice (D-78, D-79), Open is O, and
     // Shift+O, its second command, opens with another application; the top overlay, shown at
-    // startup, is I, and the information panel P (D-81).
+    // startup, is I, and the information panel P (D-81). The toolbar is T, and the tone mapping, which
+    // had it, Ctrl+T: a switch of the rendering, harder to press by chance (the owner, D-112).
 #ifdef Q_OS_MACOS
     constexpr bool mac = true;
 #else
@@ -57,6 +59,7 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::Open, {K(Qt::Key_O)}, false},
         {C::ClearRecent, {}, false},
         {C::ShowInFolder, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_E)}, false},
+        {C::OpenWith, {}, false}, // the context menu's submenu, as a menu of its own (the toolbar's button)
         {C::OpenWithOther, {K(Qt::SHIFT | Qt::Key_O)}, false},
         {C::CopyImage, {K(Qt::CTRL | Qt::Key_C)}, false},
         {C::CopyPath, {K(Qt::CTRL | Qt::SHIFT | Qt::Key_C)}, false},
@@ -84,14 +87,16 @@ const QList<ViewerWindow::CommandInfo> &ViewerWindow::commands()
         {C::InfoOverlay, {K(Qt::Key_I)}, false},
         {C::Checkerboard, {K(Qt::Key_B)}, false},
         {C::Gallery, {K(Qt::Key_G)}, false},
+        {C::Toolbar, {K(Qt::Key_T)}, false},
         {C::RotateClockwise, {K(Qt::Key_R)}, false},
         {C::RotateCounterclockwise, {K(Qt::SHIFT | Qt::Key_R)}, false},
         {C::FlipHorizontal, {K(Qt::SHIFT | Qt::Key_W)}, false},
         {C::FlipVertical, {K(Qt::SHIFT | Qt::Key_H)}, false},
+        {C::ColorPicker, {K(Qt::Key_K)}, false}, // a free key (D-115)
         {C::ExposureUp, {K(Qt::Key_E)}, true},
         {C::ExposureDown, {K(Qt::SHIFT | Qt::Key_E)}, true},
         {C::ExposureReset, {K(Qt::CTRL | Qt::Key_E)}, false},
-        {C::ToneMap, {K(Qt::Key_T)}, false},
+        {C::ToneMap, {K(Qt::CTRL | Qt::Key_T)}, false}, // T is the toolbar's (the owner, 2026-11-18)
         {C::ClipWarning, {K(Qt::Key_C)}, false},
         {C::PlayPause, {K(Qt::Key_Space)}, false},
         {C::PreviousFrame, {K(Qt::CTRL | Qt::Key_Left)}, true},
@@ -122,6 +127,7 @@ QString ViewerWindow::commandText(Command command) const
     case Command::MoveToTrash: return m_settings.confirmTrash ? tr("Move to Trash…") : tr("Move to Trash");
     case Command::UndoTrash: return tr("Undo Move to Trash");
 #endif
+    case Command::OpenWith: return tr("Open With");
     case Command::OpenWithOther: return tr("Other Application…");
     case Command::Rename: return tr("Rename…");
     case Command::DeletePermanently: return tr("Delete Permanently…");
@@ -148,10 +154,13 @@ QString ViewerWindow::commandText(Command command) const
     case Command::InfoOverlay: return tr("Information Overlay");
     case Command::Checkerboard: return tr("Checkerboard Background");
     case Command::Gallery: return tr("Gallery");
-    case Command::RotateClockwise: return tr("Rotate Clockwise");
-    case Command::RotateCounterclockwise: return tr("Rotate Counterclockwise");
+    case Command::Toolbar: return tr("Toolbar");
+    // Left and right: shorter, for the toolbar's names too (the owner, D-112).
+    case Command::RotateClockwise: return tr("Rotate Right");
+    case Command::RotateCounterclockwise: return tr("Rotate Left");
     case Command::FlipHorizontal: return tr("Flip Horizontally");
     case Command::FlipVertical: return tr("Flip Vertically");
+    case Command::ColorPicker: return tr("Color Picker");
     //: EV: exposure value, photographic stops; ½ EV is half a stop.
     case Command::ExposureUp: return tr("Increase Exposure (+½ EV)");
     //: EV: exposure value, photographic stops; ½ EV is half a stop.
@@ -181,6 +190,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     const bool hasImage = m_image.width > 0;
     switch (command) {
     case Command::ShowInFolder:
+    case Command::OpenWith:
     case Command::OpenWithOther:
     case Command::CopyPath: return !m_image.path.isEmpty();
     case Command::CopyImage: return hasImage && currentFileIsShown(); // during a copy, the next one waits (copyImage)
@@ -211,6 +221,7 @@ bool ViewerWindow::isCommandEnabled(Command command) const
     case Command::ExposureUp:
     case Command::ExposureDown:
     case Command::ExposureReset: return hasImage;
+    case Command::ColorPicker: return m_pickerOn || hasImage; // a picker on can always be left
     default: return true;
     }
 }
@@ -230,8 +241,10 @@ bool ViewerWindow::isCommandChecked(Command command, bool *checkable) const
     case Command::InfoOverlay: return topOverlayMode() != OverlayVisibility::Hidden;
     case Command::Checkerboard: return m_settings.checkerboard;
     case Command::Gallery: return m_settings.showGallery;
+    case Command::Toolbar: return m_settings.showToolbar;
     case Command::ToneMap: return m_settings.toneMap;
     case Command::ClipWarning: return m_settings.clipWarning;
+    case Command::ColorPicker: return m_pickerOn;
     case Command::PlayPause: return m_slideshow.running() ? m_slideshow.paused() : m_animationPaused;
     case Command::Slideshow: return m_slideshow.running();
     default: *checkable = false; return false;
@@ -254,6 +267,7 @@ void ViewerWindow::execute(Command command)
         editRecentFiles([](QStringList &recent) { recent.clear(); });
         break;
     case Command::ShowInFolder: showInFolder(); break;
+    case Command::OpenWith: showOpenWithMenu(QCursor::pos()); break;
     case Command::OpenWithOther: openWithOtherApplication(); break;
     case Command::CopyImage: copyImage(); break;
     case Command::CopyPath: copyPath(); break;
@@ -281,10 +295,12 @@ void ViewerWindow::execute(Command command)
     case Command::InfoOverlay: toggleTopOverlay(); break;
     case Command::Checkerboard: toggleCheckerboard(); break;
     case Command::Gallery: toggleGallery(); break;
+    case Command::Toolbar: toggleMainToolbar(); break;
     case Command::RotateClockwise: rotate(1); break;
     case Command::RotateCounterclockwise: rotate(-1); break;
     case Command::FlipHorizontal: flipHorizontal(); break;
     case Command::FlipVertical: flipVertical(); break;
+    case Command::ColorPicker: togglePicker(); break;
     case Command::ExposureUp: adjustExposure(0.5f); break;
     case Command::ExposureDown: adjustExposure(-0.5f); break;
     case Command::ExposureReset: resetExposure(); break;
@@ -337,7 +353,7 @@ bool ViewerWindow::executeShortcut(QKeyEvent *e)
     return false;
 }
 
-void ViewerWindow::addCommand(QMenu *menu, Command command)
+QAction *ViewerWindow::addCommand(QMenu *menu, Command command)
 {
     QString text = commandText(command);
 #ifdef Q_OS_MACOS
@@ -359,6 +375,7 @@ void ViewerWindow::addCommand(QMenu *menu, Command command)
     action->setChecked(checked);
     action->setEnabled(isCommandEnabled(command));
     connect(action, &QAction::triggered, this, [this, command] { m_menuChoice = [this, command] { run(command); }; });
+    return action;
 }
 
 #ifdef Q_OS_MACOS
@@ -453,27 +470,11 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(recent, Command::ClearRecent);
     addCommand(&menu, Command::ShowInFolder);
     // The applications are looked up when the submenu opens (a scan of the system's registry).
-    QMenu *openWithMenu = menu.addMenu(tr("Open With"));
-    openWithMenu->setEnabled(isCommandEnabled(Command::OpenWithOther));
+    QMenu *openWithMenu = menu.addMenu(commandText(Command::OpenWith));
+    openWithMenu->setEnabled(isCommandEnabled(Command::OpenWith));
     connect(openWithMenu, &QMenu::aboutToShow, this, [this, openWithMenu] {
-        if (!openWithMenu->isEmpty())
-            return;
-        const QString file = m_image.path;
-        const QList<OpenWithApp> apps = openWithApps(file);
-        for (const OpenWithApp &app : apps) {
-            QString label = app.name;
-            label.replace(QLatin1Char('&'), QStringLiteral("&&")); // not a mnemonic
-            connect(openWithMenu->addAction(label), &QAction::triggered, this, [this, app, file] {
-                m_menuChoice = [this, app, file] {
-                    if (!openWith(app, file))
-                        showNotice(tr("Cannot start “%1”.").arg(app.name));
-                };
-            });
-        }
-        if (apps.isEmpty())
-            openWithMenu->addAction(tr("No applications found"))->setEnabled(false);
-        openWithMenu->addSeparator();
-        addCommand(openWithMenu, Command::OpenWithOther);
+        if (openWithMenu->isEmpty())
+            fillOpenWithMenu(openWithMenu);
     });
     menu.addSeparator();
     addCommand(&menu, Command::CopyImage);
@@ -501,12 +502,13 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     addCommand(view, Command::InfoOverlay);
     addCommand(view, Command::Checkerboard);
     addCommand(view, Command::Gallery);
+    addCommand(view, Command::Toolbar);
     view->addSeparator();
     addCommand(view, Command::Slideshow);
 
     QMenu *image = menu.addMenu(tr("Image"));
+    addCommand(image, Command::RotateCounterclockwise); // left, then right, as on the toolbar
     addCommand(image, Command::RotateClockwise);
-    addCommand(image, Command::RotateCounterclockwise);
     image->addSeparator();
     addCommand(image, Command::FlipHorizontal);
     addCommand(image, Command::FlipVertical);
@@ -519,6 +521,8 @@ void ViewerWindow::showContextMenu(const QPoint &globalPos)
     color->addSeparator();
     addCommand(color, Command::ToneMap);
     addCommand(color, Command::ClipWarning);
+    color->addSeparator();
+    addCommand(color, Command::ColorPicker); // a tool of colour (D-115)
 
     QMenu *go = menu.addMenu(tr("Jump to"));
     addCommand(go, Command::First);
@@ -568,16 +572,9 @@ void ViewerWindow::showOpenDialog()
 
 void ViewerWindow::toggleTopOverlay()
 {
-    // Like P for the panel, a switch (Settings::showOverlay); switched on where its mode is
-    // "never", it shows there always.
-    const bool fullScreen = visibility() == QWindow::FullScreen;
-    const bool show = topOverlayMode() == OverlayVisibility::Hidden;
-    savePreference([fullScreen, show](Settings &s) {
-        s.showOverlay = show;
-        OverlayVisibility &mode = fullScreen ? s.overlayFullScreen : s.overlayWindow;
-        if (show && mode == OverlayVisibility::Hidden)
-            mode = OverlayVisibility::Always;
-    });
+    // Like P for the panel, a switch (Settings::showOverlay); how it shows when on is one choice
+    // for a window and full screen (D-113).
+    savePreference([show = !m_settings.showOverlay](Settings &s) { s.showOverlay = show; });
     if (topOverlayMode() == OverlayVisibility::Hover) { // shown now, then hidden as on hover
         setPointerAtTop(true);
         setPointerAtTop(false);
@@ -609,8 +606,8 @@ void ViewerWindow::showSettings()
             if (info.command == Command::ClearRecent)
                 name = tr("Open Recent") + QStringLiteral(" › ") + name;
             else if (info.command == Command::OpenWithOther)
-                name = tr("Open With") + QStringLiteral(" › ") + name;
-            list.append({commandKey(info.command), name, info.shortcuts});
+                name = commandText(Command::OpenWith) + QStringLiteral(" › ") + name;
+            list.append({commandKey(info.command), name, info.shortcuts, glyphFor(info.command), buttonName(info.command)});
         }
         return list;
     });

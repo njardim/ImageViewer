@@ -18,6 +18,8 @@
 #include <QLibraryInfo>
 #include <QPainter>
 #include <QScopeGuard>
+#include <QScreen>
+#include <QSplashScreen>
 #include <QTimer>
 #include <QtPlugin>
 
@@ -47,6 +49,9 @@
 Q_IMPORT_PLUGIN(OiioImagePlugin)
 
 namespace {
+
+constexpr int kWelcomeSide = 512; // the welcome screen's logo, logical pixels (the owner, D-113)
+constexpr int kWelcomeMs = 2000;   // ...and how long it shows
 
 // macOS delivers files opened from Finder as QFileOpenEvent, not argv.
 class FileOpenFilter : public QObject {
@@ -601,11 +606,37 @@ int main(int argc, char *argv[])
     FileOpenFilter fileOpenFilter(&window);
     app->installEventFilter(&fileOpenFilter);
     const SessionState session = SessionState::load();
-    window.showRestored(session);
-    if (!files.isEmpty())
-        window.openFile(files.first());
-    else if (settings.reopenLastImage && !session.lastFile.isEmpty() && QFileInfo::exists(session.lastFile))
-        window.openFile(session.lastFile);
+    const auto start = [&window, &session, &files, &settings] {
+        window.showRestored(session);
+        if (!files.isEmpty())
+            window.openFile(files.first());
+        else if (settings.reopenLastImage && !session.lastFile.isEmpty() && QFileInfo::exists(session.lastFile))
+            window.openFile(session.lastFile);
+    };
+    // The welcome screen (the owner, D-113): the application's logo, 512 logical pixels, in the
+    // middle of the screen the window opens on, for 2 s before it; off by default.
+    std::unique_ptr<QSplashScreen> welcome;
+    if (settings.welcomeScreen) {
+        QScreen *screen = QGuiApplication::primaryScreen();
+        if (settings.rememberGeometry && session.geometry.isValid())
+            if (QScreen *at = QGuiApplication::screenAt(session.geometry.center()))
+                screen = at;
+        const qreal dpr = screen ? screen->devicePixelRatio() : 1.0;
+        QPixmap logo(QStringLiteral(":/imageviewer.png"));
+        logo = logo.scaled(QSize(kWelcomeSide, kWelcomeSide) * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        logo.setDevicePixelRatio(dpr);
+        welcome = std::make_unique<QSplashScreen>(screen, logo, Qt::WindowStaysOnTopHint);
+        welcome->setAttribute(Qt::WA_TranslucentBackground); // the logo's own shape, where the system composes windows
+        welcome->show();
+    }
+    if (welcome)
+        QTimer::singleShot(kWelcomeMs, &window, [&welcome, start] {
+            welcome->close();
+            welcome.reset();
+            start();
+        });
+    else
+        start();
     // For the tests (D-94): a tick every 20 ms, and a message when the event loop answers one more
     // than 100 ms late, that is, when the interface did not respond; render() names its own long
     // frames. Only with the category on.

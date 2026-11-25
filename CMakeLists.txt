@@ -77,10 +77,12 @@ find_library(WEBP_DEMUX_LIBRARY NAMES webpdemux libwebpdemux)
 
 qt_add_executable(imageviewer
     src/main.cpp
-    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp
+    src/viewer.h src/viewer.cpp src/navigation.cpp src/overlays.cpp src/commands.cpp src/files.cpp src/playback.cpp src/input.cpp src/toolbars.cpp src/windowstates.cpp
     src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
+    src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
+    src/colorpicker.h src/colorpicker.cpp src/histogram.h src/histogram.cpp
     src/cache.h src/cache.cpp
-    src/settings.h src/settings.cpp src/settingsdialog.cpp src/shortcuts.cpp
+    src/settings.h src/settings.cpp src/settingsdialog.cpp src/shortcuts.cpp src/toolbarsettings.cpp
     src/appearance.h src/appearance.cpp
     src/renderer.h src/renderer.cpp src/offscreen.cpp
     src/image.h src/image.cpp
@@ -213,6 +215,10 @@ if(APPLE)
 elseif(WIN32)
     target_link_libraries(imageviewer PRIVATE shell32 shlwapi)
 endif()
+# Leaving full screen without Windows' own animation of the window (D-114, windowstates.cpp).
+if(WIN32)
+    target_link_libraries(imageviewer PRIVATE dwmapi)
+endif()
 
 if(MSVC)
     target_compile_options(imageviewer PRIVATE /W4 /permissive- /utf-8)
@@ -290,7 +296,7 @@ qt_generate_deploy_app_script(TARGET imageviewer
 install(SCRIPT ${deploy_script})
 
 # Unit tests (D-102): the window's parts with state of their own (the gallery, the slideshow's clock,
-# the zoom's detail of an SVG), each driven alone with its decoding handed in. A second executable,
+# the zoom's detail of an SVG, the toolbar), each driven alone with its decoding handed in. A second executable,
 # for the tests only: never installed nor packaged. CI runs it on the three systems.
 option(IMAGEVIEWER_UNIT_TESTS "Build the unit tests (tests/unit_tests.cpp)" ON)
 if(IMAGEVIEWER_UNIT_TESTS)
@@ -298,9 +304,12 @@ if(IMAGEVIEWER_UNIT_TESTS)
     qt_add_executable(imageviewer_tests
         tests/unit_tests.cpp
         src/gallery.h src/gallery.cpp src/slideshow.h src/slideshow.cpp src/detail.h src/detail.cpp
+        src/toolbar.h src/toolbar.cpp src/glyphs.h src/glyphs.cpp
+        src/colorpicker.h src/colorpicker.cpp src/histogram.h src/histogram.cpp src/color.h src/color.cpp
     )
     set_target_properties(imageviewer_tests PROPERTIES MACOSX_BUNDLE OFF WIN32_EXECUTABLE OFF)
     target_include_directories(imageviewer_tests PRIVATE src)
     target_compile_definitions(imageviewer_tests PRIVATE QT_NO_KEYWORDS)
-    target_link_libraries(imageviewer_tests PRIVATE Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent Qt6::Test)
+    target_link_libraries(imageviewer_tests PRIVATE Qt6::Core Qt6::Gui Qt6::GuiPrivate Qt6::Widgets Qt6::Concurrent Qt6::Test
+                          lcms2::lcms2)
 endif()

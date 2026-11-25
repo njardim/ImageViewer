@@ -3,10 +3,14 @@
 #pragma once
 
 #include "folder.h"
+#include "glyphs.h"
 #include "renderer.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <functional>
+#include <optional>
 
 #include <QColor>
 #include <QDialog>
@@ -25,6 +29,7 @@ class QGroupBox;
 class QKeySequenceEdit;
 class QLabel;
 class QListWidget;
+class QListWidgetItem;
 class QPushButton;
 class QSpinBox;
 class QTabWidget;
@@ -44,6 +49,8 @@ enum class FitMode { Window, Width, Height, Fill, Actual }; // Actual: 100 %
 enum class WindowFit { Never, FirstImage, EveryImage };
 // What the title bar shows (D-51, D-58): the top overlay's fields, or a fixed set in its style.
 enum class TitleMode { Overlay, Name, Details, Everything };
+// The information panel's histogram (D-115): the three colours (the owner's default), the luminance, or none.
+enum class HistogramMode { Colors, Luminance, Off };
 // The interface's text (D-85): the system's size, 2 or 4 pixels larger.
 enum class FontSize { Small, Medium, Large };
 
@@ -54,6 +61,13 @@ struct Settings {
     FontSize fontSize = FontSize::Small; // dialogs, menus and the panels over the image
     bool confirmTrash = true;  // ask before moving a file to the trash
     bool reopenLastImage = false;
+    bool welcomeScreen = false; // the logo for 2 s before the window opens (the owner, D-113)
+    // How long the pointer stays still before what hides by itself hides: the bars, the overlay at
+    // the top, the information panel and the pointer, each by its own switch (the owner, D-113).
+    int autoHideMs = 2000;
+    // sRGB, the interface's accent over the image: behind the gallery's current and hovered
+    // thumbnails (D-65) and a toolbar's switch that is on (D-112). Emerald.
+    QColor highlight = QColor(80, 200, 120);
     // Window
     QColor background = QColor(0x21, 0x21, 0x21); // sRGB; shown at SDR white
     bool checkerboard = false; // checks behind transparent pixels instead of the plain background
@@ -63,19 +77,21 @@ struct Settings {
     bool lockZoom = false;           // new images keep the zoom, free or fitted (a toggle, Z)
     WindowFit windowFit = WindowFit::Never;
     int windowFitPercent = 80;       // largest share of the screen the window takes for an image
-    TitleMode titleMode = TitleMode::Name;
-    int pointerHideMs = 2000;        // the pointer hides when it stays still this long; 0: never
+    TitleMode titleMode = TitleMode::Overlay; // the owner's default (2026-11-18)
+    bool pointerAutoHide = true;     // the pointer hides while it is still (autoHideMs)
+    // Everything drawn over the image (D-49, D-114): the panels, the overlay, the gallery, the
+    // toolbars and their "…" panel, the side buttons; one background and one text and icon opacity.
+    int backgroundOpacity = 70; // percent
+    int textOpacity = 100;      // percent
     // Information
     bool showInfo = false;     // the information panel (P)
-    bool showOverlay = true;   // the top overlay (I), where its mode below is not "never"
-    OverlayVisibility overlayFullScreen = OverlayVisibility::Always;
-    OverlayVisibility overlayWindow = OverlayVisibility::Always;
+    HistogramMode histogram = HistogramMode::Colors; // at the top of the information panel (D-115)
+    bool showOverlay = false;  // the top overlay (I); off at first: the toolbar and the gallery only (the owner, D-114)
+    OverlayVisibility overlayVisibility = OverlayVisibility::Always; // in a window and in full screen: always or at the top (D-113)
+    bool overlayAutoHide = false;    // the top overlay hides while the pointer is still
+    bool panelAutoHide = false;      // the information panel likewise (its notices stay)
     QList<OverlayField> overlayFields = defaultOverlayFields(); // shown, in this order
-    // The look of both information panels (D-49).
-    int overlayBackgroundOpacity = 70; // percent
-    int overlayTextOpacity = 100;      // percent
     bool overlayOutline = false;       // dark outline around the text, for HDR highlights (D-58)
-    int overlayHideDelayMs = 2000;     // on-hover mode: hidden this long after the pointer leaves
     // Navigation
     bool loop = true;          // wrap from the last image to the first and back: keys, mouse, slideshow, gallery
     bool sideZones = true;     // click the left/right edge of the window for previous/next
@@ -86,13 +102,17 @@ struct Settings {
     double slideshowSeconds = 4.0; // between images in the slideshow (E11)
     bool slideshowFullScreen = false; // the slideshow starts in full screen (and leaves it when it ends)
     bool slideshowToolbarAutoHide = false; // its toolbar hides while the pointer is still (D-65); the user opts in
-    int slideshowToolbarHideMs = 2000;    // ...after this long
+    bool galleryAutoHide = false;     // likewise the gallery (D-112)
+    bool galleryTooltips = true;      // a thumbnail's file's facts above it, once the pointer rests on it (D-116)
     bool showGallery = true;          // the thumbnails at the bottom (G, D-60)
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
     bool galleryZoom = false;         // the thumbnail under the pointer enlarges
-    int galleryOpacity = 70;          // percent, the gallery's background
     int galleryEnlargement = 50;      // logical pixels added to the thumbnail under the pointer
-    QColor galleryHighlight = QColor(80, 200, 120); // sRGB, behind the current and the hovered thumbnail (emerald)
+    // Toolbar (D-87, D-112).
+    bool showToolbar = true;          // a toggle, T; on at first, with the gallery (the owner, D-114)
+    bool toolbarNames = true;         // each button's name under it
+    bool toolbarAutoHide = false;     // it hides while the pointer is still; the user opts in
+    QStringList toolbarButtons = defaultToolbarButtons(); // command keys (D-52), kToolbarSeparator between groups
     // Color & HDR
     bool toneMap = true;       // BT.2390 tone mapping (a toggle, T)
     bool clipWarning = false;  // clipped or tone-mapped pixels shown in magenta (a toggle, C)
@@ -113,18 +133,48 @@ struct Settings {
     static constexpr int kMinGalleryEnlargement = 10;
     static constexpr int kMaxGalleryEnlargement = 100;
     static constexpr std::array<int, 3> kGalleryThumbnailSizes = {64, 96, 128}; // small, medium, large
-    static constexpr int kMaxPointerHideMs = 60000;
-    static constexpr int kMinOverlayTextOpacity = 20; // never invisible
-    // Both information panels (D-49): values and labels in these greys over black at
-    // overlayBackgroundOpacity; at the default 70 % the labels keep 4.5:1 over a white image.
+    static constexpr int kMinTextOpacity = 20; // never invisible
+    // The panels (D-49): values and labels in these greys over black at backgroundOpacity; at the
+    // default 70 % the labels keep 4.5:1 over a white image.
     static constexpr int kPanelValueGrey = 240;
     static constexpr int kPanelLabelGrey = 190;
-    QColor panelBackground() const;
-    QColor panelText(int grey) const;
-    static constexpr int kMinOverlayHideDelayMs = 500;
-    static constexpr int kMaxOverlayHideDelayMs = 10000;
-    static constexpr int kMinToolbarHideMs = 500;
-    static constexpr int kMaxToolbarHideMs = 10000;
+    // The highlight under the pointer: 20 points fainter than under what is current or on (D-85).
+    static constexpr int kHoverFade = 20;
+    // In the header, as defaultOverlayFields(): the gallery's unit tests use them without settings.cpp.
+    QColor panelBackground() const { return QColor(0, 0, 0, int(std::lround(backgroundOpacity * 2.55))); }
+    QColor panelText(int grey) const { return QColor(grey, grey, grey, int(std::lround(textOpacity * 2.55))); }
+    // The highlight colour at the background's opacity (what is current, a switch that is on), or
+    // kHoverFade fainter (what is under the pointer): the gallery's tiles and the toolbars' discs alike.
+    QColor highlightTile(bool hovered) const
+    {
+        QColor tile = highlight;
+        tile.setAlpha(int(std::lround(std::max(0, backgroundOpacity - (hovered ? kHoverFade : 0)) * 2.55)));
+        return tile;
+    }
+    static constexpr int kMinAutoHideMs = 500;
+    static constexpr int kMaxAutoHideMs = 10000;
+
+    // The toolbar's buttons as the owner designed them (2026-11-18, 2026-11-24): open; first,
+    // previous, the slideshow, next, last; the rotations, the flips and the color picker; the
+    // checkerboard, the gallery, full screen; settings and quit, the last group.
+    static constexpr QLatin1StringView kToolbarSeparator{"Separator"};
+    static QStringList defaultToolbarButtons() // in the header, as defaultOverlayFields()
+    {
+        const QString separator(kToolbarSeparator);
+        return {QStringLiteral("Open"), separator, QStringLiteral("First"), QStringLiteral("Previous"),
+                QStringLiteral("Slideshow"), QStringLiteral("Next"), QStringLiteral("Last"), separator,
+                QStringLiteral("RotateCounterclockwise"), QStringLiteral("RotateClockwise"),
+                QStringLiteral("FlipHorizontal"), QStringLiteral("FlipVertical"), QStringLiteral("ColorPicker"),
+                separator, QStringLiteral("Checkerboard"), QStringLiteral("Gallery"), QStringLiteral("FullScreen"),
+                separator, QStringLiteral("Settings"), QStringLiteral("Quit")};
+    }
+    // The last group, in its order: always at the end, after a separator of its own, and on the bar
+    // when "…" takes other buttons (the owner, D-115).
+    static QStringList finalToolbarGroup() { return {QStringLiteral("Settings"), QStringLiteral("Quit")}; }
+    // `buttons` as the toolbar keeps them: each command once, no separator first, last or twice in
+    // a row, and the last group at the end (finalToolbarGroup()). Names are not checked against the
+    // commands, which the window does.
+    static QStringList normalizedToolbar(const QStringList &buttons);
 
     // The six fields of ImageGlass issue #2475 (E14).
     static QList<OverlayField> defaultOverlayFields() // in the header: a Settings needs nothing else to be made (the unit tests)
@@ -193,6 +243,8 @@ struct ShortcutCommand {
     QString key;
     QString name;
     QList<QKeySequence> defaults;
+    std::optional<Glyph> glyph; // a button the toolbar can have (D-112), drawn so
+    QString buttonName;         // ...and named so
 };
 
 class SettingsDialog : public QDialog {
@@ -220,7 +272,7 @@ private:
     void setValues(const Settings &settings);
     void fitOverlayFields();
     void fitToFont(); // after another font size: the overlay's fields all shown, room for the labels
-    // A row of colour swatches and "Custom…" (the window's background, the gallery's highlight).
+    // A row of colour swatches and "Custom…" (the window's background, the interface's highlight).
     struct ColorChoice {
         QButtonGroup *group = nullptr; // owned by the dialog, not by a widget
         QToolButton *custom = nullptr;
@@ -233,6 +285,12 @@ private:
                       const QString &dialogTitle);
     void setColor(ColorChoice &choice, const QColor &color);
     void moveOverlayField(int delta);
+    // toolbarsettings.cpp: the Toolbar tab (D-112).
+    QWidget *buildToolbarTab();
+    QListWidgetItem *separatorItem() const;
+    void fillToolbarButtons(const QStringList &buttons);
+    QStringList toolbarButtonsShown() const; // the chosen buttons and separators, in order
+    void moveToolbarButton(int delta);
     // shortcuts.cpp: the Shortcuts tab (D-52).
     QWidget *buildShortcutsTab();
     void fillShortcutTable();
@@ -256,6 +314,7 @@ private:
     bool m_keyInField = false; // a key press in a shortcut field is being handled
     QGroupBox *m_slideshowBox = nullptr; // their titles name the commands' keys
     QGroupBox *m_galleryBox = nullptr;
+    QGroupBox *m_toolbarBox = nullptr;
 
     QTabWidget *m_tabs = nullptr;
     QPushButton *m_apply = nullptr;
@@ -264,6 +323,9 @@ private:
     QComboBox *m_fontSize = nullptr;
     QCheckBox *m_confirmTrash = nullptr;
     QCheckBox *m_reopenLast = nullptr;
+    QCheckBox *m_welcomeScreen = nullptr;
+    QDoubleSpinBox *m_autoHide = nullptr;
+    ColorChoice m_highlight;
     ColorChoice m_background;
     QCheckBox *m_checkerboard = nullptr;
     QCheckBox *m_rememberGeometry = nullptr;
@@ -274,15 +336,16 @@ private:
     QSpinBox *m_windowFitPercent = nullptr;
     QComboBox *m_titleMode = nullptr;
     QCheckBox *m_showInfo = nullptr;
+    QComboBox *m_histogram = nullptr;
     QCheckBox *m_showOverlay = nullptr;
-    QComboBox *m_overlayFullScreen = nullptr;
-    QComboBox *m_overlayWindow = nullptr;
+    QComboBox *m_overlayVisibility = nullptr;
+    QCheckBox *m_overlayAutoHide = nullptr;
+    QCheckBox *m_panelAutoHide = nullptr;
     QListWidget *m_overlayFields = nullptr;
-    QSpinBox *m_overlayBackground = nullptr;
-    QSpinBox *m_overlayText = nullptr;
+    QSpinBox *m_backgroundOpacity = nullptr;
+    QSpinBox *m_textOpacity = nullptr;
     QCheckBox *m_overlayOutline = nullptr;
-    QDoubleSpinBox *m_overlayDelay = nullptr;
-    QDoubleSpinBox *m_pointerHide = nullptr;
+    QCheckBox *m_pointerAutoHide = nullptr;
     QCheckBox *m_loop = nullptr;
     QCheckBox *m_sideZones = nullptr;
     QSpinBox *m_sideZoneWidth = nullptr;
@@ -291,13 +354,16 @@ private:
     QCheckBox *m_preload = nullptr;
     QCheckBox *m_slideshowFullScreen = nullptr;
     QCheckBox *m_toolbarAutoHide = nullptr;
-    QDoubleSpinBox *m_toolbarHide = nullptr;
     QCheckBox *m_showGallery = nullptr;
     QComboBox *m_galleryThumbnailSize = nullptr;
     QCheckBox *m_galleryZoom = nullptr;
-    QSpinBox *m_galleryOpacity = nullptr;
     QSpinBox *m_galleryEnlargement = nullptr;
-    ColorChoice m_galleryHighlight;
+    QCheckBox *m_galleryAutoHide = nullptr;
+    QCheckBox *m_galleryTooltips = nullptr;
+    QCheckBox *m_showToolbar = nullptr;
+    QCheckBox *m_toolbarNames = nullptr;
+    QCheckBox *m_mainToolbarAutoHide = nullptr;
+    QListWidget *m_toolbarButtons = nullptr;
     QDoubleSpinBox *m_slideshowSeconds = nullptr;
     QCheckBox *m_toneMap = nullptr;
     QCheckBox *m_clipWarning = nullptr;

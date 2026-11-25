@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>फ़ाइल</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGB तक काटा गया)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (फ़्लोटिंग पॉइंट)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-बिट)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>ल्यूमिनेंस</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>पिक्सेल</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>रंग चुनने के लिए छवि पर क्लिक करें।</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>सफ़ेद</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>रंग</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>ल्यूमिनेंस</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>कोई नहीं</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ओवरले दिखाएँ:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>टूलबार</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>कस्टम…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>छवि को ट्रैश में ले जाने से पहले पुष्टि करें</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>पारदर्शी क्षेत्रों के पीछे चेकरबोर्ड दिखाएँ</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>जब पॉइंटर शीर्ष पर हो</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>कभी नहीं</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>पूर्ण स्क्रीन में:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>विंडो में:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>फ़ील्ड</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>पृष्ठभूमि की अपारदर्शिता:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>टेक्स्ट की अपारदर्शिता:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>टेक्स्ट की रूपरेखा बनाएँ</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> सेकंड</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>भाषा और पाठ</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>फ़ॉन्ट आकार:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>प्रारंभ और फ़ाइलें</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>प्रारंभ पर स्वागत स्क्रीन दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>छवि के ऊपर</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>विंडो में फ़िट करें</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>रंग</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>विंडो से छोटी छवियाँ बड़ी करें</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>विंडो</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>टाइटल बार:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>स्थिर पॉइंटर इसके बाद छिपाएँ:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>पैनल, ओवरले, गैलरी, टूलबार और किनारे के बटन</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>पाठ और आइकन की अपारदर्शिता:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>माउस पॉइंटर स्थिर रहने पर उसे स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>स्वतः छिपाने के लिए सेट की गई हर चीज़ के लिए: बार, गैलरी, ओवरले, पैनल और माउस पॉइंटर।</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>तत्वों को स्वतः छिपाएँ इसके बाद:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>जानकारी पैनल</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>हिस्टोग्राम:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>शीर्ष पर ओवरले</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>इसके बाद छिपाएँ:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>पैनल और ओवरले का रूप</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>जानकारी पैनल स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>जानकारी ओवरले स्वतः छिपाएँ</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>पिछली या अगली छवि के लिए विंडो के बाएँ या दाएँ भाग पर क्लिक करें</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>पॉइंटर स्थिर रहने पर टूलबार छिपाएँ</translation>
+        <source>Show the toolbar</source>
+        <translation>टूलबार दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>बटनों के नीचे नाम दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>टूलबार स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>बटन</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>विभाजक जोड़ें</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>विभाजक हटाएँ</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>डिफ़ॉल्ट बटन</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>सेटिंग्स और बाहर निकलें हमेशा अंत में, अपने अलग समूह में आते हैं।</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>विभाजक (हमेशा)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>विभाजक</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>स्लाइड शो पूर्ण स्क्रीन में शुरू करें</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल हाइलाइट करें (मैजेंटा)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>स्लाइडशो टूलबार स्वतः छिपाएँ</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>टूलटिप में छवि की जानकारी दिखाएँ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>गैलरी स्वतः छिपाएँ</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>डिस्प्ले आउटपुट:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>डिस्प्ले की क्षमता से अधिक HDR छवियों पर टोन मैपिंग लागू करें (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>स्लाइड शो (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>टूलबार (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>पारदर्शी क्षेत्रों के पीछे चेकरबोर्ड दिखाएँ (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>डिस्प्ले की क्षमता से अधिक HDR छवियों पर टोन मैपिंग लागू करें, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>क्लिपिंग या टोन मैपिंग से बदले गए पिक्सेल मैजेंटा रंग में हाइलाइट करें (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>%1 nits से ऊपर क्लिप किया गया (टोन मैपिंग बंद)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>रंग</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>ल्यूमिनेंस</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>कोई नहीं</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>हिस्टोग्राम</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>एक्सपोज़र %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>गैलरी</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>दक्षिणावर्त घुमाएँ</translation>
+        <source>Toolbar</source>
+        <translation>टूलबार</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>वामावर्त घुमाएँ</translation>
+        <source>Rotate Right</source>
+        <translation>दाईं ओर घुमाएँ</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>बाईं ओर घुमाएँ</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>लंबवत रूप से पलटें</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>रंग पिकर</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>इसके साथ खोलें</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>रोकें</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>चलाएँ</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>और</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>स्लाइड शो विराम पर है</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>कॉपी करें</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>कॉपी किया गया: %1</translation>
     </message>
 </context>
 </TS>

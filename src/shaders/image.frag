@@ -24,8 +24,19 @@ layout(std140, binding = 0) uniform Params {
     vec4 imageRect; // the image on screen, device pixels: x, y, width, height (width 0: none)
     vec4 uvMap;     // xy: texture coordinates at imageRect's top-left; zw: their change per pixel along x
     vec4 uvMapY;    // xy: their change per pixel along y; z: target height in pixels
-    vec4 layers[7]; // overlay rectangles, device pixels (width 0: absent), in drawing order
+    vec4 layers[12]; // overlay rectangles, device pixels (width 0: absent), in drawing order
     vec4 detailRect; // the zoom's detail in the image's texture coordinates: x, y, width, height (width 0: none)
+    // The color picker (D-115), device pixels: its loupe (width 0: none), which shows loupeCentre.z
+    // squares a side, one texel each, the texel at loupeCentre.xy (texture coordinates of its centre;
+    // < 0: no image) in the middle and loupeStep's xy (zw) from one square to the next along x (y);
+    // the swatch of that texel; the swatch of pickedColour (linear, premultiplied, working units;
+    // alpha < 0: nothing picked). Checks of loupeCentre.w pixels where there is no image.
+    vec4 loupeRect;
+    vec4 loupeStep;
+    vec4 loupeCentre;
+    vec4 currentRect;
+    vec4 pickedRect;
+    vec4 pickedColour;
 };
 
 layout(binding = 1) uniform sampler2D tex; // the image
@@ -36,7 +47,12 @@ layout(binding = 5) uniform sampler2D overlay3;
 layout(binding = 6) uniform sampler2D overlay4;
 layout(binding = 7) uniform sampler2D overlay5;
 layout(binding = 8) uniform sampler2D overlay6;
-layout(binding = 9) uniform sampler2D detail; // the zoom's detail: part of the image drawn again at the scale shown
+layout(binding = 9) uniform sampler2D overlay7;
+layout(binding = 10) uniform sampler2D overlay8;
+layout(binding = 11) uniform sampler2D overlay9;
+layout(binding = 12) uniform sampler2D overlay10;
+layout(binding = 13) uniform sampler2D overlay11;
+layout(binding = 14) uniform sampler2D detail; // the zoom's detail: part of the image drawn again at the scale shown
 
 const int MODE_SDR = 0;
 const int MODE_SCRGB = 1;
@@ -81,16 +97,9 @@ const mat3 BT2020_TO_BT709 = mat3(1.6604910, -0.1245505, -0.0181507,
                                   -0.5876411, 1.1328999, -0.1005789,
                                   -0.0728499, -0.0083494, 1.1187296);
 
-// What the image shows at texture coordinates `uv`: linear, output units, before the encoding.
-vec3 displayed(vec2 uv)
+// A texel of the image (premultiplied) shown over `under`: linear, output units, before the encoding.
+vec3 shade(vec4 texel, vec3 under)
 {
-    // The image; where the zoom's detail covers it, the detail (D-93). Both are read on every
-    // pixel, so the image's mipmaps get well-defined derivatives.
-    vec4 texel = texture(tex, uv);
-    vec2 duv = (uv - detailRect.xy) / max(detailRect.zw, vec2(1e-9));
-    vec4 fine = texture(detail, duv);
-    if (detailRect.z > 0.0 && all(greaterThanEqual(duv, vec2(0.0))) && all(lessThanEqual(duv, vec2(1.0))))
-        texel = fine;
     float alpha = texel.a;
     vec3 rgb = alpha > 0.0 ? texel.rgb / alpha : vec3(0.0);
     rgb *= adjust.x * adjust.y;
@@ -126,6 +135,19 @@ vec3 displayed(vec2 uv)
         rgb = vec3(peak, 0.0, peak);
 
     // Composite in linear light, so alpha means the same in every output encoding (F6).
+    return rgb * alpha + under * (1.0 - alpha);
+}
+
+// What the image shows at texture coordinates `uv`: linear, output units, before the encoding.
+vec3 displayed(vec2 uv)
+{
+    // The image; where the zoom's detail covers it, the detail (D-93). Both are read on every
+    // pixel, so the image's mipmaps get well-defined derivatives.
+    vec4 texel = texture(tex, uv);
+    vec2 duv = (uv - detailRect.xy) / max(detailRect.zw, vec2(1e-9));
+    vec4 fine = texture(detail, duv);
+    if (detailRect.z > 0.0 && all(greaterThanEqual(duv, vec2(0.0))) && all(lessThanEqual(duv, vec2(1.0))))
+        texel = fine;
     // The checkerboard only chooses what lies underneath; color::applyOutputStage()
     // composites over the plain background, which is what the harness checks.
     vec3 under = background.rgb;
@@ -134,7 +156,47 @@ vec3 displayed(vec2 uv)
         if (mod(cell.x + cell.y, 2.0) >= 1.0)
             under = checkerColour.rgb;
     }
-    return rgb * alpha + under * (1.0 - alpha);
+    return shade(texel, under);
+}
+
+bool within(vec2 p, vec4 r)
+{
+    // Pixel centres on the top or left edge are in, on the bottom or right edge out, as the
+    // rasteriser decides for the image quad.
+    return r.z > 0.0 && p.x >= r.x && p.x < r.x + r.z && p.y >= r.y && p.y < r.y + r.w;
+}
+
+// The color picker's checks: what shows where there is no image, and under translucent colours.
+vec3 pickerChecks(vec2 p)
+{
+    vec2 cell = floor(p / loupeCentre.w);
+    return mod(cell.x + cell.y, 2.0) >= 1.0 ? checkerColour.rgb : background.rgb;
+}
+
+// One texel at its centre, unfiltered and from the full-size level (textureLod: these pixels are
+// not the image's own neighbours), over the checks; the checks alone outside the image.
+vec3 pickerTexel(vec2 uv, vec3 under)
+{
+    vec4 texel = textureLod(tex, uv, 0.0);
+    bool inside = all(greaterThanEqual(uv, vec2(0.0))) && all(lessThan(uv, vec2(1.0)));
+    return inside ? shade(texel, under) : under;
+}
+
+// The color picker's loupe and swatches at `p`; alpha 0 outside them.
+vec4 picker(vec2 p)
+{
+    if (loupeRect.z <= 0.0)
+        return vec4(0.0);
+    vec3 under = pickerChecks(p);
+    if (within(p, loupeRect)) {
+        vec2 square = floor((p - loupeRect.xy) / (loupeRect.zw / loupeCentre.z)) - floor(loupeCentre.z / 2.0);
+        return vec4(pickerTexel(loupeCentre.xy + square.x * loupeStep.xy + square.y * loupeStep.zw, under), 1.0);
+    }
+    if (within(p, currentRect))
+        return vec4(pickerTexel(loupeCentre.xy, under), 1.0);
+    if (within(p, pickedRect))
+        return vec4(pickedColour.a < 0.0 ? under : shade(pickedColour, under), 1.0);
+    return vec4(0.0);
 }
 
 vec3 encodeOutput(vec3 rgb)
@@ -144,13 +206,6 @@ vec3 encodeOutput(vec3 rgb)
     if (modes.x == MODE_PQ)
         return pqEncode(max(BT709_TO_BT2020 * rgb, vec3(0.0)));
     return srgbEncodeExtended(clamp(rgb, 0.0, 1.0));
-}
-
-bool within(vec2 p, vec4 r)
-{
-    // Pixel centres on the top or left edge are in, on the bottom or right edge out, as the
-    // rasteriser decides for the image quad.
-    return r.z > 0.0 && p.x >= r.x && p.x < r.x + r.z && p.y >= r.y && p.y < r.y + r.w;
 }
 
 // A UI pixel over `under` as SDR shows it (D-49): blended in sRGB-encoded values relative to
@@ -185,12 +240,26 @@ void main()
     vec4 ui4 = texture(overlay4, (p - layers[4].xy) / max(layers[4].zw, vec2(1.0)));
     vec4 ui5 = texture(overlay5, (p - layers[5].xy) / max(layers[5].zw, vec2(1.0)));
     vec4 ui6 = texture(overlay6, (p - layers[6].xy) / max(layers[6].zw, vec2(1.0)));
+    vec4 ui7 = texture(overlay7, (p - layers[7].xy) / max(layers[7].zw, vec2(1.0)));
+    vec4 ui8 = texture(overlay8, (p - layers[8].xy) / max(layers[8].zw, vec2(1.0)));
+    vec4 ui9 = texture(overlay9, (p - layers[9].xy) / max(layers[9].zw, vec2(1.0)));
+    vec4 ui10 = texture(overlay10, (p - layers[10].xy) / max(layers[10].zw, vec2(1.0)));
+    vec4 ui11 = texture(overlay11, (p - layers[11].xy) / max(layers[11].zw, vec2(1.0)));
     rgb = overUi(rgb, ui0, layer >= 0 && within(p, layers[0]));
+    // The color picker's panel (layer 1) shows the image's colours in its holes.
+    vec4 picked = picker(p);
+    if (layer >= 1 && picked.a > 0.5 && within(p, layers[1]))
+        rgb = picked.rgb;
     rgb = overUi(rgb, ui1, layer >= 1 && within(p, layers[1]));
     rgb = overUi(rgb, ui2, layer >= 2 && within(p, layers[2]));
     rgb = overUi(rgb, ui3, layer >= 3 && within(p, layers[3]));
     rgb = overUi(rgb, ui4, layer >= 4 && within(p, layers[4]));
     rgb = overUi(rgb, ui5, layer >= 5 && within(p, layers[5]));
     rgb = overUi(rgb, ui6, layer >= 6 && within(p, layers[6]));
+    rgb = overUi(rgb, ui7, layer >= 7 && within(p, layers[7]));
+    rgb = overUi(rgb, ui8, layer >= 8 && within(p, layers[8]));
+    rgb = overUi(rgb, ui9, layer >= 9 && within(p, layers[9]));
+    rgb = overUi(rgb, ui10, layer >= 10 && within(p, layers[10]));
+    rgb = overUi(rgb, ui11, layer >= 11 && within(p, layers[11]));
     fragColor = vec4(encodeOutput(rgb), 1.0);
 }

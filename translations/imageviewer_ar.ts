@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>الملف</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (مقصوص إلى sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (فاصلة عائمة)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 بت)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>الإضاءة</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>البكسل</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>انقر على الصورة لالتقاط لون.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>أبيض</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>الألوان</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>الإضاءة</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>بلا</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>عرض التراكب:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>شريط الأدوات</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>مخصص…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>التأكيد قبل نقل صورة إلى سلة المهملات</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>إظهار نمط رقعة الشطرنج خلف المناطق الشفافة</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>عندما يكون المؤشر في الأعلى</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>أبداً</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>في وضع ملء الشاشة:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>في نافذة:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>الحقول</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>عتامة الخلفية:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>عتامة النص:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>إضافة حد خارجي للنص</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> ث</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>اللغة والنص</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>حجم الخط:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>بدء التشغيل والملفات</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>إظهار شاشة الترحيب عند بدء التشغيل</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>فوق الصورة</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>ملاءمة النافذة</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>الألوان</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>تكبير الصور الأصغر من النافذة</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>النافذة</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>شريط العنوان:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>إخفاء المؤشر الساكن بعد:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>اللوحات والتراكب والمعرض وأشرطة الأدوات والأزرار الجانبية</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>عتامة النص والأيقونات:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>إخفاء مؤشر الفأرة تلقائيًا ما دام ساكنًا</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>لكل ما ضُبط على الإخفاء التلقائي: الأشرطة والمعرض والتراكب واللوحة ومؤشر الفأرة.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>إخفاء العناصر تلقائيًا بعد:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>لوحة المعلومات</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>المدرج التكراري:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>التراكب في الأعلى</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>الإخفاء بعد:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>مظهر اللوحة والتراكب</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>إخفاء لوحة المعلومات تلقائيًا</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>إخفاء تراكب المعلومات تلقائيًا</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>النقر على الجانب الأيسر أو الأيمن من النافذة لعرض الصورة السابقة أو التالية</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>إخفاء شريط الأدوات ما دام المؤشر ساكنًا</translation>
+        <source>Show the toolbar</source>
+        <translation>إظهار شريط الأدوات</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>إظهار الأسماء تحت الأزرار</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>إخفاء شريط الأدوات تلقائيًا</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>الأزرار</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>إضافة فاصل</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>إزالة الفاصل</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>الأزرار الافتراضية</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>تأتي الإعدادات والإنهاء دائمًا في النهاية، في مجموعة خاصة بهما.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>فاصل (دائمًا)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>فاصل</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>بدء عرض الشرائح في وضع ملء الشاشة</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية (ماجنتا)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>إخفاء شريط أدوات العرض التلقائي تلقائيًا</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>عرض معلومات الصورة في التلميح</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>إخفاء المعرض تلقائيًا</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>إخراج الشاشة:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>تطبيق تعيين الدرجات اللونية على صور HDR التي تتجاوز قدرة الشاشة (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>عرض الشرائح (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>شريط الأدوات (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>إظهار نمط رقعة الشطرنج خلف المناطق الشفافة (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>تطبيق تعيين الدرجات اللونية على صور HDR التي تتجاوز قدرة الشاشة, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>تمييز وحدات البكسل المعدلة بالقص أو تعيين الدرجات اللونية باللون الماجنتا (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>مقصوص فوق %1 nits (تعيين الدرجات اللونية متوقف)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>الألوان</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>الإضاءة</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>بلا</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>المدرج التكراري</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>التعريض %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>المعرض</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>تدوير باتجاه عقارب الساعة</translation>
+        <source>Toolbar</source>
+        <translation>شريط الأدوات</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>تدوير عكس اتجاه عقارب الساعة</translation>
+        <source>Rotate Right</source>
+        <translation>تدوير لليمين</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>تدوير لليسار</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>قلب عمودياً</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>منتقي الألوان</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>فتح باستخدام</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>إيقاف</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>تشغيل</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>المزيد</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>عرض الشرائح متوقف مؤقتًا</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>نسخ</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>تم النسخ: %1</translation>
     </message>
 </context>
 </TS>

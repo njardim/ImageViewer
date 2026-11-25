@@ -1,5 +1,5 @@
-ImageViewer patch (docs/PLAN.md section 15, D-57, D-93): equal feTurbulence results computed once per render
-Library: resvg 0.48.1
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-93, D-118): equal feTurbulence results computed once per render
+Library: resvg 0.50.0
 Fixes: none (speed: a document may use one noise in several filters, and noise is costly)
 Upstream: none yet: to be proposed to linebender/resvg (ours)
 Remove when: a resvg release reuses equal feTurbulence results within a render, or this patch no longer applies
@@ -21,10 +21,10 @@ index de432c7..b72995d 100644
  
                  crate::path::fill_path(path, mode, &ctx, transform, pixmap);
 diff --git a/crates/resvg/src/filter/mod.rs b/crates/resvg/src/filter/mod.rs
-index 36353e8..16a89b0 100644
+index 73def49..0386f2d 100644
 --- a/crates/resvg/src/filter/mod.rs
 +++ b/crates/resvg/src/filter/mod.rs
-@@ -367,12 +367,35 @@ pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Tr
+@@ -372,12 +372,35 @@ pub fn reach(filters: &[std::sync::Arc<usvg::filter::Filter>], ts: tiny_skia::Tr
      (total < f64::from(u32::MAX)).then(|| total.ceil() as u32)
  }
  
@@ -58,18 +58,18 @@ index 36353e8..16a89b0 100644
  ) {
 -    let result = apply_inner(filter, ts, source);
 +    let result = apply_inner(filter, ts, cache, source);
-     let result = result.and_then(|image| apply_to_canvas(image, source));
+     let result = result.and_then(|(image, region)| apply_to_canvas(image, region, source));
  
      // Clear on error.
-@@ -392,6 +415,7 @@ pub fn apply(
+@@ -397,6 +420,7 @@ pub fn apply(
  fn apply_inner(
      filter: &usvg::filter::Filter,
      ts: usvg::Transform,
 +    cache: &Cache,
-     source: &mut tiny_skia::Pixmap,
- ) -> Result<Image, Error> {
+     source: &tiny_skia::Pixmap,
+ ) -> Result<(Image, IntRect), Error> {
      let region = filter
-@@ -478,7 +502,7 @@ fn apply_inner(
+@@ -494,7 +518,7 @@ fn apply_inner(
                  let input2 = get_input(fe.input2(), region, source, &results)?;
                  apply_displacement_map(fe, region, cs, ts, input1, input2)
              }
@@ -78,7 +78,7 @@ index 36353e8..16a89b0 100644
              usvg::filter::Kind::DiffuseLighting(fe) => {
                  let input = get_input(fe.input(), region, source, &results)?;
                  apply_diffuse_lighting(fe, region, cs, ts, input)
-@@ -909,6 +933,7 @@ fn apply_image(
+@@ -926,6 +950,7 @@ fn apply_image(
      let ctx = crate::render::Context {
          max_bbox: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
          visible: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
@@ -86,7 +86,7 @@ index 36353e8..16a89b0 100644
      };
  
      crate::render::render_nodes(fe.root(), &ctx, transform, &mut pixmap.as_mut());
-@@ -1021,31 +1046,64 @@ fn apply_turbulence(
+@@ -1041,31 +1066,64 @@ fn apply_turbulence(
      region: IntRect,
      cs: usvg::filter::ColorInterpolation,
      ts: usvg::Transform,
@@ -185,10 +185,10 @@ index c849854..59dd45b 100644
      render::render_node(node, &ctx, transform, pixmap);
  
 diff --git a/crates/resvg/src/path.rs b/crates/resvg/src/path.rs
-index 40b80ec..ec6b369 100644
+index e94aa09..ece4421 100644
 --- a/crates/resvg/src/path.rs
 +++ b/crates/resvg/src/path.rs
-@@ -197,6 +197,7 @@ fn render_pattern_pixmap(
+@@ -199,6 +199,7 @@ fn render_pattern_pixmap(
      let ctx = Context {
          max_bbox: ctx.max_bbox,
          visible: tiny_skia::IntRect::from_xywh(0, 0, pixmap.width(), pixmap.height())?,
@@ -197,7 +197,7 @@ index 40b80ec..ec6b369 100644
      crate::render::render_nodes(pattern.root(), &ctx, transform, &mut pixmap.as_mut());
  
 diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
-index 67a5b95..6c86455 100644
+index 7116fbd..d0fd29a 100644
 --- a/crates/resvg/src/render.rs
 +++ b/crates/resvg/src/render.rs
 @@ -8,6 +8,8 @@ pub struct Context {
@@ -209,7 +209,20 @@ index 67a5b95..6c86455 100644
  }
  
  pub fn render_nodes(
-@@ -135,6 +137,7 @@ fn render_group(
+@@ -84,7 +86,11 @@ fn render_group(
+     let visible = ctx.visible.to_rect().transform(inv_rest)?.round_out()?;
+     let (layer, ibbox) = render_layer(
+         group,
+-        &Context { max_bbox, visible },
++        &Context {
++            max_bbox,
++            visible,
++            filter_cache: ctx.filter_cache.clone(),
++        },
+         inv_rest.pre_concat(transform),
+     )?;
+ 
+@@ -185,6 +191,7 @@ fn render_layer(
      let ctx = Context {
          max_bbox: ctx.max_bbox,
          visible,
@@ -217,7 +230,7 @@ index 67a5b95..6c86455 100644
      };
      let ctx = &ctx;
  
-@@ -142,7 +145,7 @@ fn render_group(
+@@ -192,7 +199,7 @@ fn render_layer(
  
      if !group.filters().is_empty() {
          for filter in group.filters() {

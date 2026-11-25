@@ -69,6 +69,15 @@ public:
     QRectF rect() const { return m_rect; }    // device pixels, where its texture goes
     bool contains(const QPointF &position) const; // over its background (logical pixels)
     int slotAt(const QPointF &position) const;    // the slot under `position`; -1: none
+    QRectF slotRect(int slot) const;              // its column, logical pixels in the window; empty: none
+    int hover() const { return m_hover; }         // the slot under the pointer; -1: none
+    // A file's thumbnail, once decoded; null before. Its image may carry the file's own size and colour
+    // space as the texts "Size" ("width height") and "Color", for the gallery's tooltip (D-116).
+    const Thumbnail *thumbnail(const QString &path) const
+    {
+        const auto it = m_thumbnails.constFind(path);
+        return it == m_thumbnails.cend() ? nullptr : &*it;
+    }
 
     // Lays the gallery out for `scene`, asks for the thumbnails it lacks and draws its texture
     // when what it shows changed (textureChanged()). Call at every change of the window, the

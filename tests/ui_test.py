@@ -319,7 +319,9 @@ try:
             if not dialog:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
-            xdotool("key", "Tab", "Tab", "Tab", "space")  # past the language and font size lists: "Confirm before…" off
+            # Past the language and font size lists, the welcome screen and the last image (the group
+            # "Startup and files", D-113): "Confirm before…", the group's last, off.
+            xdotool("key", "Tab", "Tab", "Tab", "Tab", "Tab", "space")
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))
@@ -519,7 +521,7 @@ try:
             wait_until("a key recorded in the Shortcuts tab replaces the first shortcut, the others stay", stored_previous)
             xdotool("key", "Escape")
             wait_until("Settings closes", lambda: not xdotool("search", "--onlyvisible", "--name", "^Settings$").stdout.split())
-            wait_until("and saves the tab it closed on (Shortcuts, the seventh)", lambda: stored(r"(?m)^settingsTab=6$"))
+            wait_until("and saves the tab it closed on (Shortcuts, the eighth)", lambda: stored(r"(?m)^settingsTab=7$"))
             focus_viewer()
             # The owner's shortcuts (D-78, D-79): O opens a file, Shift+O another application, M minimizes.
             for key, title in (("o", "Open Image"), ("shift+o", "Choose an Application")):
@@ -551,8 +553,8 @@ try:
                 fail(f"the pointer hid {time.monotonic() - moved:.1f} s after a move, before 2 s")
             xdotool("mousemove", "--sync", str(x + w // 2 + 20), str(y + h // 2))
             wait_until("a move shows the pointer again", lambda: not pointer_hidden())
-            xdotool("key", "t", "c")
-            wait_until("T and C toggled from the keyboard are saved as settings",
+            xdotool("key", "ctrl+t", "c")  # the tone mapping's key since D-112 (T is the toolbar's)
+            wait_until("Ctrl+T and C toggled from the keyboard are saved as settings",
                        lambda: stored(r"(?m)^toneMap=false$") and stored(r"(?m)^clipWarning=true$"))
 
             # The top overlay's checkbox in Settings (D-58) and I are one switch: I hides the overlay
@@ -568,8 +570,8 @@ try:
                 fail("Ctrl+, did not open the Settings dialog")
             xdotool("windowfocus", "--sync", dialog)
             # It opens on Shortcuts, where it closed before the restart (D-84): three tabs on, past
-            # General and Window, Information; past the panel's box, the overlay's.
-            xdotool("key", "ctrl+Tab", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "space")
+            # General and Window, Information; past the panel's box and its histogram, the overlay's.
+            xdotool("key", "ctrl+Tab", "ctrl+Tab", "ctrl+Tab", "Tab", "Tab", "Tab", "space")
             info = dict(line.split("=", 1) for line in xdotool("getwindowgeometry", "--shell", dialog).stdout.split())
             xdotool("mousemove", "--sync", str(int(info["X"]) + int(info["WIDTH"]) - 50),
                     str(int(info["Y"]) + int(info["HEIGHT"]) - 24))

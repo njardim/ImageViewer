@@ -1,0 +1,213 @@
+// The Settings dialog's Toolbar tab (D-87, D-112): whether the toolbar shows, the names under its
+// buttons, its hiding while the pointer is still, and its buttons: every command the toolbar can
+// have, each with its glyph, those chosen first in their order with the separators between them,
+// in the model of the overlay's fields (a box to choose, dragging or Move Up and Down to order).
+// Settings and Quit are the last group, below a line of their own that does not move: each can be
+// chosen, neither moves out of it (the owner, D-115).
+#include "settings.h"
+
+#include <QCheckBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+#include <cmath>
+
+namespace {
+
+// Each item carries its command's key, or Settings::kToolbarSeparator; the last group's items,
+// and the line above them, are marked fixed.
+constexpr int kKeyRole = Qt::UserRole;
+constexpr int kFixedRole = Qt::UserRole + 1;
+
+bool isSeparator(const QListWidgetItem *item)
+{
+    return item && item->data(kKeyRole).toString() == Settings::kToolbarSeparator;
+}
+
+bool isFixed(const QListWidgetItem *item)
+{
+    return item && item->data(kFixedRole).toBool();
+}
+
+// The row of the line above the last group: what is below it stays there.
+int finalLine(const QListWidget *list)
+{
+    for (int i = 0; i < list->count(); ++i)
+        if (isFixed(list->item(i)) && list->item(i)->data(kKeyRole).toString().isEmpty())
+            return i;
+    return list->count();
+}
+
+// After a drag, the last group back at the end in its order, below its line.
+void keepFinalGroupLast(QListWidget *list)
+{
+    QList<QListWidgetItem *> fixed;
+    for (int i = list->count() - 1; i >= 0; --i)
+        if (isFixed(list->item(i)))
+            fixed.prepend(list->takeItem(i));
+    for (QListWidgetItem *item : std::as_const(fixed))
+        list->addItem(item);
+}
+
+} // namespace
+
+QWidget *SettingsDialog::buildToolbarTab()
+{
+    auto *page = new QWidget;
+    auto *layout = new QVBoxLayout(page);
+    m_toolbarBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
+    auto *form = new QFormLayout(m_toolbarBox);
+    m_showToolbar = new QCheckBox(tr("Show the toolbar"));
+    form->addRow(m_showToolbar);
+    m_toolbarNames = new QCheckBox(tr("Show the names under the buttons"));
+    form->addRow(m_toolbarNames);
+    m_mainToolbarAutoHide = new QCheckBox(tr("Auto-hide the toolbar"));
+    form->addRow(m_mainToolbarAutoHide); // after the delay in General (D-113)
+    layout->addWidget(m_toolbarBox);
+
+    auto *buttonsBox = new QGroupBox(tr("Buttons"));
+    auto *buttonsLayout = new QVBoxLayout(buttonsBox);
+    m_toolbarButtons = new QListWidget;
+    m_toolbarButtons->setDragDropMode(QAbstractItemView::InternalMove);
+    m_toolbarButtons->setDefaultDropAction(Qt::MoveAction);
+    m_toolbarButtons->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_toolbarButtons->setAccessibleName(tr("Buttons"));
+    m_toolbarButtons->setIconSize(QSize(20, 20));
+    auto *moveUp = new QPushButton(tr("Move Up"));
+    auto *moveDown = new QPushButton(tr("Move Down"));
+    auto *addSeparator = new QPushButton(tr("Add Separator"));
+    auto *removeSeparator = new QPushButton(tr("Remove Separator"));
+    auto *defaults = new QPushButton(tr("Default Buttons"));
+    connect(moveUp, &QPushButton::clicked, this, [this] { moveToolbarButton(-1); });
+    connect(moveDown, &QPushButton::clicked, this, [this] { moveToolbarButton(+1); });
+    connect(addSeparator, &QPushButton::clicked, this, [this] {
+        // After the selected button, or after the last chosen one; never in the last group.
+        int row = m_toolbarButtons->currentRow();
+        if (row >= finalLine(m_toolbarButtons))
+            row = -1;
+        if (row < 0)
+            for (int i = 0; i < m_toolbarButtons->count(); ++i)
+                if (!isFixed(m_toolbarButtons->item(i))
+                    && (m_toolbarButtons->item(i)->checkState() == Qt::Checked || isSeparator(m_toolbarButtons->item(i))))
+                    row = i;
+        m_toolbarButtons->insertItem(row + 1, separatorItem());
+        m_toolbarButtons->setCurrentRow(row + 1);
+    });
+    connect(removeSeparator, &QPushButton::clicked, this, [this] {
+        if (isSeparator(m_toolbarButtons->currentItem())) {
+            delete m_toolbarButtons->takeItem(m_toolbarButtons->currentRow());
+            updateApplyButton();
+        }
+    });
+    connect(m_toolbarButtons, &QListWidget::currentItemChanged, removeSeparator,
+            [removeSeparator](QListWidgetItem *current) { removeSeparator->setEnabled(isSeparator(current)); });
+    removeSeparator->setEnabled(false);
+    connect(defaults, &QPushButton::clicked, this, [this] { fillToolbarButtons(Settings::defaultToolbarButtons()); });
+    // A drop below the last group's line goes back above it (queued: the view finishes its move first).
+    connect(m_toolbarButtons->model(), &QAbstractItemModel::rowsMoved, this, [this] {
+        QMetaObject::invokeMethod(this, [this] { keepFinalGroupLast(m_toolbarButtons); }, Qt::QueuedConnection);
+    });
+    auto *side = new QVBoxLayout;
+    for (QPushButton *button : {moveUp, moveDown, addSeparator, removeSeparator, defaults})
+        side->addWidget(button);
+    side->addStretch();
+    auto *row = new QHBoxLayout;
+    row->addWidget(m_toolbarButtons, 1);
+    row->addLayout(side);
+    buttonsLayout->addLayout(row);
+    auto *note = new QLabel(tr("Settings and Quit always come last, in a group of their own."));
+    note->setWordWrap(true);
+    note->setForegroundRole(QPalette::PlaceholderText); // secondary, but still read by screen readers
+    buttonsLayout->addWidget(note);
+    layout->addWidget(buttonsBox, 1);
+    return page;
+}
+
+QListWidgetItem *SettingsDialog::separatorItem() const
+{
+    //: In the list of the toolbar's buttons: the line between two groups of buttons.
+    auto *item = new QListWidgetItem(tr("Separator"));
+    item->setData(kKeyRole, QString(Settings::kToolbarSeparator));
+    item->setFlags((item->flags() | Qt::ItemIsDragEnabled) & ~(Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable));
+    QFont font = item->font();
+    font.setItalic(true);
+    item->setFont(font);
+    return item;
+}
+
+void SettingsDialog::fillToolbarButtons(const QStringList &buttons)
+{
+    // The chosen buttons first, in their order with their separators, then every other command the
+    // toolbar can have, in the command table's order; then the last group below its line.
+    const QColor ink = m_toolbarButtons->palette().color(QPalette::Text);
+    const QStringList last = Settings::finalToolbarGroup();
+    m_toolbarButtons->clear();
+    const auto add = [this, &ink](const ShortcutCommand &command, bool chosen, bool fixed) {
+        auto *item = new QListWidgetItem(glyphIcon(*command.glyph, ink), command.buttonName);
+        item->setData(kKeyRole, command.key);
+        item->setData(kFixedRole, fixed);
+        const Qt::ItemFlags flags = item->flags() | Qt::ItemIsUserCheckable;
+        item->setFlags((fixed ? flags & ~Qt::ItemIsDragEnabled : flags | Qt::ItemIsDragEnabled) & ~Qt::ItemIsDropEnabled);
+        item->setCheckState(chosen ? Qt::Checked : Qt::Unchecked);
+        m_toolbarButtons->addItem(item);
+    };
+    const QStringList shown = Settings::normalizedToolbar(buttons);
+    for (const QString &key : shown) {
+        if (last.contains(key))
+            continue;
+        if (key == Settings::kToolbarSeparator) {
+            m_toolbarButtons->addItem(separatorItem());
+            continue;
+        }
+        for (const ShortcutCommand &command : std::as_const(m_commands))
+            if (command.key == key && command.glyph)
+                add(command, true, false);
+    }
+    // normalizedToolbar() put a separator before the last group: it is the fixed line below.
+    if (m_toolbarButtons->count() > 0 && isSeparator(m_toolbarButtons->item(m_toolbarButtons->count() - 1)))
+        delete m_toolbarButtons->takeItem(m_toolbarButtons->count() - 1);
+    for (const ShortcutCommand &command : std::as_const(m_commands))
+        if (command.glyph && !shown.contains(command.key) && !last.contains(command.key))
+            add(command, false, false);
+    //: In the list of the toolbar's buttons: the line above Settings and Quit, the group that always comes last.
+    auto *line = new QListWidgetItem(tr("Separator (always)"));
+    line->setData(kFixedRole, true);
+    line->setFlags(Qt::ItemIsEnabled); // neither chosen nor moved
+    QFont font = line->font();
+    font.setItalic(true);
+    line->setFont(font);
+    m_toolbarButtons->addItem(line);
+    for (const QString &key : last)
+        for (const ShortcutCommand &command : std::as_const(m_commands))
+            if (command.key == key && command.glyph)
+                add(command, shown.contains(key), true);
+    updateApplyButton();
+}
+
+QStringList SettingsDialog::toolbarButtonsShown() const
+{
+    QStringList buttons;
+    for (int i = 0; i < m_toolbarButtons->count(); ++i) {
+        const QListWidgetItem *item = m_toolbarButtons->item(i);
+        if (isSeparator(item) || item->checkState() == Qt::Checked)
+            buttons << item->data(kKeyRole).toString();
+    }
+    return Settings::normalizedToolbar(buttons);
+}
+
+void SettingsDialog::moveToolbarButton(int delta)
+{
+    const int row = m_toolbarButtons->currentRow();
+    const int target = row + delta;
+    // The last group and its line stay where they are, and nothing moves into it.
+    if (row < 0 || target < 0 || target >= finalLine(m_toolbarButtons))
+        return;
+    QListWidgetItem *item = m_toolbarButtons->takeItem(row);
+    m_toolbarButtons->insertItem(target, item);
+    m_toolbarButtons->setCurrentRow(target);
+}

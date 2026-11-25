@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Dosya</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGB’ye kırpıldı)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (kayan nokta)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bit)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Parlaklık</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Piksel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Bir renk almak için görüntüye tıklayın.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -246,6 +289,32 @@
         <translation>Beyaz</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Renkler</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Parlaklık</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Yok</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Bindirmeyi göster:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Araç çubuğu</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Ara:</translation>
     </message>
@@ -256,6 +325,10 @@
     <message>
         <source>Background:</source>
         <translation>Arka plan:</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Dil ve metin</translation>
     </message>
     <message>
         <source>Small</source>
@@ -277,12 +350,24 @@
         <translation>Yazı tipi boyutu:</translation>
     </message>
     <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Saydam alanların arkasında dama deseni göster</translation>
+        <source>Startup and files</source>
+        <translation>Başlangıç ve dosyalar</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Başlangıçta karşılama ekranını göster</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Görüntünün üzerinde</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
         <translation>Pencere boyutunu ve konumunu hatırla</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Renkler</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -311,6 +396,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Pencereden küçük görüntüleri büyüt</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Pencere</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -354,20 +445,82 @@
         <translation>Başlık çubuğu:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Hareketsiz işaretçiyi şu süreden sonra gizle:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Paneller, bindirme, galeri, araç çubukları ve yan düğmeler</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Metin ve simge opaklığı:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Fare işaretçisini hareketsizken otomatik gizle</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Otomatik gizlenmek üzere ayarlanan her şey için: çubuklar, galeri, bindirme, panel ve fare işaretçisi.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Öğeleri şu süreden sonra otomatik gizle:</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Pencere</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Bilgi paneli</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histogram:</translation>
+    </message>
+    <message>
         <source>Time per image:</source>
         <translation>Görüntü başına süre:</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>İşaretçi hareketsizken araç çubuğunu gizle</translation>
+        <source>Show the toolbar</source>
+        <translation>Araç çubuğunu göster</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Adları düğmelerin altında göster</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Araç çubuğunu otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Düğmeler</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Ayırıcı ekle</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Ayırıcıyı kaldır</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Varsayılan düğmeler</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Ayarlar ve Çık her zaman sonda, kendi gruplarında yer alır.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Ayırıcı (her zaman)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Ayırıcı</translation>
     </message>
     <message>
         <source>Small</source>
@@ -414,6 +567,26 @@
         <translation>Vurgu Rengi</translation>
     </message>
     <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Bilgi panelini otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Bilgi bindirmesini otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Slayt gösterisi araç çubuğunu otomatik gizle</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Görüntü bilgilerini araç ipucunda göster</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Galeriyi otomatik gizle</translation>
+    </message>
+    <message>
         <source>Search extensions, formats and decoders</source>
         <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
         <translation>Uzantı, biçim ve kod çözücülerde ara</translation>
@@ -434,10 +607,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Büyütme:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Kırpma veya ton eşleme nedeniyle değişen pikselleri vurgula (macenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -469,19 +638,6 @@
         <translation>İşaretçi üstteyken</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Hiçbir zaman</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Tam ekranda:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Pencerede:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Alanlar</translation>
     </message>
@@ -511,10 +667,6 @@
         <translation>Arka plan opaklığı:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Metin opaklığı:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Metne anahat ekle</translation>
     </message>
@@ -522,10 +674,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> sn</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Şu süreden sonra gizle:</translation>
     </message>
     <message>
         <source>Information</source>
@@ -613,10 +761,6 @@
         <translation>Ekran çıkışı:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Ekranı aşan HDR görüntülere ton eşleme uygula (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Renk &amp;&amp; HDR</translation>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Slayt gösterisi (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Araç çubuğu (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Saydam alanların arkasında dama deseni göster (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Ekranı aşan HDR görüntülere ton eşleme uygula, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Kırpma veya ton eşleme nedeniyle değişen pikselleri macenta ile vurgula (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -792,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Yönelim</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Renkler</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Parlaklık</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Yok</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
@@ -1075,12 +1259,16 @@
         <translation>Galeri</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Saat yönünde döndür</translation>
+        <source>Toolbar</source>
+        <translation>Araç çubuğu</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Saat yönünün tersine döndür</translation>
+        <source>Rotate Right</source>
+        <translation>Sağa döndür</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Sola döndür</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1089,6 +1277,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Dikey çevir</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Renk Seçici</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1144,6 +1336,26 @@
     <message>
         <source>Open With</source>
         <translation>Birlikte aç</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Durdur</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Oynat</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Diğer</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Slayt gösterisi duraklatıldı</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Kopyala</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Kopyalandı: %1</translation>
     </message>
 </context>
 </TS>

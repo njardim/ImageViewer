@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Archivo</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (recortado a sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (coma flotante)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bits)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Luminancia</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Píxel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Haga clic en la imagen para tomar un color.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>Blanco</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Colores</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Luminancia</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Mostrar la superposición:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Barra de herramientas</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Personalizado…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>Confirmar antes de mover una imagen a la Papelera</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Mostrar un fondo de cuadros detrás de las áreas transparentes</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>Cuando el puntero está en la parte superior</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Nunca</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>En pantalla completa:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>En una ventana:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Campos</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>Opacidad del fondo:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opacidad del texto:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Añadir contorno al texto</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Idioma y texto</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>Tamaño de letra:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>Inicio y archivos</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Mostrar la pantalla de bienvenida al iniciar</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Sobre la imagen</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Ajustar a la ventana</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Colores</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Ampliar las imágenes más pequeñas que la ventana</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Ventana</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>Barra de título:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ocultar el puntero inmóvil después de:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Los paneles, la superposición, la galería, las barras de herramientas y los botones laterales</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opacidad del texto y los iconos:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Ocultar automáticamente el puntero del ratón mientras esté quieto</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Para todo lo que se oculta automáticamente: las barras, la galería, la superposición, el panel y el puntero del ratón.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Ocultar elementos automáticamente tras:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>Panel de información</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histograma:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>Superposición en la parte superior</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Ocultar después de:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Aspecto del panel y de la superposición</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Ocultar automáticamente el panel de información</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Ocultar automáticamente la superposición de información</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>Hacer clic en el lado izquierdo o derecho de la ventana para ir a la imagen anterior o siguiente</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Ocultar la barra de herramientas mientras el puntero esté quieto</translation>
+        <source>Show the toolbar</source>
+        <translation>Mostrar la barra de herramientas</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Mostrar los nombres bajo los botones</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Ocultar automáticamente la barra de herramientas</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Botones</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Añadir separador</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Quitar separador</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Botones predeterminados</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Configuración y Salir van siempre al final, en un grupo propio.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Separador (siempre)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Separador</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>Iniciar la presentación en pantalla completa</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Resaltar los píxeles alterados por recorte o mapeo de tonos (magenta)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Ocultar automáticamente la barra de la presentación</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Mostrar la información de la imagen en la información sobre herramientas</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Ocultar automáticamente la galería</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>Salida de pantalla:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Aplicar mapeo de tonos a las imágenes HDR que superan la pantalla (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Presentación (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Barra de herramientas (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Mostrar un fondo de cuadros detrás de las áreas transparentes (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Aplicar mapeo de tonos a las imágenes HDR que superan la pantalla, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Resaltar en magenta los píxeles alterados por recorte o mapeo de tonos (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>recorte por encima de %1 nits (mapeo de tonos desactivado)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Colores</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Luminancia</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histograma</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>exposición %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>Galería</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Girar en sentido horario</translation>
+        <source>Toolbar</source>
+        <translation>Barra de herramientas</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Girar en sentido antihorario</translation>
+        <source>Rotate Right</source>
+        <translation>Girar a la derecha</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Girar a la izquierda</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Voltear verticalmente</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Selector de color</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>Abrir con</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Detener</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Reanudar</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Más</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Presentación en pausa</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Copiar</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Copiado: %1</translation>
     </message>
 </context>
 </TS>

@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Fil</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (beskuret till sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (flyttal)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bitar)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Luminans</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Pixel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Klicka i bilden för att plocka en färg.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -246,6 +289,32 @@
         <translation>Vit</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Färger</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Luminans</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Inget</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Visa överlagringen:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Verktygsfält</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Sök:</translation>
     </message>
@@ -256,6 +325,10 @@
     <message>
         <source>Background:</source>
         <translation>Bakgrund:</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Språk och text</translation>
     </message>
     <message>
         <source>Small</source>
@@ -277,12 +350,24 @@
         <translation>Teckenstorlek:</translation>
     </message>
     <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Visa ett rutmönster bakom genomskinliga områden</translation>
+        <source>Startup and files</source>
+        <translation>Start och filer</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Visa välkomstskärmen vid start</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Över bilden</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
         <translation>Kom ihåg fönstrets storlek och position</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Färger</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -311,6 +396,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Förstora bilder som är mindre än fönstret</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Fönster</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -354,20 +445,82 @@
         <translation>Namnlist:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Dölj stillastående pekare efter:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panelerna, överlagringen, galleriet, verktygsfälten och sidoknapparna</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opacitet för text och ikoner:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Dölj muspekaren automatiskt medan den står still</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>För allt som döljs automatiskt: fälten, galleriet, överlagringen, panelen och muspekaren.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Dölj element automatiskt efter:</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Fönster</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Informationspanel</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histogram:</translation>
+    </message>
+    <message>
         <source>Time per image:</source>
         <translation>Tid per bild:</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Dölj verktygsfältet medan pekaren står still</translation>
+        <source>Show the toolbar</source>
+        <translation>Visa verktygsfältet</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Visa namnen under knapparna</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Dölj verktygsfältet automatiskt</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Knappar</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Lägg till avgränsare</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Ta bort avgränsare</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Standardknappar</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Inställningar och Avsluta kommer alltid sist, i en egen grupp.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Avgränsare (alltid)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Avgränsare</translation>
     </message>
     <message>
         <source>Small</source>
@@ -414,6 +567,26 @@
         <translation>Markeringsfärg</translation>
     </message>
     <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Dölj informationspanelen automatiskt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Dölj informationsöverlagringen automatiskt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Dölj bildspelets verktygsfält automatiskt</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Visa bildens information i knappbeskrivning</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Dölj galleriet automatiskt</translation>
+    </message>
+    <message>
         <source>Search extensions, formats and decoders</source>
         <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
         <translation>Sök filändelser, format och avkodare</translation>
@@ -434,10 +607,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Förstoring:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Markera pixlar som ändrats genom klippning eller tonmappning (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -469,19 +638,6 @@
         <translation>När pekaren är högst upp</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Aldrig</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>I helskärmsläge:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>I ett fönster:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Fält</translation>
     </message>
@@ -511,10 +667,6 @@
         <translation>Bakgrundens opacitet:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Textens opacitet:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Ge texten en kontur</translation>
     </message>
@@ -522,10 +674,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Dölj efter:</translation>
     </message>
     <message>
         <source>Information</source>
@@ -613,10 +761,6 @@
         <translation>Skärmutdata:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Använd tonmappning på HDR-bilder som överstiger skärmens förmåga (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Färg &amp;&amp; HDR</translation>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Bildspel (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Verktygsfält (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Visa ett rutmönster bakom genomskinliga områden (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Använd tonmappning på HDR-bilder som överstiger skärmens förmåga, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Markera pixlar som ändrats genom klippning eller tonmappning i magenta (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -792,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Orientering</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Färger</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Luminans</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Inget</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
@@ -1075,12 +1259,16 @@
         <translation>Galleri</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Rotera medurs</translation>
+        <source>Toolbar</source>
+        <translation>Verktygsfält</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Rotera moturs</translation>
+        <source>Rotate Right</source>
+        <translation>Rotera åt höger</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Rotera åt vänster</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1089,6 +1277,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Spegelvänd vertikalt</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Färgväljare</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1144,6 +1336,26 @@
     <message>
         <source>Open With</source>
         <translation>Öppna med</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Stoppa</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Spela</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Mer</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Bildspelet pausat</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Kopierat: %1</translation>
     </message>
 </context>
 </TS>

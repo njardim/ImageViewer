@@ -9,7 +9,7 @@ set(VCPKG_BUILD_TYPE release) # the application is built as Release only
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL "https://github.com/linebender/resvg"
-    REF 68b14c4c3bccdb60344c777406486b54c36ec1a4 # v0.48.1
+    REF 5bdbae64eefadc4bf0caa56dcf91702037929086 # v0.50.0
     FETCH_REF "v${VERSION}"
     HEAD_REF main
     PATCHES # ours, each removed once a release holds it (docs/PLAN.md section 15)

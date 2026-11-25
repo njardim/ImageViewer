@@ -177,6 +177,14 @@ void SettingsDialog::refreshShortcutTexts()
     m_galleryBox->setTitle(tr("Gallery (%1)").arg(keyName("Gallery")));
     //: %1: the key that starts and stops the slideshow, e.g. "S".
     m_slideshowBox->setTitle(tr("Slideshow (%1)").arg(keyName("Slideshow")));
+    //: %1: the key that shows and hides the toolbar, e.g. "T".
+    m_toolbarBox->setTitle(tr("Toolbar (%1)").arg(keyName("Toolbar")));
+    //: %1: the keyboard shortcut, e.g. "B".
+    m_checkerboard->setText(tr("Show a checkerboard behind transparent areas (%1)").arg(keyName("Checkerboard")));
+    //: %1: the keyboard shortcut, e.g. "Ctrl+T".
+    m_toneMap->setText(tr("Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)").arg(keyName("ToneMap")));
+    //: %1: the keyboard shortcut, e.g. "C".
+    m_clipWarning->setText(tr("Highlight pixels altered by clipping or tone mapping in magenta (%1)").arg(keyName("ClipWarning")));
     //: %1: the keyboard shortcut, e.g. "Z". The zoom of the image shown stays for the next ones.
     m_lockZoom->setText(tr("Keep the zoom for the next images (%1)").arg(keyName("LockZoom")));
 }

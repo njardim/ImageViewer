@@ -129,61 +129,70 @@ void SettingsDialog::buildUi()
     tabs->setUsesScrollButtons(false); // every tab in sight: the dialog widens to fit them
     m_tabs = tabs;
 
-    // General
+    // General, in two groups (the owner, D-113, D-114): the language and the text; startup and files.
     auto *general = new QWidget;
-    auto *generalForm = new QFormLayout(general);
+    auto *generalLayout = new QVBoxLayout(general);
+    auto *languageBox = new QGroupBox(tr("Language and text"));
+    auto *languageForm = new QFormLayout(languageBox);
     m_language = new QComboBox;
     m_language->addItem(tr("System default"), QString());
     for (const UiLanguage &language : uiLanguages())
         m_language->addItem(language.nativeName, language.code);
-    generalForm->addRow(tr("Language:"), m_language);
+    languageForm->addRow(tr("Language:"), m_language);
     auto *translationNote = new QLabel(tr("Languages other than English are machine translations "
                                           "awaiting review by native speakers."));
     translationNote->setWordWrap(true);
     translationNote->setForegroundRole(QPalette::PlaceholderText); // secondary, but still read by screen readers
-    generalForm->addRow(QString(), translationNote);
+    languageForm->addRow(QString(), translationNote);
     m_fontSize = new QComboBox; // D-85: the system's size, then 2 and 4 pixels more
     m_fontSize->addItem(tr("Small", "font size"), int(FontSize::Small));
     m_fontSize->addItem(tr("Medium", "font size"), int(FontSize::Medium));
     m_fontSize->addItem(tr("Large", "font size"), int(FontSize::Large));
-    generalForm->addRow(tr("Font size:"), m_fontSize);
-    m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
-    generalForm->addRow(m_confirmTrash);
+    languageForm->addRow(tr("Font size:"), m_fontSize);
+    generalLayout->addWidget(languageBox);
+    auto *startupBox = new QGroupBox(tr("Startup and files"));
+    auto *startupForm = new QFormLayout(startupBox);
+    m_welcomeScreen = new QCheckBox(tr("Show the welcome screen at startup"));
+    startupForm->addRow(m_welcomeScreen);
     m_reopenLast = new QCheckBox(tr("Reopen the last image at startup"));
-    generalForm->addRow(m_reopenLast);
+    startupForm->addRow(m_reopenLast);
+    m_confirmTrash = new QCheckBox(tr("Confirm before moving an image to the trash"));
+    startupForm->addRow(m_confirmTrash);
+    generalLayout->addWidget(startupBox);
+    generalLayout->addStretch();
     tabs->addTab(general, tr("General"));
 
-    // Window
+    // Window, in four groups (the owner, D-114, D-116): the colours; the window (after the colours, so
+    // that the tab's name and the group's are not one above the other); the zoom; what is drawn over
+    // the image, its opacity and its hiding, the one place for every element.
     auto *window = new QWidget;
-    auto *windowForm = new QFormLayout(window);
+    auto *windowLayout = new QVBoxLayout(window);
+    auto *colorsBox = new QGroupBox(tr("Colors"));
+    auto *colorsForm = new QFormLayout(colorsBox);
     const QString backgroundNames[] = {tr("Black"), tr("Dark gray"), tr("Gray"), tr("Light gray"), tr("White")};
-    windowForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
+    colorsForm->addRow(tr("Background:"), colorRow(m_background, kBackgroundPresets, backgroundNames,
                                                    int(std::size(kBackgroundPresets)), tr("Background Color")));
-    m_checkerboard = new QCheckBox(tr("Show a checkerboard behind transparent areas"));
-    windowForm->addRow(m_checkerboard);
+    // The interface's accent over the image: the gallery's highlight, a toolbar's button (D-112, D-114).
+    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
+    colorsForm->addRow(tr("Highlight color:"), colorRow(m_highlight, kHighlightPresets, highlightNames,
+                                                        int(std::size(kHighlightPresets)), tr("Highlight Color")));
+    m_checkerboard = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
+    colorsForm->addRow(m_checkerboard);
+    windowLayout->addWidget(colorsBox);
+    //: The group of the window's own options: its size, its position, its title bar.
+    auto *frameBox = new QGroupBox(tr("Window", "settings group"));
+    auto *frameForm = new QFormLayout(frameBox);
     m_rememberGeometry = new QCheckBox(tr("Remember the window size and position"));
-    windowForm->addRow(m_rememberGeometry);
-    // D-51: the zoom of a new image, the window's size, the title bar.
-    m_fitMode = new QComboBox;
-    m_fitMode->addItem(tr("Fit to the window"), int(FitMode::Window));
-    m_fitMode->addItem(tr("Fit to the width"), int(FitMode::Width));
-    m_fitMode->addItem(tr("Fit to the height"), int(FitMode::Height));
-    m_fitMode->addItem(tr("Fill the window"), int(FitMode::Fill));
-    m_fitMode->addItem(tr("Actual size (100 %)"), int(FitMode::Actual));
-    windowForm->addRow(tr("Zoom of a new image:"), m_fitMode);
-    m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
-    windowForm->addRow(m_enlargeSmall);
-    m_lockZoom = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
-    windowForm->addRow(m_lockZoom);
+    frameForm->addRow(m_rememberGeometry);
     m_windowFit = new QComboBox;
     m_windowFit->addItem(tr("Keep its size"), int(WindowFit::Never));
     m_windowFit->addItem(tr("Fit it to the first image"), int(WindowFit::FirstImage));
     m_windowFit->addItem(tr("Fit it to every image"), int(WindowFit::EveryImage));
-    windowForm->addRow(tr("Window size:"), m_windowFit);
+    frameForm->addRow(tr("Window size:"), m_windowFit);
     m_windowFitPercent = sizeBox(Settings::kMinWindowFitPercent, Settings::kMaxWindowFitPercent,
                                  //: Unit after a percentage of the screen's size; keep the leading space if your language separates it.
                                  tr(" % of the screen"));
-    windowForm->addRow(tr("At most:"), m_windowFitPercent);
+    frameForm->addRow(tr("At most:"), m_windowFitPercent);
     connect(m_windowFit, &QComboBox::currentIndexChanged, this,
             [this] { m_windowFitPercent->setEnabled(WindowFit(m_windowFit->currentData().toInt()) != WindowFit::Never); });
     m_titleMode = new QComboBox;
@@ -191,33 +200,67 @@ void SettingsDialog::buildUi()
     m_titleMode->addItem(tr("Name, position and dimensions"), int(TitleMode::Details));
     m_titleMode->addItem(tr("Name, position, dimensions, file size and zoom"), int(TitleMode::Everything));
     m_titleMode->addItem(tr("The same as the overlay at the top"), int(TitleMode::Overlay));
-    windowForm->addRow(tr("Title bar:"), m_titleMode);
-    m_pointerHide = secondsBox(0.0, Settings::kMaxPointerHideMs / 1000.0);
-    //: Shown instead of 0 s: the pointer never hides by itself.
-    m_pointerHide->setSpecialValueText(tr("Never"));
-    windowForm->addRow(tr("Hide a still pointer after:"), m_pointerHide);
+    frameForm->addRow(tr("Title bar:"), m_titleMode);
+    windowLayout->addWidget(frameBox);
+    // D-51: the zoom of a new image.
+    auto *zoomBox = new QGroupBox(QStringLiteral("Zoom")); // a technical name, never translated (D-59)
+    auto *zoomForm = new QFormLayout(zoomBox);
+    m_fitMode = new QComboBox;
+    m_fitMode->addItem(tr("Fit to the window"), int(FitMode::Window));
+    m_fitMode->addItem(tr("Fit to the width"), int(FitMode::Width));
+    m_fitMode->addItem(tr("Fit to the height"), int(FitMode::Height));
+    m_fitMode->addItem(tr("Fill the window"), int(FitMode::Fill));
+    m_fitMode->addItem(tr("Actual size (100 %)"), int(FitMode::Actual));
+    zoomForm->addRow(tr("Zoom of a new image:"), m_fitMode);
+    m_enlargeSmall = new QCheckBox(tr("Enlarge images smaller than the window"));
+    zoomForm->addRow(m_enlargeSmall);
+    m_lockZoom = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
+    zoomForm->addRow(m_lockZoom);
+    windowLayout->addWidget(zoomBox);
+    // One opacity for every background and one for every text and icon over the image, and one
+    // delay for everything that hides while the pointer is still (D-113, D-114).
+    auto *overImageBox = new QGroupBox(tr("Over the image"));
+    auto *overImageForm = new QFormLayout(overImageBox);
+    m_backgroundOpacity = sizeBox(0, 100, percent());
+    m_backgroundOpacity->setToolTip(tr("The panels, the overlay, the gallery, the toolbars and the side buttons"));
+    overImageForm->addRow(tr("Background opacity:"), m_backgroundOpacity);
+    m_textOpacity = sizeBox(Settings::kMinTextOpacity, 100, percent());
+    overImageForm->addRow(tr("Text and icon opacity:"), m_textOpacity);
+    m_pointerAutoHide = new QCheckBox(tr("Auto-hide the mouse pointer while it is still"));
+    overImageForm->addRow(m_pointerAutoHide);
+    m_autoHide = secondsBox(Settings::kMinAutoHideMs / 1000.0, Settings::kMaxAutoHideMs / 1000.0);
+    m_autoHide->setToolTip(tr("For everything set to auto-hide: the bars, the gallery, the overlay, the panel "
+                              "and the mouse pointer."));
+    overImageForm->addRow(tr("Auto-hide elements after:"), m_autoHide);
+    windowLayout->addWidget(overImageBox);
+    windowLayout->addStretch();
     tabs->addTab(window, tr("Window"));
 
-    // Information (D-34): the detailed panel and the compact overlay at the top.
+    // Information (D-34): the detailed panel and the compact overlay at the top, a group each.
     auto *information = new QWidget;
     auto *informationLayout = new QVBoxLayout(information);
+    auto *panelBox = new QGroupBox(tr("Information panel"));
+    auto *panelForm = new QFormLayout(panelBox);
     m_showInfo = new QCheckBox; // its text names the command's shortcut (updateShortcutLabels)
-    informationLayout->addWidget(m_showInfo);
-    m_showOverlay = new QCheckBox; // likewise
-    informationLayout->addWidget(m_showOverlay);
+    panelForm->addRow(m_showInfo);
+    m_histogram = new QComboBox; // at the top of the panel (D-115)
+    //: The information panel's histogram: the red, green and blue channels.
+    m_histogram->addItem(tr("Colors", "histogram"), int(HistogramMode::Colors));
+    //: The information panel's histogram: the luminance alone.
+    m_histogram->addItem(tr("Luminance", "histogram"), int(HistogramMode::Luminance));
+    //: The information panel's histogram: not shown.
+    m_histogram->addItem(tr("None", "histogram"), int(HistogramMode::Off));
+    panelForm->addRow(tr("Histogram:"), m_histogram);
+    informationLayout->addWidget(panelBox);
     auto *overlayBox = new QGroupBox(tr("Overlay at the top"));
     auto *overlayForm = new QFormLayout(overlayBox);
-    const auto fillVisibility = [](QComboBox *combo) {
-        combo->addItem(tr("Always"), int(OverlayVisibility::Always));
-        combo->addItem(tr("When the pointer is at the top"), int(OverlayVisibility::Hover));
-        combo->addItem(tr("Never"), int(OverlayVisibility::Hidden));
-    };
-    m_overlayFullScreen = new QComboBox;
-    fillVisibility(m_overlayFullScreen);
-    overlayForm->addRow(tr("In full screen:"), m_overlayFullScreen);
-    m_overlayWindow = new QComboBox;
-    fillVisibility(m_overlayWindow);
-    overlayForm->addRow(tr("In a window:"), m_overlayWindow);
+    m_showOverlay = new QCheckBox; // its text names the command's shortcut (updateShortcutLabels)
+    overlayForm->addRow(m_showOverlay);
+    // One choice for a window and full screen; never is the box above, and I (the owner, D-113).
+    m_overlayVisibility = new QComboBox;
+    m_overlayVisibility->addItem(tr("Always"), int(OverlayVisibility::Always));
+    m_overlayVisibility->addItem(tr("When the pointer is at the top"), int(OverlayVisibility::Hover));
+    overlayForm->addRow(tr("Display the overlay:"), m_overlayVisibility);
     m_overlayFields = new QListWidget;
     m_overlayFields->setDragDropMode(QAbstractItemView::InternalMove);
     m_overlayFields->setDefaultDropAction(Qt::MoveAction);
@@ -235,35 +278,26 @@ void SettingsDialog::buildUi()
     fieldsRow->addWidget(m_overlayFields, 1);
     fieldsRow->addLayout(moveButtons);
     overlayForm->addRow(tr("Fields:"), fieldsRow);
-    m_overlayDelay = secondsBox(Settings::kMinOverlayHideDelayMs / 1000.0, Settings::kMaxOverlayHideDelayMs / 1000.0);
-    overlayForm->addRow(tr("Hide after:"), m_overlayDelay);
     informationLayout->addWidget(overlayBox);
     // One look for both panels (D-49).
     auto *styleBox = new QGroupBox(tr("Appearance of the panel and the overlay"));
     auto *styleForm = new QFormLayout(styleBox);
-    m_overlayBackground = sizeBox(0, 100, percent());
-    styleForm->addRow(tr("Background opacity:"), m_overlayBackground);
-    m_overlayText = sizeBox(Settings::kMinOverlayTextOpacity, 100, percent());
-    styleForm->addRow(tr("Text opacity:"), m_overlayText);
     m_overlayOutline = new QCheckBox(tr("Outline the text"));
     styleForm->addRow(m_overlayOutline);
+    m_panelAutoHide = new QCheckBox(tr("Auto-hide the information panel"));
+    styleForm->addRow(m_panelAutoHide);
+    m_overlayAutoHide = new QCheckBox(tr("Auto-hide the information overlay"));
+    styleForm->addRow(m_overlayAutoHide);
     informationLayout->addWidget(styleBox);
     informationLayout->addStretch();
     tabs->addTab(information, tr("Information"));
 
-    // Navigation: the loop for everything that steps through the folder, then a group each for
-    // moving between images, the slideshow and the gallery.
+    // Navigation: a group each for moving between images (the loop for everything that steps through
+    // the folder among them, D-117), the slideshow and the gallery.
     auto *navigation = new QWidget;
     auto *navigationLayout = new QVBoxLayout(navigation);
-    m_loop = new QCheckBox(tr("After the last image, continue with the first"));
-    navigationLayout->addWidget(m_loop);
     auto *imagesBox = new QGroupBox(tr("Images"));
     auto *imagesForm = new QFormLayout(imagesBox);
-    m_sideZones = new QCheckBox(tr("Click the left or right side of the window for the previous or next image"));
-    imagesForm->addRow(m_sideZones);
-    m_sideZoneWidth = sizeBox(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth, pixels());
-    imagesForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
-    connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
     m_sortBy = new QComboBox;
     m_sortBy->addItem(tr("Name"), int(FolderSort::Name));
     m_sortBy->addItem(tr("Date modified"), int(FolderSort::Modified));
@@ -274,6 +308,14 @@ void SettingsDialog::buildUi()
     sortRow->addWidget(m_sortDescending);
     sortRow->addStretch();
     imagesForm->addRow(tr("Sort images by:"), sortRow);
+    m_sideZones = new QCheckBox(tr("Click the left or right side of the window for the previous or next image"));
+    imagesForm->addRow(m_sideZones);
+    m_sideZoneWidth = sizeBox(Settings::kMinSideZoneWidth, Settings::kMaxSideZoneWidth, pixels());
+    imagesForm->addRow(tr("Width of each side:"), m_sideZoneWidth);
+    connect(m_sideZones, &QCheckBox::toggled, m_sideZoneWidth, &QWidget::setEnabled);
+    // Before the last row (the owner, D-117): everything that steps through the folder follows it.
+    m_loop = new QCheckBox(tr("After the last image, continue with the first"));
+    imagesForm->addRow(m_loop);
     m_preload = new QCheckBox(tr("Load the next and previous images in advance"));
     imagesForm->addRow(m_preload);
     navigationLayout->addWidget(imagesBox);
@@ -283,11 +325,8 @@ void SettingsDialog::buildUi()
     slideshowForm->addRow(m_slideshowFullScreen);
     m_slideshowSeconds = secondsBox(Settings::kMinSlideshowSeconds, Settings::kMaxSlideshowSeconds);
     slideshowForm->addRow(tr("Time per image:"), m_slideshowSeconds);
-    m_toolbarAutoHide = new QCheckBox(tr("Hide the toolbar while the pointer is still"));
+    m_toolbarAutoHide = new QCheckBox(tr("Auto-hide the slideshow toolbar"));
     slideshowForm->addRow(m_toolbarAutoHide);
-    m_toolbarHide = secondsBox(Settings::kMinToolbarHideMs / 1000.0, Settings::kMaxToolbarHideMs / 1000.0);
-    slideshowForm->addRow(tr("Hide after:"), m_toolbarHide);
-    connect(m_toolbarAutoHide, &QCheckBox::toggled, m_toolbarHide, &QWidget::setEnabled);
     navigationLayout->addWidget(m_slideshowBox);
     // The gallery (D-60, D-61).
     m_galleryBox = new QGroupBox; // its title names the command's key (refreshShortcutTexts)
@@ -304,14 +343,16 @@ void SettingsDialog::buildUi()
     m_galleryEnlargement = sizeBox(Settings::kMinGalleryEnlargement, Settings::kMaxGalleryEnlargement, pixels());
     galleryForm->addRow(tr("Enlargement:"), m_galleryEnlargement);
     connect(m_galleryZoom, &QCheckBox::toggled, m_galleryEnlargement, &QWidget::setEnabled);
-    const QString highlightNames[] = {tr("Ruby"), tr("Emerald"), tr("Sapphire"), tr("Gold"), tr("Diamond")};
-    galleryForm->addRow(tr("Highlight color:"), colorRow(m_galleryHighlight, kHighlightPresets, highlightNames,
-                                                         int(std::size(kHighlightPresets)), tr("Highlight Color")));
-    m_galleryOpacity = sizeBox(0, 100, percent());
-    galleryForm->addRow(tr("Background opacity:"), m_galleryOpacity);
+    m_galleryTooltips = new QCheckBox(tr("Show the image's tooltip information"));
+    galleryForm->addRow(m_galleryTooltips);
+    m_galleryAutoHide = new QCheckBox(tr("Auto-hide the gallery"));
+    galleryForm->addRow(m_galleryAutoHide);
+
     navigationLayout->addWidget(m_galleryBox);
     navigationLayout->addStretch();
     tabs->addTab(navigation, tr("Navigation"));
+    // After Navigation (the owner, 2026-11-18).
+    tabs->addTab(buildToolbarTab(), tr("Toolbar"));
 
     // Color & HDR
     auto *color = new QWidget;
@@ -322,9 +363,9 @@ void SettingsDialog::buildUi()
     m_output->addItem(tr("SDR (sRGB)"), int(Renderer::OutputPreference::Sdr));
     m_output->addItem(tr("HDR10 (PQ)"), int(Renderer::OutputPreference::Hdr10));
     colorForm->addRow(tr("Display output:"), m_output);
-    m_toneMap = new QCheckBox(tr("Tone map HDR images that exceed the display (ITU-R BT.2390)"));
+    m_toneMap = new QCheckBox; // its text names the command's shortcut (refreshShortcutTexts)
     colorForm->addRow(m_toneMap);
-    m_clipWarning = new QCheckBox(tr("Highlight pixels altered by clipping or tone mapping (magenta)"));
+    m_clipWarning = new QCheckBox; // likewise
     colorForm->addRow(m_clipWarning);
     //: "&&" is shown as a single "&".
     tabs->addTab(color, tr("Color && HDR"));
@@ -438,6 +479,12 @@ void SettingsDialog::buildUi()
     layout->addWidget(tabs);
     layout->addWidget(buttons);
 
+    // Every group's rows from the left and the top, on every system: macOS's style centres a form's
+    // rows (QFormLayout's formAlignment), which left the General tab's first group in the middle
+    // (the owner, D-117).
+    for (QFormLayout *form : findChildren<QFormLayout *>())
+        form->setFormAlignment(Qt::AlignLeft | Qt::AlignTop);
+
     // Apply is enabled while the dialog shows anything other than what the viewer uses.
     // (Every widget is the dialog's descendant only from here on, through the layout.)
     for (QAbstractButton *button : findChildren<QAbstractButton *>())
@@ -454,6 +501,11 @@ void SettingsDialog::buildUi()
     QAbstractItemModel *fields = m_overlayFields->model();
     connect(fields, &QAbstractItemModel::rowsMoved, this, &SettingsDialog::updateApplyButton);
     connect(fields, &QAbstractItemModel::rowsInserted, this, &SettingsDialog::updateApplyButton);
+    connect(m_toolbarButtons, &QListWidget::itemChanged, this, &SettingsDialog::updateApplyButton);
+    QAbstractItemModel *buttonsModel = m_toolbarButtons->model();
+    connect(buttonsModel, &QAbstractItemModel::rowsMoved, this, &SettingsDialog::updateApplyButton);
+    connect(buttonsModel, &QAbstractItemModel::rowsInserted, this, &SettingsDialog::updateApplyButton);
+    connect(buttonsModel, &QAbstractItemModel::rowsRemoved, this, &SettingsDialog::updateApplyButton);
 }
 
 void SettingsDialog::apply()
@@ -500,7 +552,7 @@ void SettingsDialog::rebuildUi()
     m_apply = nullptr; // updateApplyButton() is called while the new widgets are filled
     delete layout();
     delete m_background.group; // owned by the dialog, not by a widget
-    delete m_galleryHighlight.group;
+    delete m_highlight.group;
     qDeleteAll(findChildren<QWidget *>(Qt::FindDirectChildrenOnly));
     buildUi();
     setValues(shown);
@@ -528,6 +580,9 @@ void SettingsDialog::setValues(const Settings &settings)
     m_fontSize->setCurrentIndex(std::max(0, m_fontSize->findData(int(settings.fontSize))));
     m_confirmTrash->setChecked(settings.confirmTrash);
     m_reopenLast->setChecked(settings.reopenLastImage);
+    m_welcomeScreen->setChecked(settings.welcomeScreen);
+    m_autoHide->setValue(settings.autoHideMs / 1000.0);
+    setColor(m_highlight, settings.highlight);
     setColor(m_background, settings.background);
     m_checkerboard->setChecked(settings.checkerboard);
     m_rememberGeometry->setChecked(settings.rememberGeometry);
@@ -540,10 +595,10 @@ void SettingsDialog::setValues(const Settings &settings)
     m_titleMode->setCurrentIndex(std::max(0, m_titleMode->findData(int(settings.titleMode))));
     m_showInfo->setChecked(settings.showInfo);
     m_showOverlay->setChecked(settings.showOverlay);
-    m_overlayFullScreen->setCurrentIndex(
-        std::max(0, m_overlayFullScreen->findData(int(settings.overlayFullScreen))));
-    m_overlayWindow->setCurrentIndex(
-        std::max(0, m_overlayWindow->findData(int(settings.overlayWindow))));
+    m_overlayVisibility->setCurrentIndex(std::max(0, m_overlayVisibility->findData(int(settings.overlayVisibility))));
+    m_histogram->setCurrentIndex(std::max(0, m_histogram->findData(int(settings.histogram))));
+    m_overlayAutoHide->setChecked(settings.overlayAutoHide);
+    m_panelAutoHide->setChecked(settings.panelAutoHide);
     // The chosen fields first, in their order, then the others in their usual order.
     m_overlayFields->clear();
     QList<OverlayField> order = settings.overlayFields;
@@ -557,11 +612,10 @@ void SettingsDialog::setValues(const Settings &settings)
         item->setCheckState(settings.overlayFields.contains(field) ? Qt::Checked : Qt::Unchecked);
     }
     fitOverlayFields();
-    m_overlayBackground->setValue(settings.overlayBackgroundOpacity);
-    m_overlayText->setValue(settings.overlayTextOpacity);
+    m_backgroundOpacity->setValue(settings.backgroundOpacity);
+    m_textOpacity->setValue(settings.textOpacity);
     m_overlayOutline->setChecked(settings.overlayOutline);
-    m_overlayDelay->setValue(settings.overlayHideDelayMs / 1000.0);
-    m_pointerHide->setValue(settings.pointerHideMs / 1000.0);
+    m_pointerAutoHide->setChecked(settings.pointerAutoHide);
     m_loop->setChecked(settings.loop);
     m_sideZones->setChecked(settings.sideZones);
     m_sideZoneWidth->setValue(settings.sideZoneWidth);
@@ -574,13 +628,14 @@ void SettingsDialog::setValues(const Settings &settings)
     m_galleryThumbnailSize->setCurrentIndex(std::max(0, m_galleryThumbnailSize->findData(settings.galleryThumbnailSize)));
     m_galleryZoom->setChecked(settings.galleryZoom);
     m_galleryEnlargement->setEnabled(settings.galleryZoom);
-    m_galleryOpacity->setValue(settings.galleryOpacity);
     m_galleryEnlargement->setValue(settings.galleryEnlargement);
-    setColor(m_galleryHighlight, settings.galleryHighlight);
+    m_galleryAutoHide->setChecked(settings.galleryAutoHide);
+    m_galleryTooltips->setChecked(settings.galleryTooltips);
+    m_showToolbar->setChecked(settings.showToolbar);
+    m_toolbarNames->setChecked(settings.toolbarNames);
+    m_mainToolbarAutoHide->setChecked(settings.toolbarAutoHide);
     m_slideshowSeconds->setValue(settings.slideshowSeconds);
     m_toolbarAutoHide->setChecked(settings.slideshowToolbarAutoHide);
-    m_toolbarHide->setEnabled(settings.slideshowToolbarAutoHide);
-    m_toolbarHide->setValue(settings.slideshowToolbarHideMs / 1000.0);
     m_toneMap->setChecked(settings.toneMap);
     m_clipWarning->setChecked(settings.clipWarning);
     m_output->setCurrentIndex(std::max(0, m_output->findData(int(settings.output))));
@@ -589,6 +644,7 @@ void SettingsDialog::setValues(const Settings &settings)
         m_shortcuts.insert(command.key, settings.shortcuts.value(command.key, command.defaults));
     m_shortcutNote->clear();
     fillShortcutTable();
+    fillToolbarButtons(settings.toolbarButtons); // with m_commands, which the Shortcuts tab asked for
 }
 
 QLayout *SettingsDialog::colorRow(ColorChoice &choice, const QColor *presets, const QString *names, int count,
@@ -659,6 +715,9 @@ Settings SettingsDialog::settings() const
     s.fontSize = FontSize(m_fontSize->currentData().toInt());
     s.confirmTrash = m_confirmTrash->isChecked();
     s.reopenLastImage = m_reopenLast->isChecked();
+    s.welcomeScreen = m_welcomeScreen->isChecked();
+    s.autoHideMs = int(std::lround(m_autoHide->value() * 1000.0));
+    s.highlight = m_highlight.color;
     s.background = m_background.color;
     s.checkerboard = m_checkerboard->isChecked();
     s.rememberGeometry = m_rememberGeometry->isChecked();
@@ -668,21 +727,22 @@ Settings SettingsDialog::settings() const
     s.windowFit = WindowFit(m_windowFit->currentData().toInt());
     s.windowFitPercent = m_windowFitPercent->value();
     s.titleMode = TitleMode(m_titleMode->currentData().toInt());
-    s.pointerHideMs = int(std::lround(m_pointerHide->value() * 1000.0));
+    s.pointerAutoHide = m_pointerAutoHide->isChecked();
     s.showInfo = m_showInfo->isChecked();
     s.showOverlay = m_showOverlay->isChecked();
-    s.overlayFullScreen = OverlayVisibility(m_overlayFullScreen->currentData().toInt());
-    s.overlayWindow = OverlayVisibility(m_overlayWindow->currentData().toInt());
+    s.overlayVisibility = OverlayVisibility(m_overlayVisibility->currentData().toInt());
+    s.histogram = HistogramMode(m_histogram->currentData().toInt());
+    s.overlayAutoHide = m_overlayAutoHide->isChecked();
+    s.panelAutoHide = m_panelAutoHide->isChecked();
     s.overlayFields.clear();
     for (int i = 0; i < m_overlayFields->count(); ++i) {
         const QListWidgetItem *item = m_overlayFields->item(i);
         if (item->checkState() == Qt::Checked)
             s.overlayFields.append(OverlayField(item->data(Qt::UserRole).toInt()));
     }
-    s.overlayBackgroundOpacity = m_overlayBackground->value();
-    s.overlayTextOpacity = m_overlayText->value();
+    s.backgroundOpacity = m_backgroundOpacity->value();
+    s.textOpacity = m_textOpacity->value();
     s.overlayOutline = m_overlayOutline->isChecked();
-    s.overlayHideDelayMs = int(std::lround(m_overlayDelay->value() * 1000.0));
     s.loop = m_loop->isChecked();
     s.sideZones = m_sideZones->isChecked();
     s.sideZoneWidth = m_sideZoneWidth->value();
@@ -692,13 +752,16 @@ Settings SettingsDialog::settings() const
     s.slideshowSeconds = m_slideshowSeconds->value();
     s.slideshowFullScreen = m_slideshowFullScreen->isChecked();
     s.slideshowToolbarAutoHide = m_toolbarAutoHide->isChecked();
-    s.slideshowToolbarHideMs = int(std::lround(m_toolbarHide->value() * 1000));
     s.showGallery = m_showGallery->isChecked();
     s.galleryThumbnailSize = m_galleryThumbnailSize->currentData().toInt();
     s.galleryZoom = m_galleryZoom->isChecked();
-    s.galleryOpacity = m_galleryOpacity->value();
     s.galleryEnlargement = m_galleryEnlargement->value();
-    s.galleryHighlight = m_galleryHighlight.color;
+    s.galleryAutoHide = m_galleryAutoHide->isChecked();
+    s.galleryTooltips = m_galleryTooltips->isChecked();
+    s.showToolbar = m_showToolbar->isChecked();
+    s.toolbarNames = m_toolbarNames->isChecked();
+    s.toolbarAutoHide = m_mainToolbarAutoHide->isChecked();
+    s.toolbarButtons = toolbarButtonsShown();
     s.toneMap = m_toneMap->isChecked();
     s.clipWarning = m_clipWarning->isChecked();
     s.output = Renderer::OutputPreference(m_output->currentData().toInt());

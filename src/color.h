@@ -85,6 +85,13 @@ Matrix3 rgbToRgb(const Chromaticities &from, const Chromaticities &to);
 // Luminance of linear scRGB (BT.709 primaries).
 inline float luminance(float r, float g, float b) { return 0.2126f * r + 0.7152f * g + 0.0722f * b; }
 
+// CIE L*a*b* of linear scRGB, relative to D50 as CSS Color 4's lab() is (Bradford adaptation from
+// D65): L 100 at SDR white, beyond it for HDR values (the color picker, D-115).
+std::array<double, 3> scRgbToLab(double r, double g, double b);
+
+// The HLG OETF (BT.2100): scene light in [0, 1] to the signal.
+float hlgOetf(float e);
+
 // ITU-R BT.2390 EETF (§5.4.1) with zero black levels, evaluated in the PQ domain.
 // Maps luminance in [0, sourcePeak] to [0, targetPeak]; identity up to the knee.
 float eetfBt2390(float nits, float sourcePeakNits, float targetPeakNits);
@@ -163,6 +170,39 @@ private:
     float m_matrix[9] = {};
     float m_lumaWeights[3] = {};        // source-primaries luminance, for the HLG OOTF
     QString m_error;
+};
+
+// The inverse of Converter (D-115): linear scRGB with straight alpha back to the image's own
+// signal, as the file stores it, normalised: 0 to 1 from black to white (narrow-range codes are
+// the caller's), beyond for values outside the file's range. For the color picker's value of the
+// file and the histogram's axis. Analytic descriptors and ICC matrix/TRC profiles (RGB or gray);
+// a profile with a LUT and a CMYK source have no inverse here: valid() is false.
+class Encoder {
+public:
+    Encoder(const Descriptor &d, bool cmyk);
+    ~Encoder();
+    Encoder(const Encoder &) = delete;
+    Encoder &operator=(const Encoder &) = delete;
+
+    bool valid() const { return m_valid; }
+    // The signal follows each channel alone, after the primaries: false for HLG, whose OOTF mixes them.
+    bool separable() const { return m_transfer != Transfer::Hlg; }
+    // Linear scRGB to linear light in the source's primaries, in place.
+    void toSourcePrimaries(float *rgb) const;
+    // The signal of linear light `v` (source primaries, working units) on `channel`; separable() only.
+    float encodeChannel(int channel, float v) const;
+    // The whole way, in place: linear scRGB to the signal.
+    void encode(float *rgb) const;
+
+private:
+    bool m_valid = false;
+    bool m_gray = false;
+    Transfer m_transfer = Transfer::Srgb;
+    float m_gamma = 2.2f;
+    bool m_convertPrimaries = false;
+    float m_matrix[9] = {};             // scRGB to the source's primaries
+    std::array<void *, 3> m_curves{};   // cmsToneCurve *: an ICC profile's curves, reversed
+    float m_lumaWeights[3] = {};        // source-primaries luminance, for the HLG OOTF
 };
 
 } // namespace color

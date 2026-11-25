@@ -4,9 +4,9 @@ the newest release it may take (D-46, D-62, D-67). Run by .github/workflows/depe
 when an issue gets the "auto update" label; it also runs locally (without --apply it only reports).
 
 What is pinned, and where:
-- overlay ports in packaging/vcpkg/ports (OpenImageIO, libheif, libaom, expat, minizip-ng, and
-  OpenJPH, LibRaw and OpenJPEG for the patches we carry: a git tag's commit; GraphicsMagick: a
-  release archive and its SHA-512);
+- overlay ports in packaging/vcpkg/ports (audit_dependencies.COMMIT_PORTS: OpenImageIO, libheif,
+  libaom and the libraries ahead of vcpkg's baseline, a git tag's commit, and OpenJPH, LibRaw and
+  OpenJPEG for the patches we carry; GraphicsMagick: a release archive and its SHA-512);
 - every other vcpkg port through the manifest's builtin-baseline (a vcpkg release tag's commit);
 - Qt in packaging/qt-version.txt (read by .github/workflows/build.yml, whose files the workflow's
   token may not change) and packaging/licenses/Qt.txt;
@@ -264,7 +264,9 @@ def check_patches(port, url, tag, apply, report):
 
 def update_git_port(port, url, templates, apply, report):
     manifest = os.path.join(PORTS, port, "vcpkg.json")
-    pinned = json.loads(read(manifest))["version"]
+    data = json.loads(read(manifest))
+    key = "version-semver" if "version-semver" in data else "version"  # libjxl's port is semver
+    pinned = data[key]
     current = version_tuple(pinned)
     tags = audit.release_tags(url, templates, port)
     overall = max(tags) if tags else current
@@ -289,7 +291,7 @@ def update_git_port(port, url, templates, apply, report):
         text = "\n".join(line.replace(old_tag, tag) if "FETCH_REF" in line
                          else line.replace(pinned, new) if "Overlay" in line else line for line in text.split("\n"))
         write(portfile, text)
-        write(manifest, read(manifest).replace(f'"version": "{pinned}"', f'"version": "{new}"'))
+        write(manifest, read(manifest).replace(f'"{key}": "{pinned}"', f'"{key}": "{new}"'))
         update_manifest_comment(port, pinned, new)
         if port in report.exceptions:
             record_exception([f"{port} {new}"], "security: fixes " + ", ".join(report.exceptions[port][1]))

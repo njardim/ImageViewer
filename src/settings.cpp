@@ -38,6 +38,8 @@ constexpr std::pair<TitleMode, const char *> kTitleModes[] = {{TitleMode::Overla
                                                               {TitleMode::Name, "name"},
                                                               {TitleMode::Details, "details"},
                                                               {TitleMode::Everything, "everything"}};
+constexpr std::pair<HistogramMode, const char *> kHistograms[] = {
+    {HistogramMode::Colors, "colors"}, {HistogramMode::Luminance, "luminance"}, {HistogramMode::Off, "off"}};
 constexpr std::pair<FontSize, const char *> kFontSizes[] = {
     {FontSize::Small, "small"}, {FontSize::Medium, "medium"}, {FontSize::Large, "large"}};
 
@@ -110,6 +112,44 @@ bool isKnownLanguage(const QString &code)
 
 } // namespace
 
+QStringList Settings::normalizedToolbar(const QStringList &buttons)
+{
+    const QString separator(kToolbarSeparator);
+    const QStringList last = finalToolbarGroup();
+    // Each command once, a separator between two: far fewer than this. A longer list is a damaged
+    // or hand-made file, whose names, each checked against those kept, would take the square of its
+    // length (50,000 names: 22 s before the window opened).
+    constexpr qsizetype kMaxEntries = 256;
+    QStringList result, ending;
+    for (const QString &name : buttons) {
+        if (result.size() + ending.size() >= kMaxEntries)
+            break;
+        const bool word = !name.isEmpty() && std::all_of(name.cbegin(), name.cend(), [](QChar c) {
+            return (c >= QLatin1Char('A') && c <= QLatin1Char('Z')) || (c >= QLatin1Char('a') && c <= QLatin1Char('z'));
+        });
+        if (!word)
+            continue;
+        if (name == separator) {
+            if (!result.isEmpty() && result.last() != separator)
+                result << name;
+        } else if (last.contains(name)) {
+            if (!ending.contains(name))
+                ending << name;
+        } else if (!result.contains(name)) {
+            result << name;
+        }
+    }
+    while (!result.isEmpty() && result.last() == separator)
+        result.removeLast();
+    // The last group in its own order, after a separator of its own (the owner, D-115).
+    if (!ending.isEmpty() && !result.isEmpty())
+        result << separator;
+    for (const QString &name : last)
+        if (ending.contains(name))
+            result << name;
+    return result;
+}
+
 const QList<OverlayField> &Settings::allOverlayFields()
 {
     static const QList<OverlayField> all = {OverlayField::Name, OverlayField::Dimensions, OverlayField::FileSize,
@@ -144,6 +184,8 @@ Settings Settings::load()
     s.fontSize = fromKey(kFontSizes, store.value(QStringLiteral("app/fontSize")).toString(), defaults.fontSize);
     s.confirmTrash = boolValue(store, QStringLiteral("app/confirmTrash"), defaults.confirmTrash);
     s.reopenLastImage = boolValue(store, QStringLiteral("app/reopenLastImage"), defaults.reopenLastImage);
+    s.welcomeScreen = boolValue(store, QStringLiteral("app/welcomeScreen"), defaults.welcomeScreen);
+    s.autoHideMs = timeValue(store, QStringLiteral("app/autoHideMs"), defaults.autoHideMs, kMinAutoHideMs, kMaxAutoHideMs);
 
     s.background = colorValue(store, QStringLiteral("window/background"), defaults.background);
     s.checkerboard = boolValue(store, QStringLiteral("window/checkerboard"), defaults.checkerboard);
@@ -155,13 +197,17 @@ Settings Settings::load()
     s.windowFitPercent = sizeValue(store, QStringLiteral("window/matchImagePercent"), defaults.windowFitPercent,
                                     kMinWindowFitPercent, kMaxWindowFitPercent);
     s.titleMode = fromKey(kTitleModes, store.value(QStringLiteral("window/title")).toString(), defaults.titleMode);
-    s.pointerHideMs = timeValue(store, QStringLiteral("window/pointerHideMs"), defaults.pointerHideMs, 0, kMaxPointerHideMs);
+    s.pointerAutoHide = boolValue(store, QStringLiteral("window/pointerAutoHide"), defaults.pointerAutoHide);
     s.showInfo = boolValue(store, QStringLiteral("window/showInfo"), defaults.showInfo);
+    s.histogram = fromKey(kHistograms, store.value(QStringLiteral("overlay/histogram")).toString(), defaults.histogram);
     s.showOverlay = boolValue(store, QStringLiteral("window/showOverlay"), defaults.showOverlay);
 
-    s.overlayFullScreen = fromKey(kVisibilities, store.value(QStringLiteral("overlay/fullScreen")).toString(),
-                                  defaults.overlayFullScreen);
-    s.overlayWindow = fromKey(kVisibilities, store.value(QStringLiteral("overlay/window")).toString(), defaults.overlayWindow);
+    s.overlayVisibility = fromKey(kVisibilities, store.value(QStringLiteral("overlay/display")).toString(),
+                                  defaults.overlayVisibility);
+    if (s.overlayVisibility == OverlayVisibility::Hidden) // not a choice: I and its box switch the overlay off
+        s.overlayVisibility = defaults.overlayVisibility;
+    s.overlayAutoHide = boolValue(store, QStringLiteral("overlay/autoHide"), defaults.overlayAutoHide);
+    s.panelAutoHide = boolValue(store, QStringLiteral("overlay/panelAutoHide"), defaults.panelAutoHide);
     if (store.contains(QStringLiteral("overlay/fields"))) {
         // Comma-separated ids; an empty value means "no fields". Unknown or repeated ids are dropped.
         s.overlayFields.clear();
@@ -175,13 +221,9 @@ Settings Settings::load()
                 if (id == QLatin1String(key) && !s.overlayFields.contains(field))
                     s.overlayFields.append(field);
     }
-    s.overlayBackgroundOpacity = sizeValue(store, QStringLiteral("overlay/backgroundOpacity"),
-                                            defaults.overlayBackgroundOpacity, 0, 100);
-    s.overlayTextOpacity = sizeValue(store, QStringLiteral("overlay/textOpacity"), defaults.overlayTextOpacity,
-                                      kMinOverlayTextOpacity, 100);
+    s.backgroundOpacity = sizeValue(store, QStringLiteral("window/backgroundOpacity"), defaults.backgroundOpacity, 0, 100);
+    s.textOpacity = sizeValue(store, QStringLiteral("window/textOpacity"), defaults.textOpacity, kMinTextOpacity, 100);
     s.overlayOutline = boolValue(store, QStringLiteral("overlay/outline"), defaults.overlayOutline);
-    s.overlayHideDelayMs = timeValue(store, QStringLiteral("overlay/hideDelayMs"), defaults.overlayHideDelayMs,
-                                      kMinOverlayHideDelayMs, kMaxOverlayHideDelayMs);
 
     s.loop = boolValue(store, QStringLiteral("navigation/loop"), defaults.loop);
     s.sideZones = boolValue(store, QStringLiteral("navigation/sideZones"), defaults.sideZones);
@@ -198,18 +240,27 @@ Settings Settings::load()
     s.slideshowFullScreen = boolValue(store, QStringLiteral("navigation/slideshowFullScreen"), defaults.slideshowFullScreen);
     s.slideshowToolbarAutoHide = boolValue(store, QStringLiteral("navigation/slideshowToolbarAutoHide"),
                                            defaults.slideshowToolbarAutoHide);
-    s.slideshowToolbarHideMs = timeValue(store, QStringLiteral("navigation/slideshowToolbarHideMs"),
-                                         defaults.slideshowToolbarHideMs, kMinToolbarHideMs, kMaxToolbarHideMs);
     s.showGallery = boolValue(store, QStringLiteral("gallery/show"), defaults.showGallery);
     s.galleryThumbnailSize = store.value(QStringLiteral("gallery/thumbnailSize")).toInt();
     if (std::find(kGalleryThumbnailSizes.cbegin(), kGalleryThumbnailSizes.cend(), s.galleryThumbnailSize)
         == kGalleryThumbnailSizes.cend())
         s.galleryThumbnailSize = defaults.galleryThumbnailSize;
     s.galleryZoom = boolValue(store, QStringLiteral("gallery/zoom"), defaults.galleryZoom);
-    s.galleryOpacity = sizeValue(store, QStringLiteral("gallery/backgroundOpacity"), defaults.galleryOpacity, 0, 100);
     s.galleryEnlargement = sizeValue(store, QStringLiteral("gallery/enlargement"), defaults.galleryEnlargement,
                                      kMinGalleryEnlargement, kMaxGalleryEnlargement);
-    s.galleryHighlight = colorValue(store, QStringLiteral("gallery/highlight"), defaults.galleryHighlight);
+    s.galleryAutoHide = boolValue(store, QStringLiteral("gallery/autoHide"), defaults.galleryAutoHide);
+    s.galleryTooltips = boolValue(store, QStringLiteral("gallery/tooltips"), defaults.galleryTooltips);
+    s.highlight = colorValue(store, QStringLiteral("app/highlight"), defaults.highlight);
+    s.showToolbar = boolValue(store, QStringLiteral("toolbar/show"), defaults.showToolbar);
+    s.toolbarNames = boolValue(store, QStringLiteral("toolbar/names"), defaults.toolbarNames);
+    s.toolbarAutoHide = boolValue(store, QStringLiteral("toolbar/autoHide"), defaults.toolbarAutoHide);
+    if (store.contains(QStringLiteral("toolbar/buttons"))) {
+        // Comma-separated command keys, as the overlay's fields; empty: no buttons.
+        const QVariant stored = store.value(QStringLiteral("toolbar/buttons"));
+        const QString joined = stored.typeId() == QMetaType::QStringList ? stored.toStringList().join(QLatin1Char(','))
+                                                                          : stored.toString();
+        s.toolbarButtons = normalizedToolbar(joined.split(QLatin1Char(','), Qt::SkipEmptyParts));
+    }
 
     // "Ctrl+," has a comma, which QSettings may read back as a list: join it again.
     const QString group = QStringLiteral("shortcuts/");
@@ -257,16 +308,6 @@ bool sameShortcut(const QKeySequence &a, const QKeySequence &b)
     return a.count() == 1 && b.count() == 1 && comparableKey(a[0]) == comparableKey(b[0]);
 }
 
-QColor Settings::panelBackground() const
-{
-    return QColor(0, 0, 0, int(std::lround(overlayBackgroundOpacity * 2.55)));
-}
-
-QColor Settings::panelText(int grey) const
-{
-    return QColor(grey, grey, grey, int(std::lround(overlayTextOpacity * 2.55)));
-}
-
 void Settings::save() const
 {
     QSettings store;
@@ -274,6 +315,8 @@ void Settings::save() const
     store.setValue(QStringLiteral("app/fontSize"), QString::fromLatin1(keyOf(kFontSizes, fontSize)));
     store.setValue(QStringLiteral("app/confirmTrash"), confirmTrash);
     store.setValue(QStringLiteral("app/reopenLastImage"), reopenLastImage);
+    store.setValue(QStringLiteral("app/welcomeScreen"), welcomeScreen);
+    store.setValue(QStringLiteral("app/autoHideMs"), autoHideMs);
     store.setValue(QStringLiteral("window/background"), background.name(QColor::HexRgb));
     store.setValue(QStringLiteral("window/checkerboard"), checkerboard);
     store.setValue(QStringLiteral("window/rememberGeometry"), rememberGeometry);
@@ -283,19 +326,20 @@ void Settings::save() const
     store.setValue(QStringLiteral("window/matchImage"), QString::fromLatin1(keyOf(kWindowFits, windowFit)));
     store.setValue(QStringLiteral("window/matchImagePercent"), windowFitPercent);
     store.setValue(QStringLiteral("window/title"), QString::fromLatin1(keyOf(kTitleModes, titleMode)));
-    store.setValue(QStringLiteral("window/pointerHideMs"), pointerHideMs);
+    store.setValue(QStringLiteral("window/pointerAutoHide"), pointerAutoHide);
     store.setValue(QStringLiteral("window/showInfo"), showInfo);
+    store.setValue(QStringLiteral("overlay/histogram"), QString::fromLatin1(keyOf(kHistograms, histogram)));
     store.setValue(QStringLiteral("window/showOverlay"), showOverlay);
-    store.setValue(QStringLiteral("overlay/fullScreen"), QString::fromLatin1(keyOf(kVisibilities, overlayFullScreen)));
-    store.setValue(QStringLiteral("overlay/window"), QString::fromLatin1(keyOf(kVisibilities, overlayWindow)));
+    store.setValue(QStringLiteral("overlay/display"), QString::fromLatin1(keyOf(kVisibilities, overlayVisibility)));
+    store.setValue(QStringLiteral("overlay/autoHide"), overlayAutoHide);
+    store.setValue(QStringLiteral("overlay/panelAutoHide"), panelAutoHide);
     QStringList ids;
     for (OverlayField field : overlayFields)
         ids << QString::fromLatin1(keyOf(kFields, field));
     store.setValue(QStringLiteral("overlay/fields"), ids.join(QLatin1Char(',')));
-    store.setValue(QStringLiteral("overlay/backgroundOpacity"), overlayBackgroundOpacity);
-    store.setValue(QStringLiteral("overlay/textOpacity"), overlayTextOpacity);
+    store.setValue(QStringLiteral("window/backgroundOpacity"), backgroundOpacity);
+    store.setValue(QStringLiteral("window/textOpacity"), textOpacity);
     store.setValue(QStringLiteral("overlay/outline"), overlayOutline);
-    store.setValue(QStringLiteral("overlay/hideDelayMs"), overlayHideDelayMs);
     store.setValue(QStringLiteral("navigation/loop"), loop);
     store.setValue(QStringLiteral("navigation/sideZones"), sideZones);
     store.setValue(QStringLiteral("navigation/sideZoneWidth"), sideZoneWidth);
@@ -305,13 +349,17 @@ void Settings::save() const
     store.setValue(QStringLiteral("navigation/slideshowSeconds"), slideshowSeconds);
     store.setValue(QStringLiteral("navigation/slideshowFullScreen"), slideshowFullScreen);
     store.setValue(QStringLiteral("navigation/slideshowToolbarAutoHide"), slideshowToolbarAutoHide);
-    store.setValue(QStringLiteral("navigation/slideshowToolbarHideMs"), slideshowToolbarHideMs);
     store.setValue(QStringLiteral("gallery/show"), showGallery);
     store.setValue(QStringLiteral("gallery/thumbnailSize"), galleryThumbnailSize);
     store.setValue(QStringLiteral("gallery/zoom"), galleryZoom);
-    store.setValue(QStringLiteral("gallery/backgroundOpacity"), galleryOpacity);
     store.setValue(QStringLiteral("gallery/enlargement"), galleryEnlargement);
-    store.setValue(QStringLiteral("gallery/highlight"), galleryHighlight.name(QColor::HexRgb));
+    store.setValue(QStringLiteral("gallery/autoHide"), galleryAutoHide);
+    store.setValue(QStringLiteral("gallery/tooltips"), galleryTooltips);
+    store.setValue(QStringLiteral("app/highlight"), highlight.name(QColor::HexRgb));
+    store.setValue(QStringLiteral("toolbar/show"), showToolbar);
+    store.setValue(QStringLiteral("toolbar/names"), toolbarNames);
+    store.setValue(QStringLiteral("toolbar/autoHide"), toolbarAutoHide);
+    store.setValue(QStringLiteral("toolbar/buttons"), toolbarButtons.join(QLatin1Char(',')));
     store.remove(QStringLiteral("shortcuts"));
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QStringList parts;

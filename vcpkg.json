@@ -39,7 +39,7 @@
       "name": "graphicsmagick"
     },
     {
-      "$comment": "SVG in the decode worker (D-90): ImageViewer's renderer contract implemented with resvg, an overlay port (packaging/vcpkg/ports/imageviewer-svg): resvg 0.48.1 and its crates, built with the Rust its rust-toolchain.toml pins.",
+      "$comment": "SVG in the decode worker (D-90): ImageViewer's renderer contract implemented with resvg, an overlay port (packaging/vcpkg/ports/imageviewer-svg): resvg 0.50.0 and its crates, built with the Rust its rust-toolchain.toml pins.",
       "name": "imageviewer-svg"
     }
   ],

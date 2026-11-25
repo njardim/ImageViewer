@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Fail</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (kärbitud sRGB-ks)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (ujukoma)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-bitine)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Heledus</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Piksel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Värvi võtmiseks klõpsake pildil.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -246,6 +289,32 @@
         <translation>Valge</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Värvid</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Heledus</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Puudub</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Kuva ülekate:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Tööriistariba</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Otsi:</translation>
     </message>
@@ -256,6 +325,10 @@
     <message>
         <source>Background:</source>
         <translation>Taust:</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Keel ja tekst</translation>
     </message>
     <message>
         <source>Small</source>
@@ -277,12 +350,24 @@
         <translation>Fondi suurus:</translation>
     </message>
     <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Kuva läbipaistvate alade taga malelauamuster</translation>
+        <source>Startup and files</source>
+        <translation>Käivitus ja failid</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Kuva käivitamisel tervituskuva</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Pildi kohal</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
         <translation>Jäta meelde akna suurus ja asukoht</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Värvid</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -311,6 +396,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Suurenda aknast väiksemaid pilte</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Aken</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -354,20 +445,82 @@
         <translation>Tiitliriba:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Peida liikumatu kursor pärast:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Paneelid, ülekate, galerii, tööriistaribad ja külgnupud</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Teksti ja ikoonide läbipaistmatus:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Peida hiirekursor automaatselt, kui see ei liigu</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Kõige jaoks, mis peitub automaatselt: ribad, galerii, ülekate, paneel ja hiirekursor.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Peida elemendid automaatselt pärast:</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Aken</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Teabepaneel</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histogramm:</translation>
+    </message>
+    <message>
         <source>Time per image:</source>
         <translation>Aeg pildi kohta:</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Peida tööriistariba, kui kursor ei liigu</translation>
+        <source>Show the toolbar</source>
+        <translation>Kuva tööriistariba</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Kuva nimed nuppude all</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Peida tööriistariba automaatselt</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Nupud</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Lisa eraldaja</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Eemalda eraldaja</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Vaikimisi nupud</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Seaded ja Välju on alati viimased, omaette rühmas.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Eraldaja (alati)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Eraldaja</translation>
     </message>
     <message>
         <source>Small</source>
@@ -414,6 +567,26 @@
         <translation>Esiletõstu värv</translation>
     </message>
     <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Peida teabepaneel automaatselt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Peida teabe ülekate automaatselt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Peida slaidiesitluse tööriistariba automaatselt</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Näita pildi teavet kohtspikris</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Peida galerii automaatselt</translation>
+    </message>
+    <message>
         <source>Search extensions, formats and decoders</source>
         <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
         <translation>Otsi laiendeid, vorminguid ja dekoodereid</translation>
@@ -434,10 +607,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Suurendus:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Tõsta esile pikslid, mida on muutnud kärpimine või toonivastendus (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -469,19 +638,6 @@
         <translation>Kui kursor on üleval</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Mitte kunagi</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Täisekraanil:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Aknas:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Väljad</translation>
     </message>
@@ -511,10 +667,6 @@
         <translation>Tausta läbipaistmatus:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Teksti läbipaistmatus:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Joonista tekstile ääris</translation>
     </message>
@@ -522,10 +674,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Peida pärast:</translation>
     </message>
     <message>
         <source>Information</source>
@@ -613,10 +761,6 @@
         <translation>Ekraaniväljund:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Rakenda toonivastendust ekraani võimalusi ületavatele HDR-piltidele (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Värv &amp;&amp; HDR</translation>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Slaidiseanss (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Tööriistariba (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Kuva läbipaistvate alade taga malelauamuster (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Rakenda toonivastendust ekraani võimalusi ületavatele HDR-piltidele, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Tõsta magentaga esile pikslid, mida on muutnud kärpimine või toonivastendus (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -792,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Suund</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Värvid</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Heledus</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Puudub</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogramm</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
@@ -1075,12 +1259,16 @@
         <translation>Galerii</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Pööra päripäeva</translation>
+        <source>Toolbar</source>
+        <translation>Tööriistariba</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Pööra vastupäeva</translation>
+        <source>Rotate Right</source>
+        <translation>Pööra paremale</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Pööra vasakule</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1089,6 +1277,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Peegelda vertikaalselt</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Värvivalija</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1144,6 +1336,26 @@
     <message>
         <source>Open With</source>
         <translation>Ava rakendusega</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Peata</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Esita</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Veel</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Slaidiseanss on pausil</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Kopeeri</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Kopeeritud: %1</translation>
     </message>
 </context>
 </TS>

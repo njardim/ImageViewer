@@ -44,6 +44,7 @@ void ViewerWindow::stopAnimation()
     }
     m_animation.reset();
     m_framePixels.reset();
+    m_frameHistogram.reset();
     m_readyFrame.reset();
     m_frameDue = false;
     m_wantedFrame = -1;
@@ -149,6 +150,7 @@ void ViewerWindow::presentFrame(const Animation::Frame &frame)
     m_image.maxLuminance = std::max(m_image.maxLuminance, shown.maxLuminance);
     m_frameIndex = shown.index;
     m_framePixels = shown.index > 0 ? shown.pixels : PixelBuffer();
+    m_frameHistogram = shown.index > 0 ? shown.histogram : nullptr; // the panel's (D-115)
     m_frameDurationMs = shown.durationMs;
     if (m_animationPaused) {
         m_wantedFrame = -1;
@@ -259,9 +261,8 @@ void ViewerWindow::toggleSlideshowPause()
 void ViewerWindow::stopSlideshow()
 {
     m_slideshow.stop();
-    m_toolbarTimer.stop();
-    m_toolbarPress = ToolbarButton::None;
-    setToolbarHover(ToolbarButton::None);
+    m_slideshowBar.setPressed(-1);
+    setSlideshowBarHover(-1);
     updateSlideshowToolbar();
     if (std::exchange(m_slideshowLeavesFullScreen, false) && visibility() == QWindow::FullScreen)
         leaveFullScreen();
@@ -288,34 +289,4 @@ void ViewerWindow::slideshowDue()
     case Slideshow::Action::None:
         break;
     }
-}
-
-void ViewerWindow::showSlideshowToolbar()
-{
-    if (!m_slideshow.running())
-        return;
-    m_toolbarHidden = false;
-    if (m_settings.slideshowToolbarAutoHide)
-        m_toolbarTimer.start(m_settings.slideshowToolbarHideMs);
-    else
-        m_toolbarTimer.stop();
-    updateSlideshowToolbar();
-}
-
-void ViewerWindow::setToolbarHover(ToolbarButton button)
-{
-    if (button == m_toolbarHover)
-        return;
-    m_toolbarHover = button;
-    updateCursor();
-    updateSlideshowToolbar();
-}
-
-void ViewerWindow::toolbarClicked(ToolbarButton button)
-{
-    // The toolbar shows only during a slideshow: Space and S, as the keys give them.
-    if (button == ToolbarButton::PlayPause)
-        run(Command::PlayPause);
-    else if (button == ToolbarButton::Stop)
-        run(Command::Slideshow);
 }

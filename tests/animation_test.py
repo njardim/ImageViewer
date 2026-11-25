@@ -52,10 +52,11 @@ frames = [Image.new("RGB", (160, 120), COLOURS[c]) for c in ("red", "green", "bl
 frames[0].save(os.path.join(pictures, "a-anim.gif"), save_all=True, append_images=frames[1:], duration=400, loop=0)
 Image.new("RGB", (160, 120), COLOURS["yellow"]).save(os.path.join(pictures, "b-still.png"))
 # 1 s per image; neither the top overlay (its text would be white in the toolbar's band, until I
-# shows it for the gap below it) nor the gallery nor the panel.
+# shows it for the gap below it) nor the gallery nor the panel, nor the toolbar at the top, which
+# would hold the slideshow's buttons in place of its own toolbar (D-112).
 with open(os.path.join(config, "Cristallumnis", "ImageViewer.conf"), "w") as f:
     f.write("[navigation]\nslideshowSeconds=1\n\n[window]\nshowInfo=false\nshowOverlay=false\n\n"
-            "[gallery]\nshow=false\n")
+            "[gallery]\nshow=false\n\n[toolbar]\nshow=false\nnames=false\n")  # the slideshow's own toolbar shows (D-112)
 
 
 def fail(message):
@@ -97,13 +98,15 @@ def wait_for(what, names):
 def toolbar():
     """(glyph, x, y, stop_x) for the slideshow toolbar: its second button's glyph ("pause" or
     "play") and centre on the screen, and the first button's (stop) x; None when the toolbar is
-    not shown. The toolbar's glyphs are the only near-white pixels in the window's top band."""
+    not shown. The toolbar's glyphs are the only light grey pixels in the window's top band: lines
+    of 1.75 px since D-113, whose diagonals are seldom whole pixels, so from 160 (the panel is
+    about 10, the discs under a hovered or pressed button at most 85)."""
     screen = xvfb.grab(display, shot_path)
     if screen is None:
         return None
     x0, y0, w, _ = geometry
     band = screen[y0:y0 + 150, x0:x0 + w]
-    ys, xs = np.nonzero(band.min(axis=2) >= 225)
+    ys, xs = np.nonzero(band.min(axis=2) >= 160)
     if len(xs) < 40:
         return None
     # Two glyphs, split at the widest gap between white columns: stop, then play or pause.
@@ -114,7 +117,7 @@ def toolbar():
         return None
     left, right = xs[second].min(), xs[second].max()
     middle = (left + right) // 2
-    # Pause is two bars with a gap in the middle; play's triangle is solid there.
+    # Pause is two bars with a gap in the middle; play's triangle has its edges there.
     glyph = "play" if np.any(xs[second] == middle) else "pause"
     return glyph, x0 + int(xs[second].mean()), y0 + int(ys[second].mean()), x0 + int(xs[stop].mean())
 
@@ -140,6 +143,24 @@ def stays(what, name, seconds):
             fail(f"{what}: {seen} instead of {name}")
         time.sleep(POLL_S)
     print(f"ok   {what}: {name} for {seconds:.1f} s")
+
+
+def holds(what, seconds):
+    """The slideshow holds its image: the still one, or the animation, which plays on while the
+    slideshow is paused or stopped (D-58), so its colours count as one image. Sampled once the
+    screen has caught up: a runner that draws a frame a second (llvmpipe under load: 840 to 966 ms
+    a frame on CI) draws what the slideshow did before the key or click a frame late, and its
+    interval here is a second, so the image the slideshow holds may be the next one. Were it not
+    held, the slideshow would move on within the time checked."""
+    time.sleep(1.5)
+    held = {"yellow"} if colour() == "yellow" else {"red", "green", "blue"}
+    end = time.monotonic() + seconds
+    while time.monotonic() < end:
+        if (seen := colour()) not in held:
+            fail(f"{what}: {seen} instead of {'/'.join(sorted(held))}")
+        time.sleep(POLL_S)
+    print(f"ok   {what}: {'/'.join(sorted(held))} for {seconds:.1f} s")
+    return held
 
 
 NEXT = {"red": "green", "green": "blue", "blue": "red"}
@@ -191,7 +212,7 @@ try:
             wait_for("the slideshow goes on (the folder loops)", {"red", "green", "blue"})
             wait_for("and comes back to the still image", {"yellow"})
             xdotool("key", "Escape")
-            stays("Esc stops the slideshow", "yellow", 2.5)
+            holds("Esc stops the slideshow", 2.5)
             if toolbar() is not None:
                 fail("the slideshow's toolbar stayed after Esc")
 
@@ -232,15 +253,7 @@ try:
             xdotool("mousemove", "--sync", str(bx), str(by))
             xdotool("click", "1")
             toolbar_is("a click on pause turns it into play", "play")
-            # The image held: the still one, or the animation, which goes on playing while the
-            # slideshow is paused (D-58), so its colours count as one image.
-            held = {"yellow"} if colour() == "yellow" else {"red", "green", "blue"}
-            end = time.monotonic() + 2.5
-            while time.monotonic() < end:
-                if (seen := colour()) not in held:
-                    fail(f"and the slideshow holds its image: {seen} instead of {'/'.join(sorted(held))}")
-                time.sleep(POLL_S)
-            print(f"ok   and the slideshow holds its image: {'/'.join(sorted(held))} for 2.5 s")
+            held = holds("and the slideshow holds its image", 2.5)
             xdotool("click", "1")
             toolbar_is("a click on play turns it back into pause", "pause")
             wait_for("and the slideshow goes on", set(COLOURS) - held)
@@ -255,7 +268,7 @@ try:
             wait_for("the slideshow comes to the still image", {"yellow"})  # the animation changes by itself
             xdotool("click", "1")
             toolbar_is("a click on stop takes the toolbar away", None)
-            stays("and stops the slideshow", "yellow", 2.5)
+            holds("and stops the slideshow", 2.5)
             xdotool("key", "q")
             app.wait(15)
 

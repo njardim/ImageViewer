@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>ফাইল</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGB-তে কাটা)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (ফ্লোটিং পয়েন্ট)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-বিট)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>উজ্জ্বলতা</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>পিক্সেল</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>রং নিতে ছবিতে ক্লিক করুন।</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>সাদা</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>রং</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>উজ্জ্বলতা</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>কোনোটি নয়</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ওভারলে দেখান:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>টুলবার</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>কাস্টম…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>ছবি ট্র্যাশে সরানোর আগে নিশ্চিত করুন</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>স্বচ্ছ অংশের পেছনে দাবার ছক দেখান</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>পয়েন্টার উপরে থাকলে</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>কখনোই নয়</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>পূর্ণ স্ক্রিনে:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>উইন্ডোতে:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>ক্ষেত্র</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>পটভূমির অস্বচ্ছতা:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>লেখার অস্বচ্ছতা:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>লেখার আউটলাইন দিন</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> সেকেন্ড</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>ভাষা ও লেখা</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>ফন্টের আকার:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>শুরু ও ফাইল</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>শুরুতে স্বাগত পর্দা দেখান</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>ছবির উপরে</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>উইন্ডোর মাপে ফিট করুন</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>রং</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>উইন্ডোর চেয়ে ছোট ছবি বড় করুন</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>উইন্ডো</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>টাইটেল বার:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>স্থির পয়েন্টার এই সময়ের পরে লুকান:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>প্যানেল, ওভারলে, গ্যালারি, টুলবার ও পাশের বোতাম</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>লেখা ও আইকনের অস্বচ্ছতা:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>মাউস পয়েন্টার স্থির থাকলে স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>স্বয়ংক্রিয়ভাবে লুকানোর জন্য সেট করা সবকিছুর জন্য: বার, গ্যালারি, ওভারলে, প্যানেল ও মাউস পয়েন্টার।</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>উপাদানগুলো স্বয়ংক্রিয়ভাবে লুকান এর পরে:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>তথ্য প্যানেল</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>হিস্টোগ্রাম:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>উপরে ওভারলে</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>এর পরে লুকান:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>প্যানেল ও ওভারলের চেহারা</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>তথ্য প্যানেল স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>তথ্য ওভারলে স্বয়ংক্রিয়ভাবে লুকান</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>আগের বা পরের ছবির জন্য উইন্ডোর বাম বা ডান দিকে ক্লিক করুন</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>পয়েন্টার স্থির থাকলে টুলবার লুকান</translation>
+        <source>Show the toolbar</source>
+        <translation>টুলবার দেখান</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>বোতামের নিচে নাম দেখান</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>টুলবার স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>বোতাম</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>বিভাজক যোগ করুন</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>বিভাজক সরান</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>ডিফল্ট বোতাম</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>সেটিংস ও প্রস্থান সবসময় শেষে থাকে, নিজস্ব একটি গ্রুপে।</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>বিভাজক (সবসময়)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>বিভাজক</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>পূর্ণ স্ক্রিনে স্লাইডশো শুরু করুন</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল হাইলাইট করুন (ম্যাজেন্টা)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>স্লাইডশো টুলবার স্বয়ংক্রিয়ভাবে লুকান</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>টুলটিপে ছবির তথ্য দেখান</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>গ্যালারি স্বয়ংক্রিয়ভাবে লুকান</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>ডিসপ্লে আউটপুট:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>ডিসপ্লের সীমা ছাড়িয়ে যাওয়া HDR ছবিতে টোন ম্যাপিং প্রয়োগ করুন (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>স্লাইডশো (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>টুলবার (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>স্বচ্ছ অংশের পেছনে দাবার ছক দেখান (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>ডিসপ্লের সীমা ছাড়িয়ে যাওয়া HDR ছবিতে টোন ম্যাপিং প্রয়োগ করুন, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>ক্লিপিং বা টোন ম্যাপিংয়ের ফলে পরিবর্তিত পিক্সেল ম্যাজেন্টা রঙে হাইলাইট করুন (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>%1 nits-এর উপরে ক্লিপ করা হয়েছে (টোন ম্যাপিং বন্ধ)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>রং</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>উজ্জ্বলতা</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>কোনোটি নয়</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>হিস্টোগ্রাম</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>এক্সপোজার %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>গ্যালারি</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>ঘড়ির কাঁটার দিকে ঘোরান</translation>
+        <source>Toolbar</source>
+        <translation>টুলবার</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>ঘড়ির কাঁটার বিপরীত দিকে ঘোরান</translation>
+        <source>Rotate Right</source>
+        <translation>ডানে ঘোরান</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>বামে ঘোরান</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>উল্লম্বভাবে উল্টান</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>রং বাছাইকারী</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>এর মাধ্যমে খুলুন</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>থামান</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>চালান</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>আরও</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>স্লাইডশো বিরতিতে আছে</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>কপি করুন</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>কপি হয়েছে: %1</translation>
     </message>
 </context>
 </TS>

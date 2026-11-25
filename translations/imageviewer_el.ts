@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Αρχείο</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (περικομμένο σε sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (κινητής υποδιαστολής)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bit)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Φωτεινότητα</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Εικονοστοιχείο</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Κάντε κλικ στην εικόνα για να επιλέξετε ένα χρώμα.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -246,6 +289,32 @@
         <translation>Λευκό</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Χρώματα</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Φωτεινότητα</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Κανένα</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Εμφάνιση της επικάλυψης:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Γραμμή εργαλείων</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Αναζήτηση:</translation>
     </message>
@@ -256,6 +325,10 @@
     <message>
         <source>Background:</source>
         <translation>Φόντο:</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Γλώσσα και κείμενο</translation>
     </message>
     <message>
         <source>Small</source>
@@ -277,12 +350,24 @@
         <translation>Μέγεθος γραμματοσειράς:</translation>
     </message>
     <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Εμφάνιση σκακιέρας πίσω από τις διαφανείς περιοχές</translation>
+        <source>Startup and files</source>
+        <translation>Εκκίνηση και αρχεία</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Εμφάνιση της οθόνης καλωσορίσματος κατά την εκκίνηση</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Πάνω από την εικόνα</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
         <translation>Απομνημόνευση του μεγέθους και της θέσης του παραθύρου</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Χρώματα</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -311,6 +396,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Μεγέθυνση των εικόνων που είναι μικρότερες από το παράθυρο</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Παράθυρο</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -354,20 +445,82 @@
         <translation>Γραμμή τίτλου:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Απόκρυψη ακίνητου δείκτη μετά από:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Οι πίνακες, η επικάλυψη, η συλλογή, οι γραμμές εργαλείων και τα πλευρικά κουμπιά</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Αδιαφάνεια κειμένου και εικονιδίων:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Αυτόματη απόκρυψη του δείκτη του ποντικιού όσο μένει ακίνητος</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Για ό,τι έχει οριστεί να αποκρύπτεται αυτόματα: τις γραμμές, τη συλλογή, την επικάλυψη, τον πίνακα και τον δείκτη του ποντικιού.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Αυτόματη απόκρυψη στοιχείων μετά από:</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Παράθυρο</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Πίνακας πληροφοριών</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Ιστόγραμμα:</translation>
+    </message>
+    <message>
         <source>Time per image:</source>
         <translation>Χρόνος ανά εικόνα:</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Απόκρυψη της γραμμής εργαλείων όσο ο δείκτης μένει ακίνητος</translation>
+        <source>Show the toolbar</source>
+        <translation>Εμφάνιση της γραμμής εργαλείων</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Εμφάνιση των ονομάτων κάτω από τα κουμπιά</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Αυτόματη απόκρυψη της γραμμής εργαλείων</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Κουμπιά</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Προσθήκη διαχωριστικού</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Αφαίρεση διαχωριστικού</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Προεπιλεγμένα κουμπιά</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Οι Ρυθμίσεις και η Έξοδος είναι πάντα τελευταίες, σε δική τους ομάδα.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Διαχωριστικό (πάντα)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Διαχωριστικό</translation>
     </message>
     <message>
         <source>Small</source>
@@ -414,6 +567,26 @@
         <translation>Χρώμα επισήμανσης</translation>
     </message>
     <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Αυτόματη απόκρυψη του πίνακα πληροφοριών</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Αυτόματη απόκρυψη της επικάλυψης πληροφοριών</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Αυτόματη απόκρυψη της γραμμής της προβολής διαφανειών</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Εμφάνιση των πληροφοριών της εικόνας σε συμβουλή</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Αυτόματη απόκρυψη της συλλογής</translation>
+    </message>
+    <message>
         <source>Search extensions, formats and decoders</source>
         <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
         <translation>Αναζήτηση επεκτάσεων, μορφών και αποκωδικοποιητών</translation>
@@ -434,10 +607,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Μεγέθυνση:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Επισήμανση pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (ματζέντα)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -469,19 +638,6 @@
         <translation>Όταν ο δείκτης βρίσκεται στην κορυφή</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Ποτέ</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Σε πλήρη οθόνη:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Σε παράθυρο:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Πεδία</translation>
     </message>
@@ -511,10 +667,6 @@
         <translation>Αδιαφάνεια φόντου:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Αδιαφάνεια κειμένου:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Περίγραμμα στο κείμενο</translation>
     </message>
@@ -522,10 +674,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> δευτ.</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Απόκρυψη μετά από:</translation>
     </message>
     <message>
         <source>Information</source>
@@ -613,10 +761,6 @@
         <translation>Έξοδος οθόνης:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Χαρτογράφηση τόνων για εικόνες HDR που υπερβαίνουν τις δυνατότητες της οθόνης (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Χρώμα &amp;&amp; HDR</translation>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Παρουσίαση (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Γραμμή εργαλείων (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Εμφάνιση σκακιέρας πίσω από τις διαφανείς περιοχές (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Χαρτογράφηση τόνων για εικόνες HDR που υπερβαίνουν τις δυνατότητες της οθόνης, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Επισήμανση σε ματζέντα των pixel που τροποποιήθηκαν από περικοπή ή χαρτογράφηση τόνων (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -792,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Προσανατολισμός</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Χρώματα</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Φωτεινότητα</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Κανένα</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Ιστόγραμμα</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
@@ -1075,12 +1259,16 @@
         <translation>Συλλογή</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Περιστροφή δεξιόστροφα</translation>
+        <source>Toolbar</source>
+        <translation>Γραμμή εργαλείων</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Περιστροφή αριστερόστροφα</translation>
+        <source>Rotate Right</source>
+        <translation>Περιστροφή δεξιά</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Περιστροφή αριστερά</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1089,6 +1277,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Κάθετη αναστροφή</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Επιλογέας χρώματος</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1144,6 +1336,26 @@
     <message>
         <source>Open With</source>
         <translation>Άνοιγμα με</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Διακοπή</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Αναπαραγωγή</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Περισσότερα</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Η παρουσίαση είναι σε παύση</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Αντιγραφή</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Αντιγράφηκε: %1</translation>
     </message>
 </context>
 </TS>

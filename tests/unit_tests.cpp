@@ -1070,6 +1070,24 @@ private Q_SLOTS:
         QCOMPARE(row(ColorPicker::values(bright, hdr, c), QStringLiteral("File")), QStringLiteral("(none)"));
     }
 
+    // The Pixel row's column and row have no group separators in any language (the owner, D-119 (6)):
+    // English grouped them with the comma that separates the two, "12,345, 6,789". The locale's
+    // digits stay; the copied text has neither.
+    void thePickersPixelRow()
+    {
+        ColorPicker::Sample far = sample(0.5, 0.5, 0.5);
+        far.position = QPoint(12345, 6789);
+        const ColorPicker::Source srgb;
+        const QList<ColorPicker::Row> english = ColorPicker::values(far, srgb, QLocale(QLocale::English, QLocale::UnitedStates));
+        QCOMPARE(row(english, QStringLiteral("Pixel"), false), QStringLiteral("12345, 6789"));
+        QCOMPARE(row(english, QStringLiteral("Pixel")), QStringLiteral("12345, 6789"));
+        const QLocale arabic(QLocale::Arabic, QLocale::Egypt);
+        QString digits; // "12345, 6789" in the locale's digits, each written alone
+        for (const QChar ch : QStringLiteral("12345, 6789"))
+            digits += ch.isDigit() ? arabic.toString(ch.digitValue()) : QString(ch);
+        QCOMPARE(row(ColorPicker::values(far, srgb, arabic), QStringLiteral("Pixel"), false), digits);
+    }
+
     void thePickersPanel()
     {
         ColorPicker picker;

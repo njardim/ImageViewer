@@ -180,9 +180,14 @@ QList<ColorPicker::Row> ColorPicker::values(const Sample &sample, const Source &
         rows.append({label, text, QString::number(nits, 'f', decimals)});
     }
 
+    // The pixel's column and row in the locale's digits, without its group separators (the owner,
+    // D-119 (6)): a comma for thousands made "12,345, 6,789" of the pixel 12345, 6789.
+    QLocale coordinates = locale;
+    coordinates.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);
     //: The color picker: the picked pixel's column and row in the image.
     rows.append({QCoreApplication::translate("ColorPicker", "Pixel"),
-                 QStringLiteral("%1, %2").arg(locale.toString(sample.position.x()), locale.toString(sample.position.y())),
+                 QStringLiteral("%1, %2").arg(coordinates.toString(sample.position.x()),
+                                              coordinates.toString(sample.position.y())),
                  QStringLiteral("%1, %2").arg(sample.position.x()).arg(sample.position.y())});
     return rows;
 }

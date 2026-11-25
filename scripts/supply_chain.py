@@ -139,9 +139,9 @@ def run(*command, cwd=None, timeout=None):
 
 
 # A command that reaches another host waits as long as the host does: on 2026-11-25 the Mercurial
-# service of foss.heptapod.net (GraphicsMagick's repository) answered nothing for hours while its web
-# pages did, and the audit waited until its job's 45 minutes ran out, with no report, no issue and no
-# word of why (D-121). Each such command now has a time, is tried twice, and then stops the check with
+# service of foss.heptapod.net (GraphicsMagick's repository), behind a check for human visitors,
+# answered automated clients slowly or not at all, and the audit waited in a clone until its job's 45
+# minutes ran out, with no report, no issue and no word of why (D-121). Each such command now has a time, is tried twice, and then stops the check with
 # HostUnreachable, whose message names the host and what to do; the audit says the check could not run.
 QUERY_TIMEOUT_S = 180  # git ls-remote, a shallow fetch
 CLONE_TIMEOUT_S = 600  # a repository at a tag: GraphicsMagick's whole Mercurial history takes under two minutes
@@ -306,4 +306,5 @@ def osv_query(queries):
 class Report:
     def __init__(self):
         self.rows, self.notes = [], []
+        self.changeset = None  # the Mercurial changeset a tarball was last compared with (D-121)
         self.stale = []  # cooldown exceptions that no longer apply (scripts/update_dependencies.py removes them)

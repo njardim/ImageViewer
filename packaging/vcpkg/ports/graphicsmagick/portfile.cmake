@@ -1,5 +1,9 @@
 # ImageViewer overlay (D-38): see vcpkg.json. Derived from the vcpkg baseline port
 # (434307da, 1.3.45); without delegate libraries its dependencies patch is not needed.
+# The tag this archive is compared with file for file (scripts/audit_dependencies.py, D-67), as its
+# Mercurial changeset, so that either of the project's official servers may give it (D-121);
+# scripts/update_dependencies.py moves it with the version:
+# CHANGESET e158e097e19086798ec26e727573ff1e57fbd003 # GraphicsMagick-1_3_49
 vcpkg_download_distfile(ARCHIVE
     URLS "https://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/${VERSION}/GraphicsMagick-${VERSION}.tar.xz"
     FILENAME "GraphicsMagick-${VERSION}.tar.xz"

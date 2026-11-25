@@ -378,6 +378,24 @@ def update_manifest_comment(port, old, new):
     write(path, "\n".join(line.replace(old, new) if f"packaging/vcpkg/ports/{port}" in line else line for line in lines))
 
 
+def confirmed_over_https(port, tag, changeset, report):
+    """True when an official server reached over https names `changeset` for `tag` too: the tag may
+    have come over http (SourceForge), and the changeset pinned now is what the release gate trusts
+    from either server afterwards (D-121)."""
+    for server in (s for s in audit.HG_SERVERS[port] if s.startswith("https://")):
+        try:
+            node = supply_chain.run_remote("hg", "identify", "-r", tag, "-T", "{node}", server, url=server).strip()
+        except (supply_chain.HostUnreachable, subprocess.CalledProcessError) as error:
+            report.notes.append(f"{port}: {server} could not confirm the changeset of {tag} ({error}); run again later.")
+            continue
+        if node == changeset:
+            return True
+        report.notes.append(f"**{port}: {tag} is {node} on {server} but {changeset} where it was compared**: "
+                            f"compare the two servers before trusting either.")
+        return False
+    return False
+
+
 def update_tarball_port(port, releases, archive, apply, report):
     """An overlay port built from a release tarball: the newest release (from `releases`, version
     to upload date) the policy allows. The new archive is pinned only when it matches its tag file
@@ -416,6 +434,9 @@ def update_tarball_port(port, releases, archive, apply, report):
         report.row(port, pinned, as_text(overall), f"**{new} refused: its archive does not match `{tag}`**")
         report.notes += check.notes
         return
+    if kind == "hg" and not confirmed_over_https(port, tag, check.changeset, report):
+        report.row(port, pinned, as_text(overall), f"**{new} held: its changeset is not confirmed over https**")
+        return
     report.row(port, pinned, as_text(overall), f"**→ {new}** (archive identical to `{tag}`)")
     report.changed = True
     if kind == "git":
@@ -426,7 +447,10 @@ def update_tarball_port(port, releases, archive, apply, report):
                              f"matches `{tag}` file for file.")
     if apply:
         portfile = os.path.join(PORTS, port, "portfile.cmake")
-        write(portfile, re.sub(r"SHA512 [0-9a-f]{128}", f"SHA512 {sha512}", read(portfile)))
+        text = re.sub(r"SHA512 [0-9a-f]{128}", f"SHA512 {sha512}", read(portfile))
+        if kind == "hg":  # the tag's changeset, which the audit asks of every official server (D-121)
+            text = re.sub(r"CHANGESET [0-9a-f]{40} # \S+", f"CHANGESET {check.changeset} # {tag}", text)
+        write(portfile, text)
         write(manifest, read(manifest).replace(f'"{key}": "{pinned}"', f'"{key}": "{new}"'))
         update_manifest_comment(port, pinned, new)
         if port in report.exceptions:

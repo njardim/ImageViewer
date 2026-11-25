@@ -10,6 +10,8 @@ import email.utils
 import json
 import os
 import re
+import shutil
+import signal
 import subprocess
 import tempfile
 import urllib.error
@@ -98,19 +100,85 @@ def fetch(url, data=None):
     if token and url.startswith("https://api.github.com/"):  # never sent to any other host
         headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(url, data=data, headers=headers)
-    with OPENER.open(request, timeout=120) as response:
-        return response.read()
+    # The host's own answer (HTTPError: 404, 403, a server error) is raised as it is, for the caller to
+    # read; no answer (120 s on a read), a reset connection or a name that does not resolve is tried
+    # once more, then HostUnreachable names the host (D-121).
+    for _ in range(REMOTE_ATTEMPTS):
+        try:
+            with OPENER.open(request, timeout=120) as response:
+                return response.read()
+        except urllib.error.HTTPError:
+            raise
+        except (urllib.error.URLError, OSError) as error:
+            reason = getattr(error, "reason", None) or error
+    host = urllib.parse.urlsplit(url).hostname or url
+    raise HostUnreachable(f"{host} did not answer: reading {url} failed ({reason}), {REMOTE_ATTEMPTS} times. "
+                          f"{UNREACHABLE_ADVICE}")
 
 
-def run(*command, cwd=None):
-    return subprocess.run(command, cwd=cwd, check=True, capture_output=True, text=True).stdout
+def run(*command, cwd=None, timeout=None):
+    """The command's standard output; CalledProcessError when it fails. With `timeout` (seconds), the
+    command and every process it started are stopped once it is past (subprocess.TimeoutExpired):
+    stopping the command alone would leave a child holding its output open (git's remote helper),
+    and the wait for that output would be as long as the host's."""
+    posix = os.name == "posix"
+    with subprocess.Popen(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                          start_new_session=posix) as process:
+        try:
+            out, err = process.communicate(timeout=timeout)
+        except (subprocess.TimeoutExpired, KeyboardInterrupt):  # in its own session, Ctrl+C reaches only us
+            try:
+                os.killpg(process.pid, signal.SIGKILL) if posix else process.kill()
+            except ProcessLookupError:  # it had ended
+                pass
+            process.communicate()
+            raise
+    if process.returncode:
+        raise subprocess.CalledProcessError(process.returncode, command, out, err)
+    return out
+
+
+# A command that reaches another host waits as long as the host does: on 2026-11-25 the Mercurial
+# service of foss.heptapod.net (GraphicsMagick's repository) answered nothing for hours while its web
+# pages did, and the audit waited until its job's 45 minutes ran out, with no report, no issue and no
+# word of why (D-121). Each such command now has a time, is tried twice, and then stops the check with
+# HostUnreachable, whose message names the host and what to do; the audit says the check could not run.
+QUERY_TIMEOUT_S = 180  # git ls-remote, a shallow fetch
+CLONE_TIMEOUT_S = 600  # a repository at a tag: GraphicsMagick's whole Mercurial history takes under two minutes
+REMOTE_ATTEMPTS = 2
+
+
+class HostUnreachable(RuntimeError):
+    """A host that did not answer (in time, or at all), every attempt."""
+
+
+UNREACHABLE_ADVICE = ("The host, or that service of it, is down or unreachable, so nothing was checked against it. "
+                      "Run the audit again once it answers; for a release, run the Supply-chain gate job again.")
+
+
+def run_remote(*command, url, timeout=QUERY_TIMEOUT_S, cwd=None, dest=None):
+    """run() for a command that reaches `url`'s host, stopped after `timeout` seconds and tried again
+    (from an empty `dest`, which a stopped clone leaves half written); HostUnreachable when no attempt
+    ended in time. A host that answers with an error is CalledProcessError at once, as before."""
+    for _ in range(REMOTE_ATTEMPTS):
+        if dest is not None and os.path.lexists(dest):
+            shutil.rmtree(dest)
+        try:
+            return run(*command, cwd=cwd, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            continue
+    host = urllib.parse.urlsplit(url).hostname or url
+    raise HostUnreachable(f"{host} did not answer: \"{command[0]} {command[1]}\" of {url} was stopped after {timeout} s, "
+                          f"{REMOTE_ATTEMPTS} times. {UNREACHABLE_ADVICE}")
 
 
 def tag_commit(url, tag):
-    """The commit a tag names (annotated tags peeled); None when the tag is missing or the host is
-    unreachable (the caller reports it: an unresolved library is never a pass)."""
+    """The commit a tag names (annotated tags peeled); None when the tag is missing or the host
+    refuses (the caller reports it: an unresolved library is never a pass); HostUnreachable when the
+    host does not answer."""
     try:
-        lines = run("git", "ls-remote", "--tags", url, f"refs/tags/{tag}", f"refs/tags/{tag}^{{}}").splitlines()
+        lines = run_remote("git", "ls-remote", "--tags", url, f"refs/tags/{tag}", f"refs/tags/{tag}^{{}}",
+                           url=url).splitlines()
     except subprocess.CalledProcessError:
         return None
     return lines[-1].split("\t")[0] if lines else None
@@ -151,7 +219,7 @@ def ref_date(url, ref):
     """The date of a tag (the tagger's, or its commit's) or of a commit, fetched without files."""
     with tempfile.TemporaryDirectory() as work:
         run("git", "init", "-q", work)
-        run("git", "fetch", "-q", "--depth", "1", "--filter=tree:0", url, f"+{ref}:refs/audit", cwd=work)
+        run_remote("git", "fetch", "-q", "--depth", "1", "--filter=tree:0", url, f"+{ref}:refs/audit", url=url, cwd=work)
         stamp = run("git", "for-each-ref", "refs/audit", "--format=%(creatordate:unix)", cwd=work).strip()
     return datetime.datetime.fromtimestamp(int(stamp), datetime.timezone.utc)
 

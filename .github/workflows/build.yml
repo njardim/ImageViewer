@@ -547,6 +547,9 @@ jobs:
           python3 scripts/audit_dependencies.py --vulnerabilities --sources --cooldown \
             --report "$RUNNER_TEMP/audit.md" || status=$?
           cat "$RUNNER_TEMP/audit.md" >> "$GITHUB_STEP_SUMMARY"
+          # Exit 2: a check could not run (a host that did not answer, D-121; the error above names it):
+          # nothing is refused yet, the gate is run again once the host answers.
+          [ "$status" = 2 ] && { echo "::error::the supply-chain audit could not run (the error above says why): run this job again once every host answers"; exit 1; }
           [ "$status" = 0 ] || { echo "::error::the supply-chain audit refuses this release (see the summary)"; exit 1; }
 
       # An assessed vulnerability whose fix is still under its cooldown holds no release back, but is

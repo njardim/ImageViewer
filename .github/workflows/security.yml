@@ -113,8 +113,10 @@ jobs:
           LOWERED: ${{ steps.audit.outputs.lowered }}
           DAYS: ${{ steps.audit.outputs.cooldown_days }}
         run: |
-          # Exit 2, or no flags at all (an unreadable packaging/cooldown-days.txt): the audit did not run.
-          if [ "$STATUS" != 0 ] && { [ "$STATUS" != 1 ] || [ -z "$DAYS" ]; }; then
+          # Exit 2 without a check that failed (the script stopped), or no flags at all (an unreadable
+          # packaging/cooldown-days.txt): the audit did not run. A check that could not run (a host that
+          # did not answer, D-121) is said below, with the reason the audit gave on this run's page.
+          if [ "$STATUS" != 0 ] && [ "$FAILED" != true ] && { [ "$STATUS" != 1 ] || [ -z "$DAYS" ]; }; then
             echo "::error::the audit did not run (exit $STATUS): an audit that cannot run is never a pass (see the log)"
             exit 1
           fi
@@ -125,5 +127,5 @@ jobs:
           [ "$ACTIONABLE" = true ] && echo "::error::a known vulnerability is fixed in a release we may take: update now (see the summary)"
           [ "$UNASSESSED" = true ] && echo "::error::a known vulnerability is neither patched nor assessed: answer it in packaging/known-vulnerabilities.txt or with a patch (see the summary)"
           [ "$MISMATCH" = true ] && echo "::error::a release tarball differs from its tag (see the summary)"
-          [ "$FAILED" = true ] && echo "::error::a check could not run: an audit that cannot run is never a pass (see the summary)"
+          [ "$FAILED" = true ] && echo "::error::a check could not run (the error above says why, often a host that did not answer): an audit that cannot run is never a pass; run it again once the host answers"
           [ "$ACTIONABLE" != true ] && [ "$UNASSESSED" != true ] && [ "$MISMATCH" != true ] && [ "$FAILED" != true ]

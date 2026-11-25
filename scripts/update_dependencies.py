@@ -79,6 +79,11 @@ def git(*args, cwd=None):
     return supply_chain.run("git", *args, cwd=cwd)
 
 
+def remote(*args, url, cwd=None, dest=None):
+    """git for a command that reaches `url`'s host: bounded in time, tried twice (D-121)."""
+    return supply_chain.run_remote("git", *args, url=url, timeout=supply_chain.CLONE_TIMEOUT_S, cwd=cwd, dest=dest)
+
+
 def version_tuple(text):
     return tuple(int(part) for part in text.split("."))
 
@@ -201,8 +206,8 @@ def review_changes(name, url, old_tag, new_tag, report):
     """What changed upstream between two tags, flagged for review (files only: trees, no blobs)."""
     with tempfile.TemporaryDirectory() as work:
         git("init", "-q", work)
-        git("fetch", "-q", "--depth", "1", "--filter=blob:none", url,
-            f"+refs/tags/{old_tag}:refs/tags/old", f"+refs/tags/{new_tag}:refs/tags/new", cwd=work)
+        remote("fetch", "-q", "--depth", "1", "--filter=blob:none", url,
+               f"+refs/tags/{old_tag}:refs/tags/old", f"+refs/tags/{new_tag}:refs/tags/new", url=url, cwd=work)
         changes = [line.split("\t") for line in git("diff", "--no-renames", "--name-status", "old", "new",
                                                     cwd=work).splitlines()]
     added = sum(1 for c in changes if c[0] == "A")
@@ -232,7 +237,7 @@ def check_patches(port, url, tag, apply, report):
         return
     ours = {patch["file"]: patch for patch in audit.our_patches(port)}
     with tempfile.TemporaryDirectory() as source:
-        git("clone", "--quiet", "--depth", "1", "--branch", tag, url, source)
+        remote("clone", "--quiet", "--depth", "1", "--branch", tag, url, source, url=url, dest=source)
         commit = git("rev-parse", "HEAD", cwd=source).strip()
         still = {vid for vid, aliases, _, _ in supply_chain.osv_lookup([commit]).get(commit, [])
                  for vid in (vid, *(a.strip() for a in aliases.split(",") if a.strip()))}
@@ -314,7 +319,7 @@ def update_svg_crate(old, new, url, tag, report):
                                   .replace(f'version = "={old}"', f'version = "={new}"'))
     with tempfile.TemporaryDirectory() as work:
         source = os.path.join(work, "resvg")
-        git("clone", "--quiet", "--depth", "1", "--branch", tag, url, source)
+        remote("clone", "--quiet", "--depth", "1", "--branch", tag, url, source, url=url, dest=source)
         crate = os.path.join(source, "imageviewer-svg")
         os.makedirs(crate)
         for name in ("Cargo.toml", "lib.rs"):  # not rust-toolchain.toml: any recent cargo resolves the same
@@ -439,7 +444,7 @@ def update_vcpkg_baseline(apply, report):
     recent = sorted(tags)[-6:]
     with tempfile.TemporaryDirectory() as work:
         git("init", "-q", work)
-        git("fetch", "-q", "--filter=tree:0", VCPKG, baseline, *(tags[v][1] for v in recent), cwd=work)
+        remote("fetch", "-q", "--filter=tree:0", VCPKG, baseline, *(tags[v][1] for v in recent), url=VCPKG, cwd=work)
         candidates = [v for v in recent if tags[v][1] != baseline and subprocess.run(
             ["git", "merge-base", "--is-ancestor", baseline, tags[v][1]], cwd=work).returncode == 0]
     latest = tags[max(tags)][0]

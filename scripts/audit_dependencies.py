@@ -71,9 +71,9 @@ import uuid
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from supply_chain import (  # noqa: E402  the shared ground (D-102)
-    PORTS, ROOT, RUST, Report, VULNERABILITY_ID, age_days, cooldown_days, cooldown_exceptions,
-    crate_date, crates, fetch, gm_releases, known_vulnerabilities, osv_crates, osv_lookup, read,
-    ref_date, release_tag, run, rust_version, tag_date,
+    CLONE_TIMEOUT_S, PORTS, ROOT, RUST, HostUnreachable, Report, VULNERABILITY_ID, age_days, cooldown_days,
+    cooldown_exceptions, crate_date, crates, fetch, gm_releases, known_vulnerabilities, osv_crates,
+    osv_lookup, read, ref_date, release_tag, run_remote, rust_version, tag_date,
 )
 
 POLICY_DAYS = 12  # D-67, D-101; a cooldown below it is reported, and the weekly audit opens an issue
@@ -201,7 +201,7 @@ def release_tags(url, templates, name=""):
     patterns = [re.escape(t).replace(r"\{v\}", r"(\d+(?:\.\d+)*)").replace(r"\{v_\}", r"(\d+(?:_\d+)*)")
                 for t in templates.split("|")]
     tags = {}
-    for line in run("git", "ls-remote", "--tags", url).splitlines():
+    for line in run_remote("git", "ls-remote", "--tags", url, url=url).splitlines():
         commit, ref = line.split("\t")
         tag = ref.removeprefix("refs/tags/").removesuffix("^{}")
         for pattern in patterns:
@@ -547,9 +547,11 @@ def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
         tarball = os.path.join(unpacked, roots[0]) if len(roots) == 1 else unpacked
         checkout = os.path.join(work, "repository")
         if kind == "git":
-            run("git", "clone", "--quiet", "--depth", "1", "--branch", tag, repo, checkout)
+            run_remote("git", "clone", "--quiet", "--depth", "1", "--branch", tag, repo, checkout,
+                       url=repo, timeout=CLONE_TIMEOUT_S, dest=checkout)
         else:
-            run("hg", "clone", "--quiet", "--updaterev", tag, repo, checkout)
+            run_remote("hg", "clone", "--quiet", "--updaterev", tag, repo, checkout,
+                       url=repo, timeout=CLONE_TIMEOUT_S, dest=checkout)
         ours, theirs = tree_files(tarball), tree_files(checkout)
         extra = sorted(set(ours) - set(theirs))
         changed = sorted(p for p in set(ours) & set(theirs) if not same_file(ours[p], theirs[p]))
@@ -577,10 +579,17 @@ def sources(baseline_commit, baseline, report):
     ok = True
     checks = [(port, overlay_version(port), kind, repo, template) for port, (kind, repo, template) in TARBALL_PORTS.items()]
     checks.append(("giflib", baseline["giflib"], "git", BASELINE_PORTS["giflib"][0], BASELINE_PORTS["giflib"][1]))
+    unanswered = []
     for port, version, kind, repo, template in checks:
-        url, sha512 = tarball_source(port, version, baseline_commit)
-        tag = release_tag(repo, template, version)[0] if kind == "git" else template.format(v_=version.replace(".", "_"))
-        ok = compare_tarball(port, version, url, sha512, kind, repo, tag, report) and ok
+        try:
+            url, sha512 = tarball_source(port, version, baseline_commit)
+            tag = release_tag(repo, template, version)[0] if kind == "git" else template.format(v_=version.replace(".", "_"))
+            ok = compare_tarball(port, version, url, sha512, kind, repo, tag, report) and ok
+        except HostUnreachable as error:  # the next library's host may answer (D-121)
+            report.rows.append(f"| {port} | {version} | tarball vs its tag | **not compared**: its host did not answer |")
+            unanswered.append(error)
+    if unanswered:  # the check could not run whole: never a pass
+        raise HostUnreachable(" ".join(str(error) for error in unanswered))
     return ok
 
 
@@ -742,6 +751,10 @@ def main():
         except Exception as error:  # a check that cannot run is never a pass; the others still run
             flags["failed"] = True
             report.notes.append(f"**This check could not run**: {error}")
+            if os.environ.get("GITHUB_ACTIONS") == "true":  # the reason on the run's page, not only in its summary
+                message = f"{title}: could not run. {error}"
+                print("::error title=Supply-chain audit::" +
+                      message.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A"), flush=True)
         out += [f"## {title}", "", *(header + report.rows if report.rows else []), "",
                 *[f"- {n}" for n in report.notes or ["nothing to report"]], ""]
     status = 1 if any(flags[k] for k in ("actionable", "unassessed", "mismatch", "unaudited", "young")) else 0

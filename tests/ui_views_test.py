@@ -738,6 +738,10 @@ try:
                 shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "IV_claude_v5_mix_v1.svg"),
                             os.path.join(svg_dir, "s6.svg"))
                 Image.new("RGB", (2400, 1800), (40, 90, 150)).save(os.path.join(svg_dir, "a.png"))
+                # With the gallery, whose two threads read the documents' thumbnails beside the image:
+                # the workers this section is about. Set here, not left by the sections before it (the
+                # toolbar's hides the gallery, and ran this section with one worker, D-119).
+                edit_settings(("gallery", "show", "true"))
                 before = len(log_text())
                 app = launch([os.path.join(svg_dir, "a.png")], log)
                 wait_until("the folder's PNG shown", lambda: "decoded for display: a.png" in log_text()[before:])

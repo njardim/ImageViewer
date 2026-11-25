@@ -145,6 +145,24 @@ def stays(what, name, seconds):
     print(f"ok   {what}: {name} for {seconds:.1f} s")
 
 
+def holds(what, seconds):
+    """The slideshow holds its image: the still one, or the animation, which plays on while the
+    slideshow is paused or stopped (D-58), so its colours count as one image. Sampled once the
+    screen has caught up: a runner that draws a frame a second (llvmpipe under load: 840 to 966 ms
+    a frame on CI) draws what the slideshow did before the key or click a frame late, and its
+    interval here is a second, so the image the slideshow holds may be the next one. Were it not
+    held, the slideshow would move on within the time checked."""
+    time.sleep(1.5)
+    held = {"yellow"} if colour() == "yellow" else {"red", "green", "blue"}
+    end = time.monotonic() + seconds
+    while time.monotonic() < end:
+        if (seen := colour()) not in held:
+            fail(f"{what}: {seen} instead of {'/'.join(sorted(held))}")
+        time.sleep(POLL_S)
+    print(f"ok   {what}: {'/'.join(sorted(held))} for {seconds:.1f} s")
+    return held
+
+
 NEXT = {"red": "green", "green": "blue", "blue": "red"}
 PREVIOUS = {v: k for k, v in NEXT.items()}
 
@@ -194,7 +212,7 @@ try:
             wait_for("the slideshow goes on (the folder loops)", {"red", "green", "blue"})
             wait_for("and comes back to the still image", {"yellow"})
             xdotool("key", "Escape")
-            stays("Esc stops the slideshow", "yellow", 2.5)
+            holds("Esc stops the slideshow", 2.5)
             if toolbar() is not None:
                 fail("the slideshow's toolbar stayed after Esc")
 
@@ -235,15 +253,7 @@ try:
             xdotool("mousemove", "--sync", str(bx), str(by))
             xdotool("click", "1")
             toolbar_is("a click on pause turns it into play", "play")
-            # The image held: the still one, or the animation, which goes on playing while the
-            # slideshow is paused (D-58), so its colours count as one image.
-            held = {"yellow"} if colour() == "yellow" else {"red", "green", "blue"}
-            end = time.monotonic() + 2.5
-            while time.monotonic() < end:
-                if (seen := colour()) not in held:
-                    fail(f"and the slideshow holds its image: {seen} instead of {'/'.join(sorted(held))}")
-                time.sleep(POLL_S)
-            print(f"ok   and the slideshow holds its image: {'/'.join(sorted(held))} for 2.5 s")
+            held = holds("and the slideshow holds its image", 2.5)
             xdotool("click", "1")
             toolbar_is("a click on play turns it back into pause", "pause")
             wait_for("and the slideshow goes on", set(COLOURS) - held)
@@ -258,7 +268,7 @@ try:
             wait_for("the slideshow comes to the still image", {"yellow"})  # the animation changes by itself
             xdotool("click", "1")
             toolbar_is("a click on stop takes the toolbar away", None)
-            stays("and stops the slideshow", "yellow", 2.5)
+            holds("and stops the slideshow", 2.5)
             xdotool("key", "q")
             app.wait(15)
 

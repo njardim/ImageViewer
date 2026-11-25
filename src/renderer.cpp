@@ -27,16 +27,23 @@ QShader loadShader(const QString &name)
     return file.open(QIODevice::ReadOnly) ? QShader::fromSerialized(file.readAll()) : QShader();
 }
 
+// A transparent texture, bound where the image, an overlay layer or the zoom's detail has none yet.
+// 3 x 3 rather than 1 x 1 (D-119): Mesa's llvmpipe (OpenGL without a GPU) compiles a variant of the
+// fragment shader for each state of the bound textures, a side that is a power of two among it, and
+// image.frag samples 14 textures, so a layer's first texture in place of a 1 x 1 placeholder cost a
+// frame of about a second (the information panel, the picker), and costs none when both sides are
+// not powers of two, as with almost every overlay. Vulkan's lavapipe showed no such frame.
 QRhiTexture *createPlaceholder(QRhi *rhi, QRhiTexture::Format format, QRhiResourceUpdateBatch *updates)
 {
-    QRhiTexture *texture = rhi->newTexture(format, QSize(1, 1));
+    constexpr int kSide = 3;
+    QRhiTexture *texture = rhi->newTexture(format, QSize(kSide, kSide));
     texture->create();
     if (format == QRhiTexture::RGBA16F) {
-        const qfloat16 transparent[4] = {};
+        const qfloat16 transparent[kSide * kSide * 4] = {};
         updates->uploadTexture(texture, QRhiTextureUploadDescription(
                                             {0, 0, QRhiTextureSubresourceUploadDescription(transparent, sizeof transparent)}));
     } else {
-        QImage image(1, 1, QImage::Format_RGBA8888_Premultiplied);
+        QImage image(kSide, kSide, QImage::Format_RGBA8888_Premultiplied);
         image.fill(Qt::transparent);
         updates->uploadTexture(texture, image);
     }

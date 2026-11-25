@@ -60,9 +60,6 @@ inline constexpr QSize kMinWindowSize(320, 240);
 // File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and the
 // Linux desktops in 1000s (overlays.cpp).
 QString fileSizeText(qint64 bytes, const QLocale &locale);
-// A zoom as the overlay writes it: "100" only when the image really is shown 1:1 (nearest
-// sampling); otherwise one decimal (overlays.cpp).
-QString zoomNumber(double zoom, const QLocale &locale);
 // Between the top overlay's facts, the title's and a gallery tooltip's.
 inline const QString kFieldSeparator = QStringLiteral("   ·   ");
 
@@ -149,9 +146,6 @@ private:
     double sourceScale() const; // the file's pixels per texel: above 1 for a texture drawn smaller
     double naturalZoom() const; // the texture's zoom at 100 %: an SVG's own pixels one per device pixel (D-94)
     double shownZoom() const;   // of the file's own pixels (the overlay's per cent)
-    // The zoom an image of `fileSize` (its own pixels) would be shown at in this window, as shownZoom()
-    // gives it: the zoom of a new image, or the locked one (a gallery's tooltip, D-117).
-    double zoomFor(QSizeF fileSize) const;
     QRectF imageRect() const;
     void zoomAt(double factor, const QPointF &devicePos);
     void chooseFit(FitMode mode); // a command: the mode stays for the next images (D-65)

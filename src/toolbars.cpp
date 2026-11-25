@@ -540,8 +540,8 @@ void ViewerWindow::showSlideshowToolbar()
 
 QString ViewerWindow::galleryTipText(int file) const
 {
-    // The top overlay's chosen facts, in its order: the name, dimensions, size and zoom on the first
-    // line, the others on the second (the owner, D-117).
+    // The top overlay's chosen facts, in its order: the name, dimensions and size on the first line,
+    // the others on the second (the owner, D-117); never the zoom, the view's and not the file's (D-120).
     const QString path = m_files.value(file);
     if (path.isEmpty())
         return {};
@@ -564,10 +564,7 @@ QString ViewerWindow::galleryTipText(int file) const
             if (const qint64 bytes = thumbnail ? thumbnail->fileSize : info.size(); bytes >= 0)
                 first << fileSizeText(bytes, locale);
             break;
-        case OverlayField::Zoom: // the zoom it would be shown at, as the overlay would write it
-            if (!fileSize.isEmpty())
-                first << tr("%1 %").arg(zoomNumber(zoomFor(fileSize), locale));
-            break;
+        case OverlayField::Zoom: break;
         case OverlayField::ColorSpace:
             if (thumbnail && !thumbnail->image.text(QStringLiteral("Color")).isEmpty())
                 second << thumbnail->image.text(QStringLiteral("Color"));

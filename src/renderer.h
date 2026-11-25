@@ -200,7 +200,7 @@ private:
     QRhiSampler *m_linearSampler = nullptr;
     QRhiSampler *m_nearestSampler = nullptr;
     QRhiSampler *m_detailSampler = nullptr;
-    QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
+    QRhiTexture *m_placeholderTexture = nullptr; // transparent (createPlaceholder()), bound while there is no image
     QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
     QRhiTexture *m_detailTexture = nullptr;      // the zoom's detail; null when there is none
     QRhiTexture *m_boundImage = nullptr;         // the image texture or the placeholder

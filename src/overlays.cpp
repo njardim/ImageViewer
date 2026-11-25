@@ -108,12 +108,14 @@ struct Row {
     bool choice = false;    // the histogram's choice (D-116): a value that opens a menu, the plot below it
 };
 
-} // namespace
-
+// A zoom as the overlay writes it: "100" only when the image really is shown 1:1 (nearest
+// sampling); otherwise one decimal.
 QString zoomNumber(double zoom, const QLocale &locale)
 {
     return zoom == 1.0 ? locale.toString(100) : locale.toString(zoom * 100.0, 'f', 1);
 }
+
+} // namespace
 
 QString fileSizeText(qint64 bytes, const QLocale &locale)
 {

@@ -409,30 +409,6 @@ double ViewerWindow::fitZoom(FitMode mode, QSizeF view) const
     return std::clamp(zoom, kMinZoom * natural, kMaxZoom * natural);
 }
 
-double ViewerWindow::zoomFor(QSizeF fileSize) const
-{
-    // As showImage() and fitZoom() set it for a new file: the settings' fit, or the locked one; a
-    // locked zoom of no fit carries over as it is. The view turns back to none.
-    const std::optional<FitMode> mode = m_settings.lockZoom ? m_fit : std::optional<FitMode>(m_settings.fitMode);
-    if (!mode)
-        return m_zoom;
-    const QSizeF view = deviceSize();
-    if (fileSize.isEmpty() || view.isEmpty())
-        return 1.0;
-    const double width = view.width() / fileSize.width(), height = view.height() / fileSize.height();
-    double zoom = 1.0;
-    switch (*mode) {
-    case FitMode::Window: zoom = std::min(width, height); break;
-    case FitMode::Width: zoom = width; break;
-    case FitMode::Height: zoom = height; break;
-    case FitMode::Fill: zoom = std::max(width, height); break;
-    case FitMode::Actual: return 1.0;
-    }
-    if (!m_settings.enlargeSmallImages)
-        zoom = std::min(zoom, 1.0);
-    return std::clamp(zoom, kMinZoom, kMaxZoom);
-}
-
 double ViewerWindow::currentZoom() const
 {
     return m_fit ? fitZoom(*m_fit) : m_zoom * naturalZoom();

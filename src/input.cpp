@@ -24,10 +24,6 @@
 #include <cmath>
 #include <utility>
 
-namespace {
-constexpr int kGalleryTipDelayMs = 700; // a thumbnail's tooltip, as a toolbar button's (D-116)
-} // namespace
-
 // What the color picker picks, reads from the file and copies (D-115): the tests read it.
 Q_LOGGING_CATEGORY(lcPicker, "imageviewer.picker", QtWarningMsg)
 
@@ -182,7 +178,7 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *e)
         if (slot != m_gallery.hover()) { // a thumbnail's tooltip once the pointer rests on it (D-116)
             hideTip(TipSource::Gallery);
             if (slot >= 0 && m_settings.galleryTooltips)
-                m_tooltipTimer.start(kGalleryTipDelayMs);
+                m_tooltipTimer.start(kTooltipDelayMs);
         }
         m_gallery.setHover(slot);
         return;

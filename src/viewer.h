@@ -55,6 +55,9 @@
 // edges and rounds its corners by kPanelRadius (D-58, D-60), logical pixels.
 inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
+// How long the pointer rests on a toolbar's button or a gallery's thumbnail before its tooltip
+// shows (D-116): one time for every tooltip of ours (the owner, D-122).
+inline constexpr int kTooltipDelayMs = 500;
 // The window's least size, logical pixels; also when the window takes an image's size.
 inline constexpr QSize kMinWindowSize(320, 240);
 // File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and the

@@ -28,7 +28,6 @@
 namespace {
 
 constexpr int kSlideshowPause = 1000; // the id of the slideshow's own pause or play, on either bar
-constexpr int kTooltipDelayMs = 700;  // as Qt's widgets wait before a tooltip
 constexpr double kTipGap = 8.0;       // between a tooltip and what it names, or the pointer (the owner, D-116)
 constexpr double kPointerBody = 16.0; // below the pointer's hot spot, its arrow or hand: a tooltip goes under it
 constexpr double kMenuGap = 6.0;      // between the toolbar and its "…" panel, logical pixels

@@ -5,7 +5,7 @@
 # it). The version is the resvg release this wraps; the dependency below pins the same.
 [package]
 name = "imageviewer-svg"
-version = "0.48.1"
+version = "0.50.0"
 edition = "2024"
 rust-version = "1.85.0"
 license = "Apache-2.0"
@@ -19,7 +19,7 @@ crate-type = ["staticlib"]
 # text: SVG text; system-fonts and memmap-fonts: the system's fonts, mapped rather than read whole
 # (D-90 (3)); raster-images: the PNG, JPEG, GIF and WebP an SVG embeds. Not svgz: the caller
 # inflates it within its own limit.
-resvg = { path = "../crates/resvg", version = "=0.48.1", default-features = false, features = ["text", "system-fonts", "memmap-fonts", "raster-images"] }
+resvg = { path = "../crates/resvg", version = "=0.50.0", default-features = false, features = ["text", "system-fonts", "memmap-fonts", "raster-images"] }
 
 # Linux: the reader of the system's font configuration that fontdb (resvg's font database) uses,
 # for the generic families fontdb leaves uninstalled (lib.rs, settle_generic_families()). Already

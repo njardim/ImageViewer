@@ -1,65 +1,61 @@
-ImageViewer patch (docs/PLAN.md section 15, D-57, D-94): layers laid over their parents directly when source-over
-Library: resvg 0.48.1
-Fixes: none (speed: tiny-skia draws every pixmap through its high-precision pipeline)
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-94, D-118): layers laid over their parents directly when source-over
+Library: resvg 0.50.0
+Fixes: none (speed: tiny-skia draws a layer as a pattern through its high-precision pipeline)
 Upstream: none yet: to be proposed to tiny-skia (a low-precision path for an untransformed pixmap) or resvg (ours)
 Remove when: tiny-skia draws an untransformed source-over pixmap without its high-precision pipeline, or resvg composites layers so, or this patch no longer applies
 
-render::composite() lays a source-over layer onto its parent with its opacity directly (premultiplied,
-rounded to the nearest level), any other blend mode through tiny-skia as before: draw_pixmap took half
-the time of a document of large layers. The rounding differs from tiny-skia's by at most 3 levels.
-Requires the three patches before it.
+render::render_group() lays a source-over layer neither turned, skewed nor reduced onto its parent with
+its opacity directly (render::composite(): premultiplied, rounded to the nearest level), any other
+through tiny-skia as before: draw_pixmap, which resvg used before 0.49.0, took half the time of a
+document of large layers. The rounding differs from tiny-skia's by at most 3 levels. Requires the
+three patches before it.
 
 diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
-index 13c7037..9978287 100644
+index 01dad4b..8593ad0 100644
 --- a/crates/resvg/src/render.rs
 +++ b/crates/resvg/src/render.rs
-@@ -180,24 +180,71 @@ fn render_group(
-         crate::mask::apply(mask, ctx, transform, &mut sub_pixmap);
-     }
+@@ -94,6 +94,24 @@ fn render_group(
+         inv_rest.pre_concat(transform),
+     )?;
  
--    let paint = tiny_skia::PixmapPaint {
--        opacity: group.opacity().get(),
++    let blend_mode = convert_blend_mode(group.blend_mode());
++    let shift = layer.transform;
++    if blend_mode == tiny_skia::BlendMode::SourceOver
++        && rest.is_identity()
++        && (shift.sx, shift.kx, shift.ky, shift.sy) == (1.0, 0.0, 0.0, 1.0)
++        && shift.tx == layer.area.x() as f32
++        && shift.ty == layer.area.y() as f32
++    {
++        composite(
++            pixmap,
++            layer.area.x(),
++            layer.area.y(),
++            &layer.pixmap,
++            group.opacity().get(),
++        );
++        return Some(());
++    }
++
+     let paint = tiny_skia::Paint {
+         shader: tiny_skia::Pattern::new(
+             layer.pixmap.as_ref(),
+@@ -102,7 +120,7 @@ fn render_group(
+             group.opacity().get(),
+             layer.transform,
+         ),
 -        blend_mode: convert_blend_mode(group.blend_mode()),
--        quality: tiny_skia::FilterQuality::Nearest,
--    };
--
--    pixmap.draw_pixmap(
-+    composite(
-+        pixmap,
-         ibbox.x(),
-         ibbox.y(),
--        sub_pixmap.as_ref(),
--        &paint,
--        tiny_skia::Transform::identity(),
--        None,
-+        &sub_pixmap,
-+        group.opacity().get(),
-+        convert_blend_mode(group.blend_mode()),
-     );
- 
++        blend_mode,
+         anti_alias: true,
+         ..tiny_skia::Paint::default()
+     };
+@@ -112,6 +130,43 @@ fn render_group(
      Some(())
  }
  
-+/// Draws `layer` at (`x`, `y`) onto `pixmap`, with `opacity` and `blend_mode`: the usual case,
-+/// source-over, directly (tiny-skia draws every pixmap through its high-precision pipeline, which
-+/// took half the time of a document of large layers), any other mode through tiny-skia.
-+fn composite(
-+    pixmap: &mut tiny_skia::PixmapMut,
-+    x: i32,
-+    y: i32,
-+    layer: &tiny_skia::Pixmap,
-+    opacity: f32,
-+    blend_mode: tiny_skia::BlendMode,
-+) {
-+    if blend_mode != tiny_skia::BlendMode::SourceOver {
-+        let paint = tiny_skia::PixmapPaint {
-+            opacity,
-+            blend_mode,
-+            quality: tiny_skia::FilterQuality::Nearest,
-+        };
-+        pixmap.draw_pixmap(x, y, layer.as_ref(), &paint, tiny_skia::Transform::identity(), None);
-+        return;
-+    }
++/// Draws `layer` at (`x`, `y`) onto `pixmap`, source-over with `opacity`, directly: the usual case
++/// (tiny-skia draws a pattern through its high-precision pipeline, which took half the time of a
++/// document of large layers). The rounding differs from tiny-skia's by at most 3 levels.
++fn composite(pixmap: &mut tiny_skia::PixmapMut, x: i32, y: i32, layer: &tiny_skia::Pixmap, opacity: f32) {
 +    let (width, height) = (pixmap.width() as i64, pixmap.height() as i64);
 +    let (layer_width, layer_height) = (i64::from(layer.width()), i64::from(layer.height()));
 +    let (x, y) = (i64::from(x), i64::from(y));
@@ -93,6 +89,6 @@ index 13c7037..9978287 100644
 +    }
 +}
 +
- /// A filtered group drawn on a layer `factors` times smaller, over the full-size one (`ibbox`, part of
- /// `whole`, the filter's region; `transform` maps to it), its filter computed there and the result
- /// enlarged back, interpolated, within the filter's region at full resolution.
+ /// An isolated group's layer, and where it goes on its parent.
+ struct Layer {
+     pixmap: tiny_skia::Pixmap,

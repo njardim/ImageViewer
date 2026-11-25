@@ -286,7 +286,11 @@ void ViewerWindow::showImage(Image image, int limit, bool redrawn)
         m_message.clear();
         m_error.clear();
         m_renderer.setImage(image.pixels, QSize(image.width, image.height));
-        image.pixels.reset(); // the cache keeps them when preloading is on; the GPU has its copy
+        // The cache keeps them when preloading is on; the GPU has its copy. The window keeps them
+        // only while the color picker reads them (D-115).
+        if (!m_pickerOn)
+            image.pixels.reset();
+        m_fileSamples.reset(); // read again when picked: another file, or this one changed on disk (D-115)
         m_image = std::move(image);
         if (!sameFile) {
             if (!m_settings.lockZoom) // a locked zoom (Z) carries over to the new image

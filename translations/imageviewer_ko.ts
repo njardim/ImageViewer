@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>파일</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGB로 잘림)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (부동 소수점)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2비트)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>휘도</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>픽셀</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>이미지를 클릭하여 색을 추출하세요.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -246,6 +289,32 @@
         <translation>흰색</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>색상</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>휘도</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>오버레이 표시:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>도구 모음</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>검색:</translation>
     </message>
@@ -256,6 +325,10 @@
     <message>
         <source>Background:</source>
         <translation>배경:</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>언어 및 텍스트</translation>
     </message>
     <message>
         <source>Small</source>
@@ -277,12 +350,24 @@
         <translation>글꼴 크기:</translation>
     </message>
     <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>투명 영역 뒤에 체크무늬 표시</translation>
+        <source>Startup and files</source>
+        <translation>시작 및 파일</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>시작할 때 시작 화면 표시</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>이미지 위</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
         <translation>창 크기와 위치 기억</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>색상</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -311,6 +396,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>창보다 작은 이미지 확대</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>창</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -354,20 +445,82 @@
         <translation>제목 표시줄:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>움직이지 않는 포인터를 다음 시간 후 숨기기:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>패널, 오버레이, 갤러리, 도구 모음, 측면 버튼</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>텍스트 및 아이콘 불투명도:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>마우스 포인터가 움직이지 않으면 자동으로 숨기기</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>자동 숨기기로 설정한 모든 요소에 적용: 막대, 갤러리, 오버레이, 패널, 마우스 포인터.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>요소 자동 숨기기 시간:</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>창</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>정보 패널</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>히스토그램:</translation>
+    </message>
+    <message>
         <source>Time per image:</source>
         <translation>이미지당 시간:</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>포인터가 움직이지 않으면 도구 모음 숨기기</translation>
+        <source>Show the toolbar</source>
+        <translation>도구 모음 표시</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>버튼 아래에 이름 표시</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>도구 모음 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>버튼</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>구분선 추가</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>구분선 제거</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>기본 버튼</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>설정과 종료는 항상 맨 끝에 별도 그룹으로 표시됩니다.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>구분선 (항상)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>구분선</translation>
     </message>
     <message>
         <source>Small</source>
@@ -414,6 +567,26 @@
         <translation>강조 색</translation>
     </message>
     <message>
+        <source>Auto-hide the information panel</source>
+        <translation>정보 패널 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>정보 오버레이 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>슬라이드 쇼 도구 모음 자동 숨기기</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>도구 설명에 이미지 정보 표시</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>갤러리 자동 숨기기</translation>
+    </message>
+    <message>
         <source>Search extensions, formats and decoders</source>
         <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
         <translation>확장자, 형식, 디코더 검색</translation>
@@ -434,10 +607,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>확대:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀 강조 표시(마젠타)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -469,19 +638,6 @@
         <translation>포인터가 상단에 있을 때</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>표시 안 함</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>전체 화면에서:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>창에서:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>항목</translation>
     </message>
@@ -511,10 +667,6 @@
         <translation>배경 불투명도:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>텍스트 불투명도:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>텍스트에 윤곽선 넣기</translation>
     </message>
@@ -522,10 +674,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation>초</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>다음 시간 후 숨기기:</translation>
     </message>
     <message>
         <source>Information</source>
@@ -613,10 +761,6 @@
         <translation>디스플레이 출력:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>디스플레이 범위를 초과하는 HDR 이미지 톤 매핑(ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>색상 &amp;&amp; HDR</translation>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>슬라이드 쇼 (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>도구 모음(%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>투명 영역 뒤에 체크무늬 표시(%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>디스플레이 범위를 초과하는 HDR 이미지 톤 매핑(ITU-R BT.2390, %1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>클리핑 또는 톤 매핑으로 변경된 픽셀을 마젠타로 강조 표시(%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -792,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>방향</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>색상</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>휘도</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>히스토그램</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
@@ -1075,12 +1259,16 @@
         <translation>갤러리</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>시계 방향으로 회전</translation>
+        <source>Toolbar</source>
+        <translation>도구 모음</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>시계 반대 방향으로 회전</translation>
+        <source>Rotate Right</source>
+        <translation>오른쪽으로 회전</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>왼쪽으로 회전</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1089,6 +1277,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>상하 반전</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>색상 선택기</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1144,6 +1336,26 @@
     <message>
         <source>Open With</source>
         <translation>다음 애플리케이션으로 열기</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>중지</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>재생</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>더 보기</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1(%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>슬라이드 쇼 일시 정지됨</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>복사</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>복사됨: %1</translation>
     </message>
 </context>
 </TS>

@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>文件</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1（裁剪至 sRGB）</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1（浮点）</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1（%2 位）</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>亮度</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>像素</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>点击图像以拾取颜色。</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>白色</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>亮度</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>显示叠加层：</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>工具栏</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>自定义…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>将图像移到废纸篓前进行确认</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>在透明区域后显示棋盘格背景</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>指针位于顶部时</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>从不</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>全屏时：</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>窗口模式下：</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>字段</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>背景不透明度：</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>文字不透明度：</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>为文字添加轮廓</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation>秒</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>语言和文字</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>字体大小：</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>启动和文件</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>启动时显示欢迎屏幕</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>图像上方</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>适合窗口</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>放大小于窗口的图像</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>窗口</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>标题栏：</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>静止指针隐藏延迟：</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>面板、叠加层、图库、工具栏和侧边按钮</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>文字和图标不透明度：</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>鼠标指针静止时自动隐藏</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>适用于所有设为自动隐藏的元素：工具栏、图库、叠加层、面板和鼠标指针。</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>自动隐藏元素的时间：</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>信息面板</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>直方图：</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>顶部叠加层</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>隐藏延迟：</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>面板和叠加层的外观</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>自动隐藏信息面板</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>自动隐藏信息叠加层</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>单击窗口左侧或右侧切换到上一张或下一张图像</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>指针静止时隐藏工具栏</translation>
+        <source>Show the toolbar</source>
+        <translation>显示工具栏</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>在按钮下方显示名称</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>自动隐藏工具栏</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>按钮</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>添加分隔线</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>移除分隔线</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>默认按钮</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>设置和退出始终位于末尾，自成一组。</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>分隔线（始终）</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>分隔线</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>以全屏方式开始幻灯片放映</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>突出显示因截断或色调映射而被改变的像素（品红色）</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>自动隐藏幻灯片放映工具栏</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>在工具提示中显示图像信息</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>自动隐藏图库</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>显示输出：</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>对超出显示器范围的 HDR 图像进行色调映射（ITU-R BT.2390）</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>幻灯片放映（%1）</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>工具栏（%1）</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>在透明区域后显示棋盘格背景（%1）</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>对超出显示器范围的 HDR 图像进行色调映射（ITU-R BT.2390，%1）</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>用品红色突出显示因截断或色调映射而被改变的像素（%1）</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>高于 %1 nits 的部分被裁剪（色调映射已关闭）</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>颜色</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>亮度</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>直方图</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>曝光 %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>图库</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>顺时针旋转</translation>
+        <source>Toolbar</source>
+        <translation>工具栏</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>逆时针旋转</translation>
+        <source>Rotate Right</source>
+        <translation>向右旋转</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>向左旋转</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>垂直翻转</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>取色器</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>打开方式</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>播放</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>更多</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1（%2）</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>幻灯片放映已暂停</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>复制</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>已复制：%1</translation>
     </message>
 </context>
 </TS>

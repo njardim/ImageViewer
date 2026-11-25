@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Fájl</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGB-re vágva)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (lebegőpontos)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bites)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Fénysűrűség</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Képpont</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Kattintson a képre egy szín felvételéhez.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -246,6 +289,32 @@
         <translation>Fehér</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Színek</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Fénysűrűség</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Nincs</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>A fedőréteg megjelenítése:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Eszköztár</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Keresés:</translation>
     </message>
@@ -256,6 +325,10 @@
     <message>
         <source>Background:</source>
         <translation>Háttér:</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Nyelv és szöveg</translation>
     </message>
     <message>
         <source>Small</source>
@@ -277,12 +350,24 @@
         <translation>Betűméret:</translation>
     </message>
     <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Sakktábla megjelenítése az átlátszó területek mögött</translation>
+        <source>Startup and files</source>
+        <translation>Indítás és fájlok</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Üdvözlőképernyő megjelenítése indításkor</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>A kép fölött</translation>
     </message>
     <message>
         <source>Remember the window size and position</source>
         <translation>Ablakméret és -pozíció megjegyzése</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Színek</translation>
     </message>
     <message>
         <source>Fit to the window</source>
@@ -311,6 +396,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Az ablaknál kisebb képek felnagyítása</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Ablak</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -354,20 +445,82 @@
         <translation>Címsor:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Mozdulatlan mutató elrejtése ennyi idő után:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>A panelek, a fedőréteg, a galéria, az eszköztárak és az oldalsó gombok</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>A szöveg és az ikonok átlátszatlansága:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Az egérmutató automatikus elrejtése, amíg nem mozog</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Mindenre, ami automatikusan elrejtőzik: az eszköztárakra, a galériára, a fedőrétegre, a panelre és az egérmutatóra.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Az elemek automatikus elrejtése ennyi idő után:</translation>
     </message>
     <message>
         <source>Window</source>
         <translation>Ablak</translation>
     </message>
     <message>
+        <source>Information panel</source>
+        <translation>Információs panel</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Hisztogram:</translation>
+    </message>
+    <message>
         <source>Time per image:</source>
         <translation>Képenkénti idő:</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Az eszköztár elrejtése, amíg a mutató nem mozog</translation>
+        <source>Show the toolbar</source>
+        <translation>Az eszköztár megjelenítése</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Nevek megjelenítése a gombok alatt</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Az eszköztár automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Gombok</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Elválasztó hozzáadása</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Elválasztó eltávolítása</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Alapértelmezett gombok</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>A Beállítások és a Kilépés mindig a végén van, saját csoportban.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Elválasztó (mindig)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Elválasztó</translation>
     </message>
     <message>
         <source>Small</source>
@@ -414,6 +567,26 @@
         <translation>Kiemelés színe</translation>
     </message>
     <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Az információs panel automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Az információs fedőréteg automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>A diavetítés eszköztárának automatikus elrejtése</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>A kép adatainak megjelenítése elemleírásban</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>A galéria automatikus elrejtése</translation>
+    </message>
+    <message>
         <source>Search extensions, formats and decoders</source>
         <extracomment>Placeholder of the field that filters the table of image formats.</extracomment>
         <translation>Keresés a kiterjesztések, formátumok és dekóderek között</translation>
@@ -434,10 +607,6 @@
     <message>
         <source>Enlargement:</source>
         <translation>Nagyítás:</translation>
-    </message>
-    <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése (magenta)</translation>
     </message>
     <message>
         <source>Extension</source>
@@ -469,19 +638,6 @@
         <translation>Ha a mutató felül van</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Soha</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Teljes képernyőn:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Ablakban:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Mezők</translation>
     </message>
@@ -511,10 +667,6 @@
         <translation>Háttér átlátszatlansága:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Szöveg átlátszatlansága:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Szöveg körvonalazása</translation>
     </message>
@@ -522,10 +674,6 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> s</translation>
-    </message>
-    <message>
-        <source>Hide after:</source>
-        <translation>Elrejtés ennyi idő után:</translation>
     </message>
     <message>
         <source>Information</source>
@@ -613,10 +761,6 @@
         <translation>Megjelenítési kimenet:</translation>
     </message>
     <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>A kijelzőt meghaladó HDR-képek tónusleképezése (ITU-R BT.2390)</translation>
-    </message>
-    <message>
         <source>Color &amp;&amp; HDR</source>
         <extracomment>&quot;&amp;&amp;&quot; is shown as a single &quot;&amp;&quot;.</extracomment>
         <translation>Szín &amp;&amp; HDR</translation>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Diavetítés (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Eszköztár (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Sakktábla megjelenítése az átlátszó területek mögött (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>A kijelzőt meghaladó HDR-képek tónusleképezése, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>A vágás vagy a tónusleképezés által megváltoztatott képpontok kiemelése bíborral (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -792,6 +956,26 @@
     <message>
         <source>Orientation</source>
         <translation>Tájolás</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Színek</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Fénysűrűség</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Nincs</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Hisztogram</translation>
     </message>
     <message>
         <source>EXIF %1, applied</source>
@@ -1075,12 +1259,16 @@
         <translation>Galéria</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Forgatás az óramutató járásával megegyezően</translation>
+        <source>Toolbar</source>
+        <translation>Eszköztár</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Forgatás az óramutató járásával ellentétesen</translation>
+        <source>Rotate Right</source>
+        <translation>Forgatás jobbra</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Forgatás balra</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1089,6 +1277,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Függőleges tükrözés</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Színválasztó</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1144,6 +1336,26 @@
     <message>
         <source>Open With</source>
         <translation>Megnyitás ezzel</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Leállítás</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Lejátszás</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Továbbiak</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Diavetítés szüneteltetve</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Másolás</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Másolva: %1</translation>
     </message>
 </context>
 </TS>

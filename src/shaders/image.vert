@@ -18,8 +18,14 @@ layout(std140, binding = 0) uniform Params {
     vec4 imageRect;
     vec4 uvMap;
     vec4 uvMapY;
-    vec4 layers[7];
+    vec4 layers[12];
     vec4 detailRect;
+    vec4 loupeRect;      // the color picker: see image.frag
+    vec4 loupeStep;
+    vec4 loupeCentre;
+    vec4 currentRect;
+    vec4 pickedRect;
+    vec4 pickedColour;
 };
 
 out gl_PerVertex { vec4 gl_Position; };

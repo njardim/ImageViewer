@@ -21,24 +21,8 @@ constexpr double kNavigationButtonSize = 56.0; // logical pixels
 constexpr double kWarningSign = 128.0;          // logical pixels, square (D-63)
 constexpr double kWarningGap = 12.0;            // between the sign and the message
 constexpr int kNoticeMs = 3000;
-const QString kFieldSeparator = QStringLiteral("   ·   "); // between the top overlay's facts, and the title's
 
-// "100" only when the image really is shown 1:1 (nearest sampling); otherwise one decimal.
-QString zoomNumber(double zoom, const QLocale &locale)
-{
-    return zoom == 1.0 ? locale.toString(100) : locale.toString(zoom * 100.0, 'f', 1);
-}
 
-// File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and
-// the Linux desktops in 1000s.
-QString fileSizeText(qint64 bytes, const QLocale &locale)
-{
-#if defined(Q_OS_WIN)
-    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeTraditionalFormat);
-#else
-    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeSIFormat);
-#endif
-}
 
 // What an overlay is painted on: transparent, `logical` pixels at the screen's device pixel ratio.
 QImage overlayCanvas(const QSizeF &logical, qreal dpr)
@@ -49,51 +33,9 @@ QImage overlayCanvas(const QSizeF &logical, qreal dpr)
     return image;
 }
 
-constexpr double kToolbarButton = 44.0;  // the slideshow toolbar's round buttons, logical pixels (D-65)
-constexpr double kToolbarPadding = 8.0;  // around and between them
-
-// The slideshow's toolbar: stop, then pause (or play, when paused), round buttons in the side
-// buttons' look on a panel in the information panels' look.
-QImage slideshowToolbar(bool paused, int hover, int press, double dpr, const QColor &background)
-{
-    const QSizeF logical(2 * kToolbarButton + 3 * kToolbarPadding, kToolbarButton + 2 * kToolbarPadding);
-    QImage image = overlayCanvas(logical, dpr);
-    QPainter painter(&image);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(background);
-    painter.drawRoundedRect(QRectF(QPointF(0, 0), logical), kPanelRadius, kPanelRadius);
-    const QColor glyph(240, 240, 240);
-    const double s = kToolbarButton;
-    for (int i = 0; i < 2; ++i) {
-        const QRectF circle(kToolbarPadding + i * (s + kToolbarPadding), kToolbarPadding, s, s);
-        painter.setBrush(i == press ? QColor(255, 255, 255, 80) : i == hover ? QColor(255, 255, 255, 48)
-                                                                              : QColor(0, 0, 0, 125));
-        painter.drawEllipse(circle.adjusted(0.5, 0.5, -0.5, -0.5));
-        painter.setBrush(glyph);
-        const QPointF c = circle.center();
-        if (i == 0) { // stop: a square
-            const double half = s * 0.17;
-            painter.drawRoundedRect(QRectF(c.x() - half, c.y() - half, 2 * half, 2 * half), 1.5, 1.5);
-        } else if (paused) { // play: a triangle, its centre of mass on the circle's
-            const double h = s * 0.42, w = h * 0.87;
-            QPainterPath triangle;
-            triangle.moveTo(c.x() - w / 3.0, c.y() - h / 2.0);
-            triangle.lineTo(c.x() + 2.0 * w / 3.0, c.y());
-            triangle.lineTo(c.x() - w / 3.0, c.y() + h / 2.0);
-            triangle.closeSubpath();
-            painter.drawPath(triangle);
-        } else { // pause: two bars
-            const double h = s * 0.38, w = s * 0.12, gap = s * 0.11;
-            painter.drawRoundedRect(QRectF(c.x() - gap / 2.0 - w, c.y() - h / 2.0, w, h), 1.5, 1.5);
-            painter.drawRoundedRect(QRectF(c.x() + gap / 2.0, c.y() - h / 2.0, w, h), 1.5, 1.5);
-        }
-    }
-    return image;
-}
-
 // The round previous/next button of a side zone, drawn at `pixels` (device) size.
-QImage navigationButton(bool next, int pixels, bool pressed)
+// The panels' background and ink (D-114), and while pressed the highlight, as a toolbar's button.
+QImage navigationButton(bool next, int pixels, const QColor &disc, const QColor &ink)
 {
     QImage image(pixels, pixels, QImage::Format_RGBA8888_Premultiplied);
     image.setDevicePixelRatio(pixels / kNavigationButtonSize);
@@ -101,10 +43,10 @@ QImage navigationButton(bool next, int pixels, bool pressed)
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(0, 0, 0, pressed ? 180 : 125));
+    painter.setBrush(disc);
     const double s = kNavigationButtonSize;
     painter.drawEllipse(QRectF(0.5, 0.5, s - 1.0, s - 1.0));
-    painter.setPen(QPen(QColor(240, 240, 240), 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.setPen(QPen(ink, 3.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter.setBrush(Qt::NoBrush); // the circle's brush filled the open chevron as a dark triangle
     const double c = s / 2.0, half = s * 0.16, depth = s * 0.08;
     const double dir = next ? 1.0 : -1.0;
@@ -163,9 +105,26 @@ struct Row {
     QString label; // empty: the value spans both columns (messages)
     QString value;
     bool gapBefore = false; // first row of a section
+    bool choice = false;    // the histogram's choice (D-116): a value that opens a menu, the plot below it
 };
 
+// A zoom as the overlay writes it: "100" only when the image really is shown 1:1 (nearest
+// sampling); otherwise one decimal.
+QString zoomNumber(double zoom, const QLocale &locale)
+{
+    return zoom == 1.0 ? locale.toString(100) : locale.toString(zoom * 100.0, 'f', 1);
+}
+
 } // namespace
+
+QString fileSizeText(qint64 bytes, const QLocale &locale)
+{
+#if defined(Q_OS_WIN)
+    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeTraditionalFormat);
+#else
+    return locale.formattedDataSize(bytes, 1, QLocale::DataSizeSIFormat);
+#endif
+}
 
 void ViewerWindow::showNotice(const QString &text)
 {
@@ -200,7 +159,9 @@ void ViewerWindow::updateOverlay()
         return;
     updateGallery(); // the current image, the folder or the window's width may have changed
     updateMessage();
-    updateSlideshowToolbar(); // the device pixel ratio may have changed
+    updateMainToolbar();      // the window's width and the device pixel ratio may have changed
+    updateSlideshowToolbar(); // likewise
+    updatePicker();           // the color picker's panel: its look, its values (D-115)
     m_overlayOutput = m_renderer.output().description;
     const QLocale locale;
     const QString dot = QStringLiteral("  ·  ");
@@ -212,8 +173,18 @@ void ViewerWindow::updateOverlay()
     if (!m_message.isEmpty())
         messages.append({QString(), m_message});
 
+    // The panel's rows while it is on and not hidden by itself (D-113); the notices stay either way.
+    const bool panel = m_settings.showInfo && !m_panelHide.hidden();
+    // Its histogram at the top (D-115), counted when the image (the frame on screen) was decoded: a
+    // row with the choice of what it shows, which stays when it shows none, and the plot (D-116).
+    const std::shared_ptr<const Histogram> counted = m_frameHistogram ? m_frameHistogram : m_image.histogram;
+    const bool histogramRow = panel && m_image.width > 0 && m_image.error.isEmpty() && counted;
+    const bool histogram = histogramRow && m_settings.histogram != HistogramMode::Off;
+    // The color picker's panel goes between the information panel and the notices (D-115).
+    const bool picker = m_pickerOn && m_image.width > 0;
+    const QSizeF pickerSize = picker ? m_picker.size() : QSizeF();
     QList<Row> rows;
-    if (m_settings.showInfo && !m_image.path.isEmpty()) {
+    if (panel && !m_image.path.isEmpty()) {
         const QFileInfo file(m_image.path);
         // Names are shown without bidi and other format characters, as in the title: a file
         // named "photo\u202Egpj.exe" must not read "photoexe.jpg".
@@ -226,7 +197,7 @@ void ViewerWindow::updateOverlay()
         if (m_image.modified.isValid())
             rows.append({tr("Modified"), locale.toString(m_image.modified, QLocale::ShortFormat)});
     }
-    if (m_settings.showInfo && m_image.width > 0) {
+    if (panel && m_image.width > 0) {
         //: Megapixels, e.g. "24.0 MP".
         QString dimensions = QStringLiteral("%1 × %2").arg(locale.toString(m_image.sourceWidth),
                                                           locale.toString(m_image.sourceHeight))
@@ -299,7 +270,7 @@ void ViewerWindow::updateOverlay()
                 add(tr("Taken"), locale.toString(camera.taken, QLocale::ShortFormat));
         }
     }
-    if (m_settings.showInfo) {
+    if (panel) {
         QStringList view;
         if (m_image.width > 0) {
             //: A zoom percentage, e.g. "100 %"; write the percent sign as your language does.
@@ -349,6 +320,13 @@ void ViewerWindow::updateOverlay()
         }
     }
 
+    if (histogramRow) { // first, the plot under it, then the file's facts after a gap
+        const QString shows = histogramModeName(m_settings.histogram);
+        if (!rows.isEmpty())
+            rows.first().gapBefore = true;
+        //: The information panel's row that chooses what its histogram shows.
+        rows.prepend({tr("Histogram"), shows, false, true});
+    }
     const qreal dpr = devicePixelRatio();
     const QFont font = QGuiApplication::font();
     // The panel is drawn again only when what it shows changes, not on every animation frame,
@@ -357,15 +335,21 @@ void ViewerWindow::updateOverlay()
     QString key;
     if (!messages.isEmpty() || !rows.isEmpty()) {
         key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|%9")
-                  .arg(m_settings.overlayBackgroundOpacity)
-                  .arg(m_settings.overlayTextOpacity)
+                  .arg(m_settings.backgroundOpacity)
+                  .arg(m_settings.textOpacity)
                   .arg(m_settings.overlayOutline)
                   .arg(width())
                   .arg(height())
                   .arg(m_gallery.reserve()) // the panel's room above the gallery
                   .arg(dpr)
                   .arg(int(QGuiApplication::layoutDirection()))
-                  .arg(font.key());
+                  .arg(font.key())
+              + QStringLiteral("|%1|%2|%3|%4|%5")
+                    .arg(histogram ? int(m_settings.histogram) : -1)
+                    .arg(histogram ? quintptr(counted.get()) : 0)
+                    .arg(pickerSize.width())
+                    .arg(pickerSize.height())
+                    .arg(m_histogramChoiceHover);
         for (const QList<Row> *list : {&messages, &rows}) {
             key += QChar(0x1d);
             for (const Row &row : *list)
@@ -379,9 +363,12 @@ void ViewerWindow::updateOverlay()
     }
     m_panelKey = key;
 
+    m_histogramChoice = QRectF();
     if (messages.isEmpty() && rows.isEmpty()) {
+        m_pickerOffset = 0.0; // the picker's panel right above the gallery
         m_overlaySize = {};
         m_renderer.setOverlay(Renderer::InfoLayer, QImage());
+        setHistogramMenuOpen(false); // its choice is gone
         updateTopOverlay();
         requestUpdate();
         return;
@@ -389,6 +376,8 @@ void ViewerWindow::updateOverlay()
 
     const QFontMetricsF metrics(font);
     const qreal padding = 10.0, columnGap = 14.0, sectionGap = 6.0, lineHeight = metrics.height() + 2.0;
+    // The histogram: 256 bins at least one logical pixel each, and as tall as a third of its width.
+    const qreal histogramWidth = Histogram::kBins, histogramHeight = 84.0, histogramGap = 2 * sectionGap;
     struct Layout {
         qreal labelWidth = 0;
         qreal contentWidth = 0;
@@ -423,11 +412,30 @@ void ViewerWindow::updateOverlay()
     const auto panelSize = [&](const Layout &layout, qreal room) {
         return QSizeF(std::ceil(std::min(layout.contentWidth + 2 * padding, maxWidth)), std::ceil(std::min(layout.height, room)));
     };
+    Layout infoWithHistogram = infoLayout;
+    if (histogram && !rows.isEmpty()) {
+        infoWithHistogram.contentWidth = std::max(infoWithHistogram.contentWidth, histogramWidth);
+        infoWithHistogram.height += histogramHeight + histogramGap;
+    }
     const QSizeF messageSize = messages.isEmpty() ? QSizeF() : panelSize(messageLayout, maxHeight);
-    const qreal infoRoom = messages.isEmpty() ? maxHeight : maxHeight - messageSize.height() - kEdgeMargin;
-    const QSizeF infoSize = rows.isEmpty() || infoRoom < lineHeight + 2 * padding ? QSizeF() : panelSize(infoLayout, infoRoom);
-    const qreal between = messageSize.isEmpty() || infoSize.isEmpty() ? 0.0 : kEdgeMargin;
-    const QSizeF logical(std::max(messageSize.width(), infoSize.width()), messageSize.height() + between + infoSize.height());
+    const qreal infoRoom = maxHeight - (messages.isEmpty() ? 0.0 : messageSize.height() + kEdgeMargin)
+                           - (picker ? pickerSize.height() + kEdgeMargin : 0.0);
+    const QSizeF infoSize =
+        rows.isEmpty() || infoRoom < lineHeight + 2 * padding ? QSizeF() : panelSize(infoWithHistogram, infoRoom);
+    // From the bottom: the information panel, the picker's place (its own layer), the notices.
+    m_pickerOffset = infoSize.isEmpty() ? 0.0 : infoSize.height() + kEdgeMargin;
+    const qreal pickerPlace = picker ? pickerSize.height() + (infoSize.isEmpty() ? 0.0 : kEdgeMargin) : 0.0;
+    const qreal between = messageSize.isEmpty() || (infoSize.isEmpty() && !picker) ? 0.0 : kEdgeMargin;
+    const QSizeF logical(std::max(messageSize.width(), infoSize.width()),
+                         messageSize.height() + between + pickerPlace + infoSize.height());
+    if (logical.isEmpty()) { // the notices and the panel left no room
+        m_overlaySize = {};
+        m_renderer.setOverlay(Renderer::InfoLayer, QImage());
+        setHistogramMenuOpen(false); // its choice is gone
+        updateTopOverlay();
+        requestUpdate();
+        return;
+    }
 
     QImage overlay = overlayCanvas(logical, dpr);
     QPainter painter(&overlay);
@@ -441,7 +449,7 @@ void ViewerWindow::updateOverlay()
     // cell, AlignLeft is the start of the line (Qt mirrors it in right-to-left layouts). Both
     // panels start at the window's edge, the left one or, right to left, the right one.
     const bool rtl = QGuiApplication::layoutDirection() == Qt::RightToLeft;
-    const auto paint = [&](const QList<Row> &list, const Layout &layout, const QRectF &panel) {
+    const auto paint = [&](const QList<Row> &list, const Layout &layout, const QRectF &panel, bool withHistogram) {
         painter.setPen(Qt::NoPen);
         painter.setBrush(m_settings.panelBackground());
         painter.drawRoundedRect(panel, kPanelRadius, kPanelRadius);
@@ -456,6 +464,34 @@ void ViewerWindow::updateOverlay()
             y += gapBefore(list, i) ? sectionGap : 0.0;
             if (y + lineHeight > panel.bottom() - padding + 2.0)
                 break;
+            if (row.choice) { // the histogram's choice: its value a button that opens a menu (D-116)
+                const qreal valueX = labelColumn + columnGap;
+                drawPanelText(painter, cell(0, y, labelColumn), Qt::AlignLeft | Qt::AlignTop,
+                              metrics.elidedText(row.label, Qt::ElideRight, labelColumn), labelColour, outline);
+                const qreal textWidth = std::ceil(metrics.horizontalAdvance(row.value));
+                const QRectF value = cell(valueX, y, textWidth + 14.0);
+                m_histogramChoice = value.adjusted(-4.0, -1.0, 4.0, 1.0);
+                if (m_histogramChoiceHover) { // as a hovered button
+                    painter.setPen(Qt::NoPen);
+                    painter.setBrush(m_settings.highlightTile(true));
+                    painter.drawRoundedRect(m_histogramChoice, kPanelRadius / 2, kPanelRadius / 2);
+                }
+                const QRectF text = rtl ? value.adjusted(14.0, 0, 0, 0) : value.adjusted(0, 0, -14.0, 0);
+                drawPanelText(painter, text, Qt::AlignLeft | Qt::AlignTop, row.value, valueColour, outline);
+                // A small chevron: the value opens a menu, as a combo box's.
+                const double cx = rtl ? value.left() + 5.0 : value.right() - 5.0, cy = y + lineHeight / 2.0;
+                painter.setPen(QPen(valueColour, 1.4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter.setBrush(Qt::NoBrush);
+                painter.drawPolyline(QPolygonF({QPointF(cx - 3.5, cy - 1.5), QPointF(cx, cy + 2.0), QPointF(cx + 3.5, cy - 1.5)}));
+                y += lineHeight;
+                if (withHistogram) { // the plot, the panel's width (the owner's reference, D-115)
+                    y += histogramGap / 2;
+                    drawHistogram(painter, QRectF(panel.left() + padding, y, inner, histogramHeight), *counted,
+                                  m_settings.histogram == HistogramMode::Colors, valueColour, QColor(0, 0, 0, 90));
+                    y += histogramHeight + histogramGap / 2;
+                }
+                continue;
+            }
             if (row.label.isEmpty()) {
                 drawPanelText(painter, cell(0, y, inner), Qt::AlignLeft | Qt::AlignTop,
                               isolated(metrics.elidedText(row.value, Qt::ElideRight, inner)), valueColour, outline);
@@ -474,13 +510,15 @@ void ViewerWindow::updateOverlay()
         return QRectF(QPointF(rtl ? logical.width() - size.width() : 0.0, top), size);
     };
     if (!messageSize.isEmpty())
-        paint(messages, messageLayout, placed(messageSize, 0.0));
+        paint(messages, messageLayout, placed(messageSize, 0.0), false);
     if (!infoSize.isEmpty())
-        paint(rows, infoLayout, placed(infoSize, logical.height() - infoSize.height()));
+        paint(rows, infoLayout, placed(infoSize, logical.height() - infoSize.height()), histogram);
     painter.end();
 
     m_overlaySize = overlay.size();
     m_renderer.setOverlay(Renderer::InfoLayer, overlay);
+    if (m_histogramMenuOpen)
+        updateHistogramMenu(); // its check follows the choice; it closes with the choice's row
     updateTopOverlay();
     requestUpdate();
 }
@@ -495,8 +533,8 @@ void ViewerWindow::updateMessage()
                                           : QStringLiteral("%1|%2|%3|%4|%5|%6|%7|")
                                                     .arg(width())
                                                     .arg(dpr)
-                                                    .arg(m_settings.overlayBackgroundOpacity)
-                                                    .arg(m_settings.overlayTextOpacity)
+                                                    .arg(m_settings.backgroundOpacity)
+                                                    .arg(m_settings.textOpacity)
                                                     .arg(m_settings.overlayOutline)
                                                     .arg(int(QGuiApplication::layoutDirection()))
                                                     .arg(font.key())
@@ -539,12 +577,13 @@ OverlayVisibility ViewerWindow::topOverlayMode() const
 {
     if (!m_settings.showOverlay)
         return OverlayVisibility::Hidden;
-    return visibility() == QWindow::FullScreen ? m_settings.overlayFullScreen : m_settings.overlayWindow;
+    return m_settings.overlayVisibility; // the same in a window and in full screen (D-113)
 }
 
 bool ViewerWindow::topOverlayVisible() const
 {
-    if (m_topOverlaySize.isEmpty())
+    // Not while the toolbar's "…" panel is open over its place: its rows would read through it.
+    if (m_topOverlaySize.isEmpty() || m_overlayHide.hidden() || m_mainToolbar.menuOpen())
         return false;
     switch (topOverlayMode()) {
     case OverlayVisibility::Always: return true;
@@ -556,13 +595,14 @@ bool ViewerWindow::topOverlayVisible() const
 
 double ViewerWindow::topActivationHeight() const
 {
-    // The top band, and the overlay itself once it is shown; with the slideshow's toolbar below
-    // the overlay, down to the toolbar too (reaching for it must not hide the overlay, which
-    // would move the toolbar up from under the pointer).
+    // The top band, and the overlay itself once it is shown, below the toolbar where it is on; with
+    // the slideshow's toolbar below the overlay, down to that toolbar too (reaching for it must not
+    // hide the overlay, which would move the toolbar up from under the pointer).
     const double dpr = devicePixelRatio();
-    double band = std::max(48.0, m_topOverlaySize.height() / dpr + 2 * kEdgeMargin);
-    if (!m_toolbarSize.isEmpty())
-        band = std::max(band, m_topOverlaySize.height() / dpr + kEdgeMargin + m_toolbarSize.height() / dpr
+    const double above = mainToolbarReserve();
+    double band = std::max(48.0, above + m_topOverlaySize.height() / dpr + 2 * kEdgeMargin);
+    if (m_slideshowBarShown)
+        band = std::max(band, above + m_topOverlaySize.height() / dpr + kEdgeMargin + m_slideshowBar.size().height()
                                   + 2 * kEdgeMargin);
     return band;
 }
@@ -576,7 +616,7 @@ void ViewerWindow::setPointerAtTop(bool atTop)
             requestUpdate();
         }
     } else if (m_pointerAtTop && !m_topOverlayTimer.isActive()) {
-        m_topOverlayTimer.start(m_settings.overlayHideDelayMs);
+        m_topOverlayTimer.start(m_settings.autoHideMs); // the one delay (D-113)
     }
 }
 
@@ -638,8 +678,8 @@ void ViewerWindow::updateTopOverlay()
     const qreal dpr = devicePixelRatio();
     const QString key = parts.isEmpty() ? QString() // hidden, whatever the window's size
                                         : parts.join(QChar(0x1f)) + QStringLiteral("|%1|%2|%3|%4|%5|%6|%7")
-                                                                         .arg(m_settings.overlayBackgroundOpacity)
-                                                                         .arg(m_settings.overlayTextOpacity)
+                                                                         .arg(m_settings.backgroundOpacity)
+                                                                         .arg(m_settings.textOpacity)
                                                                          .arg(m_settings.overlayOutline)
                                                                          .arg(width())
                                                                          .arg(dpr)
@@ -691,30 +731,42 @@ void ViewerWindow::updateTopOverlay()
     requestUpdate();
 }
 
+QRectF ViewerWindow::infoPanelRect() const
+{
+    if (m_overlaySize.isEmpty())
+        return {};
+    const double dpr = devicePixelRatio();
+    const double margin = kEdgeMargin * dpr;
+    const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft ? deviceSize().width() - margin - m_overlaySize.width()
+                                                                          : margin;
+    // Above the gallery while it shows; down in its place while it hides by itself (D-113).
+    const double below = galleryShown() ? m_gallery.reserve() * dpr : 0.0;
+    return QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - below - m_overlaySize.height())),
+                  QSizeF(m_overlaySize));
+}
+
 void ViewerWindow::placeOverlays(Renderer::Frame *frame) const
 {
     const double dpr = devicePixelRatio();
-    const double margin = kEdgeMargin * dpr;
-    if (m_gallery.visible())
+    if (galleryShown())
         frame->overlayRects[Renderer::GalleryLayer] = m_gallery.rect();
     if (!m_messageSize.isEmpty())
         frame->overlayRects[Renderer::MessageLayer] =
             QRectF(QPointF(std::round((deviceSize().width() - m_messageSize.width()) / 2.0),
                            std::round((deviceSize().height() - m_messageSize.height()) / 2.0)),
                    QSizeF(m_messageSize));
-    if (!m_overlaySize.isEmpty()) {
-        const double x = QGuiApplication::layoutDirection() == Qt::RightToLeft
-                             ? deviceSize().width() - margin - m_overlaySize.width()
-                             : margin;
-        frame->overlayRects[Renderer::InfoLayer] =
-            QRectF(QPointF(std::round(x), std::round(deviceSize().height() - margin - m_gallery.reserve() * dpr - m_overlaySize.height())),
-                   QSizeF(m_overlaySize));
-    }
-    if (topOverlayVisible())
+    frame->overlayRects[Renderer::InfoLayer] = infoPanelRect();
+    if (topOverlayVisible()) // below the toolbar (D-112)
         frame->overlayRects[Renderer::TopLayer] =
-            QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0), std::round(kEdgeMargin * dpr)),
+            QRectF(QPointF(std::round((deviceSize().width() - m_topOverlaySize.width()) / 2.0),
+                           std::round((kEdgeMargin + mainToolbarReserve()) * dpr)),
                    QSizeF(m_topOverlaySize));
+    frame->overlayRects[Renderer::ToolbarLayer] = mainToolbarRect();
+    frame->overlayRects[Renderer::ToolbarMenuLayer] = toolbarMenuRect();
     frame->overlayRects[Renderer::SlideshowLayer] = slideshowToolbarRect();
+    placePicker(frame); // the color picker's panel, loupe and swatches (D-115)
+    frame->overlayRects[Renderer::HistogramMenuLayer] = histogramMenuRect(); // D-117
+    frame->overlayRects[Renderer::TooltipLayer] = tipRect(); // over everything (D-116)
     if (m_hoverZone == Zone::Previous)
         frame->overlayRects[Renderer::PreviousButtonLayer] = zoneButtonRect(Zone::Previous);
     else if (m_hoverZone == Zone::Next)
@@ -727,11 +779,13 @@ void ViewerWindow::updateNavigationButtons()
         return;
     const int pixels = int(std::lround(kNavigationButtonSize * devicePixelRatio()));
     const bool pressed = m_pressZone != Zone::None && m_pressZone == m_hoverZone && !m_pressMoved;
+    const QColor disc = pressed ? m_settings.highlightTile(false) : m_settings.panelBackground();
+    const QColor ink = m_settings.panelText(Settings::kPanelValueGrey);
     m_renderer.setOverlay(Renderer::PreviousButtonLayer, m_hoverZone == Zone::Previous
-                                                             ? navigationButton(false, pixels, pressed)
+                                                             ? navigationButton(false, pixels, disc, ink)
                                                              : QImage());
     m_renderer.setOverlay(Renderer::NextButtonLayer,
-                          m_hoverZone == Zone::Next ? navigationButton(true, pixels, pressed) : QImage());
+                          m_hoverZone == Zone::Next ? navigationButton(true, pixels, disc, ink) : QImage());
     requestUpdate();
 }
 
@@ -744,54 +798,4 @@ QRectF ViewerWindow::zoneButtonRect(Zone zone) const
     // Whole device pixels: the button texture is sampled 1:1.
     return QRectF(QPointF(std::round(centreX - pixels / 2.0), std::round((deviceSize().height() - pixels) / 2.0)),
                   QSizeF(pixels, pixels));
-}
-
-void ViewerWindow::updateSlideshowToolbar()
-{
-    if (!m_rendererReady)
-        return;
-    if (!m_slideshow.running() || m_toolbarHidden) {
-        if (!m_toolbarSize.isEmpty()) {
-            m_toolbarSize = QSize();
-            m_toolbarKey.clear();
-            m_renderer.setOverlay(Renderer::SlideshowLayer, QImage());
-            requestUpdate();
-        }
-        return;
-    }
-    const double dpr = devicePixelRatio();
-    const QColor background = m_settings.panelBackground();
-    const int hover = int(m_toolbarHover) - 1, press = int(m_toolbarPress) - 1; // -1: none
-    const QString key = QStringLiteral("%1|%2|%3|%4|%5")
-                            .arg(m_slideshow.paused()).arg(hover).arg(press).arg(dpr).arg(background.alpha());
-    if (key == m_toolbarKey)
-        return;
-    m_toolbarKey = key;
-    const QImage image = slideshowToolbar(m_slideshow.paused(), hover, press, dpr, background);
-    m_toolbarSize = image.size();
-    m_renderer.setOverlay(Renderer::SlideshowLayer, image);
-    requestUpdate();
-}
-
-QRectF ViewerWindow::slideshowToolbarRect() const
-{
-    if (m_toolbarSize.isEmpty())
-        return {};
-    // Centred below the top overlay when it shows, else at the top margin (D-60).
-    const double dpr = devicePixelRatio();
-    double top = kEdgeMargin * dpr;
-    if (topOverlayVisible())
-        top += m_topOverlaySize.height() + kEdgeMargin * dpr;
-    return QRectF(QPointF(std::round((deviceSize().width() - m_toolbarSize.width()) / 2.0), std::round(top)),
-                  QSizeF(m_toolbarSize));
-}
-
-ViewerWindow::ToolbarButton ViewerWindow::toolbarButtonAt(const QPointF &position) const
-{
-    const QRectF rect = slideshowToolbarRect();
-    const QPointF device = position * devicePixelRatio();
-    if (!rect.contains(device))
-        return ToolbarButton::None;
-    // Each button takes its half of the panel, padding included.
-    return device.x() < rect.center().x() ? ToolbarButton::Stop : ToolbarButton::PlayPause;
 }

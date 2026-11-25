@@ -1,0 +1,29 @@
+{
+  "name": "libjxl",
+  "$comment": "ImageViewer overlay (docs/PLAN.md D-46, D-67, D-118): 0.13.0 ahead of vcpkg's baseline 0.12.0, fetched by git at the tag's commit; vcpkg's port otherwise.",
+  "version-semver": "0.13.0",
+  "description": "JPEG XL image format reference implementation",
+  "homepage": "https://github.com/libjxl/libjxl",
+  "license": "BSD-3-Clause",
+  "dependencies": [
+    "brotli",
+    "highway",
+    "lcms",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    }
+  ],
+  "features": {
+    "tools": {
+      "description": "Build user tools: cjxl and djxl",
+      "supports": "!uwp",
+      "dependencies": [
+        "giflib",
+        "libjpeg-turbo",
+        "libpng",
+        "zlib"
+      ]
+    }
+  }
+}

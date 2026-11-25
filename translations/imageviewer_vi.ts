@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Tệp</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (cắt về sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (dấu phẩy động)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2 bit)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Độ chói</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Điểm ảnh</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Nhấp vào ảnh để lấy một màu.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>Trắng</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Màu sắc</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Độ chói</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Không</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Hiển thị lớp phủ:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Thanh công cụ</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Tùy chỉnh…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>Xác nhận trước khi chuyển ảnh vào Thùng rác</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Hiển thị nền ô vuông phía sau vùng trong suốt</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>Khi con trỏ ở phía trên</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Không bao giờ</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Ở chế độ toàn màn hình:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Ở chế độ cửa sổ:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Trường</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>Độ mờ đục của nền:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Độ mờ đục của văn bản:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Tạo viền cho văn bản</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> giây</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Ngôn ngữ và văn bản</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>Cỡ chữ:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>Khởi động và tệp</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Hiện màn hình chào mừng khi khởi động</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Phía trên ảnh</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Vừa với cửa sổ</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Màu sắc</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Phóng to ảnh nhỏ hơn cửa sổ</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Cửa sổ</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>Thanh tiêu đề:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Ẩn con trỏ đứng yên sau:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Các bảng, lớp phủ, thư viện ảnh, thanh công cụ và các nút bên</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Độ mờ đục của chữ và biểu tượng:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Tự động ẩn con trỏ chuột khi nó đứng yên</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Cho mọi thứ được đặt để tự động ẩn: các thanh, thư viện ảnh, lớp phủ, bảng và con trỏ chuột.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Tự động ẩn các thành phần sau:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>Bảng thông tin</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Biểu đồ histogram:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>Lớp phủ ở trên cùng</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Ẩn sau:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Giao diện bảng và lớp phủ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Tự động ẩn bảng thông tin</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Tự động ẩn lớp phủ thông tin</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>Nhấp vào bên trái hoặc bên phải cửa sổ để chuyển đến ảnh trước hoặc ảnh tiếp theo</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Ẩn thanh công cụ khi con trỏ đứng yên</translation>
+        <source>Show the toolbar</source>
+        <translation>Hiện thanh công cụ</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Hiện tên dưới các nút</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Tự động ẩn thanh công cụ</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Các nút</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Thêm vạch phân cách</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Xóa vạch phân cách</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Các nút mặc định</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Cài đặt và Thoát luôn ở cuối, trong một nhóm riêng.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Vạch phân cách (luôn có)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Vạch phân cách</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>Bắt đầu trình chiếu ở chế độ toàn màn hình</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Làm nổi bật điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (magenta)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Tự động ẩn thanh công cụ trình chiếu</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Hiển thị thông tin ảnh trong chú giải công cụ</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Tự động ẩn thư viện ảnh</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>Đầu ra hiển thị:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Ánh xạ tông màu cho ảnh HDR vượt quá khả năng của màn hình (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Trình chiếu (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Thanh công cụ (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Hiển thị nền ô vuông phía sau vùng trong suốt (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Ánh xạ tông màu cho ảnh HDR vượt quá khả năng của màn hình, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Làm nổi bật bằng màu magenta các điểm ảnh bị thay đổi do cắt ngưỡng hoặc ánh xạ tông màu (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>bị cắt trên %1 nits (đã tắt ánh xạ tông màu)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Màu sắc</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Độ chói</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Không</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Biểu đồ histogram</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>phơi sáng %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>Thư viện ảnh</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Xoay theo chiều kim đồng hồ</translation>
+        <source>Toolbar</source>
+        <translation>Thanh công cụ</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Xoay ngược chiều kim đồng hồ</translation>
+        <source>Rotate Right</source>
+        <translation>Xoay phải</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Xoay trái</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Lật dọc</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Công cụ chọn màu</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>Mở bằng</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Dừng</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Phát</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Thêm</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Đã tạm dừng trình chiếu</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Sao chép</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Đã sao chép: %1</translation>
     </message>
 </context>
 </TS>

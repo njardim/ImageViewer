@@ -12,6 +12,7 @@
 
 #include <QFloat16>
 #include <QImage>
+#include <QPoint>
 #include <QRectF>
 #include <QSize>
 #include <QString>
@@ -56,10 +57,20 @@ public:
 
     // UI layers drawn over the image at SDR white, each from its own small texture so
     // that changing one (hover feedback) does not re-upload the others.
+    // The color picker's panel (D-115) right above the information panel: its loupe and swatches are
+    // drawn from the image under the layers that follow it.
+    // The information panel's menu of what its histogram shows (D-117) with the toolbar's "…" panel;
+    // the tooltip (D-116) over everything else.
     enum OverlayLayer {
-        InfoLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, SlideshowLayer, MessageLayer,
-        OverlayLayerCount
+        InfoLayer, PickerLayer, TopLayer, GalleryLayer, PreviousButtonLayer, NextButtonLayer, SlideshowLayer,
+        ToolbarLayer, ToolbarMenuLayer, HistogramMenuLayer, MessageLayer, TooltipLayer,
+        OverlayLayerCount // twelve: the shaders' layers[] and overlay samplers follow
     };
+    // image.frag samples the image, each overlay layer and the zoom's detail (bindings 1 to
+    // 2 + OverlayLayerCount): Direct3D 11 and Metal give a shader stage 16 samplers, as many as
+    // Vulkan promises at least. Fourteen now: a layer beyond two more needs another way to draw.
+    static constexpr int kSamplersPerStage = 16;
+    static_assert(1 + OverlayLayerCount + 1 <= kSamplersPerStage, "image.frag's samplers must fit one shader stage");
 
     // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
     enum class OutputPreference { Automatic, Sdr, Hdr10 };
@@ -86,7 +97,24 @@ public:
         float checkerColour[3] = {0.0f, 0.0f, 0.0f};
         // The zoom's detail (setDetail()) over the part of the image it covers (D-93).
         bool detail = false;
+        // The color picker (D-115), device pixels; an empty loupeRect: none. The loupe shows
+        // `loupeCells` × `loupeCells` texels in squares, `loupeTexel` (the texture's column and row)
+        // in the middle, turned and mirrored as the image is; currentRect shows that texel alone,
+        // pickedRect `pickedColour` (linear scRGB, premultiplied, working units; alpha < 0: nothing
+        // picked). Through the image's output stage; where there is no image (or nothing picked), checks
+        // of `pickerCheck` device pixels in the checkerboard's colours, under translucent colours too.
+        QRectF loupeRect;
+        QPoint loupeTexel;
+        int loupeCells = 11;
+        QRectF currentRect;
+        QRectF pickedRect;
+        float pickedColour[4] = {0.0f, 0.0f, 0.0f, -1.0f};
+        float pickerCheck = 5.0f;
     };
+
+    // The texture coordinates (0 to 1 across the texture, x then y) under `position` (device pixels)
+    // as `frame` places the image, turned and mirrored: what the image quad draws there.
+    static QPointF textureCoordinates(const Frame &frame, const QPointF &position);
 
     // The output-stage parameters the shader receives for the image layer.
     static color::OutputStage stageFor(const Output &output, const Frame &frame);
@@ -141,6 +169,10 @@ public:
     int maxTextureSize() const;
 
 private:
+    static constexpr int kVertexStride = 4 * sizeof(float); // x, y, u, v
+    static constexpr int kQuadBytes = 4 * kVertexStride;
+    static constexpr int kUniformBytes = 528; // the shaders' uniform block (offscreen.cpp's Uniforms)
+
     bool createRhi();
     int chooseFormat() const; // QRhiSwapChain::Format
     bool createSwapChainResources();
@@ -168,7 +200,7 @@ private:
     QRhiSampler *m_linearSampler = nullptr;
     QRhiSampler *m_nearestSampler = nullptr;
     QRhiSampler *m_detailSampler = nullptr;
-    QRhiTexture *m_placeholderTexture = nullptr; // 1x1 transparent, bound while there is no image
+    QRhiTexture *m_placeholderTexture = nullptr; // transparent (createPlaceholder()), bound while there is no image
     QRhiTexture *m_imageTexture = nullptr;       // null when there is no image
     QRhiTexture *m_detailTexture = nullptr;      // the zoom's detail; null when there is none
     QRhiTexture *m_boundImage = nullptr;         // the image texture or the placeholder

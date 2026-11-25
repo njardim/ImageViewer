@@ -1,24 +1,31 @@
 // The main window: a QWindow presented through QRhi so it can use an HDR
-// swapchain (decision D-09). ViewerWindow is implemented in eight files:
+// swapchain (decision D-09). ViewerWindow is implemented in ten files:
 //   viewer.cpp      display and view state;
+//   windowstates.cpp the window's states: the session's place, full screen (the image gliding), minimized;
 //   navigation.cpp  the folder, loading, preloading (D-33) and watching for changes;
 //   overlays.cpp    what is drawn over the image: information panel, top overlay (D-34),
-//                   navigation buttons, the slideshow's toolbar;
+//                   navigation buttons;
+//   toolbars.cpp    the toolbar at the top (D-87, D-112) and the slideshow's (D-65), and the hiding
+//                   of those and of the gallery while the pointer is still;
 //   commands.cpp    the command table, menus and dialogs (D-30);
 //   files.cpp       file operations: show, copy, rename, trash and undo, delete (D-41);
-//   playback.cpp    animation playback and the slideshow, its toolbar's behaviour (E6, E11, D-41);
+//   playback.cpp    animation playback and the slideshow (E6, E11, D-41);
 //   input.cpp       the keyboard, the mouse and the wheel, the side zones and the pointer.
 // Its parts with state of their own are classes (D-102): Gallery (gallery.h), Slideshow
-// (slideshow.h, the slideshow's clock) and VectorDetails (detail.h, the zoom's detail of an SVG).
+// (slideshow.h, the slideshow's clock), VectorDetails (detail.h, the zoom's detail of an SVG) and
+// Toolbar and AutoHide (toolbar.h).
 #pragma once
 
 #include "cache.h"
+#include "colorpicker.h"
 #include "detail.h"
 #include "gallery.h"
+#include "histogram.h"
 #include "image.h"
 #include "renderer.h"
 #include "settings.h"
 #include "slideshow.h"
+#include "toolbar.h"
 
 #include <QDateTime>
 #include <QElapsedTimer>
@@ -28,6 +35,7 @@
 #include <QHash>
 #include <QKeySequence>
 #include <QList>
+#include <QLocale>
 #include <QPainterPath>
 #include <QPointF>
 #include <QSet>
@@ -47,9 +55,18 @@
 // edges and rounds its corners by kPanelRadius (D-58, D-60), logical pixels.
 inline constexpr double kEdgeMargin = 16.0;
 inline constexpr double kPanelRadius = 8.0;
+// The window's least size, logical pixels; also when the window takes an image's size.
+inline constexpr QSize kMinWindowSize(320, 240);
+// File sizes as the platform's file manager shows them: Explorer counts in 1024s, Finder and the
+// Linux desktops in 1000s (overlays.cpp).
+QString fileSizeText(qint64 bytes, const QLocale &locale);
+// Between the top overlay's facts, the title's and a gallery tooltip's.
+inline const QString kFieldSeparator = QStringLiteral("   ·   ");
+
 // One step of Zoom In or Zoom Out, and of a wheel notch.
 inline constexpr double kZoomStep = 1.25;
 
+class QAction;
 class QMenu;
 class QMenuBar;
 class QTranslator;
@@ -76,12 +93,12 @@ public:
 
     // Every user command: one table drives the keyboard, the context menu and its submenus.
     enum class Command {
-        Open, ClearRecent, ShowInFolder, OpenWithOther, CopyImage, CopyPath,
+        Open, ClearRecent, ShowInFolder, OpenWith, OpenWithOther, CopyImage, CopyPath,
         Rename, MoveToTrash, DeletePermanently, UndoTrash, Settings, Quit,
         Previous, Next, First, Last,
         ZoomIn, ZoomOut, Fit, FitWidth, FitHeight, Fill, ActualSize, LockZoom,
-        FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery,
-        RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical,
+        FullScreen, Minimize, Info, InfoOverlay, Checkerboard, Gallery, Toolbar,
+        RotateClockwise, RotateCounterclockwise, FlipHorizontal, FlipVertical, ColorPicker,
         ExposureUp, ExposureDown, ExposureReset, ToneMap, ClipWarning,
         PlayPause, PreviousFrame, NextFrame, Slideshow,
         About, AboutQt,
@@ -106,10 +123,15 @@ private:
     // viewer.cpp
     void initializeRenderer();
     void render();
+    // windowstates.cpp: full screen and back with the image gliding (D-114), minimized and back.
     void toggleFullScreen();
     void leaveFullScreen(); // back to maximized or normal, whichever it was
     void minimize();
     void returnFromMinimized(); // full screen or maximized again, as before minimize()
+    void startGlide();            // before the window changes: where the image is on the screen
+    void windowChanged();         // the window has its new size: the glide starts
+    void presentChangedWindow();  // Windows: the first frame of the new size at once
+    QRectF glidedImageRect(const QRectF &target); // device pixels: on its way there during a glide
     void applySettings(const Settings &settings);
     // Sets one preference changed outside the Settings dialog (a toggle) and saves it into the
     // stored preferences rather than saving all of this instance's: another instance may have
@@ -144,6 +166,23 @@ private:
     void cancelPress();   // a press whose release goes elsewhere clicks nothing
     void pointerActive(); // shows the pointer again and restarts its hiding timer
     void updateCursor();
+    // The color picker (m_picker, D-115): while it is on, a click on the image picks the pixel under
+    // the pointer instead of the side zones and full screen; its panel, above the information panel,
+    // shows the loupe and the values, a click on one copies it.
+    void togglePicker();
+    ColorPicker::Look pickerLook() const;
+    ColorPicker::Source pickerSource() const;
+    void updatePicker();           // its panel laid out and drawn when it changed
+    QRectF pickerRect() const;     // device pixels: its panel; empty when off
+    int pickerRowAt(const QPointF &position) const; // logical pixels: a value's index, or -1
+    bool overPicker(const QPointF &position) const; // logical pixels: on its panel
+    // The texture's pixel under `position` (logical pixels); none outside the image.
+    std::optional<QPoint> texelAt(const QPointF &position) const;
+    void pickAt(const QPointF &position);
+    void fillFileValue(); // the picked pixel's value in the file, from m_fileSamples or once read
+    void fileSamplesRead();
+    void placePicker(Renderer::Frame *frame) const;
+    void copyPickerValue(int row);
 
     // View actions.
     void rotate(int quarterTurns);
@@ -218,14 +257,45 @@ private:
     void toggleSlideshow();
     void stopSlideshow();
     void slideshowDue(); // m_slideshow's interval ended: the next image, or the end
-    // The slideshow's toolbar (D-65): pause or play, and stop, below the top overlay.
-    enum class ToolbarButton { None, Stop, PlayPause }; // left to right
-    QRectF slideshowToolbarRect() const;                         // device pixels; empty when hidden
-    ToolbarButton toolbarButtonAt(const QPointF &position) const; // logical pixels
-    void showSlideshowToolbar(); // when the pointer moves; it hides again when it stays still
+
+    // toolbars.cpp: the toolbar at the top (m_mainToolbar, D-87, D-112), its buttons the user's
+    // commands, its "…" panel (D-113); the slideshow's toolbar (m_slideshowBar, D-65), stop and pause
+    // or play below the top overlay, in the same look (D-113); the hiding of the bars, the gallery,
+    // the top overlay and the information panel while the pointer is still (AutoHide).
+    static std::optional<Glyph> glyphFor(Command command); // none: not a toolbar button
+    QString buttonName(Command command) const; // its menu text, without the dialog's "…"
+    Toolbar::Look toolbarLook() const;         // both bars'
+    QList<Toolbar::Button> mainToolbarButtons() const;
+    QList<Toolbar::Button> slideshowBarButtons() const; // stop, then pause or play
+    void updateMainToolbar();       // its buttons' states, laid out for the window, drawn when changed
+    QRectF mainToolbarRect() const; // device pixels; empty when not shown
+    QRectF toolbarMenuRect() const; // device pixels: the "…" panel; empty when closed
+    double mainToolbarReserve() const; // logical pixels it takes from the window's top while it shows
+    int mainToolbarAt(const QPointF &position) const; // logical pixels: a button's id, Toolbar::kMore, or -1
+    int toolbarMenuAt(const QPointF &position) const; // logical pixels: a row's id, or -1
+    void setMainToolbarHover(int id);
+    void setSlideshowBarHover(int id);
+    // Tooltips over the image (D-116): drawn by us in the panels' look on the hover's colour, kTipGap
+    // from what they name (below a button, above a thumbnail) or from the pointer (a picker's value).
+    enum class TipSource { None, Toolbar, Gallery, Picker };
+    enum class TipPlace { Below, Above, Pointer };
+    void showTip(TipSource source, const QString &text, const QRectF &anchor, TipPlace place); // anchor: logical pixels
+    void hideTip(TipSource source = TipSource::None); // None: whichever shows
+    QRectF tipRect() const;         // device pixels; empty: none
+    void showPendingTip();          // the pointer rests on a toolbar's button or a thumbnail
+    void showToolbarTooltip();      // the hovered button's name and key
+    void toolbarButtonClicked(int id); // a button of either bar, or a row of the "…" panel
+    void closeToolbarMenu();
+    void showOpenWithMenu(const QPoint &globalPos);
+    void fillOpenWithMenu(QMenu *menu); // the system's applications for the image, and "Other Application…"
+    void toggleMainToolbar();
+    bool slideshowInMainToolbar() const; // its buttons show there: the slideshow's own toolbar does not (D-112)
+    bool galleryShown() const;           // on screen: on, and not hidden by itself
+    QRectF slideshowToolbarRect() const; // device pixels; empty when hidden
+    int slideshowBarAt(const QPointF &position) const; // logical pixels: a button's id, or -1
+    void showSlideshowToolbar(); // when the slideshow starts
     void updateSlideshowToolbar();
-    void setToolbarHover(ToolbarButton button);
-    void toolbarClicked(ToolbarButton button);
+    void configureAutoHide();    // from the settings: one delay, a switch each (D-113)
 
     // overlays.cpp
     void updateOverlay();               // information panel (and the top overlay's content)
@@ -237,12 +307,25 @@ private:
     void toggleGallery();
     // The top overlay's facts for `fields`, in its order and wording; also the title's (D-58).
     QStringList overlayParts(const QList<OverlayField> &fields, int *nameIndex = nullptr) const;
+    // A gallery thumbnail's tooltip (D-116, D-117): the top overlay's chosen facts of its file, the
+    // name, dimensions, size and zoom (the one it would be shown at) on the first line, the others on
+    // the second.
+    QString galleryTipText(int file) const;
     void updateTitle(); // per Settings::titleMode
     OverlayVisibility topOverlayMode() const; // for full screen or window, whichever applies
     bool topOverlayVisible() const;
     void setPointerAtTop(bool atTop);
     double topActivationHeight() const; // logical pixels
     void placeOverlays(Renderer::Frame *frame) const;
+    QRectF infoPanelRect() const; // device pixels: the information panel with its notices; empty: none
+    bool overHistogramChoice(const QPointF &position) const; // logical pixels: on the panel's histogram choice
+    // Its menu (D-117), drawn by us below the choice: a row each for Colors, Luminance and None.
+    QString histogramModeName(HistogramMode mode) const;
+    void setHistogramMenuOpen(bool open);
+    void updateHistogramMenu();
+    QRectF histogramMenuRect() const;                      // device pixels; empty when closed
+    int histogramMenuAt(const QPointF &position) const;    // logical pixels: a row, or -1
+    void chooseHistogramMode(int row);
     void updateNavigationButtons();
     void showNotice(const QString &text); // brief message, in a panel over the information panel
 
@@ -261,7 +344,7 @@ private:
     void run(Command command);     // every way of giving a command comes here: keys, menus, mouse
     void execute(Command command); // run()'s work, once the command is enabled
     bool executeShortcut(QKeyEvent *e); // true when a command took the key
-    void addCommand(QMenu *menu, Command command);
+    QAction *addCommand(QMenu *menu, Command command);
     void showContextMenu(const QPoint &globalPos);
     void installApplicationMenu();   // macOS: About and Settings in the application menu (D-96)
     void translateApplicationMenu(); // ... named in the language shown
@@ -311,6 +394,7 @@ private:
     int m_frameGeneration = 0;  // changes when the animation shown changes
     int m_frameIndex = 0;       // the frame on screen
     PixelBuffer m_framePixels;  // ...its pixels (none for the first frame, which m_image's file gives), for the clipboard
+    std::shared_ptr<const Histogram> m_frameHistogram; // ...and its histogram (none for the first frame)
     int m_frameDurationMs = 0;  // ...and how long it stays
     QElapsedTimer m_panelRefreshed; // while playing, the panel's frame number follows at intervals
     int m_wantedFrame = -1;     // the frame to show next; -1: none
@@ -322,12 +406,26 @@ private:
     bool m_frameWaitsForScreen = false; // nothing is drawn while the window is off the screen
     QTimer m_frameTimer;
     Slideshow m_slideshow;
-    QTimer m_toolbarTimer;        // hides the slideshow's toolbar (Settings::slideshowToolbarAutoHide)
-    bool m_toolbarHidden = false;
-    ToolbarButton m_toolbarHover = ToolbarButton::None;
-    ToolbarButton m_toolbarPress = ToolbarButton::None; // a press that becomes a click when released on it
-    QSize m_toolbarSize;          // device pixels; empty when not shown
-    QString m_toolbarKey;         // what its texture shows
+    Toolbar m_slideshowBar;       // the slideshow's toolbar (D-65, D-113)
+    AutoHide m_toolbarHide;       // ...hidden while the pointer is still (Settings::slideshowToolbarAutoHide)
+    qint64 m_slideshowBarTexture = 0; // the cache key of the texture the renderer has; 0: none
+    bool m_slideshowBarShown = false;
+    Toolbar m_mainToolbar;        // the toolbar at the top (D-112)
+    AutoHide m_mainToolbarHide;   // ...hidden while the pointer is still (Settings::toolbarAutoHide)
+    qint64 m_mainToolbarTexture = 0; // as m_slideshowBarTexture
+    qint64 m_toolbarMenuTexture = 0; // ...its "…" panel's
+    bool m_slideshowInMainToolbar = false; // as last laid out
+    int m_toolbarMenuPress = -1;  // a row of the "…" panel pressed, a click when released on it
+    QTimer m_tooltipTimer;        // a button's or a thumbnail's tooltip, once the pointer rests on it
+    TipSource m_tipSource = TipSource::None; // the tooltip shown...
+    QString m_tipText;
+    QRectF m_tipAnchor;           // ...what it names, logical pixels...
+    TipPlace m_tipPlace = TipPlace::Below;
+    QSize m_tipSize;              // ...its texture's size, device pixels...
+    qreal m_tipDpr = 1.0;         // ...at this pixel ratio
+    AutoHide m_galleryHide;       // the gallery (Settings::galleryAutoHide)
+    AutoHide m_overlayHide;       // the top overlay (Settings::overlayAutoHide, D-113)
+    AutoHide m_panelHide;         // the information panel (Settings::panelAutoHide); its notices stay
     // Set from startDecode() until decodeFinished(). Not m_watcher.isRunning(): that is false
     // as soon as the worker ends, while the finished signal is still queued, and setting a
     // new future then would discard the result that was never delivered.
@@ -394,9 +492,18 @@ private:
     QSize m_topOverlaySize;  // device pixels; empty when there is nothing to show
     QString m_topOverlayKey; // what the top overlay texture shows, to skip identical uploads
     QString m_panelKey;      // likewise for the information panel
+    QRectF m_histogramChoice; // the panel's histogram choice, logical pixels in its texture; empty: none (D-116)
+    bool m_histogramChoiceHover = false;
+    bool m_histogramMenuOpen = false;  // its menu (D-117)...
+    int m_histogramMenuHover = -1;     // ...the row under the pointer...
+    QSize m_histogramMenuSize;         // ...its texture's size, device pixels
+    bool m_grabbing = false;  // the image follows a drag: the closed hand (D-116)
     bool m_pointerAtTop = false; // on-hover mode: the overlay is shown
     QTimer m_topOverlayTimer;    // hides it after the pointer has left the top band
     QRect m_normalGeometry;  // last geometry while neither maximized nor full screen
+    QRectF m_glideFrom;      // where the image was on the screen, global logical pixels (D-114)
+    QElapsedTimer m_glideClock; // running while the image glides to its new place
+    bool m_glidePending = false; // the window is about to change: the glide starts when it has
     bool m_maximizedBeforeFullScreen = false;
     Qt::WindowStates m_statesBeforeMinimize; // full screen or maximized: given back by returnFromMinimized()
     std::function<void()> m_menuChoice; // what the context menu chose: run once the menu is gone
@@ -405,8 +512,26 @@ private:
     QPointF m_dragOrigin;
     QPointF m_panOrigin;
     Zone m_hoverZone = Zone::None;
-    QTimer m_pointerTimer;       // hides a still pointer (Settings::pointerHideMs)
+    QTimer m_pointerTimer;       // hides a still pointer (Settings::pointerAutoHide, autoHideMs)
     bool m_pointerHidden = false;
     Zone m_pressZone = Zone::None; // a press that may become a click on a side zone
     bool m_pressMoved = false;     // the press turned into a drag
+    QPointF m_pointer;             // where the pointer is, logical pixels...
+    bool m_pointerIn = false;      // ...when it is over the window
+
+    ColorPicker m_picker;          // the color picker (D-115)
+    bool m_pickerOn = false;
+    qint64 m_pickerTexture = 0;    // the cache key of its panel's texture the renderer has; 0: none
+    QSize m_pickerTextureSize;     // ...and its size
+    int m_pickerPress = -1;        // a value pressed, copied when released on it
+    bool m_pickPress = false;      // a press on the image that picks when released without a drag
+    QString m_pickPath;            // the file of the pixel picked
+    double m_pickerOffset = 0;     // logical pixels from the information layer's bottom to the panel's
+
+    // The file's own samples, decoded again for the picker's value of the file (D-115), on m_samplesPool.
+    std::shared_ptr<const FileSamples> m_fileSamples; // of m_image's file; null: not read
+    QThreadPool m_samplesPool;
+    QFutureWatcher<std::shared_ptr<const FileSamples>> m_samplesWatcher;
+    bool m_samplesBusy = false;    // as m_decodeBusy
+    QString m_samplesPath;         // the file being read
 };

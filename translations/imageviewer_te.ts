@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>ఫైల్</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (sRGBకి కత్తిరించబడింది)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (ఫ్లోటింగ్ పాయింట్)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-బిట్)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>కాంతి తీవ్రత</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>పిక్సెల్</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>రంగును తీసుకోవడానికి చిత్రంపై క్లిక్ చేయండి.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>తెలుపు</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>రంగులు</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>కాంతి తీవ్రత</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>ఏదీ కాదు</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>ఓవర్‌లే చూపు:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>టూల్‌బార్</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>అనుకూలం…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>చిత్రాన్ని ట్రాష్‌కు తరలించే ముందు నిర్ధారించు</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>పారదర్శక ప్రాంతాల వెనుక చెకర్‌బోర్డ్ చూపు</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>పాయింటర్ పైన ఉన్నప్పుడు</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>ఎప్పుడూ కాదు</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>పూర్తి స్క్రీన్‌లో:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>విండోలో:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>ఫీల్డ్‌లు</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>నేపథ్య అపారదర్శకత:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>టెక్స్ట్ అపారదర్శకత:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>టెక్స్ట్‌కు అవుట్‌లైన్ ఇవ్వు</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> సెకన్లు</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>భాష మరియు వచనం</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>ఫాంట్ పరిమాణం:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>ప్రారంభం మరియు ఫైల్‌లు</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>ప్రారంభంలో స్వాగత తెరను చూపు</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>చిత్రం పైన</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>విండోకు సరిపోయేలా చేయి</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>రంగులు</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>విండో కంటే చిన్న చిత్రాలను పెద్దవి చేయి</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>విండో</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>టైటిల్ బార్:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>కదలని పాయింటర్ ఇంత సమయం తర్వాత దాచు:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>ప్యానెల్‌లు, ఓవర్‌లే, గ్యాలరీ, టూల్‌బార్‌లు మరియు పక్క బటన్‌లు</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>వచనం మరియు చిహ్నాల అపారదర్శకత:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>మౌస్ పాయింటర్ కదలకుండా ఉన్నప్పుడు స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>స్వయంచాలకంగా దాచేలా సెట్ చేసిన అన్నింటికీ: బార్‌లు, గ్యాలరీ, ఓవర్‌లే, ప్యానెల్ మరియు మౌస్ పాయింటర్.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>మూలకాలను స్వయంచాలకంగా దాచు ఇంత తర్వాత:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>సమాచార ప్యానెల్</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>హిస్టోగ్రామ్:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>పైన ఓవర్‌లే</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>తర్వాత దాచు:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>ప్యానెల్ మరియు ఓవర్‌లే రూపం</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>సమాచార ప్యానెల్‌ను స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>సమాచార ఓవర్‌లేను స్వయంచాలకంగా దాచు</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>మునుపటి లేదా తదుపరి చిత్రం కోసం విండో ఎడమ లేదా కుడి వైపున క్లిక్ చేయి</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>పాయింటర్ కదలకుండా ఉన్నప్పుడు టూల్‌బార్‌ను దాచు</translation>
+        <source>Show the toolbar</source>
+        <translation>టూల్‌బార్ చూపు</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>బటన్‌ల కింద పేర్లు చూపు</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>టూల్‌బార్‌ను స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>బటన్‌లు</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>విభాజకం జోడించు</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>విభాజకం తీసివేయి</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>డిఫాల్ట్ బటన్‌లు</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>సెట్టింగ్‌లు మరియు నిష్క్రమించు ఎల్లప్పుడూ చివర, తమ సొంత సమూహంలో ఉంటాయి.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>విభాజకం (ఎల్లప్పుడూ)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>విభాజకం</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>స్లైడ్‌షోను పూర్తి స్క్రీన్‌లో ప్రారంభించు</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను హైలైట్ చేయి (మెజెంటా)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>స్లైడ్‌షో టూల్‌బార్‌ను స్వయంచాలకంగా దాచు</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>టూల్‌టిప్‌లో చిత్రం సమాచారాన్ని చూపు</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>గ్యాలరీని స్వయంచాలకంగా దాచు</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>డిస్‌ప్లే అవుట్‌పుట్:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>డిస్‌ప్లే సామర్థ్యాన్ని మించిన HDR చిత్రాలకు టోన్ మ్యాపింగ్ వర్తింపజేయి (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>స్లైడ్‌షో (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>టూల్‌బార్ (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>పారదర్శక ప్రాంతాల వెనుక చెకర్‌బోర్డ్ చూపు (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>డిస్‌ప్లే సామర్థ్యాన్ని మించిన HDR చిత్రాలకు టోన్ మ్యాపింగ్ వర్తింపజేయి, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>క్లిప్పింగ్ లేదా టోన్ మ్యాపింగ్ వల్ల మార్చబడిన పిక్సెల్‌లను మెజెంటా రంగులో హైలైట్ చేయి (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>%1 nits పైన క్లిప్ చేయబడింది (టోన్ మ్యాపింగ్ ఆఫ్)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>రంగులు</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>కాంతి తీవ్రత</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>ఏదీ కాదు</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>హిస్టోగ్రామ్</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>ఎక్స్‌పోజర్ %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>గ్యాలరీ</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>సవ్యదిశలో తిప్పు</translation>
+        <source>Toolbar</source>
+        <translation>టూల్‌బార్</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>అపసవ్యదిశలో తిప్పు</translation>
+        <source>Rotate Right</source>
+        <translation>కుడివైపు తిప్పు</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>ఎడమవైపు తిప్పు</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>నిలువుగా ఫ్లిప్ చేయి</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>రంగు ఎంపిక సాధనం</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>దీనితో తెరువు</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>ఆపు</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>ప్లే చేయి</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>మరిన్ని</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>స్లైడ్‌షో పాజ్ చేయబడింది</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>కాపీ చేయి</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>కాపీ చేయబడింది: %1</translation>
     </message>
 </context>
 </TS>

@@ -136,6 +136,13 @@ def edit_settings(*options):
         f.write(text)
 
 
+# The interaction tests were written for a window without the toolbar and with the top overlay:
+# what the application showed by default until D-114 (the toolbar, with its names, and the
+# gallery only). Each test switches on what it checks (ui_views_test.py section 5: the toolbar,
+# without names, whose geometry it measures).
+edit_settings(("toolbar", "show", "false"), ("toolbar", "names", "false"), ("window", "showOverlay", "true"))
+
+
 def find_dialog(title):
     """Window id of a visible dialog with this exact title, waiting for it."""
     found = []
@@ -221,6 +228,18 @@ def open_xfixes():
         hidden = not any(c.pixels[i] >> 24 for i in range(c.width * c.height))
         x11.XFree(image)
         return hidden
+
+    def pointer_shape():
+        """The pointer's image as a comparable value (its size, hot spot and pixels): the cross, the
+        arrow and the hands differ."""
+        image = xfixes.XFixesGetCursorImage(connection)
+        if not image:
+            fail("XFixesGetCursorImage failed")
+        c = image.contents
+        shape = (c.width, c.height, c.xhot, c.yhot, hash(tuple(c.pixels[i] for i in range(c.width * c.height))))
+        x11.XFree(image)
+        return shape
+    pointer_hidden.shape = pointer_shape  # the same connection
     return pointer_hidden
 
 

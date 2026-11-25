@@ -120,7 +120,7 @@ jobs:
           fi
           # The cooldown alone only warns here: a pin under it may be merged, not released.
           [ "$YOUNG" = true ] && echo "::warning::a pinned release is under the $DAYS-day cooldown: no release until it ends (see the summary)"
-          [ "$LOWERED" = true ] && echo "::warning::the cooldown is lowered to $DAYS days (packaging/cooldown-days.txt): set it back to 15 once the release that needed it is out"
+          [ "$LOWERED" = true ] && echo "::warning::the cooldown is lowered to $DAYS days (packaging/cooldown-days.txt): set it back to 12 once the release that needed it is out" # the policy (D-101)
           [ "$WAITING" = true ] && echo "::warning::an assessed vulnerability is fixed in a release still under the $DAYS-day cooldown: the update waits for it and is due the day it ends (D-100; see the summary)"
           [ "$ACTIONABLE" = true ] && echo "::error::a known vulnerability is fixed in a release we may take: update now (see the summary)"
           [ "$UNASSESSED" = true ] && echo "::error::a known vulnerability is neither patched nor assessed: answer it in packaging/known-vulnerabilities.txt or with a patch (see the summary)"

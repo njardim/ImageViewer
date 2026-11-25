@@ -43,6 +43,10 @@ struct Decoded {
     int documentWidth = 0;
     int documentHeight = 0;
     double documentScale = 0.0; // and the scale it was drawn at: texels per document pixel
+    // A raster file's own size when a thumbnail read it smaller (a JPEG reduced, a camera RAW's
+    // embedded preview), as its samples are stored (before `orientation`); 0: width and height.
+    int fileWidth = 0;
+    int fileHeight = 0;
     bool vector = false; // drawn from a description (SVG): it can be drawn again at any scale (D-93)
 
     int sampleBytes() const

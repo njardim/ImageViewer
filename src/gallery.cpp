@@ -17,7 +17,6 @@ namespace {
 constexpr double kBorder = 8.0;       // between thumbnails and around them
 constexpr double kSideFree = 128.0;   // left free on each side of the window
 constexpr double kTileMargin = 3.0;   // the tiles reach this far around a thumbnail
-constexpr int kHoverFade = 20;        // the hovered tile: the highlight 20 points less opaque, 50 % by default (D-85)
 constexpr int kPrefetch = 1;          // thumbnails decoded ahead: this many rows' worth either side
 } // namespace
 
@@ -118,9 +117,15 @@ void Gallery::update(const Scene &scene)
     const int capacity = this->capacity(width);
     const int shown = count <= capacity ? count : std::max(1, capacity % 2 ? capacity : capacity - 1);
     // The current image comes to the centre whenever it changes; the wheel moves away from it.
-    // When the window holds more or fewer thumbnails, the middle one stays (both counts are odd).
-    if (!m_slots.isEmpty())
-        m_first += (int(m_slots.size()) - shown) / 2;
+    // When the window holds more or fewer thumbnails, the middle one stays (both counts are odd);
+    // but a row that held every image was not centred on the current one, which comes to the
+    // centre then (it went out of sight when the window narrowed).
+    if (!m_slots.isEmpty()) {
+        if (int(m_slots.size()) >= count)
+            m_first = std::max(0, scene.current) - shown / 2;
+        else
+            m_first += (int(m_slots.size()) - shown) / 2;
+    }
     if (scene.current != m_centredOn) {
         m_centredOn = scene.current;
         m_first = std::max(0, scene.current) - shown / 2;
@@ -158,8 +163,8 @@ void Gallery::update(const Scene &scene)
 
     QString key = QStringLiteral("%1|%2|%3|%4|%5|%6|%7|%8|")
                       .arg(m_first).arg(shown).arg(m_hover).arg(scene.current).arg(dpr)
-                      .arg(m_settings.galleryOpacity).arg(zoom).arg(side)
-                  + m_settings.galleryHighlight.name(QColor::HexRgb);
+                      .arg(m_settings.backgroundOpacity).arg(zoom).arg(side)
+                  + m_settings.highlight.name(QColor::HexRgb);
     for (int i = 0; i < shown; ++i) { // which file, and its thumbnail's sharpness, if it is there yet
         const QString &path = m_files.at(fileAt(i));
         const auto thumbnail = m_thumbnails.constFind(path);
@@ -204,9 +209,8 @@ void Gallery::update(const Scene &scene)
         tile.addRoundedRect(tileOf(places.at(m_hover)), kPanelRadius / 2, kPanelRadius / 2);
         background = background.united(tile);
     }
-    const int alpha = int(std::lround(m_settings.galleryOpacity * 2.55));
     painter.setPen(Qt::NoPen);
-    painter.fillPath(background, QColor(0, 0, 0, alpha));
+    painter.fillPath(background, m_settings.panelBackground()); // the one opacity over the image (D-114)
     m_shape = background;
 
     // The pointer is matched against the places without the zoom: matched against the enlarged
@@ -219,14 +223,10 @@ void Gallery::update(const Scene &scene)
     for (int i = 0; i < shown; ++i) {
         const QRectF &place = places.at(i);
         const QString &path = m_files.at(fileAt(i));
-        // One colour behind the current thumbnail and the hovered one, at the gallery's opacity
-        // over its background; the hovered one a little fainter, unless it is the current one.
+        // One colour behind the current thumbnail and the hovered one, at the background's opacity;
+        // the hovered one a little fainter, unless it is the current one (the toolbars' discs alike).
         if (fileAt(i) == scene.current || i == m_hover) {
-            QColor tile = m_settings.galleryHighlight;
-            const int opacity = fileAt(i) == scene.current ? m_settings.galleryOpacity
-                                                           : std::max(0, m_settings.galleryOpacity - kHoverFade);
-            tile.setAlpha(int(std::lround(opacity * 2.55)));
-            painter.setBrush(tile);
+            painter.setBrush(m_settings.highlightTile(fileAt(i) != scene.current));
             painter.drawRoundedRect(tileOf(place), kPanelRadius / 2, kPanelRadius / 2);
         }
         const QImage thumbnail = m_thumbnails.value(path).image;
@@ -341,6 +341,13 @@ int Gallery::slotAt(const QPointF &position) const
         if (m_slots.at(i).contains(inTexture))
             return i;
     return -1;
+}
+
+QRectF Gallery::slotRect(int slot) const
+{
+    if (m_size.isEmpty() || slot < 0 || slot >= m_slots.size())
+        return {};
+    return m_slots.at(slot).translated(m_rect.topLeft() / m_scene.devicePixelRatio);
 }
 
 bool Gallery::contains(const QPointF &position) const

@@ -1,21 +1,22 @@
-ImageViewer patch (docs/PLAN.md section 15, D-57, D-93): filtered layers drawn only within reach of the view
-Library: resvg 0.48.1
+ImageViewer patch (docs/PLAN.md section 15, D-57, D-93, D-118): filtered layers drawn only within reach of the view
+Library: resvg 0.50.0
 Fixes: none (speed: a filtered layer cost its whole filter region, linebender/resvg#790 and #1192)
 Upstream: none yet: to be proposed to linebender/resvg, linked to #1192 (ours)
 Remove when: a resvg release draws a filtered layer only within reach of the canvas, or this patch no longer applies
 
 resvg drew every filtered group over its whole filter region at the scale asked, however little of it
 the canvas shows: a part of the canvas cost as much as the whole, and a zoomed-in view its whole area
-at that zoom. Here a layer is drawn only within reach of the visible area (render::Context::visible):
+at that zoom. Here a layer is drawn only within reach of the visible area (render::Context::visible,
+taken into a layer's own axes as render_group() takes max_bbox, without the group's rotation and skew):
 for a filtered group, the reach of its filters (filter::reach(): the box blur's exact width, offsets,
-morphology, displacement, convolution, lighting); a filter whose result may depend on its whole region
-(feTile, feImage, stitched feTurbulence) keeps its whole region, as before. Groups and layers outside
-the visible area are not drawn: tiny-skia 0.12 drew a one-row pixmap placed just above the canvas onto
-the canvas's first row. A primitive's subregion is cleared within its result's pixels wherever it lies
-(it may lie partly or wholly outside a layer drawn in part). The pixels are those of the whole region
-but for anti-aliased edges, whose coverage may move by a rounding step when a layer starts elsewhere
-(tiny-skia's, as for a shape drawn on a canvas that starts elsewhere; lighting and convolution, which
-read an edge's slope, enlarge that step): 3 of resvg's 1,730 reference tests differ there.
+morphology as resvg rounds its radius, displacement, convolution, lighting); a filter whose result may
+depend on its whole region (feTile, feImage, stitched feTurbulence) keeps its whole region, as before.
+Groups and layers outside the visible area are not drawn: tiny-skia 0.12 drew a one-row pixmap placed
+just above the canvas onto the canvas's first row. A primitive's subregion is cleared within its
+result's pixels wherever it lies (it may lie partly or wholly outside a layer drawn in part). The
+pixels are those of the whole region but for anti-aliased edges, whose coverage may move by a rounding
+step when a layer starts elsewhere (tiny-skia's, as for a shape drawn on a canvas that starts
+elsewhere; lighting and convolution, which read an edge's slope, enlarge that step).
 
 diff --git a/crates/resvg/src/clip.rs b/crates/resvg/src/clip.rs
 index 879434d..de432c7 100644
@@ -50,10 +51,10 @@ index 169256c..013784b 100644
      if sigma > 0.0 {
          let n_float = STEPS as f32;
 diff --git a/crates/resvg/src/filter/mod.rs b/crates/resvg/src/filter/mod.rs
-index 30f8680..36353e8 100644
+index 6baf57d..73def49 100644
 --- a/crates/resvg/src/filter/mod.rs
 +++ b/crates/resvg/src/filter/mod.rs
-@@ -332,6 +332,43 @@ struct FilterResult {
+@@ -332,6 +332,46 @@ struct FilterResult {
      image: Image,
  }
  
@@ -79,10 +80,13 @@ index 30f8680..36353e8 100644
 +                Kind::GaussianBlur(fe) => blur(fe.std_dev_x(), fe.std_dev_y()),
 +                Kind::DropShadow(fe) => blur(fe.std_dev_x(), fe.std_dev_y()) + offset(fe.dx(), fe.dy()),
 +                Kind::Offset(fe) => offset(fe.dx(), fe.dy()),
-+                Kind::Morphology(fe) => f64::from(fe.radius_x().get().max(fe.radius_y().get())) * scale,
-+                // As this release displaces: `scale` times the canvas's `scale` and once more
-+                // (#1157, fixed after 0.49.0, where the reach goes back to `scale / 2`).
-+                Kind::DisplacementMap(fe) => f64::from(fe.scale().abs()).powi(2) / 2.0 * scale + 1.0,
++                // As apply_morphology() and morphology::apply() round the radius in pixels.
++                Kind::Morphology(fe) => {
++                    let (x, y) = (fe.radius_x().get() * sx, fe.radius_y().get() * sy);
++                    f64::from(x.round().max(y.round()))
++                }
++                // At most half of `scale` in pixels each way, rounded to a pixel.
++                Kind::DisplacementMap(fe) => f64::from(fe.scale().abs()) / 2.0 * scale + 1.0,
 +                Kind::ConvolveMatrix(fe) => f64::from(fe.matrix().columns().max(fe.matrix().rows())),
 +                Kind::DiffuseLighting(_) | Kind::SpecularLighting(_) => 2.0,
 +                Kind::Tile(_) | Kind::Image(_) => return None,
@@ -97,7 +101,7 @@ index 30f8680..36353e8 100644
  pub fn apply(
      filter: &usvg::filter::Filter,
      ts: tiny_skia::Transform,
-@@ -477,24 +514,19 @@ fn apply_inner(
+@@ -488,24 +528,19 @@ fn apply_inner(
                  let mut pixmap = result.take()?;
                  let w = pixmap.width() as f32;
                  let h = pixmap.height() as f32;
@@ -135,7 +139,7 @@ index 30f8680..36353e8 100644
                  }
  
                  pixmap
-@@ -878,6 +910,7 @@ fn apply_image(
+@@ -890,6 +925,7 @@ fn apply_image(
  
      let ctx = crate::render::Context {
          max_bbox: tiny_skia::IntRect::from_xywh(0, 0, region.width(), region.height()).unwrap(),
@@ -194,12 +198,12 @@ index 79805f5..c849854 100644
  
      Some(())
 diff --git a/crates/resvg/src/path.rs b/crates/resvg/src/path.rs
-index c11349a..40b80ec 100644
+index f9aef18..e94aa09 100644
 --- a/crates/resvg/src/path.rs
 +++ b/crates/resvg/src/path.rs
-@@ -194,7 +194,11 @@ fn render_pattern_pixmap(
-     let mut pixmap = tiny_skia::Pixmap::new(img_size.width(), img_size.height())?;
- 
+@@ -196,7 +196,11 @@ fn render_pattern_pixmap(
+     let sx = img_size.width() as f32 / rect.width();
+     let sy = img_size.height() as f32 / rect.height();
      let transform = tiny_skia::Transform::from_scale(sx, sy);
 -    crate::render::render_nodes(pattern.root(), ctx, transform, &mut pixmap.as_mut());
 +    let ctx = Context {
@@ -211,7 +215,7 @@ index c11349a..40b80ec 100644
      let mut ts = tiny_skia::Transform::default();
      ts = ts.pre_concat(pattern.transform());
 diff --git a/crates/resvg/src/render.rs b/crates/resvg/src/render.rs
-index 686e48c..67a5b95 100644
+index 5fa4b81..7116fbd 100644
 --- a/crates/resvg/src/render.rs
 +++ b/crates/resvg/src/render.rs
 @@ -5,6 +5,9 @@ use crate::OptionLog;
@@ -224,9 +228,26 @@ index 686e48c..67a5b95 100644
  }
  
  pub fn render_nodes(
-@@ -61,6 +64,14 @@ fn render_group(
+@@ -76,8 +79,14 @@ fn render_group(
+     let inv_rest = rest.invert()?;
  
-     let bbox = group.layer_bounding_box().transform(transform)?;
+     let max_bbox = ctx.max_bbox.to_rect().transform(inv_rest)?.round_out()?;
+-    let (layer, ibbox) =
+-        render_layer(group, &Context { max_bbox }, inv_rest.pre_concat(transform))?;
++    // The visible area in the layer's coordinates, which leave out the group's rotation and skew:
++    // the box that holds it.
++    let visible = ctx.visible.to_rect().transform(inv_rest)?.round_out()?;
++    let (layer, ibbox) = render_layer(
++        group,
++        &Context { max_bbox, visible },
++        inv_rest.pre_concat(transform),
++    )?;
+ 
+     let paint = tiny_skia::Paint {
+         shader: tiny_skia::Pattern::new(
+@@ -105,6 +114,14 @@ fn render_layer(
+ ) -> Option<(tiny_skia::Pixmap, tiny_skia::IntRect)> {
+     let bbox = group.layer_bounding_box()?.transform(transform)?;
  
 +    // How far the group's filters reach: a pixel of their result depends only on the pixels at
 +    // most this far away. None when it may depend on the whole filter region.
@@ -239,7 +260,7 @@ index 686e48c..67a5b95 100644
      let mut ibbox = if group.filters().is_empty() {
          // Convert group bbox into an integer one, expanding each side outwards by 2px
          // to make sure that anti-aliased pixels would not be clipped.
-@@ -73,23 +84,27 @@ fn render_group(
+@@ -117,23 +134,27 @@ fn render_layer(
      } else {
          // The bounding box for groups with filters is special and should not be expanded by 2px,
          // because it's already acting as a clipping region.
@@ -278,7 +299,7 @@ index 686e48c..67a5b95 100644
  
      let shift_ts = {
          // Original shift.
-@@ -108,6 +123,21 @@ fn render_group(
+@@ -152,6 +173,21 @@ fn render_layer(
      let mut sub_pixmap = tiny_skia::Pixmap::new(ibbox.width(), ibbox.height())
          .log_none(|| log::warn!("Failed to allocate a group layer for: {:?}.", ibbox))?;
  

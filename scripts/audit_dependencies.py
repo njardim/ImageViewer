@@ -92,13 +92,10 @@ except (OSError, ValueError) as data_error:
 # Libraries the vcpkg baseline provides (no overlay): port, repository, tag of a version (alternatives
 # separated by "|", tried in order, when a project changed its naming).
 BASELINE_PORTS = {
-    "fmt": ("https://github.com/fmtlib/fmt", "{v}"),
     "giflib": ("https://git.code.sf.net/p/giflib/code", "{v}|giflib-{v}|v{v}"),
     "highway": ("https://github.com/google/highway", "{v}"),
     "imath": ("https://github.com/AcademySoftwareFoundation/Imath", "v{v}"),
-    "lcms": ("https://github.com/mm2/Little-CMS", "lcms{v}"),
     "libdeflate": ("https://github.com/ebiggers/libdeflate", "v{v}"),
-    "libjxl": ("https://github.com/libjxl/libjxl", "v{v}"),
     "liblzma": ("https://github.com/tukaani-project/xz", "v{v}"),
     "libpng": ("https://github.com/pnggroup/libpng", "v{v}"),
     "libspng": ("https://github.com/randy408/libspng", "v{v}"),
@@ -109,7 +106,6 @@ BASELINE_PORTS = {
     "sse2neon": ("https://github.com/DLTcollab/sse2neon", "v{v}"),  # macOS (ARM) only: SSE on NEON
     "tiff": ("https://gitlab.com/libtiff/libtiff", "v{v}"),
     "yaml-cpp": ("https://github.com/jbeder/yaml-cpp", "yaml-cpp-{v}|{v}"),
-    "zlib": ("https://github.com/madler/zlib", "v{v}"),
     "zstd": ("https://github.com/facebook/zstd", "v{v}"),
 }
 # Overlay ports built from a pinned commit ("REF <sha> # <tag>" in the portfile): repository, tag.
@@ -128,6 +124,11 @@ COMMIT_PORTS = {
     "brotli": ("https://github.com/google/brotli", "v{v}"),
     "libjpeg-turbo": ("https://github.com/libjpeg-turbo/libjpeg-turbo", "{v}"),
     "openexr": ("https://github.com/AcademySoftwareFoundation/openexr", "v{v}"),
+    # Releases past the cooldown that vcpkg's baseline lags behind (D-46, D-118); vcpkg's ports otherwise.
+    "fmt": ("https://github.com/fmtlib/fmt", "{v}"),
+    "lcms": ("https://github.com/mm2/Little-CMS", "lcms{v}"),
+    "libjxl": ("https://github.com/libjxl/libjxl", "v{v}"),
+    "zlib": ("https://github.com/madler/zlib", "v{v}"),
     # The SVG renderer (D-90): resvg, with our crate beside it; its crates and Rust are audited apart.
     "imageviewer-svg": ("https://github.com/linebender/resvg", "v{v}"),
 }

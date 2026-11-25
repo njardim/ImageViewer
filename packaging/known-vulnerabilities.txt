@@ -5,14 +5,14 @@
 # assessed": the release gate refuses the release and the weekly audit opens an issue until a patch
 # or a line here answers it. The audit names the lines that no longer apply.
 # A crate of the SVG renderer (D-90) is named "crate/<name>", Rust's standard library "rust".
-CVE-2026-85091 zlib: out of reach: gzwrite and gzprintf (a stale pointer after a failed write, gz_vacate); the packages only inflate (2026-10-21; OSV moved CVE-2026-76844's description here on 2026-11-14)
 CVE-2026-6192 openjpeg: out of reach: opj_pi_initialise_encode, the encoder; the packages only decode (2026-10-21)
 OSV-2026-958 libraw: out of reach: LibRaw::fbdd runs only when fbdd_noiserd > 0, which OpenImageIO 3.2.1.1 never sets (LibRaw's default 0) (2026-10-21)
 OSV-2020-2308 libheif: out of reach: libde265's HEVC decoder, not in the packages (HEIC goes through the system, D-39) (2026-10-21)
 OSV-2022-608 libjxl: out of reach: WriteToPixelCallbackStage, the pixel callback; codecs.cpp decodes into a buffer (JxlDecoderSetImageOutBuffer) (2026-10-21)
 OSV-2022-725 libjxl: accepted, not verified: OSS-Fuzz entry of 2022 (WriteToU8Stage) with no fixed commit recorded; its tracker is unreachable from our sessions; re-assess when OSV records a fix (2026-10-21)
 OSV-2023-1129 libheif: accepted, not verified: OSS-Fuzz entry of 2023 (HeifPixelImage::overlay, a read) with no fixed commit recorded; re-assess when OSV records a fix (2026-10-21)
-OSV-2026-564 libjxl: accepted: use of uninitialised values in decoded pixels (no write); no fix upstream yet (2026-10-21)
-OSV-2026-711 libjxl: accepted: use of uninitialised values in multiply blending (no write); no fix upstream yet (2026-10-21)
 CVE-2026-124317 expat: out of reach: unknown_toUtf8 and unknown_toUtf16 convert an encoding the application registers (XML_SetUnknownEncodingHandler), and OpenColorIO 2.6.0, expat's only user here, registers none: its three parsers (CTF/CLF, Iridas look, CDL) set element and character-data handlers only (2026-11-11)
 CVE-2026-128241 expat: out of reach: xmlwf, expat's command-line tool, which the port does not build (EXPAT_BUILD_TOOLS=OFF) and the packages do not carry (2026-11-14)
+CVE-2026-134703 expat: out of reach: the UTF-16 output conversions it names (DEFINE_UTF16_TO_UTF16) serve XML_UNICODE builds only (xmlparse.c: XmlConvert is XmlUtf16Convert under XML_UNICODE), and the port builds expat with EXPAT_CHAR_TYPE's default, char (UTF-8), so XmlUtf8Convert converts (2026-11-25)
+CVE-2026-135176 libraw: out of reach: xtrans_interpolate's buffer is short only when LibRaw halves the image (half_size, a wavelet denoising threshold or chromatic aberration correction: raw2image.cpp's shrink), and OpenImageIO 3.2.2.0 sets those only when asked ("raw:half_size", "raw:threshold", "raw:aber"), which oiio.cpp never asks (2026-11-25)
+CVE-2026-135177 libraw: out of reach: pentax_4shot_load_raw is chosen only with LIBRAW_RAWOPTIONS_PENTAX_PS_ALLFRAMES (open.cpp), which LibRaw's default raw options leave off (LIBRAW_RAWOPTIONS_CONVERTFLOAT_TO_INT alone) and OpenImageIO 3.2.2.0 never sets (it sets no raw option) (2026-11-25)

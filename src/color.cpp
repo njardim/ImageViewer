@@ -589,4 +589,146 @@ void Converter::apply(float *rgba, std::size_t pixelCount) const
     }
 }
 
+float hlgOetf(float e)
+{
+    constexpr float a = 0.17883277f, b = 0.28466892f, c = 0.55991073f;
+    e = std::max(e, 0.0f);
+    return e <= 1.0f / 12.0f ? std::sqrt(3.0f * e) : a * std::log(12.0f * e - b) + c;
+}
+
+std::array<double, 3> scRgbToLab(double r, double g, double b)
+{
+    // CSS Color 4's D50 white (its lab()), Bradford-adapted from scRGB's D65.
+    const std::array<double, 3> d50 = {0.3457 / 0.3585, 1.0, (1.0 - 0.3457 - 0.3585) / 0.3585};
+    static const Matrix3 toXyz = multiply(bradford(xyToXyz(kBt709.w), d50), rgbToXyz(kBt709));
+    const double xyz[3] = {toXyz[0] * r + toXyz[1] * g + toXyz[2] * b, toXyz[3] * r + toXyz[4] * g + toXyz[5] * b,
+                           toXyz[6] * r + toXyz[7] * g + toXyz[8] * b};
+    const auto f = [](double t) {
+        constexpr double e = 216.0 / 24389.0, k = 24389.0 / 27.0;
+        return t > e ? std::cbrt(t) : (k * t + 16.0) / 116.0;
+    };
+    const double fx = f(xyz[0] / d50[0]), fy = f(xyz[1] / d50[1]), fz = f(xyz[2] / d50[2]);
+    return {116.0 * fy - 16.0, 500.0 * (fx - fy), 200.0 * (fy - fz)};
+}
+
+Encoder::Encoder(const Descriptor &d, bool cmyk)
+{
+    if (cmyk)
+        return; // ink has no inverse here
+    if (d.source != Descriptor::Source::Icc) {
+        m_transfer = d.transfer;
+        m_gamma = d.gamma;
+        m_convertPrimaries = !samePrimaries(d.primaries, kBt709);
+        const Matrix3 fromScRgb = rgbToRgb(kBt709, d.primaries);
+        for (int i = 0; i < 9; ++i)
+            m_matrix[i] = float(fromScRgb[i]);
+        const Matrix3 xyz = rgbToXyz(d.primaries);
+        m_lumaWeights[0] = float(xyz[3]);
+        m_lumaWeights[1] = float(xyz[4]);
+        m_lumaWeights[2] = float(xyz[5]);
+        m_valid = true;
+        return;
+    }
+    // An ICC profile: only what Converter evaluates as curves and a matrix (initMatrixShaper()).
+    cmsHPROFILE profile = cmsOpenProfileFromMem(d.icc.constData(), cmsUInt32Number(d.icc.size()));
+    if (!profile)
+        return;
+    struct Close {
+        cmsHPROFILE p;
+        ~Close() { cmsCloseProfile(p); }
+    } close{profile};
+    if (cmsIsTag(profile, cmsSigDToB1Tag) || cmsIsTag(profile, cmsSigAToB1Tag) || cmsIsTag(profile, cmsSigAToB0Tag)
+        || !cmsIsMatrixShaper(profile))
+        return;
+    const cmsColorSpaceSignature space = cmsGetColorSpace(profile);
+    std::array<const cmsToneCurve *, 3> curves{};
+    if (space == cmsSigRgbData) {
+        const auto *r = static_cast<const cmsCIEXYZ *>(cmsReadTag(profile, cmsSigRedColorantTag));
+        const auto *g = static_cast<const cmsCIEXYZ *>(cmsReadTag(profile, cmsSigGreenColorantTag));
+        const auto *b = static_cast<const cmsCIEXYZ *>(cmsReadTag(profile, cmsSigBlueColorantTag));
+        curves = {static_cast<const cmsToneCurve *>(cmsReadTag(profile, cmsSigRedTRCTag)),
+                  static_cast<const cmsToneCurve *>(cmsReadTag(profile, cmsSigGreenTRCTag)),
+                  static_cast<const cmsToneCurve *>(cmsReadTag(profile, cmsSigBlueTRCTag))};
+        if (!r || !g || !b || !curves[0] || !curves[1] || !curves[2])
+            return;
+        const Matrix3 sourceToXyz = {r->X, g->X, b->X, r->Y, g->Y, b->Y, r->Z, g->Z, b->Z};
+        const Matrix3 bt709ToD50 = multiply(bradford(xyToXyz(kBt709.w), kD50), rgbToXyz(kBt709));
+        const Matrix3 m = multiply(inverse(sourceToXyz), bt709ToD50);
+        for (int i = 0; i < 9; ++i)
+            m_matrix[i] = float(m[i]);
+        m_convertPrimaries = true;
+    } else if (space == cmsSigGrayData) {
+        const auto *gray = static_cast<const cmsToneCurve *>(cmsReadTag(profile, cmsSigGrayTRCTag));
+        if (!gray)
+            return;
+        curves = {gray, gray, gray};
+        m_gray = true;
+    } else {
+        return;
+    }
+    for (std::size_t c = 0; c < 3; ++c) {
+        m_curves[c] = cmsReverseToneCurve(curves[c]);
+        if (!m_curves[c])
+            return;
+    }
+    m_transfer = Transfer::Linear; // the curves replace the analytic transfer
+    m_valid = true;
+}
+
+Encoder::~Encoder()
+{
+    for (void *curve : m_curves)
+        if (curve)
+            cmsFreeToneCurve(static_cast<cmsToneCurve *>(curve));
+}
+
+void Encoder::toSourcePrimaries(float *rgb) const
+{
+    if (m_gray) { // a gray source is its luminance
+        rgb[0] = rgb[1] = rgb[2] = luminance(rgb[0], rgb[1], rgb[2]);
+        return;
+    }
+    if (!m_convertPrimaries)
+        return;
+    const float *m = m_matrix;
+    const float r = rgb[0], g = rgb[1], b = rgb[2];
+    rgb[0] = m[0] * r + m[1] * g + m[2] * b;
+    rgb[1] = m[3] * r + m[4] * g + m[5] * b;
+    rgb[2] = m[6] * r + m[7] * g + m[8] * b;
+}
+
+float Encoder::encodeChannel(int channel, float v) const
+{
+    if (const void *curve = m_curves[std::size_t(channel)])
+        return cmsEvalToneCurveFloat(static_cast<const cmsToneCurve *>(curve), v);
+    switch (m_transfer) {
+    case Transfer::Linear: return v;
+    case Transfer::Srgb: return linearToSrgb(v);
+    case Transfer::Bt1886: return power(v, 1.0f / 2.4f);
+    case Transfer::Power: return power(v, 1.0f / m_gamma);
+    case Transfer::Pq: return nitsToPq(v * kSdrReferenceWhiteNits);
+    case Transfer::Hlg: return hlgOetf(v); // scene light: encode() undoes the OOTF first
+    }
+    return v;
+}
+
+void Encoder::encode(float *rgb) const
+{
+    toSourcePrimaries(rgb);
+    if (m_transfer == Transfer::Hlg) {
+        // The BT.2100 OOTF of Converter::apply() undone: display light (1.0 = 203 cd/m2) to scene light.
+        const float peak = kHlgNominalPeakNits;
+        const float gamma = 1.2f + 0.42f * std::log10(peak / 1000.0f);
+        const float yd = std::max(0.0f, m_lumaWeights[0] * rgb[0] + m_lumaWeights[1] * rgb[1] + m_lumaWeights[2] * rgb[2])
+                         * kSdrReferenceWhiteNits;
+        const float ys = std::pow(yd / peak, 1.0f / gamma);
+        const float k = ys > 0 ? kSdrReferenceWhiteNits / (peak * std::pow(ys, gamma - 1.0f)) : 0.0f;
+        for (int c = 0; c < 3; ++c)
+            rgb[c] = hlgOetf(rgb[c] * k);
+        return;
+    }
+    for (int c = 0; c < 3; ++c)
+        rgb[c] = encodeChannel(c, rgb[c]);
+}
+
 } // namespace color

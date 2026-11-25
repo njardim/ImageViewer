@@ -33,20 +33,45 @@ namespace {
 constexpr int kDefaultMaxTexture = 16384;
 constexpr double kMinZoom = 0.01;
 constexpr double kMaxZoom = 64.0;
-constexpr QSize kMinWindowSize(320, 240); // logical pixels; also when the window takes an image's size
 constexpr float kMaxExposureEv = 16.0f;
 constexpr int kFolderSettleMs = 300; // changes on disk come in bursts
 } // namespace
 
 ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     : m_renderer(this), m_settings(Settings::load()),
+      // A bar never hides from under the pointer, nor while a menu is open (D-65).
+      m_toolbarHide([this] {
+          return QApplication::activePopupWidget() || slideshowBarAt(mapFromGlobal(QCursor::pos(screen()))) != -1;
+      }),
+      m_mainToolbarHide([this] {
+          return QApplication::activePopupWidget() || m_mainToolbar.menuOpen()
+                 || mainToolbarAt(mapFromGlobal(QCursor::pos(screen()))) != -1;
+      }),
+      m_galleryHide([this] {
+          return QApplication::activePopupWidget() || m_gallery.contains(mapFromGlobal(QCursor::pos(screen())));
+      }),
+      m_overlayHide([this] {
+          // Over the top overlay, or in its band where it shows when the pointer is at the top.
+          const QPointF at = mapFromGlobal(QCursor::pos(screen()));
+          return QApplication::activePopupWidget() || (at.y() >= 0 && at.y() < topActivationHeight() && at.x() >= 0 && at.x() < width());
+      }),
+      m_panelHide([this] {
+          return QApplication::activePopupWidget() || m_histogramMenuOpen // its menu, drawn by us (D-117)
+                 || infoPanelRect().contains(mapFromGlobal(QCursor::pos(screen())) * devicePixelRatio());
+      }),
       m_details([](const VectorDetail &job, const std::atomic_bool *cancel) {
           return decodeVectorArea(job.path, job.scale, job.area, cancel);
       }),
       m_gallery(m_settings, m_files, [](const QString &path, int pixels, qint64 maxPixels) {
           // sRGB as on the clipboard; 8 bits, premultiplied in encoded values like every overlay texture.
           const Image image = decodeThumbnailImage(path, pixels, maxPixels);
-          return image.isValid() ? srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied) : QImage();
+          if (!image.isValid())
+              return QImage();
+          QImage thumbnail = srgbImage(image).convertToFormat(QImage::Format_RGBA8888_Premultiplied);
+          // The file's own size and colour space, for the gallery's tooltip (D-116).
+          thumbnail.setText(QStringLiteral("Size"), QStringLiteral("%1 %2").arg(image.sourceWidth).arg(image.sourceHeight));
+          thumbnail.setText(QStringLiteral("Color"), image.colour.description);
+          return thumbnail;
       })
 {
 #if defined(Q_OS_WIN)
@@ -116,17 +141,40 @@ ViewerWindow::ViewerWindow(QVulkanInstance *vulkan)
     m_frameTimer.setSingleShot(true);
     connect(&m_frameTimer, &QTimer::timeout, this, &ViewerWindow::frameTimeout);
     connect(&m_slideshow, &Slideshow::due, this, &ViewerWindow::slideshowDue);
-    m_toolbarTimer.setSingleShot(true);
-    connect(&m_toolbarTimer, &QTimer::timeout, this, [this] {
-        if (toolbarButtonAt(mapFromGlobal(QCursor::pos(screen()))) != ToolbarButton::None) {
-            m_toolbarTimer.start(); // never from under the pointer
-            return;
-        }
-        m_toolbarHidden = true;
-        setToolbarHover(ToolbarButton::None);
+    // What hides by itself gives its place to what is beside it (D-113): every place follows at the
+    // next frame (placeOverlays()).
+    connect(&m_toolbarHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
+        if (hidden)
+            setSlideshowBarHover(-1);
         updateSlideshowToolbar();
     });
+    connect(&m_mainToolbarHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
+        if (hidden) {
+            setMainToolbarHover(-1);
+            closeToolbarMenu();
+        }
+        updateMainToolbar();
+        requestUpdate();
+    });
+    connect(&m_galleryHide, &AutoHide::hiddenChanged, this, [this](bool hidden) {
+        if (hidden) {
+            m_gallery.setHover(-1);
+            hideTip(TipSource::Gallery);
+        }
+        requestUpdate();
+    });
+    connect(&m_overlayHide, &AutoHide::hiddenChanged, this, [this] { requestUpdate(); });
+    connect(&m_panelHide, &AutoHide::hiddenChanged, this, [this] { updateOverlay(); });
+    configureAutoHide();
+    // The pointer set at once: a window without one shows its parent's (X11's root has its own),
+    // and updateCursor() sets it only when the shape it wants changes.
+    setCursor(Qt::ArrowCursor);
+    m_tooltipTimer.setSingleShot(true);
+    connect(&m_tooltipTimer, &QTimer::timeout, this, &ViewerWindow::showPendingTip);
     connect(&m_copyWatcher, &QFutureWatcher<QImage>::finished, this, &ViewerWindow::imageCopied);
+    m_samplesPool.setMaxThreadCount(1);
+    connect(&m_samplesWatcher, &QFutureWatcher<std::shared_ptr<const FileSamples>>::finished, this,
+            &ViewerWindow::fileSamplesRead);
     connect(this, &QWindow::screenChanged, this, [this] {
         if (m_rendererReady)
             m_renderer.refreshOutput();
@@ -154,62 +202,7 @@ ViewerWindow::~ViewerWindow()
     m_copyWatcher.waitForFinished();
     m_frameWatcher.waitForFinished();
     m_framePool.waitForDone();
-}
-
-void ViewerWindow::showRestored(const SessionState &session)
-{
-    m_lastDirectory = session.lastDirectory;
-    QRect geometry = session.geometry;
-    bool placed = false;
-    if (m_settings.rememberGeometry && geometry.isValid()) {
-        // Only where a screen still shows a usable part of it (monitors change between
-        // sessions), and never larger than that screen (a hand-edited or corrupt value).
-        const QScreen *best = nullptr;
-        qint64 bestArea = 0;
-        for (const QScreen *screen : QGuiApplication::screens()) {
-            const QRect visible = screen->availableGeometry().intersected(geometry);
-            const qint64 area = qint64(visible.width()) * visible.height();
-            if (visible.width() >= 160 && visible.height() >= 120 && area > bestArea) {
-                best = screen;
-                bestArea = area;
-            }
-        }
-        if (best) {
-            const QRect available = best->availableGeometry();
-            geometry.setSize(geometry.size().boundedTo(available.size()));
-            geometry.moveLeft(std::clamp(geometry.left(), available.left(), available.right() - geometry.width() + 1));
-            geometry.moveTop(std::clamp(geometry.top(), available.top(), available.bottom() - geometry.height() + 1));
-            placed = true;
-        }
-    }
-    if (placed)
-        setGeometry(geometry);
-    else
-        resize(1280, 800);
-    m_normalGeometry = this->geometry();
-    m_maximizedBeforeFullScreen = session.maximized;
-    if (placed && session.fullScreen)
-        showFullScreen();
-    else if (placed && session.maximized)
-        showMaximized();
-    else
-        show();
-}
-
-void ViewerWindow::saveSession() const
-{
-    SessionState session;
-    session.geometry = m_normalGeometry.isValid() ? m_normalGeometry : geometry();
-    // Closed while minimized (from the taskbar or the Dock), it opens again as it was before.
-    Qt::WindowStates states = windowStates();
-    if (states.testFlag(Qt::WindowMinimized))
-        states |= m_statesBeforeMinimize;
-    const bool fullScreen = states.testFlag(Qt::WindowFullScreen);
-    session.fullScreen = fullScreen && !m_slideshowLeavesFullScreen; // the slideshow's own ends with it
-    session.maximized = fullScreen ? m_maximizedBeforeFullScreen : states.testFlag(Qt::WindowMaximized);
-    session.lastFile = m_image.path;
-    session.lastDirectory = m_lastDirectory;
-    session.save(); // preferences are saved when they change, never here (U2)
+    m_samplesWatcher.waitForFinished();
 }
 
 int ViewerWindow::textureLimit(const QString &path) const
@@ -255,9 +248,22 @@ bool ViewerWindow::event(QEvent *e)
         break;
     case QEvent::Leave:
         m_pointerTimer.stop();
+        if (std::exchange(m_pointerIn, false) && m_pickerOn)
+            requestUpdate(); // the loupe shows nothing under the pointer
+        if (m_picker.setHover(-1))
+            updatePicker();
         setHoverZone(Zone::None);
-        setToolbarHover(ToolbarButton::None);
+        setSlideshowBarHover(-1);
+        setMainToolbarHover(-1);
+        if (m_mainToolbar.setMenuHover(-1))
+            updateMainToolbar();
         m_gallery.setHover(-1);
+        m_tooltipTimer.stop();
+        hideTip(); // the pointer has left what the tooltip names
+        if (std::exchange(m_histogramChoiceHover, false))
+            updateOverlay();
+        if (std::exchange(m_histogramMenuHover, -1) != -1)
+            updateHistogramMenu();
         setPointerAtTop(false);
         break;
     case QEvent::WindowActivate:
@@ -340,6 +346,8 @@ void ViewerWindow::initializeRenderer()
 
 void ViewerWindow::resizeEvent(QResizeEvent *)
 {
+    hideTip(); // what it named has moved
+    windowChanged(); // the image glides from where it was on the screen, after full screen (D-114)
     if (windowStates() == Qt::WindowNoState)
         m_normalGeometry = geometry();
     // A fitting zoom follows the window: the image point at the centre stays there (a long page
@@ -507,31 +515,6 @@ bool ViewerWindow::canPan() const
     return image.width() > view.width() + 0.5 || image.height() > view.height() + 0.5;
 }
 
-void ViewerWindow::matchWindowToImage()
-{
-    QScreen *display = screen();
-    if (!display || m_image.width == 0 || (windowStates() & (Qt::WindowMaximized | Qt::WindowFullScreen)))
-        return;
-    // The image at 100 %, within the chosen share of the screen's free area (frame included).
-    const QRect available = display->availableGeometry();
-    const QMargins frame = frameMargins();
-    const QSizeF room = QSizeF(available.width() - frame.left() - frame.right(),
-                               available.height() - frame.top() - frame.bottom())
-                        * (m_settings.windowFitPercent / 100.0);
-    QSizeF size = displayedImageSize() * naturalZoom() / devicePixelRatio();
-    size *= std::min({1.0, room.width() / size.width(), room.height() / size.height()});
-    // Rounded up: at a fractional device pixel ratio the window must hold every image pixel.
-    const QSize logical(int(std::ceil(size.width() - 1e-6)), int(std::ceil(size.height() - 1e-6)));
-    QRect target(QPoint(), logical.expandedTo(kMinWindowSize).boundedTo(available.size()));
-    // Around the window's centre, moved back onto the screen where it would leave it.
-    target.moveCenter(geometry().center());
-    target.moveLeft(std::clamp(target.left(), available.left() + frame.left(),
-                               std::max(available.left() + frame.left(), available.right() - frame.right() - target.width() + 1)));
-    target.moveTop(std::clamp(target.top(), available.top() + frame.top(),
-                              std::max(available.top() + frame.top(), available.bottom() - frame.bottom() - target.height() + 1)));
-    setGeometry(target);
-}
-
 void ViewerWindow::clampPan()
 {
     const QSizeF image = displayedImageSize() * currentZoom(), view = deviceSize();
@@ -558,13 +541,12 @@ Renderer::Frame ViewerWindow::imageFrame() const
     frame.background[1] = float(m_settings.background.greenF());
     frame.background[2] = float(m_settings.background.blueF());
     frame.checkerboard = m_settings.checkerboard && m_image.hasAlpha;
-    if (frame.checkerboard) {
-        // The second colour is the background made lighter (dark backgrounds) or darker.
-        const float luma = 0.2126f * frame.background[0] + 0.7152f * frame.background[1] + 0.0722f * frame.background[2];
-        const float delta = luma < 0.5f ? 0.12f : -0.12f;
-        for (int c = 0; c < 3; ++c)
-            frame.checkerColour[c] = std::clamp(frame.background[c] + delta, 0.0f, 1.0f);
-    }
+    // The second colour is the background made lighter (dark backgrounds) or darker; the color
+    // picker's checks use it whether the checkerboard is on or not (D-115).
+    const float luma = 0.2126f * frame.background[0] + 0.7152f * frame.background[1] + 0.0722f * frame.background[2];
+    const float delta = luma < 0.5f ? 0.12f : -0.12f;
+    for (int c = 0; c < 3; ++c)
+        frame.checkerColour[c] = std::clamp(frame.background[c] + delta, 0.0f, 1.0f);
     return frame;
 }
 
@@ -580,9 +562,12 @@ void ViewerWindow::render()
             qCDebug(lcLatency) << "a frame took" << frameTime.elapsed() << "ms";
     });
     updateDetail();
+    // The toolbar's buttons follow every state they show (enabled, on, the slideshow's) at each
+    // frame: a few names and checks, its texture drawn again only when one changed.
+    updateMainToolbar();
     Renderer::Frame frame = imageFrame();
     if (m_image.width > 0) {
-        frame.imageRect = imageRect();
+        frame.imageRect = glidedImageRect(imageRect()); // imageRect() itself after a glide (D-114)
         frame.quarterTurns = m_quarterTurns;
         frame.mirrored = m_mirrored;
         const double zoom = currentZoom();
@@ -653,7 +638,11 @@ void ViewerWindow::recoverFromDeviceLoss()
         m_gallery.invalidate();
         m_panelKey.clear();
         m_messageKey.clear();
-        m_toolbarKey.clear();
+        m_slideshowBarTexture = 0;
+        m_mainToolbarTexture = 0;
+        m_pickerTexture = 0;
+        m_histogramMenuOpen = false; // its texture is gone with the others
+        m_toolbarMenuTexture = 0;
         updateOverlay();
         updateNavigationButtons();
         m_imageStale = true; // uploaded again from the cache, or decoded again
@@ -687,13 +676,15 @@ void ViewerWindow::applySettings(const Settings &settings)
     }
     if (settings.fontSize != previous.fontSize)
         applyFontSize(settings.fontSize); // the panels follow below: their keys hold the font
-    if (settings.pointerHideMs != previous.pointerHideMs)
+    if (settings.pointerAutoHide != previous.pointerAutoHide || settings.autoHideMs != previous.autoHideMs)
         pointerActive();
     if (settings.slideshowSeconds != previous.slideshowSeconds)
         m_slideshow.setInterval(int(std::lround(settings.slideshowSeconds * 1000))); // a running slideshow takes it at once
-    if (settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
-        || settings.slideshowToolbarHideMs != previous.slideshowToolbarHideMs)
-        showSlideshowToolbar();
+    if (settings.autoHideMs != previous.autoHideMs || settings.slideshowToolbarAutoHide != previous.slideshowToolbarAutoHide
+        || settings.toolbarAutoHide != previous.toolbarAutoHide || settings.galleryAutoHide != previous.galleryAutoHide
+        || settings.overlayAutoHide != previous.overlayAutoHide || settings.panelAutoHide != previous.panelAutoHide)
+        configureAutoHide(); // each shows at once, and hides again as now set
+    updateMainToolbar();
     m_renderer.setOutputPreference(settings.output);
     // The shown image takes a new zoom mode at once, unless its zoom is locked or was set by hand.
     if (settings.fitMode != previous.fitMode && m_fit && !settings.lockZoom)
@@ -763,45 +754,4 @@ void ViewerWindow::toggleInfo()
 {
     savePreference([on = !m_settings.showInfo](Settings &s) { s.showInfo = on; });
     updateOverlay();
-}
-
-void ViewerWindow::toggleFullScreen()
-{
-    if (visibility() == QWindow::FullScreen) {
-        leaveFullScreen();
-        return;
-    }
-    m_maximizedBeforeFullScreen = windowStates().testFlag(Qt::WindowMaximized);
-    showFullScreen();
-}
-
-void ViewerWindow::leaveFullScreen()
-{
-    m_slideshowLeavesFullScreen = false; // a full screen entered again later is the user's
-    if (m_maximizedBeforeFullScreen)
-        showMaximized();
-    else
-        showNormal();
-}
-
-void ViewerWindow::minimize()
-{
-    // Minimized on top of its other states, which are remembered: macOS must leave full screen to
-    // minimize, and gives back a normal window (returnFromMinimized).
-    m_statesBeforeMinimize = windowStates() & (Qt::WindowFullScreen | Qt::WindowMaximized);
-    setWindowStates(windowStates() | Qt::WindowMinimized);
-}
-
-void ViewerWindow::returnFromMinimized()
-{
-    if (windowStates().testFlag(Qt::WindowMinimized)) // minimized again meanwhile: it waits for that return
-        return;
-    // Where the platform gave back less (macOS: a normal window), the window takes its state again;
-    // m_maximizedBeforeFullScreen still says where leaving full screen goes.
-    const Qt::WindowStates before = std::exchange(m_statesBeforeMinimize, Qt::WindowNoState);
-    if (before.testFlag(Qt::WindowFullScreen) && !windowStates().testFlag(Qt::WindowFullScreen))
-        showFullScreen();
-    else if (before.testFlag(Qt::WindowMaximized) && windowStates() == Qt::WindowNoState)
-        showMaximized();
-    resumeOnScreen();
 }

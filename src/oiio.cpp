@@ -317,8 +317,14 @@ bool readOiio(std::unique_ptr<OIIO::ImageInput> in, qint64 maxPixels, Decoded *o
     // Within the limits checkDimensions() sets on the whole image, which is the one over a limit.
     if (reducePath && reduceSide > 0 && in->format_name() == std::string_view("jpeg") && out->sample == Sample::U8
         && !cmyk && alpha < 0 && depth == 1 && (nch == 1 || nch == 3) && w > 0 && h > 0 && qint64(w) * h <= kMaxPixels
-        && (maxPixels <= 0 || qint64(w) * h <= maxPixels))
+        && (maxPixels <= 0 || qint64(w) * h <= maxPixels)) {
+        const int fileWidth = w, fileHeight = h;
         out->data = readReducedJpeg(*reducePath, reduceSide, nch, &w, &h);
+        if (out->data && (w != fileWidth || h != fileHeight)) { // the gallery's tooltip gives the file's size (D-116)
+            out->fileWidth = fileWidth;
+            out->fileHeight = fileHeight;
+        }
+    }
     if (!out->data) {
         if (!checkDimensions(w, h, nch, readChannels * out->sampleBytes(), maxPixels, out, error, depth))
             return false;
@@ -492,6 +498,10 @@ bool decodeRawPreview(const QString &path, int side, qint64 maxPixels, Decoded *
     static constexpr int kExifOrientation[8] = {1, 2, 4, 3, 5, 8, 6, 7};
     const int flip = spec.get_int_attribute("raw:flip", 0);
     out->orientation = flip >= 0 && flip <= 7 ? kExifOrientation[flip] : 1;
+    // The developed image's size, which LibRaw has turned already, as the preview is stored (D-116).
+    const bool transposed = out->orientation >= 5;
+    out->fileWidth = transposed ? spec.height : spec.width;
+    out->fileHeight = transposed ? spec.width : spec.height;
     out->codec = QStringLiteral("OpenImageIO/raw (embedded preview)");
     out->camera = cameraFromOiio(spec);
     assumeDefault(false, &out->colour); // the camera's JPEG, in sRGB

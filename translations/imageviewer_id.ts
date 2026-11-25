@@ -17,6 +17,49 @@
     </message>
 </context>
 <context>
+    <name>ColorPicker</name>
+    <message>
+        <source>File</source>
+        <extracomment>The color picker: the value as the file stores it.</extracomment>
+        <translation>Berkas</translation>
+    </message>
+    <message>
+        <source>%1 (clipped to sRGB)</source>
+        <extracomment>The color picker: the sRGB values of a color sRGB cannot hold (wide gamut, or brighter than SDR white).</extracomment>
+        <translation>%1 (dipangkas ke sRGB)</translation>
+    </message>
+    <message>
+        <source>%1 (float)</source>
+        <extracomment>The color picker: a file&apos;s value as floating-point numbers, e.g. &quot;1.25, 0.5, 0 (float)&quot;.</extracomment>
+        <translation>%1 (titik mengambang)</translation>
+    </message>
+    <message>
+        <source>%1 (%2-bit)</source>
+        <extracomment>The color picker: a file&apos;s value as integer codes of %2 bits, e.g. &quot;1023, 512, 0 (10-bit)&quot;.</extracomment>
+        <translation>%1 (%2-bit)</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <extracomment>The color picker: the label of the luminance of an HDR colour.</extracomment>
+        <translation>Luminans</translation>
+    </message>
+    <message>
+        <source>%1 cd/m²</source>
+        <extracomment>The color picker: luminance in candelas per square metre (nits); keep &quot;cd/m²&quot;.</extracomment>
+        <translation>%1 cd/m²</translation>
+    </message>
+    <message>
+        <source>Pixel</source>
+        <extracomment>The color picker: the picked pixel&apos;s column and row in the image.</extracomment>
+        <translation>Piksel</translation>
+    </message>
+    <message>
+        <source>Click the image to pick a color.</source>
+        <extracomment>The color picker, before a color is picked.</extracomment>
+        <translation>Klik gambar untuk mengambil warna.</translation>
+    </message>
+</context>
+<context>
     <name>Image</name>
     <message>
         <source>image too large for the available memory (needs %1 GB, limit %2 GB)</source>
@@ -242,6 +285,32 @@
         <translation>Putih</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the red, green and blue channels.</extracomment>
+        <translation>Warna</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: the luminance alone.</extracomment>
+        <translation>Luminans</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <extracomment>The information panel&apos;s histogram: not shown.</extracomment>
+        <translation>Tidak ada</translation>
+    </message>
+    <message>
+        <source>Display the overlay:</source>
+        <translation>Tampilkan overlay:</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Bilah alat</translation>
+    </message>
+    <message>
         <source>Custom…</source>
         <translation>Kustom…</translation>
     </message>
@@ -256,10 +325,6 @@
     <message>
         <source>Confirm before moving an image to the trash</source>
         <translation>Konfirmasi sebelum memindahkan gambar ke Tong Sampah</translation>
-    </message>
-    <message>
-        <source>Show a checkerboard behind transparent areas</source>
-        <translation>Tampilkan pola papan catur di belakang area transparan</translation>
     </message>
     <message>
         <source>Window</source>
@@ -291,19 +356,6 @@
         <translation>Saat penunjuk berada di atas</translation>
     </message>
     <message>
-        <source>Never</source>
-        <extracomment>Shown instead of 0 s: the pointer never hides by itself.</extracomment>
-        <translation>Tidak pernah</translation>
-    </message>
-    <message>
-        <source>In full screen:</source>
-        <translation>Dalam layar penuh:</translation>
-    </message>
-    <message>
-        <source>In a window:</source>
-        <translation>Dalam jendela:</translation>
-    </message>
-    <message>
         <source>Fields</source>
         <translation>Bidang</translation>
     </message>
@@ -329,10 +381,6 @@
         <translation>Opasitas latar belakang:</translation>
     </message>
     <message>
-        <source>Text opacity:</source>
-        <translation>Opasitas teks:</translation>
-    </message>
-    <message>
         <source>Outline the text</source>
         <translation>Beri garis tepi pada teks</translation>
     </message>
@@ -340,6 +388,10 @@
         <source> s</source>
         <extracomment>Unit after a number of seconds; keep the leading space if your language separates units.</extracomment>
         <translation> detik</translation>
+    </message>
+    <message>
+        <source>Language and text</source>
+        <translation>Bahasa dan teks</translation>
     </message>
     <message>
         <source>Small</source>
@@ -361,8 +413,24 @@
         <translation>Ukuran huruf:</translation>
     </message>
     <message>
+        <source>Startup and files</source>
+        <translation>Mulai dan berkas</translation>
+    </message>
+    <message>
+        <source>Show the welcome screen at startup</source>
+        <translation>Tampilkan layar sambutan saat mulai</translation>
+    </message>
+    <message>
+        <source>Over the image</source>
+        <translation>Di atas gambar</translation>
+    </message>
+    <message>
         <source>Fit to the window</source>
         <translation>Sesuaikan dengan jendela</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation>Warna</translation>
     </message>
     <message>
         <source>Fit to the width</source>
@@ -387,6 +455,12 @@
     <message>
         <source>Enlarge images smaller than the window</source>
         <translation>Perbesar gambar yang lebih kecil dari jendela</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <comment>settings group</comment>
+        <extracomment>The group of the window&apos;s own options: its size, its position, its title bar.</extracomment>
+        <translation>Jendela</translation>
     </message>
     <message>
         <source>Keep its size</source>
@@ -434,20 +508,48 @@
         <translation>Bilah judul:</translation>
     </message>
     <message>
-        <source>Hide a still pointer after:</source>
-        <translation>Sembunyikan penunjuk yang diam setelah:</translation>
+        <source>The panels, the overlay, the gallery, the toolbars and the side buttons</source>
+        <translation>Panel, overlay, galeri, bilah alat, dan tombol samping</translation>
+    </message>
+    <message>
+        <source>Text and icon opacity:</source>
+        <translation>Opasitas teks dan ikon:</translation>
+    </message>
+    <message>
+        <source>Auto-hide the mouse pointer while it is still</source>
+        <translation>Sembunyikan penunjuk tetikus otomatis saat diam</translation>
+    </message>
+    <message>
+        <source>For everything set to auto-hide: the bars, the gallery, the overlay, the panel and the mouse pointer.</source>
+        <translation>Untuk semua yang disetel untuk disembunyikan otomatis: bilah, galeri, overlay, panel, dan penunjuk tetikus.</translation>
+    </message>
+    <message>
+        <source>Auto-hide elements after:</source>
+        <translation>Sembunyikan elemen otomatis setelah:</translation>
+    </message>
+    <message>
+        <source>Information panel</source>
+        <translation>Panel informasi</translation>
+    </message>
+    <message>
+        <source>Histogram:</source>
+        <translation>Histogram:</translation>
     </message>
     <message>
         <source>Overlay at the top</source>
         <translation>Overlay di bagian atas</translation>
     </message>
     <message>
-        <source>Hide after:</source>
-        <translation>Sembunyikan setelah:</translation>
-    </message>
-    <message>
         <source>Appearance of the panel and the overlay</source>
         <translation>Tampilan panel dan overlay</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information panel</source>
+        <translation>Sembunyikan panel informasi otomatis</translation>
+    </message>
+    <message>
+        <source>Auto-hide the information overlay</source>
+        <translation>Sembunyikan overlay informasi otomatis</translation>
     </message>
     <message>
         <source>Information</source>
@@ -466,8 +568,46 @@
         <translation>Klik sisi kiri atau kanan jendela untuk gambar sebelumnya atau berikutnya</translation>
     </message>
     <message>
-        <source>Hide the toolbar while the pointer is still</source>
-        <translation>Sembunyikan bilah alat saat penunjuk diam</translation>
+        <source>Show the toolbar</source>
+        <translation>Tampilkan bilah alat</translation>
+    </message>
+    <message>
+        <source>Show the names under the buttons</source>
+        <translation>Tampilkan nama di bawah tombol</translation>
+    </message>
+    <message>
+        <source>Auto-hide the toolbar</source>
+        <translation>Sembunyikan bilah alat otomatis</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>Tombol</translation>
+    </message>
+    <message>
+        <source>Add Separator</source>
+        <translation>Tambah Pemisah</translation>
+    </message>
+    <message>
+        <source>Remove Separator</source>
+        <translation>Hapus Pemisah</translation>
+    </message>
+    <message>
+        <source>Default Buttons</source>
+        <translation>Tombol Bawaan</translation>
+    </message>
+    <message>
+        <source>Settings and Quit always come last, in a group of their own.</source>
+        <translation>Pengaturan dan Keluar selalu berada di akhir, dalam kelompoknya sendiri.</translation>
+    </message>
+    <message>
+        <source>Separator (always)</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line above Settings and Quit, the group that always comes last.</extracomment>
+        <translation>Pemisah (selalu)</translation>
+    </message>
+    <message>
+        <source>Separator</source>
+        <extracomment>In the list of the toolbar&apos;s buttons: the line between two groups of buttons.</extracomment>
+        <translation>Pemisah</translation>
     </message>
     <message>
         <source>Small</source>
@@ -565,8 +705,16 @@
         <translation>Mulai tayangan slide dalam layar penuh</translation>
     </message>
     <message>
-        <source>Highlight pixels altered by clipping or tone mapping (magenta)</source>
-        <translation>Sorot piksel yang diubah oleh pemotongan atau pemetaan nada (magenta)</translation>
+        <source>Auto-hide the slideshow toolbar</source>
+        <translation>Sembunyikan bilah alat tayangan slide otomatis</translation>
+    </message>
+    <message>
+        <source>Show the image&apos;s tooltip information</source>
+        <translation>Tampilkan informasi gambar dalam tooltip</translation>
+    </message>
+    <message>
+        <source>Auto-hide the gallery</source>
+        <translation>Sembunyikan galeri otomatis</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -616,10 +764,6 @@
     <message>
         <source>Display output:</source>
         <translation>Keluaran layar:</translation>
-    </message>
-    <message>
-        <source>Tone map HDR images that exceed the display (ITU-R BT.2390)</source>
-        <translation>Terapkan pemetaan nada pada gambar HDR yang melebihi layar (ITU-R BT.2390)</translation>
     </message>
     <message>
         <source>Color &amp;&amp; HDR</source>
@@ -679,6 +823,26 @@
         <source>Slideshow (%1)</source>
         <extracomment>%1: the key that starts and stops the slideshow, e.g. &quot;S&quot;.</extracomment>
         <translation>Tayangan slide (%1)</translation>
+    </message>
+    <message>
+        <source>Toolbar (%1)</source>
+        <extracomment>%1: the key that shows and hides the toolbar, e.g. &quot;T&quot;.</extracomment>
+        <translation>Bilah alat (%1)</translation>
+    </message>
+    <message>
+        <source>Show a checkerboard behind transparent areas (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;B&quot;.</extracomment>
+        <translation>Tampilkan pola papan catur di belakang area transparan (%1)</translation>
+    </message>
+    <message>
+        <source>Tone map HDR images that exceed the display, ITU-R BT.2390 (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;Ctrl+T&quot;.</extracomment>
+        <translation>Terapkan pemetaan nada pada gambar HDR yang melebihi layar, ITU-R BT.2390 (%1)</translation>
+    </message>
+    <message>
+        <source>Highlight pixels altered by clipping or tone mapping in magenta (%1)</source>
+        <extracomment>%1: the keyboard shortcut, e.g. &quot;C&quot;.</extracomment>
+        <translation>Sorot dengan magenta piksel yang diubah oleh pemotongan atau pemetaan nada (%1)</translation>
     </message>
     <message>
         <source>Keep the zoom for the next images (%1)</source>
@@ -882,6 +1046,26 @@
         <translation>terpotong di atas %1 nits (pemetaan nada nonaktif)</translation>
     </message>
     <message>
+        <source>Colors</source>
+        <comment>histogram</comment>
+        <translation>Warna</translation>
+    </message>
+    <message>
+        <source>Luminance</source>
+        <comment>histogram</comment>
+        <translation>Luminans</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <comment>histogram</comment>
+        <translation>Tidak ada</translation>
+    </message>
+    <message>
+        <source>Histogram</source>
+        <extracomment>The information panel&apos;s row that chooses what its histogram shows.</extracomment>
+        <translation>Histogram</translation>
+    </message>
+    <message>
         <source>exposure %1 EV</source>
         <extracomment>The viewer&apos;s exposure adjustment in EV (photographic stops), e.g. &quot;exposure +1.5 EV&quot;.</extracomment>
         <translation>eksposur %1 EV</translation>
@@ -1067,12 +1251,16 @@
         <translation>Galeri</translation>
     </message>
     <message>
-        <source>Rotate Clockwise</source>
-        <translation>Putar Searah Jarum Jam</translation>
+        <source>Toolbar</source>
+        <translation>Bilah alat</translation>
     </message>
     <message>
-        <source>Rotate Counterclockwise</source>
-        <translation>Putar Berlawanan Arah Jarum Jam</translation>
+        <source>Rotate Right</source>
+        <translation>Putar ke Kanan</translation>
+    </message>
+    <message>
+        <source>Rotate Left</source>
+        <translation>Putar ke Kiri</translation>
     </message>
     <message>
         <source>Flip Horizontally</source>
@@ -1081,6 +1269,10 @@
     <message>
         <source>Flip Vertically</source>
         <translation>Cerminkan Vertikal</translation>
+    </message>
+    <message>
+        <source>Color Picker</source>
+        <translation>Pemilih Warna</translation>
     </message>
     <message>
         <source>Increase Exposure (+½ EV)</source>
@@ -1136,6 +1328,26 @@
     <message>
         <source>Open With</source>
         <translation>Buka Dengan</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <extracomment>The toolbar&apos;s button that ends the running slideshow.</extracomment>
+        <translation>Hentikan</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <extracomment>The toolbar&apos;s button that resumes the paused slideshow.</extracomment>
+        <translation>Putar</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <extracomment>The toolbar&apos;s &quot;…&quot; button, which holds the buttons a narrow window cannot show.</extracomment>
+        <translation>Lainnya</translation>
+    </message>
+    <message>
+        <source>%1 (%2)</source>
+        <extracomment>A toolbar button&apos;s tooltip: %1 its name, %2 its keyboard shortcut, e.g. &quot;Gallery (G)&quot;.</extracomment>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Cannot start “%1”.</source>
@@ -1331,6 +1543,16 @@
     <message>
         <source>Slideshow paused</source>
         <translation>Tayangan slide dijeda</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <extracomment>The color picker: the tooltip of a value, which a click copies.</extracomment>
+        <translation>Salin</translation>
+    </message>
+    <message>
+        <source>Copied: %1</source>
+        <extracomment>A notice: a color picker&apos;s value was copied, e.g. &quot;Copied: #F79134&quot;.</extracomment>
+        <translation>Disalin: %1</translation>
     </message>
 </context>
 </TS>

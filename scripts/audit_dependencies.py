@@ -67,13 +67,14 @@ import sys
 import tarfile
 import tempfile
 import traceback
+import urllib.parse
 import uuid
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from supply_chain import (  # noqa: E402  the shared ground (D-102)
-    PORTS, ROOT, RUST, Report, VULNERABILITY_ID, age_days, cooldown_days, cooldown_exceptions,
-    crate_date, crates, fetch, gm_releases, known_vulnerabilities, osv_crates, osv_lookup, read,
-    ref_date, release_tag, run, rust_version, tag_date,
+    CLONE_TIMEOUT_S, PORTS, ROOT, RUST, UNREACHABLE_ADVICE, HostUnreachable, Report, VULNERABILITY_ID, age_days, cooldown_days,
+    cooldown_exceptions, crate_date, crates, fetch, gm_releases, known_vulnerabilities, osv_crates,
+    osv_lookup, read, ref_date, release_tag, run, run_remote, rust_version, tag_date,
 )
 
 POLICY_DAYS = 12  # D-67, D-101; a cooldown below it is reported, and the weekly audit opens an issue
@@ -141,6 +142,17 @@ TARBALL_PORTS = {
     "graphicsmagick": ("hg", "https://foss.heptapod.net/graphicsmagick/graphicsmagick",
                        "GraphicsMagick-{v_}"),
 }
+# A Mercurial port's official servers, in the order tried; the project keeps the same stable
+# repository on both (www.graphicsmagick.org/Hg.html). foss.heptapod.net, behind a check for human
+# visitors, answered automated clients slowly or not at all on 2026-11-25 (an identify took 82 s, a
+# clone more than 45 minutes); SourceForge cloned 1.3.49 in 77 s, over http: its https asks for a
+# login. Which server gives the tag does not matter: its changeset is pinned in the port's portfile
+# (CHANGESET <node> # <tag>), the checkout must be that changeset, and Mercurial checks every
+# revision it receives against its hash. A new pin is confirmed over https (update_dependencies.py).
+HG_SERVERS = {
+    "graphicsmagick": ["http://hg.code.sf.net/p/graphicsmagick/code",
+                       "https://foss.heptapod.net/graphicsmagick/graphicsmagick"],
+}
 # Qt's modules in the packages, at packaging/qt-version.txt. qtsvg: the library alone, for the window
 # decoration Qt draws on GNOME under Wayland, in every package alike (D-90 (12)); never its plugins.
 QT_MODULES = ["qtbase", "qtsvg", "qtimageformats", "qtwayland"]
@@ -201,7 +213,7 @@ def release_tags(url, templates, name=""):
     patterns = [re.escape(t).replace(r"\{v\}", r"(\d+(?:\.\d+)*)").replace(r"\{v_\}", r"(\d+(?:_\d+)*)")
                 for t in templates.split("|")]
     tags = {}
-    for line in run("git", "ls-remote", "--tags", url).splitlines():
+    for line in run_remote("git", "ls-remote", "--tags", url, url=url).splitlines():
         commit, ref = line.split("\t")
         tag = ref.removeprefix("refs/tags/").removesuffix("^{}")
         for pattern in patterns:
@@ -531,8 +543,54 @@ def same_file(a, b):
     return filecmp.cmp(a, b, shallow=False)
 
 
-def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
-    """True when every file of the tarball is the repository's at the tag (or listed as generated)."""
+class SourceRefused(ValueError):
+    """A tag that is not the changeset pinned for it, or a pin that is missing or of another tag:
+    the source check refuses the release with the reason (a mismatch, not a host to try again)."""
+
+
+def pinned_changeset(port, tag):
+    """The Mercurial changeset a port's portfile pins for `tag` (CHANGESET <node> # <tag>)."""
+    match = re.search(r"CHANGESET ([0-9a-f]{40}) # (\S+)", read(os.path.join(PORTS, port, "portfile.cmake")))
+    if not match:
+        raise SourceRefused(f"packaging/vcpkg/ports/{port}/portfile.cmake pins no CHANGESET for {tag}: "
+                         f"scripts/update_dependencies.py writes it with the version (D-121)")
+    if match.group(2) != tag:
+        raise SourceRefused(f"packaging/vcpkg/ports/{port}/portfile.cmake pins the changeset of {match.group(2)}, "
+                         f"not of {tag}, the tag of the version it builds")
+    return match.group(1)
+
+
+def hg_checkout(port, tag, checkout, changeset):
+    """(changeset, server) of `tag` cloned into `checkout` from the first of the port's official
+    servers that gives it; with `changeset`, the checkout must be it (SourceRefused otherwise: a moved
+    tag, or a server that is not the project's). HostUnreachable when none gives it."""
+    problems = []
+    for server in HG_SERVERS[port]:
+        try:
+            run_remote("hg", "clone", "--quiet", "--updaterev", tag, server, checkout,
+                       url=server, timeout=CLONE_TIMEOUT_S, dest=checkout)
+        except HostUnreachable as error:
+            problems.append(str(error).replace(" " + UNREACHABLE_ADVICE, ""))
+            continue
+        except subprocess.CalledProcessError as error:  # an answer, but no clone (SourceForge's load balancer)
+            said = (error.stderr or "").strip().splitlines()
+            problems.append(f"{urllib.parse.urlsplit(server).hostname} refused \"hg clone\" of {server} at {tag}"
+                            f" ({said[-1] if said else f'exit {error.returncode}'}).")
+            continue
+        node = run("hg", "log", "-r", ".", "-T", "{node}", cwd=checkout).strip()
+        if changeset and node != changeset:
+            raise SourceRefused(f"{port}: the tag {tag} is changeset {node} on {server}, not the pinned {changeset}: "
+                             f"the tag moved, or the server does not serve the project's repository. Compare "
+                             f"the two before trusting either.")
+        return node, server
+    raise HostUnreachable(f"No official server of {port} gave its tag {tag}. " + " ".join(problems) + " " +
+                          UNREACHABLE_ADVICE)
+
+
+def compare_tarball(port, version, url, sha512, kind, repo, tag, report, changeset=None):
+    """True when every file of the tarball is the repository's at the tag (or listed as generated).
+    A Mercurial port's tag comes from its official servers (HG_SERVERS) and must be `changeset`
+    when one is given; the changeset compared with is left in report.changeset."""
     with tempfile.TemporaryDirectory() as work:
         archive = os.path.join(work, os.path.basename(url))
         with open(archive, "wb") as f:
@@ -546,10 +604,13 @@ def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
         roots = os.listdir(unpacked)
         tarball = os.path.join(unpacked, roots[0]) if len(roots) == 1 else unpacked
         checkout = os.path.join(work, "repository")
+        where = ""
         if kind == "git":
-            run("git", "clone", "--quiet", "--depth", "1", "--branch", tag, repo, checkout)
+            run_remote("git", "clone", "--quiet", "--depth", "1", "--branch", tag, repo, checkout,
+                       url=repo, timeout=CLONE_TIMEOUT_S, dest=checkout)
         else:
-            run("hg", "clone", "--quiet", "--updaterev", tag, repo, checkout)
+            report.changeset, server = hg_checkout(port, tag, checkout, changeset)
+            where = f" ({report.changeset[:12]}, {urllib.parse.urlsplit(server).hostname})"
         ours, theirs = tree_files(tarball), tree_files(checkout)
         extra = sorted(set(ours) - set(theirs))
         changed = sorted(p for p in set(ours) & set(theirs) if not same_file(ours[p], theirs[p]))
@@ -568,7 +629,7 @@ def compare_tarball(port, version, url, sha512, kind, repo, tag, report):
                                 f"release; allow a file in the script only when our build regenerates it.")
             report.rows.append(f"| {port} | {version} | tarball vs `{tag}` | **{len(unexplained)} file(s) differ** |")
             return False
-        report.rows.append(f"| {port} | {version} | tarball vs `{tag}` | identical ({len(ours)} files"
+        report.rows.append(f"| {port} | {version} | tarball vs `{tag}`{where} | identical ({len(ours)} files"
                            f"{f', {len(extra) + len(changed)} generated' if extra or changed else ''}) |")
         return True
 
@@ -577,10 +638,22 @@ def sources(baseline_commit, baseline, report):
     ok = True
     checks = [(port, overlay_version(port), kind, repo, template) for port, (kind, repo, template) in TARBALL_PORTS.items()]
     checks.append(("giflib", baseline["giflib"], "git", BASELINE_PORTS["giflib"][0], BASELINE_PORTS["giflib"][1]))
+    unanswered = []
     for port, version, kind, repo, template in checks:
-        url, sha512 = tarball_source(port, version, baseline_commit)
-        tag = release_tag(repo, template, version)[0] if kind == "git" else template.format(v_=version.replace(".", "_"))
-        ok = compare_tarball(port, version, url, sha512, kind, repo, tag, report) and ok
+        try:
+            url, sha512 = tarball_source(port, version, baseline_commit)
+            tag = release_tag(repo, template, version)[0] if kind == "git" else template.format(v_=version.replace(".", "_"))
+            changeset = pinned_changeset(port, tag) if kind == "hg" else None
+            ok = compare_tarball(port, version, url, sha512, kind, repo, tag, report, changeset) and ok
+        except HostUnreachable as error:  # the next library's host may answer (D-121)
+            report.rows.append(f"| {port} | {version} | tarball vs its tag | **not compared**: its host did not answer |")
+            unanswered.append(error)
+        except SourceRefused as error:
+            report.rows.append(f"| {port} | {version} | tarball vs its tag | **refused**: not the pinned changeset |")
+            report.notes.append(f"**{error}**")
+            ok = False
+    if unanswered:  # the check could not run whole: never a pass
+        raise HostUnreachable(" ".join(str(error) for error in unanswered))
     return ok
 
 
@@ -742,6 +815,10 @@ def main():
         except Exception as error:  # a check that cannot run is never a pass; the others still run
             flags["failed"] = True
             report.notes.append(f"**This check could not run**: {error}")
+            if os.environ.get("GITHUB_ACTIONS") == "true":  # the reason on the run's page, not only in its summary
+                message = f"{title}: could not run. {error}"
+                print("::error title=Supply-chain audit::" +
+                      message.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A"), flush=True)
         out += [f"## {title}", "", *(header + report.rows if report.rows else []), "",
                 *[f"- {n}" for n in report.notes or ["nothing to report"]], ""]
     status = 1 if any(flags[k] for k in ("actionable", "unassessed", "mismatch", "unaudited", "young")) else 0

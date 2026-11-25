@@ -66,6 +66,11 @@ public:
         ToolbarLayer, ToolbarMenuLayer, HistogramMenuLayer, MessageLayer, TooltipLayer,
         OverlayLayerCount // twelve: the shaders' layers[] and overlay samplers follow
     };
+    // image.frag samples the image, each overlay layer and the zoom's detail (bindings 1 to
+    // 2 + OverlayLayerCount): Direct3D 11 and Metal give a shader stage 16 samplers, as many as
+    // Vulkan promises at least. Fourteen now: a layer beyond two more needs another way to draw.
+    static constexpr int kSamplersPerStage = 16;
+    static_assert(1 + OverlayLayerCount + 1 <= kSamplersPerStage, "image.frag's samplers must fit one shader stage");
 
     // Swapchain choice; IMAGEVIEWER_OUTPUT=sdr|hdr10 still overrides it (tests, diagnosis).
     enum class OutputPreference { Automatic, Sdr, Hdr10 };

@@ -524,8 +524,9 @@ void ViewerWindow::pickAt(const QPointF &position)
     for (int c = 0; c < 3; ++c)
         sample.rgb[c] = sample.alpha > 0.0f ? float(p[c]) / sample.alpha : 0.0f;
     // In the file's own pixels: the texture may be smaller (reduced for the GPU) or an SVG drawn at a scale.
-    const double scale = sourceScale();
-    sample.position = QPoint(int((texel->x() + 0.5) * scale), int((texel->y() + 0.5) * scale));
+    sample.position = ColorPicker::filePixel(*texel, QSize(m_image.width, m_image.height),
+                                             QSize(m_image.sourceWidth, m_image.sourceHeight),
+                                             m_image.vector && m_image.documentScale > 0.0 ? sourceScale() : 0.0);
     m_picker.pick(sample, pickerSource(), QLocale());
     m_pickPath = m_image.path;
     QStringList values;

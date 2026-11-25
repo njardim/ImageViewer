@@ -22,6 +22,7 @@
 #include <QLocale>
 #include <QPoint>
 #include <QRectF>
+#include <QSize>
 #include <QSizeF>
 #include <QString>
 
@@ -75,6 +76,10 @@ public:
     static constexpr double kPadding = 10.0;
     static constexpr double kGap = 10.0;     // between the loupe, the swatches and the values
 
+    // The file's pixel a texel of the image shown stands for, at the texel's centre and within the
+    // file: the texture may be smaller than the file (reduced for the GPU, each axis by its own
+    // ratio) or, with a `vectorScale` (file pixels per texel), an SVG drawn at a scale.
+    static QPoint filePixel(QPoint texel, QSize texture, QSize source, double vectorScale = 0.0);
     // Whether the file stores 8-bit sRGB: its values are the RGB row's.
     static bool storesSrgb8(const Source &source);
     // Whether the file stores other values than the sRGB ones shown: a row for them.

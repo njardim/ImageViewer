@@ -23,9 +23,14 @@ quint16 halfBits(float v)
 
 int binOf(double signal)
 {
-    if (!(signal >= 0.0)) // negative, or NaN
+    // Below the axis, or NaN, the first bin; past it the last. Never rounded first: std::lround of a
+    // value no long holds (infinity, a file's 1e30) is unspecified, and where a long has 32 bits
+    // (Windows) it gave a negative bin.
+    if (!(signal > 0.0))
         return 0;
-    return int(std::min(std::lround(signal * (Histogram::kBins - 1)), long(Histogram::kBins - 1)));
+    if (signal >= 1.0)
+        return Histogram::kBins - 1;
+    return int(std::lround(signal * (Histogram::kBins - 1)));
 }
 
 } // namespace

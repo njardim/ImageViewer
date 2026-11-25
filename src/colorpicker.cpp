@@ -60,6 +60,16 @@ int percent(double v)
 
 } // namespace
 
+QPoint ColorPicker::filePixel(QPoint texel, QSize texture, QSize source, double vectorScale)
+{
+    const auto axis = [vectorScale](int t, int shown, int file) {
+        const double scale = vectorScale > 0.0 ? vectorScale : shown > 0 && file > 0 ? double(file) / shown : 1.0;
+        const int p = int((t + 0.5) * scale);
+        return file > 0 ? std::clamp(p, 0, file - 1) : std::max(p, 0);
+    };
+    return QPoint(axis(texel.x(), texture.width(), source.width()), axis(texel.y(), texture.height(), source.height()));
+}
+
 bool ColorPicker::storesSrgb8(const Source &source)
 {
     const color::Descriptor &cd = source.colour;

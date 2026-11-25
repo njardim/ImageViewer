@@ -26,6 +26,7 @@
 #include <QWaitCondition>
 
 #include <atomic>
+#include <limits>
 #include <memory>
 
 namespace {
@@ -957,6 +958,26 @@ private Q_SLOTS:
         QCOMPARE(other.bins[Histogram::Green][128], quint32(4));
     }
 
+    void theHistogramCountsAFilesFloatsWhateverTheyHold()
+    {
+        // Floats as a file stores them (an sRGB-encoded float TIFF or JPEG XL): past the axis the last
+        // bin, below it or NaN the first; no value outside a long, nor infinity, is rounded into a bin
+        // (on Windows, where a long has 32 bits, that gave a negative one).
+        const HistogramCounter counter(analytic(color::kBt709, color::Transfer::Srgb), false, 0);
+        const float signal[] = {std::numeric_limits<float>::infinity(), 1e30f, 0.5f, 1.0f,
+                                -1e30f, std::numeric_limits<float>::quiet_NaN(), 0.25f, 1.0f,
+                                3e9f, 8.5e6f, 1.0f, 1.0f};
+        Histogram h = counter.empty();
+        counter.countSignal(signal, 3, &h);
+        QCOMPARE(h.bins[Histogram::Red][255], quint32(2));   // infinity, 3e9
+        QCOMPARE(h.bins[Histogram::Green][255], quint32(2)); // 1e30, 8.5e6
+        QCOMPARE(h.bins[Histogram::Blue][128], quint32(1));  // 0.5: 127.5 rounded away from zero
+        QCOMPARE(h.bins[Histogram::Red][0], quint32(1));     // -1e30
+        QCOMPARE(h.bins[Histogram::Green][0], quint32(1));   // NaN
+        QCOMPARE(h.bins[Histogram::Blue][64], quint32(1));   // 0.25
+        QCOMPARE(h.bins[Histogram::Blue][255], quint32(1));  // 1.0
+    }
+
     void theHistogramsAxes()
     {
         // Narrow range: black and white at the axis' ends.
@@ -986,6 +1007,19 @@ private Q_SLOTS:
         QCOMPARE(f.bins[Histogram::Luminance][std::size_t(bin)], quint32(1));
         // CMYK: the converted colours on the sRGB curve.
         QCOMPARE(HistogramCounter(color::Descriptor(), true, 8).empty().axis, QStringLiteral("sRGB"));
+    }
+
+    void thePickersFilePixel()
+    {
+        // A texel stands for the file's pixel under its centre, each axis by its own ratio, within
+        // the file: a 16386 × 3 image reduced for a 16384 texture is 8193 × 2, and its last texel
+        // row is the file's row 2 (the width's ratio, 2, gave row 3, outside a 3-row file).
+        QCOMPARE(ColorPicker::filePixel({8192, 1}, {8193, 2}, {16386, 3}), QPoint(16385, 2));
+        QCOMPARE(ColorPicker::filePixel({0, 0}, {8193, 2}, {16386, 3}), QPoint(1, 0));
+        QCOMPARE(ColorPicker::filePixel({4, 7}, {640, 480}, {640, 480}), QPoint(4, 7)); // not reduced
+        // An SVG drawn at a scale: so many document pixels a texel, within the document.
+        QCOMPARE(ColorPicker::filePixel({199, 99}, {200, 100}, {100, 50}, 0.5), QPoint(99, 49));
+        QCOMPARE(ColorPicker::filePixel({100, 50}, {200, 100}, {100, 50}, 0.5), QPoint(50, 25));
     }
 
     void thePickersValues()

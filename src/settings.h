@@ -108,7 +108,7 @@ struct Settings {
     int galleryThumbnailSize = 96;    // logical pixels, one of kGalleryThumbnailSizes (D-63)
     bool galleryZoom = false;         // the thumbnail under the pointer enlarges
     int galleryEnlargement = 50;      // logical pixels added to the thumbnail under the pointer
-    // Toolbar (D-87, D-112): off by default, the screen is not meant to be full of controls.
+    // Toolbar (D-87, D-112).
     bool showToolbar = true;          // a toggle, T; on at first, with the gallery (the owner, D-114)
     bool toolbarNames = true;         // each button's name under it
     bool toolbarAutoHide = false;     // it hides while the pointer is still; the user opts in

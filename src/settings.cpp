@@ -116,8 +116,14 @@ QStringList Settings::normalizedToolbar(const QStringList &buttons)
 {
     const QString separator(kToolbarSeparator);
     const QStringList last = finalToolbarGroup();
+    // Each command once, a separator between two: far fewer than this. A longer list is a damaged
+    // or hand-made file, whose names, each checked against those kept, would take the square of its
+    // length (50,000 names: 22 s before the window opened).
+    constexpr qsizetype kMaxEntries = 256;
     QStringList result, ending;
     for (const QString &name : buttons) {
+        if (result.size() + ending.size() >= kMaxEntries)
+            break;
         const bool word = !name.isEmpty() && std::all_of(name.cbegin(), name.cend(), [](QChar c) {
             return (c >= QLatin1Char('A') && c <= QLatin1Char('Z')) || (c >= QLatin1Char('a') && c <= QLatin1Char('z'));
         });

@@ -7,9 +7,9 @@
 - **One conversion, done right.** Each image is converted once, from its own color description (ICC v2/v4 profile, CICP code points or EXR chromaticities), into a linear wide-gamut working space at 16-bit floating point. Nothing is quantized below that before the display; wide-gamut colors are kept, not clipped to sRGB.
 - **Real HDR.** Where the system has an HDR output (scRGB on Windows, EDR on macOS, HDR10), ImageViewer uses it: PQ content keeps its absolute luminance, HLG gets the BT.2100 system gamma. Highlights brighter than the display are tone mapped with ITU-R BT.2390, or clipped on request, and the viewer always says which; it can mark every pixel it had to alter.
 - **Professional formats.** 134 file name extensions, recognized by their content rather than their name: JPEG, JPEG XL, PNG, TIFF, WebP, AVIF, OpenEXR, DPX, Cineon, Radiance HDR, camera RAW, and a long tail read in a separate process so that a damaged file cannot take the viewer down.
-- **Out of the way.** The image fills the window; the rest is a key, a click on the window's sides, the gallery or the right-click menu away, in 37 languages.
+- **Out of the way.** The image fills the window; the rest is a key, a click on the window's sides, the toolbar, the gallery or the right-click menu away, in 37 languages.
 
-> Status: **0.9**. The color pipeline, HDR output, format coverage and the viewer are in place and tested on every build; installers, signed packages and a pixel value readout come next. The [plan](docs/PLAN.md) has the details.
+> Status: **1.1**. The color pipeline, HDR output, format coverage and the viewer are in place and tested on every build; 1.1 adds a toolbar, a color picker and a histogram. Installers and signed packages come next. The [plan](docs/PLAN.md) has the details.
 
 ## Download
 
@@ -34,9 +34,12 @@ The packages are **not signed yet**:
 - **Formats:** JPEG, JPEG XL, PNG and APNG, TIFF, WebP, AVIF, GIF, JPEG 2000, OpenEXR, DPX, Cineon, PFM, Radiance HDR, BMP, TGA, PSD (composite), DDS, FITS, camera RAW (LibRaw) and more. GIMP XCF, PCX, Apple PICT, MIFF, DICOM and other rare formats are read by GraphicsMagick in a separate process with a list of allowed decoders, limits and a time-out. SVG and SVGZ are drawn by resvg, in a separate process too, with filters, masks, clip paths, CSS and text, and nothing outside the file is ever read. *Settings → Image Formats* (or `ImageViewer --formats`) lists every extension with its decoder and version. HEIC is decoded by the operating system (macOS; Windows with Microsoft's HEIF and HEVC extensions); ImageViewer ships no HEVC decoder.
 - **Animation:** GIF, WebP, APNG, JPEG XL and AVIF sequences play with their own timing and loop count; pause and step frame by frame.
 - **Viewing:** zoom at the cursor and an exact 100 % (one image pixel per screen pixel); fit to the window, its width or its height, fill it, or actual size, a mode that stays for the next images, and Lock Zoom to keep any zoom; rotate and mirror; full screen; a checkerboard behind transparent areas; the window can take the size of the image.
-- **Gallery:** the folder's thumbnails along the bottom (G; a camera RAW file's from the preview the camera embedded), small, medium or large, optionally the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls.
-- **Slideshow:** through the folder at the pace you set, optionally in full screen, with its own toolbar (stop, pause and play) that can hide while the pointer is still.
-- **Information:** a compact line at the top (I) with the fields you choose; a panel (P) with everything about the file, the image, its color, its peak luminance, the camera (EXIF), the view and the output; neither ever moves the image, and both stay legible over any image, in SDR and HDR.
+- **Toolbar:** at the top of the window (T), an icon for every command, optionally named, with a tooltip giving its shortcut; the buttons chosen and ordered in *Settings → Toolbar*, those a narrow window cannot hold under "…".
+- **Gallery:** the folder's thumbnails along the bottom (G; a camera RAW file's from the preview the camera embedded), small, medium or large, optionally the one under the pointer enlarged, the current one on a highlight color of your choice; a click shows an image, the wheel scrolls, and a thumbnail's tooltip gives its file's facts.
+- **Slideshow:** through the folder at the pace you set, optionally in full screen; stop, pause and play on the toolbar, or on a toolbar of their own when the toolbar does not hold the slideshow's button.
+- **Color picker:** a mode (K) in which a click picks the pixel under the pointer, with a loupe and swatches drawn from the image itself, exact in SDR, HDR and wide gamut; its values in HEX, RGB, HSL, HSV and CMYK (sRGB) and CIE Lab, the value stored in the file, read again from the file itself, and the luminance in cd/m² of an HDR image; a click copies any of them.
+- **Information:** a compact line at the top (I) with the fields you choose; a panel (P) with everything about the file, the image, its color, its peak luminance, the camera (EXIF), the view and the output, and at its top a histogram of the colors or the luminance on the image's own signal scale (sRGB, Display P3, PQ or HLG), counted from the decoder's own samples; neither ever moves the image, and both stay legible over any image, in SDR and HDR.
+- **Auto-hide:** the toolbars, the gallery, the information overlay and the panel can each hide while the pointer is still, and the pointer itself too; what hides gives up its space.
 - **Navigation:** folders sorted by name (natural order), date or size; previous and next by keyboard, mouse side buttons or the window's sides; the neighbours loaded in advance; the folder watched, so files changed by other programs show up at once; optional looping.
 - **Files:** copy the image (16-bit) or its path, rename, move to the trash and undo, delete permanently, recent files, show in the file manager, open with another application.
 - **Settings:** with Apply, for everything above, including every keyboard shortcut and the size of the interface's text.
@@ -55,23 +58,26 @@ The packages are **not signed yet**:
 | 0 / 1 | Fit to window / actual size (100 %) |
 | W / H | Fit to width / height |
 | X | Fill the window |
+| T | Toolbar at the top |
 | G | Gallery: the folder's thumbnails at the bottom |
 | Z | Lock the zoom for the next images |
 | F, F11, double-click | Full screen |
-| R / Shift+R | Rotate clockwise / counterclockwise |
+| R / Shift+R | Rotate right (clockwise) / left (counterclockwise) |
 | Shift+W / Shift+H | Mirror horizontally / vertically |
 | I / P | Information overlay at the top / information panel |
+| K | Color picker: a click picks the pixel under the pointer, Esc leaves it |
 | B | Checkerboard behind transparent areas |
 | Space / Ctrl+← / Ctrl+→ (⌘ on macOS) | Pause the running slideshow, otherwise the animation / previous frame / next frame |
-| S / Esc | Start or stop the slideshow / stop it (or its toolbar's buttons) |
+| S / Esc | Start or stop the slideshow / stop it (or its buttons on the toolbar) |
 | E / Shift+E / Ctrl+E | Exposure +½ / −½ EV / reset |
-| T | Tone mapping on/off (off: clip at the display's peak) |
+| Ctrl+T | Tone mapping on/off (off: clip at the display's peak) |
 | C | Highlight altered (clipped or tone-mapped) pixels |
 | Ctrl+C / Ctrl+Shift+C | Copy image / copy file path |
 | F2 or Return | Rename |
 | Delete (⌘⌫ on macOS) / Ctrl+Z | Move to the trash / undo |
 | Shift+Delete (⌘⇧⌫ on macOS) | Delete permanently |
 | O / Shift+O | Open a file / open it with another application |
+| Ctrl+Shift+E | Show the file in the file manager |
 | M | Minimize the window |
 | Ctrl+, | Settings |
 | V | About ImageViewer |
@@ -88,7 +94,7 @@ Every change is built and tested on Windows, macOS and Linux; the on-screen and 
 - **On screen:** an 8-bit image shown at 100 % must be identical to the file, bit for bit.
 - **Decoding:** a Display P3 red keeps its value outside sRGB, an EXR its values above SDR white, a 16-bit JPEG XL all 16 bits; every format with a test file decodes it exactly; every frame of the test animations has the right color and duration. The same tests run again on the packaged application on a clean machine.
 - **Damaged files:** every test file, corrupted a dozen ways, must decode or fail cleanly within a time limit.
-- **Interaction:** a simulated user clicks the window's sides, flips and rotates the image (compared pixel for pixel), uses the trash and its undo, renames, deletes, watches files change underneath, uses the gallery, the slideshow and its toolbar, the zoom modes and the settings, and quits with the session saved. On macOS, quitting from the application menu is tested too.
+- **Interaction:** a simulated user clicks the window's sides, flips and rotates the image (compared pixel for pixel), uses the trash and its undo, renames, deletes, watches files change underneath, uses the gallery, the slideshow and its toolbar, the toolbar, the color picker, the histogram, the zoom modes and the settings, and quits with the session saved. On macOS, quitting from the application menu is tested too.
 
 [`docs/PLAN.md`](docs/PLAN.md) lists the fidelity criteria (§7), the decisions behind them (§2) and the test results (§1).
 

@@ -124,7 +124,7 @@ Every file is treated as hostile input. Dependencies are audited against known v
 the exact commit they are built from, release archives are checked against their source
 repository, a new release of a library is taken only after a 12-day cooldown, and every release
 carries attested provenance and a bill of materials for each package. To report a
-vulnerability, see [`SECURITY.md`](SECURITY.md) (privately, never in a public issue).
+vulnerability, see [`SECURITY.md`](SECURITY.md).
 
 ## Contributing
 
